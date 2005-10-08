@@ -185,7 +185,5 @@ Scene::render (const Intersect &isec)
   else
     return Color::black;
 }
-    
-
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558

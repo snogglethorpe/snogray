@@ -23,8 +23,8 @@ CXXFLAGS = $(CFLAGS)
 LDFLAGS = $(PG) $(MUDFLAP)
 
 HOST_CFLAGS_dhapc248.dev.necel.com = $(ARCH_CFLAGS_pentium4)
-ARCH_CFLAGS_pentium3 = -march=pentium3 -fomit-frame-pointer -mfpmath=sse
-ARCH_CFLAGS_pentium4 = -march=pentium4 -fomit-frame-pointer
+ARCH_CFLAGS_pentium3 = -march=pentium3 -fomit-frame-pointer -mfpmath=sse -msse
+ARCH_CFLAGS_pentium4 = -march=pentium4 -fomit-frame-pointer -mfpmath=sse -msse2
 ARCH_CFLAGS_i686 = $(ARCH_CFLAGS_pentium3)
 
 HOST := $(shell hostname)

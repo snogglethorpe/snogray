@@ -15,6 +15,74 @@
 #include "image.h"
 #include "cmdlineparser.h"
 
+// The following macros can be used in defining option parsers.
+
+// Image input options
+//
+#define IMAGE_INPUT_OPTIONS_HELP "\
+ Input options:\n\
+  -I, --input-format=FMT     Input image format FMT (one of: exr, png, jpeg)"
+//
+#define IMAGE_INPUT_SHORT_OPTIONS "I:"
+//
+#define IMAGE_INPUT_LONG_OPTIONS			\
+ { "input-format",	required_argument, 0, 'I' }
+//
+#define IMAGE_INPUT_OPTION_CASES(clp, params)	\
+  case 'I':					\
+    params.format = clp.opt_arg ();		\
+    break;
+
+// Image output options
+//
+#define IMAGE_OUTPUT_OPTIONS_HELP "\
+ Output options:\n\
+  -O, --output-format=FMT    Output image format FMT (one of: exr, png, jpeg)\n\
+  -g, --gamma=GAMMA          Do gamma correction for a target display\n\
+                             gamma of GAMMA (default: 2.2, for output\n\
+                             formats that need gamma-correction)\n\
+  -Q, --quality=PERCENT	     Set output quality, for formats that support it\n\
+                             (range: 0-100; default 98)\n\
+\n\
+ Anti-aliasing:\n\
+  -a, --aa-factor=N          Use NxN input pixels to compute each output pixel\n\
+  -A, --aa-overlap=M         Include M adjacent input pixels in anti-aliasing\n\
+  -F, --aa-filter=NAME       Use anti-aliasing filter NAME (one of: box,\n\
+                             triang, gauss; default: gauss)"
+//
+#define IMAGE_OUTPUT_SHORT_OPTIONS "a:A:F:O:g:Q:"
+//
+#define IMAGE_OUTPUT_LONG_OPTIONS			\
+  { "output-format",	required_argument, 0, 'O' },	\
+  { "gamma",		required_argument, 0, 'g' },	\
+  { "quality",		required_argument, 0, 'Q' },	\
+  { "aa-factor",	required_argument, 0, 'a' },	\
+  { "aa-overlap",	required_argument, 0, 'A' },	\
+  { "aa-filter",	required_argument, 0, 'F' }
+//
+#define IMAGE_OUTPUT_OPTION_CASES(clp, params)		\
+  case 'O':						\
+    params.format = clp.opt_arg ();			\
+    break;						\
+  case 'g':						\
+    params.target_gamma = clp.float_opt_arg ();		\
+    break;						\
+  case 'Q':						\
+    params.quality = clp.float_opt_arg ();		\
+    break;						\
+  /* Anti-aliasing options */				\
+  case 'a':						\
+    params.aa_factor = clp.unsigned_opt_arg ();		\
+    break;						\
+  case 'A':						\
+    params.aa_overlap = clp.unsigned_opt_arg ();	\
+    break;						\
+  case 'F':						\
+    params.parse_aa_filter_opt_arg ();			\
+    break;
+
+
+
 namespace Snogray {
 
 // This class can be used when parsing image parameters

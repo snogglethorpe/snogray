@@ -75,7 +75,7 @@ int main (int argc, char *const *argv)
   ImageCmdlineSourceParams src_image_params (clp);
   ImageCmdlineSinkParams dst_image_params (clp);
 
-  float exposure = 0, contrast = 1;
+  float exposure = 0, contrast = 0;
 
   // Parse command-line options
   int opt;
@@ -120,10 +120,7 @@ int main (int argc, char *const *argv)
   ImageOutput dst_image (dst_image_params);
 
   float intensity_scale = (exposure == 0) ? 1 : powf (2.0, exposure);
-
-  cout << "intensity_scale: " << intensity_scale
-       << " (exposure: " << exposure << ")" << endl;
-  cout << "contrast: " << contrast << endl;
+  float intensity_expon = (contrast == 0) ? 1 : powf (2.0, contrast);
 
   for (unsigned y = 0; y < src_image.height; y++)
     {
@@ -131,12 +128,12 @@ int main (int argc, char *const *argv)
 
       src_image.read_row (output_row);
 
-      if (contrast != 1 || exposure != 0)
-	for (unsigned x = 0; x < src_image.width; x++)
+      if (contrast != 0 || exposure != 0)
+	for (unsigned x = 0; x < output_row.width; x++)
 	  {
 	    Color col = output_row[x];
-	    if (contrast != 1)
-	      col = col.pow (contrast);
+	    if (contrast != 0)
+	      col = col.pow (intensity_expon);
 	    if (exposure != 0)
 	      col *= intensity_scale;
 	    output_row[x] = col;
