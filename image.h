@@ -1,3 +1,17 @@
+// image.cc -- Image datatype
+//
+//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
+#ifndef __IMAGE_H__
+#define __IMAGE_H__
+
 #include "color.h"
 
 class Image
@@ -43,5 +57,7 @@ private:
 
   Color *pixels;
 };
+
+#endif /* __IMAGE_H__ */
 
 // arch-tag: 43784b62-1eae-4938-a451-f4fdfb7db5bc

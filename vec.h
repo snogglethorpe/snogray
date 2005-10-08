@@ -1,3 +1,14 @@
+// vec.h -- Vector datatype
+//
+//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
 #ifndef __VEC_H__
 #define __VEC_H__
 
@@ -24,6 +35,10 @@ public:
   Vec operator- (const Vec &v2) const
   {
     return Vec (x - v2.x, y - v2.y, z - v2.z);
+  }
+  Vec operator- () const
+  {
+    return Vec (-x, -y, -z);
   }
 
   void operator+= (const Vec &v2)

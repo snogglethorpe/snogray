@@ -1,3 +1,14 @@
+// camera.h -- Camera datatype
+//
+//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
 #include "camera.h"
 
 const Pos Camera::DEFAULT_POS = Pos (0, 0, 0);

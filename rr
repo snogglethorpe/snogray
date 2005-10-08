@@ -1,0 +1,11 @@
+#!/bin/sh
+
+while test $# -gt 1; do
+  ARGS="$ARGS $1"; shift
+done
+
+make
+./snogray $ARGS "$1"
+qiv "$1"
+
+# arch-tag: ec7d55f3-672e-4461-ac08-eccc458b307e

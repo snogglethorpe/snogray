@@ -1,3 +1,14 @@
+// material.h -- Object material datatype
+//
+//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 

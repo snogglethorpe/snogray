@@ -1,8 +1,21 @@
-TARGETS = test
+# Makefile for snogray
+#
+#  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+#
+# This file is subject to the terms and conditions of the GNU General
+# Public License.  See the file COPYING in the main directory of this
+# archive for more details.
+#
+# Written by Miles Bader <miles@gnu.org>
+#
+
+TARGETS = snogray
 
 all: $(TARGETS)
 
-CFLAGS = -O2 -g
+#CFLAGS = -O2 -g
+#CFLAGS = -O5 -g -march=pentium4 -mfpmath=sse
+CFLAGS = -O5 -g -march=pentium4
 CXXFLAGS = $(CFLAGS)
 DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
@@ -11,13 +24,13 @@ LIBS = -lpng
 _CFLAGS = $(CFLAGS) $(DEP_CFLAGS)
 _CXXFLAGS = $(CXXFLAGS) $(DEP_CFLAGS)
 
-CXXSRCS = test.cc snogray.cc scene.cc obj.cc intersect.cc color.cc	\
-	  lambert.cc sphere.cc camera.cc space.cc voxtree.cc ray.cc	\
-	  image.cc triangle.cc phong.cc
+CXXSRCS = snogray.cc scene.cc obj.cc intersect.cc color.cc lambert.cc	\
+	  sphere.cc camera.cc space.cc voxtree.cc ray.cc image.cc	\
+	  triangle.cc phong.cc cmdlineparser.cc
 
 OBJS = $(CXXSRCS:.cc=.o)
 
-test: $(OBJS)
+snogray: $(OBJS)
 	$(CXX) -o $@ $(OBJS) $(LIBS)
 
 DEPS = $(CXXSRCS:%.cc=.%.d)

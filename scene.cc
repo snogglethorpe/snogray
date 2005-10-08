@@ -1,6 +1,28 @@
+// scene.cc -- Scene description datatype
+//
+//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
 #include "scene.h"
 
 using namespace std;
+
+// The scene "owns" all its components, so frees them when it is destroyed
+Scene::~Scene ()
+{
+  for (list<Obj *>::iterator oi = objs.begin(); oi != objs.end(); oi++)
+    delete *oi;
+  for (list<Light *>::iterator li = lights.begin(); li != lights.end(); li++)
+    delete *li;
+  for (list<Material *>::iterator mi = materials.begin(); mi != materials.end(); mi++)
+    delete *mi;
+}
 
 Intersect
 Scene::closest_intersect (const Ray &ray)
@@ -31,8 +53,8 @@ Scene::intersects (const Ray &ray, const Obj *ignore)
        oi != objs.end();
        oi++)
     {
-      Obj *obj = *oi;
       stats.obj_intersects_calls++;
+      Obj *obj = *oi;
       if (obj != ignore && obj->intersects (ray))
 	return true;
     }

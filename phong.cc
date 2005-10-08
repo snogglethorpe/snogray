@@ -1,3 +1,14 @@
+// phog.cc -- Phong lighting model
+//
+//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
 #include <iostream>
 
 #include "phong.h"
@@ -11,7 +22,10 @@ const Color Phong::render (const class Intersect &isec, const Vec &eye_dir,
 //   std::cout << "Phong::render (" << light_color << ", " << light_dir << "):"
 // 	    << std::endl;
 
-  const Vec &norm = isec.normal;
+  Vec norm = isec.normal;
+
+  if (norm.dot (eye_dir) < 0)
+    norm = -norm;
 
   if (norm.dot (eye_dir) >= 0)
     {
