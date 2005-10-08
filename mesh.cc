@@ -42,7 +42,7 @@ Mesh::read_msh_file (istream stream)
 
   // For the time being, we only support meshes up to 65536 vertices
   if (num_vertices > 65536)
-    throw TOO_MANY_VERTICES_ERROR;
+    throw 1234;
 
   mesh->vertices = new Pos[mesh->num_vertices];
   mesh->triangles = new Triangle[mesh->num_triangles];
@@ -51,7 +51,7 @@ Mesh::read_msh_file (istream stream)
 
   stream >> kw;
   if (strcmp (kw, "vertices") != 0)
-    throw FILE_FORMAT_ERROR;
+    throw 1235;
 
   for (unsigned i = 0; i < mesh->num_vertices; i++)
     {
@@ -62,9 +62,9 @@ Mesh::read_msh_file (istream stream)
 
   stream >> kw;
   if (strcmp (kw, "triangles") != 0)
-    throw FILE_FORMAT_ERROR;
+    throw 1236;
 
-  for (unsigned i = 0; i < meshnum_triangles; i++)
+  for (unsigned i = 0; i < mesh->num_triangles; i++)
     {
       stream >> triangles[i].v0i;
       stream >> triangles[i].v1i;

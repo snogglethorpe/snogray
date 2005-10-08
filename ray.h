@@ -43,6 +43,11 @@ public:
     : origin (ray.origin), dir (ray.dir), len (ray.len), _end (ray._end)
   {
   }
+  Ray (const Ray &ray, dist_t length)
+    : origin (ray.origin), dir (ray.dir), len (length),
+      _end (ray.origin + ray.dir * length)
+  {
+  }
 
   /* Returns an end point of the ray izzf it is extended to length LEN.  */
   Pos extension (float _len) const { return origin + dir * _len; }

@@ -1,0 +1,283 @@
+From: 	Florian Kainz
+Subject: 	Re: [Openexr-devel] how exr images are displayed
+Date: 	Thu, 26 Feb 2004 20:53:32 -0800
+
+I'll try to answer this one...
+
+F-stop (Q_7):
+
+    For an explanation of "f-stop", I'll quote a mail I sent a while ago:
+
+        The term "f-stop", as used on the OpenEXR web site, is a way
+        to express relative amounts of light.  F-stops are the base-2
+        logarithm of the ratio between two light intensities.
+
+        The term is derived from the lens aperture in photographic cameras.
+        For a lens with focal length L, and an iris with diameter D, the
+        aperture, f, is L/D.  Most photographic lenses have a an adjustable
+        iris; the adjustment ring usually has stops that can be felt when
+        the ring is moved.  On the ring, each stop is marked with the
+        corresponding value of f.  Customarily, some subset of the
+        following range of f values is marked: 1, 1.4, 2, 2.8, 4, 5.6,
+        8, 11, 16, 22, 32, 45, 64.  The ratio between one value and it
+        successor is close to the square root of 2, which means that from
+        one f-stop to the next, the area of the iris opening, and thus the
+        amount of light passing through the iris, varies by a factor of 2.
+
+        When we say that an image has a dynamic range of 10 f-stops, we
+        mean that the ratio between the brightness of the brightest and
+        the darkest part of the image is the same as the between the
+        amounts of light passing through a lens at two aperture settings
+        10 f-stops apart.  In other words, the ratio between the brightest
+        and darkest parts is two to the tenth power, or 1024.
+
+
+Exposure (Q_2, Q_3):
+
+    With high-dynamic-range (HDR) images, the possible range of pixel
+    values is conceptually infinite.  The pixels simply represent the
+    luminance values that were present in the scene when the image was
+    recorded.
+
+    In most HDR images, there is no easily identifiable maximum value
+    that should be mapped to a display's "white".  We map HDR pixel
+    values to low-dynamic-range (LDR) display values using a process
+    that is similar to choosing the right exposure for a photo:
+
+    We assume that our display, usually a CRT or an LCD monitor, has
+    a usable dynamic range of 7 f-stops, or 128:1.  If a monitor is
+    set up in a dark room, the dynamic range is greater than 7 f-stops,
+    but in an office environment, the dynamic range is limited by
+    ambient light.
+    We also assume that our display's gamma is 2.2.  (In order to make
+    images look more pleasing, real CRT or LCD monitors have a gamma
+    that is slightly higher, but we ignore that.)
+
+    In conventional photography, with film, correctly exposing an image
+    puts a "middle gray" object with 18% reflectance in the middle of
+    the film's usable dynamic range.  18% is an approximation of the
+    average reflectance of an average scene.  (Kodak and other companies
+    sell 18% gray for exposure measurements.)
+
+    Exrdisplay assumes that a pixel value of 0.18 represents 18% gray,
+    and  computes the correct "exposure" by placing this value in the
+    middle of the display's usable dynamic range, that is 3.5 f-stops
+    darker than the display's maximum white.
+
+    The user can make an image brighter or darker by adjusting exrdisplay's
+    exposure slider.  The units on the exposure slider are f-stops.
+    Increasing the exposure by 1.0 doubles the image's overall brightness.
+
+    Choosing 0.18 to represent middle gray is, of course, fairly
+    arbitrary.  When EXR (not yet Open) was introduced at ILM, we also
+    discussed making middle gray equal to 1.0.  Another possibility
+    would be to choose a perfectly white reference object, with 100%
+    reflectance, and map it to the display's maximum white.
+
+
+Knee (Q_4):
+
+    Exrdisplay's "knee low" and "knee high" allow the user to compress
+    the dynamic range of the original image so that a wider range of pixel
+    values can be displayed without clipping.  Values below knee low remain
+    untouched.  Values between knee low and knee high are compressed into
+    the range [knee low, middle gray + 3.5 f-stops].  Values above knee high
+    are clamped.
+    
+    The exact shape of the knee function doesn't really matter, but
+    the function should be monotonically increasing, and the transition
+    between the linear and the compressed portion, at knee low, should
+    be C1-continuous.  Exrdisplay uses a logarithmic curve for the
+    compressed part, with a parameter, f, that depends on knee low
+    and knee high.
+
+
+Fog (Q_1):
+
+    When an image is recorded, stray light in the camera causes slight
+    fogging of the image, which reduces the image's dynamic range.
+    (Fogging adds a small amount of unwanted light to the entire image.)
+
+    Cameras are designed to reduce stray light enough to make fogging
+    of a correctly exposed LDR image invisible.  However, if an image
+    contains very bright regions, fogging does become noticeable,
+    especially if exrdisplay's exposure is set very high.
+
+    Defogging attempts to remove some of the fog by computing an image's
+    average color, multiplying this color by some small number (adjustable
+    with the defog slider), and subtracting this color from all pixels.  
+    
+    In the OpenEXR sample images, most of the fog caused by stray light
+    has already been removed, and by default, exrdisplay's defog slider
+    is set to zero.
+
+
+Other questions:
+
+Q_1.1   Pixels can be non-finite.  Pixels contain floating-point
+        numbers, and infinity or NaN are possible values.
+
+Q_2     The expression 2^(exposure + 2.47393) maps middle gray (0.18)
+        to 2^exposure.  If exposure is 0.0, middle gray is mapped to 1.0.
+
+Q_4     kneeHigh is not a constant; the user can change adjust it
+        between 3.5 and 7.5.  If kneeHigh is 3.5, then the knee
+        function is an identity.
+
+Q_4.3   findKneeF() uses interval bisection to find the correct value
+        for the knee function's f parameter.  30 iterations are enough
+        to converge on a solution that has enough precision.  (Most
+        likely, 23 iterations would be sufficient, but findKneeF() is
+        not time critical.)
+
+Q_5     Assuming a gamma value of 2.2 for the display is common.
+        Almost all video systems do this.
+
+O_6     Assuming the display's maximum brightness (luminance) is 1.0,
+        then 3.5 f-stops darker than the maximum is 1.0 * 2^-3.5,
+        or 0.0883.  Correcting for the display's gamma, we get
+        0.0883^0.4545 or 0.332.  Scaling the range [0.0, 1.0] to
+        [0, 255], maps 0.332 to 84.66.
+
+
+
+Tensor G wrote:
+> 
+> hello all,
+> 
+> first of all, thx for your hints about configuring EXR. following your
+> instructions i was able to make all the thing run.
+> Now i was looking at the exrdisplay program, tring to figure out how to
+> manage exr images. Useless to say, i did get stuck :) If u don't mind giving
+> a lil help to  a newbie wanting to get started... here are my questions:
+> I refer to the comments of the ImageView.cpp file:
+> 
+> // Conversion from raw pixel data to data for the OpenGl frame buffer:
+> 
+> //  1) Compensate for fogging by subtracting defog
+> //     from the raw pixel values.
+> 
+> Q_1) I understand that this fog isn't like OpenGL fog function... now what
+> does it represent? In the function computeFog the fog values are calculated
+> like
+> (SUM ( *finite* pixel colors)) / NUMBER_OF_PIXELS
+> it seems like the avrg value of the image colors, but it isn't really making
+> sense to me...
+> Q_1.1) BTW can a pixel be NON_finite?
+> 
+> //  2) Multiply the defogged pixel values by
+> //     2^(exposure + 2.47393).
+> 
+> Q_2)  what does 2.47393 represent? Can't think of a phisical constant with
+> suck value... not that i argue cut n'pasting, but i'd like to understand a
+> bit more the basis of image processing...
+> 
+> //  3) Values, which are now 1.0, are called "middle gray".
+> //     If defog and exposure are both set to 0.0, then
+> //     middle gray corresponds to a raw pixel value of 0.18.
+> //     In step 6, middle gray values will be mapped to an
+> //     intensity 3.5 f-stops below the display's maximum
+> //     intensity.
+> 
+> Q_3) Why middle gray with exp & fog == 0 MUST be 0.18? Just a convention?
+> Why 3.5 f-stops below MAX intensity? Middle_gray is what I use to compute
+> all other colors, isn't it?
+> 
+> //  4) Apply a knee function.  The knee function has two
+> //     parameters, kneeLow and kneeHigh.  Pixel values
+> //     below 2^kneeLow are not changed by the knee
+> //     function.  Pixel values above kneeLow are lowered
+> //     according to a logarithmic curve, such that the
+> //     value 2^kneeHigh is mapped to 2^3.5 (in step 6,
+> //     this value will be mapped to the the display's
+> //     maximum intensity).
+> 
+> Q_4) This is the real top -> first question:
+> //     value 2^kneeHigh is mapped to 2^3.5 => does it means 2^kneeHigh =
+> 2^3.5???? it is impossible, since kneeHigh is a constant!! that is not an
+> equation, just an identity. Can't really understand that thing.
+> Q_4.1) I post a bunch of code...
+> 
+> // static float ImageView::knee (float x, float f)
+> {
+>     return Imath::Math<float>::log (x * f + 1) / f;
+> }
+> 
+> // static float ImageView::findKneeF (float x, float y)
+> {
+>     float f0 = 0;
+>     float f1 = 1;
+> 
+> // Q_4.2) WHAT LOG (X*F1+1)/F REPRESENT? ANY PARTICULARY FUNC I SHOULD KNOW
+> OR ANY DECREASING LOG FUNC SHOULD FIT?
+>     while (knee (x, f1) > y)
+>     {
+>         f0 = f1;
+>         f1 = f1 * 2;
+>     }
+> 
+> //Q_4.3) WHY 30 CYCLES?
+>     for (int i = 0; i < 30; ++i)
+>     {
+>         float f2 = (f0 + f1) / 2;
+>         float y2 = knee (x, f2);
+> 
+>         if (y2 < y)
+>             f1 = f2;
+>         else
+>             f0 = f2;
+>     }
+> 
+>     return (f0 + f1) / 2;
+> }
+> 
+> ...
+> 
+> struct Gamma
+> {
+>     float m, d, kl, f;
+> 
+>     Gamma (float exposure, float defog, float kneeLow, float kneeHigh);
+>     unsigned char operator () (half h);
+> };
+> 
+> Gamma::Gamma (float exposure, float defog, float kneeLow, float kneeHigh):
+>     m (Imath::Math<float>::pow (2, exposure + 2.47393)),
+>     d (defog),
+>     kl (Imath::Math<float>::pow (2, kneeLow)),
+> 
+> //Q_4.3) WHAT DOES THIS F REPRESENT? LOGARTIMIC INTERPOLATION BETWEEN
+> 2^KNEEHIGH AND 2^3.5? WHY THE -KL THING?
+>     f (ImageView::findKneeF (Imath::Math<float>::pow (2, kneeHigh) - kl,
+>                              Imath::Math<float>::pow (2, 3.5) - kl))
+> {}
+> 
+> //  5) Gamma-correct the pixel values, assuming that the
+> //     screen's gamma is 2.2 (or 1 / 0.4545).
+> 
+> Q_5) 2.2 is just a common value, nothing exotic here, right?
+> 
+> //  6) Scale the values such that pixels middle gray
+> //     pixels are mapped to 84.66 (or 3.5 f-stops below
+> //     the display's maximum intensity).
+> 
+> Q_6) Why 84.66? my middle gray was 0.18, then i'd say
+> 0.18:1=x:255   =>  x=255*0.18/1  => x=45.9!
+> 
+> //  7) Clamp the values to [0, 255].
+> 
+> the only part i fully agree :)
+> 
+> Q_7) f-stop == 56.78?
+> 
+> thx for any help... i am just a humble OpenGL programmer tring to scout new
+> territories :)
+> 
+> _________________________________________________________________
+> Personalizza MSN Messenger con sfondi e fotografie!
+> http://www.ilovemessenger.msn.it/
+> 
+> _______________________________________________
+> Openexr-devel mailing list
+> address@bogus.example.com
+> http://mail.nongnu.org/mailman/listinfo/openexr-devel

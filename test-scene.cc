@@ -9,10 +9,14 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <cmath>
+
 #include "test-scene.h"
 
 #include "lambert.h"
 #include "phong.h"
+#include "material.h"
+#include "mirror.h"
 #include "triangle.h"
 #include "sphere.h"
 
@@ -21,10 +25,15 @@ using namespace Snogray;
 // epsilon
 #define E 0.0001
 
+// The lighting in SPD-produced scene files has screwed up gamma
+#define ASSUMED_GAMMA 2.2
+
 void
 Snogray::define_test_scene (const TestSceneParams *p, float light_intens,
 			    Scene &scene, Camera &camera)
 {
+  scene.set_assumed_gamma (2.2);
+
   Material **materials = 0;
   if (p->num_materials > 0)
     {
@@ -33,15 +42,23 @@ Snogray::define_test_scene (const TestSceneParams *p, float light_intens,
 	{
 	  const TestSceneMaterialParams *mp = &p->material_params[i];
 
+	  // Diffuse color
 	  Color diffuse = Color (mp->r, mp->g, mp->b) * mp->Kd;
 
-	  if (mp->Ks <= E || mp->exp <= E || mp->exp > 1000)
-	    materials[i] = scene.add (new Lambert (diffuse));
+	  // Specular color
+	  const LightModel *lmodel = 0;
+	  if (mp->exp <= E || mp->exp > 1000)
+	    lmodel = Material::lambert;
 	  else
-	    {
-	      Color specular = Color (mp->r, mp->g, mp->b) * mp->Ks;
-	      materials[i] = scene.add (new Phong (mp->exp, diffuse, specular));
-	    }
+	    lmodel = Material::phong (mp->exp, Color::white * mp->Ks);
+
+	  // Reflectance
+	  if (mp->Ks > E)
+	    materials[i] = new Mirror (mp->Ks, diffuse / (1 - mp->Ks), lmodel);
+	  else
+	    materials[i] = new Material (diffuse, lmodel);
+
+	  scene.add (materials[i]);
 	}
     }
 

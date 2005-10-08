@@ -17,6 +17,7 @@
 #include "obj.h"
 #include "light.h"
 #include "intersect.h"
+#include "material.h"
 #include "voxtree.h"
 
 namespace Snogray {
@@ -25,9 +26,17 @@ class Scene
 {
 public:
 
+  static const unsigned DEFAULT_MAX_DEPTH = 5;
+  static const unsigned DEFAULT_HORIZON = 10000;
+  static const int DEFAULT_ASSUMED_GAMMA = 1;
+
+  Scene ()
+    : max_depth (DEFAULT_MAX_DEPTH), horizon (DEFAULT_HORIZON),
+      assumed_gamma (DEFAULT_ASSUMED_GAMMA)
+  { }
   ~Scene ();
 
-  Intersect closest_intersect (const Ray &ray);
+  Intersect closest_intersect (const Ray &ray, const Obj *ignore = 0);
   bool shadowed (Light &light, const Ray &light_ray, const Obj *ignore = 0);
   
   // Add various items to a scene.  All of the following "give" the
@@ -47,12 +56,25 @@ public:
 
   void set_background (const Color &col) { background = col; }
 
-  Color render (const Intersect &isec);
-  Color render (const Ray  &ray)
+  Color render (const Intersect &isec, unsigned depth = 0)
   {
-    Intersect isec = closest_intersect (ray);
-    return isec.obj ? render (isec) : background;
+    if (isec.obj)
+      return isec.obj->material->render (isec, *this, depth);
+    else
+      return background;
   }
+  Color render (const Ray &ray, unsigned depth = 0, const Obj *ignore = 0)
+  {
+    if (depth > max_depth)
+      return background;
+
+    Ray bounded_ray (ray, horizon);
+    Intersect isec = closest_intersect (bounded_ray, ignore);
+
+    return isec.obj ? render (isec, depth + 1) : background;
+  }
+
+  void set_assumed_gamma (float g) { assumed_gamma = g; }
 
   struct Stats {
     Stats () : scene_closest_intersect_calls (0),
@@ -79,6 +101,11 @@ public:
   Color background;
 
   Voxtree obj_voxtree;
+
+  unsigned max_depth;
+  unsigned horizon;
+
+  float assumed_gamma;
 };
 
 }

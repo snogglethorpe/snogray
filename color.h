@@ -101,31 +101,6 @@ operator* (float scale, const Color &color)
 
 extern std::ostream& operator<< (std::ostream &os, const Snogray::Color &col);
 
-
-// Colors with alpha channel
-
-#if 0
-
-class ColorAlpha : public Color 
-{
-public:
-  typedef float alpha_t;
-
-  ColorAlpha (component_t r = 0, component_t g = 0, component_t b = 0,
-	      alpha_t a)
-    : Color (r, g, b), alpha (a)
-  { }
-
-}
-
-// Convert from ColorAlpha to Color by throwing away alpha channel
-static inline Color operator(Color) (const ColorAlpha &cola)
-{
-  return Color (cola.red, cola.green, cola.blue);
-}
-
-#endif
-
 }
 
 #endif /* __COLOR_H__ */

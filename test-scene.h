@@ -20,8 +20,10 @@ namespace Snogray {
 struct TestSceneMaterialParams
 {
   float r, g, b;		// color
-  float Kd, Ks;			// diffuse, specular reflection
-  float exp;			// phong exponent
+  float Kd, Ks;			// diffuse, reflected
+  float exp;			// phong exponent for specular highlights
+  float xmit;			// transmittance
+  float ior;			// index of refraction
 };
 
 struct TestSceneVertexParams

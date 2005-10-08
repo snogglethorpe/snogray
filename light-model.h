@@ -1,4 +1,4 @@
-// lambert.h -- Lambertian lighting model
+// light-model.h -- Lighting-model abstraction
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,23 +9,29 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LAMBERT_H__
-#define __LAMBERT_H__
+#ifndef __LIGHT_MODEL_H__
+#define __LIGHT_MODEL_H__
 
-#include "light-model.h"
+#include "pos.h"
+#include "vec.h"
+#include "color.h"
 
 namespace Snogray {
 
-class Lambert : public LightModel
+class Intersect;
+
+class LightModel
 {
 public:
+  virtual ~LightModel (); // stop gcc bitching
+
   virtual Color illum (const Intersect &isec, const Color &color,
 		       const Vec &light_dir, const Color &light_color)
-    const;
+    const = 0;
 };
 
 }
 
-#endif /* __LAMBERT_H__ */
+#endif /* __LIGHT_MODEL_H__ */
 
-// arch-tag: ca8981f3-5471-4e8a-ac8b-2e3e54c83b64
+// arch-tag: 8360ddd7-dc17-40b8-8319-8f6d61fe62bf

@@ -81,6 +81,14 @@ public:
   {
     return Vec (y*vec2.z - z*vec2.y, z*vec2.x - x*vec2.z, x*vec2.y - y*vec2.x);
   }
+
+  // Return this vector reflected around NORMAL
+  Vec reflection (const Vec &normal) const
+  {
+    // Rr = 2 N (R1 . N) - R1
+
+    return normal * dot (normal) * 2 - *this;
+  }
 };
 
 static inline Vec

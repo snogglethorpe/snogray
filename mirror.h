@@ -1,4 +1,4 @@
-// glow.h -- Constant-color lighting model
+// mirror.h -- Mirror (reflective) material
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,24 +9,29 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GLOW_H__
-#define __GLOW_H__
+#ifndef __MIRROR_H__
+#define __MIRROR_H__
 
 #include "material.h"
 
 namespace Snogray {
 
-class Glow : public Material
+class Mirror : public Material
 {
 public:
-  Glow (const Color &_color) : Material (_color) { }
+  Mirror (float _reflectance, const Color &col = Color::white,
+	  const LightModel *lmodel = lambert)
+    : Material (col, lmodel), reflectance (_reflectance)
+  { }
 
   virtual Color render (const Intersect &isec, Scene &scene, unsigned depth)
     const;
+
+  float reflectance;
 };
 
 }
 
-#endif /* __GLOW_H__ */
+#endif /* __MIRROR_H__ */
 
-// arch-tag: d53c41c0-1970-4b3e-9047-2f67dd943922
+// arch-tag: b622d70c-03ff-49ee-a020-2a44ccfcfdb1

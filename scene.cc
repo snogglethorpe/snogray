@@ -35,13 +35,15 @@ Scene::~Scene ()
 
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
-  SceneClosestIntersectCallback (const Ray &ray, Voxtree::Stats *stats = 0)
-    : IntersectCallback (stats), isec (ray), num_calls (0)
+  SceneClosestIntersectCallback (const Ray &ray, const Obj *_ignore = 0,
+				 Voxtree::Stats *stats = 0)
+    : IntersectCallback (stats), isec (ray), ignore (_ignore), num_calls (0)
   { }
 
   virtual void operator() (Obj *);
 
   Intersect isec;
+  const Obj *ignore;
 
   unsigned num_calls;
 };
@@ -49,15 +51,18 @@ struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 void
 SceneClosestIntersectCallback::operator () (Obj *obj)
 {
-  isec.update (obj);
-  num_calls++;
+  if (obj != ignore)
+    {
+      isec.update (obj);
+      num_calls++;
+    }
 }
 
 Intersect
-Scene::closest_intersect (const Ray &ray)
+Scene::closest_intersect (const Ray &ray, const Obj *ignore)
 {
   SceneClosestIntersectCallback
-    closest_isec_cb (ray, &stats.voxtree_closest_intersect);
+    closest_isec_cb (ray, ignore, &stats.voxtree_closest_intersect);
 
   stats.scene_closest_intersect_calls++;
 
@@ -151,66 +156,6 @@ Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
   stats.obj_intersects_tests += shadowed_cb.num_tests;
 
   return shadowed_cb.shadowed;
-}
-
-
-// Main rendering entry point
-
-Color
-Scene::render (const Intersect &isec)
-{
-  if (isec.obj)
-    {
-      // If the dot product of the surface normal with the eye ray is
-      // negative, we're looking at the back of the surface; we render
-      // this as a striking color to make it easier to detect mistakes.
-      // However to accomodate small cumulative errors, we allow very
-      // small negative dot-products as if they were zero.
-
-      if (isec.normal.dot (isec.eye_dir) >= 0 -0.0001)
-	{
-	  // We're looking at the top of the surface, continue with rendering.
-	  // Iterate over every light, calculating its contribution to our
-	  // color.
-
-	  Color total_color;	// Accumulated colors from all light sources
-
-	  for (list<Light *>::const_iterator li = lights.begin();
-	       li != lights.end(); li++)
-	    {
-	      Light *light = *li;
-	      Ray light_ray = Ray (isec.point, light->pos);
-
-	      // If the dot-product of the light-ray with the surface normal
-	      // is negative, that means the light is behind the surface, so
-	      // cannot light it ("self-shadowing"); otherwise, see if some
-	      // other object casts a shadow.
-
-	      if (isec.normal.dot (light_ray.dir) >= 0
-		  && !shadowed (*light, light_ray, isec.obj))
-		{
-		  // This point is not shadowed, either by ourselves or by any
-		  // other object, so calculate the lighting contribution from
-		  // LIGHT.
-
-		  Color light_color
-		    = light->color / (light_ray.len * light_ray.len);
-
-		  total_color
-		    += isec.obj->material->render (
-					     isec, light_ray.dir, light_color);
-		}
-	    }
-
-	  return total_color;
-	}
-      else
-	// We're looking at the back of the surface, render as wacky color.
-	//
-	return Color::funny;
-    }
-  else
-    return background;
 }
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558

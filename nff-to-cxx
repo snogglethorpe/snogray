@@ -77,7 +77,7 @@ $1 == "l" {
 #     "f" red green blue Kd Ks Shine T index_of_refraction
 $1 == "f" {
   cur_material_index = num_materials
-  materials[num_materials++] = args3(2) ", " $5 ", " $6 ", " $7
+  materials[num_materials++] = args3(2) ", " args3(5) ", " $8 ", " $9
   next
 }
 

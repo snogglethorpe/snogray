@@ -15,19 +15,38 @@
 #include "pos.h"
 #include "vec.h"
 #include "color.h"
+#include "light-model.h"
+#include "phong.h"
+#include "lambert.h"
 
 namespace Snogray {
 
 class Intersect;
+class Scene;
 
 class Material
 {
 public:
-  virtual ~Material (); // stop gcc bitching
 
-  virtual const Color render (const Intersect &isec,
-			      const Vec &light_dir, const Color &light_color)
-    const = 0;
+  // As a convenience, provide a global lookup service for common lighting
+  // models.
+  static const Lambert *lambert;
+  static const Phong *phong (float exp, const Color &spec_col = Color::white);
+
+  Material (const Color &col, const LightModel *lmodel = lambert)
+    : color (col), light_model (lmodel)
+  { }
+  virtual ~Material ();
+
+  virtual Color render (const Intersect &isec, Scene &scene, unsigned depth)
+    const;
+
+  Color illum (const Intersect &isec, const Color &color,
+	       Scene &scene, unsigned depth)
+    const;
+
+  Color color;
+  const LightModel *light_model;
 };
 
 }

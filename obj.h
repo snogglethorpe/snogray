@@ -16,9 +16,10 @@
 #include "color.h"
 #include "ray.h"
 #include "bbox.h"
-#include "material.h"
 
 namespace Snogray {
+
+class Material;
 
 class Obj 
 {

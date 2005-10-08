@@ -15,6 +15,7 @@
 #include <cstring>
 
 #include "cmdlineparser.h"
+#include "rusage.h"
 
 #include "scene.h"
 #include "camera.h"
@@ -438,6 +439,8 @@ int main (int argc, char *const *argv)
 	}
     }
 
+  Timeval beg_time (Timeval::TIME_OF_DAY);
+
   // 
   Scene scene;
   Camera camera;
@@ -448,7 +451,9 @@ int main (int argc, char *const *argv)
 
   // Define our scene!
   //
+  Rusage scene_beg_ru;
   test_scene (scene, camera, test_scene_num);
+  Rusage scene_end_ru;
 
   // Print scene info
   //
@@ -488,8 +493,15 @@ int main (int argc, char *const *argv)
   unsigned hr_limit_max_x = hr_limit_x + limit_width * hr_multiple;
   unsigned hr_limit_max_y = hr_limit_y + limit_height * hr_multiple;
 
+  if (!progress && !quiet)
+    {
+      cout << "rendering...";	// if no progress indicator, print _something_
+      cout.flush ();
+    }
+
   // Main ray-tracing loop
   //
+  Rusage render_beg_ru;
   for (unsigned y = hr_limit_y; y < hr_limit_max_y; y++)
     {
       ImageRow &output_row = image.next_row ();
@@ -509,26 +521,40 @@ int main (int argc, char *const *argv)
 	  cout.flush ();
 	}
 
+      // Process one image row
+      //
       for (unsigned x = hr_limit_x; x < hr_limit_max_x; x++)
 	{
+	  // Translate the image position X, Y into a ray radiating from
+	  // the camera.
+	  //
 	  float u = (float)x / (float)hr_width;
 	  float v = (float)(hr_height - y) / (float)hr_height;
 	  Ray camera_ray = camera.get_ray (u, v);
 
-	  camera_ray.set_len (10000);
+	  // Cast the camera ray and calculate the image color at that point.
+	  //
+	  Color pix = scene.render (camera_ray);
 
-	  output_row[x - hr_limit_x] = scene.render (camera_ray);
+	  // If necessary undo any bogus gamma-correction embedded in
+	  // the scene lighting.  We'll do proper gamma correct later.
+	  //
+	  if (scene.assumed_gamma != 1)
+	    pix = pix.pow (scene.assumed_gamma);
+
+	  output_row[x - hr_limit_x] = pix;
 	}
     }
+  Rusage render_end_ru;
+
+  Timeval end_time (Timeval::TIME_OF_DAY);
 
   if (progress)
-    {
-      cout << "\rrendering: done              " << endl;
-      if (! quiet)
-	cout << endl;
-    }
+    cout << "\rrendering: done              " << endl;
+  else if (! quiet)
+    cout << "done" << endl;
 
-  // Print render stats
+  // Print stats
   //
   if (! quiet)
     {
@@ -543,6 +569,7 @@ int main (int argc, char *const *argv)
       unsigned vnn = scene.obj_voxtree.num_nodes ();
       unsigned no  = scene.objs.size ();
 
+      cout << endl;
       cout << "Rendering stats:" << endl;
       cout << "  closest_intersect:" << endl;
       cout << "     scene calls:       " << setw (14) << commify (sc) << endl;
@@ -567,6 +594,15 @@ int main (int argc, char *const *argv)
 	   << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)" << endl;
       cout << "     obj tests:         " << setw (14) << commify (ot)
 	   << " (" <<setw(2) << (100 * ot / (no * (sst - shh))) << "%)" << endl;
+
+      // a field width of 13 is enough for over a year of time...
+      cout << "Time:" << endl;
+      Timeval scene_def_time = scene_end_ru.utime() - scene_beg_ru.utime();
+      cout << "  scene def cpu: " << setw (13) << scene_def_time.fmt() << endl;
+      Timeval render_time = render_end_ru.utime() - render_beg_ru.utime();
+      cout << "  rendering cpu: " << setw (13) << render_time.fmt() << endl;
+      Timeval elapsed_time = end_time - beg_time;
+      cout << "  total elapsed: " << setw (13) << elapsed_time.fmt() << endl;
     }
 }
 

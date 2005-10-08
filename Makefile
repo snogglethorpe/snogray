@@ -88,7 +88,8 @@ SPD_TESTS = test-teapot.nff test-balls.nff test-rings.nff test-tetra.nff \
 	test-mount.nff test-tree.nff test-gears.nff test-sombrero.nff	 \
 	test-sample.nff test-jacks.nff test-shells.nff test-nurbtst.nff	 \
 	test-lattice.nff test-f117.nff test-skull.nff test-f15.nff	 \
-	test-balls-5.nff
+	test-balls-5.nff test-teapot-14.nff test-teapot-22.nff		 \
+	test-teapot-30.nff
 
 # C++ source files generated from the .nff files
 comma = ,
@@ -114,9 +115,10 @@ COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 
 TEST_SRCS = test-scenes.cc test-scene.cc $(SPD_TEST_SRCS)
 
-SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc material.cc	\
-	  obj.cc phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc	\
-	  triangle.cc voxtree.cc $(COMMON_SRCS) $(TEST_SRCS)
+SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc light-model.cc	   \
+	  material.cc mirror.cc obj.cc phong.cc ray.cc scene.cc snogray.cc \
+	  space.cc sphere.cc timeval.cc triangle.cc voxtree.cc		   \
+	  $(COMMON_SRCS) $(TEST_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 
@@ -172,6 +174,12 @@ DEPS = $(ALL_SRCS:%.cc=.%.d)
 
 test-balls-5.nff: $(SPD_DIR)/balls
 	$(SPD_DIR)/balls -s 5 > $@
+test-teapot-14.nff: $(SPD_DIR)/teapot
+	$(SPD_DIR)/teapot -s 14 > $@
+test-teapot-22.nff: $(SPD_DIR)/teapot
+	$(SPD_DIR)/teapot -s 22 > $@
+test-teapot-30.nff: $(SPD_DIR)/teapot
+	$(SPD_DIR)/teapot -s 30 > $@
 
 test-%.nff: $(SPD_DIR)/%
 	$< > $@

@@ -17,6 +17,7 @@
 #include "lambert.h"
 #include "phong.h"
 #include "glow.h"
+#include "mirror.h"
 #include "test-scene.h"
 
 using namespace Snogray;
@@ -37,15 +38,17 @@ add_bulb (Scene &scene, const Pos &pos, float intens,
 static void
 def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 {
+  const Phong *ph300 = Material::phong (300), *ph400 = Material::phong (400);
+  const Phong *ph500 = Material::phong (500);
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
 //  Material *mat2 = scene.add (new Lambert (Color (0.5, 0.5, 0)));
 //  Material *mat3 = scene.add (new Lambert (Color (1, 0.5, 1)));
 //  Material *mat4 = scene.add (new Lambert (Color (1, 0.5, 1)));
-  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
-  Material *mat2 = scene.add (new Phong (300, Color (0.8, 0.8, 0.8)));
-//   Material *mat3 = scene.add (new Phong (400, Color (0.1, 0.1, 0.1)));
-  Material *mat3 = scene.add (new Phong (400, Color (0.8, 0, 0)));
-  Material *mat4 = scene.add (new Lambert (Color (0.2, 0.5, 0.1)));
+  Material *mat1 = scene.add (new Material (Color (1, 0.5, 0.2)));
+  Material *mat2 = scene.add (new Mirror (0.9, Color::white, ph300));
+//   Material *mat3 = scene.add (Material::phong (400, Color (0.1, 0.1, 0.1)));
+  Material *mat3 = scene.add (new Material (Color (0.8, 0, 0), ph400));
+  Material *mat4 = scene.add (new Material (Color (0.2, 0.5, 0.1)));
 
   // First test scene
   add_bulb (scene, Pos (0, 15, 0), 30);
@@ -94,6 +97,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
       break;
     }
 
+  
   const unsigned gsize = 10;
   const unsigned gsep = 4;
   const Pos gpos (-20, -1, -20);
@@ -105,7 +109,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 		     (float)i / (float)gsize);
 	color *= 0.3;
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
-	Material *mat = scene.add (new Phong (500, color));
+	Material *mat = scene.add (new Material (color, ph500));
 	scene.add (new Sphere (mat, pos, 0.5));
 	scene.add (new Triangle (mat,
 				 pos + Vec(1.5,-0.2,0),
@@ -124,9 +128,10 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   // First test scene, only uses spheres, Lambertian shading,
   // and one light directly above the center of the 3 spheres.
 
-  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
-  Material *mat2 = scene.add (new Phong (300, Color (0.8, 0.8, 0.8)));
-  Material *mat3 = scene.add (new Phong (400, Color (0.8, 0, 0)));
+  const Phong *ph300 = Material::phong (300), *ph400 = Material::phong (400);
+  Material *mat1 = scene.add (new Material (Color (1, 0.5, 0.2)));
+  Material *mat2 = scene.add (new Material (Color (0.8, 0.8, 0.8), ph300));
+  Material *mat3 = scene.add (new Material (Color (0.8, 0, 0), ph400));
 
   camera.move (Pos (0, 3, -4));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
@@ -144,12 +149,12 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
   camera.move (Pos (0, 4, 4));
   camera.point (Pos (-0.5, 0, 0.5), Vec (0, 1, 0));
 
+  const Phong *ph100 = Material::phong (100, Color (0.3, 0.3, 0.3));
+
   Material *sphereMat
-    = scene.add (new Phong (100,
-			    Color (0.249804, 0.218627, 0.0505882),
-			    Color (0.3, 0.3, 0.3)));
+    = scene.add (new Material (Color (0.249804, 0.218627, 0.0505882), ph100));
   Material *grey
-    = scene.add (new Lambert (Color (0.3, 0.3, 0.3)));
+    = scene.add (new Material (Color (0.3, 0.3, 0.3)));
 
   scene.add (new Sphere (sphereMat, Pos (0, 0, 0), 1));
 
@@ -194,16 +199,19 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   camera.move (Pos (6, 6, 6));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
 
+  const Phong *ph300_1 = Material::phong (300, Color (1, 1, 1));
+  const Phong *ph300_2 = Material::phong (300, Color (2, 2, 2));
+
   Material *shinyBlack
-    = scene.add (new Phong (300, Color (0.02, 0.02, 0.02), Color (2, 2, 2)));
+    = scene.add (new Material (Color (0.02, 0.02, 0.02), ph300_2));
   Material *shinyWhite
-    = scene.add (new Phong (300, Color (0.6, 0.6, 0.6), Color (1, 1, 1)));
+    = scene.add (new Material (Color (0.6, 0.6, 0.6), ph300_1));
   Material *shinyGray
-    = scene.add (new Phong (300, Color (0.2, 0.2, 0.2), Color (2, 2, 2)));
+    = scene.add (new Material (Color (0.2, 0.2, 0.2), ph300_2));
   Material *boxMat
-    = scene.add (new Lambert (Color (0.3, 0.19, 0.09)));
+    = scene.add (new Material (Color (0.3, 0.19, 0.09)));
   Material *gray
-    = scene.add (new Lambert (Color (0.6, 0.6, 0.6)));
+    = scene.add (new Material (Color (0.6, 0.6, 0.6)));
 	
   // box
   // front
@@ -314,11 +322,11 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
 
     case 10:
       extern TestSceneParams teapot_test_scene_params;
-      define_test_scene (&teapot_test_scene_params, 35, scene, camera);
+      define_test_scene (&teapot_test_scene_params, 115, scene, camera);
       break;
     case 11:
       extern TestSceneParams balls_test_scene_params;
-      define_test_scene (&balls_test_scene_params, 20, scene, camera);
+      define_test_scene (&balls_test_scene_params, 18, scene, camera);
       break;
     case 12:
       extern TestSceneParams rings_test_scene_params;
@@ -330,7 +338,7 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       break;
     case 14:
       extern TestSceneParams mount_test_scene_params;
-      define_test_scene (&mount_test_scene_params, 5000, scene, camera);
+      define_test_scene (&mount_test_scene_params, 35000, scene, camera);
       break;
     case 15:
       extern TestSceneParams tree_test_scene_params;
@@ -342,11 +350,11 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       break;
     case 17:
       extern TestSceneParams sample_test_scene_params;
-      define_test_scene (&sample_test_scene_params, 200, scene, camera);
+      define_test_scene (&sample_test_scene_params, 700, scene, camera);
       break;
     case 18:
       extern TestSceneParams nurbtst_test_scene_params;
-      define_test_scene (&nurbtst_test_scene_params, 1000, scene, camera);
+      define_test_scene (&nurbtst_test_scene_params, 2500, scene, camera);
       break;
     case 19:
       extern TestSceneParams lattice_test_scene_params;
@@ -376,9 +384,22 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       extern TestSceneParams f15_test_scene_params;
       define_test_scene (&f15_test_scene_params, 2500, scene, camera);
       break;
+
     case 26:
       extern TestSceneParams balls_5_test_scene_params;
-      define_test_scene (&balls_5_test_scene_params, 20, scene, camera);
+      define_test_scene (&balls_5_test_scene_params, 18, scene, camera);
+      break;
+    case 27:
+      extern TestSceneParams teapot_14_test_scene_params;
+      define_test_scene (&teapot_14_test_scene_params, 115, scene, camera);
+      break;
+    case 28:
+      extern TestSceneParams teapot_22_test_scene_params;
+      define_test_scene (&teapot_22_test_scene_params, 115, scene, camera);
+      break;
+    case 29:
+      extern TestSceneParams teapot_30_test_scene_params;
+      define_test_scene (&teapot_30_test_scene_params, 115, scene, camera);
       break;
     }
 }

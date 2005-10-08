@@ -22,8 +22,6 @@ class Mesh : public Obj
 {
 public:
 
-  static const enum Error { FILE_FORMAT_ERROR, TOO_MANY_VERTICES_ERROR };
-
   Mesh (const Material *mat) : Obj (mat), parts (0) { }
 
   virtual dist_t intersection_distance (const Ray &ray) const;
@@ -32,7 +30,7 @@ public:
 
   virtual BBox bbox () const;
 
-  static Mesh *read_msh_file (istream stream);
+  static Mesh *read_msh (istream stream);
 
 protected:
 

@@ -1,4 +1,4 @@
-// glow.cc -- Constant-color lighting model
+// light-model.cc -- Lighting-model abstraction
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,18 +9,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <iostream>
-
-#include "glow.h"
-
-#include "intersect.h"
+#include "light-model.h"
 
 using namespace Snogray;
 
-Color
-Glow::render (const Intersect &isec, Scene &scene, unsigned depth) const
-{
-  return color;
-}
+LightModel::~LightModel () { } // stop gcc bitching
 
-// arch-tag: af19d9b6-7b4a-49ec-aee4-529be6aba253
+// arch-tag: 033d3c2b-212c-4036-881b-ec8574b3aa30
