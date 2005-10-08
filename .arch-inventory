@@ -1,5 +1,7 @@
+source ^(\.gdbrc)$
+
 # Ignore generated binaries
-#
+
 backup ^(snogray|snogcvt)$
 
 # arch-tag: 4938c158-1080-44bb-a904-898a34b9584f

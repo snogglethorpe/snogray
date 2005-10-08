@@ -20,10 +20,12 @@
 namespace Snogray {
 
 class Material;
+class Voxtree;
 
 class Obj 
 {
 public:
+  Obj () : no_shadow (false) { }
   virtual ~Obj (); // stop gcc bitching
 
   virtual dist_t intersection_distance (const Ray &ray) const;
@@ -53,6 +55,15 @@ public:
   // Returns the material this object is made from
   //
   virtual const Material *material () const;
+
+  // Add this (or some other ...) objects to SPACE
+  //
+  virtual void add_to_space (Voxtree &space);
+
+  // Ideally this would be represented via some virtual method instead, but
+  // it gets used _very_ often and doing so slows down tracing by about 2%.
+  //
+  bool no_shadow;
 };
 
 }

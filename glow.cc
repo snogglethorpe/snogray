@@ -17,14 +17,6 @@
 
 using namespace Snogray;
 
-// Return true if this material casts no shadow
-//
-bool
-Glow::no_shadow () const
-{
-  return true;
-}
-
 Color
 Glow::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {

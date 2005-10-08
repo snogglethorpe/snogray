@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 #include "obj.h"
+#include "voxtree.h"
 
 using namespace Snogray;
 
@@ -50,7 +51,15 @@ Obj::bbox () const
 const Material *
 Obj::material () const
 {
-  throw std::runtime_error ("tried to render base object");
+  throw std::runtime_error ("tried to render abstract object");
+}
+
+// Add this (or some other ...) objects to SPACE
+//
+void
+Obj::add_to_space (Voxtree &space)
+{
+  space.add (this);
 }
 
 // arch-tag: a62e1854-d7ca-4cb3-a8dc-9be328c53430

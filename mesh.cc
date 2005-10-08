@@ -36,13 +36,17 @@ public:
   //
   virtual BBox bbox () const;
 
+  // Returns the material this object is made from
+  //
+  virtual const Material *material () const;
+
   const Pos &v0 () const { return mesh->vertices[v0i]; }
   const Pos &v1 () const { return mesh->vertices[v1i]; }
   const Pos &v2 () const { return mesh->vertices[v2i]; }
 
   Mesh *mesh;
 
-  vertex_index_t v0i, v1i, v2i;
+  unsigned v0i, v1i, v2i;
 };
 
 
@@ -89,10 +93,6 @@ Mesh::load_msh_file (istream &stream)
   stream >> num_vertices;
   stream >> num_triangles;
 
-  // For the time being, we only support meshes up to 65536 vertices
-  if (num_vertices > 65536)
-    throw bad_format ("too many vertices (must be less than 65536)");
-
   vertices = new Pos[num_vertices];
   triangles = new Triangle[num_triangles];
 
@@ -118,10 +118,8 @@ Mesh::load_msh_file (istream &stream)
       stream >> triangles[i].v0i;
       stream >> triangles[i].v1i;
       stream >> triangles[i].v2i;
+      triangles[i].mesh = this;
     }
-
-  
-  
 }
 
 
@@ -175,7 +173,13 @@ Mesh::Triangle::intersection_distance (const Ray &ray) const
 Vec
 Mesh::Triangle::normal (const Pos &point, const Vec &eye_dir) const
 {
-  return ((v1() - v0()).cross (v1() - v2())).unit ();
+  Vec norm (((v1() - v0()).cross (v2() - v1())).unit ());
+
+  // Triangles are visible from both sides, so keep the normal sane
+  if (norm.dot (eye_dir) < 0)
+    norm = -norm;
+
+  return norm;
 }
 
 // Return a bounding box for this object.
@@ -186,6 +190,36 @@ Mesh::Triangle::bbox () const
   bbox.include (v1 ());
   bbox.include (v2 ());
   return bbox;
+}
+
+// Returns the material this object is made from
+//
+const Material *
+Mesh::Triangle::material () const
+{
+  return mesh->material ();
+}
+
+
+
+Mesh::~Mesh ()
+{
+  if (triangles)
+    delete[] triangles;
+  if (vertices)
+    delete[] vertices;
+}
+
+// Add this (or some other ...) objects to SPACE
+//
+void
+Mesh::add_to_space (Voxtree &space)
+{
+  if (! triangles)
+    throw std::runtime_error ("cannot instantiate unloaded mesh");
+
+  for (unsigned i = 0; i < num_triangles; i++)
+    triangles[i].add_to_space (space);
 }
 
 // arch-tag: 3090c323-f2dd-48ef-b8fc-20ce5d687c66

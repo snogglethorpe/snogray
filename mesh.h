@@ -33,26 +33,17 @@ public:
       vertices (0), num_vertices (0),
       triangles (0), num_triangles (0)
   { load (file_name); }
+  virtual ~Mesh ();
 
-  virtual dist_t intersection_distance (const Ray &ray) const;
-
-  virtual Vec normal (const Pos &point, const Vec &eye_dir) const;
-
-  virtual BBox bbox () const;
+  // Add this (or some other ...) objects to SPACE
+  //
+  virtual void add_to_space (Voxtree &space);
 
   // For loading mesh from any file-type (automatically determined)
   void load (const char *file_name);
 
   // For loading mesh from .msh file
   void load_msh_file (std::istream &stream);
-
-protected:
-
-  // We use a 16-bit index for triangle vertex references.
-  // If there are more than 2^16 vertices, we'll have to use extra mesh
-  // objects to divide things up.
-  //
-  typedef unsigned short vertex_index_t;
 
 private:
 

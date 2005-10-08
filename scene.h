@@ -53,7 +53,7 @@ public:
   Obj *add (Obj *obj)
   {
     objs.push_back (obj);
-    obj_voxtree.add (obj);
+    obj->add_to_space (obj_voxtree);
     return obj;
   }
 

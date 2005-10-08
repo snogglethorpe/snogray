@@ -18,6 +18,7 @@
 #include "phong.h"
 #include "glow.h"
 #include "mirror.h"
+#include "mesh.h"
 #include "test-scene.h"
 
 using namespace Snogray;
@@ -32,7 +33,7 @@ add_bulb (Scene &scene, const Pos &pos, float intens,
 {
   Material *bulb_mat = scene.add (new Glow (intens * col));
   scene.add (new Light (pos, intens, col));
-  scene.add (new Sphere (bulb_mat, pos, 0.06));
+  scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
 }
 
 static void
@@ -117,6 +118,25 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 				 pos + Vec(-0.5,-0.2,-1.1),
 				 pos + Vec(-0.5,-0.2,1.1)));
       }
+}
+
+
+
+static void
+def_scene_miles_test2 (Scene &scene, Camera &camera)
+{
+  Material *mat
+    = scene.add (new Mirror (0.8, Color::white * 0.2, 100));
+
+  Mesh *mesh = new Mesh (mat);
+  mesh->load ("teapot-30.msh");
+  scene.add (mesh);
+
+  scene.add (new Light (Pos (-3.1, 9.8, 12.1), 100));
+  scene.add (new Light (Pos (11.3, 5.1, 8.8), 100));
+
+  camera.move (Pos (4.86, 7.2, 5.4));
+  camera.point (Pos (0, 0, 0), Vec (0, 0, 1));
 }
 
 
@@ -320,6 +340,9 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       def_scene_miles_test1 (scene, camera, 2); break;
     case 6:
       def_scene_miles_test1 (scene, camera, 3); break;
+
+    case 7:
+      def_scene_miles_test2 (scene, camera); break;
 
     case 10:
       extern TestSceneParams teapot_test_scene_params;

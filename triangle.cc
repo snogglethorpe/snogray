@@ -64,7 +64,7 @@ Triangle::intersection_distance (const Ray &ray) const
 Vec
 Triangle::normal (const Pos &point, const Vec &eye_dir) const
 {
-  Vec norm = ((v1 - v0).cross (v1 - v2)).unit ();
+  Vec norm (((v1 - v0).cross (v1 - v2)).unit ());
 
   // Triangles are visible from both sides, so keep the normal sane
   if (norm.dot (eye_dir) < 0)

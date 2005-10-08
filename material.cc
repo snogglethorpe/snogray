@@ -102,12 +102,4 @@ Material::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
     return Color::funny;
 }
 
-// Return true if this material casts no shadow
-//
-bool
-Material::no_shadow () const
-{
-  return false;
-}
-
 // arch-tag: 3d971faa-322c-4479-acf0-effb05aca10a
