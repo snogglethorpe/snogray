@@ -53,16 +53,16 @@ _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
 #
 
-IMAGE_SRCS = image.cc image-cmdline.cc image-exr.cc image-jpeg.cc	\
-	  image-png.cc image-rgb-byte.cc
+IMAGE_SRCS = image.cc image-aa.cc image-cmdline.cc image-exr.cc	\
+	  image-jpeg.cc image-png.cc image-rgb-byte.cc
 
 COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 
 #
 
-SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc material.cc obj.cc	\
-	  phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc		\
-	  triangle.cc voxtree.cc $(COMMON_SRCS)
+SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc material.cc	\
+	  obj.cc phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc	\
+	  test-scenes.cc triangle.cc voxtree.cc $(COMMON_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 

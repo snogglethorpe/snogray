@@ -14,6 +14,7 @@
 using namespace Snogray;
 using namespace std;
 
+
 Voxtree::IntersectCallback::~IntersectCallback () { } // stop gcc bitching
 
 

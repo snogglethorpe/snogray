@@ -150,12 +150,22 @@ Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
 
 // 
 
+#include <iostream>
+
 Color
 Scene::render (const Intersect &isec)
 {
   if (isec.obj)
     {
-      if (isec.normal.dot (isec.eye_dir) >= 0)
+      // If the dot product of the surface normal with the eye ray is
+      // negative, we're looking at the back of the surface; we render
+      // this as a striking color to make it easier to detect mistakes.
+      // However to accomodate small cumulative errors, we allow very
+      // small negative dot-products as if they were zero.
+      //
+      if (isec.normal.dot (isec.eye_dir) >= -0.0001)
+	// Looking at the top of the surface, continue with normal
+	// rendering.
 	{
 	  Color total_color;
 
@@ -180,7 +190,11 @@ Scene::render (const Intersect &isec)
 	  return total_color;
 	}
       else
+	// Looking at the back of the surface, render as wacky color.
+	{
+	  std::cerr << "funny..." << endl;
 	return Color::funny;
+	}
     }
   else
     return Color::black;
