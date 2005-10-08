@@ -13,11 +13,13 @@ TARGETS = snogray
 
 all: $(TARGETS)
 
-CFLAGS = -O5 -g $(MACHINE_CFLAGS)
+#PG = -pg
+CFLAGS = -O5 -g $(MACHINE_CFLAGS) $(PG)
+LDFLAGS = $(PG)
 
 HOST_CFLAGS_dhapc248.dev.necel.com = $(ARCH_CFLAGS_pentium4)
-ARCH_CFLAGS_pentium3 = -march=pentium3
-ARCH_CFLAGS_pentium4 = -march=pentium4
+ARCH_CFLAGS_pentium3 = -march=pentium3 -fomit-frame-pointer
+ARCH_CFLAGS_pentium4 = -march=pentium4 -fomit-frame-pointer
 ARCH_CFLAGS_i686 = $(ARCH_CFLAGS_pentium3)
 
 CXXFLAGS = $(CFLAGS)
@@ -46,7 +48,7 @@ CXXSRCS = camera.cc cmdlineparser.cc color.cc glow.cc image.cc		\
 OBJS = $(CXXSRCS:.cc=.o)
 
 snogray: $(OBJS)
-	$(CXX) -o $@ $(OBJS) $(LIBS)
+	$(CXX) -o $@ $(LDFLAGS) $(OBJS) $(LIBS)
 
 # OpenEXR include files expect their include directory to be in the include path
 image-exr.o: image-exr.cc

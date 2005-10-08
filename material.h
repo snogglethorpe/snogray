@@ -18,11 +18,12 @@
 
 namespace Snogray {
 
+class Intersect;
+
 class Material
 {
 public:
-  virtual const Color render (const class Obj *obj, const Pos &point,
-			      const Vec &normal, const Vec &eye_dir,
+  virtual const Color render (const Intersect &isec,
 			      const Vec &light_dir, const Color &light_color)
     const = 0;
 };

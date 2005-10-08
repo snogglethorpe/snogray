@@ -10,6 +10,8 @@
 //
 
 #include <iostream>
+#include <iomanip>
+#include <string>
 #include <cstring>
 
 #include "cmdlineparser.h"
@@ -266,6 +268,31 @@ parse_limit_opt_arg (CmdLineParser &clp,
 }
 
 
+// Random string helper functions
+
+// Return a string version of NUM
+static string 
+stringify (unsigned num)
+{
+  string str = (num > 9) ? stringify (num / 10) : "";
+  char ch = (num % 10) + '0';
+  str += ch;
+  return str;
+}
+
+// Return a string version of NUM, with commas added every 3rd place
+static string 
+commify (unsigned long long num, unsigned sep_count = 1)
+{
+  string str = (num > 9) ? commify (num / 10, sep_count % 3 + 1) : "";
+  char ch = (num % 10) + '0';
+  if (sep_count == 3 && num > 9)
+    str += ',';
+  str += ch;
+  return str;
+}
+
+
 // Main driver
 
 int main (int argc, char *const *argv)
@@ -428,31 +455,39 @@ int main (int argc, char *const *argv)
   // Print image info
   if (! quiet)
     {
-      cout << "image.size = " << final_width << " x " << final_height << endl;
+      cout << "image.size:	    "
+	   << setw (11) << (stringify (final_width)
+			    + " x " + stringify (final_height))
+	   << endl;
       if (limit_x != 0 || limit_y != 0
 	  || limit_width != final_width || limit_height != final_height)
-	cout << "image.limit = "
-	     << limit_x << "," << limit_y
-	     << " - " << limit_x + limit_width << "," << limit_y + limit_height
+	cout << "image.limit:"
+	     << setw (19) << (stringify (limit_x) + "," + stringify (limit_y)
+			      + " - " + stringify (limit_x + limit_width)
+			      + "," + stringify (limit_y + limit_height))
 	     << " (" << limit_width << " x "  << limit_height << ")"
 	     << endl;
 
       if (target_gamma_used)
-	cout << "image.target_gamma = " << target_gamma << endl;
+        cout << "image.target_gamma:        "
+	     << setw (4) << target_gamma << endl;
 
       // Anti-aliasing info
       if ((aa_factor + aa_overlap) > 1)
 	{
 	  if (aa_factor > 1)
-	    cout << "image.aa_factor = " << aa_factor << endl;
+	    cout << "image.aa_factor:           "
+		 << setw (4) << aa_factor << endl;
 
 	  if (aa_overlap > 0)
-	    cout << "image.aa_kernel_size = " << (aa_factor + aa_overlap*2)
+	    cout << "image.aa_kernel_size:      "
+		 << setw (4) << (aa_factor + aa_overlap*2)
 		 << " (overlap = " << aa_overlap << ")" << endl;
 	  else
-	    cout << "image.aa_kernel_size = " << aa_factor << endl;
+	    cout << "image.aa_kernel_size:      "
+		 << setw (4) << aa_factor << endl;
 
-	  cout << "image.aa_filter = ";
+	  cout << "image.aa_filter:       " << setw (8);
 	  if (aa_filter == ImageOutput::aa_box_filter)
 	    cout << "box";
 	  else if (aa_filter == ImageOutput::aa_triang_filter)
@@ -474,9 +509,16 @@ int main (int argc, char *const *argv)
   // Print scene info
   if (! quiet)
     {
-      cout << "scene.num_objects = " << scene.objs.size () << endl;
-      cout << "scene.num_lights = " << scene.lights.size () << endl;
-      cout << "scene.num_materials = " << scene.materials.size () << endl;
+      cout << "scene.num_objects:   "
+	   << setw (10) << commify (scene.objs.size ()) << endl;
+      cout << "scene.num_lights:    "
+	   << setw (10) << commify (scene.lights.size ()) << endl;
+      cout << "scene.num_materials:  "
+	   << setw (9) << commify (scene.materials.size ()) << endl;
+      cout << "scene.voxtree_num_nodes:"
+	   << setw (7) << commify (scene.obj_voxtree.num_nodes ()) << endl;
+      cout << "scene.voxtree_max_depth:"
+	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
     }
 
   // The image we're creating
@@ -488,6 +530,9 @@ int main (int argc, char *const *argv)
   unsigned hr_limit_max_x = hr_limit_x + limit_width * aa_factor;
   unsigned hr_limit_max_y = hr_limit_y + limit_height * aa_factor;
 
+  if (! quiet)
+    cout << endl;
+
   // Main ray-tracing loop
   for (unsigned y = hr_limit_y; y < hr_limit_max_y; y++)
     {
@@ -497,10 +542,12 @@ int main (int argc, char *const *argv)
       if (progress)
 	{
 	  if (aa_factor > 1)
-	    cout << "\rrendering: line " << y / aa_factor
+	    cout << "\rrendering: line "
+		 << setw (5) << y / aa_factor
 		 << "_" << (y - (y / aa_factor) * aa_factor);
 	  else
-	    cout << "\rrendering: line " << y;
+	    cout << "\rrendering: line "
+		 << setw (5) << y;
 	  cout << " (" << (y - hr_limit_y) * 100 / (hr_limit_max_y - hr_limit_y)
 	       << "%)";
 	  cout.flush ();
@@ -517,20 +564,41 @@ int main (int argc, char *const *argv)
     }
 
   if (progress)
-    cout << endl;
+    {
+      cout << "\rrendering: done              " << endl;
+      if (! quiet)
+	cout << endl;
+    }
 
   // Print render stats
   if (! quiet)
     {
-      Scene::Stats &stats = scene.stats;
-      cout << "stats.scene_closest_intersect_calls = "
-	   << stats.scene_closest_intersect_calls << endl;
-      cout << "stats.obj_closest_intersect_calls = "
-	   << stats.obj_closest_intersect_calls << endl;
-      cout << "stats.scene_intersects_calls = "
-	   << stats.scene_intersects_calls << endl;
-      cout << "stats.obj_intersects_calls = "
-	   << stats.obj_intersects_calls << endl;
+      Scene::Stats &sstats = scene.stats;
+      Voxtree::Stats &vstats1 = sstats.voxtree_closest_intersect;
+      Voxtree::Stats &vstats2 = sstats.voxtree_intersects;
+
+      cout << "Stats:" << endl;
+
+      cout << "  closest_intersect:" << endl;
+      cout << "     scene calls:       "
+	   << setw (14) << commify (sstats.scene_closest_intersect_calls)
+	   << endl;
+      cout << "     voxtree calls:     "
+	   << setw (14) << commify (vstats1.tree_intersect_calls) << endl;
+      cout << "     voxtree node calls:"
+	   << setw (14) << commify (vstats1.node_intersect_calls) << endl;
+      cout << "     obj calls:         "
+	   << setw (14) << commify (sstats.obj_closest_intersect_calls) << endl;
+
+      cout << "  intersects:" << endl;
+      cout << "     scene calls:       "
+	   << setw (14) << commify (sstats.scene_intersects_calls) << endl;
+      cout << "     voxtree calls:     "
+	   << setw (14) << commify (vstats2.tree_intersect_calls) << endl;
+      cout << "     voxtree node calls:"
+	   << setw (14) << commify (vstats2.node_intersect_calls) << endl;
+      cout << "     obj calls:         "
+	   << setw (14) << commify (sstats.obj_intersects_calls) << endl;
     }
 }
 

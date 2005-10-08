@@ -37,13 +37,13 @@ public:
 
   void finish ()
   {
-    point = ray.extension (distance);
+    if (obj)
+      {
+	eye_dir = -ray.dir;
+	point = ray.extension (distance);
+	normal = obj->normal (point, eye_dir);
+      }
   }
-
-  // Return the color seen from RAY's point of view, of the intersected
-  // object; if there is no current intersected object, black is returned.
-  Color render (const Vec &light_dir, const Color &light_color)
-    const;
 
   // Ray which intersected something.
   Ray ray;
@@ -53,7 +53,10 @@ public:
   const Obj *obj;		// If 0, no intersection
   dist_t distance;		// Distance to intersection point on OBJ
 
-  Pos point;			// Only valid once finish() is called
+  // Only valid once finish() is called, and if OBJ is non-NULL
+  Pos point;
+  Vec eye_dir;
+  Vec normal;
 };
 
 }

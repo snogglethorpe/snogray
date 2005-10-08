@@ -30,13 +30,21 @@ public:
   void add (Obj *obj, const BBox &obj_bbox);
   void add (Obj *obj) { add (obj, obj->bbox ()); }
 
+  struct Stats {
+    Stats () : tree_intersect_calls (0),
+	       node_intersect_calls (0)
+    { }
+    unsigned long long tree_intersect_calls;
+    unsigned long long node_intersect_calls;
+  };
+
   // A callback for `for_each_possible_intersector'.  Users of
   // `for_each_possible_intersector' must subclass this, providing their
   // own operator() method, and adding any extra data fields they need.
   //
   struct IntersectCallback
   {
-    IntersectCallback () : stop (false) { }
+    IntersectCallback (Stats *_stats) : stop (false), stats (_stats) { }
 
     virtual bool operator() (Obj *) = 0;
 
@@ -44,6 +52,9 @@ public:
 
     // If set to true, return from iterator immediately
     bool stop;
+
+    // This is used for stats gathering
+    Stats *stats;
   };
 
   // Call CALLBACK for each object in the voxel tree that _might_
@@ -53,6 +64,9 @@ public:
   void for_each_possible_intersector (const Ray &ray,
 				      IntersectCallback &callback)
     const;
+
+  unsigned num_nodes () const { return root ? root->num_nodes() : 0; }
+  unsigned max_depth () const { return root ? root->max_depth() : 0; }
 
   // One corner of the voxtree
   Pos origin;
@@ -121,6 +135,9 @@ private:
       node->add (obj, obj_bbox, x, y, z, size);
     }
     
+    unsigned num_nodes () const;
+    unsigned max_depth (unsigned cur_sibling_max = 0) const;
+
     // Objects at this level of the tree.  All objects listed in a node
     // must fit entirely within it.  Any given object is only present in
     // a single node.

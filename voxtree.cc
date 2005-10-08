@@ -26,6 +26,9 @@ Voxtree::for_each_possible_intersector (const Ray &ray,
 					IntersectCallback &callback)
   const
 {
+  if (callback.stats)
+    callback.stats->tree_intersect_calls++;
+
   if (root)
     {
       // Compute the intersections of RAY with each of ROOT's bounding
@@ -97,6 +100,9 @@ Voxtree::Node::for_each_possible_intersector (IntersectCallback &callback,
   coord_t x_min = x_min_isec.x, x_max = x_max_isec.x;
   coord_t y_min = y_min_isec.y, y_max = y_max_isec.y;
   coord_t z_min = z_min_isec.z, z_max = z_max_isec.z;
+
+  if (callback.stats)
+    callback.stats->node_intersect_calls++;
 
   // Check to see if RAY intersects any of our faces.  Because we
   // already have the boundary-plane intersection points of RAY in the
@@ -359,7 +365,7 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
   // descendent node they eventually end up in, allowing the voxtree to
   // reject more rays before reaching them.
   //
-  bool force_into_subnodes = obj_bbox.size() < size / 2;
+  bool force_into_subnodes = obj_bbox.size() < size / 4;
 
   if (obj_bbox.max.x < mid_x
       || (force_into_subnodes && obj_bbox.min.x < mid_x))
@@ -477,6 +483,58 @@ Voxtree::Node::~Node ()
     delete x_hi_y_hi_z_lo;
   if (x_hi_y_hi_z_hi)
     delete x_hi_y_hi_z_hi;
+}
+
+unsigned
+Voxtree::Node::num_nodes () const
+{
+  unsigned num = 1;
+  if (x_lo_y_lo_z_lo)
+    num += x_lo_y_lo_z_lo->num_nodes ();
+  if (x_lo_y_lo_z_hi)
+    num += x_lo_y_lo_z_hi->num_nodes ();
+  if (x_lo_y_hi_z_lo)
+    num += x_lo_y_hi_z_lo->num_nodes ();
+  if (x_lo_y_hi_z_hi)
+    num += x_lo_y_hi_z_hi->num_nodes ();
+  if (x_hi_y_lo_z_lo)
+    num += x_hi_y_lo_z_lo->num_nodes ();
+  if (x_hi_y_lo_z_hi)
+    num += x_hi_y_lo_z_hi->num_nodes ();
+  if (x_hi_y_hi_z_lo)
+    num += x_hi_y_hi_z_lo->num_nodes ();
+  if (x_hi_y_hi_z_hi)
+    num += x_hi_y_hi_z_hi->num_nodes ();
+
+  return num;
+}
+
+unsigned
+Voxtree::Node::max_depth (unsigned cur_sibling_max) const
+{
+  unsigned sub_max = 0;
+
+  if (x_lo_y_lo_z_lo)
+    sub_max = x_lo_y_lo_z_lo->max_depth (sub_max);
+  if (x_lo_y_lo_z_hi)
+    sub_max = x_lo_y_lo_z_hi->max_depth (sub_max);
+  if (x_lo_y_hi_z_lo)
+    sub_max = x_lo_y_hi_z_lo->max_depth (sub_max);
+  if (x_lo_y_hi_z_hi)
+    sub_max = x_lo_y_hi_z_hi->max_depth (sub_max);
+  if (x_hi_y_lo_z_lo)
+    sub_max = x_hi_y_lo_z_lo->max_depth (sub_max);
+  if (x_hi_y_lo_z_hi)
+    sub_max = x_hi_y_lo_z_hi->max_depth (sub_max);
+  if (x_hi_y_hi_z_lo)
+    sub_max = x_hi_y_hi_z_lo->max_depth (sub_max);
+  if (x_hi_y_hi_z_hi)
+    sub_max = x_hi_y_hi_z_hi->max_depth (sub_max);
+
+  if (sub_max + 1> cur_sibling_max)
+    return sub_max + 1;
+  else
+    return cur_sibling_max;
 }
 
 // arch-tag: ec7b70cc-3cf6-40f3-9ec6-0ce71dbd20c5

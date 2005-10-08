@@ -32,7 +32,9 @@ Scene::~Scene ()
 
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
-  SceneClosestIntersectCallback (const Ray &ray) : isec (ray), num_calls (0) { }
+  SceneClosestIntersectCallback (const Ray &ray, Voxtree::Stats *stats = 0)
+    : IntersectCallback (stats), isec (ray), num_calls (0)
+  { }
 
   virtual bool operator() (Obj *);
 
@@ -51,7 +53,8 @@ SceneClosestIntersectCallback::operator () (Obj *obj)
 Intersect
 Scene::closest_intersect (const Ray &ray)
 {
-  SceneClosestIntersectCallback closest_isec_cb (ray);
+  SceneClosestIntersectCallback
+    closest_isec_cb (ray, &stats.voxtree_closest_intersect);
 
   stats.scene_closest_intersect_calls++;
 
@@ -70,8 +73,10 @@ Scene::closest_intersect (const Ray &ray)
 
 struct SceneAnyIntersectCallback : Voxtree::IntersectCallback
 {
-  SceneAnyIntersectCallback (const Ray &_ray, const Obj *_ignore = 0)
-    : intersects (false), ray (_ray), ignore (_ignore), num_calls (0)
+  SceneAnyIntersectCallback (const Ray &_ray, const Obj *_ignore = 0,
+			     Voxtree::Stats *stats = 0)
+    : IntersectCallback (stats), 
+      intersects (false), ray (_ray), ignore (_ignore), num_calls (0)
   { }
 
   virtual bool operator() (Obj *);
@@ -98,7 +103,8 @@ SceneAnyIntersectCallback::operator () (Obj *obj)
 bool
 Scene::intersects (const Ray &ray, const Obj *ignore)
 {
-  SceneAnyIntersectCallback any_isec_cb (ray, ignore);
+  SceneAnyIntersectCallback
+    any_isec_cb (ray, ignore, &stats.voxtree_intersects);
 
   stats.scene_intersects_calls++;
 
@@ -115,22 +121,39 @@ Scene::intersects (const Ray &ray, const Obj *ignore)
 Color
 Scene::render (const Intersect &isec)
 {
-  Color total_color;
-
-  for (list<Light *>::const_iterator li = lights.begin();
-       li != lights.end();
-       li++)
+  if (isec.obj)
     {
-      Light *light = *li;
-      Ray light_ray = Ray (isec.point, light->pos);
+      if (isec.normal.dot (isec.eye_dir) >= 0)
+	{
+	  Color total_color;
 
-      if (! intersects (light_ray, isec.obj))
-	total_color
-	  += isec.render (light_ray.dir,
-			  light->color / (light_ray.len * light_ray.len));
+	  for (list<Light *>::const_iterator li = lights.begin();
+	       li != lights.end();
+	       li++)
+	    {
+	      Light *light = *li;
+	      Ray light_ray = Ray (isec.point, light->pos);
+
+	      if (isec.normal.dot (light_ray.dir) >= 0
+		  && !intersects (light_ray, isec.obj))
+		{
+		  Color light_color
+		    = light->color / (light_ray.len * light_ray.len);
+		  total_color
+		    += isec.obj->material->render (isec,
+						   light_ray.dir, light_color);
+		}
+	    }
+
+	  return total_color;
+	}
+      else
+	return Color::funny;
     }
-
-  return total_color;
+  else
+    return Color::black;
 }
+    
+
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558

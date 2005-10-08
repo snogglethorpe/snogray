@@ -58,10 +58,12 @@ public:
 	       scene_intersects_calls (0),
 	       obj_intersects_calls (0)
     { }
-    unsigned scene_closest_intersect_calls;
-    unsigned obj_closest_intersect_calls;
-    unsigned scene_intersects_calls;
-    unsigned obj_intersects_calls;
+    unsigned long long scene_closest_intersect_calls;
+    unsigned long long obj_closest_intersect_calls;
+    unsigned long long scene_intersects_calls;
+    unsigned long long obj_intersects_calls;
+    Voxtree::Stats voxtree_closest_intersect;
+    Voxtree::Stats voxtree_intersects;
   } stats;
 
   std::list<Obj *> objs;

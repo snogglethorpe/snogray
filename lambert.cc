@@ -15,12 +15,12 @@
 
 using namespace Snogray;
 
-const Color Lambert::render (const Obj *obj, const Pos &point,
-			     const Vec &normal, const Vec &eye_dir,
-			     const Vec &light_dir, const Color &light_color)
+const Color
+Lambert::render (const Intersect &isec,
+		 const Vec &light_dir, const Color &light_color)
   const
 {
-  float diffuse_component = normal.dot (light_dir);
+  float diffuse_component = isec.normal.dot (light_dir);
 
   if (diffuse_component > 0)
     return color.lit_by (light_color) * diffuse_component;
