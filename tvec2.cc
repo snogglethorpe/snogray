@@ -2,7 +2,7 @@
 
 void do_tests (Vec &v1, Vec &v2, Vec &v3)
 {
-  v2 = v1.normal();
+  v2 = v1.unit ();
   v3 = v1.cross (v2);
 }
 

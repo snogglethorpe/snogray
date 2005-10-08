@@ -8,6 +8,10 @@ public:
   virtual void closest_intersect (Intersect &isec) const;
   virtual bool intersects (const Ray &ray) const;
 
+private:
+  Space::dist_t intersection_distance (const Ray &ray) const;
+
+  Pos center;
   Space::dist_t radius;
 };
 

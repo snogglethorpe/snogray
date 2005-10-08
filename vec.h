@@ -49,20 +49,18 @@ public:
     return sqrtf (x * x + y * y + z * z);
   }
 
-  Vec cross (const Vec &vec2) const
-  {
-    return Vec (y * vec2.z - z * vec2.y,
-		 z * vec2.x - x * vec2.z,
-		 x * vec2.y - y * vec2.x);
-  }
-
-  Vec normal () const
+  Vec unit () const
   {
     dist_t len = length ();
     if (len == 0)
       return Vec (0, 0, 0);
     else
       return Vec (x / len, y / len, z / len);
+  }
+
+  Vec cross (const Vec &vec2) const
+  {
+    return Vec (y*vec2.z - z*vec2.y, z*vec2.x - x*vec2.z, x*vec2.y - y*vec2.x);
   }
 };
 

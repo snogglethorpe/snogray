@@ -14,20 +14,17 @@ public:
 
   bool hit () { !!obj; }
 
-  bool set_if_closer (Vec::dist_t new_distance, Pos new_point, Vec new_normal)
+  void set (const class Obj *_obj, Vec::dist_t _distance, Pos _point, Vec _normal)
   {
-    if (!obj || new_distance < distance)
-      {
-	point = new_point;
-	normal = new_normal;
-      }
+    point = _point;
+    normal = _normal;
   }
 
   Color render () const;
 
   Ray ray;
 
-  class Obj *obj; /* If 0, no intersection */
+  const class Obj *obj; /* If 0, no intersection */
   Vec::dist_t distance;
   Pos point;
   Vec normal;

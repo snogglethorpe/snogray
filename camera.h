@@ -22,7 +22,7 @@ public:
 
   void point (const Vec &vec, const Vec &user_up)
   {
-    forward = vec.normal ();
+    forward = vec.unit ();
     right = forward.cross (user_up);
     up = right.cross (forward);
   }

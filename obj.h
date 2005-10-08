@@ -13,7 +13,6 @@ public:
   virtual void closest_intersect (Intersect &isec) const;
   virtual bool intersects (const Ray &ray) const;
 
-  Pos pos;
   Material *material;
 };
 

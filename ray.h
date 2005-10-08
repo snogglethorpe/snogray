@@ -10,6 +10,9 @@ public:
   Ray (Pos _origin, Pos _targ) { origin = _origin; dir = _targ - _origin; }
   Ray () {}
 
+  /* Returns the end point of the ray.  */
+  Pos extension (float scale) const { return origin + dir * scale; }
+
   Pos origin;
   Vec dir;
 };
