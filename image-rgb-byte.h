@@ -30,10 +30,11 @@ class RgbByteImageSink : public ImageSink
 {
 public:
 
-  RgbByteImageSink (const RgbByteImageSinkParams &params)
+  RgbByteImageSink (unsigned width, unsigned height,
+		    const RgbByteImageSinkParams &params)
     : ImageSink (params),
       gamma_correction (params.target_gamma == 0 ? 0 : 1 / params.target_gamma),
-      output_row (new unsigned char[params.width * 3])
+      output_row (new unsigned char[width * 3])
   { }
   ~RgbByteImageSink ();
 

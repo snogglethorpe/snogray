@@ -20,7 +20,8 @@ using namespace Snogray;
 class PngImageSink : public RgbByteImageSink
 {  
 public:
-  PngImageSink (const PngImageSinkParams &params);
+  PngImageSink (unsigned width, unsigned height,
+		const PngImageSinkParams &params);
   ~PngImageSink ();
 
   virtual void write_row (const unsigned char *rgb_bytes);
@@ -34,8 +35,9 @@ private:
   png_infop png_info;
 };
 
-PngImageSink::PngImageSink (const PngImageSinkParams &params)
-  : RgbByteImageSink (params),
+PngImageSink::PngImageSink (unsigned width, unsigned height,
+			    const PngImageSinkParams &params)
+  : RgbByteImageSink (width, height, params),
     file_name (params.file_name)
 {
   // Open output file
@@ -70,7 +72,7 @@ PngImageSink::PngImageSink (const PngImageSinkParams &params)
 
   // Write file header
 
-  png_set_IHDR (png, png_info, params.width, params.height,
+  png_set_IHDR (png, png_info, width, height,
 		8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
 		PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
   png_set_gAMA (png, png_info, gamma_correction);
@@ -114,9 +116,9 @@ PngImageSink::write_row (const unsigned char *rgb_bytes)
 }
 
 ImageSink *
-PngImageSinkParams::make_sink () const
+PngImageSinkParams::make_sink (unsigned width, unsigned height) const
 {
-  return new PngImageSink (*this);
+  return new PngImageSink (width, height, *this);
 }
 
 // arch-tag: 034a86a6-eef0-47ad-9a04-17074e04e62e

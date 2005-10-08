@@ -64,17 +64,14 @@ struct ImageSinkParams : ImageParams
   static const float DEFAULT_QUALITY = 98; // 0-100
 
   ImageSinkParams ()
-    : width (0), height (0),
-      aa_factor (0), aa_overlap (0), aa_filter (0),
+    : aa_factor (0), aa_overlap (0), aa_filter (0),
       target_gamma (0), quality (0)
   { }
 
-  class ImageSink *make_sink () const;
+  class ImageSink *make_sink (unsigned width, unsigned height) const;
 
   // This is called when something wrong is detect with some parameter
   virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
-
-  unsigned width, height;
 
   unsigned aa_factor, aa_overlap;
   float (*aa_filter) (int offs, unsigned size);
@@ -117,7 +114,7 @@ public:
 
   static const aa_filter_t DEFAULT_AA_FILTER;
 
-  ImageOutput (const ImageSinkParams &params);
+  ImageOutput (unsigned width, unsigned height, const ImageSinkParams &params);
   ~ImageOutput ();
 
   // Returns next row for storing into, after writing previous rows to

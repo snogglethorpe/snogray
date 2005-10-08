@@ -177,6 +177,7 @@ parse_limit_opt_arg (CmdLineParser &clp,
 // Random string helper functions
 
 // Return a string version of NUM
+//
 static string 
 stringify (unsigned num)
 {
@@ -187,6 +188,7 @@ stringify (unsigned num)
 }
 
 // Return a string version of NUM, with commas added every 3rd place
+//
 static string 
 commify (unsigned long long num, unsigned sep_count = 1)
 {
@@ -208,54 +210,64 @@ usage (CmdLineParser &clp, ostream &os)
      << "[OPTION...] [OUTPUT_IMAGE_FILE]" << endl;
 }
 
+// This macro just makes the source code for help output easier to line up
+//
+#define L(str) << (str) << endl
+
 static void
 help (CmdLineParser &clp, ostream &os)
 {
   usage (clp, os);
-  os << "Ray-trace an image" << endl
+  os
+L("Ray-trace an image")
      << endl
-<< "  -w, --width=PIXELS         Set image width to PIXELS wide" << endl
-<< "  -h, --height=LINES         Set image height to LINES high" << endl
-<< "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
+L("  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines")
+L("  -m, --multiple=NUM         Make real output size NUM times specified size")
+L("                             (useful if it will later be anti-aliased)")
+L("  -w, --width=PIXELS         Set image width to PIXELS wide")
+L("  -h, --height=LINES         Set image height to LINES high")
+L("  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC")
      << endl
-<< "  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
+L("  -q, --quiet                Do not output informational or progress messages")
+L("  -P, --no-progress          Do not output progress indicator")
+L("  -p, --progress             Output progress indicator despite --quiet")
      << endl
-     << endl
-<< "  -q, --quiet                Do not output informational or progress messages"
-     << endl
-<< "  -P, --no-progress          Do not output progress indicator" << endl
-<< "  -p, --progress             Output progress indicator despite --quiet"
-     << endl
-     << endl
-<< "  -t, --test-scene=NUM       Render test scene NUM" << endl
+L("  -t, --test-scene=NUM       Render test scene NUM")
      << endl
      << IMAGE_OUTPUT_OPTIONS_HELP << endl
      << endl
      << CMDLINEPARSER_GENERAL_OPTIONS_HELP << endl
      << endl
-     << "If no filename is given, standard output is used.  The output"  << endl
-     << "image format is guessed using the output filename when possible"<< endl
-     << "(using the file's extension)." << endl;
+L("If no filename is given, standard output is used.  The output")
+L("image format is guessed using the output filename when possible")
+L("(using the file's extension).");
 }
+
+#undef L
 
 int main (int argc, char *const *argv)
 {
   // Command-line option specs
+  //
   static struct option long_options[] = {
+    { "size",		required_argument, 0, 's' },
+    { "multiple",	required_argument, 0, 'm' },
     { "width",		required_argument, 0, 'w' },
     { "height",		required_argument, 0, 'h' },
-    { "size",		required_argument, 0, 's' },
     { "limit",		required_argument, 0, 'l' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
     { "test-scene", 	required_argument, 0, 't' },
+
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
+
     { 0, 0, 0, 0 }
   };
+  //
   char short_options[] =
-    "w:h:s:l:qpPt:"
+    "s:m:w:h:l:qpPt:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -263,15 +275,18 @@ int main (int argc, char *const *argv)
   CmdLineParser clp (argc, argv, short_options, long_options);
 
   // Parameters set from the command line
-  unsigned final_width = 640, final_height = 480;
+  //
+  unsigned width = 640, height = 480;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   bool quiet = false, progress = true; // quiet mode, progress indicator
   bool progress_set = false;
   unsigned test_scene_num = 0;
+  unsigned multiple = 1;
   ImageCmdlineSinkParams image_sink_params (clp);
 
   // Parse command-line options
+  //
   int opt;
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
@@ -293,17 +308,20 @@ int main (int argc, char *const *argv)
 
 	// Size options
       case 's':
-	parse_size_opt_arg (clp, final_width, final_height);
+	parse_size_opt_arg (clp, width, height);
+	break;
+      case 'm':
+	multiple = clp.unsigned_opt_arg ();
 	break;
       case 'l':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
 			     limit_max_x_spec, limit_max_y_spec);
 	break;
       case 'w':
-	final_width = clp.unsigned_opt_arg ();
+	width = clp.unsigned_opt_arg ();
 	break;
       case 'h':
-	final_height = clp.unsigned_opt_arg ();
+	height = clp.unsigned_opt_arg ();
 	break;
 
       case 't':
@@ -316,6 +334,7 @@ int main (int argc, char *const *argv)
       }
 
   // Final output file parameter
+  //
   if (clp.num_remaining_args() > 1)
     {
       usage (clp, cerr);
@@ -326,40 +345,40 @@ int main (int argc, char *const *argv)
   image_sink_params.file_name = clp.get_arg();
 
   // We reference this a lot below, so make a local copy
+  //
   unsigned aa_factor = image_sink_params.aa_factor;
   if (aa_factor == 0)
     aa_factor = 1;
 
-  // The size of the actual full final image
-  const unsigned width = final_width * aa_factor;
-  const unsigned height = final_height * aa_factor;
-
   // Set our drawing limits based on the scene size
-  unsigned limit_x = limit_x_spec.apply (clp, final_width);
-  unsigned limit_y = limit_y_spec.apply (clp, final_height);
+  //
+  unsigned limit_x = limit_x_spec.apply (clp, width);
+  unsigned limit_y = limit_y_spec.apply (clp, height);
   unsigned limit_width
-    = limit_max_x_spec.apply (clp, final_width, limit_x) - limit_x;
+    = limit_max_x_spec.apply (clp, width, limit_x) - limit_x;
   unsigned limit_height
-    = limit_max_y_spec.apply (clp, final_height, limit_y) - limit_y;
-
-  // The size of what we actually output is the same as the limit
-  image_sink_params.width = limit_width;
-  image_sink_params.height = limit_height;
-
-  // Create output image
-  ImageOutput image (image_sink_params);
+    = limit_max_y_spec.apply (clp, height, limit_y) - limit_y;
 
   // Print image info
+  //
   if (! quiet)
     {
       cout << "Image:" << endl;
-      cout << "   size:         "
-	   << setw (11) << (stringify (final_width)
-			    + " x " + stringify (final_height))
-	   << endl;
+
+      if (multiple == 1)
+	cout << "   size:     "
+	     << setw (15) << (stringify (width)
+			      + " x " + stringify (height))
+	     << endl;
+      else
+	cout << "   size:     "
+	     << setw (15) << (stringify (width) + " x " + stringify (height)
+			      + " x " + stringify (multiple))
+	     <<" (" << (width * multiple) << " x " << (height * multiple) << ")"
+	     << endl;
 
       if (limit_x != 0 || limit_y != 0
-	  || limit_width != final_width || limit_height != final_height)
+	  || limit_width != width || limit_height != height)
 	cout << "   limit:"
 	     << setw (19) << (stringify (limit_x) + "," + stringify (limit_y)
 			      + " - " + stringify (limit_x + limit_width)
@@ -372,6 +391,7 @@ int main (int argc, char *const *argv)
 	     << setw (4) << image_sink_params.target_gamma << endl;
 
       // Anti-aliasing info
+      //
       if ((aa_factor + image_sink_params.aa_overlap) > 1)
 	{
 	  if (aa_factor > 1)
@@ -407,15 +427,19 @@ int main (int argc, char *const *argv)
   Camera camera;
 
   // Set camera aspect ratio to give pixels a 1:1 aspect ratio
+  //
   camera.set_aspect_ratio ((float)width / (float)height);
 
   // Define our scene!
+  //
   test_scene (scene, camera, test_scene_num);
 
   // Print scene info
+  //
   if (! quiet)
     {
       cout << "Scene:" << endl;
+      cout << "   test scene:        " << setw (6) << test_scene_num << endl;
       cout << "   objects:       "
 	   << setw (10) << commify (scene.objs.size ()) << endl;
       cout << "   lights:        "
@@ -428,16 +452,34 @@ int main (int argc, char *const *argv)
 	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
     }
 
-  // Limits in terms of higher-resolution pre-AA image
-  unsigned hr_limit_x = limit_x * aa_factor;
-  unsigned hr_limit_y = limit_y * aa_factor;
-  unsigned hr_limit_max_x = hr_limit_x + limit_width * aa_factor;
-  unsigned hr_limit_max_y = hr_limit_y + limit_height * aa_factor;
-
   if (! quiet)
     cout << endl;
 
+  // Create output image.  The size of what we output is the same as the
+  // limit, and include's the user's multiple, but not aa_factor.
+  //
+  ImageOutput image (limit_width * multiple, limit_height * multiple,
+		     image_sink_params);
+
+  // For convenience, we fold the size increase due to anti-aliasing into
+  // the user's specified size multiple.
+  //
+  unsigned hr_multiple = multiple * aa_factor;
+
+  // The size of the actual image we're calculating
+  //
+  const unsigned hr_width = width * hr_multiple;
+  const unsigned hr_height = height * hr_multiple;
+
+  // Limits in terms of higher-resolution pre-AA image
+  //
+  unsigned hr_limit_x = limit_x * hr_multiple;
+  unsigned hr_limit_y = limit_y * hr_multiple;
+  unsigned hr_limit_max_x = hr_limit_x + limit_width * hr_multiple;
+  unsigned hr_limit_max_y = hr_limit_y + limit_height * hr_multiple;
+
   // Main ray-tracing loop
+  //
   for (unsigned y = hr_limit_y; y < hr_limit_max_y; y++)
     {
       ImageRow &output_row = image.next_row ();
@@ -445,10 +487,10 @@ int main (int argc, char *const *argv)
       // Progress indicator
       if (progress)
 	{
-	  if (aa_factor > 1)
+	  if (hr_multiple > 1)
 	    cout << "\rrendering: line "
-		 << setw (5) << y / aa_factor
-		 << "_" << (y - (y / aa_factor) * aa_factor);
+		 << setw (5) << y / hr_multiple
+		 << "_" << (y - (y / hr_multiple) * hr_multiple);
 	  else
 	    cout << "\rrendering: line "
 		 << setw (5) << y;
@@ -459,8 +501,8 @@ int main (int argc, char *const *argv)
 
       for (unsigned x = hr_limit_x; x < hr_limit_max_x; x++)
 	{
-	  float u = (float)x / (float)width;
-	  float v = (float)(height - y) / (float)height;
+	  float u = (float)x / (float)hr_width;
+	  float v = (float)(hr_height - y) / (float)hr_height;
 	  Ray camera_ray = camera.get_ray (u, v);
 
 	  camera_ray.set_len (10000);
@@ -477,6 +519,7 @@ int main (int argc, char *const *argv)
     }
 
   // Print render stats
+  //
   if (! quiet)
     {
       Scene::Stats &sstats = scene.stats;

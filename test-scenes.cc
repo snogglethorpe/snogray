@@ -99,9 +99,10 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
   for (unsigned i = 0; i < gsize; i++)
     for (unsigned j = 0; j < gsize; j++)
       {
-	Color color ((float)i / (float)gsize + 0.2,
-		     0.5,
-		     (float)j / (float)gsize / 2 + 0.2);
+	Color color (0,
+		     (float)j / (float)gsize,
+		     (float)i / (float)gsize);
+	color *= 0.3;
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
 	Material *mat = scene.add (new Phong (500, color));
 	scene.add (new Sphere (mat, pos, 0.5));
@@ -292,16 +293,16 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
 {
   switch (scene_num)
     {
+    case 0:
+    default:
+      def_scene_miles_test1 (scene, camera, 0); break;
+
     case 1:
       def_scene_cs465_test1 (scene, camera); break;
     case 2:
       def_scene_cs465_test2 (scene, camera); break;
     case 3:
       def_scene_cs465_test3 (scene, camera); break;
-
-    case 0:
-    default:
-      def_scene_miles_test1 (scene, camera, 0); break;
 
     case 4:
       def_scene_miles_test1 (scene, camera, 1); break;

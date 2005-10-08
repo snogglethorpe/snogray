@@ -20,10 +20,11 @@ using namespace Snogray;
 class ExrImageSink : public ImageSink
 {  
 public:
-  ExrImageSink (const ExrImageSinkParams &params)
+  ExrImageSink (unsigned width, unsigned height,
+		const ExrImageSinkParams &params)
     : ImageSink (params),
-      outf (params.file_name, params.width, params.height),
-      row_buf (new Imf::Rgba[params.width]), cur_y (0)
+      outf (params.file_name, width, height),
+      row_buf (new Imf::Rgba[width]), cur_y (0)
   { }
   ~ExrImageSink ();
 
@@ -57,9 +58,9 @@ ExrImageSink::write_row (const ImageRow &row)
 }
 
 ImageSink *
-ExrImageSinkParams::make_sink () const
+ExrImageSinkParams::make_sink (unsigned width, unsigned height) const
 {
-  return new ExrImageSink (*this);
+  return new ExrImageSink (width, height, *this);
 }
 
 

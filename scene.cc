@@ -15,20 +15,23 @@ using namespace Snogray;
 using namespace std;
 
 // The scene "owns" all its components, so frees them when it is destroyed
+//
 Scene::~Scene ()
 {
-  for (list<Obj *>::iterator oi = objs.begin(); oi != objs.end(); oi++)
+  for (list<Obj *>::iterator oi = objs.begin();
+       oi != objs.end(); oi++)
     delete *oi;
-  for (list<Light *>::iterator li = lights.begin(); li != lights.end(); li++)
+  for (list<Light *>::iterator li = lights.begin();
+       li != lights.end(); li++)
     delete *li;
-  for (list<Material *>::iterator mi = materials.begin(); mi != materials.end(); mi++)
+  for (list<Material *>::iterator mi = materials.begin();
+       mi != materials.end(); mi++)
     delete *mi;
 }
 
 
 // "Closest" intersection testing (tests all objects for intersection
 // with a ray, returns the distance to the closest intersection)
-//
 
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
@@ -68,8 +71,7 @@ Scene::closest_intersect (const Ray &ray)
 }
 
 
-// "Any" intersection testing (return true if any object intersects a ray)
-//
+// Shadow intersection testing
 
 struct SceneShadowedCallback : Voxtree::IntersectCallback
 {
@@ -105,9 +107,11 @@ SceneShadowedCallback::operator () (Obj *obj)
 	{
 	  // Remember which object cast a shadow from this light, so we
 	  // can try it first next time.
+	  //
 	  light.shadow_hint = obj;
 
 	  // Stop looking any further.
+	  //
 	  stop_iteration ();
 	}
     }
@@ -118,10 +122,12 @@ Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
 {
   stats.scene_shadowed_tests++;
 
-  // If this light has a shadow hint (the last object that cast a shadow
-  // from it), then try that object first, as it stands a better chance
-  // of hitting than usual.
-  if (light.shadow_hint)
+  // See if this light has a shadow hint (the last object that cast a shadow
+  // from it); if it does, then try that object first, as it stands a better
+  // chance of hitting than usual (because nearby points are often shadowed
+  // from a given light by the same object).
+  //
+  if (light.shadow_hint && light.shadow_hint != ignore)
     {
       if (light.shadow_hint->intersects (light_ray))
 	// It worked!  Return quickly.
@@ -148,9 +154,7 @@ Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
 }
 
 
-// 
-
-#include <iostream>
+// Main rendering entry point
 
 Color
 Scene::render (const Intersect &isec)
@@ -162,39 +166,48 @@ Scene::render (const Intersect &isec)
       // this as a striking color to make it easier to detect mistakes.
       // However to accomodate small cumulative errors, we allow very
       // small negative dot-products as if they were zero.
-      //
-      if (isec.normal.dot (isec.eye_dir) >= -0.0001)
-	// Looking at the top of the surface, continue with normal
-	// rendering.
+
+      if (isec.normal.dot (isec.eye_dir) >= 0 -0.0001)
 	{
-	  Color total_color;
+	  // We're looking at the top of the surface, continue with rendering.
+	  // Iterate over every light, calculating its contribution to our
+	  // color.
+
+	  Color total_color;	// Accumulated colors from all light sources
 
 	  for (list<Light *>::const_iterator li = lights.begin();
-	       li != lights.end();
-	       li++)
+	       li != lights.end(); li++)
 	    {
 	      Light *light = *li;
 	      Ray light_ray = Ray (isec.point, light->pos);
 
+	      // If the dot-product of the light-ray with the surface normal
+	      // is negative, that means the light is behind the surface, so
+	      // cannot light it ("self-shadowing"); otherwise, see if some
+	      // other object casts a shadow.
+
 	      if (isec.normal.dot (light_ray.dir) >= 0
 		  && !shadowed (*light, light_ray, isec.obj))
 		{
+		  // This point is not shadowed, either by ourselves or by any
+		  // other object, so calculate the lighting contribution from
+		  // LIGHT.
+
 		  Color light_color
 		    = light->color / (light_ray.len * light_ray.len);
+
 		  total_color
-		    += isec.obj->material->render (isec,
-						   light_ray.dir, light_color);
+		    += isec.obj->material->render (
+					     isec, light_ray.dir, light_color);
 		}
 	    }
 
 	  return total_color;
 	}
       else
-	// Looking at the back of the surface, render as wacky color.
-	{
-	  std::cerr << "funny..." << endl;
+	// We're looking at the back of the surface, render as wacky color.
+	//
 	return Color::funny;
-	}
     }
   else
     return Color::black;

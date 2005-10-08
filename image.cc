@@ -63,17 +63,17 @@ ImageParams::find_format () const
 }
 
 ImageSink *
-ImageSinkParams::make_sink () const
+ImageSinkParams::make_sink (unsigned width, unsigned height) const
 {
   const char *fmt = find_format ();
 
   // Make the output-format-specific parameter block
   if (strcasecmp (fmt, "exr") == 0)
-    return ExrImageSinkParams (*this).make_sink ();
+    return ExrImageSinkParams (*this).make_sink (width, height);
   else if (strcasecmp (fmt, "png") == 0)
-    return PngImageSinkParams (*this).make_sink ();
+    return PngImageSinkParams (*this).make_sink (width, height);
   else if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
-    return JpegImageSinkParams (*this).make_sink ();
+    return JpegImageSinkParams (*this).make_sink (width, height);
   else
     error ("Unknown or unsupported output image type");
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
@@ -101,8 +101,9 @@ ImageSourceParams::make_source () const
 
 // ImageOutput constructor/destructor
 
-ImageOutput::ImageOutput (const ImageSinkParams &params)
-  : aa_factor (params.aa_factor), sink (params.make_sink ())
+ImageOutput::ImageOutput (unsigned width, unsigned height,
+			  const ImageSinkParams &params)
+  : aa_factor (params.aa_factor), sink (params.make_sink (width, height))
 {
   aa_filter_t aa_filter = params.aa_filter;
 
@@ -116,7 +117,7 @@ ImageOutput::ImageOutput (const ImageSinkParams &params)
 
   if (aa_kernel_size > 1)
     {
-      aa_row = new ImageRow (params.width);
+      aa_row = new ImageRow (width);
       aa_kernel = make_aa_kernel (aa_filter, aa_kernel_size);
       aa_max_intens = sink->max_intens ();
     }
@@ -128,7 +129,7 @@ ImageOutput::ImageOutput (const ImageSinkParams &params)
 
   recent_rows = new ImageRow*[aa_kernel_size];
   for (unsigned offs = 0; offs < aa_kernel_size; offs++)
-    recent_rows[offs] = new ImageRow (params.width * aa_factor);
+    recent_rows[offs] = new ImageRow (width * aa_factor);
 
   next_row_offs = 0;
   num_accumulated_rows = 0;

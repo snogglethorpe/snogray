@@ -25,7 +25,7 @@ struct PngImageSinkParams : public RgbByteImageSinkParams
       params.error ("Quality parameter not supported in PNG format");
   }
 
-  virtual ImageSink *make_sink () const;
+  virtual ImageSink *make_sink (unsigned width, unsigned height) const;
 };
 
 }

@@ -22,7 +22,7 @@ struct JpegImageSinkParams : public RgbByteImageSinkParams
     : RgbByteImageSinkParams (params)
   { }
 
-  virtual ImageSink *make_sink () const;
+  virtual ImageSink *make_sink (unsigned width, unsigned height) const;
 };
 
 }

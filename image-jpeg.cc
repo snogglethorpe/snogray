@@ -20,7 +20,8 @@ using namespace Snogray;
 class JpegImageSink : public RgbByteImageSink
 {  
 public:
-  JpegImageSink (const JpegImageSinkParams &params);
+  JpegImageSink (unsigned width, unsigned height,
+		 const JpegImageSinkParams &params);
   ~JpegImageSink ();
 
   virtual void write_row (const unsigned char *rgb_bytes);
@@ -32,8 +33,9 @@ private:
   struct jpeg_error_mgr jpeg_err;
 };
 
-JpegImageSink::JpegImageSink (const JpegImageSinkParams &params)
-  : RgbByteImageSink (params)
+JpegImageSink::JpegImageSink (unsigned width, unsigned height,
+			      const JpegImageSinkParams &params)
+  : RgbByteImageSink (width, height, params)
 {
   int quality = (int)params.quality;
 
@@ -58,8 +60,8 @@ JpegImageSink::JpegImageSink (const JpegImageSinkParams &params)
 
   // Initialize compression parameters
 
-  jpeg_info.image_width = params.width;
-  jpeg_info.image_height = params.height;
+  jpeg_info.image_width = width;
+  jpeg_info.image_height = height;
   jpeg_info.input_components = 3;	/* # of color components per pixel */
   jpeg_info.in_color_space = JCS_RGB; 	/* colorspace of input image */
 
@@ -87,9 +89,9 @@ JpegImageSink::write_row (const unsigned char *rgb_bytes)
 }
 
 ImageSink *
-JpegImageSinkParams::make_sink () const
+JpegImageSinkParams::make_sink (unsigned width, unsigned height) const
 {
-  return new JpegImageSink (*this);
+  return new JpegImageSink (width, height, *this);
 }
 
 // arch-tag: 4abc6a5f-8aeb-4b58-a253-36553d2b109f
