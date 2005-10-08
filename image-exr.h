@@ -21,13 +21,9 @@ struct ExrImageSinkParams : public ImageFmtSinkParams
   ExrImageSinkParams (const ImageSinkParams &params)
     : ImageFmtSinkParams (params)
   {
-    if (target_gamma != 0)
-      params.error ("Target-gamma parameter not used in EXR format");
-    if (params.quality)
-      params.error ("Quality parameter not supported in EXR format");
   }
     
-  virtual ImageSink *make_sink (unsigned width, unsigned height) const;
+  virtual ImageSink *make_sink () const;
 };
 
 class ExrImageSourceParams : public ImageFmtSourceParams

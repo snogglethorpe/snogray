@@ -38,7 +38,7 @@ ImageOutput::aa_triang_filter (int offs, unsigned size)
   return (1 - (offs / r)) / r;
 }
 
-// Gaussian filter weights pixels in the source using a gaussian distribution
+// Gaussian filter weights pixels in the source using a Gaussian distribution
 float
 ImageOutput::aa_gauss_filter (int offs, unsigned size)
 {
@@ -71,7 +71,7 @@ ImageOutput::make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
 
   // Because we are using discrete samples, it's possible for small
   // kernel sizes to sum to some number noticeably less than one, making
-  // the output image too dim; calculate a compensenation factor.
+  // the output image too dim; calculate a compensation factor.
   float kernel_sum = 0;
   for (unsigned y = 0; y < kernel_size; y++)
     for (unsigned x = 0; x < kernel_size; x++)
@@ -131,7 +131,7 @@ ImageOutput::fill_aa_row ()
 		      else
 			// Make sure to do anti-aliasing using the clamped
 			// value; otherwise the information added by
-			// anti-aliasing is lost in subsequenet clamping
+			// anti-aliasing is lost in subsequent clamping
 			aa_color += col.clamp (aa_max_intens) * filt_val;
 		    }
 		}

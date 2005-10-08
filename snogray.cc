@@ -210,40 +210,45 @@ usage (CmdLineParser &clp, ostream &os)
      << "[OPTION...] [OUTPUT_IMAGE_FILE]" << endl;
 }
 
-// This macro just makes the source code for help output easier to line up
-//
-#define L(str) << (str) << endl
 
 static void
 help (CmdLineParser &clp, ostream &os)
 {
   usage (clp, os);
-  os
-L("Ray-trace an image")
-     << endl
-L("  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines")
-L("  -m, --multiple=NUM         Make real output size NUM times specified size")
-L("                             (useful if it will later be anti-aliased)")
-L("  -w, --width=PIXELS         Set image width to PIXELS wide")
-L("  -h, --height=LINES         Set image height to LINES high")
-L("  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC")
-     << endl
-L("  -q, --quiet                Do not output informational or progress messages")
-L("  -P, --no-progress          Do not output progress indicator")
-L("  -p, --progress             Output progress indicator despite --quiet")
-     << endl
-L("  -t, --test-scene=NUM       Render test scene NUM")
-     << endl
-     << IMAGE_OUTPUT_OPTIONS_HELP << endl
-     << endl
-     << CMDLINEPARSER_GENERAL_OPTIONS_HELP << endl
-     << endl
-L("If no filename is given, standard output is used.  The output")
-L("image format is guessed using the output filename when possible")
-L("(using the file's extension).");
+
+  // These macros just makes the source code for help output easier to line up
+  //
+#define s  << endl <<
+#define n  << endl
+
+  os <<
+  "Ray-trace an image"
+n
+s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
+s "  -m, --multiple=NUM         Make real output size NUM times specified size"
+s "                             (useful if it will later be anti-aliased)"
+s "  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
+n
+s "  -q, --quiet                Do not output informational or progress messages"
+s "  -P, --no-progress          Do not output progress indicator"
+s "  -p, --progress             Output progress indicator despite --quiet"
+n
+s "  -t, --test-scene=NUM       Render test scene NUM"
+n
+s IMAGE_OUTPUT_OPTIONS_HELP
+n
+s CMDLINEPARSER_GENERAL_OPTIONS_HELP
+n
+s "If no filename is given, standard output is used.  The output"
+s "image format is guessed using the output filename when possible"
+s "(using the file's extension)."
+n
+    ;
+
+#undef s
+#undef n
 }
 
-#undef L
 
 int main (int argc, char *const *argv)
 {
@@ -252,8 +257,6 @@ int main (int argc, char *const *argv)
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
     { "multiple",	required_argument, 0, 'm' },
-    { "width",		required_argument, 0, 'w' },
-    { "height",		required_argument, 0, 'h' },
     { "limit",		required_argument, 0, 'l' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
@@ -291,7 +294,27 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
+	// Scene options
+	//
+      case 't':
+	test_scene_num = clp.unsigned_opt_arg ();
+	break;
+
+	// Size options
+	//
+      case 's':
+	parse_size_opt_arg (clp, width, height);
+	break;
+      case 'm':
+	multiple = clp.unsigned_opt_arg ();
+	break;
+      case 'l':
+	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
+			     limit_max_x_spec, limit_max_y_spec);
+	break;
+
 	// Verbosity options
+	//
       case 'q':
 	quiet = true;
 	if (! progress_set)
@@ -306,30 +329,12 @@ int main (int argc, char *const *argv)
 	progress_set = true;
 	break;
 
-	// Size options
-      case 's':
-	parse_size_opt_arg (clp, width, height);
-	break;
-      case 'm':
-	multiple = clp.unsigned_opt_arg ();
-	break;
-      case 'l':
-	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
-			     limit_max_x_spec, limit_max_y_spec);
-	break;
-      case 'w':
-	width = clp.unsigned_opt_arg ();
-	break;
-      case 'h':
-	height = clp.unsigned_opt_arg ();
-	break;
-
-      case 't':
-	test_scene_num = clp.unsigned_opt_arg ();
-	break;
-
+	// Image options
+	//
 	IMAGE_OUTPUT_OPTION_CASES (clp, image_sink_params);
 
+	// Generic options
+	//
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -342,7 +347,6 @@ int main (int argc, char *const *argv)
 	   << endl;
       exit (10);
     }
-  image_sink_params.file_name = clp.get_arg();
 
   // We reference this a lot below, so make a local copy
   //
@@ -358,6 +362,18 @@ int main (int argc, char *const *argv)
     = limit_max_x_spec.apply (clp, width, limit_x) - limit_x;
   unsigned limit_height
     = limit_max_y_spec.apply (clp, height, limit_y) - limit_y;
+
+  // Create output image.  The size of what we output is the same as the
+  // limit, and includes the user's multiple, but not aa_factor.
+  //
+  // This will produce diagnostics and exit if there's something wrong
+  // with IMAGE_SINK_PARAMS or a problem creating the output image, so
+  // we create the image before printing any normal output.
+  //
+  image_sink_params.file_name = clp.get_arg();
+  image_sink_params.width = limit_width * multiple;
+  image_sink_params.height = limit_height * multiple;
+  ImageOutput image (image_sink_params);
 
   // Print image info
   //
@@ -454,12 +470,6 @@ int main (int argc, char *const *argv)
 
   if (! quiet)
     cout << endl;
-
-  // Create output image.  The size of what we output is the same as the
-  // limit, and include's the user's multiple, but not aa_factor.
-  //
-  ImageOutput image (limit_width * multiple, limit_height * multiple,
-		     image_sink_params);
 
   // For convenience, we fold the size increase due to anti-aliasing into
   // the user's specified size multiple.

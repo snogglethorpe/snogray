@@ -64,14 +64,17 @@ struct ImageSinkParams : ImageParams
   static const float DEFAULT_QUALITY = 98; // 0-100
 
   ImageSinkParams ()
-    : aa_factor (0), aa_overlap (0), aa_filter (0),
+    : width (0), height (0),
+      aa_factor (0), aa_overlap (0), aa_filter (0),
       target_gamma (0), quality (0)
   { }
 
-  class ImageSink *make_sink (unsigned width, unsigned height) const;
+  class ImageSink *make_sink () const;
 
   // This is called when something wrong is detect with some parameter
   virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
+
+  unsigned width, height;
 
   unsigned aa_factor, aa_overlap;
   float (*aa_filter) (int offs, unsigned size);
@@ -114,7 +117,7 @@ public:
 
   static const aa_filter_t DEFAULT_AA_FILTER;
 
-  ImageOutput (unsigned width, unsigned height, const ImageSinkParams &params);
+  ImageOutput (const ImageSinkParams &params);
   ~ImageOutput ();
 
   // Returns next row for storing into, after writing previous rows to
@@ -129,6 +132,7 @@ public:
   static float aa_gauss_filter (int offs, unsigned size);
 
 private:
+
   void write_accumulated_rows ();
 
   float *make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
@@ -186,7 +190,9 @@ class ImageInput
 public:
   ImageInput (const ImageSourceParams &params)
     : source (params.make_source ())
-  { source->read_size (width, height); }
+  {
+    source->read_size (width, height);
+  }
   ~ImageInput () { delete source; }
 
   // Reads a row of image data into ROW
@@ -196,6 +202,7 @@ public:
   unsigned width, height;
 
 private:
+
   ImageSource *source;
 };
 

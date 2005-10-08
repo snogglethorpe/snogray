@@ -151,11 +151,10 @@ int main (int argc, char *const *argv)
 	   << endl;
       exit (10);
     }
-  src_image_params.file_name = clp.get_arg(); // 0 if none specified
-  dst_image_params.file_name = clp.get_arg();	 // 0 if none specified
 
   // Open the input image
   //
+  src_image_params.file_name = clp.get_arg();
   ImageInput src_image (src_image_params);
 
   // We get the output image's size from the input image
@@ -176,7 +175,10 @@ int main (int argc, char *const *argv)
 
   // Open the output image using the resulting adjust size.
   //
-  ImageOutput dst_image (width, height, dst_image_params);
+  dst_image_params.file_name = clp.get_arg ();
+  dst_image_params.width = width;
+  dst_image_params.height = height;
+  ImageOutput dst_image (dst_image_params);
 
   float intensity_scale = (exposure == 0) ? 1 : powf (2.0, exposure);
   float intensity_expon = (contrast == 0) ? 1 : powf (2.0, -contrast);
