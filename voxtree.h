@@ -23,6 +23,8 @@ class Voxtree
 {
 public:
 
+  Voxtree () : root (0) { }
+
   // Add OBJ to the voxtree
   //
   void add (Obj *obj, const BBox &obj_bbox);
@@ -32,10 +34,9 @@ public:
   // `for_each_possible_intersector' must subclass this, providing their
   // own operator() method, and adding any extra data fields they need.
   //
-  class FepiCallback
+  struct FepiCallback
   {
-  public:
-    virtual bool operator() (const Obj *) = 0;
+    virtual bool operator() (Obj *) = 0;
   };
 
   // Call CALLBACK for each object in the voxel tree that _might_
@@ -43,7 +44,7 @@ public:
   // directly on the resulting objects).  If CALLBACK returns true, then
   // `for_each_possible_intersector' continues searching for possible
   // intersectors; otherwise, if CALLBACK returns false, then
-  // `for_each_possible_intersector' immediately returns.
+  // `for_each_possible_intersector' immediately returns false.
   //
   bool for_each_possible_intersector (const Ray &ray, FepiCallback &callback)
     const;
@@ -62,6 +63,11 @@ private:
   //
   void grow_to_include (Obj *obj, const BBox &obj_bbox);
 
+  // A voxtree node is one level of the tree, containing a cubic volume
+  // (the size is not explicitly stored in the node).  It is divided
+  // into 8 equally-sized sub-nodes by splitting the node equally along
+  // each axis.
+  //
   struct Node
   {
     Node ()
@@ -98,11 +104,14 @@ private:
     // A helper method that calls NODE's `add' method, after first
     // making sure that NODE exists (creating it if it does not).
     //
-    static void add_or_create (Node* &node, Obj *obj, const BBox &obj_bbox,
+    void add_or_create (Node* &node, Obj *obj, const BBox &obj_bbox,
 			       coord_t x, coord_t y, coord_t z, dist_t size)
     {
       if (! node)
-	node = new Node ();
+	{
+	  node = new Node ();
+	  has_subnodes = true;
+	}
 
       node->add (obj, obj_bbox, x, y, z, size);
     }
@@ -111,7 +120,7 @@ private:
     // must fit entirely within it.  Any given object is only present in
     // a single node.
     //
-    std::list<const Obj *> objs;
+    std::list<Obj *> objs;
 
     // The sub-nodes of this node; each sub-node is exactly half the
     // size of this node in all dimensions, so in total there are eight.

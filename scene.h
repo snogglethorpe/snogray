@@ -17,23 +17,32 @@
 #include "obj.h"
 #include "light.h"
 #include "intersect.h"
+#include "voxtree.h"
 
 namespace Snogray {
 
 class Scene
 {
 public:
+
   ~Scene ();
 
   Intersect closest_intersect (const Ray &ray);
   bool intersects (const Ray &ray, const Obj *ignore = 0);
   
-  // All of the following "give" the object to the scene -- freeing the
-  // scene will free them too.
-  Obj *add (Obj *obj) { objs.push_back (obj); return obj; }
+  // Add various items to a scene.  All of the following "give" the
+  // object to the scene -- freeing the scene will free them too.
+
+  // Add an object
+  Obj *add (Obj *obj)
+  {
+    objs.push_back (obj);
+    obj_voxtree.add (obj);
+    return obj;
+  }
+
   Light *add (Light *light) { lights.push_back (light); return light; }
-  // There's no point to the following, really, but it allows us to do
-  // memory management on them maybe.
+
   Material *add (Material *mat) { materials.push_back (mat); return mat; }
 
   Color render (const Intersect &isec);
@@ -58,6 +67,8 @@ public:
   std::list<Obj *> objs;
   std::list<Light *> lights;
   std::list<Material *> materials;
+
+  Voxtree obj_voxtree;
 };
 
 }

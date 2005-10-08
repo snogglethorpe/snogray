@@ -70,6 +70,7 @@ define_scene (Scene &scene, Camera &camera)
   scene.add (new Sphere (mat1, Pos (0, 2, 7), 5));
   scene.add (new Sphere (mat2, Pos (-8, 0, 3), 3));
   scene.add (new Sphere (mat3, Pos (-6, 5, 2), 1));
+
   scene.add (new Triangle (mat4,
 			   Pos (-100, -3, -100),
 			   Pos (100, -3, -100),
@@ -78,6 +79,7 @@ define_scene (Scene &scene, Camera &camera)
 			   Pos (-100, -3, -100),
 			   Pos (100, -3, 100),
 			   Pos (-100, -3, 100)));
+
   // (1)
 //   camera.move (Pos (-3, 2, -18));
 //   // (2)

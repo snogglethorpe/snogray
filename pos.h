@@ -47,7 +47,7 @@ public:
   }
 };
 
-extern std::ostream& operator<< (std::ostream &os, const Pos &col);
+extern std::ostream& operator<< (std::ostream &os, const Snogray::Pos &pos);
 
 }
 

@@ -15,14 +15,14 @@
 using namespace Snogray;
 
 std::ostream&
-operator<< (std::ostream &os, const Vec &vec)
+Snogray::operator<< (std::ostream &os, const Vec &vec)
 {
   os << "vec<" << vec.x << ", " << vec.y << ", " << vec.z << ">";
   return os;
 }
 
 std::ostream&
-operator<< (std::ostream &os, const Pos &pos)
+Snogray::operator<< (std::ostream &os, const Pos &pos)
 {
   os << "pos<" << pos.x << ", " << pos.y << ", " << pos.z << ">";
   return os;

@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iostream>
+
 #include "voxtree.h"
 
 using namespace Snogray;
@@ -40,34 +42,34 @@ bool Voxtree::for_each_possible_intersector (const Ray &ray,
   coord_t x_min = origin.x;
   dist_t x_min_scale = (x_min - ray.origin.x) / ray.dir.x;
   const Pos x_min_isec (x_min,
-			ray.origin.y - ray.dir.y / x_min_scale,
-			ray.origin.z - ray.dir.z / x_min_scale);
+			ray.origin.y + ray.dir.y * x_min_scale,
+			ray.origin.z + ray.dir.z * x_min_scale);
   coord_t x_max = origin.x + size;
   dist_t x_max_scale = (x_max - ray.origin.x) / ray.dir.x;
   const Pos x_max_isec (x_max,
-			ray.origin.y - ray.dir.y / x_max_scale,
-			ray.origin.z - ray.dir.z / x_max_scale);
+			ray.origin.y + ray.dir.y * x_max_scale,
+			ray.origin.z + ray.dir.z * x_max_scale);
 
   coord_t y_min = origin.y;
   dist_t y_min_scale = (y_min - ray.origin.y) / ray.dir.y;
-  const Pos y_min_isec (ray.origin.x - ray.dir.x / y_min_scale,
+  const Pos y_min_isec (ray.origin.x + ray.dir.x * y_min_scale,
 			y_min,
-			ray.origin.z - ray.dir.z / y_min_scale);
+			ray.origin.z + ray.dir.z * y_min_scale);
   coord_t y_max = origin.y + size;
   dist_t y_max_scale = (y_max - ray.origin.y) / ray.dir.y;
-  const Pos y_max_isec (ray.origin.x - ray.dir.x / y_max_scale,
+  const Pos y_max_isec (ray.origin.x + ray.dir.x * y_max_scale,
 			y_max,
-			ray.origin.z - ray.dir.z / y_max_scale);
+			ray.origin.z + ray.dir.z * y_max_scale);
 
   coord_t z_min = origin.z;
   dist_t z_min_scale = (z_min - ray.origin.z) / ray.dir.z;
-  const Pos z_min_isec (ray.origin.x - ray.dir.x / z_min_scale,
-			ray.origin.y - ray.dir.y / z_min_scale,
+  const Pos z_min_isec (ray.origin.x + ray.dir.x * z_min_scale,
+			ray.origin.y + ray.dir.y * z_min_scale,
 			z_min);
   coord_t z_max = origin.z + size;
   dist_t z_max_scale = (z_max - ray.origin.z) / ray.dir.z;
-  const Pos z_max_isec (ray.origin.x - ray.dir.x / z_max_scale,
-			ray.origin.y - ray.dir.y / z_max_scale,
+  const Pos z_max_isec (ray.origin.x + ray.dir.x * z_max_scale,
+			ray.origin.y + ray.dir.y * z_max_scale,
 			z_max);
 
   return root->for_each_possible_intersector (callback,
@@ -106,33 +108,31 @@ Voxtree::Node::for_each_possible_intersector (Voxtree::FepiCallback &callback,
   // where RAY either starts or ends inside the volume, the
   // boundary-plane intersections are extensions of RAY, so we don't
   // need special cases for that occurance.
-  if (! (// left face
+  if (! (// x-min face
 	 (x_min_isec.y >= y_min && x_min_isec.y <= y_max
 	  && x_min_isec.z >= z_min && x_min_isec.z <= z_max)
-	 // right face
+	 // x-max face
 	 || (x_max_isec.y >= y_max && x_max_isec.y <= y_max
 	     && x_max_isec.z >= z_max && x_max_isec.z <= z_max)
-	 // lower face
+	 // y-min face
 	 || (y_min_isec.x >= x_min && y_min_isec.x <= x_max
 	     && y_min_isec.z >= z_min && y_min_isec.z <= z_max)
-	 // upper face
+	 // y-max face
 	 || (y_max_isec.x >= x_max && y_max_isec.x <= x_max
 	     && y_max_isec.z >= z_max && y_max_isec.z <= z_max)
-	 // front face
-	 || (y_min_isec.x >= x_min && y_min_isec.x <= x_max
-	     && y_min_isec.z >= z_min && y_min_isec.z <= z_max)
-	 // back face
-	 || (y_max_isec.x >= x_max && y_max_isec.x <= x_max
-	     && y_max_isec.z >= z_max && y_max_isec.z <= z_max)
+	 // z-min face
+	 || (z_min_isec.x >= x_min && z_min_isec.x <= x_max
+	     && z_min_isec.y >= y_min && z_min_isec.y <= y_max)
+	 // z-max face
+	 || (z_max_isec.x >= x_max && z_max_isec.x <= x_max
+	     && z_max_isec.y >= y_max && z_max_isec.y <= y_max)
 	 ))
     // RAY intersects no face, so it must not intersect our volume;
     // give up (but continue searching in parent nodes).
     return true;
 
   // Invoke CALLBACK on each of this node's objects
-  for (list<const Obj *>::const_iterator oi = objs.begin();
-       oi != objs.end();
-       oi++)
+  for (list<Obj *>::const_iterator oi = objs.begin(); oi != objs.end(); oi++)
     if (! callback (*oi))
       // A false return from CALLBACK indicates that we should stop
       // (including in parent nodes).
@@ -244,6 +244,9 @@ Voxtree::add (Obj *obj, const BBox &obj_bbox)
       origin = obj_bbox.min;
       size = obj_bbox.size ();
 
+      cout << "made initial voxtree root at " << origin
+	   << ", size = " << size << endl;
+
       // As we know that OBJ will fit exactly in ROOT, we don't bother
       // calling ROOT's add method, we just add OBJ directly to ROOT's
       // object list.
@@ -270,37 +273,37 @@ Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
   dist_t z_hi_grow = obj_bbox.max.z - (origin.z + size);
 
   // Install old root as appropriate sub-node of NEW_ROOT.
-  if (x_lo_grow > x_hi_grow)
-    {
-      if (y_lo_grow > y_hi_grow)
-	{
-	  if (z_lo_grow > z_hi_grow)
+  if (x_hi_grow > x_lo_grow)
+    {					// grow in x-positive direction
+      if (y_hi_grow > y_lo_grow)
+	{				// grow in y-positive direction
+	  if (z_hi_grow > z_lo_grow)	// grow in z-positive direction
 	    new_root->x_lo_y_lo_z_lo = root;
-	  else
+	  else				// grow in z-negative direction
 	    new_root->x_lo_y_lo_z_hi = root;
 	}
       else
-	{
-	  if (z_lo_grow > z_hi_grow)
+	{				// grow in y-negative direction
+	  if (z_hi_grow > z_lo_grow)	// grow in z-positive direction
 	    new_root->x_lo_y_hi_z_lo = root;
-	  else
+	  else				// grow in z-negative direction
 	    new_root->x_lo_y_hi_z_hi = root;
 	}
     }  
   else
-    {
-      if (y_lo_grow > y_hi_grow)
-	{
-	  if (z_lo_grow > z_hi_grow)
+    {					// grow in x-negative direction
+      if (y_hi_grow > y_lo_grow)
+	{				// grow in y-positive direction
+	  if (z_hi_grow > z_lo_grow)	// grow in z-positive direction
 	    new_root->x_hi_y_lo_z_lo = root;
-	  else
+	  else				// grow in z-negative direction
 	    new_root->x_hi_y_lo_z_hi = root;
 	}
       else
-	{
-	  if (z_lo_grow > z_hi_grow)
+	{				// grow in y-negative direction
+	  if (z_hi_grow > z_lo_grow)    // grow in z-positive direction
 	    new_root->x_hi_y_hi_z_lo = root;
-	  else
+	  else				// grow in z-negative direction
 	    new_root->x_hi_y_hi_z_hi = root;
 	}
     }  
@@ -309,15 +312,23 @@ Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
   // root is installed in the "hi" slot, our old origin position now
   // becomes our new midpoint; for axes on which the old root is
   // installed in the "lo" slot, our origin remains the same.
-  if (x_hi_grow > x_lo_grow)
+  if (x_lo_grow > x_hi_grow)
     origin.x -= size;
-  if (y_hi_grow > y_lo_grow)
+  if (y_lo_grow > y_hi_grow)
     origin.y -= size;
-  if (z_hi_grow > z_lo_grow)
+  if (z_lo_grow > z_hi_grow)
     origin.z -= size;
 
   // Our size doubles with each new level.
   size *= 2;
+
+  cout << "grew voxtree root to size: " << size << endl;
+  cout << "   new origin is: " << origin << endl;
+
+  new_root->has_subnodes = true;
+
+  // Replace the old root!
+  root = new_root;
 
   // Now that we have a new root, try adding OBJ again (if it still
   // doesn't fit, we'll be called again to add another level).
@@ -406,7 +417,15 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 
   if (add_here)
     // OBJ didn't fit in any sub-node, so just add to this one
-    objs.push_back (obj);
+    {
+      cout << "adding object with bbox " << obj_bbox.min
+	   << " - " << obj_bbox.max << endl
+	   << "   to node @(" << x << ", " << y << ", " << z << ")" << endl
+	   << "      size = " << size << endl
+	   << "      prev num objs = " << objs.size() << endl;
+
+      objs.push_back (obj);
+    }
 }
 
 
