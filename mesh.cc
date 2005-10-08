@@ -135,6 +135,70 @@ Mesh::load_msh_file (istream &stream)
 
 
 
+//
+// Computing Barycentric coordinates (u, v, w) of the point p on the
+// triangle with vertices v0, v1, v2:
+//
+//     λu = (B * (F + I) - C * (E + H)) / (A * (E + H) - B * (D + G))
+//
+// and
+//
+//     λv = (A * (F + I) - C * (D + G)) / (B * (D + G) - A * (E + H))
+//
+// and
+//
+//     λw = 1 - u - v
+//
+// where
+//
+//     A = v0.x - v2.x
+//     B = v1.x - v2.x 
+//     C = v2.x - p.x
+//     D = v0.y - v2.y 
+//     E = v1.y - v2.y 
+//     F = v2.y - p.y
+//     G = v0.z - v2.z 
+//     H = v1.z - v2.z 
+//     I = v2.z - p.z
+//
+// Note that:
+//
+//   p = v0 -> (u,v,w) = (1,0,0)
+//   p = v1 -> (u,v,w) = (0,1,0)
+//   p = v2 -> (u,v,w) = (0,0,1)
+//
+static void
+compute_barycentric_coords (const Pos &p,
+			    const Pos &v0, const Pos &v1, const Pos &v2,
+			    float &u, float &v)
+{
+  float a = v0.x - v2.x;
+  float b = v1.x - v2.x;
+  float c = v2.x - p.x;
+  float d = v0.y - v2.y;
+  float e = v1.y - v2.y;
+  float f = v2.y - p.y;
+  float g = v0.z - v2.z;
+  float h = v1.z - v2.z;
+  float i = v2.z - p.z;
+
+  u = (b * (f + i) - c * (e + h)) / (a * (e + h) - b * (d + g));
+  v = (a * (f + i) - c * (d + g)) / (b * (d + g) - a * (e + h));
+}
+
+// Same, but compute w too.
+//
+static void
+compute_barycentric_coords (const Pos &p,
+			    const Pos &v0, const Pos &v1, const Pos &v2,
+			    float &u, float &v, float &w)
+{
+  compute_barycentric_coords (p, v0, v1, v2, u, v);
+  w = 1 - u - v;
+}
+
+
+
 dist_t
 Mesh::Triangle::intersection_distance (const Ray &ray) const
 {
@@ -184,61 +248,27 @@ Mesh::Triangle::intersection_distance (const Ray &ray) const
 Vec
 Mesh::Triangle::normal (const Pos &point, const Vec &eye_dir) const
 {
+  Vec norm;
+
   if (mesh->vertex_normals)
     {
-      Vec norm;
+      float w0, w1, w2;
+      compute_barycentric_coords (point, v(0), v(1), v(2), w0, w1, w2);
 
-#if 1
-      /* score: 2 (no-square), 5 (square)*/
-      dist_t vdists[3];
-
-      for (unsigned num = 0; num < 3; num++)
-	{
-	  vdists[num] = powf ((v (num) - point).length (), 3);
-	//	vdists[num] *= vdists[num];
-	}
-
-      norm += vnorm (0) * vdists[1] * vdists[2];
-      norm += vnorm (1) * vdists[0] * vdists[2];
-      norm += vnorm (2) * vdists[0] * vdists[1];
-#elif 1
-      /* score: 3 */
-      dist_t edge01 = v(0).dist (v(1));
-      dist_t edge02 = v(0).dist (v(2));
-      dist_t edge12 = v(1).dist (v(2));
-
-      norm += vnorm(0) * ((edge01 > edge02 ? edge01 : edge02) - v(0).dist (point));
-      norm += vnorm(1) * ((edge01 > edge12 ? edge01 : edge12) - v(1).dist (point));
-      norm += vnorm(2) * ((edge02 > edge12 ? edge02 : edge12) - v(2).dist (point));
-#else
-      dist_t vdists[3];
-
-      for (unsigned num = 0; num < 3; num++)
-	vdists[num] = (v (num) - point).length ();
-
-      norm += vnorm (0) / (vvdists[0];
-      norm += vnorm (1) / vdists[1];
-      norm += vnorm (2) / vdists[2];
-#endif
+      norm = vnorm(0) * w0;
+      norm += vnorm(1) * w1;
+      norm += vnorm(2) * w2;
 
       norm = norm.unit ();
-
-      // Triangles are visible from both sides, so keep the normal sane
-      if (norm.dot (eye_dir) < 0)
-	norm = -norm;
-
-      return norm;
     }
   else
-    {
-      Vec norm (raw_normal ());
+    norm = raw_normal ();
 
-      // Triangles are visible from both sides, so keep the normal sane
-      if (norm.dot (eye_dir) < 0)
-	norm = -norm;
+  // Triangles are visible from both sides, so keep the normal sane
+  if (norm.dot (eye_dir) < 0)
+    norm = -norm;
 
-      return norm;
-    }
+  return norm;
 }
 
 // Return a bounding box for this object.
@@ -309,8 +339,6 @@ Mesh::add_to_space (Voxtree &space)
 {
   if (! triangles)
     throw std::runtime_error ("cannot instantiate unloaded mesh");
-
-  compute_vertex_normals ();
 
   for (unsigned i = 0; i < num_triangles; i++)
     triangles[i].add_to_space (space);

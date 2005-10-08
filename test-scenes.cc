@@ -125,21 +125,40 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 static void
 def_scene_miles_test2 (Scene &scene, Camera &camera, unsigned mesh_index)
 {
-  Material *mat
-    = scene.add (new Mirror (0.8, Color::white * 0.2, 100));
+  // We copied various params from a .nff file with bogus gamma
+  scene.set_assumed_gamma (2.2);
 
-  Mesh *mesh = new Mesh (mat);
+  Material *teapot_mat
+    = scene.add (new Mirror (0.25, Color (1, 0.5, 0.1) * 0.75,
+			     Material::phong (3.0827, 0.25)));
+  Material *board1_mat
+    = scene.add (new Mirror (0.3, Color::white * 0.1, 10));
+  Material *board2_mat
+    = scene.add (new Mirror (0.3, Color::white * 0.8, 10));
+    
+  Mesh *teapot_mesh = new Mesh (teapot_mat);
   switch (mesh_index)
     {
     default:
-    case 0: mesh->load ("teapot.msh"); break;
-    case 1: mesh->load ("teapot-14.msh"); break;
-    case 2: mesh->load ("teapot-30.msh"); break;
+    case 0: teapot_mesh->load ("teapot.msh"); break;
+    case 1: teapot_mesh->load ("teapot-14.msh"); break;
+    case 2: teapot_mesh->load ("teapot-30.msh"); break;
     }      
-  scene.add (mesh);
+  teapot_mesh->compute_vertex_normals ();
+  scene.add (teapot_mesh);
+
+  Mesh *board1_mesh = new Mesh (board1_mat);
+  board1_mesh->load ("board1.msh");
+  scene.add (board1_mesh);
+
+  Mesh *board2_mesh = new Mesh (board2_mat);
+  board2_mesh->load ("board2.msh");
+  scene.add (board2_mesh);
 
   scene.add (new Light (Pos (-3.1, 9.8, 12.1), 100));
   scene.add (new Light (Pos (11.3, 5.1, 8.8), 100));
+
+  scene.set_background (Color (0.078, 0.361, 0.753));
 
   camera.move (Pos (4.86, 7.2, 5.4));
   camera.point (Pos (0, 0, 0), Vec (0, 0, 1));
@@ -322,6 +341,37 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   scene.add (new Light (Pos (6, 6, 6), Color (25, 25, 25)));
 }
 
+void 
+def_scene_cs465_test4 (Scene &scene, Camera &camera)
+{
+  // Low resolution Stanford Bunny Mesh.
+
+  camera.move (Pos (0, 0, 3));
+  camera.point (Pos (-0.25, -0.07, 0), Vec (0, 1, 0));
+  camera.set_vert_fov (M_PI_4);
+
+  Material *red = scene.add (new Material (Color (0.5, 0.3, 0.05)));
+  //Material *red = scene.add (new Mirror (0.05, Color (1, 0, 0), 500));
+  Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
+
+  Mesh *bunny = new Mesh (red);
+  bunny->load ("bunny500.msh");
+  bunny->compute_vertex_normals ();
+  scene.add (bunny);
+  
+  // ground
+  scene.add (new Triangle (gray,
+			   Pos (-10, -0.65, -10), Pos (-10, -0.65, 10),
+			   Pos (10, -0.65, -10)));
+  scene.add (new Triangle (gray,
+			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
+			   Pos (10, -0.65, 10)));
+  
+  scene.add (new Light (Pos (0, 10, 0), 100));
+  scene.add (new Light (Pos (15, 2, 0), 100));
+  scene.add (new Light (Pos (0, 1, 15), 100));
+}
+
 
 
 void
@@ -339,20 +389,15 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       def_scene_cs465_test2 (scene, camera); break;
     case 3:
       def_scene_cs465_test3 (scene, camera); break;
-
     case 4:
-      def_scene_miles_test1 (scene, camera, 1); break;
+      def_scene_cs465_test4 (scene, camera); break;
+
     case 5:
       def_scene_miles_test1 (scene, camera, 2); break;
     case 6:
       def_scene_miles_test1 (scene, camera, 3); break;
-
     case 7:
-      def_scene_miles_test2 (scene, camera, 0); break;
-    case 8:
-      def_scene_miles_test2 (scene, camera, 1); break;
-    case 9:
-      def_scene_miles_test2 (scene, camera, 2); break;
+      def_scene_miles_test1 (scene, camera, 1); break;
 
     case 10:
       extern TestSceneParams teapot_test_scene_params;
@@ -435,7 +480,16 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       extern TestSceneParams teapot_30_test_scene_params;
       define_test_scene (&teapot_30_test_scene_params, 115, scene, camera);
       break;
+
+    case 30:
+      def_scene_miles_test2 (scene, camera, 0); break;
+    case 31:
+      def_scene_miles_test2 (scene, camera, 1); break;
+    case 32:
+      def_scene_miles_test2 (scene, camera, 2); break;
+
     }
+
 }
 
 // arch-tag: 307938a9-c663-4949-a58b-fb51040a6529

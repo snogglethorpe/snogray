@@ -67,6 +67,7 @@ public:
   unsigned num_nodes () const { return root ? root->num_nodes() : 0; }
   unsigned max_depth () const { return root ? root->max_depth() : 0; }
   float avg_depth () const { return root ? root->avg_depth() : 0; }
+  unsigned num_objs () const { return root ? root->num_objs() : 0; }
 
   // One corner of the voxtree
   Pos origin;
@@ -139,6 +140,7 @@ private:
     unsigned num_nodes () const;
     unsigned max_depth (unsigned cur_sibling_max = 0) const;
     float avg_depth () const;
+    unsigned num_objs () const;
 
     // Objects at this level of the tree.  All objects listed in a node
     // must fit entirely within it.  Any given object is only present in

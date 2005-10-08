@@ -95,7 +95,7 @@ comma = ,
 SPD_TEST_SRCS = $(SPD_TESTS:%.nff=$(comma)%.cc)
 
 # All depend on the conversion program
-$(SPD_TEST_SRCS): nff-to-cxx
+$(SPD_TEST_SRCS): nff-cvt
 
 ################################################################
 ##
@@ -189,7 +189,7 @@ test-%.nff: $(SPD_DIR)/%.dxf
 	$(SPD_DIR)/readdxf -f $< > $@
 
 ,%.cc: %.nff
-	nff-to-cxx $* < $< > $@
+	nff-cvt $* < $< > $@
 
 ################################################################
 ##

@@ -461,12 +461,14 @@ int main (int argc, char *const *argv)
     {
       cout << "Scene:" << endl;
       cout << "   test scene:        " << setw (6) << test_scene_num << endl;
-      cout << "   objects:       "
-	   << setw (10) << commify (scene.objs.size ()) << endl;
+      cout << "   top-level objects:"
+	   << setw (7) << commify (scene.objs.size ()) << endl;
       cout << "   lights:        "
 	   << setw (10) << commify (scene.lights.size ()) << endl;
       cout << "   materials:     "
 	   << setw (10) << commify (scene.materials.size ()) << endl;
+      cout << "   voxtree objects:"
+	   << setw (9) << commify (scene.obj_voxtree.num_objs ()) << endl;
       cout << "   voxtree nodes: "
 	   << setw (10) << commify (scene.obj_voxtree.num_nodes ()) << endl;
       cout << "   voxtree avg depth: "
@@ -578,7 +580,7 @@ int main (int argc, char *const *argv)
       long long hhm = sstats.horizon_hint_misses;
 
       unsigned vnn = scene.obj_voxtree.num_nodes ();
-      unsigned no  = scene.objs.size ();
+      unsigned vno  = scene.obj_voxtree.num_objs ();
 
       cout << endl;
       cout << "Rendering stats:" << endl;
@@ -591,7 +593,7 @@ int main (int argc, char *const *argv)
       cout << "     voxtree node calls:" << setw (14) << commify (vnc)
 	   << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
       cout << "     obj calls:         " << setw (14) << commify (ocic)
-	   << " (" << setw(2) << (100 * ocic / (sc * no)) << "%)" << endl;
+	   << " (" << setw(2) << (100 * ocic / (sc * vno)) << "%)" << endl;
 
       long long sst = sstats.scene_shadowed_tests;
       long long shh = sstats.shadow_hint_hits;
@@ -608,7 +610,7 @@ int main (int argc, char *const *argv)
       cout << "     voxtree node tests:" << setw (14) << commify (vnt)
 	   << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)" << endl;
       cout << "     obj tests:         " << setw (14) << commify (ot)
-	   << " (" <<setw(2) << (100 * ot / (no * (sst - shh))) << "%)" << endl;
+	   << " (" <<setw(2) << (100 * ot / (vno * (sst - shh))) << "%)" << endl;
 
       // a field width of 13 is enough for over a year of time...
       cout << "Time:" << endl;

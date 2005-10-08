@@ -633,4 +633,29 @@ Voxtree::Node::avg_depth () const
     return (subnode_sum / num_subnodes) + 1;
 }
 
+unsigned
+Voxtree::Node::num_objs () const
+{
+  unsigned num = objs.size ();
+
+  if (x_lo_y_lo_z_lo)
+    num += x_lo_y_lo_z_lo->num_objs ();
+  if (x_lo_y_lo_z_hi)
+    num += x_lo_y_lo_z_hi->num_objs ();
+  if (x_lo_y_hi_z_lo)
+    num += x_lo_y_hi_z_lo->num_objs ();
+  if (x_lo_y_hi_z_hi)
+    num += x_lo_y_hi_z_hi->num_objs ();
+  if (x_hi_y_lo_z_lo)
+    num += x_hi_y_lo_z_lo->num_objs ();
+  if (x_hi_y_lo_z_hi)
+    num += x_hi_y_lo_z_hi->num_objs ();
+  if (x_hi_y_hi_z_lo)
+    num += x_hi_y_hi_z_lo->num_objs ();
+  if (x_hi_y_hi_z_hi)
+    num += x_hi_y_hi_z_hi->num_objs ();
+  
+  return num;
+}
+
 // arch-tag: ec7b70cc-3cf6-40f3-9ec6-0ce71dbd20c5

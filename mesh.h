@@ -40,16 +40,19 @@ public:
   virtual void add_to_space (Voxtree &space);
 
   // For loading mesh from any file-type (automatically determined)
+  //
   void load (const char *file_name);
 
   // For loading mesh from .msh file
+  //
   void load_msh_file (std::istream &stream);
+
+  //
+  void compute_vertex_normals ();
 
 private:
 
   class Triangle;
-
-  void compute_vertex_normals ();
 
   // A list of vertices used in this part.
   Pos *vertices;

@@ -25,7 +25,7 @@ public:
       reflectance (_reflectance)
   { }
   Mirror (float _reflectance, const Color &col, float phong_exp)
-    : Material (col, phong (phong_exp, _reflectance)),
+    : Material (col, phong (phong_exp)),
       reflectance (_reflectance)
   { }
 
