@@ -1,8 +1,8 @@
 #include "vec.h"
 
-void do_tests (Vec3 &v1, Vec3 &v2, Vec3 &v3)
+void do_tests (Vec &v1, Vec &v2, Vec &v3)
 {
-  v2 = v1.normalize();
+  v2 = v1.normal();
   v3 = v1.cross (v2);
 }
 

@@ -1,31 +1,23 @@
 #include "scene.h"
 
-void
-Scene::closest_intersect (Intersect &isec)
+using namespace std;
+
+Intersect
+Scene::closest_intersect (const Ray &ray) const
 {
-  for (ObjRef objr = obj_list; objr; objr = objr->next)
-    objr->obj->closest_intersect (isec);
+  Intersect isec (ray);
+  for (list<Obj>::const_iterator oi = objs.begin(); oi != objs.end(); oi++)
+    oi->closest_intersect (isec);
+  return isec;
 }
 
 bool
-Scene::intersects (const Ray &ray)
+Scene::intersects (const Ray &ray) const
 {
-  for (ObjRef objr = obj_list; objr; objr = objr->next)
-    if (objr->obj->intersects (ray))
+  for (list<Obj>::const_iterator oi = objs.begin(); oi != objs.end(); oi++)
+    if (oi->intersects (ray))
       return true;
   return false;
-}
-
-Color
-Scene::illuminate_intersect (const Intersect &isec)
-{
-  for (Light 
-}
-
-Color
-Scene::cast_ray (const Ray &ray)
-{
-  
 }
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558
