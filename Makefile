@@ -65,7 +65,8 @@ COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 SPD_TESTS = test-teapot.nff test-balls.nff test-rings.nff test-tetra.nff \
 	test-mount.nff test-tree.nff test-gears.nff test-sombrero.nff	 \
 	test-sample.nff test-jacks.nff test-shells.nff test-nurbtst.nff	 \
-	test-lattice.nff test-f117.nff test-skull.nff test-f15.nff
+	test-lattice.nff test-f117.nff test-skull.nff test-f15.nff	 \
+	test-balls-5.nff
 
 SPD_TEST_SRCS = $(SPD_TESTS:%.nff=$(comma)%.cc)
 

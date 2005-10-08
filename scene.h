@@ -47,11 +47,20 @@ public:
 
   void set_background (const Color &col) { background = col; }
 
-  Color render (const Intersect &isec);
-  Color render (const Ray  &ray)
+  Color render (const Intersect &isec, unsigned depth = 0);
   {
+    if (isec.obj)
+      return isec.obj->material->render (isec, *this, depth);
+    else
+      return background;
+  }
+  Color render (const Ray &ray, unsigned depth = 0)
+  {
+    if (depth >= max_depth)
+      return background;
+
     Intersect isec = closest_intersect (ray);
-    return isec.obj ? render (isec) : background;
+    return isec.obj ? render (isec, depth) : background;
   }
 
   struct Stats {
@@ -79,6 +88,8 @@ public:
   Color background;
 
   Voxtree obj_voxtree;
+
+  unsigned max_depth;
 };
 
 }

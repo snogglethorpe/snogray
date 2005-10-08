@@ -318,7 +318,7 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       break;
     case 11:
       extern TestSceneParams balls_test_scene_params;
-      define_test_scene (&balls_test_scene_params, 25, scene, camera);
+      define_test_scene (&balls_test_scene_params, 20, scene, camera);
       break;
     case 12:
       extern TestSceneParams rings_test_scene_params;
@@ -375,6 +375,10 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
     case 25:
       extern TestSceneParams f15_test_scene_params;
       define_test_scene (&f15_test_scene_params, 2500, scene, camera);
+      break;
+    case 26:
+      extern TestSceneParams balls_5_test_scene_params;
+      define_test_scene (&balls_5_test_scene_params, 20, scene, camera);
       break;
     }
 }

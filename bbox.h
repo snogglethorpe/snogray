@@ -54,8 +54,8 @@ public:
     return Vec (max.x - min.x, max.y - min.y, max.z - min.z);
   }
 
-  // The "size" of a bounding box is the greatest component of its extent
-  dist_t size () const
+  // The greatest component of its extent
+  dist_t max_size () const
   {
     Vec ext = extent ();
     dist_t sz = ext.x;
@@ -64,6 +64,25 @@ public:
     if (ext.z > sz)
       sz = ext.z;
     return sz;
+  }
+
+  // The least component of its extent
+  dist_t min_size () const
+  {
+    Vec ext = extent ();
+    dist_t sz = ext.x;
+    if (ext.y < sz)
+      sz = ext.y;
+    if (ext.z < sz)
+      sz = ext.z;
+    return sz;
+  }
+
+  // The average dimension
+  dist_t avg_size () const
+  {
+    Vec ext = extent ();
+    return (ext.x + ext.y + ext.z) / 3;
   }
 
   // Every component of MAX is greater than or equal to the

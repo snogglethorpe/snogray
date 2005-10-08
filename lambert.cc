@@ -16,8 +16,9 @@
 using namespace Snogray;
 
 const Color
-Lambert::render (const Intersect &isec,
-		 const Vec &light_dir, const Color &light_color)
+Lambert::render (const Intersect &isec, const Color &color,
+		 const Vec &light_dir, const Color &light_color,
+		 Scene &scene, unsigned depth)
   const
 {
   float diffuse_component = isec.normal.dot (light_dir);

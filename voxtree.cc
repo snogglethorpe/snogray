@@ -286,7 +286,7 @@ Voxtree::add (Obj *obj, const BBox &obj_bbox)
     {
       root = new Node ();
       origin = obj_bbox.min;
-      size = obj_bbox.size ();
+      size = obj_bbox.max_size ();
 
 #if 0
       cout << "made initial voxtree root at " << origin
@@ -418,7 +418,7 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
   // descendent node they eventually end up in, allowing the voxtree to
   // reject more rays before reaching them.
   //
-  bool force_into_subnodes = obj_bbox.size() < size / 4;
+  bool force_into_subnodes = obj_bbox.avg_size() < size / 4;
 
   if (obj_bbox.max.x < mid_x
       || (force_into_subnodes && obj_bbox.min.x < mid_x))

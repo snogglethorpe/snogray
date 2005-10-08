@@ -1,4 +1,4 @@
-// phog.cc -- Phong lighting model
+// phong.cc -- Mirror lighting model
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -11,15 +11,16 @@
 
 #include <cmath>
 
-#include "phong.h"
+#include "mirror.h"
 
 #include "intersect.h"
 
 using namespace Snogray;
 
 const Color
-Phong::render (const Intersect &isec, const Color &color,
-	       const Vec &light_dir, const Color &light_color)
+Mirror::render (const Intersect &isec,
+		const Vec &light_dir, const Color &light_color,
+		Scene &scene, unsigned depth)
   const
 {
   float diffuse_component = isec.normal.dot (light_dir);
@@ -29,7 +30,7 @@ Phong::render (const Intersect &isec, const Color &color,
       float specular_component
 	= powf (isec.normal.dot ((isec.eye_dir + light_dir).unit()), exponent);
 
-      Color color = color * diffuse_component;
+      Color color = diffuse_color * diffuse_component;
 
       color += specular_color * specular_component;
 
@@ -39,4 +40,4 @@ Phong::render (const Intersect &isec, const Color &color,
     return Color::black;
 }
 
-// arch-tag: 11e5304d-111f-4597-a164-f08bd49e1563
+// arch-tag: 9f01db5e-c4b3-4d62-8fe3-e88243c025f9

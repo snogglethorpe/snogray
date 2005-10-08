@@ -40,7 +40,8 @@ Snogray::define_test_scene (const TestSceneParams *p, float light_intens,
 	  else
 	    {
 	      Color specular = Color (mp->r, mp->g, mp->b) * mp->Ks;
-	      materials[i] = scene.add (new Phong (mp->exp, diffuse, specular));
+	      float exp = mp->exp * 100;
+	      materials[i] = scene.add (new Phong (exp, diffuse, specular));
 	    }
 	}
     }
