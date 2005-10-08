@@ -54,6 +54,11 @@ public:
   {
     x -= v2.x; y -= v2.y; z -= v2.z;
   }
+  // This gets used in average normals
+  void operator/= (const float denom)
+  {
+    x /= denom; y /= denom; z /= denom;
+  }
 
   dist_t dot (const Vec &v2) const
   {

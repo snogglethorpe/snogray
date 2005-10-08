@@ -123,13 +123,19 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 
 
 static void
-def_scene_miles_test2 (Scene &scene, Camera &camera)
+def_scene_miles_test2 (Scene &scene, Camera &camera, unsigned mesh_index)
 {
   Material *mat
     = scene.add (new Mirror (0.8, Color::white * 0.2, 100));
 
   Mesh *mesh = new Mesh (mat);
-  mesh->load ("teapot-30.msh");
+  switch (mesh_index)
+    {
+    default:
+    case 0: mesh->load ("teapot.msh"); break;
+    case 1: mesh->load ("teapot-14.msh"); break;
+    case 2: mesh->load ("teapot-30.msh"); break;
+    }      
   scene.add (mesh);
 
   scene.add (new Light (Pos (-3.1, 9.8, 12.1), 100));
@@ -342,7 +348,11 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       def_scene_miles_test1 (scene, camera, 3); break;
 
     case 7:
-      def_scene_miles_test2 (scene, camera); break;
+      def_scene_miles_test2 (scene, camera, 0); break;
+    case 8:
+      def_scene_miles_test2 (scene, camera, 1); break;
+    case 9:
+      def_scene_miles_test2 (scene, camera, 2); break;
 
     case 10:
       extern TestSceneParams teapot_test_scene_params;

@@ -1,11 +1,16 @@
-#!/usr/bin/nawk -f
+#!/bin/sh
 
+nawk '
 BEGIN {
   name = ARGV[1]
   delete ARGV[1]
 
-  sub (/^test-/, "", name)
-  gsub (/-/, "_", name)
+  msh_file = (name ~ /^-msh/)
+
+  if (! msh_file) {
+    sub (/^test-/, "", name)
+    gsub (/-/, "_", name)
+  }
 
   num_vertices = 0
   num_materials = 0
@@ -32,13 +37,27 @@ reading_v && $1 == "resolution"{ next }
 reading_v { reading_v = 0 }
 
 p_remaining_verts > 0 {
-  p_vert_indices[p_cur_vert++] = num_vertices+0
-  vertices[num_vertices++] = args3(1)
+  vert_pos = args3(1)
+  if (vert_pos in vertex_indices)
+    vert_index = vertex_indices[vert_pos]
+  else {
+    vert_index = num_vertices+0
+    vertex_indices[vert_pos] = vert_index
+    vertices[num_vertices++] = vert_pos
+  }
+
+  p_vert_indices[p_cur_vert++] = vert_index
 
   if (p_cur_vert == 3) {
-    triangles[num_triangles++] \
-      = cur_material_index ", " \
-        p_vert_indices[0] ", " p_vert_indices[1] ", " p_vert_indices[2]
+    if (msh_file)
+      triangle = ""
+    else
+      triangle = cur_material_index ", "
+    
+    for (v_num = 0; v_num < 3; v_num++)
+      triangle = triangle p_vert_indices[v_num] (v_num < 2 ? ", " : "")
+
+    triangles[num_triangles++] = triangle
 
     p_vert_indices[1] = p_vert_indices[2]
 
@@ -154,37 +173,64 @@ function print_test_array_init(kind, param_type, array, len)
   }
 }
 
-END {
-  print "#include \"test-scene.h\""
-  print ""
-
-  print "using namespace Snogray;"
-  print ""
-
-  print_test_array_init("material", "TestSceneMaterialParams", materials, num_materials)
-  print_test_array_init("vertex", "TestSceneVertexParams", vertices, num_vertices)
-  print_test_array_init("triangle", "TestSceneTriangleParams", triangles, num_triangles)
-  print_test_array_init("sphere", "TestSceneSphereParams", spheres, num_spheres)
-  print_test_array_init("light", "TestSceneLightParams", lights, num_lights)
-
-  print "TestSceneParams " name "_test_scene_params ="
-  print "{"
-  print "  " (num_materials == 0 ? "0" : (name "_material_params")) ","
-  print "  " num_materials ","
-  print "  " (num_vertices == 0 ? "0" : (name "_vertex_params")) ","
-  print "  " num_vertices ","
-  print "  " (num_triangles == 0 ? "0" : (name "_triangle_params")) ","
-  print "  " num_triangles ","
-  print "  " (num_spheres == 0 ? "0" : (name "_sphere_params")) ","
-  print "  " num_spheres ","
-  print "  " (num_lights == 0 ? "0" : (name "_light_params")) ","
-  print "  " num_lights ","
-  print "  " bg_col ","
-  print "  " cam_pos ","
-  print "  " cam_targ ","
-  print "  " cam_up ","
-  print "  " cam_fov_y ","
-  print "};"
+function print_split_array(array, len)
+{
+  for (i = 0; i < len; i++) {
+    val = array[i]
+    nvals = split (val, vals, /, */)
+    for (j = 1; j <= nvals; j++)
+      print vals[j]
+  }
 }
+
+END {
+  if (msh_file) {
+    # output .msh file
+
+    print num_vertices
+    print num_triangles
+
+    print "vertices"
+    print_split_array(vertices, num_vertices)
+
+    print "triangles"
+    print_split_array(triangles, num_triangles)
+
+  } else {
+    # output c++ source
+
+    print "#include \"test-scene.h\""
+    print ""
+
+    print "using namespace Snogray;"
+    print ""
+
+    print_test_array_init("material", "TestSceneMaterialParams", materials, num_materials)
+    print_test_array_init("vertex", "TestSceneVertexParams", vertices, num_vertices)
+    print_test_array_init("triangle", "TestSceneTriangleParams", triangles, num_triangles)
+    print_test_array_init("sphere", "TestSceneSphereParams", spheres, num_spheres)
+    print_test_array_init("light", "TestSceneLightParams", lights, num_lights)
+
+    print "TestSceneParams " name "_test_scene_params ="
+    print "{"
+    print "  " (num_materials == 0 ? "0" : (name "_material_params")) ","
+    print "  " num_materials ","
+    print "  " (num_vertices == 0 ? "0" : (name "_vertex_params")) ","
+    print "  " num_vertices ","
+    print "  " (num_triangles == 0 ? "0" : (name "_triangle_params")) ","
+    print "  " num_triangles ","
+    print "  " (num_spheres == 0 ? "0" : (name "_sphere_params")) ","
+    print "  " num_spheres ","
+    print "  " (num_lights == 0 ? "0" : (name "_light_params")) ","
+    print "  " num_lights ","
+    print "  " bg_col ","
+    print "  " cam_pos ","
+    print "  " cam_targ ","
+    print "  " cam_up ","
+    print "  " cam_fov_y ","
+    print "};"
+  }
+}
+' "$@"
 
 # arch-tag: 9ee3b420-76bb-4e78-8479-9bb9d5c4bda4

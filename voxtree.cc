@@ -421,12 +421,15 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
   bool force_into_subnodes = obj_bbox.avg_size() < size / 4;
 
   if (obj_bbox.max.x < mid_x
+      || (obj_bbox.max.x == mid_x && obj_bbox.min.x != obj_bbox.max.x)
       || (force_into_subnodes && obj_bbox.min.x < mid_x))
     {
       if (obj_bbox.max.y < mid_y
+	  || (obj_bbox.max.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
 	  || (force_into_subnodes && obj_bbox.min.y < mid_y))
 	{
 	  if (obj_bbox.max.z < mid_z
+	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
 	    {
 	      add_or_create (x_lo_y_lo_z_lo, obj, obj_bbox,
@@ -434,6 +437,7 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 	      add_here = false;
 	    }
 	  if (obj_bbox.min.z >= mid_z
+	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
 	    {
 	      add_or_create (x_lo_y_lo_z_hi, obj, obj_bbox,
@@ -442,9 +446,11 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 	    }
 	}
       if (obj_bbox.min.y >= mid_y
+	  || (obj_bbox.min.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
 	  || (force_into_subnodes && obj_bbox.max.y >= mid_y))
 	{
 	  if (obj_bbox.max.z < mid_z
+	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
 	    {
 	      add_or_create (x_lo_y_hi_z_lo, obj, obj_bbox,
@@ -452,6 +458,7 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 	      add_here = false;
 	    }
 	  if (obj_bbox.min.z >= mid_z
+	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
 	    {
 	      add_or_create (x_lo_y_hi_z_hi, obj, obj_bbox,
@@ -460,13 +467,16 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 	    }
 	}
     }
-  if (obj_bbox.min.x >= mid_x
+  if (obj_bbox.min.x > mid_x
+      || (obj_bbox.min.x == mid_x && obj_bbox.min.x != obj_bbox.max.x)
       || (force_into_subnodes && obj_bbox.max.x >= mid_x))
     {
       if (obj_bbox.max.y < mid_y
+	  || (obj_bbox.max.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
 	  || (force_into_subnodes && obj_bbox.min.y < mid_y))
 	{
 	  if (obj_bbox.max.z < mid_z
+	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
 	    {
 	      add_or_create (x_hi_y_lo_z_lo, obj, obj_bbox,
@@ -474,6 +484,7 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 	      add_here = false;
 	    }
 	  if (obj_bbox.min.z >= mid_z
+	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
 	    {
 	      add_or_create (x_hi_y_lo_z_hi, obj, obj_bbox,
@@ -482,9 +493,11 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 	    }
 	}
       if (obj_bbox.min.y >= mid_y
+	  || (obj_bbox.min.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
 	  || (force_into_subnodes && obj_bbox.max.y >= mid_y))
 	{
 	  if (obj_bbox.max.z < mid_z
+	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
 	    {
 	      add_or_create (x_hi_y_hi_z_lo, obj, obj_bbox,
@@ -492,6 +505,7 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
 	      add_here = false;
 	    }
 	  if (obj_bbox.min.z >= mid_z
+	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
 	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
 	    {
 	      add_or_create (x_hi_y_hi_z_hi, obj, obj_bbox,

@@ -25,12 +25,12 @@ public:
 
   Mesh (const Material *mat)
     : PrimaryObj (mat),
-      vertices (0), num_vertices (0),
+      vertices (0), vertex_normals (0), num_vertices (0),
       triangles (0), num_triangles (0)
   { }
   Mesh (const Material *mat, const char *file_name)
     : PrimaryObj (mat),
-      vertices (0), num_vertices (0),
+      vertices (0), vertex_normals (0), num_vertices (0),
       triangles (0), num_triangles (0)
   { load (file_name); }
   virtual ~Mesh ();
@@ -49,8 +49,11 @@ private:
 
   class Triangle;
 
+  void compute_vertex_normals ();
+
   // A list of vertices used in this part.
   Pos *vertices;
+  Vec *vertex_normals;
   unsigned num_vertices;
 
   // A vector of Mesh::Triangle objects that use this part.

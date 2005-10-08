@@ -1,4 +1,4 @@
-source ^(\.gdbrc)$
+source ^(\.gdbinit)$
 
 # Ignore generated binaries
 

@@ -40,13 +40,24 @@ public:
   //
   virtual const Material *material () const;
 
-  const Pos &v0 () const { return mesh->vertices[v0i]; }
-  const Pos &v1 () const { return mesh->vertices[v1i]; }
-  const Pos &v2 () const { return mesh->vertices[v2i]; }
+  // Vertex NUM of this triangle
+  //
+  const Pos &v (unsigned num) const { return mesh->vertices[vi[num]]; }
+
+  // Normal of vertex NUM (assuming this mesh contains vertex normals!)
+  //
+  const Vec &vnorm (unsigned num) const { return mesh->vertex_normals[vi[num]];}
+
+  const Vec raw_normal () const
+  {
+    return ((v(1) - v(0)).cross (v(2) - v(1))).unit ();
+  }
 
   Mesh *mesh;
 
-  unsigned v0i, v1i, v2i;
+  // Indices into mesh vertices array
+  //
+  unsigned vi[3];
 };
 
 
@@ -115,9 +126,9 @@ Mesh::load_msh_file (istream &stream)
 
   for (unsigned i = 0; i < num_triangles; i++)
     {
-      stream >> triangles[i].v0i;
-      stream >> triangles[i].v1i;
-      stream >> triangles[i].v2i;
+      for (unsigned num = 0; num < 3; num++)
+	stream >> triangles[i].vi[num];
+
       triangles[i].mesh = this;
     }
 }
@@ -127,7 +138,7 @@ Mesh::load_msh_file (istream &stream)
 dist_t
 Mesh::Triangle::intersection_distance (const Ray &ray) const
 {
-  const Pos &_v0 = v0 (), &_v1 = v1 (), &_v2 = v2 ();
+  const Pos &_v0 = v (0), &_v1 = v (1), &_v2 = v (2);
 
   float a = _v0.x - _v1.x; 
   float b = _v0.y - _v1.y; 
@@ -173,22 +184,70 @@ Mesh::Triangle::intersection_distance (const Ray &ray) const
 Vec
 Mesh::Triangle::normal (const Pos &point, const Vec &eye_dir) const
 {
-  Vec norm (((v1() - v0()).cross (v2() - v1())).unit ());
+  if (mesh->vertex_normals)
+    {
+      Vec norm;
 
-  // Triangles are visible from both sides, so keep the normal sane
-  if (norm.dot (eye_dir) < 0)
-    norm = -norm;
+#if 1
+      /* score: 2 (no-square), 5 (square)*/
+      dist_t vdists[3];
 
-  return norm;
+      for (unsigned num = 0; num < 3; num++)
+	{
+	  vdists[num] = powf ((v (num) - point).length (), 3);
+	//	vdists[num] *= vdists[num];
+	}
+
+      norm += vnorm (0) * vdists[1] * vdists[2];
+      norm += vnorm (1) * vdists[0] * vdists[2];
+      norm += vnorm (2) * vdists[0] * vdists[1];
+#elif 1
+      /* score: 3 */
+      dist_t edge01 = v(0).dist (v(1));
+      dist_t edge02 = v(0).dist (v(2));
+      dist_t edge12 = v(1).dist (v(2));
+
+      norm += vnorm(0) * ((edge01 > edge02 ? edge01 : edge02) - v(0).dist (point));
+      norm += vnorm(1) * ((edge01 > edge12 ? edge01 : edge12) - v(1).dist (point));
+      norm += vnorm(2) * ((edge02 > edge12 ? edge02 : edge12) - v(2).dist (point));
+#else
+      dist_t vdists[3];
+
+      for (unsigned num = 0; num < 3; num++)
+	vdists[num] = (v (num) - point).length ();
+
+      norm += vnorm (0) / (vvdists[0];
+      norm += vnorm (1) / vdists[1];
+      norm += vnorm (2) / vdists[2];
+#endif
+
+      norm = norm.unit ();
+
+      // Triangles are visible from both sides, so keep the normal sane
+      if (norm.dot (eye_dir) < 0)
+	norm = -norm;
+
+      return norm;
+    }
+  else
+    {
+      Vec norm (raw_normal ());
+
+      // Triangles are visible from both sides, so keep the normal sane
+      if (norm.dot (eye_dir) < 0)
+	norm = -norm;
+
+      return norm;
+    }
 }
 
 // Return a bounding box for this object.
 BBox
 Mesh::Triangle::bbox () const
 {
-  BBox bbox (v0 ());
-  bbox.include (v1 ());
-  bbox.include (v2 ());
+  BBox bbox (v (0));
+  bbox.include (v (1));
+  bbox.include (v (2));
   return bbox;
 }
 
@@ -210,6 +269,39 @@ Mesh::~Mesh ()
     delete[] vertices;
 }
 
+void
+Mesh::compute_vertex_normals ()
+{
+  if (! vertex_normals)
+    {
+      vertex_normals = new Vec[num_vertices];
+
+      unsigned *face_counts = new unsigned[num_vertices];
+
+      for (unsigned v = 0; v < num_vertices; v++)
+	face_counts[v] = 0;
+
+      for (unsigned t = 0; t < num_triangles; t++)
+	{
+	  const Triangle &triang = triangles[t];
+	  const Vec norm (triang.raw_normal ());
+
+	  for (unsigned num = 0; num < 3; num++)
+	    {
+	      unsigned v = triang.vi[num];
+	      vertex_normals[v] += norm;
+	      face_counts[v] ++;
+	    }
+	}
+	
+      for (unsigned v = 0; v < num_vertices; v++)
+	if (face_counts[v] > 1)
+	  vertex_normals[v] /= face_counts[v];
+
+      delete[] face_counts;
+    }
+}
+
 // Add this (or some other ...) objects to SPACE
 //
 void
@@ -217,6 +309,8 @@ Mesh::add_to_space (Voxtree &space)
 {
   if (! triangles)
     throw std::runtime_error ("cannot instantiate unloaded mesh");
+
+  compute_vertex_normals ();
 
   for (unsigned i = 0; i < num_triangles; i++)
     triangles[i].add_to_space (space);

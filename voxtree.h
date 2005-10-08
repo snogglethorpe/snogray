@@ -125,7 +125,7 @@ private:
     // making sure that NODE exists (creating it if it does not).
     //
     void add_or_create (Node* &node, Obj *obj, const BBox &obj_bbox,
-			       coord_t x, coord_t y, coord_t z, dist_t size)
+			coord_t x, coord_t y, coord_t z, dist_t size)
     {
       if (! node)
 	{
