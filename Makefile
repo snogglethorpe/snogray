@@ -115,9 +115,10 @@ COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 TEST_SRCS = test-scenes.cc test-scene.cc $(SPD_TEST_SRCS)
 
 SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc light-model.cc	\
-	  material.cc mirror.cc obj.cc phong.cc ray.cc scene.cc		\
-	  snogray.cc space.cc sphere.cc timeval.cc trace-state.cc	\
-	  triangle.cc voxtree.cc $(COMMON_SRCS) $(TEST_SRCS)
+	  material.cc mirror.cc obj.cc phong.cc primary-obj.cc ray.cc	\
+	  scene.cc snogray.cc space.cc sphere.cc timeval.cc		\
+	  trace-state.cc triangle.cc voxtree.cc $(COMMON_SRCS)		\
+	  $(TEST_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 

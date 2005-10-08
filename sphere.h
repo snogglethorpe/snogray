@@ -12,15 +12,16 @@
 #ifndef __SPHERE_H__
 #define __SPHERE_H__
 
-#include "obj.h"
+#include "primary-obj.h"
 
 namespace Snogray {
 
-class Sphere : public Obj
+class Sphere : public PrimaryObj
 {
 public:
+
   Sphere (const Material *mat, const Pos &_center, dist_t _radius)
-    : Obj (mat), center (_center), radius (_radius)
+    : PrimaryObj (mat), center (_center), radius (_radius)
   { }
 
   virtual dist_t intersection_distance (const Ray &ray) const;
@@ -29,12 +30,15 @@ public:
   // EYE_DIR points to the direction the objects is being viewed from;
   // this can be used by dual-sided objects to decide which side's
   // normal to return.
+  //
   virtual Vec normal (const Pos &point, const Vec &eye_dir) const;
 
   // Return a bounding box for this object.
+  //
   virtual BBox bbox () const;
 
 private:
+
   Pos center;
   dist_t radius;
 };

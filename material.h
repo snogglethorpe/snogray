@@ -46,6 +46,10 @@ public:
   virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
     const;
 
+  // Return true if this material casts no shadow (!)
+  //
+  bool no_shadow () const;
+
   Color illum (const Intersect &isec, const Color &color,
 	       Scene &scene, TraceState &tstate)
     const;

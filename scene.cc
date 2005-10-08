@@ -130,7 +130,7 @@ struct SceneShadowedCallback : Voxtree::IntersectCallback
 void
 SceneShadowedCallback::operator () (Obj *obj)
 {
-  if (obj != ignore && !obj->no_shadow)
+  if (obj != ignore)
     {
       num_tests++;
 
@@ -138,14 +138,26 @@ SceneShadowedCallback::operator () (Obj *obj)
 
       if (shadowed)
 	{
-	  // Remember which object cast a shadow from this light, so we
-	  // can try it first next time.
+	  // See if the object's material overrides the above decision
+	  // (we check this after intersection despite the intersection
+	  // test being much more costly, because no-shadow objects
+	  // should be very rare, and we don't want to pay even the
+	  // small cost of the no_shadow virtual method call for the
+	  // bulk of objects that don't even intersect).
 	  //
-	  tstate.shadow_hints[light.num] = obj;
+	  if (obj->material()->no_shadow ())
+	    shadowed = false;
+	  else
+	    {
+	      // Remember which object cast a shadow from this light, so we
+	      // can try it first next time.
+	      //
+	      tstate.shadow_hints[light.num] = obj;
 
-	  // Stop looking any further.
-	  //
-	  stop_iteration ();
+	      // Stop looking any further.
+	      //
+	      stop_iteration ();
+	    }
 	}
     }
 }

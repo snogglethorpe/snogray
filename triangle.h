@@ -12,15 +12,16 @@
 #ifndef __TRIANGLE_H__
 #define __TRIANGLE_H__
 
-#include "obj.h"
+#include "primary-obj.h"
 
 namespace Snogray {
 
-class Triangle : public Obj
+class Triangle : public PrimaryObj
 {
 public:
+
   Triangle (const Material *mat, const Pos &_v0, const Pos &_v1, const Pos &_v2)
-    : Obj (mat), v0 (_v0), v1 (_v1), v2 (_v2)
+    : PrimaryObj (mat), v0 (_v0), v1 (_v1), v2 (_v2)
   { }
 
   virtual dist_t intersection_distance (const Ray &ray) const;
@@ -29,12 +30,15 @@ public:
   // EYE_DIR points to the direction the objects is being viewed from;
   // this can be used by dual-sided objects to decide which side's
   // normal to return.
+  //
   virtual Vec normal (const Pos &point, const Vec &eye_dir) const;
 
   // Return a bounding box for this object.
+  //
   virtual BBox bbox () const;
 
 private:
+
   Pos v0, v1, v2;
 };
 

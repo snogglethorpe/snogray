@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <stdexcept>
+
 #include "obj.h"
 
 using namespace Snogray;
@@ -41,6 +43,14 @@ BBox
 Obj::bbox () const
 {
   return BBox (Pos (0,0,0));
+}
+
+// Returns the material this object is made from
+//
+const Material *
+Obj::material () const
+{
+  throw std::runtime_error ("tried to render base object");
 }
 
 // arch-tag: a62e1854-d7ca-4cb3-a8dc-9be328c53430

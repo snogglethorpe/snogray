@@ -21,6 +21,10 @@ class Glow : public Material
 public:
   Glow (const Color &_color) : Material (_color) { }
 
+  // Return true if this material casts no shadow
+  //
+  bool no_shadow () const;
+
   virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
     const;
 };

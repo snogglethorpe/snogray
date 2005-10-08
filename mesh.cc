@@ -9,21 +9,36 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <fstream>
+
+#include "excepts.h"
 #include "mesh.h"
 
-#include "intersect.h"
-
 using namespace Snogray;
+using namespace std;
 
 
 
-class Mesh::Triangle : Obj
+class Mesh::Triangle : public Obj
 {
 public:
 
-  const Pos &v0 () { return mesh->vertices[v0i]; }
-  const Pos &v1 () { return mesh->vertices[v1i]; }
-  const Pos &v2 () { return mesh->vertices[v2i]; }
+  virtual dist_t intersection_distance (const Ray &ray) const;
+
+  // Returns the normal vector for this surface at POINT.
+  // EYE_DIR points to the direction the objects is being viewed from;
+  // this can be used by dual-sided objects to decide which side's
+  // normal to return.
+  //
+  virtual Vec normal (const Pos &point, const Vec &eye_dir) const;
+
+  // Return a bounding box for this object.
+  //
+  virtual BBox bbox () const;
+
+  const Pos &v0 () const { return mesh->vertices[v0i]; }
+  const Pos &v1 () const { return mesh->vertices[v1i]; }
+  const Pos &v2 () const { return mesh->vertices[v2i]; }
 
   Mesh *mesh;
 
@@ -31,29 +46,63 @@ public:
 };
 
 
+// Generic mesh-file loading
 
-Mesh *
-Mesh::read_msh_file (istream stream)
+void
+Mesh::load (const char *file_name)
 {
-  Mesh *mesh = new Mesh ();
+  ifstream stream (file_name);
 
-  stream >> mesh->num_vertices;
-  stream >> mesh->num_triangles;
+  if (stream)
+    try
+      { 
+	const char *file_ext = rindex (file_name, '.');
+
+	if (! file_ext)
+	  throw
+	    file_error ("no filename extension to determine mesh file format");
+	else
+	  file_ext++;
+
+	if (strcmp (file_ext, "msh") == 0)
+	  load_msh_file (stream);
+      }
+    catch (std::runtime_error &err)
+      {
+	throw file_error (string (file_name)
+			  + ": error reading mesh file: "
+			  + err.what ());
+      }
+  else
+    throw file_error (string (file_name) + ": cannot open mesh file");
+}
+
+
+// .msh mesh-file format
+
+void
+Mesh::load_msh_file (istream &stream)
+{
+  if (triangles || vertices)
+    throw std::runtime_error ("mesh already initialized");
+
+  stream >> num_vertices;
+  stream >> num_triangles;
 
   // For the time being, we only support meshes up to 65536 vertices
   if (num_vertices > 65536)
-    throw 1234;
+    throw bad_format ("too many vertices (must be less than 65536)");
 
-  mesh->vertices = new Pos[mesh->num_vertices];
-  mesh->triangles = new Triangle[mesh->num_triangles];
+  vertices = new Pos[num_vertices];
+  triangles = new Triangle[num_triangles];
 
   char kw[10];
 
   stream >> kw;
   if (strcmp (kw, "vertices") != 0)
-    throw 1235;
+    throw bad_format ();
 
-  for (unsigned i = 0; i < mesh->num_vertices; i++)
+  for (unsigned i = 0; i < num_vertices; i++)
     {
       stream >> vertices[i].x;
       stream >> vertices[i].y;
@@ -62,15 +111,16 @@ Mesh::read_msh_file (istream stream)
 
   stream >> kw;
   if (strcmp (kw, "triangles") != 0)
-    throw 1236;
+    throw bad_format ();
 
-  for (unsigned i = 0; i < mesh->num_triangles; i++)
+  for (unsigned i = 0; i < num_triangles; i++)
     {
       stream >> triangles[i].v0i;
       stream >> triangles[i].v1i;
       stream >> triangles[i].v2i;
     }
 
+  
   
 }
 
@@ -123,14 +173,14 @@ Mesh::Triangle::intersection_distance (const Ray &ray) const
 }
 
 Vec
-Mesh::normal (const Pos &point, const Vec &eye_dir) const
+Mesh::Triangle::normal (const Pos &point, const Vec &eye_dir) const
 {
   return ((v1() - v0()).cross (v1() - v2())).unit ();
 }
 
 // Return a bounding box for this object.
 BBox
-Mesh::bbox () const
+Mesh::Triangle::bbox () const
 {
   BBox bbox (v0 ());
   bbox.include (v1 ());

@@ -78,7 +78,7 @@ public:
     Intersect isec = closest_intersect (ray, tstate, ignore);
 
     if (isec.obj)
-      return isec.obj->material->render (isec, *this, tstate);
+      return isec.obj->material()->render (isec, *this, tstate);
     else
       return background;
   }

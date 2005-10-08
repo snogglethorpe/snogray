@@ -32,7 +32,7 @@ add_bulb (Scene &scene, const Pos &pos, float intens,
 {
   Material *bulb_mat = scene.add (new Glow (intens * col));
   scene.add (new Light (pos, intens, col));
-  scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
+  scene.add (new Sphere (bulb_mat, pos, 0.06));
 }
 
 static void

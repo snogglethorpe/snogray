@@ -24,7 +24,6 @@ class Material;
 class Obj 
 {
 public:
-  Obj (const Material *mat) : material (mat), no_shadow (false) { }
   virtual ~Obj (); // stop gcc bitching
 
   virtual dist_t intersection_distance (const Ray &ray) const;
@@ -51,8 +50,9 @@ public:
   //
   virtual BBox bbox () const;
 
-  const Material *material;
-  bool no_shadow : 1;
+  // Returns the material this object is made from
+  //
+  virtual const Material *material () const;
 };
 
 }

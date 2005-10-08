@@ -12,17 +12,27 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 
-#include <fstream>
+#include <stdexcept>
+#include <istream>
 
-#include "obj.h"
+#include "primary-obj.h"
 
 namespace Snogray {
 
-class Mesh : public Obj
+class Mesh : public PrimaryObj
 {
 public:
 
-  Mesh (const Material *mat) : Obj (mat), parts (0) { }
+  Mesh (const Material *mat)
+    : PrimaryObj (mat),
+      vertices (0), num_vertices (0),
+      triangles (0), num_triangles (0)
+  { }
+  Mesh (const Material *mat, const char *file_name)
+    : PrimaryObj (mat),
+      vertices (0), num_vertices (0),
+      triangles (0), num_triangles (0)
+  { load (file_name); }
 
   virtual dist_t intersection_distance (const Ray &ray) const;
 
@@ -30,7 +40,11 @@ public:
 
   virtual BBox bbox () const;
 
-  static Mesh *read_msh (istream stream);
+  // For loading mesh from any file-type (automatically determined)
+  void load (const char *file_name);
+
+  // For loading mesh from .msh file
+  void load_msh_file (std::istream &stream);
 
 protected:
 
