@@ -16,48 +16,73 @@
 
 namespace Snogray {
 
-class Image
+class ImageRow
 {
 public:
-  static const float DEFAULT_TARG_GAMMA = 2.2;
+  ImageRow (unsigned _width) : width (_width), pixels (new Color[_width]) { }
 
-  Image (unsigned _width, unsigned _height,
-	 float _targ_gamma = DEFAULT_TARG_GAMMA)
-    : width (_width), height (_height),
-      pixels (new Color[_width * _height]),
-      targ_gamma (_targ_gamma), gamma_correction (1 / _targ_gamma)
-  { }
-
-  Image (const Image &src_image, unsigned aa_factor)
-    : width (src_image.width / aa_factor),
-      height (src_image.height / aa_factor),
-      pixels (new Color[(src_image.width / aa_factor) * (src_image.height / aa_factor)]),
-      targ_gamma (src_image.targ_gamma),
-      gamma_correction (src_image.gamma_correction)
-  {
-    interpolate_pixels (src_image, aa_factor);
-  }
-
-  Color& operator() (unsigned x, unsigned y)
-  {
-    return pixels[x + y * width];
-  }
-  const Color& operator() (unsigned x, unsigned y) const
-  {
-    return pixels[x + y * width];
-  }
-
-  void write_png_file (const char *name);
-
-  unsigned width, height;
-  float targ_gamma, gamma_correction;
-
-private:
-  unsigned char color_component_to_byte (Color::component_t com);
-
-  void interpolate_pixels (const Image &src_image, unsigned aa_factor);
+  Color& operator[] (unsigned index) { return pixels[index]; }
+  const Color& operator[] (unsigned index) const { return pixels[index]; }
 
   Color *pixels;
+  unsigned width;
+};
+
+class ImageSink
+{
+public:
+  virtual ~ImageSink () = 0;
+  virtual void write_row (const ImageRow &row) = 0;
+};
+
+class ImageSinkParams
+{
+public:
+  ImageSinkParams (unsigned _width, unsigned _height)
+    : width (_width), height (_height)
+  { }
+    
+  virtual ImageSink *make_sink () const = 0;
+
+  unsigned width, height;
+};
+
+class ImageOutput
+{
+public:
+  ImageOutput (const class ImageSinkParams &params,
+	       unsigned aa_factor = 1, unsigned aa_overlap = 0,
+	       float (*aa_filter)(int, unsigned) = aa_box_filter);
+  ~ImageOutput ();
+
+  // Returns next row for storing into, after writing previous rows to
+  // output sink.
+  ImageRow &next_row ();
+
+  unsigned aa_factor;
+
+  // Anti-aliasing filters
+  static float aa_box_filter (int offs, unsigned size);
+  static float aa_triang_filter (int offs, unsigned size);
+  static float aa_gauss_filter (int offs, unsigned size);
+
+private:
+  void write_accumulated_rows ();
+
+  float *make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
+			 unsigned kernel_size);
+  void fill_aa_row ();
+
+  ImageSink *sink;
+
+  ImageRow **recent_rows;
+  ImageRow *aa_row;
+
+  unsigned next_row_offs;
+  unsigned num_accumulated_rows;
+
+  float *aa_kernel;
+  unsigned aa_kernel_size;
 };
 
 }

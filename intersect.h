@@ -25,11 +25,9 @@ public:
 
   bool hit () { !!obj; }
 
-  // If DIST is closer than the current intersection distance, update the
-  // current intersection object and distance to be _OBJ and DIST,
-  // otherwise do nothing.
-  void set_obj_if_closer (const Obj *_obj, Vec::dist_t dist)
+  void update (Obj *_obj)
   {
+    dist_t dist = _obj->intersection_distance (ray);
     if (dist > 0 && (!obj || dist < distance))
       {
 	obj = _obj;
@@ -37,12 +35,14 @@ public:
       }
   }
 
-  void finish () { if (obj) obj->finish_intersect (*this); }
+  void finish ()
+  {
+    point = ray.extension (distance);
+  }
 
   // Return the color seen from RAY's point of view, of the intersected
   // object; if there is no current intersected object, black is returned.
-  Color render (const Vec &eye_dir, const Vec &light_dir,
-		const Color &light_color)
+  Color render (const Vec &light_dir, const Color &light_color)
     const;
 
   // Ray which intersected something.
@@ -51,12 +51,9 @@ public:
   // If non-zero, the object which RAY intersected, in which case DISTANCE
   // is valid; if zero, there is no known intersection.
   const Obj *obj;		// If 0, no intersection
-  Vec::dist_t distance;		// Distance to intersection point on OBJ
+  dist_t distance;		// Distance to intersection point on OBJ
 
-  // The following are only valid once finish() has been called, and are
-  // only valid if OBJ is non-zero.
-  Pos point;			// The actual point of intersection
-  Vec normal;			// OBJ's surface normal at POINT
+  Pos point;			// Only valid once finish() is called
 };
 
 }

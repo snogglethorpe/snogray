@@ -9,25 +9,23 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <iostream>
-
 #include "lambert.h"
 
 #include "intersect.h"
 
 using namespace Snogray;
 
-const Color Lambert::render (const class Intersect &isec, const Vec &eye_dir,
+const Color Lambert::render (const Obj *obj, const Pos &point,
+			     const Vec &normal, const Vec &eye_dir,
 			     const Vec &light_dir, const Color &light_color)
   const
 {
-//   std::cout << "Lambert::render (" << light_color << ", " << light_dir << "):"
-// 	    << std::endl;
+  float diffuse_component = normal.dot (light_dir);
 
-  if (eye_dir.dot (isec.normal) >= 0)
-    return color.lit_by (light_color) * (light_dir.dot (isec.normal) >? 0);
+  if (diffuse_component > 0)
+    return color.lit_by (light_color) * diffuse_component;
   else
-    return Color::funny;
+    return Color::black;
 }
 
 // arch-tag: f61dbf3f-a5eb-4747-9bc5-18e793f35b6e

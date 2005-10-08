@@ -19,20 +19,24 @@ namespace Snogray {
 class Sphere : public Obj
 {
 public:
-  Sphere (const Material *mat, const Pos &_center, Space::dist_t _radius)
+  Sphere (const Material *mat, const Pos &_center, dist_t _radius)
     : Obj (mat), center (_center), radius (_radius)
   { }
 
-  virtual bool intersects (const Ray &ray) const;
+  virtual dist_t intersection_distance (const Ray &ray) const;
 
-  virtual void closest_intersect (Intersect &isec) const;
-  virtual void finish_intersect (Intersect &isec) const;
+  // Returns the normal vector for this surface at POINT.
+  // EYE_DIR points to the direction the objects is being viewed from;
+  // this can be used by dual-sided objects to decide which side's
+  // normal to return.
+  virtual Vec normal (const Pos &point, const Vec &eye_dir) const;
+
+  // Return a bounding box for this object.
+  virtual BBox bbox () const;
 
 private:
-  Space::dist_t intersection_distance (const Ray &ray) const;
-
   Pos center;
-  Space::dist_t radius;
+  dist_t radius;
 };
 
 }

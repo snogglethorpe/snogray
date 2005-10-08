@@ -14,12 +14,21 @@
 
 using namespace Snogray;
 
-Color Intersect::render (const Vec &eye_dir, const Vec &light_dir,
-			 const Color &light_color)
+Color
+Intersect::render (const Vec &light_dir, const Color &light_color)
   const
 {
   if (obj)
-    return obj->material->render (*this, eye_dir, light_dir, light_color);
+    {
+      Vec eye_dir = -ray.dir;
+      Vec normal = obj->normal (point, eye_dir);
+
+      if (normal.dot (eye_dir) >= 0)
+	return obj->material->render (obj, point, normal,
+				      eye_dir, light_dir, light_color);
+      else
+	return Color::funny;
+    }
   else
     return Color::black;
 }

@@ -22,9 +22,16 @@ namespace Snogray {
 class Voxtree
 {
 public:
+
+  // Add OBJ to the voxtree
+  //
+  void add (Obj *obj, const BBox &obj_bbox);
+  void add (Obj *obj) { add (obj, obj->bbox ()); }
+
   // A callback for `for_each_possible_intersector'.  Users of
   // `for_each_possible_intersector' must subclass this, providing their
   // own operator() method, and adding any extra data fields they need.
+  //
   class FepiCallback
   {
   public:
@@ -37,6 +44,7 @@ public:
   // `for_each_possible_intersector' continues searching for possible
   // intersectors; otherwise, if CALLBACK returns false, then
   // `for_each_possible_intersector' immediately returns.
+  //
   bool for_each_possible_intersector (const Ray &ray, FepiCallback &callback)
     const;
 
@@ -44,16 +52,33 @@ public:
   Pos origin;
 
   // The size of the voxtree (in all dimensions)
-  Space::dist_t size;
+  dist_t size;
 
 private:  
+
+  // The current root of this voxtree is too small to encompass OBJ;
+  // add surrounding levels of nodes until one can hold OBJ, and make that
+  // the new root node.
+  //
+  void grow_to_include (Obj *obj, const BBox &obj_bbox);
+
   struct Node
   {
+    Node ()
+      : has_subnodes (false),
+	x_lo_y_lo_z_lo (0), x_lo_y_lo_z_hi (0),
+	x_lo_y_hi_z_lo (0), x_lo_y_hi_z_hi (0),
+	x_hi_y_lo_z_lo (0), x_hi_y_lo_z_hi (0),
+	x_hi_y_hi_z_lo (0), x_hi_y_hi_z_hi (0)
+    { }
+    ~Node ();
+
     // Version of `for_each_possible_intersector' used for recursive
     // voxel tree searching.  The additional parameters are pre-computed
     // intersection points of the ray being intersected in the various
     // planes bounding this node's volume (we don't actually need the
     // ray itself).
+    //
     bool for_each_possible_intersector (FepiCallback &callback,
 					const Pos &x_min_isec,
 					const Pos &x_max_isec,
@@ -63,17 +88,36 @@ private:
 					const Pos &z_max_isec)
       const;
 
+    // Add OBJ, with bounding box OBJ_BBOX, to this node or some subnode;
+    // OBJ is assumed to fit.  X, Y, Z, and SIZE indicate the volume this
+    // node encompasses.
+    //
+    void add (Obj *obj, const BBox &obj_bbox,
+	      coord_t x, coord_t y, coord_t z, dist_t size);
+
+    // A helper method that calls NODE's `add' method, after first
+    // making sure that NODE exists (creating it if it does not).
+    //
+    static void add_or_create (Node* &node, Obj *obj, const BBox &obj_bbox,
+			       coord_t x, coord_t y, coord_t z, dist_t size)
+    {
+      if (! node)
+	node = new Node ();
+
+      node->add (obj, obj_bbox, x, y, z, size);
+    }
+    
     // Objects at this level of the tree.  All objects listed in a node
     // must fit entirely within it.  Any given object is only present in
     // a single node.
+    //
     std::list<const Obj *> objs;
 
     // The sub-nodes of this node; each sub-node is exactly half the
     // size of this node in all dimensions, so in total there are eight.
-    Node *lower_left_front, *lower_right_front;
-    Node *upper_left_front, *upper_right_front;
-    Node *lower_left_back,  *lower_right_back;
-    Node *upper_left_back,  *upper_right_back;
+    //
+    Node *x_lo_y_lo_z_lo, *x_lo_y_lo_z_hi, *x_lo_y_hi_z_lo, *x_lo_y_hi_z_hi;
+    Node *x_hi_y_lo_z_lo, *x_hi_y_lo_z_hi, *x_hi_y_hi_z_lo, *x_hi_y_hi_z_hi;
 
     // True if any of the above subnodes is non-null.
     bool has_subnodes;

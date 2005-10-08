@@ -17,7 +17,7 @@
 
 using namespace Snogray;
 
-Space::dist_t
+dist_t
 Triangle::intersection_distance (const Ray &ray) const
 {
   float a = v0.x - v1.x; 
@@ -61,29 +61,26 @@ Triangle::intersection_distance (const Ray &ray) const
   return t;
 }
 
-void
-Triangle::closest_intersect (Intersect &isec) const
+Vec
+Triangle::normal (const Pos &point, const Vec &eye_dir) const
 {
-  isec.set_obj_if_closer (this, intersection_distance (isec.ray));
-//   if (isec.obj == this)
-//     std::cout << "isec.distance = " << isec.distance << std::endl;
+  Vec norm = ((v1 - v0).cross (v1 - v2)).unit ();
+
+  // Triangles are visible from both sides, so keep the normal sane
+  if (norm.dot (eye_dir) < 0)
+    norm = -norm;
+
+  return norm;
 }
 
-void
-Triangle::finish_intersect (Intersect &isec) const
+// Return a bounding box for this object.
+BBox
+Triangle::bbox () const
 {
-  Space::dist_t dist = isec.distance;
-  isec.point = isec.ray.extension (dist);
-  isec.normal = ((v1 - v0).cross (v1 - v2)).unit ();
-//   std::cout << "isec.point = " << isec.point << std::endl;
-//   std::cout << "isec.normal = " << isec.normal << std::endl;
-}
-
-bool
-Triangle::intersects (const Ray &ray) const
-{
-  Space::dist_t dist = intersection_distance (ray);
-  return dist > 0 && dist < ray.len;
+  BBox bbox (v0);
+  bbox.include (v1);
+  bbox.include (v2);
+  return bbox;
 }
 
 // arch-tag: 962df04e-4c0a-4754-ac1a-f506d4e77c4e

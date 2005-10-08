@@ -37,6 +37,11 @@ public:
   Material *add (Material *mat) { materials.push_back (mat); return mat; }
 
   Color render (const Intersect &isec);
+  Color render (const Ray  &ray)
+  {
+    Intersect isec = closest_intersect (ray);
+    return isec.obj ? render (isec) : Color::black;
+  }
 
   struct Stats {
     Stats () : scene_closest_intersect_calls (0),

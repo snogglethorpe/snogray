@@ -22,11 +22,13 @@ public:
   CmdLineParser (int _argc, char *const *_argv,
 		 const char *_short_opts, const struct option *_long_opts)
     : argc (_argc), argv (_argv),
-      short_opts (_short_opts), long_opts (_long_opts)
+      short_opts (_short_opts), long_opts (_long_opts),
+      long_opt_index (-1), short_opt (0)
   { }
 
   int get_opt ();
 
+  const char *opt_arg () const;
   float float_opt_arg () const;
   unsigned unsigned_opt_arg () const;
   void opt_err (const char *phrase) const;

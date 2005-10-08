@@ -17,11 +17,9 @@
 
 namespace Snogray {
 
-class Pos : public Space::Tuple3 
+class Pos : public Tuple3 
 {
 public:
-  typedef Space::coord_t coord_t;
-
   Pos (coord_t _x = 0, coord_t _y = 0, coord_t _z = 0) : Tuple3 (_x, _y, _z) { }
   Pos (const Pos &pos) : Tuple3 (pos.x, pos.y, pos.z) { }
 

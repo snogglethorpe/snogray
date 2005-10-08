@@ -14,6 +14,7 @@ TARGETS = snogray
 all: $(TARGETS)
 
 CFLAGS = -O5 -g $(MACHINE_CFLAGS)
+
 HOST_CFLAGS_dhapc248.dev.necel.com = $(ARCH_CFLAGS_pentium4)
 ARCH_CFLAGS_pentium3 = -march=pentium3
 ARCH_CFLAGS_pentium4 = -march=pentium4
@@ -27,19 +28,29 @@ ARCH := $(shell uname -m)
 HOST_CFLAGS_$(HOST) ?= $(ARCH_CFLAGS_$(ARCH))
 MACHINE_CFLAGS = $(HOST_CFLAGS_$(HOST))
 
-LIBS = -lpng
+PNG_LIBS	= -lpng
+
+EXR_CFLAGS	= -I/usr/include/OpenEXR
+EXR_LIBS	= -lIlmImf -lIex -lHalf
+
+LIBS = $(PNG_LIBS) $(EXR_LIBS)
 
 _CFLAGS = $(CFLAGS) $(DEP_CFLAGS)
 _CXXFLAGS = $(CXXFLAGS) $(DEP_CFLAGS)
 
-CXXSRCS = snogray.cc scene.cc obj.cc intersect.cc color.cc lambert.cc	\
-	  sphere.cc camera.cc space.cc voxtree.cc ray.cc image.cc	\
-	  triangle.cc phong.cc cmdlineparser.cc glow.cc
+CXXSRCS = camera.cc cmdlineparser.cc color.cc glow.cc image.cc		\
+	  image-exr.cc image-png.cc intersect.cc lambert.cc obj.cc	\
+	  phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc	\
+	  triangle.cc voxtree.cc
 
 OBJS = $(CXXSRCS:.cc=.o)
 
 snogray: $(OBJS)
 	$(CXX) -o $@ $(OBJS) $(LIBS)
+
+# OpenEXR include files expect their include directory to be in the include path
+image-exr.o: image-exr.cc
+	$(CXX) -c $(EXR_CFLAGS) $(_CXXFLAGS) $<
 
 DEPS = $(CXXSRCS:%.cc=.%.d)
 -include $(DEPS)

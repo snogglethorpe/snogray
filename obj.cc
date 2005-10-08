@@ -13,20 +13,32 @@
 
 using namespace Snogray;
 
-void
-Obj::closest_intersect (Intersect &isec) const
+dist_t
+Obj::intersection_distance (const Ray &ray) const
 {
+  return 0;
 }
 
-void
-Obj::finish_intersect (Intersect &isec) const
+// Making the following virtual slows things down measurably, and there
+// are no cases where it's needed yet:
+//
+// bool
+// Obj::intersects (const Ray &ray) const
+// {
+//   Space::dist_t dist = intersection_distance (ray);
+//   return dist > 0 && dist < ray.len;
+// }
+
+Vec
+Obj::normal (const Pos &point, const Vec &eye_dir) const
 {
+  return 0;
 }
 
-bool
-Obj::intersects (const Ray &ray) const
+BBox
+Obj::bbox () const
 {
-  return false;
+  return BBox (Pos (0,0,0));
 }
 
 // arch-tag: a62e1854-d7ca-4cb3-a8dc-9be328c53430

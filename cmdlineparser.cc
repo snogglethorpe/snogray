@@ -19,6 +19,7 @@ using namespace std;
 int
 CmdLineParser::get_opt ()
 {
+  long_opt_index = -1;		// not guaranteed set by getopt_long
   short_opt = getopt_long (argc, argv, short_opts, long_opts, &long_opt_index);
   if (short_opt == '?')
     exit (1);
@@ -51,6 +52,12 @@ CmdLineParser::opt_err (const char *phrase) const
 
   exit (2);
 }
+
+const char *
+CmdLineParser::opt_arg () const
+{
+  return optarg;
+}  
 
 unsigned
 CmdLineParser::unsigned_opt_arg () const

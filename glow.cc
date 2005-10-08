@@ -17,7 +17,8 @@
 
 using namespace Snogray;
 
-const Color Glow::render (const class Intersect &isec, const Vec &eye_dir,
+const Color Glow::render (const Obj *obj, const Pos &point,
+			  const Vec &normal, const Vec &eye_dir,
 			  const Vec &light_dir, const Color &light_color)
   const
 {

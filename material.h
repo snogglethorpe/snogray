@@ -12,6 +12,7 @@
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 
+#include "pos.h"
 #include "vec.h"
 #include "color.h"
 
@@ -20,7 +21,8 @@ namespace Snogray {
 class Material
 {
 public:
-  virtual const Color render (const class Intersect &isec, const Vec &eye_dir,
+  virtual const Color render (const class Obj *obj, const Pos &point,
+			      const Vec &normal, const Vec &eye_dir,
 			      const Vec &light_dir, const Color &light_color)
     const = 0;
 };

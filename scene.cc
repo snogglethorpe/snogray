@@ -36,7 +36,7 @@ Scene::closest_intersect (const Ray &ray)
        oi != objs.end();
        oi++)
     {
-      (*oi)->closest_intersect (isec);
+      isec.update (*oi);
       stats.obj_closest_intersect_calls++;
     }
 
@@ -67,7 +67,6 @@ Color
 Scene::render (const Intersect &isec)
 {
   Color total_color;
-  Vec eye_dir = (isec.ray.origin - isec.point).unit ();
 
   for (list<Light *>::const_iterator li = lights.begin();
        li != lights.end();
@@ -78,7 +77,7 @@ Scene::render (const Intersect &isec)
 
       if (! intersects (light_ray, isec.obj))
 	total_color
-	  += isec.render (eye_dir, light_ray.dir,
+	  += isec.render (light_ray.dir,
 			  light->color / (light_ray.len * light_ray.len));
     }
 

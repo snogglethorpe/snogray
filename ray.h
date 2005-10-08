@@ -47,7 +47,7 @@ public:
   Pos origin;
 
   Vec dir;			// should always be a unit vector
-  Space::dist_t len;
+  dist_t len;
 
 private:
   // This is a pre-computed copy of (ORIGIN + DIR * LEN)

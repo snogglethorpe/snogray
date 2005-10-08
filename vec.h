@@ -19,17 +19,19 @@
 
 namespace Snogray {
 
-class Vec : public Space::Tuple3
+class Vec : public Tuple3
 {
 public:
-  typedef Space::dist_t dist_t;
-
   Vec (dist_t _x = 0, dist_t _y = 0, dist_t _z = 0) : Tuple3 (_x, _y, _z) { }
   Vec (const Vec &vec) : Tuple3 (vec.x, vec.y, vec.z) { }
 
   Vec operator* (const float scale) const
   {
     return Vec (x * scale, y * scale, z * scale);
+  }
+  Vec operator/ (const float denom) const
+  {
+    return Vec (x / denom, y / denom, z / denom);
   }
   Vec operator+ (const Vec &v2) const
   {

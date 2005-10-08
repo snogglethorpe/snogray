@@ -21,7 +21,8 @@ class Lambert : public Material
 public:
   Lambert (const Color &_color) : color (_color) { }
 
-  virtual const Color render (const class Intersect &isec, const Vec &eye_dir,
+  virtual const Color render (const Obj *obj, const Pos &point,
+			      const Vec &normal, const Vec &eye_dir,
 			      const Vec &light_dir, const Color &light_color)
     const;
 
