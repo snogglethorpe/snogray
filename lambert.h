@@ -16,12 +16,16 @@
 
 namespace Snogray {
 
-class Lambert : public LightModel
+class Lambert : public Material
 {
 public:
-  virtual Color render (const Intersect &isec, const Color &color
-			const Vec &light_dir, const Color &light_color)
+  Lambert (const Color &_color) : color (_color) { }
+
+  virtual const Color render (const Intersect &isec,
+			      const Vec &light_dir, const Color &light_color)
     const;
+
+  Color color;
 };
 
 }

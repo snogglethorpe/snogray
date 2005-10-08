@@ -13,6 +13,12 @@ TARGETS = snogray snogcvt
 
 all: $(TARGETS)
 
+# Build directory for SPD (Standard Procedural Databases) package by
+# Eric Haines; used to generate test scenes.
+# See:  http://www.acm.org/tog/resources/SPD
+#
+SPD_DIR = ../spd3_13
+
 OPT = -O5
 DEBUG = -g -Wall
 #PG = -pg
@@ -21,6 +27,11 @@ DEBUG = -g -Wall
 CFLAGS = $(OPT) $(DEBUG) $(MACHINE_CFLAGS) $(PG) $(MUDFLAP)
 CXXFLAGS = $(CFLAGS)
 LDFLAGS = $(PG) $(MUDFLAP)
+
+################################################################
+##
+## Per-host configuration
+##
 
 HOST_CFLAGS_dhapc248.dev.necel.com = $(ARCH_CFLAGS_pentium4)
 ARCH_CFLAGS_pentium3 = -march=pentium3 -fomit-frame-pointer -mfpmath=sse -msse
@@ -31,6 +42,11 @@ HOST := $(shell hostname)
 ARCH := $(shell uname -m)
 HOST_CFLAGS_$(HOST) ?= $(ARCH_CFLAGS_$(ARCH))
 MACHINE_CFLAGS = $(HOST_CFLAGS_$(HOST))
+
+################################################################
+##
+## Library configuration (mainly for image backends currently)
+##
 
 LIBPNG_CFLAGS	= $(shell libpng-config --cflags)
 LIBPNG_LIBS	= $(shell libpng-config --libs)
@@ -43,24 +59,30 @@ JPEG_LIBS	= -ljpeg
 
 LIBS = $(LIBPNG_LIBS) $(LIBEXR_LIBS) $(JPEG_LIBS) $(MUDFLAP:-f%=-l%)
 
+################################################################
+##
+## Grotty internal details of generating compiler options
+##
+
+# Tell gcc to generate dependency files
+#
 DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
+# If compiling with -pg option, we can't use -fomit-frame-pointer, so
+# filter it out.
+#
 _CFLAGS_FILT = $(if $(filter -pg,$(CFLAGS)),$(filter-out -fomit-frame-pointer,$(CFLAGS)),$(CFLAGS))
 _CXXFLAGS_FILT = $(if $(filter -pg,$(CXXFLAGS)),$(filter-out -fomit-frame-pointer,$(CXXFLAGS)),$(CXXFLAGS))
 
+# _CFLAGS and _CXXFLAGS are what the actual build rules use
+#
 _CFLAGS = $(_CFLAGS_FILT) $(DEP_CFLAGS)
 _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
-comma = ,
-
-#
-
-IMAGE_SRCS = image.cc image-aa.cc image-cmdline.cc image-exr.cc	\
-	  image-jpeg.cc image-png.cc image-rgb-byte.cc
-
-COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
-
-#
+################################################################
+##
+## Automatically generated test scenes from .nff files (from spd project)
+##
 
 SPD_TESTS = test-teapot.nff test-balls.nff test-rings.nff test-tetra.nff \
 	test-mount.nff test-tree.nff test-gears.nff test-sombrero.nff	 \
@@ -68,13 +90,29 @@ SPD_TESTS = test-teapot.nff test-balls.nff test-rings.nff test-tetra.nff \
 	test-lattice.nff test-f117.nff test-skull.nff test-f15.nff	 \
 	test-balls-5.nff
 
+# C++ source files generated from the .nff files
+comma = ,
 SPD_TEST_SRCS = $(SPD_TESTS:%.nff=$(comma)%.cc)
 
+# All depend on the conversion program
 $(SPD_TEST_SRCS): nff-to-cxx
 
-TEST_SRCS = test-scenes.cc test-scene.cc $(SPD_TEST_SRCS)
+################################################################
+##
+## Common sources between snogray and snogcvt
+##
 
-#
+IMAGE_SRCS = image.cc image-aa.cc image-cmdline.cc image-exr.cc	\
+	  image-jpeg.cc image-png.cc image-rgb-byte.cc
+
+COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
+
+################################################################
+##
+## Snogray
+##
+
+TEST_SRCS = test-scenes.cc test-scene.cc $(SPD_TEST_SRCS)
 
 SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc material.cc	\
 	  obj.cc phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc	\
@@ -85,7 +123,10 @@ SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 snogray: $(SNOGRAY_OBJS)
 	$(CXX) -o $@ $(LDFLAGS) $(SNOGRAY_OBJS) $(LIBS)
 
-#
+################################################################
+##
+## Snogcvt (image conversion program)
+##
 
 SNOGCVT_SRCS = snogcvt.cc $(COMMON_SRCS)
 
@@ -94,9 +135,20 @@ SNOGCVT_OBJS = $(SNOGCVT_SRCS:.cc=.o)
 snogcvt: $(SNOGCVT_OBJS)
 	$(CXX) -o $@ $(LDFLAGS) $(SNOGCVT_OBJS) $(LIBS)
 
-#
+################################################################
+##
+## Union of all source/object files, used in cleaning
+##
 
-# OpenEXR include files expect their include directory to be in the include path
+ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS))
+ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS))
+
+################################################################
+##
+## Special build rules for image backends (mainly to supplement the
+## include path)
+## 
+
 image-exr.o: image-exr.cc
 	$(CXX) -c $(LIBEXR_CFLAGS) $(_CXXFLAGS) $<
 image-png.o: image-png.cc
@@ -104,14 +156,37 @@ image-png.o: image-png.cc
 image-jpeg.o: image-jpeg.cc
 	$(CXX) -c $(LIBJPEG_CFLAGS) $(_CXXFLAGS) $<
 
-ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS))
-ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS))
+################################################################
+##
+## Automatic dependency generation using gcc-generated .d files
+##
 
 DEPS = $(ALL_SRCS:%.cc=.%.d)
 -include $(DEPS)
 
+################################################################
+##
+## Build rules for making C++ sources from .nff files, and generating
+## the .nff files themselves using the "spd" package.
+##
+
+test-balls-5.nff: $(SPD_DIR)/balls
+	$(SPD_DIR)/balls -s 5 > $@
+
+test-%.nff: $(SPD_DIR)/%
+	$< > $@
+test-%.nff: $(SPD_DIR)/%.obj
+	$(SPD_DIR)/readobj -f $< > $@
+test-%.nff: $(SPD_DIR)/%.dxf
+	$(SPD_DIR)/readdxf -f $< > $@
+
 ,%.cc: %.nff
 	nff-to-cxx $* < $< > $@
+
+################################################################
+##
+## Our basic build rules
+##
 
 %.o: %.cc
 	$(CXX) -c $(_CXXFLAGS) $<
@@ -124,8 +199,10 @@ DEPS = $(ALL_SRCS:%.cc=.%.d)
 	$(CC) -S $(_CFLAGS) $<
 
 clean:
-	$(RM) $(TARGETS) $(ALL_OBJS)
+	$(RM) $(TARGETS) $(ALL_OBJS) $(DEPS)
 
+# Handy for seeing what options are being generated...
+#
 cflags:
 	@echo "CFLAGS = $(CFLAGS)"
 	@echo "MACHINE_CFLAGS = $(MACHINE_CFLAGS)"

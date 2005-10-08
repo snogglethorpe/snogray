@@ -18,7 +18,7 @@
 using namespace Snogray;
 
 const Color
-Phong::render (const Intersect &isec, const Color &color,
+Phong::render (const Intersect &isec,
 	       const Vec &light_dir, const Color &light_color)
   const
 {
@@ -29,7 +29,7 @@ Phong::render (const Intersect &isec, const Color &color,
       float specular_component
 	= powf (isec.normal.dot ((isec.eye_dir + light_dir).unit()), exponent);
 
-      Color color = color * diffuse_component;
+      Color color = diffuse_color * diffuse_component;
 
       color += specular_color * specular_component;
 

@@ -16,18 +16,20 @@
 
 namespace Snogray {
 
-class Phong : public LightModel
+class Phong : public Material
 {
 public:
-  Phong (float _exponent, const Color &_specular_color = Color::white)
-    : specular_color (_specular_color), exponent (_exponent)
+  Phong (float _exponent, const Color &_diffuse_color,
+	 const Color &_specular_color = Color::white)
+    : diffuse_color (_diffuse_color), specular_color (_specular_color),
+      exponent (_exponent)
   { }
 
-  virtual Color render (const Intersect &isec, const Color &color,
-			const Vec &light_dir, const Color &light_color)
+  virtual const Color render (const Intersect &isec,
+			      const Vec &light_dir, const Color &light_color)
     const;
 
-  Color specular_color;
+  Color diffuse_color, specular_color;
   float exponent;
 };
 

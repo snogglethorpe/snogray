@@ -15,7 +15,6 @@
 #include "pos.h"
 #include "vec.h"
 #include "color.h"
-#include "light-model.h"
 
 namespace Snogray {
 
@@ -24,16 +23,11 @@ class Intersect;
 class Material
 {
 public:
-  Material (const Color &col) : color (col) { }
-  virtual ~Material ();
+  virtual ~Material (); // stop gcc bitching
 
-  virtual Color render (const Intersect &isec, Scene &scene, unsigned depth);
-
-  Color light (const Intersect &isec, const Color &color,
-	       Scene &scene, unsigned depth);
-
-  LightModel *light_model;
-  Color color;
+  virtual const Color render (const Intersect &isec,
+			      const Vec &light_dir, const Color &light_color)
+    const = 0;
 };
 
 }
