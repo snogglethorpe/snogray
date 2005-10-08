@@ -39,7 +39,7 @@ add_bulb (Scene &scene, const Pos &pos, float intens,
 {
   Material *bulb_mat = scene.add (new Glow (intens * col));
   scene.add (new Light (pos, intens, col));
-  scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
+//   scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
 }
 
 static void
@@ -67,18 +67,22 @@ define_scene (Scene &scene, Camera &camera)
   add_bulb (scene, Pos ( 40, 15, -40), 300);
   add_bulb (scene, Pos ( 40, 15,  40), 300);
 
-  scene.add (new Sphere (mat1, Pos (0, 2, 7), 5));
-  scene.add (new Sphere (mat2, Pos (-8, 0, 3), 3));
-  scene.add (new Sphere (mat3, Pos (-6, 5, 2), 1));
+  // xxx
+  scene.add (new Sphere (mat1, Pos (-2, -2, -8), 0.5));
+  scene.add (new Sphere (mat1, Pos (1, -2, -8), 0.5));
 
-  scene.add (new Triangle (mat4,
-			   Pos (-100, -3, -100),
-			   Pos (100, -3, -100),
-			   Pos (100, -3, 100)));
-  scene.add (new Triangle (mat4,
-			   Pos (-100, -3, -100),
-			   Pos (100, -3, 100),
-			   Pos (-100, -3, 100)));
+//   scene.add (new Sphere (mat1, Pos (0, 2, 7), 5));
+//   scene.add (new Sphere (mat2, Pos (-8, 0, 3), 3));
+//   scene.add (new Sphere (mat3, Pos (-6, 5, 2), 1));
+
+//   scene.add (new Triangle (mat4,
+// 			   Pos (-100, -3, -100),
+// 			   Pos (100, -3, -100),
+// 			   Pos (100, -3, 100)));
+//   scene.add (new Triangle (mat4,
+// 			   Pos (-100, -3, -100),
+// 			   Pos (100, -3, 100),
+// 			   Pos (-100, -3, 100)));
 
   // (1)
 //   camera.move (Pos (-3, 2, -18));
@@ -91,23 +95,23 @@ define_scene (Scene &scene, Camera &camera)
   camera.move (Pos (-6.5, -0.4, -19));
   camera.point (Pos (0, -2, 5));
 
-  const unsigned gsize = 10;
-  const unsigned gsep = 4;
-  const Pos gpos (-20, -1, -20);
-  for (unsigned i = 0; i < gsize; i++)
-    for (unsigned j = 0; j < gsize; j++)
-      {
-	Color color ((float)i / (float)gsize + 0.2,
-		     0.5,
-		     (float)j / (float)gsize / 2 + 0.2);
-	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
-	Material *mat = scene.add (new Phong (500, color));
-	scene.add (new Sphere (mat, pos, 0.5));
-	scene.add (new Triangle (mat,
-				 pos + Vec(1.5,-0.2,0),
-				 pos + Vec(-0.5,-0.2,-1.1),
-				 pos + Vec(-0.5,-0.2,1.1)));
-      }
+//   const unsigned gsize = 10;
+//   const unsigned gsep = 4;
+//   const Pos gpos (-20, -1, -20);
+//   for (unsigned i = 0; i < gsize; i++)
+//     for (unsigned j = 0; j < gsize; j++)
+//       {
+// 	Color color ((float)i / (float)gsize + 0.2,
+// 		     0.5,
+// 		     (float)j / (float)gsize / 2 + 0.2);
+// 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
+// 	Material *mat = scene.add (new Phong (500, color));
+// 	scene.add (new Sphere (mat, pos, 0.5));
+// 	scene.add (new Triangle (mat,
+// 				 pos + Vec(1.5,-0.2,0),
+// 				 pos + Vec(-0.5,-0.2,-1.1),
+// 				 pos + Vec(-0.5,-0.2,1.1)));
+//       }
 
 //   // from cs465 Test1.xml
 //   const unsigned width = 512 * aa_factor;

@@ -1,9 +1,16 @@
 #!/bin/sh
 
 while test $# -gt 1; do
-  ARGS="$ARGS $1"; shift
+  case "$1" in
+    -z)
+      ZOOM_PERC="$2"; shift 2;;
+    -z*)
+      ZOOM_PERC=`echo "$1" | sed 's/^-.//'`; shift;;
+    *)
+      ARGS="$ARGS $1"; shift
+  esac
 done
 
-make && ./snogray $ARGS "$1" && qiv "$1"
+make && ./snogray $ARGS "$1" && feh -R10 -q "$1"
 
 # arch-tag: ec7d55f3-672e-4461-ac08-eccc458b307e

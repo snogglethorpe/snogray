@@ -108,22 +108,22 @@ Voxtree::Node::for_each_possible_intersector (Voxtree::FepiCallback &callback,
   // where RAY either starts or ends inside the volume, the
   // boundary-plane intersections are extensions of RAY, so we don't
   // need special cases for that occurance.
-  if (! (// x-min face
+  if (! (// RAY intersects x-min face
 	 (x_min_isec.y >= y_min && x_min_isec.y <= y_max
 	  && x_min_isec.z >= z_min && x_min_isec.z <= z_max)
-	 // x-max face
+	 // RAY intersects x-max face
 	 || (x_max_isec.y >= y_max && x_max_isec.y <= y_max
 	     && x_max_isec.z >= z_max && x_max_isec.z <= z_max)
-	 // y-min face
+	 // RAY intersects y-min face
 	 || (y_min_isec.x >= x_min && y_min_isec.x <= x_max
 	     && y_min_isec.z >= z_min && y_min_isec.z <= z_max)
-	 // y-max face
+	 // RAY intersects y-max face
 	 || (y_max_isec.x >= x_max && y_max_isec.x <= x_max
 	     && y_max_isec.z >= z_max && y_max_isec.z <= z_max)
-	 // z-min face
+	 // RAY intersects z-min face
 	 || (z_min_isec.x >= x_min && z_min_isec.x <= x_max
 	     && z_min_isec.y >= y_min && z_min_isec.y <= y_max)
-	 // z-max face
+	 // RAY intersects z-max face
 	 || (z_max_isec.x >= x_max && z_max_isec.x <= x_max
 	     && z_max_isec.y >= y_max && z_max_isec.y <= y_max)
 	 ))
@@ -180,7 +180,7 @@ Voxtree::Node::for_each_possible_intersector (Voxtree::FepiCallback &callback,
           ->for_each_possible_intersector (callback,
 					   x_mid_isec, x_max_isec,
 					   y_mid_isec, y_max_isec,
-					   z_mid_isec, z_mid_isec);
+					   z_min_isec, z_mid_isec);
   if (x_lo_y_lo_z_hi && cont)
     cont
       = x_lo_y_lo_z_hi
@@ -312,11 +312,11 @@ Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
   // root is installed in the "hi" slot, our old origin position now
   // becomes our new midpoint; for axes on which the old root is
   // installed in the "lo" slot, our origin remains the same.
-  if (x_lo_grow > x_hi_grow)
+  if (x_hi_grow <= x_lo_grow)
     origin.x -= size;
-  if (y_lo_grow > y_hi_grow)
+  if (y_hi_grow <= y_lo_grow)
     origin.y -= size;
-  if (z_lo_grow > z_hi_grow)
+  if (z_hi_grow <= z_lo_grow)
     origin.z -= size;
 
   // Our size doubles with each new level.

@@ -95,7 +95,7 @@ SceneAnyIntersectCallback::operator () (Obj *obj)
 bool
 Scene::intersects (const Ray &ray, const Obj *ignore)
 {
-  SceneAnyIntersectCallback any_isec_cb (ray);
+  SceneAnyIntersectCallback any_isec_cb (ray, ignore);
 
   stats.scene_intersects_calls++;
 
