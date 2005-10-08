@@ -1,5 +1,16 @@
-#ifndef __OPTPARSER_H__
-#define __OPTPARSER_H__
+// cmdlineparser.h -- Command-line parser
+//
+//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
+#ifndef __CMDLINEPARSER_H__
+#define __CMDLINEPARSER_H__
 
 #include <getopt.h>
 
@@ -34,6 +45,6 @@ private:
   int short_opt;
 };
 
-#endif /* __OPTPARSER_H__ */
+#endif /* __CMDLINEPARSER_H__ */
 
 // arch-tag: 5852e7d6-c333-492e-8c89-0f6ef8f09056

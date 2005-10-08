@@ -1,4 +1,4 @@
-// lambert.h -- Lambertian lighting model
+// glow.h -- Constant-color lighting model
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,15 +9,15 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LAMBERT_H__
-#define __LAMBERT_H__
+#ifndef __GLOW_H__
+#define __GLOW_H__
 
 #include "material.h"
 
-class Lambert : public Material
+class Glow : public Material
 {
 public:
-  Lambert (const Color &_color) : color (_color) { }
+  Glow (const Color &_color) : color (_color) { }
 
   virtual const Color render (const class Intersect &isec, const Vec &eye_dir,
 			      const Vec &light_dir, const Color &light_color)
@@ -26,6 +26,6 @@ public:
   Color color;
 };
 
-#endif /* __LAMBERT_H__ */
+#endif /* __GLOW_H__ */
 
-// arch-tag: ca8981f3-5471-4e8a-ac8b-2e3e54c83b64
+// arch-tag: d53c41c0-1970-4b3e-9047-2f67dd943922

@@ -17,14 +17,9 @@
 class Phong : public Material
 {
 public:
-  Phong (const Color &_diffuse_color, const Color &_specular_color,
-	 float _exponent)
+  Phong (float _exponent, const Color &_diffuse_color,
+	 const Color &_specular_color = Color::white)
     : diffuse_color (_diffuse_color), specular_color (_specular_color),
-      exponent (_exponent)
-  { }
-  Phong (const Color &color, float _exponent)
-    : diffuse_color (color),
-      specular_color (Color::white),
       exponent (_exponent)
   { }
 

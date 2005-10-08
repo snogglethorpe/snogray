@@ -61,6 +61,12 @@ public:
   component_t red, green, blue;
 };
 
+static inline Color
+operator* (float scale, const Color &color)
+{
+  return color * scale;
+}
+
 extern std::ostream& operator<< (std::ostream &os, const Color &col);
 
 #endif /* __COLOR_H__ */

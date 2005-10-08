@@ -22,8 +22,18 @@
 #include "triangle.h"
 #include "lambert.h"
 #include "phong.h"
+#include "glow.h"
 
 using namespace std;
+
+static void
+add_bulb (Scene &scene, const Pos &pos, float intens,
+	  const Color &col = Color::white)
+{
+  Material *bulb_mat = scene.add (new Glow (intens * col));
+  scene.add (new Light (pos, intens, col));
+  scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
+}
 
 static void
 define_scene (Scene &scene, Camera &camera)
@@ -33,20 +43,23 @@ define_scene (Scene &scene, Camera &camera)
 //  Material *mat3 = scene.add (new Lambert (Color (1, 0.5, 1)));
 //  Material *mat4 = scene.add (new Lambert (Color (1, 0.5, 1)));
   Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
-  Material *mat2 = scene.add (new Phong (Color (0.8, 0.8, 0.8), 300));
-//   Material *mat3 = scene.add (new Phong (Color (0.1, 0.1, 0.1), 400));
-  Material *mat3 = scene.add (new Phong (Color (0.8, 0, 0), 400));
+  Material *mat2 = scene.add (new Phong (300, Color (0.8, 0.8, 0.8)));
+//   Material *mat3 = scene.add (new Phong (400, Color (0.1, 0.1, 0.1)));
+  Material *mat3 = scene.add (new Phong (400, Color (0.8, 0, 0)));
   Material *mat4 = scene.add (new Lambert (Color (0.2, 0.5, 0.1)));
   Material *mat5 = scene.add (new Lambert (Color (1, 0.5, 1)));
 
+  Material *bulb_mat = scene.add (new Glow (25 * Color::white));
+
   // First test scene
-  scene.add (new Light (Pos (0, 15, 0), 30));
-  scene.add (new Light (Pos (0, 0, -5), 30));
-  scene.add (new Light (Pos (-5, 10, 0), Color (0, 0, 1), 40));
-  scene.add (new Light (Pos (-40, 15, -40), 300));
-  scene.add (new Light (Pos (-40, 15,  40), 300));
-  scene.add (new Light (Pos ( 40, 15, -40), 300));
-  scene.add (new Light (Pos ( 40, 15,  40), 300));
+  add_bulb (scene, Pos (0, 15, 0), 30);
+  add_bulb (scene, Pos (0, 0, -5), 30);
+  add_bulb (scene, Pos (-5, 10, 0), 40, Color (0, 0, 1));
+  add_bulb (scene, Pos (-40, 15, -40), 300);
+  add_bulb (scene, Pos (-40, 15,  40), 300);
+  add_bulb (scene, Pos ( 40, 15, -40), 300);
+  add_bulb (scene, Pos ( 40, 15,  40), 300);
+
   scene.add (new Sphere (mat1, Pos (0, 2, 7), 5));
   scene.add (new Sphere (mat2, Pos (-8, 0, 3), 3));
   scene.add (new Sphere (mat3, Pos (-6, 5, 2), 1));
@@ -79,9 +92,12 @@ define_scene (Scene &scene, Camera &camera)
 		     0.5,
 		     (float)j / (float)gsize / 2 + 0.2);
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
-	Material *mat = scene.add (new Phong (color, 500));
+	Material *mat = scene.add (new Phong (500, color));
 	scene.add (new Sphere (mat, pos, 0.5));
-	scene.add (new Triangle (mat, pos + Vec(1.5,-0.2,0), pos + Vec(-0.5,-0.2,-1.1), pos + Vec(-0.5,-0.2,1.1)));
+	scene.add (new Triangle (mat,
+				 pos + Vec(1.5,-0.2,0),
+				 pos + Vec(-0.5,-0.2,-1.1),
+				 pos + Vec(-0.5,-0.2,1.1)));
       }
 
 //   // from cs465 Test1.xml
@@ -142,11 +158,6 @@ int main (int argc, char *const *argv)
 
   output_file = clp.get_arg ();
 
-  cout << "image.width = " << final_width << endl;
-  cout << "image.height = " << final_height << endl;
-  cout << "image.target_gamma = " << target_gamma << endl;
-  if (aa_factor > 1)
-    cout << "image.aa_factor = " << aa_factor << endl;
 
   const unsigned width = final_width * aa_factor;
   const unsigned height = final_height * aa_factor;
@@ -154,9 +165,17 @@ int main (int argc, char *const *argv)
 
   define_scene (scene, camera);
 
+
+  cout << "image.width = " << final_width << endl;
+  cout << "image.height = " << final_height << endl;
+  cout << "image.target_gamma = " << target_gamma << endl;
+  if (aa_factor > 1)
+    cout << "image.aa_factor = " << aa_factor << endl;
+
   cout << "scene.num_objects = " << scene.objs.size () << endl;
   cout << "scene.num_lights = " << scene.lights.size () << endl;
   cout << "scene.num_materials = " << scene.materials.size () << endl;
+
 
   Image image (width, height, target_gamma);
 
@@ -173,6 +192,7 @@ int main (int argc, char *const *argv)
 	image (x, y) = isec.obj ? scene.render (isec) : Color::black;
       }
 
+
   Scene::Stats &stats = scene.stats;
   cout << "stats.scene_closest_intersect_calls = "
        << stats.scene_closest_intersect_calls << endl;
@@ -182,6 +202,7 @@ int main (int argc, char *const *argv)
        << stats.scene_intersects_calls << endl;
   cout << "stats.obj_intersects_calls = "
        << stats.obj_intersects_calls << endl;
+
 
   if (aa_factor > 1)
     {

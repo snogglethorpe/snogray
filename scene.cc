@@ -55,7 +55,7 @@ Scene::intersects (const Ray &ray, const Obj *ignore)
     {
       stats.obj_intersects_calls++;
       Obj *obj = *oi;
-      if (obj != ignore && obj->intersects (ray))
+      if (obj != ignore && !obj->no_shadow && obj->intersects (ray))
 	return true;
     }
 

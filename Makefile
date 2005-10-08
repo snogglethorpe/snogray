@@ -15,7 +15,7 @@ all: $(TARGETS)
 
 #CFLAGS = -O2 -g
 #CFLAGS = -O5 -g -march=pentium4 -mfpmath=sse
-CFLAGS = -O5 -g -march=pentium4
+CFLAGS = -O5 -g -march=pentium3
 CXXFLAGS = $(CFLAGS)
 DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
@@ -26,7 +26,7 @@ _CXXFLAGS = $(CXXFLAGS) $(DEP_CFLAGS)
 
 CXXSRCS = snogray.cc scene.cc obj.cc intersect.cc color.cc lambert.cc	\
 	  sphere.cc camera.cc space.cc voxtree.cc ray.cc image.cc	\
-	  triangle.cc phong.cc cmdlineparser.cc
+	  triangle.cc phong.cc cmdlineparser.cc glow.cc
 
 OBJS = $(CXXSRCS:.cc=.o)
 

@@ -19,7 +19,7 @@
 
 class Obj {
 public:
-  Obj (const Material *mat) : material (mat) { }
+  Obj (const Material *mat) : material (mat), no_shadow (false) { }
 
   virtual bool intersects (const Ray &ray) const;
 
@@ -27,6 +27,7 @@ public:
   virtual void finish_intersect (class Intersect &isec) const;
 
   const Material *material;
+  bool no_shadow : 1;
 };
 
 #endif /* __OBJ_H__ */
