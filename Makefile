@@ -32,14 +32,16 @@ ARCH := $(shell uname -m)
 HOST_CFLAGS_$(HOST) ?= $(ARCH_CFLAGS_$(ARCH))
 MACHINE_CFLAGS = $(HOST_CFLAGS_$(HOST))
 
-PNG_LIBS	= -lpng
+LIBPNG_CFLAGS	= $(shell libpng-config --cflags)
+LIBPNG_LIBS	= $(shell libpng-config --libs)
 
-EXR_CFLAGS	= -I/usr/include/OpenEXR
-EXR_LIBS	= -lIlmImf -lIex -lHalf
+LIBEXR_CFLAGS	= $(shell pkg-config OpenEXR --cflags)
+LIBEXR_LIBS	= $(shell pkg-config OpenEXR --libs)
 
+JPEG_CFFLAGS	=
 JPEG_LIBS	= -ljpeg
 
-LIBS = $(PNG_LIBS) $(EXR_LIBS) $(JPEG_LIBS) $(MUDFLAP:-f%=-l%)
+LIBS = $(LIBPNG_LIBS) $(LIBEXR_LIBS) $(JPEG_LIBS) $(MUDFLAP:-f%=-l%)
 
 DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
@@ -80,7 +82,11 @@ snogcvt: $(SNOGCVT_OBJS)
 
 # OpenEXR include files expect their include directory to be in the include path
 image-exr.o: image-exr.cc
-	$(CXX) -c $(EXR_CFLAGS) $(_CXXFLAGS) $<
+	$(CXX) -c $(LIBEXR_CFLAGS) $(_CXXFLAGS) $<
+image-png.o: image-png.cc
+	$(CXX) -c $(LIBPNG_CFLAGS) $(_CXXFLAGS) $<
+image-jpeg.o: image-jpeg.cc
+	$(CXX) -c $(LIBJPEG_CFLAGS) $(_CXXFLAGS) $<
 
 ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS))
 ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS))

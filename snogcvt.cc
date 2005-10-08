@@ -72,6 +72,25 @@ adjust_contrast (const Color &col, float expon)
 		adjust_component_contrast (col.blue, expon));
 }
 
+#if 0 /* this is just freaky */
+static inline Color
+adjust_contrast (const Color &col, float expon)
+{
+  Color::component_t r = col.red * 2 - 1;
+  Color::component_t g = col.green * 2 - 1;
+  Color::component_t b = col.blue * 2 - 1;
+
+  if (col.intensity() > 0.5)
+    return Color ((powf (r, expon) + 1) / 2,
+		  (powf (g, expon) + 1) / 2,
+		  (powf (b, expon) + 1) / 2);
+  else
+    return Color ((1 - powf (-r, expon)) / 2,
+		  (1 - powf (-g, expon)) / 2,
+		  (1 - powf (-b, expon)) / 2);
+}
+#endif
+
 
 int main (int argc, char *const *argv)
 {
