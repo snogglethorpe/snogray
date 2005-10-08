@@ -574,6 +574,8 @@ int main (int argc, char *const *argv)
       long long sc  = sstats.scene_closest_intersect_calls;
       long long vnc = vstats1.node_intersect_calls;
       long long ocic = sstats.obj_closest_intersect_calls;
+      long long hhh = sstats.horizon_hint_hits;
+      long long hhm = sstats.horizon_hint_misses;
 
       unsigned vnn = scene.obj_voxtree.num_nodes ();
       unsigned no  = scene.objs.size ();
@@ -582,6 +584,10 @@ int main (int argc, char *const *argv)
       cout << "Rendering stats:" << endl;
       cout << "  closest_intersect:" << endl;
       cout << "     scene calls:       " << setw (14) << commify (sc) << endl;
+      cout << "     horizon hint hits: " << setw (14) << commify (hhh)
+	   << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
+      cout << "     horizon hint misses:" << setw (13) << commify (hhm)
+	   << " (" << setw(2) << (100 * hhm / sc) << "%)" << endl;
       cout << "     voxtree node calls:" << setw (14) << commify (vnc)
 	   << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
       cout << "     obj calls:         " << setw (14) << commify (ocic)

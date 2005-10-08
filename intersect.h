@@ -21,9 +21,14 @@ namespace Snogray {
 class Intersect
 {
 public:
-  Intersect (const Ray &_ray) : ray (_ray), obj (0) { }
 
-  void update (Obj *_obj)
+  Intersect (const Ray &_ray, dist_t horizon)
+    : ray (_ray), obj (0)
+  {
+    ray.set_len (horizon);
+  }
+
+  void update (const Obj *_obj)
   {
     dist_t dist = _obj->intersection_distance (ray);
     if (dist > 0 && (!obj || dist < ray.len))

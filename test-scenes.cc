@@ -367,15 +367,15 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       break;
     case 21:
       extern TestSceneParams sombrero_test_scene_params;
-      define_test_scene (&sombrero_test_scene_params, 50, scene, camera);
+      define_test_scene (&sombrero_test_scene_params, 500, scene, camera);
       break;
     case 22:
       extern TestSceneParams shells_test_scene_params;
-      define_test_scene (&shells_test_scene_params, 2000, scene, camera);
+      define_test_scene (&shells_test_scene_params, 50000, scene, camera);
       break;
     case 23:
       extern TestSceneParams f117_test_scene_params;
-      define_test_scene (&f117_test_scene_params, 200, scene, camera);
+      define_test_scene (&f117_test_scene_params, 3000, scene, camera);
       break;
     case 24:
       extern TestSceneParams skull_test_scene_params;

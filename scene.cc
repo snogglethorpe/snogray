@@ -32,15 +32,19 @@ Scene::~Scene ()
 
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
-  SceneClosestIntersectCallback (const Ray &ray, const Obj *_ignore = 0,
+  SceneClosestIntersectCallback (Intersect &_isec,
+				 TraceState &_tstate, const Obj *_ignore = 0,
 				 Voxtree::Stats *stats = 0)
-    : IntersectCallback (stats), isec (ray), ignore (_ignore), num_calls (0)
+    : IntersectCallback (stats), isec (_isec), ignore (_ignore),
+      tstate (_tstate), num_calls (0)
   { }
 
   virtual void operator() (Obj *);
 
-  Intersect isec;
+  Intersect &isec;
   const Obj *ignore;
+
+  TraceState &tstate;
 
   unsigned num_calls;
 };
@@ -48,7 +52,7 @@ struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 void
 SceneClosestIntersectCallback::operator () (Obj *obj)
 {
-  if (obj != ignore)
+  if (obj != ignore && obj != tstate.horizon_hint)
     {
       isec.update (obj);
       num_calls++;
@@ -58,21 +62,43 @@ SceneClosestIntersectCallback::operator () (Obj *obj)
 Intersect
 Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *ignore)
 {
-  // XXX
-  Ray bounded_ray (ray, 10000);
-
-  SceneClosestIntersectCallback
-    closest_isec_cb (bounded_ray, ignore, &stats.voxtree_closest_intersect);
-
   stats.scene_closest_intersect_calls++;
 
-  obj_voxtree.for_each_possible_intersector (bounded_ray, closest_isec_cb);
+  Intersect isec (ray, DEFAULT_HORIZON);
 
-  closest_isec_cb.isec.finish ();
+  // If there's a horizon hint, try to use it to reduce the horizon before
+  // searching (voxtree searching can dramatically improve given a limited
+  // search space).
+  //
+  if (tstate.horizon_hint && tstate.horizon_hint != ignore)
+    {
+      isec.update (tstate.horizon_hint);
+
+      if (isec.obj)
+	stats.horizon_hint_hits++;
+      else
+	stats.horizon_hint_misses++;
+    }
+
+  // Make a callback, and call it for each object in the voxtree that may
+  // intersect the ray.
+
+  SceneClosestIntersectCallback
+    closest_isec_cb (isec, tstate, ignore, &stats.voxtree_closest_intersect);
+
+  obj_voxtree.for_each_possible_intersector (isec.ray, closest_isec_cb);
 
   stats.obj_closest_intersect_calls += closest_isec_cb.num_calls;
 
-  return closest_isec_cb.isec;
+  // Finish setting up ISEC
+  //
+  isec.finish ();
+
+  // Update the horizon hint to reflect what we found.
+  //
+  tstate.horizon_hint = isec.obj;
+
+  return isec;
 }
 
 
@@ -135,7 +161,7 @@ Scene::shadowed (Light &light, const Ray &light_ray,
   // chance of hitting than usual (because nearby points are often shadowed
   // from a given light by the same object).
   //
-  Obj *hint = tstate.shadow_hints[light.num];
+  const Obj *hint = tstate.shadow_hints[light.num];
   if (hint && hint != ignore)
     {
       if (hint->intersects (light_ray))

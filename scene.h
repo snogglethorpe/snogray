@@ -90,6 +90,7 @@ public:
 	       obj_closest_intersect_calls (0),
 	       scene_shadowed_tests (0),
 	       shadow_hint_hits (0), shadow_hint_misses (0),
+	       horizon_hint_hits (0), horizon_hint_misses (0),
 	       obj_intersects_tests (0)
     { }
     unsigned long long scene_closest_intersect_calls;
@@ -97,6 +98,8 @@ public:
     unsigned long long scene_shadowed_tests;
     unsigned long long shadow_hint_hits;
     unsigned long long shadow_hint_misses;
+    unsigned long long horizon_hint_hits;
+    unsigned long long horizon_hint_misses;
     unsigned long long obj_intersects_tests;
     Voxtree::Stats voxtree_closest_intersect;
     Voxtree::Stats voxtree_shadowed;

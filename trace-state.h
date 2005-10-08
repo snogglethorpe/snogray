@@ -51,14 +51,14 @@ public:
   // can drastically reduce the search space by excluding all further
   // objects.
   //
-  Obj *horizon_hint;
+  const Obj *horizon_hint;
 
   // An array, indexed by "light number".  Each non-zero entry is an
   // object previously found to shadow the given light.  Because nearby
   // points are often shadowed from a given light by the same object(s),
-  // testing these objects first 
+  // testing these objects often yields a shadow object without searching.
   //
-  Obj **shadow_hints;
+  const Obj **shadow_hints;
 
   // Trace-states for various possible sub-traces of this trace (or zero
   // when a given subtrace-type hasn't yet been encountered at this
