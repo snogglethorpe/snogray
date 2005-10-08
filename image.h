@@ -28,6 +28,32 @@ public:
   unsigned width;
 };
 
+
+// Image output
+
+struct ImageGeneralSinkParams
+{
+  ImageGeneralSinkParams ()
+    : file_name (0), format (0), target_gamma (0),
+      width (0), height (0),
+      aa_factor (0), aa_overlap (0), aa_filter (0)
+  { }
+
+  // This is called when something wrong is detect with some parameter
+  virtual void error (const char *msg) const = 0;
+
+  const char *file_name;	// 0 means standard input
+
+  const char *format;		// 0 means auto-detect
+
+  unsigned width, height;
+
+  float target_gamma;		// 0 means unspecified (use default)
+
+  unsigned aa_factor, aa_overlap;
+  float (*aa_filter) (int offs, unsigned size);
+};
+
 class ImageSink
 {
 public:
@@ -53,6 +79,7 @@ public:
   ImageOutput (const class ImageSinkParams &params,
 	       unsigned aa_factor = 1, unsigned aa_overlap = 0,
 	       float (*aa_filter)(int, unsigned) = aa_box_filter);
+  ImageOutput (const ImageGeneralSinkParams &params);
   ~ImageOutput ();
 
   // Returns next row for storing into, after writing previous rows to
@@ -67,6 +94,9 @@ public:
   static float aa_gauss_filter (int offs, unsigned size);
 
 private:
+  static ImageSink *make_sink (const ImageGeneralSinkParams &params);
+  void init_rows (unsigned width, float (*aa_filter)(int, unsigned));
+
   void write_accumulated_rows ();
 
   float *make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
@@ -83,6 +113,37 @@ private:
 
   float *aa_kernel;
   unsigned aa_kernel_size;
+};
+
+
+// Image input
+
+class ImageSource
+{
+public:
+  virtual ~ImageSource () = 0;
+  virtual void read_row (ImageRow &row) = 0;
+};
+
+class ImageSourceParams
+{
+public:
+  virtual ImageSource *make_source () const = 0;
+};
+
+class ImageInput
+{
+public:
+  ImageInput (const class ImageSourceParams &params)
+    : source (params.make_source ())
+  { }
+  ~ImageInput () { delete source; }
+
+  // Reads a row of image data into ROW
+  void read_row (ImageRow &row) { source->read_row (row); }
+
+private:
+  ImageSource *source;
 };
 
 }

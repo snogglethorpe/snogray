@@ -13,9 +13,13 @@ TARGETS = snogray
 
 all: $(TARGETS)
 
+OPT = -O5
+DEBUG = -g
 #PG = -pg
-CFLAGS = -O5 -g $(MACHINE_CFLAGS) $(PG)
-LDFLAGS = $(PG)
+MUDFLAP = -fmudflap
+
+CFLAGS = $(OPT) $(DEBUG) $(MACHINE_CFLAGS) $(PG) $(MUDFLAP)
+LDFLAGS = $(PG) $(MUDFLAP)
 
 HOST_CFLAGS_dhapc248.dev.necel.com = $(ARCH_CFLAGS_pentium4)
 ARCH_CFLAGS_pentium3 = -march=pentium3 -fomit-frame-pointer
@@ -35,7 +39,7 @@ PNG_LIBS	= -lpng
 EXR_CFLAGS	= -I/usr/include/OpenEXR
 EXR_LIBS	= -lIlmImf -lIex -lHalf
 
-LIBS = $(PNG_LIBS) $(EXR_LIBS)
+LIBS = $(PNG_LIBS) $(EXR_LIBS) $(MUDFLAP:-f%=-l%)
 
 _CFLAGS = $(CFLAGS) $(DEP_CFLAGS)
 _CXXFLAGS = $(CXXFLAGS) $(DEP_CFLAGS)

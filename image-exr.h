@@ -19,6 +19,13 @@ namespace Snogray {
 class ExrImageSinkParams : public ImageSinkParams
 {
 public:
+  ExrImageSinkParams (const ImageGeneralSinkParams &params)
+    : ImageSinkParams (params.width, params.height),
+      file_name (params.file_name)
+  {
+    if (params.target_gamma != 0)
+      params.error ("target-gamma not supported in EXR format");
+  }
   ExrImageSinkParams (const char *_file_name,
 		      unsigned _width, unsigned _height)
     : ImageSinkParams (_width, _height),

@@ -12,6 +12,8 @@
 #ifndef __CMDLINEPARSER_H__
 #define __CMDLINEPARSER_H__
 
+#include <string>
+
 #include <getopt.h>
 
 namespace Snogray {
@@ -32,6 +34,10 @@ public:
   float float_opt_arg () const;
   unsigned unsigned_opt_arg () const;
   void opt_err (const char *phrase) const;
+
+  void err (const char *phrase) const;
+  std::string err_pfx () const;
+  std::string opt_err_pfx () const;
 
   const char *get_arg ();
   int num_remaining_args () const;

@@ -135,17 +135,19 @@ define_scene (Scene &scene, Camera &camera)
 // relative, a proportion of the image size, or both.
 struct LimitSpec
 {
-  LimitSpec (unsigned _abs_val)
-    : abs_val (_abs_val), is_frac (false), is_rel (false) { }
-  LimitSpec (int _abs_val)
-    : abs_val (_abs_val), is_frac (false), is_rel (false) { }
-  LimitSpec (float _frac_val)
-    : frac_val (_frac_val), is_frac (true), is_rel (false) { }
-  LimitSpec (double _frac_val)
-    : frac_val (_frac_val), is_frac (true), is_rel (false) { }
+  LimitSpec (const char *_name, unsigned _abs_val)
+    : name (_name), abs_val (_abs_val), is_frac (false), is_rel (false) { }
+  LimitSpec (const char *_name, int _abs_val)
+    : name (_name), abs_val (_abs_val), is_frac (false), is_rel (false) { }
+  LimitSpec (const char *_name, float _frac_val)
+    : name (_name), frac_val (_frac_val), is_frac (true), is_rel (false) { }
+  LimitSpec (const char *_name, double _frac_val)
+    : name (_name), frac_val (_frac_val), is_frac (true), is_rel (false) { }
 
   bool parse (const char *&str);
-  unsigned apply (unsigned range, unsigned base = 0) const;
+  unsigned apply (CmdLineParser &clp, unsigned range, unsigned base = 0) const;
+
+  const char *name;
 
   bool is_frac;
   unsigned abs_val;
@@ -192,7 +194,7 @@ LimitSpec::parse (const char *&str)
 }
 
 unsigned
-LimitSpec::apply (unsigned range, unsigned base) const
+LimitSpec::apply (CmdLineParser &clp, unsigned range, unsigned base) const
 {
   unsigned val = is_frac ? (unsigned)(frac_val * range) : abs_val;
 
@@ -201,7 +203,9 @@ LimitSpec::apply (unsigned range, unsigned base) const
 
   if (val > range)
     {
-      cerr << val << ": limit out of range (0 - " << range << ")" << endl;
+      cerr << clp.err_pfx()
+	   << val << ": " << name
+	   << " limit out of range (0 - " << range << ")" << endl;
       exit (5);
     }
 
@@ -284,6 +288,8 @@ stringify (unsigned num)
 static string 
 commify (unsigned long long num, unsigned sep_count = 1)
 {
+  cout << "commify (" << num << ", " << sep_count << ")" << endl;
+  cout.flush ();
   string str = (num > 9) ? commify (num / 10, sep_count % 3 + 1) : "";
   char ch = (num % 10) + '0';
   if (sep_count == 3 && num > 9)
@@ -295,22 +301,27 @@ commify (unsigned long long num, unsigned sep_count = 1)
 
 // Main driver
 
+struct SnograyImageSinkParams : ImageGeneralSinkParams
+{
+  SnograyImageSinkParams (CmdLineParser &_clp) : clp (_clp) { }
+
+  // This is called when something wrong is detect with some parameter
+  virtual void error (const char *msg) const;
+
+  // We keep track of this so that we may format error messages nicely
+  CmdLineParser clp;
+};
+
+void
+SnograyImageSinkParams::error (const char *msg) const
+{
+  const char *name = file_name ? file_name : "<standard output>";
+  cerr << clp.err_pfx() << name << ": " << msg << endl;
+  exit (25);
+}
+
 int main (int argc, char *const *argv)
 {
-  Scene scene;
-  Camera camera;
-  const char *prog_name = *argv;
-  unsigned final_width = 640, final_height = 480;
-  unsigned aa_factor = 1, aa_overlap = 0;
-  float (*aa_filter) (int offs, unsigned size) = ImageOutput::aa_gauss_filter;
-  LimitSpec limit_x_spec (0), limit_y_spec (0);
-  LimitSpec limit_max_x_spec (1.0), limit_max_y_spec (1.0);
-  const char *limit = 0;
-  float target_gamma = 2.2;	// Only applies to formats that understand it
-  const char *output_fmt = 0;	// 0 means auto-detect
-  bool quiet = false, progress = true; // quiet mode, progress indicator
-  bool progress_set = false;
-
   // Command-line option specs
   static struct option long_options[] = {
     { "width",		required_argument, 0, 'w' },
@@ -328,6 +339,16 @@ int main (int argc, char *const *argv)
     { 0, 0, 0, 0 }
   };
   CmdLineParser clp (argc, argv, "a:A:F:w:h:g:s:l:O:qpP", long_options);
+
+  // Parameters set from the command line
+  const char *prog_name = *argv;
+  unsigned final_width = 640, final_height = 480;
+  LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
+  LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
+  const char *limit = 0;
+  bool quiet = false, progress = true; // quiet mode, progress indicator
+  bool progress_set = false;
+  SnograyImageSinkParams image_sink_params (clp);
 
   // Parse command-line options
   int opt;
@@ -366,20 +387,20 @@ int main (int argc, char *const *argv)
 
 	// Anti-aliasing options
       case 'a':
-	aa_factor = clp.unsigned_opt_arg ();
+	image_sink_params.aa_factor = clp.unsigned_opt_arg ();
 	break;
       case 'A':
-	aa_overlap = clp.unsigned_opt_arg ();
+	image_sink_params.aa_overlap = clp.unsigned_opt_arg ();
 	break;
       case 'F':
 	{
 	  const char *filt_name = clp.opt_arg ();
 	  if (strcmp (filt_name, "box") == 0)
-	    aa_filter = ImageOutput::aa_box_filter;
+	    image_sink_params.aa_filter = ImageOutput::aa_box_filter;
 	  else if (strcmp (filt_name, "triang") == 0)
-	    aa_filter = ImageOutput::aa_triang_filter;
+	    image_sink_params.aa_filter = ImageOutput::aa_triang_filter;
 	  else if (strcmp (filt_name, "gauss") == 0)
-	    aa_filter = ImageOutput::aa_gauss_filter;
+	    image_sink_params.aa_filter = ImageOutput::aa_gauss_filter;
 	  else
 	    clp.opt_err ("requires an anti-aliasing filter name"
 			 " (box, triang, gauss)");
@@ -388,10 +409,10 @@ int main (int argc, char *const *argv)
 
 	// Output image options
       case 'g':
-	target_gamma = clp.float_opt_arg ();
+	image_sink_params.target_gamma = clp.float_opt_arg ();
 	break;
       case 'O':
-	output_fmt = clp.opt_arg ();
+	image_sink_params.format = clp.opt_arg ();
 	break;
       }
 
@@ -403,54 +424,31 @@ int main (int argc, char *const *argv)
 	   << " OUTPUT_IMAGE_FILE" << endl;
       exit (10);
     }
-  const char *output_file = clp.get_arg();
+  image_sink_params.file_name = clp.get_arg();
+
+  // We reference this a lot below, so make a local copy
+  unsigned aa_factor = image_sink_params.aa_factor;
+  if (aa_factor == 0)
+    aa_factor = 1;
 
   // The size of the actual full final image
   const unsigned width = final_width * aa_factor;
   const unsigned height = final_height * aa_factor;
 
   // Set our drawing limits based on the scene size
-  unsigned limit_x = limit_x_spec.apply (final_width);
-  unsigned limit_y = limit_y_spec.apply (final_height);
+  unsigned limit_x = limit_x_spec.apply (clp, final_width);
+  unsigned limit_y = limit_y_spec.apply (clp, final_height);
   unsigned limit_width
-    = limit_max_x_spec.apply (final_width, limit_x) - limit_x;
+    = limit_max_x_spec.apply (clp, final_width, limit_x) - limit_x;
   unsigned limit_height
-    = limit_max_y_spec.apply (final_height, limit_y) - limit_y;
+    = limit_max_y_spec.apply (clp, final_height, limit_y) - limit_y;
 
-  // Set output format automatically if necessary
-  if  (! output_fmt)
-    {
-      const char *output_ext = rindex (output_file, '.');
+  // The size of what we actually output is the same as the limit
+  image_sink_params.width = limit_width;
+  image_sink_params.height = limit_height;
 
-      if (! output_ext)
-	{
-	  cerr << output_file
-	       << ": No filename extension to determine output type"
-	       << endl;
-	  exit (25);
-	}
-
-      output_fmt = ++output_ext;
-    }
-
-  // Make the output-format-specific parameter block
-  ImageSinkParams *image_params = 0;
-  bool target_gamma_used = false;
-  if (strcmp (output_fmt, "png") == 0)
-    {
-      image_params
-	= new PngImageSinkParams (output_file, limit_width, limit_height,
-				  target_gamma);
-      target_gamma_used = true;
-    }
-  else if (strcmp (output_fmt, "exr") == 0)
-    image_params
-      = new ExrImageSinkParams (output_file, limit_width, limit_height);
-  else
-    {
-      cerr << output_file << ": Unknown output type" << endl;
-      exit (26);
-    }
+  // Create output image
+  ImageOutput image (image_sink_params);
 
   // Print image info
   if (! quiet)
@@ -468,37 +466,44 @@ int main (int argc, char *const *argv)
 	     << " (" << limit_width << " x "  << limit_height << ")"
 	     << endl;
 
-      if (target_gamma_used)
+      if (image_sink_params.target_gamma != 0)
         cout << "image.target_gamma:        "
-	     << setw (4) << target_gamma << endl;
+	     << setw (4) << image_sink_params.target_gamma << endl;
 
       // Anti-aliasing info
-      if ((aa_factor + aa_overlap) > 1)
+      if ((aa_factor + image_sink_params.aa_overlap) > 1)
 	{
 	  if (aa_factor > 1)
 	    cout << "image.aa_factor:           "
 		 << setw (4) << aa_factor << endl;
 
-	  if (aa_overlap > 0)
+	  if (image_sink_params.aa_overlap > 0)
 	    cout << "image.aa_kernel_size:      "
-		 << setw (4) << (aa_factor + aa_overlap*2)
-		 << " (overlap = " << aa_overlap << ")" << endl;
+		 << setw (4)
+		 << (aa_factor + image_sink_params.aa_overlap*2)
+		 << " (overlap = " << image_sink_params.aa_overlap << ")"
+		 << endl;
 	  else
 	    cout << "image.aa_kernel_size:      "
 		 << setw (4) << aa_factor << endl;
 
 	  cout << "image.aa_filter:       " << setw (8);
-	  if (aa_filter == ImageOutput::aa_box_filter)
+	  if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
 	    cout << "box";
-	  else if (aa_filter == ImageOutput::aa_triang_filter)
+	  else if (image_sink_params.aa_filter == ImageOutput::aa_triang_filter)
 	    cout << "triang";
-	  else if (aa_filter == ImageOutput::aa_gauss_filter)
+	  else if (image_sink_params.aa_filter == ImageOutput::aa_gauss_filter
+		   || !image_sink_params.aa_filter)
 	    cout << "gauss";
 	  else
 	    cout << "???";
 	  cout << endl;
 	}
     }
+
+  // 
+  Scene scene;
+  Camera camera;
 
   // Set camera aspect ratio to give pixels a 1:1 aspect ratio
   camera.set_aspect_ratio ((float)width / (float)height);
@@ -520,9 +525,6 @@ int main (int argc, char *const *argv)
       cout << "scene.voxtree_max_depth:"
 	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
     }
-
-  // The image we're creating
-  ImageOutput image (*image_params, aa_factor, aa_overlap, aa_filter);
 
   // Limits in terms of higher-resolution pre-AA image
   unsigned hr_limit_x = limit_x * aa_factor;

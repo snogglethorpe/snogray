@@ -21,6 +21,10 @@ class PngImageSinkParams : public ImageSinkParams
 public:
   static const float DEFAULT_TARG_GAMMA = 2.2;
 
+  PngImageSinkParams (const ImageGeneralSinkParams &params)
+    : ImageSinkParams (params.width, params.height),
+      file_name (params.file_name), targ_gamma (params.target_gamma)
+  { }
   PngImageSinkParams (const char *_file_name,
 		      unsigned _width, unsigned _height,
 		      float _targ_gamma = DEFAULT_TARG_GAMMA)

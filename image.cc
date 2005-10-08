@@ -11,11 +11,56 @@
 
 #include <cmath>
 
-#include <libpng/png.h>
-
 #include "image.h"
 
+// For image-type dispatch
+#include "image-png.h"
+#include "image-exr.h"
+
 using namespace Snogray;
+
+
+// Generic constructor using automatic type detection
+
+ImageOutput::ImageOutput (const ImageGeneralSinkParams &params)
+  : aa_factor (params.aa_factor),
+    aa_kernel_size (params.aa_factor + params.aa_overlap),
+    sink (make_sink (params))
+{
+  init_rows (params.width, params.aa_filter);
+}
+
+ImageSink *
+ImageOutput::make_sink (const ImageGeneralSinkParams &params)
+{
+  const char *fmt = params.format;
+
+  // Set output format automatically if necessary
+  if  (! fmt)
+    {
+      if (! params.file_name)
+	params.error
+	  ("Output image file type must be specified for standard output");
+      
+      const char *file_ext = rindex (params.file_name, '.');
+
+      if (! file_ext)
+	params.error ("No filename extension to determine output type");
+
+      fmt = ++file_ext;
+    }
+
+  // Make the output-format-specific parameter block
+  if (strcmp (fmt, "png") == 0)
+    return PngImageSinkParams (params).make_sink ();
+  else if (strcmp (fmt, "exr") == 0)
+    return ExrImageSinkParams (params).make_sink ();
+  else
+    params.error ("Unknown output type");
+}
+
+
+// Real constructor/destructor
 
 ImageSink::~ImageSink () { }
 
@@ -23,22 +68,35 @@ ImageOutput::ImageOutput (const class ImageSinkParams &params,
 			  unsigned _aa_factor, unsigned aa_overlap,
 			  float (*aa_filter)(int, unsigned))
   : sink (params.make_sink ()),
-    aa_factor (_aa_factor),
-    aa_kernel_size (_aa_factor + aa_overlap),
-    recent_rows (new ImageRow*[_aa_factor + aa_overlap]),
-    aa_row (0), aa_kernel (0),
-    next_row_offs (0), num_accumulated_rows (0)
+    aa_factor (_aa_factor), aa_kernel_size (_aa_factor + aa_overlap)
+{
+  init_rows (params.width, aa_filter);
+}
+
+void 
+ImageOutput::init_rows (unsigned width, float (*aa_filter)(int, unsigned))
 {
   if (aa_kernel_size > 1)
     {
-      aa_row = new ImageRow (params.width);
+      if (! aa_filter)
+	aa_filter = ImageOutput::aa_gauss_filter; // default
 
-      aa_kernel
-	= make_aa_kernel (aa_filter, aa_kernel_size);
+      aa_row = new ImageRow (width);
+      aa_kernel = make_aa_kernel (aa_filter, aa_kernel_size);
+    }
+  else
+    {
+      aa_kernel_size = 1;	// we use this for various calcs
+      aa_row = 0;
+      aa_kernel = 0;
     }
 
+  recent_rows = new ImageRow*[aa_kernel_size];
   for (unsigned offs = 0; offs < aa_kernel_size; offs++)
-    recent_rows[offs] = new ImageRow (params.width * aa_factor);
+    recent_rows[offs] = new ImageRow (width * aa_factor);
+
+  next_row_offs = 0;
+  num_accumulated_rows = 0;
 }
 
 ImageOutput::~ImageOutput ()
