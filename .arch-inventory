@@ -1,7 +1,11 @@
 source ^(\.gdbinit)$
 
 # Ignore generated binaries
-
+#
 backup ^(snogray|snogcvt)$
+
+# Ignore generated test scenes (which are very large)
+#
+backup ^(test-.*\.nff)$
 
 # arch-tag: 4938c158-1080-44bb-a904-898a34b9584f
