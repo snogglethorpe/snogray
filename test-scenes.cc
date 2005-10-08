@@ -17,6 +17,7 @@
 #include "lambert.h"
 #include "phong.h"
 #include "glow.h"
+#include "test-scene.h"
 
 using namespace Snogray;
 
@@ -310,6 +311,71 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       def_scene_miles_test1 (scene, camera, 2); break;
     case 6:
       def_scene_miles_test1 (scene, camera, 3); break;
+
+    case 10:
+      extern TestSceneParams teapot_test_scene_params;
+      define_test_scene (&teapot_test_scene_params, 35, scene, camera);
+      break;
+    case 11:
+      extern TestSceneParams balls_test_scene_params;
+      define_test_scene (&balls_test_scene_params, 25, scene, camera);
+      break;
+    case 12:
+      extern TestSceneParams rings_test_scene_params;
+      define_test_scene (&rings_test_scene_params, 25, scene, camera);
+      break;
+    case 13:
+      extern TestSceneParams tetra_test_scene_params;
+      define_test_scene (&tetra_test_scene_params, 25, scene, camera);
+      break;
+    case 14:
+      extern TestSceneParams mount_test_scene_params;
+      define_test_scene (&mount_test_scene_params, 5000, scene, camera);
+      break;
+    case 15:
+      extern TestSceneParams tree_test_scene_params;
+      define_test_scene (&tree_test_scene_params, 100, scene, camera);
+      break;
+    case 16:
+      extern TestSceneParams gears_test_scene_params;
+      define_test_scene (&gears_test_scene_params, 5, scene, camera);
+      break;
+    case 17:
+      extern TestSceneParams sample_test_scene_params;
+      define_test_scene (&sample_test_scene_params, 200, scene, camera);
+      break;
+    case 18:
+      extern TestSceneParams nurbtst_test_scene_params;
+      define_test_scene (&nurbtst_test_scene_params, 1000, scene, camera);
+      break;
+    case 19:
+      extern TestSceneParams lattice_test_scene_params;
+      define_test_scene (&lattice_test_scene_params, 0.5, scene, camera);
+      break;
+    case 20:
+      extern TestSceneParams jacks_test_scene_params;
+      define_test_scene (&jacks_test_scene_params, 25, scene, camera);
+      break;
+    case 21:
+      extern TestSceneParams sombrero_test_scene_params;
+      define_test_scene (&sombrero_test_scene_params, 50, scene, camera);
+      break;
+    case 22:
+      extern TestSceneParams shells_test_scene_params;
+      define_test_scene (&shells_test_scene_params, 2000, scene, camera);
+      break;
+    case 23:
+      extern TestSceneParams f117_test_scene_params;
+      define_test_scene (&f117_test_scene_params, 200, scene, camera);
+      break;
+    case 24:
+      extern TestSceneParams skull_test_scene_params;
+      define_test_scene (&skull_test_scene_params, 1000, scene, camera);
+      break;
+    case 25:
+      extern TestSceneParams f15_test_scene_params;
+      define_test_scene (&f15_test_scene_params, 2500, scene, camera);
+      break;
     }
 }
 

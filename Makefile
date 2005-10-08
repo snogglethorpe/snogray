@@ -51,6 +51,8 @@ _CXXFLAGS_FILT = $(if $(filter -pg,$(CXXFLAGS)),$(filter-out -fomit-frame-pointe
 _CFLAGS = $(_CFLAGS_FILT) $(DEP_CFLAGS)
 _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
+comma = ,
+
 #
 
 IMAGE_SRCS = image.cc image-aa.cc image-cmdline.cc image-exr.cc	\
@@ -60,9 +62,22 @@ COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 
 #
 
+SPD_TESTS = test-teapot.nff test-balls.nff test-rings.nff test-tetra.nff \
+	test-mount.nff test-tree.nff test-gears.nff test-sombrero.nff	 \
+	test-sample.nff test-jacks.nff test-shells.nff test-nurbtst.nff	 \
+	test-lattice.nff test-f117.nff test-skull.nff test-f15.nff
+
+SPD_TEST_SRCS = $(SPD_TESTS:%.nff=$(comma)%.cc)
+
+$(SPD_TEST_SRCS): nff-to-cxx
+
+TEST_SRCS = test-scenes.cc test-scene.cc $(SPD_TEST_SRCS)
+
+#
+
 SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc material.cc	\
 	  obj.cc phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc	\
-	  test-scenes.cc triangle.cc voxtree.cc $(COMMON_SRCS)
+	  triangle.cc voxtree.cc $(COMMON_SRCS) $(TEST_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 
@@ -93,6 +108,9 @@ ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS))
 
 DEPS = $(ALL_SRCS:%.cc=.%.d)
 -include $(DEPS)
+
+,%.cc: %.nff
+	nff-to-cxx $* < $< > $@
 
 %.o: %.cc
 	$(CXX) -c $(_CXXFLAGS) $<

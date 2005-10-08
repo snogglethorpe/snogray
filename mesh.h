@@ -12,6 +12,8 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 
+#include <fstream>
+
 #include "obj.h"
 
 namespace Snogray {
@@ -19,6 +21,8 @@ namespace Snogray {
 class Mesh : public Obj
 {
 public:
+
+  static const enum Error { FILE_FORMAT_ERROR, TOO_MANY_VERTICES_ERROR };
 
   Mesh (const Material *mat) : Obj (mat), parts (0) { }
 
@@ -28,11 +32,27 @@ public:
 
   virtual BBox bbox () const;
 
+  static Mesh *read_msh_file (istream stream);
+
+protected:
+
+  // We use a 16-bit index for triangle vertex references.
+  // If there are more than 2^16 vertices, we'll have to use extra mesh
+  // objects to divide things up.
+  //
+  typedef unsigned short vertex_index_t;
+
 private:
-  class Part;
+
   class Triangle;
 
-  Part *parts;
+  // A list of vertices used in this part.
+  Pos *vertices;
+  unsigned num_vertices;
+
+  // A vector of Mesh::Triangle objects that use this part.
+  Triangle *triangles;
+  unsigned num_triangles;
 };
 
 }

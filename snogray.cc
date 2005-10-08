@@ -536,27 +536,37 @@ int main (int argc, char *const *argv)
       Voxtree::Stats &vstats1 = sstats.voxtree_closest_intersect;
       Voxtree::Stats &vstats2 = sstats.voxtree_shadowed;
 
+      long long sc  = sstats.scene_closest_intersect_calls;
+      long long vnc = vstats1.node_intersect_calls;
+      long long ocic = sstats.obj_closest_intersect_calls;
+
+      unsigned vnn = scene.obj_voxtree.num_nodes ();
+      unsigned no  = scene.objs.size ();
+
       cout << "Rendering stats:" << endl;
       cout << "  closest_intersect:" << endl;
-      cout << "     scene calls:       "
-	   << setw (14) << commify (sstats.scene_closest_intersect_calls)
-	   << endl;
-      cout << "     voxtree node calls:"
-	   << setw (14) << commify (vstats1.node_intersect_calls) << endl;
-      cout << "     obj calls:         "
-	   << setw (14) << commify (sstats.obj_closest_intersect_calls) << endl;
+      cout << "     scene calls:       " << setw (14) << commify (sc) << endl;
+      cout << "     voxtree node calls:" << setw (14) << commify (vnc)
+	   << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
+      cout << "     obj calls:         " << setw (14) << commify (ocic)
+	   << " (" << setw(2) << (100 * ocic / (sc * no)) << "%)" << endl;
+
+      long long sst = sstats.scene_shadowed_tests;
+      long long shh = sstats.shadow_hint_hits;
+      long long shm = sstats.shadow_hint_misses;
+      long long vnt = vstats2.node_intersect_calls;
+      long long ot  = sstats.obj_intersects_tests;
 
       cout << "  shadowed:" << endl;
-      cout << "     scene tests:       "
-	   << setw (14) << commify (sstats.scene_shadowed_tests) << endl;
-      cout << "     shadow hint hits:  "
-	   << setw (14) << commify (sstats.shadow_hint_hits) << endl;
-      cout << "     shadow hint misses:"
-	   << setw (14) << commify (sstats.shadow_hint_misses) << endl;
-      cout << "     voxtree node tests:"
-	   << setw (14) << commify (vstats2.node_intersect_calls) << endl;
-      cout << "     obj tests:         "
-	   << setw (14) << commify (sstats.obj_intersects_tests) << endl;
+      cout << "     scene tests:       " << setw (14) << commify (sst) << endl;
+      cout << "     shadow hint hits:  " << setw (14) << commify (shh)
+	   << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
+      cout << "     shadow hint misses:" << setw (14) << commify (shm)
+	   << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
+      cout << "     voxtree node tests:" << setw (14) << commify (vnt)
+	   << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)" << endl;
+      cout << "     obj tests:         " << setw (14) << commify (ot)
+	   << " (" <<setw(2) << (100 * ot / (no * (sst - shh))) << "%)" << endl;
     }
 }
 

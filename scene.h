@@ -45,11 +45,13 @@ public:
 
   Material *add (Material *mat) { materials.push_back (mat); return mat; }
 
+  void set_background (const Color &col) { background = col; }
+
   Color render (const Intersect &isec);
   Color render (const Ray  &ray)
   {
     Intersect isec = closest_intersect (ray);
-    return isec.obj ? render (isec) : Color::black;
+    return isec.obj ? render (isec) : background;
   }
 
   struct Stats {
@@ -72,6 +74,9 @@ public:
   std::list<Obj *> objs;
   std::list<Light *> lights;
   std::list<Material *> materials;
+
+  // Background color
+  Color background;
 
   Voxtree obj_voxtree;
 };

@@ -69,7 +69,16 @@ public:
   void set_horiz_fov (float fov)
   {
     fov_x = fov;
-    set_aspect_ratio (aspect_ratio);
+    fov_y = fov_x / aspect_ratio;
+    tan_half_fov_x = tan (fov_x / 2);
+    tan_half_fov_y = tan (fov_y / 2);
+  }
+  void set_vert_fov (float fov)
+  {
+    fov_y = fov;
+    fov_x = fov * aspect_ratio;
+    tan_half_fov_x = tan (fov_x / 2);
+    tan_half_fov_y = tan (fov_y / 2);
   }
 
   Ray get_ray (float u, float v) const

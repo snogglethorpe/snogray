@@ -17,70 +17,82 @@ using namespace Snogray;
 
 
 
-class Mesh::Part
-{
-  typedef unsigned char point_index_t;
-  typedef unsigned char vertex_index_t;
-
-  // A vector of points, each referred to by a point_index_t index 
-  Pos *points;
-
-  // A list of vertexes, each represented as three contiguous indices
-  // into the `points' vector.
-  point_index_t *vertices;
-
-  // A vector of Mesh::Triangle objects that use this part.
-  Triangle *triangles;
-
-  // Next part in a linked list of them
-  Part *next;
-};
-
 class Mesh::Triangle : Obj
 {
 public:
-  const Pos 
-  const Part::point_index_t *v2p = part->vertices + v2;
-  const Pos &v2x = part->points[v2p[0]];
-  const Pos &v2y = part->points[v2p[1]];
-  const Pos &v2z = part->points[v2p[2]];
 
-  Part *part;
-  Part::vertex_index_t v0i, v1i, v2i;
+  const Pos &v0 () { return mesh->vertices[v0i]; }
+  const Pos &v1 () { return mesh->vertices[v1i]; }
+  const Pos &v2 () { return mesh->vertices[v2i]; }
+
+  Mesh *mesh;
+
+  vertex_index_t v0i, v1i, v2i;
 };
+
+
+
+Mesh *
+Mesh::read_msh_file (istream stream)
+{
+  Mesh *mesh = new Mesh ();
+
+  stream >> mesh->num_vertices;
+  stream >> mesh->num_triangles;
+
+  // For the time being, we only support meshes up to 65536 vertices
+  if (num_vertices > 65536)
+    throw TOO_MANY_VERTICES_ERROR;
+
+  mesh->vertices = new Pos[mesh->num_vertices];
+  mesh->triangles = new Triangle[mesh->num_triangles];
+
+  char kw[10];
+
+  stream >> kw;
+  if (strcmp (kw, "vertices") != 0)
+    throw FILE_FORMAT_ERROR;
+
+  for (unsigned i = 0; i < mesh->num_vertices; i++)
+    {
+      stream >> vertices[i].x;
+      stream >> vertices[i].y;
+      stream >> vertices[i].z;
+    }
+
+  stream >> kw;
+  if (strcmp (kw, "triangles") != 0)
+    throw FILE_FORMAT_ERROR;
+
+  for (unsigned i = 0; i < meshnum_triangles; i++)
+    {
+      stream >> triangles[i].v0i;
+      stream >> triangles[i].v1i;
+      stream >> triangles[i].v2i;
+    }
+
+  
+}
 
 
 
 dist_t
 Mesh::Triangle::intersection_distance (const Ray &ray) const
 {
-  const Part::point_index_t *v0p = part->vertices + v0;
-  const Pos &v0x = part->points[v0p[0]];
-  const Pos &v0y = part->points[v0p[1]];
-  const Pos &v0z = part->points[v0p[2]];
+  const Pos &_v0 = v0 (), &_v1 = v1 (), &_v2 = v2 ();
 
-  const Part::point_index_t *v1p = part->vertices + v1;
-  const Pos &v1x = part->points[v1p[0]];
-  const Pos &v1y = part->points[v1p[1]];
-  const Pos &v1z = part->points[v1p[2]];
-
-  const Part::point_index_t *v2p = part->vertices + v2;
-  const Pos &v2x = part->points[v2p[0]];
-  const Pos &v2y = part->points[v2p[1]];
-  const Pos &v2z = part->points[v2p[2]];
-
-  float a = v0x - v1x; 
-  float b = v0y - v1y; 
-  float c = v0z - v1z; 
-  float d = v0x - v2x; 
-  float e = v0y - v2y; 
-  float f = v0z - v2z; 
+  float a = _v0.x - _v1.x; 
+  float b = _v0.y - _v1.y; 
+  float c = _v0.z - _v1.z; 
+  float d = _v0.x - _v2.x; 
+  float e = _v0.y - _v2.y; 
+  float f = _v0.z - _v2.z; 
   float g = ray.dir.x;
   float h = ray.dir.y; 
   float i = ray.dir.z; 
-  float j = v0x - ray.origin.x; 
-  float k = v0y - ray.origin.y; 
-  float l = v0z - ray.origin.z; 
+  float j = _v0.x - ray.origin.x; 
+  float k = _v0.y - ray.origin.y; 
+  float l = _v0.z - ray.origin.z; 
 	
   float one = a*k - j*b; 
   float two = j*c - a*l; 
@@ -113,22 +125,16 @@ Mesh::Triangle::intersection_distance (const Ray &ray) const
 Vec
 Mesh::normal (const Pos &point, const Vec &eye_dir) const
 {
-  Vec norm = ((v1 - v0).cross (v1 - v2)).unit ();
-
-  // Meshs are visible from both sides, so keep the normal sane
-  if (norm.dot (eye_dir) < 0)
-    norm = -norm;
-
-  return norm;
+  return ((v1() - v0()).cross (v1() - v2())).unit ();
 }
 
 // Return a bounding box for this object.
 BBox
 Mesh::bbox () const
 {
-  BBox bbox (v0);
-  bbox.include (v1);
-  bbox.include (v2);
+  BBox bbox (v0 ());
+  bbox.include (v1 ());
+  bbox.include (v2 ());
   return bbox;
 }
 

@@ -1,0 +1,190 @@
+#!/usr/bin/nawk -f
+
+BEGIN {
+  name = ARGV[1]
+  delete ARGV[1]
+
+  sub (/^test-/, "", name)
+  gsub (/-/, "_", name)
+
+  num_vertices = 0
+  num_materials = 0
+  num_triangles = 0
+  num_spheres = 0
+  p_remaining_verts = 0
+
+  bg_col = "0,0,0"
+}
+
+function args3(first_field)
+{
+  return $first_field ", " $(first_field + 1) ", " $(first_field + 2)
+}
+
+reading_v && $1 == "from"     { cam_pos  = args3(2); next }
+reading_v && $1 == "at"       { cam_targ = args3(2); next }
+reading_v && $1 == "up"       { cam_up   = args3(2); next }
+reading_v && $1 == "angle"    { cam_fov_y = ($2 / 180) * 3.1415927; next }
+reading_v && $1 == "hither"   { next }
+reading_v && $1 == "resolution"{ next }
+reading_v { reading_v = 0 }
+
+p_remaining_verts > 0 {
+  p_vert_indices[p_cur_vert++] = num_vertices+0
+  vertices[num_vertices++] = args3(1)
+
+  if (p_cur_vert == 3) {
+    triangles[num_triangles++] \
+      = cur_material_index ", " \
+        p_vert_indices[0] ", " p_vert_indices[1] ", " p_vert_indices[2]
+
+    p_vert_indices[1] = p_vert_indices[2]
+
+    p_cur_vert = 2
+  }
+
+  p_remaining_verts--
+  next
+}
+
+# Viewpoint location.  Description:
+#     "v"
+#     "from" Fx Fy Fz
+#     "at" Ax Ay Az
+#     "up" Ux Uy Uz
+#     "angle" angle
+#     "hither" hither
+#     "resolution" xres yres
+$1 == "v" { reading_v = 1; next }
+
+# Background color.  A color is simply RGB with values between 0 and 1:
+#     "b" R G B
+$1 == "b" { bg_col = args3(2); next}
+
+# Positional light.  A light is defined by XYZ position.  Description:
+#     "l" X Y Z [R G B]
+$1 == "l" {
+  args = args3(2)
+  if (NF > 4)
+    args = args ", " args3(5)
+  else
+    args = args ", 1, 1, 1"
+  lights[num_lights++] = args
+  next
+}
+
+# Fill color and shading parameters.  Description:
+#     "f" red green blue Kd Ks Shine T index_of_refraction
+$1 == "f" {
+  cur_material_index = num_materials
+  materials[num_materials++] = args3(2) ", " $5 ", " $6 ", " $7
+  next
+}
+
+# Cylinder or cone.  A cylinder is defined as having a radius and an axis
+#     defined by two points, which also define the top and bottom edge of the
+#     cylinder.  A cone is defined similarly, the difference being that the apex
+#     and base radii are different.  The apex radius is defined as being smaller
+#     than the base radius.  Note that the surface exists without endcaps.  The
+#     cone or cylinder description:
+#
+#     "c"
+#     base.x base.y base.z base_radius
+#     apex.x apex.y apex.z apex_radius
+$1 == "c" { next }
+
+# Sphere.  A sphere is defined by a radius and center position:
+#     "s" center.x center.y center.z radius
+$1 == "s" {
+  spheres[num_spheres++] = cur_material_index ", " args3(2) ", " $5;
+  next
+}
+
+# Polygon.  A polygon is defined by a set of vertices.  With these databases,
+#     a polygon is defined to have all points coplanar.  A polygon has only
+#     one side, with the order of the vertices being counterclockwise as you
+#     face the polygon (right-handed coordinate system).  The first two edges
+#     must form a non-zero convex angle, so that the normal and side visibility
+#     can be determined by using just the first three vertices.  Description:
+#
+#     "p" total_vert_indexices
+#     vert1.x vert1.y vert1.z
+#     [etc. for total_vert_indexices vertices]
+$1 == "p" {
+  p_remaining_verts = $2
+  p_cur_vert = 0
+  next
+}
+
+
+# Polygonal patch.  A patch is defined by a set of vertices and their normals.
+#     With these databases, a patch is defined to have all points coplanar.
+#     A patch has only one side, with the order of the vertices being
+#     counterclockwise as you face the patch (right-handed coordinate system).
+#     The first two edges must form a non-zero convex angle, so that the normal
+#     and side visibility can be determined.  Description:
+#
+#     "pp" total_vert_indexices
+#     vert1.x vert1.y vert1.z norm1.x norm1.y norm1.z
+#     [etc. for total_vert_indexices vertices]
+#
+# Format:
+#     pp %d
+#     [ %g %g %g %g %g %g ] <-- for total_vert_indexices vertices
+$1 == "pp" {
+  # just treat as "p" for now
+  p_remaining_verts = $2
+  p_cur_vert = 0
+  next
+}
+
+$1 ~ /^#/ { next }
+
+{ print "Unknown: " $0 }
+
+function print_test_array_init(kind, param_type, array, len)
+{
+  if (len > 0) {
+    print "static const " param_type " " name "_" kind "_params[] ="
+    print "{"
+    for (i = 0; i < len; i++)
+      print "  { " array[i] " },"
+    print "};"
+    print ""
+  }
+}
+
+END {
+  print "#include \"test-scene.h\""
+  print ""
+
+  print "using namespace Snogray;"
+  print ""
+
+  print_test_array_init("material", "TestSceneMaterialParams", materials, num_materials)
+  print_test_array_init("vertex", "TestSceneVertexParams", vertices, num_vertices)
+  print_test_array_init("triangle", "TestSceneTriangleParams", triangles, num_triangles)
+  print_test_array_init("sphere", "TestSceneSphereParams", spheres, num_spheres)
+  print_test_array_init("light", "TestSceneLightParams", lights, num_lights)
+
+  print "TestSceneParams " name "_test_scene_params ="
+  print "{"
+  print "  " (num_materials == 0 ? "0" : (name "_material_params")) ","
+  print "  " num_materials ","
+  print "  " (num_vertices == 0 ? "0" : (name "_vertex_params")) ","
+  print "  " num_vertices ","
+  print "  " (num_triangles == 0 ? "0" : (name "_triangle_params")) ","
+  print "  " num_triangles ","
+  print "  " (num_spheres == 0 ? "0" : (name "_sphere_params")) ","
+  print "  " num_spheres ","
+  print "  " (num_lights == 0 ? "0" : (name "_light_params")) ","
+  print "  " num_lights ","
+  print "  " bg_col ","
+  print "  " cam_pos ","
+  print "  " cam_targ ","
+  print "  " cam_up ","
+  print "  " cam_fov_y ","
+  print "};"
+}
+
+# arch-tag: 9ee3b420-76bb-4e78-8479-9bb9d5c4bda4

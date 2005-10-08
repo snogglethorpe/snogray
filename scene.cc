@@ -210,7 +210,7 @@ Scene::render (const Intersect &isec)
 	return Color::funny;
     }
   else
-    return Color::black;
+    return background;
 }
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558
