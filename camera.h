@@ -17,7 +17,7 @@ public:
 	  float horiz_fov = DEFAULT_HORIZ_FOV)
     : pos (_pos),
       forward (Vec (0, 0, 1)), right (Vec (1, 0, 0)), up (Vec (0, 1, 0)),
-      fov_x (horiz_fov)
+      user_up (Vec (0, 1, 0)), fov_x (horiz_fov)
   {
     set_aspect_ratio (aspect);
   }
@@ -25,15 +25,24 @@ public:
   void move (const Pos &_pos) { pos = _pos; }
   void move (const Vec &vec) { pos += vec; }
 
-  void point (const Vec &vec, const Vec &user_up)
+  void point (const Vec &vec, const Vec &_user_up)
   {
+    user_up = _user_up;
     forward = vec.unit ();
-    right = forward.cross (user_up.unit ()).unit ();
+    right = forward.cross (_user_up.unit ()).unit ();
     up = right.cross (forward).unit ();
   }
-  void point (const Pos &targ, const Vec &user_up)
+  void point (const Pos &targ, const Vec &_user_up)
   {
-    point (targ - pos, user_up);
+    point (targ - pos, _user_up);
+  }
+  void point (const Vec &vec)
+  {
+    point (vec, user_up);
+  }
+  void point (const Pos &targ)
+  {
+    point (targ, user_up);
   }
 
   void set_aspect_ratio (float ratio)
@@ -62,6 +71,7 @@ public:
   }
 
   Pos pos;
+  Vec user_up;
 
   Vec forward, up, right;
 

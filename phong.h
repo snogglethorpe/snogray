@@ -12,8 +12,8 @@ public:
       exponent (_exponent)
   { }
   Phong (const Color &color, float _exponent)
-    : diffuse_color (color / 4),
-      specular_color ((Color::white - color.intensity()) / 2),
+    : diffuse_color (color),
+      specular_color (Color::white),
       exponent (_exponent)
   { }
 

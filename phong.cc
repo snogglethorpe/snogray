@@ -20,9 +20,9 @@ const Color Phong::render (const class Intersect &isec, const Vec &eye_dir,
 	{
 	  float specular_component
 	    = powf ((eye_dir + light_dir).unit ().dot (norm), exponent);
-	  return
-	    (diffuse_color * light_dot)
-	    + (specular_color * specular_component);
+	  Color color = diffuse_color * light_dot;
+	  color += specular_color * specular_component;
+	  return color.lit_by (light_color);
 	}
       else
 	return Color::black;
