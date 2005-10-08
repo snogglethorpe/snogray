@@ -17,6 +17,8 @@
 #include "space.h"
 #include "ray.h"
 
+namespace Snogray {
+
 class Camera {
 public:
   static const Pos DEFAULT_POS;
@@ -91,6 +93,8 @@ public:
   float fov_x, fov_y;
   float tan_half_fov_x, tan_half_fov_y;
 };
+
+}
 
 #endif /* __CAMERA_H__ */
 

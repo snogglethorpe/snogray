@@ -18,7 +18,10 @@
 #include "light.h"
 #include "intersect.h"
 
-class Scene {
+namespace Snogray {
+
+class Scene
+{
 public:
   ~Scene ();
 
@@ -51,6 +54,8 @@ public:
   std::list<Light *> lights;
   std::list<Material *> materials;
 };
+
+}
 
 #endif /* __SCENE_H__ */
 

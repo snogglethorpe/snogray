@@ -9,10 +9,15 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#ifndef __VOXTREE_H__
+#define __VOXTREE_H__
+
 #include <list>
 
 #include "pos.h"
 #include "obj.h"
+
+namespace Snogray {
 
 class Voxtree
 {
@@ -77,5 +82,9 @@ private:
   // The root of the tree
   Node *root;
 };
+
+}
+
+#endif /* __VOXTREE_H__ */
 
 // arch-tag: 0b44a400-1a03-4967-ac84-a8984a4f2752

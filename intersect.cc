@@ -12,6 +12,8 @@
 #include "intersect.h"
 #include "obj.h"
 
+using namespace Snogray;
+
 Color Intersect::render (const Vec &eye_dir, const Vec &light_dir,
 			 const Color &light_color)
   const

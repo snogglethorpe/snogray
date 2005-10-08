@@ -14,6 +14,8 @@
 
 #include <fstream>
 
+namespace Snogray {
+
 class Color
 {
 public:
@@ -68,6 +70,8 @@ operator* (float scale, const Color &color)
 }
 
 extern std::ostream& operator<< (std::ostream &os, const Color &col);
+
+}
 
 #endif /* __COLOR_H__ */
 

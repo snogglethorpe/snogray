@@ -14,6 +14,8 @@
 
 #include "material.h"
 
+namespace Snogray {
+
 class Phong : public Material
 {
 public:
@@ -30,6 +32,8 @@ public:
   Color diffuse_color, specular_color;
   float exponent;
 };
+
+}
 
 #endif /* __PHONG_H__ */
 

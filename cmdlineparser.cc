@@ -13,6 +13,7 @@
 
 #include "cmdlineparser.h"
 
+using namespace Snogray;
 using namespace std;
 
 int

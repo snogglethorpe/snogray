@@ -11,6 +11,7 @@
 
 #include "scene.h"
 
+using namespace Snogray;
 using namespace std;
 
 // The scene "owns" all its components, so frees them when it is destroyed

@@ -24,6 +24,7 @@
 #include "phong.h"
 #include "glow.h"
 
+using namespace Snogray;
 using namespace std;
 
 static void
@@ -73,14 +74,14 @@ define_scene (Scene &scene, Camera &camera)
 			   Pos (-100, -3, 100)));
   // (1)
 //   camera.move (Pos (-3, 2, -18));
-//   // (2)
-//   camera.move (Pos (0, 50, 30));
-//   camera.point (Pos (0, 5, 0));
+  // (2)
+  camera.move (Pos (0, 50, 30));
+  camera.point (Pos (0, 5, 0));
 //   // (3)
 //   camera.move (Pos (-3, 1.5, -25));
-  // (4)
-  camera.move (Pos (-6.5, -0.4, -19));
-  camera.point (Pos (0, -2, 5));
+//   // (4)
+//   camera.move (Pos (-6.5, -0.4, -19));
+//   camera.point (Pos (0, -2, 5));
 
   const unsigned gsize = 10;
   const unsigned gsep = 4;

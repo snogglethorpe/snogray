@@ -17,7 +17,10 @@
 #include "ray.h"
 #include "material.h"
 
-class Obj {
+namespace Snogray {
+
+class Obj 
+{
 public:
   Obj (const Material *mat) : material (mat), no_shadow (false) { }
 
@@ -29,6 +32,8 @@ public:
   const Material *material;
   bool no_shadow : 1;
 };
+
+}
 
 #endif /* __OBJ_H__ */
 

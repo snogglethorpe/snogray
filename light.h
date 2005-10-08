@@ -14,6 +14,8 @@
 
 #include "color.h"
 
+namespace Snogray {
+
 class Light {
 public:
   Light (const Pos &_pos, const Color &col)
@@ -26,6 +28,8 @@ public:
   Pos pos;
   Color color;
 };
+
+}
 
 #endif /* __LIGHT_H__ */
 

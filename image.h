@@ -14,6 +14,8 @@
 
 #include "color.h"
 
+namespace Snogray {
+
 class Image
 {
 public:
@@ -57,6 +59,8 @@ private:
 
   Color *pixels;
 };
+
+}
 
 #endif /* __IMAGE_H__ */
 

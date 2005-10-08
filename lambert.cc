@@ -15,6 +15,8 @@
 
 #include "intersect.h"
 
+using namespace Snogray;
+
 const Color Lambert::render (const class Intersect &isec, const Vec &eye_dir,
 			     const Vec &light_dir, const Color &light_color)
   const

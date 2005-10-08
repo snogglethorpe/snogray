@@ -15,6 +15,8 @@
 
 #include "intersect.h"
 
+using namespace Snogray;
+
 Space::dist_t
 Triangle::intersection_distance (const Ray &ray) const
 {

@@ -11,6 +11,8 @@
 
 #include "camera.h"
 
+using namespace Snogray;
+
 const Pos Camera::DEFAULT_POS = Pos (0, 0, 0);
 const float Camera::DEFAULT_ASPECT_RATIO;
 const float Camera::DEFAULT_HORIZ_FOV;

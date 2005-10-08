@@ -16,6 +16,8 @@
 
 #include "image.h"
 
+using namespace Snogray;
+
 const float Image::DEFAULT_TARG_GAMMA;
 
 unsigned char

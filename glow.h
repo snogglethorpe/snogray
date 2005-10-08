@@ -14,6 +14,8 @@
 
 #include "material.h"
 
+namespace Snogray {
+
 class Glow : public Material
 {
 public:
@@ -25,6 +27,8 @@ public:
 
   Color color;
 };
+
+}
 
 #endif /* __GLOW_H__ */
 

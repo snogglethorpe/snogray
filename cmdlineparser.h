@@ -14,6 +14,8 @@
 
 #include <getopt.h>
 
+namespace Snogray {
+
 class CmdLineParser
 {
 public:
@@ -44,6 +46,8 @@ private:
   int long_opt_index;
   int short_opt;
 };
+
+}
 
 #endif /* __CMDLINEPARSER_H__ */
 

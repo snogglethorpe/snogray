@@ -12,6 +12,8 @@
 #include "vec.h"
 #include "pos.h"
 
+using namespace Snogray;
+
 std::ostream&
 operator<< (std::ostream &os, const Vec &vec)
 {

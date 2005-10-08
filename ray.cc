@@ -11,6 +11,8 @@
 
 #include "ray.h"
 
+using namespace Snogray;
+
 std::ostream&
 operator<< (std::ostream &os, const Ray &ray)
 {

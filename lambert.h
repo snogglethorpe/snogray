@@ -14,6 +14,8 @@
 
 #include "material.h"
 
+namespace Snogray {
+
 class Lambert : public Material
 {
 public:
@@ -25,6 +27,8 @@ public:
 
   Color color;
 };
+
+}
 
 #endif /* __LAMBERT_H__ */
 

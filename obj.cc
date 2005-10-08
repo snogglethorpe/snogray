@@ -11,7 +11,7 @@
 
 #include "obj.h"
 
-using namespace std;
+using namespace Snogray;
 
 void
 Obj::closest_intersect (Intersect &isec) const

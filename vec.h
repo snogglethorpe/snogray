@@ -17,7 +17,10 @@
 
 #include "space.h"
 
-class Vec : public Space::Tuple3 {
+namespace Snogray {
+
+class Vec : public Space::Tuple3
+{
 public:
   typedef Space::dist_t dist_t;
 
@@ -85,6 +88,8 @@ operator* (float scale, const Vec &vec)
 }
 
 extern std::ostream& operator<< (std::ostream &os, const Vec &vec);
+
+}
 
 #endif /* __VEC_H__ */
 

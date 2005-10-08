@@ -14,6 +14,8 @@
 
 #include "obj.h"
 
+namespace Snogray {
+
 class Triangle : public Obj
 {
 public:
@@ -31,6 +33,8 @@ private:
 
   Pos v0, v1, v2;
 };
+
+}
 
 #endif /* __TRIANGLE_H__ */
 

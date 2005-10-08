@@ -15,7 +15,10 @@
 #include "space.h"
 #include "vec.h"
 
-class Pos : public Space::Tuple3 {
+namespace Snogray {
+
+class Pos : public Space::Tuple3 
+{
 public:
   typedef Space::coord_t coord_t;
 
@@ -47,6 +50,8 @@ public:
 };
 
 extern std::ostream& operator<< (std::ostream &os, const Pos &col);
+
+}
 
 #endif /* __POS_H__ */
 

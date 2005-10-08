@@ -11,6 +11,7 @@
 
 #include "voxtree.h"
 
+using namespace Snogray;
 using namespace std;
 
 // Call CALLBACK for each object in the voxel tree that _might_

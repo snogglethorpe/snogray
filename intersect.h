@@ -16,7 +16,10 @@
 #include "color.h"
 #include "obj.h"
 
-class Intersect {
+namespace Snogray {
+
+class Intersect
+{
 public:
   Intersect (const Ray &_ray) : ray (_ray), obj (0) { }
 
@@ -55,6 +58,8 @@ public:
   Pos point;			// The actual point of intersection
   Vec normal;			// OBJ's surface normal at POINT
 };
+
+}
 
 #endif /* __INTERSECT_H__ */
 

@@ -17,9 +17,12 @@
 #include "pos.h"
 #include "vec.h"
 
+namespace Snogray {
+
 // A ray is a vector with a position and a length; we include various other
 // fields for handy test.
-class Ray {
+class Ray
+{
 public:
   Ray (Pos _origin, Vec _extent)
     : origin (_origin), dir (_extent.unit ()), len (_extent.length ()),
@@ -52,6 +55,8 @@ private:
 };
 
 extern std::ostream& operator<< (std::ostream &os, const Ray &ray);
+
+}
 
 #endif /* __RAY_H__ */
 

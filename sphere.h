@@ -14,6 +14,8 @@
 
 #include "obj.h"
 
+namespace Snogray {
+
 class Sphere : public Obj
 {
 public:
@@ -32,6 +34,8 @@ private:
   Pos center;
   Space::dist_t radius;
 };
+
+}
 
 #endif /* __SPHERE_H__ */
 

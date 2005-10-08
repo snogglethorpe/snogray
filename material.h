@@ -15,6 +15,8 @@
 #include "vec.h"
 #include "color.h"
 
+namespace Snogray {
+
 class Material
 {
 public:
@@ -22,6 +24,8 @@ public:
 			      const Vec &light_dir, const Color &light_color)
     const = 0;
 };
+
+}
 
 #endif /* __MATERIAL_H__ */
 
