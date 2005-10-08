@@ -3,13 +3,14 @@
 
 namespace Space {
   typedef float coord_t;
-
   typedef coord_t dist_t;
 
   class Tuple3 {
   public:
-    Tuple3 (coord_t _x, coord_t _y, coord_t _z) { x = _x; y = _y; z = _z; }
-    Tuple3 () { x = y = z = 0; }
+    Tuple3 (coord_t _x = 0, coord_t _y = 0, coord_t _z = 0)
+      : x (_x), y (_y), z (_z)
+    { }
+
     coord_t x, y, z;
   };  
 }

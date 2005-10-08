@@ -8,10 +8,11 @@ class Color
 public:
   typedef float component_t;
 
-  Color (component_t _red, component_t _green, component_t _blue)
-    { red = _red; green = _green; blue = _blue; }
-  Color ()
-    { red = green = blue = 0; }
+  static const Color black, white, funny;
+
+  Color (component_t _red = 0, component_t _green = 0, component_t _blue = 0)
+    : red (_red), green (_green), blue (_blue)
+  { }
 
   Color lit_by (const Color &light_color) const
   {
@@ -24,10 +25,29 @@ public:
   {
     return Color (red * scale, green * scale, blue * scale);
   }
+  Color operator+ (const Color &col2) const
+  {
+    return Color (red + col2.red, green + col2.green, blue + col2.blue);
+  }
+  Color operator- (const Color &col2) const
+  {
+    return Color (red - col2.red, green - col2.green, blue - col2.blue);
+  }
+  Color operator/ (float denom) const
+  {
+    return Color (red / denom, green / denom, blue / denom);
+  }
+
+  float intensity () const { return (red + green + blue) / 3; }
+
+  void operator+= (const Color &col2)
+  {
+    red += col2.red;
+    green += col2.green;
+    blue += col2.blue;
+  }
 
   component_t red, green, blue;
-
-  static const Color black;
 };
 
 extern std::ostream& operator<< (std::ostream &os, const Color &col);

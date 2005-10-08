@@ -8,10 +8,8 @@ class Pos : public Space::Tuple3 {
 public:
   typedef Space::coord_t coord_t;
 
-  Pos (coord_t _x, coord_t _y, coord_t _z) { x = _x; y = _y; z = _z; }
-  Pos () { x = y = z = 0; }
-
-  Pos (const Pos &pos) { x = pos.x; y = pos.y; z = pos.z; }
+  Pos (coord_t _x = 0, coord_t _y = 0, coord_t _z = 0) : Tuple3 (_x, _y, _z) { }
+  Pos (const Pos &pos) : Tuple3 (pos.x, pos.y, pos.z) { }
 
   Pos operator+ (const Vec &v) const
   {
@@ -36,6 +34,8 @@ public:
     return Pos((x + p2.x) / 2, (y + p2.y) / 2, (z + p2.z) / 2);
   }
 };
+
+extern std::ostream& operator<< (std::ostream &os, const Pos &col);
 
 #endif /* __POS_H__ */
 

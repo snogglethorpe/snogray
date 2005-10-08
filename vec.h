@@ -2,6 +2,7 @@
 #define __VEC_H__
 
 #include <cmath>
+#include <fstream>
 
 #include "space.h"
 
@@ -9,10 +10,8 @@ class Vec : public Space::Tuple3 {
 public:
   typedef Space::dist_t dist_t;
 
-  Vec (dist_t _x, dist_t _y, dist_t _z) { x = _x; y = _y; z = _z; }
-  Vec () { x = y = z = 0; }
-
-  Vec (const Vec &vec) { x = vec.x; y = vec.y; z = vec.z; }
+  Vec (dist_t _x = 0, dist_t _y = 0, dist_t _z = 0) : Tuple3 (_x, _y, _z) { }
+  Vec (const Vec &vec) : Tuple3 (vec.x, vec.y, vec.z) { }
 
   Vec operator* (const float scale) const
   {
@@ -70,5 +69,8 @@ operator* (float scale, const Vec &vec)
   return vec * scale;
 }
 
+extern std::ostream& operator<< (std::ostream &os, const Vec &vec);
+
 #endif /* __VEC_H__ */
+
 // arch-tag: f86f6a3f-def9-477b-84a0-0935f0b76e9b

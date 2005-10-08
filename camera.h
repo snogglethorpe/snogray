@@ -8,14 +8,19 @@
 
 class Camera {
 public:
-  Camera (float aspect_ratio, float horiz_fov)
+  static const Pos DEFAULT_POS;
+  static const float DEFAULT_ASPECT_RATIO = 4.0 / 3.0;
+  static const float DEFAULT_HORIZ_FOV = M_PI / 4;
+
+  Camera (const Pos &_pos = DEFAULT_POS,
+	  float aspect = DEFAULT_ASPECT_RATIO,
+	  float horiz_fov = DEFAULT_HORIZ_FOV)
+    : pos (_pos),
+      forward (Vec (0, 0, 1)), right (Vec (1, 0, 0)), up (Vec (0, 1, 0)),
+      fov_x (horiz_fov)
   {
-    aspect_ratio = 4.0 / 3.0;
-    set_horiz_fov (45 / M_PI);
-    move (Pos (0, 0, 0));
-    point (Vec (0, 0, 1), Vec (0, 1, 0));
+    set_aspect_ratio (aspect);
   }
-  Camera () { Camera (4.0 / 3.0, 45 / M_PI); }
 
   void move (const Pos &_pos) { pos = _pos; }
   void move (const Vec &vec) { pos += vec; }
@@ -23,8 +28,8 @@ public:
   void point (const Vec &vec, const Vec &user_up)
   {
     forward = vec.unit ();
-    right = forward.cross (user_up);
-    up = right.cross (forward);
+    right = forward.cross (user_up.unit ()).unit ();
+    up = right.cross (forward).unit ();
   }
   void point (const Pos &targ, const Vec &user_up)
   {

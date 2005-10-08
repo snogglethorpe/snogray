@@ -7,11 +7,7 @@
 
 class Intersect {
 public:
-  Intersect (const Ray &_ray)
-  {
-    ray = _ray;
-    obj = 0;
-  }
+  Intersect (const Ray &_ray) : ray (_ray), obj (0) { }
 
   bool hit () { !!obj; }
 
@@ -20,7 +16,7 @@ public:
   // otherwise do nothing.
   void set_obj_if_closer (const Obj *_obj, Vec::dist_t dist)
   {
-    if (dist > distance || (!obj && dist > 0))
+    if (dist > 0 && (!obj || dist < distance))
       {
 	obj = _obj;
 	distance = dist;
@@ -31,7 +27,9 @@ public:
 
   // Return the color seen from RAY's point of view, of the intersected
   // object; if there is no current intersected object, black is returned.
-  Color render (const Color &light_color, const Vec &light_vec) const;
+  Color render (const Vec &eye_dir, const Vec &light_dir,
+		const Color &light_color)
+    const;
 
   // Ray which intersected something.
   Ray ray;

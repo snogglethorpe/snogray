@@ -7,7 +7,7 @@
 
 class SnogRay {
 public:
-  const Color render (float u, float v) const;
+  const Color render (float u, float v);
 
   Scene scene;
   Camera camera;

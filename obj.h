@@ -8,10 +8,9 @@
 
 class Obj {
 public:
-  Obj (const Material *mat) { material = mat; }
+  Obj (const Material *mat) : material (mat) { }
 
-  virtual bool intersects (const Ray &ray, Space::dist_t max_dist_squared)
-    const;
+  virtual bool intersects (const Ray &ray) const;
 
   virtual void closest_intersect (class Intersect &isec) const;
   virtual void finish_intersect (class Intersect &isec) const;

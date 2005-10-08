@@ -1,9 +1,15 @@
+#include <iostream>
+
 #include "snogray.h"
 
 const Color
-SnogRay::render (float u, float v) const
+SnogRay::render (float u, float v)
 {
-  Intersect isec = scene.closest_intersect (camera.get_ray (u, v));
+  Ray camera_ray = camera.get_ray (u, v);
+
+//   cout << "camera_ray (" << u << ", " << v << ") = " << camera_ray << endl;
+
+  Intersect isec = scene.closest_intersect (camera_ray);
   if (isec.obj)
     return scene.render (isec);
   else

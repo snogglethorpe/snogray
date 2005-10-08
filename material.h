@@ -1,13 +1,14 @@
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 
+#include "vec.h"
 #include "color.h"
 
 class Material
 {
 public:
-  virtual Color render (const class Intersect &isec,
-			const Color &light_color, const Vec &light_dir)
+  virtual const Color render (const class Intersect &isec, const Vec &eye_dir,
+			      const Vec &light_dir, const Color &light_color)
     const = 0;
 };
 

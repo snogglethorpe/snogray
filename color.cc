@@ -1,6 +1,8 @@
 #include "color.h"
 
 const Color Color::black (0,0,0);
+const Color Color::white (1,1,1);
+const Color Color::funny (0,10,0);
 
 std::ostream&
 operator<< (std::ostream &os, const Color &col)
