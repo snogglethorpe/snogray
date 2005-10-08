@@ -9,8 +9,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <iostream>
-
 #include "voxtree.h"
 
 using namespace Snogray;
@@ -21,61 +19,59 @@ using namespace std;
 
 // Call CALLBACK for each object in the voxel tree that _might_
 // intersect RAY (any further intersection testing needs to be done
-// directly on the resulting objects).  If CALLBACK returns true, then
-// `for_each_possible_intersector' continues searching for possible
-// intersectors; otherwise, if CALLBACK returns false, then
-// `for_each_possible_intersector' immediately returns.
+// directly on the resulting objects).
 //
-bool Voxtree::for_each_possible_intersector (const Ray &ray,
-					     FepiCallback &callback)
+void
+Voxtree::for_each_possible_intersector (const Ray &ray,
+					IntersectCallback &callback)
   const
 {
-  if (! root)
-    return true;
+  if (root)
+    {
+      // Compute the intersections of RAY with each of ROOT's bounding
+      // planes.  Because ROOT's volume is aligned with the coordinate
+      // axes, this is very simple, if a bit tedious.  Note that we
+      // basically ignore the extent of RAY during these calculations,
+      // and treat RAY as an infinite line.
 
-  // Compute the intersections of RAY with each of ROOT's bounding
-  // planes.  Because ROOT's volume is aligned with the coordinate
-  // axes, this is very simple, if a bit tedious.  Note that we
-  // basically ignore the extent of RAY during these calculations,
-  // and treat RAY as an infinite line.
+      coord_t x_min = origin.x;
+      dist_t x_min_scale = (x_min - ray.origin.x) / ray.dir.x;
+      const Pos x_min_isec (x_min,
+			    ray.origin.y + ray.dir.y * x_min_scale,
+			    ray.origin.z + ray.dir.z * x_min_scale);
+      coord_t x_max = origin.x + size;
+      dist_t x_max_scale = (x_max - ray.origin.x) / ray.dir.x;
+      const Pos x_max_isec (x_max,
+			    ray.origin.y + ray.dir.y * x_max_scale,
+			    ray.origin.z + ray.dir.z * x_max_scale);
 
-  coord_t x_min = origin.x;
-  dist_t x_min_scale = (x_min - ray.origin.x) / ray.dir.x;
-  const Pos x_min_isec (x_min,
-			ray.origin.y + ray.dir.y * x_min_scale,
-			ray.origin.z + ray.dir.z * x_min_scale);
-  coord_t x_max = origin.x + size;
-  dist_t x_max_scale = (x_max - ray.origin.x) / ray.dir.x;
-  const Pos x_max_isec (x_max,
-			ray.origin.y + ray.dir.y * x_max_scale,
-			ray.origin.z + ray.dir.z * x_max_scale);
+      coord_t y_min = origin.y;
+      dist_t y_min_scale = (y_min - ray.origin.y) / ray.dir.y;
+      const Pos y_min_isec (ray.origin.x + ray.dir.x * y_min_scale,
+			    y_min,
+			    ray.origin.z + ray.dir.z * y_min_scale);
+      coord_t y_max = origin.y + size;
+      dist_t y_max_scale = (y_max - ray.origin.y) / ray.dir.y;
+      const Pos y_max_isec (ray.origin.x + ray.dir.x * y_max_scale,
+			    y_max,
+			    ray.origin.z + ray.dir.z * y_max_scale);
 
-  coord_t y_min = origin.y;
-  dist_t y_min_scale = (y_min - ray.origin.y) / ray.dir.y;
-  const Pos y_min_isec (ray.origin.x + ray.dir.x * y_min_scale,
-			y_min,
-			ray.origin.z + ray.dir.z * y_min_scale);
-  coord_t y_max = origin.y + size;
-  dist_t y_max_scale = (y_max - ray.origin.y) / ray.dir.y;
-  const Pos y_max_isec (ray.origin.x + ray.dir.x * y_max_scale,
-			y_max,
-			ray.origin.z + ray.dir.z * y_max_scale);
+      coord_t z_min = origin.z;
+      dist_t z_min_scale = (z_min - ray.origin.z) / ray.dir.z;
+      const Pos z_min_isec (ray.origin.x + ray.dir.x * z_min_scale,
+			    ray.origin.y + ray.dir.y * z_min_scale,
+			    z_min);
+      coord_t z_max = origin.z + size;
+      dist_t z_max_scale = (z_max - ray.origin.z) / ray.dir.z;
+      const Pos z_max_isec (ray.origin.x + ray.dir.x * z_max_scale,
+			    ray.origin.y + ray.dir.y * z_max_scale,
+			    z_max);
 
-  coord_t z_min = origin.z;
-  dist_t z_min_scale = (z_min - ray.origin.z) / ray.dir.z;
-  const Pos z_min_isec (ray.origin.x + ray.dir.x * z_min_scale,
-			ray.origin.y + ray.dir.y * z_min_scale,
-			z_min);
-  coord_t z_max = origin.z + size;
-  dist_t z_max_scale = (z_max - ray.origin.z) / ray.dir.z;
-  const Pos z_max_isec (ray.origin.x + ray.dir.x * z_max_scale,
-			ray.origin.y + ray.dir.y * z_max_scale,
-			z_max);
-
-  return root->for_each_possible_intersector (callback,
-					      x_min_isec, x_max_isec,
-					      y_min_isec, y_max_isec,
-					      z_min_isec, z_max_isec);
+      root->for_each_possible_intersector (callback,
+					   x_min_isec, x_max_isec,
+					   y_min_isec, y_max_isec,
+					   z_min_isec, z_max_isec);
+    }
 }
 
 // Version of `for_each_possible_intersector' used for recursive
@@ -87,8 +83,8 @@ bool Voxtree::for_each_possible_intersector (const Ray &ray,
 // This method is critical for speed, and so we try to avoid doing any
 // calculation at all.
 //
-bool
-Voxtree::Node::for_each_possible_intersector (Voxtree::FepiCallback &callback,
+void
+Voxtree::Node::for_each_possible_intersector (IntersectCallback &callback,
 					      const Pos &x_min_isec,
 					      const Pos &x_max_isec,
 					      const Pos &y_min_isec,
@@ -108,109 +104,98 @@ Voxtree::Node::for_each_possible_intersector (Voxtree::FepiCallback &callback,
   // where RAY either starts or ends inside the volume, the
   // boundary-plane intersections are extensions of RAY, so we don't
   // need special cases for that occurance.
-  if (! (// RAY intersects x-min face
-	 (x_min_isec.y >= y_min && x_min_isec.y <= y_max
-	  && x_min_isec.z >= z_min && x_min_isec.z <= z_max)
-	 // RAY intersects x-max face
-	 || (x_max_isec.y >= y_max && x_max_isec.y <= y_max
-	     && x_max_isec.z >= z_max && x_max_isec.z <= z_max)
-	 // RAY intersects y-min face
-	 || (y_min_isec.x >= x_min && y_min_isec.x <= x_max
-	     && y_min_isec.z >= z_min && y_min_isec.z <= z_max)
-	 // RAY intersects y-max face
-	 || (y_max_isec.x >= x_max && y_max_isec.x <= x_max
-	     && y_max_isec.z >= z_max && y_max_isec.z <= z_max)
-	 // RAY intersects z-min face
-	 || (z_min_isec.x >= x_min && z_min_isec.x <= x_max
-	     && z_min_isec.y >= y_min && z_min_isec.y <= y_max)
-	 // RAY intersects z-max face
-	 || (z_max_isec.x >= x_max && z_max_isec.x <= x_max
-	     && z_max_isec.y >= y_max && z_max_isec.y <= y_max)
-	 ))
-    // RAY intersects no face, so it must not intersect our volume;
-    // give up (but continue searching in parent nodes).
-    return true;
+  //
+  if (// RAY intersects x-min face
+      (x_min_isec.y >= y_min && x_min_isec.y <= y_max
+       && x_min_isec.z >= z_min && x_min_isec.z <= z_max)
+      // RAY intersects x-max face
+      || (x_max_isec.y >= y_min && x_max_isec.y <= y_max
+	  && x_max_isec.z >= z_min && x_max_isec.z <= z_max)
+      // RAY intersects y-min face
+      || (y_min_isec.x >= x_min && y_min_isec.x <= x_max
+	  && y_min_isec.z >= z_min && y_min_isec.z <= z_max)
+      // RAY intersects y-max face
+      || (y_max_isec.x >= x_min && y_max_isec.x <= x_max
+	  && y_max_isec.z >= z_min && y_max_isec.z <= z_max)
+      // RAY intersects z-min face
+      || (z_min_isec.x >= x_min && z_min_isec.x <= x_max
+	  && z_min_isec.y >= y_min && z_min_isec.y <= y_max)
+      // RAY intersects z-max face
+      || (z_max_isec.x >= x_min && z_max_isec.x <= x_max
+	  && z_max_isec.y >= y_min && z_max_isec.y <= y_max))
+    {
+      // RAY intersects some face, so it must intersect our volume
 
-  // Invoke CALLBACK on each of this node's objects
-  for (list<Obj *>::const_iterator oi = objs.begin(); oi != objs.end(); oi++)
-    if (! callback (*oi))
-      // A false return from CALLBACK indicates that we should stop
-      // (including in parent nodes).
-      return false;
+      // Invoke CALLBACK on each of this node's objects
+      for (list<Obj *>::const_iterator oi = objs.begin();
+	   oi != objs.end(); oi++)
+	{
+	  callback (*oi);
 
-  // If there are no subnodes at all, give up early (but continue
-  // searching in parent nodes).
-  if (! has_subnodes)
-    return true;
+	  if (callback.stop)
+	    return;
+	}
 
-  // Recursively deal with any non-null sub-nodes
+      // Recursively deal with any non-null sub-nodes
+      if (has_subnodes)
+	{
+	  // Calculate the mid-point intersections.  This the only real
+	  // calculation we do in this method (hopefully dividing by two
+	  // is efficient).
+	  const Pos x_mid_isec = x_min_isec.midpoint (x_max_isec);
+	  const Pos y_mid_isec = y_min_isec.midpoint (y_max_isec);
+	  const Pos z_mid_isec = z_min_isec.midpoint (z_max_isec);
 
-  // Calculate the mid-point intersections
-  const Pos x_mid_isec = x_min_isec.midpoint (x_max_isec);
-  const Pos y_mid_isec = y_min_isec.midpoint (y_max_isec);
-  const Pos z_mid_isec = z_min_isec.midpoint (z_max_isec);
-
-  // This gets set to false if the callback for any subnode returns false
-  bool cont = true;
-
-  if (x_lo_y_lo_z_lo && cont)
-    cont
-      = x_lo_y_lo_z_lo
-          ->for_each_possible_intersector (callback,
-					   x_min_isec, x_mid_isec,
-					   y_min_isec, y_mid_isec,
-					   z_min_isec, z_mid_isec);
-  if (x_hi_y_lo_z_lo && cont)
-    cont
-      = x_hi_y_lo_z_lo
-          ->for_each_possible_intersector (callback,
-					   x_mid_isec, x_max_isec,
-					   y_min_isec, y_mid_isec,
-					   z_min_isec, z_mid_isec);
-  if (x_lo_y_hi_z_lo && cont)
-    cont
-      = x_lo_y_hi_z_lo
-          ->for_each_possible_intersector (callback,
-					   x_min_isec, x_mid_isec,
-					   y_mid_isec, y_max_isec,
-					   z_min_isec, z_mid_isec);
-  if (x_hi_y_hi_z_lo && cont)
-    cont
-      = x_hi_y_hi_z_lo
-          ->for_each_possible_intersector (callback,
-					   x_mid_isec, x_max_isec,
-					   y_mid_isec, y_max_isec,
-					   z_min_isec, z_mid_isec);
-  if (x_lo_y_lo_z_hi && cont)
-    cont
-      = x_lo_y_lo_z_hi
-          ->for_each_possible_intersector (callback,
-					   x_min_isec, x_mid_isec,
-					   y_min_isec, y_mid_isec,
-					   z_mid_isec, z_max_isec);
-  if (x_hi_y_lo_z_hi && cont)
-    cont
-      = x_hi_y_lo_z_hi
-          ->for_each_possible_intersector (callback,
-					   x_mid_isec, x_max_isec,
-					   y_min_isec, y_mid_isec,
-					   z_mid_isec, z_max_isec);
-  if (x_lo_y_hi_z_hi && cont)
-    cont
-      = x_lo_y_hi_z_hi
-          ->for_each_possible_intersector (callback,
-					   x_min_isec, x_mid_isec,
-					   y_mid_isec, y_max_isec,
-					   z_mid_isec, z_max_isec);
-  if (x_hi_y_hi_z_hi && cont)
-    cont
-      = x_hi_y_hi_z_hi
-          ->for_each_possible_intersector (callback,
-					   x_mid_isec, x_max_isec,
-					   y_mid_isec, y_max_isec,
-					   z_mid_isec, z_max_isec);
-
-  return cont;
+	  if (x_lo_y_lo_z_lo)
+	    x_lo_y_lo_z_lo
+	      ->for_each_possible_intersector (callback,
+					       x_min_isec, x_mid_isec,
+					       y_min_isec, y_mid_isec,
+					       z_min_isec, z_mid_isec);
+	  if (x_hi_y_lo_z_lo && !callback.stop)
+	    x_hi_y_lo_z_lo
+	      ->for_each_possible_intersector (callback,
+					       x_mid_isec, x_max_isec,
+					       y_min_isec, y_mid_isec,
+					       z_min_isec, z_mid_isec);
+	  if (x_lo_y_hi_z_lo && !callback.stop)
+	    x_lo_y_hi_z_lo
+	      ->for_each_possible_intersector (callback,
+					       x_min_isec, x_mid_isec,
+					       y_mid_isec, y_max_isec,
+					       z_min_isec, z_mid_isec);
+	  if (x_hi_y_hi_z_lo && !callback.stop)
+	    x_hi_y_hi_z_lo
+	      ->for_each_possible_intersector (callback,
+					       x_mid_isec, x_max_isec,
+					       y_mid_isec, y_max_isec,
+					       z_min_isec, z_mid_isec);
+	  if (x_lo_y_lo_z_hi && !callback.stop)
+	    x_lo_y_lo_z_hi
+	      ->for_each_possible_intersector (callback,
+					       x_min_isec, x_mid_isec,
+					       y_min_isec, y_mid_isec,
+					       z_mid_isec, z_max_isec);
+	  if (x_hi_y_lo_z_hi && !callback.stop)
+	    x_hi_y_lo_z_hi
+	      ->for_each_possible_intersector (callback,
+					       x_mid_isec, x_max_isec,
+					       y_min_isec, y_mid_isec,
+					       z_mid_isec, z_max_isec);
+	  if (x_lo_y_hi_z_hi && !callback.stop)
+	    x_lo_y_hi_z_hi
+	      ->for_each_possible_intersector (callback,
+					       x_min_isec, x_mid_isec,
+					       y_mid_isec, y_max_isec,
+					       z_mid_isec, z_max_isec);
+	  if (x_hi_y_hi_z_hi && !callback.stop)
+	    x_hi_y_hi_z_hi
+	      ->for_each_possible_intersector (callback,
+					       x_mid_isec, x_max_isec,
+					       y_mid_isec, y_max_isec,
+					       z_mid_isec, z_max_isec);
+	}
+    }
 }
 
 
@@ -244,8 +229,10 @@ Voxtree::add (Obj *obj, const BBox &obj_bbox)
       origin = obj_bbox.min;
       size = obj_bbox.size ();
 
+#if 0
       cout << "made initial voxtree root at " << origin
 	   << ", size = " << size << endl;
+#endif
 
       // As we know that OBJ will fit exactly in ROOT, we don't bother
       // calling ROOT's add method, we just add OBJ directly to ROOT's
@@ -322,8 +309,10 @@ Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
   // Our size doubles with each new level.
   size *= 2;
 
+#if 0
   cout << "grew voxtree root to size: " << size << endl;
   cout << "   new origin is: " << origin << endl;
+#endif
 
   new_root->has_subnodes = true;
 
@@ -356,73 +345,113 @@ Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
   coord_t mid_x = x + sub_size, mid_y = y + sub_size, mid_z = z + sub_size;
 
   // See if OBJ fits in some sub-node's volume, and if so, try to add it there.
-  // Start out assuming we'll succed and set `add_here' to true if we fail.
-  bool add_here = false;
-  if (obj_bbox.max.x < mid_x)
-    {
-      if (obj_bbox.max.y < mid_y)
-	{
-	  if (obj_bbox.max.z < mid_z)
-	    add_or_create (x_lo_y_lo_z_lo, obj, obj_bbox,
-			   x, y, z, sub_size);
-	  else if (obj_bbox.min.z >= mid_z)
-	    add_or_create (x_lo_y_lo_z_hi, obj, obj_bbox,
-			   x, y, mid_z, sub_size);
-	  else
-	    add_here = true;
-	}
-      else if (obj_bbox.min.y >= mid_y)
-	{
-	  if (obj_bbox.max.z < mid_z)
-	    add_or_create (x_lo_y_hi_z_lo, obj, obj_bbox,
-			   x, mid_y, z, sub_size);
-	  else if (obj_bbox.min.z >= mid_z)
-	    add_or_create (x_lo_y_hi_z_hi, obj, obj_bbox,
-			   x, mid_y, mid_z, sub_size);
-	  else
-	    add_here = true;
-	}
-      else
-	add_here = true;
-    }
-  else if (obj_bbox.min.x >= mid_x)
-    {
-      if (obj_bbox.max.y < mid_y)
-	{
-	  if (obj_bbox.max.z < mid_z)
-	    add_or_create (x_hi_y_lo_z_lo, obj, obj_bbox,
-			   mid_x, y, z, sub_size);
-	  else if (obj_bbox.min.z >= mid_z)
-	    add_or_create (x_hi_y_lo_z_hi, obj, obj_bbox,
-			   mid_x, y, mid_z, sub_size);
-	  else
-	    add_here = true;
-	}
-      else if (obj_bbox.min.y >= mid_y)
-	{
-	  if (obj_bbox.max.z < mid_z)
-	    add_or_create (x_hi_y_hi_z_lo, obj, obj_bbox,
-			   mid_x, mid_y, z, sub_size);
-	  else if (obj_bbox.min.z >= mid_z)
-	    add_or_create (x_hi_y_hi_z_hi, obj, obj_bbox,
-			   mid_x, mid_y, mid_z, sub_size);
-	  else
-	    add_here = true;
-	}
-      else
-	add_here = true;
-    }
-  else
-    add_here = true;
 
-  if (add_here)
-    // OBJ didn't fit in any sub-node, so just add to this one
+  // Start out assuming we'll add it at this level and set `add_here' to
+  // false if we end up adding it to a subnode.
+  bool add_here = true;
+
+  // If force_into_subnodes is true, we "force" an object into multiple
+  // subnodes even if it doesn't fit cleanly into any of them.  We do
+  // this for oversized objects that straddle the volume midpoint,
+  // taking a gamble that the risk of multiple calls to their
+  // intersection method (because such forced objects will be present in
+  // multiple subnodes) is outweighed by a much closer fit with the
+  // descendent node they eventually end up in, allowing the voxtree to
+  // reject more rays before reaching them.
+  //
+  bool force_into_subnodes = obj_bbox.size() < size / 2;
+
+  if (obj_bbox.max.x < mid_x
+      || (force_into_subnodes && obj_bbox.min.x < mid_x))
     {
+      if (obj_bbox.max.y < mid_y
+	  || (force_into_subnodes && obj_bbox.min.y < mid_y))
+	{
+	  if (obj_bbox.max.z < mid_z
+	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	    {
+	      add_or_create (x_lo_y_lo_z_lo, obj, obj_bbox,
+			     x, y, z, sub_size);
+	      add_here = false;
+	    }
+	  if (obj_bbox.min.z >= mid_z
+	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	    {
+	      add_or_create (x_lo_y_lo_z_hi, obj, obj_bbox,
+			     x, y, mid_z, sub_size);
+	      add_here = false;
+	    }
+	}
+      if (obj_bbox.min.y >= mid_y
+	  || (force_into_subnodes && obj_bbox.max.y >= mid_y))
+	{
+	  if (obj_bbox.max.z < mid_z
+	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	    {
+	      add_or_create (x_lo_y_hi_z_lo, obj, obj_bbox,
+			     x, mid_y, z, sub_size);
+	      add_here = false;
+	    }
+	  if (obj_bbox.min.z >= mid_z
+	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	    {
+	      add_or_create (x_lo_y_hi_z_hi, obj, obj_bbox,
+			     x, mid_y, mid_z, sub_size);
+	      add_here = false;
+	    }
+	}
+    }
+  if (obj_bbox.min.x >= mid_x
+      || (force_into_subnodes && obj_bbox.max.x >= mid_x))
+    {
+      if (obj_bbox.max.y < mid_y
+	  || (force_into_subnodes && obj_bbox.min.y < mid_y))
+	{
+	  if (obj_bbox.max.z < mid_z
+	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	    {
+	      add_or_create (x_hi_y_lo_z_lo, obj, obj_bbox,
+			     mid_x, y, z, sub_size);
+	      add_here = false;
+	    }
+	  if (obj_bbox.min.z >= mid_z
+	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	    {
+	      add_or_create (x_hi_y_lo_z_hi, obj, obj_bbox,
+			     mid_x, y, mid_z, sub_size);
+	      add_here = false;
+	    }
+	}
+      if (obj_bbox.min.y >= mid_y
+	  || (force_into_subnodes && obj_bbox.max.y >= mid_y))
+	{
+	  if (obj_bbox.max.z < mid_z
+	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	    {
+	      add_or_create (x_hi_y_hi_z_lo, obj, obj_bbox,
+			     mid_x, mid_y, z, sub_size);
+	      add_here = false;
+	    }
+	  if (obj_bbox.min.z >= mid_z
+	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	    {
+	      add_or_create (x_hi_y_hi_z_hi, obj, obj_bbox,
+			     mid_x, mid_y, mid_z, sub_size);
+	      add_here = false;
+	    }
+	}
+    }
+
+  // If OBJ didn't fit in any sub-node, add to this one
+  if (add_here)
+    {
+#if 0
       cout << "adding object with bbox " << obj_bbox.min
 	   << " - " << obj_bbox.max << endl
 	   << "   to node @(" << x << ", " << y << ", " << z << ")" << endl
 	   << "      size = " << size << endl
 	   << "      prev num objs = " << objs.size() << endl;
+#endif
 
       objs.push_back (obj);
     }

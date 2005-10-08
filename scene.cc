@@ -30,7 +30,7 @@ Scene::~Scene ()
 // with a ray, returns the distance to the closest intersection)
 //
 
-struct SceneClosestIntersectCallback : Voxtree::FepiCallback
+struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
   SceneClosestIntersectCallback (const Ray &ray) : isec (ray), num_calls (0) { }
 
@@ -46,7 +46,6 @@ SceneClosestIntersectCallback::operator () (Obj *obj)
 {
   isec.update (obj);
   num_calls++;
-  return true;
 }
 
 Intersect
@@ -69,14 +68,15 @@ Scene::closest_intersect (const Ray &ray)
 // "Any" intersection testing (return true if any object intersects a ray)
 //
 
-struct SceneAnyIntersectCallback : Voxtree::FepiCallback
+struct SceneAnyIntersectCallback : Voxtree::IntersectCallback
 {
   SceneAnyIntersectCallback (const Ray &_ray, const Obj *_ignore = 0)
-    : ray (_ray), ignore (_ignore), num_calls (0)
+    : intersects (false), ray (_ray), ignore (_ignore), num_calls (0)
   { }
 
   virtual bool operator() (Obj *);
 
+  bool intersects;
   const Ray &ray;
   const Obj *ignore;
 
@@ -86,10 +86,13 @@ struct SceneAnyIntersectCallback : Voxtree::FepiCallback
 bool
 SceneAnyIntersectCallback::operator () (Obj *obj)
 {
-  if (obj == ignore || obj->no_shadow)
-    return true;
-  num_calls++;
-  return !obj->intersects (ray);
+  if (obj != ignore && !obj->no_shadow)
+    {
+      num_calls++;
+      intersects = obj->intersects (ray);
+      if (intersects)
+	stop_iteration ();
+    }
 }
 
 bool
@@ -99,11 +102,11 @@ Scene::intersects (const Ray &ray, const Obj *ignore)
 
   stats.scene_intersects_calls++;
 
-  bool hit = !obj_voxtree.for_each_possible_intersector (ray, any_isec_cb);
+  obj_voxtree.for_each_possible_intersector (ray, any_isec_cb);
 
   stats.obj_intersects_calls += any_isec_cb.num_calls;
 
-  return hit;
+  return any_isec_cb.intersects;
 }
 
 

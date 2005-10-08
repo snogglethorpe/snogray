@@ -34,19 +34,24 @@ public:
   // `for_each_possible_intersector' must subclass this, providing their
   // own operator() method, and adding any extra data fields they need.
   //
-  struct FepiCallback
+  struct IntersectCallback
   {
+    IntersectCallback () : stop (false) { }
+
     virtual bool operator() (Obj *) = 0;
+
+    void stop_iteration () { stop = true; }
+
+    // If set to true, return from iterator immediately
+    bool stop;
   };
 
   // Call CALLBACK for each object in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
-  // directly on the resulting objects).  If CALLBACK returns true, then
-  // `for_each_possible_intersector' continues searching for possible
-  // intersectors; otherwise, if CALLBACK returns false, then
-  // `for_each_possible_intersector' immediately returns false.
+  // directly on the resulting objects).
   //
-  bool for_each_possible_intersector (const Ray &ray, FepiCallback &callback)
+  void for_each_possible_intersector (const Ray &ray,
+				      IntersectCallback &callback)
     const;
 
   // One corner of the voxtree
@@ -85,7 +90,7 @@ private:
     // planes bounding this node's volume (we don't actually need the
     // ray itself).
     //
-    bool for_each_possible_intersector (FepiCallback &callback,
+    void for_each_possible_intersector (IntersectCallback &callback,
 					const Pos &x_min_isec,
 					const Pos &x_max_isec,
 					const Pos &y_min_isec,

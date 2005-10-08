@@ -11,6 +11,6 @@ while test $# -gt 1; do
   esac
 done
 
-make && ./snogray $ARGS "$1" && feh -R10 -q "$1"
+make && ./snogray $ARGS "$1" && eog "$1"
 
 # arch-tag: ec7d55f3-672e-4461-ac08-eccc458b307e
