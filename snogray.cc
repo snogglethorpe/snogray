@@ -20,8 +20,7 @@
 #include "camera.h"
 #include "light.h"
 #include "image.h"
-#include "image-png.h"
-#include "image-exr.h"
+#include "image-cmdline.h"
 
 #include "sphere.h"
 #include "triangle.h"
@@ -288,8 +287,6 @@ stringify (unsigned num)
 static string 
 commify (unsigned long long num, unsigned sep_count = 1)
 {
-  cout << "commify (" << num << ", " << sep_count << ")" << endl;
-  cout.flush ();
   string str = (num > 9) ? commify (num / 10, sep_count % 3 + 1) : "";
   char ch = (num % 10) + '0';
   if (sep_count == 3 && num > 9)
@@ -300,25 +297,6 @@ commify (unsigned long long num, unsigned sep_count = 1)
 
 
 // Main driver
-
-struct SnograyImageSinkParams : ImageGeneralSinkParams
-{
-  SnograyImageSinkParams (CmdLineParser &_clp) : clp (_clp) { }
-
-  // This is called when something wrong is detect with some parameter
-  virtual void error (const char *msg) const;
-
-  // We keep track of this so that we may format error messages nicely
-  CmdLineParser clp;
-};
-
-void
-SnograyImageSinkParams::error (const char *msg) const
-{
-  const char *name = file_name ? file_name : "<standard output>";
-  cerr << clp.err_pfx() << name << ": " << msg << endl;
-  exit (25);
-}
 
 int main (int argc, char *const *argv)
 {
@@ -341,14 +319,13 @@ int main (int argc, char *const *argv)
   CmdLineParser clp (argc, argv, "a:A:F:w:h:g:s:l:O:qpP", long_options);
 
   // Parameters set from the command line
-  const char *prog_name = *argv;
   unsigned final_width = 640, final_height = 480;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   const char *limit = 0;
   bool quiet = false, progress = true; // quiet mode, progress indicator
   bool progress_set = false;
-  SnograyImageSinkParams image_sink_params (clp);
+  ImageCmdlineSinkParams image_sink_params (clp);
 
   // Parse command-line options
   int opt;
@@ -393,18 +370,7 @@ int main (int argc, char *const *argv)
 	image_sink_params.aa_overlap = clp.unsigned_opt_arg ();
 	break;
       case 'F':
-	{
-	  const char *filt_name = clp.opt_arg ();
-	  if (strcmp (filt_name, "box") == 0)
-	    image_sink_params.aa_filter = ImageOutput::aa_box_filter;
-	  else if (strcmp (filt_name, "triang") == 0)
-	    image_sink_params.aa_filter = ImageOutput::aa_triang_filter;
-	  else if (strcmp (filt_name, "gauss") == 0)
-	    image_sink_params.aa_filter = ImageOutput::aa_gauss_filter;
-	  else
-	    clp.opt_err ("requires an anti-aliasing filter name"
-			 " (box, triang, gauss)");
-	}
+	image_sink_params.parse_aa_filter_opt_arg ();
 	break;
 
 	// Output image options
@@ -419,9 +385,10 @@ int main (int argc, char *const *argv)
   // Final output file parameter
   if (clp.num_remaining_args() != 1)
     {
-      cerr << "Usage: " << prog_name
-	   << " [-a AA_FACTOR] [-w WIDTH] [-h HEIGHT] [-g GAMMA]"
-	   << " OUTPUT_IMAGE_FILE" << endl;
+      cerr << "Usage: " << clp.prog_name()
+	   << "[OPTION...] [OUTPUT_IMAGE_FILE]" << endl;
+      cerr << "Try `" << clp.prog_name() << " --help' for more information"
+	   << endl;
       exit (10);
     }
   image_sink_params.file_name = clp.get_arg();
@@ -562,6 +529,7 @@ int main (int argc, char *const *argv)
 	  Ray camera_ray = camera.get_ray (u, v);
 
 	  output_row[x - hr_limit_x] = scene.render (camera_ray);
+	  //scene.render (camera_ray);
 	}
     }
 
@@ -580,7 +548,6 @@ int main (int argc, char *const *argv)
       Voxtree::Stats &vstats2 = sstats.voxtree_intersects;
 
       cout << "Stats:" << endl;
-
       cout << "  closest_intersect:" << endl;
       cout << "     scene calls:       "
 	   << setw (14) << commify (sstats.scene_closest_intersect_calls)

@@ -37,6 +37,21 @@ public:
   const char *file_name;
 };
 
+class ExrImageSourceParams : public ImageSourceParams
+{
+public:
+  ExrImageSourceParams (const ImageGeneralSourceParams &params)
+    : file_name (params.file_name)
+  { }
+  ExrImageSourceParams (const char *_file_name)
+    : file_name (_file_name)
+  { }
+    
+  virtual ImageSource *make_source () const;
+
+  const char *file_name;
+};
+
 }
 
 #endif /* __IMAGE_EXR_H__ */

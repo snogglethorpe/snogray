@@ -19,74 +19,104 @@
 
 using namespace Snogray;
 
-
-// Generic constructor using automatic type detection
+const float ImageSinkParams::DEFAULT_TARG_GAMMA;
 
-ImageOutput::ImageOutput (const ImageGeneralSinkParams &params)
-  : aa_factor (params.aa_factor),
-    aa_kernel_size (params.aa_factor + params.aa_overlap),
-    sink (make_sink (params))
+const ImageOutput::aa_filter_t DEFAULT_AA_FILTER = ImageOutput::aa_gauss_filter;
+
+
+
+// Return the file format to use; if the FORMAT field is 0, then try
+// to guess it from FILE_NAME.
+const char *
+ImageGeneralParams::find_format () const
 {
-  init_rows (params.width, params.aa_filter);
+  if (format)
+    // Format is user-specified
+    return format;
+
+  // Otherwise guess the output format automatically we can
+
+  if (! file_name)
+    error ("Image file type must be specified for stream I/O");
+      
+  const char *file_ext = rindex (file_name, '.');
+
+  if (! file_ext)
+    error ("No filename extension to determine image type");
+
+  return file_ext + 1;
 }
 
 ImageSink *
-ImageOutput::make_sink (const ImageGeneralSinkParams &params)
+ImageGeneralSinkParams::make_sink () const
 {
-  const char *fmt = params.format;
-
-  // Set output format automatically if necessary
-  if  (! fmt)
-    {
-      if (! params.file_name)
-	params.error
-	  ("Output image file type must be specified for standard output");
-      
-      const char *file_ext = rindex (params.file_name, '.');
-
-      if (! file_ext)
-	params.error ("No filename extension to determine output type");
-
-      fmt = ++file_ext;
-    }
+  const char *fmt = find_format ();
 
   // Make the output-format-specific parameter block
   if (strcmp (fmt, "png") == 0)
-    return PngImageSinkParams (params).make_sink ();
+    return PngImageSinkParams (*this).make_sink ();
   else if (strcmp (fmt, "exr") == 0)
-    return ExrImageSinkParams (params).make_sink ();
+    return ExrImageSinkParams (*this).make_sink ();
   else
-    params.error ("Unknown output type");
+    error ("Unknown or unsupported output image type");
+}
+
+ImageSource *
+ImageGeneralSourceParams::make_source () const
+{
+  const char *fmt = find_format ();
+
+  // Make the output-format-specific parameter block
+  if (strcmp (fmt, "exr") == 0)
+    return ExrImageSourceParams (*this).make_source ();
+#if 0
+  else if (strcmp (fmt, "png") == 0)
+    return PngImageSourceParams (*this).make_source ();
+#endif
+  else
+    error ("Unknown or unsupported input image type");
 }
 
 
-// Real constructor/destructor
+// ImageOutput constructor/destructor
 
-ImageSink::~ImageSink () { }
+ImageOutput::ImageOutput (const ImageGeneralSinkParams &params)
+  : sink (params.make_sink ())
+{
+  _init (params.width, params.aa_factor, params.aa_overlap, params.aa_filter);
+}
 
 ImageOutput::ImageOutput (const class ImageSinkParams &params,
 			  unsigned _aa_factor, unsigned aa_overlap,
 			  float (*aa_filter)(int, unsigned))
-  : sink (params.make_sink ()),
-    aa_factor (_aa_factor), aa_kernel_size (_aa_factor + aa_overlap)
+  : sink (params.make_sink ())
 {
-  init_rows (params.width, aa_filter);
+  _init (params.width, _aa_factor, aa_overlap, aa_filter);
 }
 
+ImageSink::~ImageSink () { }
+
 void 
-ImageOutput::init_rows (unsigned width, float (*aa_filter)(int, unsigned))
+ImageOutput::_init (unsigned width, unsigned _aa_factor, unsigned aa_overlap,
+		    float (*aa_filter)(int, unsigned))
 {
+  // Assign defaults
+  if (! _aa_factor)
+    _aa_factor = 1;
+  if (! aa_filter)
+    aa_filter = ImageOutput::aa_gauss_filter;
+
+  aa_factor = _aa_factor;
+  aa_kernel_size = _aa_factor + aa_overlap*2;
+
   if (aa_kernel_size > 1)
     {
-      if (! aa_filter)
-	aa_filter = ImageOutput::aa_gauss_filter; // default
-
       aa_row = new ImageRow (width);
       aa_kernel = make_aa_kernel (aa_filter, aa_kernel_size);
+      aa_max_intens = sink->max_intens ();
     }
   else
     {
-      aa_kernel_size = 1;	// we use this for various calcs
       aa_row = 0;
       aa_kernel = 0;
     }
@@ -224,6 +254,12 @@ ImageOutput::make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
   return kernel;
 }
 
+float
+ImageSink::max_intens () const
+{
+  return 0;			// no (meaningful) maximum, i.e. floating-point
+}
+
 void
 ImageOutput::fill_aa_row ()
 {
@@ -254,7 +290,16 @@ ImageOutput::fill_aa_row ()
 		  src_x -= aa_overlap;
 
 		  if (src_x < src_width)
-		    aa_color += (*src_row)[src_x] * kernel_row[offs_x];
+		    {
+		      if (aa_max_intens == 0)
+			aa_color = (*src_row)[src_x] * kernel_row[offs_x];
+		      else
+			{
+			  Color col = (*src_row)[src_x];
+			  aa_color
+			    += col.saturate(aa_max_intens) * kernel_row[offs_x];
+			}
+		    }
 		}
 	    }
 
@@ -264,5 +309,7 @@ ImageOutput::fill_aa_row ()
       (*aa_row)[x] = aa_color;
     }
 }
+
+ImageSource::~ImageSource () { }
 
 // arch-tag: 3e9296c6-5ac7-4c39-8b79-45ce81b5d480

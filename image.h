@@ -16,6 +16,8 @@
 
 namespace Snogray {
 
+// Rows in an image
+
 class ImageRow
 {
 public:
@@ -29,22 +31,36 @@ public:
 };
 
 
-// Image output
 
-struct ImageGeneralSinkParams
+struct ImageGeneralParams
 {
-  ImageGeneralSinkParams ()
-    : file_name (0), format (0), target_gamma (0),
-      width (0), height (0),
-      aa_factor (0), aa_overlap (0), aa_filter (0)
-  { }
+  ImageGeneralParams () : file_name (0), format (0) { }
 
   // This is called when something wrong is detect with some parameter
   virtual void error (const char *msg) const = 0;
 
-  const char *file_name;	// 0 means standard input
+  // Return the file format to use; if the FORMAT field is 0, then try
+  // to guess it from FILE_NAME.
+  const char *find_format () const;
 
+  const char *file_name;	// 0 means standard input
   const char *format;		// 0 means auto-detect
+};
+
+
+// Image output
+
+struct ImageGeneralSinkParams : ImageGeneralParams
+{
+  ImageGeneralSinkParams ()
+    : width (0), height (0), target_gamma (0),
+      aa_factor (0), aa_overlap (0), aa_filter (0)
+  { }
+
+  class ImageSink *make_sink () const;
+
+  // This is called when something wrong is detect with some parameter
+  virtual void error (const char *msg) const = 0;
 
   unsigned width, height;
 
@@ -59,11 +75,14 @@ class ImageSink
 public:
   virtual ~ImageSink () = 0;
   virtual void write_row (const ImageRow &row) = 0;
+  virtual float max_intens () const;
 };
 
 class ImageSinkParams
 {
 public:
+  static const float DEFAULT_TARG_GAMMA = 2.2;
+
   ImageSinkParams (unsigned _width, unsigned _height)
     : width (_width), height (_height)
   { }
@@ -76,7 +95,11 @@ public:
 class ImageOutput
 {
 public:
-  ImageOutput (const class ImageSinkParams &params,
+  typedef float (*aa_filter_t) (int offs, unsigned size);
+
+  static const aa_filter_t DEFAULT_AA_FILTER;
+
+  ImageOutput (const ImageSinkParams &params,
 	       unsigned aa_factor = 1, unsigned aa_overlap = 0,
 	       float (*aa_filter)(int, unsigned) = aa_box_filter);
   ImageOutput (const ImageGeneralSinkParams &params);
@@ -94,8 +117,8 @@ public:
   static float aa_gauss_filter (int offs, unsigned size);
 
 private:
-  static ImageSink *make_sink (const ImageGeneralSinkParams &params);
-  void init_rows (unsigned width, float (*aa_filter)(int, unsigned));
+  void _init (unsigned width, unsigned _aa_factor, unsigned _aa_overlap,
+	      float (*aa_filter)(int, unsigned));
 
   void write_accumulated_rows ();
 
@@ -113,15 +136,25 @@ private:
 
   float *aa_kernel;
   unsigned aa_kernel_size;
+  float aa_max_intens;
 };
 
 
 // Image input
 
+struct ImageGeneralSourceParams : ImageGeneralParams
+{
+  class ImageSource *make_source () const;
+
+  // This is called when something wrong is detect with some parameter
+  virtual void error (const char *msg) const = 0;
+};
+
 class ImageSource
 {
 public:
-  virtual ~ImageSource () = 0;
+  virtual ~ImageSource ();
+  virtual void read_size (unsigned &width, unsigned &height) = 0;
   virtual void read_row (ImageRow &row) = 0;
 };
 
@@ -134,13 +167,19 @@ public:
 class ImageInput
 {
 public:
-  ImageInput (const class ImageSourceParams &params)
+  ImageInput (const ImageSourceParams &params)
     : source (params.make_source ())
-  { }
+  { source->read_size (width, height); }
+  ImageInput (const ImageGeneralSourceParams &params)
+    : source (params.make_source ())
+  { source->read_size (width, height); }
   ~ImageInput () { delete source; }
 
   // Reads a row of image data into ROW
   void read_row (ImageRow &row) { source->read_row (row); }
+
+  // Set from the image
+  unsigned width, height;
 
 private:
   ImageSource *source;

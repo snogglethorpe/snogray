@@ -18,8 +18,6 @@
 
 using namespace Snogray;
 
-const float PngImageSinkParams::DEFAULT_TARG_GAMMA;
-
 class PngImageSink : public ImageSink
 {  
 public:
@@ -27,6 +25,7 @@ public:
   ~PngImageSink ();
 
   virtual void write_row (const ImageRow &row);
+  virtual float max_intens () const;
 
   float gamma_correction;
 
@@ -102,8 +101,15 @@ PngImageSink::PngImageSink (const PngImageSinkParams &params)
 
 PngImageSink::~PngImageSink ()
 {
+  if (setjmp (png_jmpbuf (png)))
+    {
+      fprintf (stderr, "%s: Error destroying PNG object!\n", file_name);
+      exit (97);
+    }
+
   png_write_end (png, png_info);
   png_destroy_write_struct (&png, &png_info);
+
   fclose (stream);
 }
 
@@ -131,6 +137,12 @@ PngImageSink::write_row (const ImageRow &row)
   png_write_row (png, output_bytes);
 
   //png_write_flush (png);
+}
+
+float
+PngImageSink::max_intens () const
+{
+  return 1;
 }
 
 

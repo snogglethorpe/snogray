@@ -60,6 +60,18 @@ public:
     blue += col2.blue;
   }
 
+  Color saturate (float max_intens) const
+  {
+    component_t r = red, g = green, b = blue;
+    if (r > max_intens)
+      r = max_intens;
+    if (g > max_intens)
+      g = max_intens;
+    if (b > max_intens)
+      b = max_intens;
+    return Color (r, g, b);
+  }
+
   component_t red, green, blue;
 };
 

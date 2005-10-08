@@ -9,14 +9,14 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
-TARGETS = snogray
+TARGETS = snogray snogcvt
 
 all: $(TARGETS)
 
-OPT = -O5
+#OPT = -O5
 DEBUG = -g
 #PG = -pg
-MUDFLAP = -fmudflap
+#MUDFLAP = -fmudflap
 
 CFLAGS = $(OPT) $(DEBUG) $(MACHINE_CFLAGS) $(PG) $(MUDFLAP)
 LDFLAGS = $(PG) $(MUDFLAP)
@@ -44,21 +44,27 @@ LIBS = $(PNG_LIBS) $(EXR_LIBS) $(MUDFLAP:-f%=-l%)
 _CFLAGS = $(CFLAGS) $(DEP_CFLAGS)
 _CXXFLAGS = $(CXXFLAGS) $(DEP_CFLAGS)
 
-CXXSRCS = camera.cc cmdlineparser.cc color.cc glow.cc image.cc		\
-	  image-exr.cc image-png.cc intersect.cc lambert.cc obj.cc	\
-	  phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc	\
-	  triangle.cc voxtree.cc
+SNOGRAY_SRCS = camera.cc cmdlineparser.cc color.cc glow.cc image.cc	 \
+	  image-cmdline.cc image-exr.cc image-png.cc intersect.cc	 \
+	  lambert.cc obj.cc phong.cc ray.cc scene.cc snogray.cc space.cc \
+	  sphere.cc triangle.cc voxtree.cc
+SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 
-OBJS = $(CXXSRCS:.cc=.o)
+snogray: $(SNOGRAY_OBJS)
+	$(CXX) -o $@ $(LDFLAGS) $(SNOGRAY_OBJS) $(LIBS)
 
-snogray: $(OBJS)
-	$(CXX) -o $@ $(LDFLAGS) $(OBJS) $(LIBS)
+SNOGCVT_SRCS = cmdlineparser.cc color.cc image.cc image-cmdline.cc	\
+	  image-exr.cc image-png.cc snogcvt.cc
+SNOGCVT_OBJS = $(SNOGCVT_SRCS:.cc=.o)
+
+snogcvt: $(SNOGCVT_OBJS)
+	$(CXX) -o $@ $(LDFLAGS) $(SNOGCVT_OBJS) $(LIBS)
 
 # OpenEXR include files expect their include directory to be in the include path
 image-exr.o: image-exr.cc
 	$(CXX) -c $(EXR_CFLAGS) $(_CXXFLAGS) $<
 
-DEPS = $(CXXSRCS:%.cc=.%.d)
+DEPS = $(SNOGRAY_SRCS:%.cc=.%.d)
 -include $(DEPS)
 
 %.o: %.cc
@@ -72,7 +78,7 @@ DEPS = $(CXXSRCS:%.cc=.%.d)
 	$(CC) -S $(_CFLAGS) $<
 
 clean:
-	$(RM) $(TARGETS) $(OBJS)
+	$(RM) $(TARGETS) $(SNOGRAY_OBJS)
 
 cflags:
 	@echo "CFLAGS = $(CFLAGS)"

@@ -28,6 +28,8 @@ public:
       long_opt_index (-1), short_opt (0)
   { }
 
+  const char *prog_name () const { return argv[0]; }
+
   int get_opt ();
 
   const char *opt_arg () const;
