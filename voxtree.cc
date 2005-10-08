@@ -14,6 +14,8 @@
 using namespace Snogray;
 using namespace std;
 
+Voxtree::IntersectCallback::~IntersectCallback () { } // stop gcc bitching
+
 
 // Ray intersection testing
 
@@ -26,54 +28,62 @@ Voxtree::for_each_possible_intersector (const Ray &ray,
 					IntersectCallback &callback)
   const
 {
-  if (callback.stats)
-    callback.stats->tree_intersect_calls++;
-
   if (root)
     {
-      // Compute the intersections of RAY with each of ROOT's bounding
-      // planes.  Because ROOT's volume is aligned with the coordinate
-      // axes, this is very simple, if a bit tedious.  Note that we
-      // basically ignore the extent of RAY during these calculations,
-      // and treat RAY as an infinite line.
-
       coord_t x_min = origin.x;
-      dist_t x_min_scale = (x_min - ray.origin.x) / ray.dir.x;
-      const Pos x_min_isec (x_min,
-			    ray.origin.y + ray.dir.y * x_min_scale,
-			    ray.origin.z + ray.dir.z * x_min_scale);
       coord_t x_max = origin.x + size;
-      dist_t x_max_scale = (x_max - ray.origin.x) / ray.dir.x;
-      const Pos x_max_isec (x_max,
-			    ray.origin.y + ray.dir.y * x_max_scale,
-			    ray.origin.z + ray.dir.z * x_max_scale);
-
       coord_t y_min = origin.y;
-      dist_t y_min_scale = (y_min - ray.origin.y) / ray.dir.y;
-      const Pos y_min_isec (ray.origin.x + ray.dir.x * y_min_scale,
-			    y_min,
-			    ray.origin.z + ray.dir.z * y_min_scale);
       coord_t y_max = origin.y + size;
-      dist_t y_max_scale = (y_max - ray.origin.y) / ray.dir.y;
-      const Pos y_max_isec (ray.origin.x + ray.dir.x * y_max_scale,
-			    y_max,
-			    ray.origin.z + ray.dir.z * y_max_scale);
-
       coord_t z_min = origin.z;
-      dist_t z_min_scale = (z_min - ray.origin.z) / ray.dir.z;
-      const Pos z_min_isec (ray.origin.x + ray.dir.x * z_min_scale,
-			    ray.origin.y + ray.dir.y * z_min_scale,
-			    z_min);
       coord_t z_max = origin.z + size;
-      dist_t z_max_scale = (z_max - ray.origin.z) / ray.dir.z;
-      const Pos z_max_isec (ray.origin.x + ray.dir.x * z_max_scale,
-			    ray.origin.y + ray.dir.y * z_max_scale,
-			    z_max);
 
-      root->for_each_possible_intersector (callback,
-					   x_min_isec, x_max_isec,
-					   y_min_isec, y_max_isec,
-					   z_min_isec, z_max_isec);
+      // First make sure RAY is conceivably within the top-most node
+      const Pos &rbeg = ray.origin, &rend = ray.end();
+      if ((rbeg.x <= x_max || rend.x <= x_max)
+	  && (rbeg.x >= x_min || rend.x >= x_min)
+	  && (rbeg.y <= y_max || rend.y <= y_max)
+	  && (rbeg.y >= y_min || rend.y >= y_min)
+	  && (rbeg.z <= z_max || rend.z <= z_max)
+	  && (rbeg.z >= z_min || rend.z >= z_min))
+	{
+	  // Compute the intersections of RAY with each of ROOT's
+	  // bounding planes.  Because ROOT's volume is aligned with the
+	  // coordinate axes, this is very simple, if a bit tedious.
+	  // Note that we basically ignore the extent of RAY during
+	  // these calculations, and treat RAY as an infinite line.
+
+	  dist_t x_min_scale = (x_min - ray.origin.x) / ray.dir.x;
+	  const Pos x_min_isec (x_min,
+				ray.origin.y + ray.dir.y * x_min_scale,
+				ray.origin.z + ray.dir.z * x_min_scale);
+	  dist_t x_max_scale = (x_max - ray.origin.x) / ray.dir.x;
+	  const Pos x_max_isec (x_max,
+				ray.origin.y + ray.dir.y * x_max_scale,
+				ray.origin.z + ray.dir.z * x_max_scale);
+
+	  dist_t y_min_scale = (y_min - ray.origin.y) / ray.dir.y;
+	  const Pos y_min_isec (ray.origin.x + ray.dir.x * y_min_scale,
+				y_min,
+				ray.origin.z + ray.dir.z * y_min_scale);
+	  dist_t y_max_scale = (y_max - ray.origin.y) / ray.dir.y;
+	  const Pos y_max_isec (ray.origin.x + ray.dir.x * y_max_scale,
+				y_max,
+				ray.origin.z + ray.dir.z * y_max_scale);
+
+	  dist_t z_min_scale = (z_min - ray.origin.z) / ray.dir.z;
+	  const Pos z_min_isec (ray.origin.x + ray.dir.x * z_min_scale,
+				ray.origin.y + ray.dir.y * z_min_scale,
+				z_min);
+	  dist_t z_max_scale = (z_max - ray.origin.z) / ray.dir.z;
+	  const Pos z_max_isec (ray.origin.x + ray.dir.x * z_max_scale,
+				ray.origin.y + ray.dir.y * z_max_scale,
+				z_max);
+
+	  root->for_each_possible_intersector (ray, callback,
+					       x_min_isec, x_max_isec,
+					       y_min_isec, y_max_isec,
+					       z_min_isec, z_max_isec);
+	}
     }
 }
 
@@ -87,7 +97,8 @@ Voxtree::for_each_possible_intersector (const Ray &ray,
 // calculation at all.
 //
 void
-Voxtree::Node::for_each_possible_intersector (IntersectCallback &callback,
+Voxtree::Node::for_each_possible_intersector (const Ray &ray,
+					      IntersectCallback &callback,
 					      const Pos &x_min_isec,
 					      const Pos &x_max_isec,
 					      const Pos &y_min_isec,
@@ -97,9 +108,9 @@ Voxtree::Node::for_each_possible_intersector (IntersectCallback &callback,
   const
 {
   // The boundaries of our volume
-  coord_t x_min = x_min_isec.x, x_max = x_max_isec.x;
-  coord_t y_min = y_min_isec.y, y_max = y_max_isec.y;
-  coord_t z_min = z_min_isec.z, z_max = z_max_isec.z;
+  const coord_t x_min = x_min_isec.x, x_max = x_max_isec.x;
+  const coord_t y_min = y_min_isec.y, y_max = y_max_isec.y;
+  const coord_t z_min = z_min_isec.z, z_max = z_max_isec.z;
 
   if (callback.stats)
     callback.stats->node_intersect_calls++;
@@ -151,55 +162,96 @@ Voxtree::Node::for_each_possible_intersector (IntersectCallback &callback,
 	  const Pos x_mid_isec = x_min_isec.midpoint (x_max_isec);
 	  const Pos y_mid_isec = y_min_isec.midpoint (y_max_isec);
 	  const Pos z_mid_isec = z_min_isec.midpoint (z_max_isec);
+	  const coord_t x_mid = x_mid_isec.x;
+	  const coord_t y_mid = y_mid_isec.y;
+	  const coord_t z_mid = z_mid_isec.z;
+	  const Pos &rbeg = ray.origin, &rend = ray.end();
 
-	  if (x_lo_y_lo_z_lo)
-	    x_lo_y_lo_z_lo
-	      ->for_each_possible_intersector (callback,
-					       x_min_isec, x_mid_isec,
-					       y_min_isec, y_mid_isec,
-					       z_min_isec, z_mid_isec);
-	  if (x_hi_y_lo_z_lo && !callback.stop)
-	    x_hi_y_lo_z_lo
-	      ->for_each_possible_intersector (callback,
-					       x_mid_isec, x_max_isec,
-					       y_min_isec, y_mid_isec,
-					       z_min_isec, z_mid_isec);
-	  if (x_lo_y_hi_z_lo && !callback.stop)
-	    x_lo_y_hi_z_lo
-	      ->for_each_possible_intersector (callback,
-					       x_min_isec, x_mid_isec,
-					       y_mid_isec, y_max_isec,
-					       z_min_isec, z_mid_isec);
-	  if (x_hi_y_hi_z_lo && !callback.stop)
-	    x_hi_y_hi_z_lo
-	      ->for_each_possible_intersector (callback,
-					       x_mid_isec, x_max_isec,
-					       y_mid_isec, y_max_isec,
-					       z_min_isec, z_mid_isec);
-	  if (x_lo_y_lo_z_hi && !callback.stop)
-	    x_lo_y_lo_z_hi
-	      ->for_each_possible_intersector (callback,
-					       x_min_isec, x_mid_isec,
-					       y_min_isec, y_mid_isec,
-					       z_mid_isec, z_max_isec);
-	  if (x_hi_y_lo_z_hi && !callback.stop)
-	    x_hi_y_lo_z_hi
-	      ->for_each_possible_intersector (callback,
-					       x_mid_isec, x_max_isec,
-					       y_min_isec, y_mid_isec,
-					       z_mid_isec, z_max_isec);
-	  if (x_lo_y_hi_z_hi && !callback.stop)
-	    x_lo_y_hi_z_hi
-	      ->for_each_possible_intersector (callback,
-					       x_min_isec, x_mid_isec,
-					       y_mid_isec, y_max_isec,
-					       z_mid_isec, z_max_isec);
-	  if (x_hi_y_hi_z_hi && !callback.stop)
-	    x_hi_y_hi_z_hi
-	      ->for_each_possible_intersector (callback,
-					       x_mid_isec, x_max_isec,
-					       y_mid_isec, y_max_isec,
-					       z_mid_isec, z_max_isec);
+	  // Note that although RAY can actually change during the
+	  // recursive calls below, it never will do so in a way that
+	  // invalidates the factored-out bounds tests (it can get
+	  // shorter, but never longer).
+
+	  if (rbeg.x <= x_mid || rend.x <= x_mid)
+	    {
+	      if (rbeg.y <= y_mid || rend.y <= y_mid)
+		{
+		  if (x_lo_y_lo_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid))
+		    x_lo_y_lo_z_lo
+		      ->for_each_possible_intersector (ray, callback,
+						       x_min_isec, x_mid_isec,
+						       y_min_isec, y_mid_isec,
+						       z_min_isec, z_mid_isec);
+
+		  if (x_lo_y_lo_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
+		      && !callback.stop)
+		    x_lo_y_lo_z_hi
+		      ->for_each_possible_intersector (ray, callback,
+						       x_min_isec, x_mid_isec,
+						       y_min_isec, y_mid_isec,
+						       z_mid_isec, z_max_isec);
+		}
+
+	      if (rbeg.y >= y_mid || rend.y >= y_mid)
+		{
+		  if (x_lo_y_hi_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid)
+		      && !callback.stop)
+		    x_lo_y_hi_z_lo
+		      ->for_each_possible_intersector (ray, callback,
+						       x_min_isec, x_mid_isec,
+						       y_mid_isec, y_max_isec,
+						       z_min_isec, z_mid_isec);
+
+		  if (x_lo_y_hi_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
+		      && !callback.stop)
+		    x_lo_y_hi_z_hi
+		      ->for_each_possible_intersector (ray, callback,
+						       x_min_isec, x_mid_isec,
+						       y_mid_isec, y_max_isec,
+						       z_mid_isec, z_max_isec);
+		}
+	    }
+
+	  if (rbeg.x >= x_mid || rend.x >= x_mid)
+	    {
+	      if (rbeg.y <= y_mid || rend.y <= y_mid)
+		{
+		  if (x_hi_y_lo_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid)
+		      && !callback.stop)
+		    x_hi_y_lo_z_lo
+		      ->for_each_possible_intersector (ray, callback,
+						       x_mid_isec, x_max_isec,
+						       y_min_isec, y_mid_isec,
+						       z_min_isec, z_mid_isec);
+
+		  if (x_hi_y_lo_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
+		      && !callback.stop)
+		    x_hi_y_lo_z_hi
+		      ->for_each_possible_intersector (ray, callback,
+						       x_mid_isec, x_max_isec,
+						       y_min_isec, y_mid_isec,
+						       z_mid_isec, z_max_isec);
+		}
+
+	      if (rbeg.y >= y_mid || rend.y >= y_mid)
+		{
+		  if (x_hi_y_hi_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid)
+		      && !callback.stop)
+		    x_hi_y_hi_z_lo
+		      ->for_each_possible_intersector (ray, callback,
+						       x_mid_isec, x_max_isec,
+						       y_mid_isec, y_max_isec,
+						       z_min_isec, z_mid_isec);
+
+		  if (x_hi_y_hi_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
+		      && !callback.stop)
+		    x_hi_y_hi_z_hi
+		      ->for_each_possible_intersector (ray, callback,
+						       x_mid_isec, x_max_isec,
+						       y_mid_isec, y_max_isec,
+						       z_mid_isec, z_max_isec);
+		}
+	    }
 	}
     }
 }

@@ -36,14 +36,14 @@ struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
     : IntersectCallback (stats), isec (ray), num_calls (0)
   { }
 
-  virtual bool operator() (Obj *);
+  virtual void operator() (Obj *);
 
   Intersect isec;
 
   unsigned num_calls;
 };
 
-bool
+void
 SceneClosestIntersectCallback::operator () (Obj *obj)
 {
   isec.update (obj);
@@ -79,7 +79,7 @@ struct SceneAnyIntersectCallback : Voxtree::IntersectCallback
       intersects (false), ray (_ray), ignore (_ignore), num_calls (0)
   { }
 
-  virtual bool operator() (Obj *);
+  virtual void operator() (Obj *);
 
   bool intersects;
   const Ray &ray;
@@ -88,7 +88,7 @@ struct SceneAnyIntersectCallback : Voxtree::IntersectCallback
   unsigned num_calls;
 };
 
-bool
+void
 SceneAnyIntersectCallback::operator () (Obj *obj)
 {
   if (obj != ignore && !obj->no_shadow)

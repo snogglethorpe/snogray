@@ -16,27 +16,13 @@
 
 namespace Snogray {
 
-class PngImageSinkParams : public ImageSinkParams
+struct PngImageSinkParams : public ImageFmtSinkParams
 {
-public:
-  PngImageSinkParams (const ImageGeneralSinkParams &params)
-    : ImageSinkParams (params.width, params.height),
-      file_name (params.file_name),
-      targ_gamma (params.target_gamma > 0
-		  ? params.target_gamma
-		  : DEFAULT_TARG_GAMMA)
+  PngImageSinkParams (const ImageSinkParams &params)
+    : ImageFmtSinkParams (params)
   { }
-  PngImageSinkParams (const char *_file_name,
-		      unsigned _width, unsigned _height,
-		      float _targ_gamma = DEFAULT_TARG_GAMMA)
-    : ImageSinkParams (_width, _height),
-      file_name (_file_name), targ_gamma (_targ_gamma)
-  { }
-    
-  virtual ImageSink *make_sink () const;
 
-  const char *file_name;
-  float targ_gamma;
+  virtual ImageSink *make_sink () const;
 };
 
 }

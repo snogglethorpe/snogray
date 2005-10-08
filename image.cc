@@ -19,7 +19,7 @@
 
 using namespace Snogray;
 
-const float ImageSinkParams::DEFAULT_TARG_GAMMA;
+const float ImageSinkParams::DEFAULT_TARGET_GAMMA;
 
 const ImageOutput::aa_filter_t DEFAULT_AA_FILTER = ImageOutput::aa_gauss_filter;
 
@@ -28,7 +28,7 @@ const ImageOutput::aa_filter_t DEFAULT_AA_FILTER = ImageOutput::aa_gauss_filter;
 // Return the file format to use; if the FORMAT field is 0, then try
 // to guess it from FILE_NAME.
 const char *
-ImageGeneralParams::find_format () const
+ImageParams::find_format () const
 {
   if (format)
     // Format is user-specified
@@ -48,7 +48,7 @@ ImageGeneralParams::find_format () const
 }
 
 ImageSink *
-ImageGeneralSinkParams::make_sink () const
+ImageSinkParams::make_sink () const
 {
   const char *fmt = find_format ();
 
@@ -62,7 +62,7 @@ ImageGeneralSinkParams::make_sink () const
 }
 
 ImageSource *
-ImageGeneralSourceParams::make_source () const
+ImageSourceParams::make_source () const
 {
   const char *fmt = find_format ();
 
@@ -80,38 +80,22 @@ ImageGeneralSourceParams::make_source () const
 
 // ImageOutput constructor/destructor
 
-ImageOutput::ImageOutput (const ImageGeneralSinkParams &params)
-  : sink (params.make_sink ())
+ImageOutput::ImageOutput (const ImageSinkParams &params)
+  : aa_factor (params.aa_factor), sink (params.make_sink ())
 {
-  _init (params.width, params.aa_factor, params.aa_overlap, params.aa_filter);
-}
+  aa_filter_t aa_filter = params.aa_filter;
 
-ImageOutput::ImageOutput (const class ImageSinkParams &params,
-			  unsigned _aa_factor, unsigned aa_overlap,
-			  float (*aa_filter)(int, unsigned))
-  : sink (params.make_sink ())
-{
-  _init (params.width, _aa_factor, aa_overlap, aa_filter);
-}
-
-ImageSink::~ImageSink () { }
-
-void 
-ImageOutput::_init (unsigned width, unsigned _aa_factor, unsigned aa_overlap,
-		    float (*aa_filter)(int, unsigned))
-{
   // Assign defaults
-  if (! _aa_factor)
-    _aa_factor = 1;
+  if (aa_factor == 0)
+    aa_factor = 1;
   if (! aa_filter)
     aa_filter = ImageOutput::aa_gauss_filter;
 
-  aa_factor = _aa_factor;
-  aa_kernel_size = _aa_factor + aa_overlap*2;
+  aa_kernel_size = aa_factor + params.aa_overlap*2;
 
   if (aa_kernel_size > 1)
     {
-      aa_row = new ImageRow (width);
+      aa_row = new ImageRow (params.width);
       aa_kernel = make_aa_kernel (aa_filter, aa_kernel_size);
       aa_max_intens = sink->max_intens ();
     }
@@ -123,11 +107,13 @@ ImageOutput::_init (unsigned width, unsigned _aa_factor, unsigned aa_overlap,
 
   recent_rows = new ImageRow*[aa_kernel_size];
   for (unsigned offs = 0; offs < aa_kernel_size; offs++)
-    recent_rows[offs] = new ImageRow (width * aa_factor);
+    recent_rows[offs] = new ImageRow (params.width * aa_factor);
 
   next_row_offs = 0;
   num_accumulated_rows = 0;
 }
+
+ImageSink::~ImageSink () { }
 
 ImageOutput::~ImageOutput ()
 {
@@ -135,7 +121,7 @@ ImageOutput::~ImageOutput ()
 
   delete sink;
 
-  for (int offs = 0; offs < aa_factor; offs++)
+  for (unsigned offs = 0; offs < aa_factor; offs++)
     delete recent_rows[offs];
   delete[] recent_rows;
 
@@ -206,9 +192,9 @@ ImageOutput::aa_triang_filter (int offs, unsigned size)
 float
 ImageOutput::aa_gauss_filter (int offs, unsigned size)
 {
-  float r = (float)(size + 1) / 2;
+//float r = (float)(size + 1) / 2;
   float x = offs;
-  return (M_SQRT2 * (1 / (2 * sqrt (M_PI))) * pow (M_E, -x*x / 2));
+  return (M_SQRT2 * (1 / (2 * sqrt (M_PI))) * powf (M_E, -x*x / 2));
 }
 
 float *
@@ -294,10 +280,13 @@ ImageOutput::fill_aa_row ()
 		      if (aa_max_intens == 0)
 			aa_color = (*src_row)[src_x] * kernel_row[offs_x];
 		      else
+			// Make sure to do anti-aliasing using the clamped
+			// value; otherwise the information added by
+			// anti-aliasing is lost in subsequenet clamping
 			{
 			  Color col = (*src_row)[src_x];
 			  aa_color
-			    += col.saturate(aa_max_intens) * kernel_row[offs_x];
+			    += col.clamp (aa_max_intens) * kernel_row[offs_x];
 			}
 		    }
 		}
@@ -310,6 +299,15 @@ ImageOutput::fill_aa_row ()
     }
 }
 
+
+// Stubs
+
+ImageParams::~ImageParams () { }
+
 ImageSource::~ImageSource () { }
+
+void ImageFmtSinkParams::error (const char *msg) const { throw 0; }
+
+void ImageFmtSourceParams::error (const char *msg) const { throw 0; }
 
 // arch-tag: 3e9296c6-5ac7-4c39-8b79-45ce81b5d480

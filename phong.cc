@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <cmath>
+
 #include "phong.h"
 
 #include "intersect.h"

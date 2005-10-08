@@ -13,6 +13,8 @@
 
 using namespace Snogray;
 
+Obj::~Obj () { } // stop gcc bitching
+
 dist_t
 Obj::intersection_distance (const Ray &ray) const
 {

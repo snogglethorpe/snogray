@@ -23,8 +23,8 @@ namespace Snogray {
 class Obj 
 {
 public:
-
   Obj (const Material *mat) : material (mat), no_shadow (false) { }
+  virtual ~Obj (); // stop gcc bitching
 
   virtual dist_t intersection_distance (const Ray &ray) const;
 

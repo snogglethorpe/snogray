@@ -23,10 +23,7 @@ public:
   ExrImageSink (const ExrImageSinkParams &params)
     : outf (params.file_name, params.width, params.height),
       row_buf (new Imf::Rgba[params.width]), cur_y (0)
-  {
-    std::cout << "create exr image file with width = " << params.width
-	      << ", height = " << params.height  << std::endl;
-  }
+  { }
   ~ExrImageSink ();
 
   virtual void write_row (const ImageRow &row);

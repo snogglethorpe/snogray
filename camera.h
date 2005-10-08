@@ -28,9 +28,9 @@ public:
   Camera (const Pos &_pos = DEFAULT_POS,
 	  float aspect = DEFAULT_ASPECT_RATIO,
 	  float horiz_fov = DEFAULT_HORIZ_FOV)
-    : pos (_pos),
-      forward (Vec (0, 0, 1)), right (Vec (1, 0, 0)), up (Vec (0, 1, 0)),
-      user_up (Vec (0, 1, 0)), fov_x (horiz_fov)
+    : pos (_pos), user_up (Vec (0, 1, 0)),
+      forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
+      fov_x (horiz_fov)
   {
     set_aspect_ratio (aspect);
   }

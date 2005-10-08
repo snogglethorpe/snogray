@@ -31,10 +31,8 @@ public:
   void add (Obj *obj) { add (obj, obj->bbox ()); }
 
   struct Stats {
-    Stats () : tree_intersect_calls (0),
-	       node_intersect_calls (0)
+    Stats () : node_intersect_calls (0)
     { }
-    unsigned long long tree_intersect_calls;
     unsigned long long node_intersect_calls;
   };
 
@@ -45,8 +43,9 @@ public:
   struct IntersectCallback
   {
     IntersectCallback (Stats *_stats) : stop (false), stats (_stats) { }
+    virtual ~IntersectCallback (); // stop gcc bitching
 
-    virtual bool operator() (Obj *) = 0;
+    virtual void operator() (Obj *) = 0;
 
     void stop_iteration () { stop = true; }
 
@@ -90,11 +89,11 @@ private:
   struct Node
   {
     Node ()
-      : has_subnodes (false),
-	x_lo_y_lo_z_lo (0), x_lo_y_lo_z_hi (0),
+      : x_lo_y_lo_z_lo (0), x_lo_y_lo_z_hi (0),
 	x_lo_y_hi_z_lo (0), x_lo_y_hi_z_hi (0),
 	x_hi_y_lo_z_lo (0), x_hi_y_lo_z_hi (0),
-	x_hi_y_hi_z_lo (0), x_hi_y_hi_z_hi (0)
+	x_hi_y_hi_z_lo (0), x_hi_y_hi_z_hi (0),
+	has_subnodes (false)
     { }
     ~Node ();
 
@@ -104,7 +103,8 @@ private:
     // planes bounding this node's volume (we don't actually need the
     // ray itself).
     //
-    void for_each_possible_intersector (IntersectCallback &callback,
+    void for_each_possible_intersector (const Ray &ray,
+					IntersectCallback &callback,
 					const Pos &x_min_isec,
 					const Pos &x_max_isec,
 					const Pos &y_min_isec,

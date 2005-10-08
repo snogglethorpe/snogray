@@ -26,15 +26,16 @@ public:
   Color& operator[] (unsigned index) { return pixels[index]; }
   const Color& operator[] (unsigned index) const { return pixels[index]; }
 
-  Color *pixels;
   unsigned width;
+  Color *pixels;
 };
 
 
 
-struct ImageGeneralParams
+struct ImageParams
 {
-  ImageGeneralParams () : file_name (0), format (0) { }
+  ImageParams () : file_name (0), format (0) { }
+  virtual ~ImageParams (); // stop gcc bitching
 
   // This is called when something wrong is detect with some parameter
   virtual void error (const char *msg) const = 0;
@@ -50,9 +51,11 @@ struct ImageGeneralParams
 
 // Image output
 
-struct ImageGeneralSinkParams : ImageGeneralParams
+struct ImageSinkParams : ImageParams
 {
-  ImageGeneralSinkParams ()
+  static const float DEFAULT_TARGET_GAMMA = 2.2;
+
+  ImageSinkParams ()
     : width (0), height (0), target_gamma (0),
       aa_factor (0), aa_overlap (0), aa_filter (0)
   { }
@@ -70,26 +73,23 @@ struct ImageGeneralSinkParams : ImageGeneralParams
   float (*aa_filter) (int offs, unsigned size);
 };
 
+// This is the class that format-specific subclasses override; it just
+// provides a sturb error method which throws an exception if called.
+struct ImageFmtSinkParams : ImageSinkParams
+{
+  ImageFmtSinkParams (const ImageSinkParams &params)
+    : ImageSinkParams (params)
+  { }
+
+  virtual void error (const char *msg) const;
+};
+
 class ImageSink
 {
 public:
   virtual ~ImageSink () = 0;
   virtual void write_row (const ImageRow &row) = 0;
   virtual float max_intens () const;
-};
-
-class ImageSinkParams
-{
-public:
-  static const float DEFAULT_TARG_GAMMA = 2.2;
-
-  ImageSinkParams (unsigned _width, unsigned _height)
-    : width (_width), height (_height)
-  { }
-    
-  virtual ImageSink *make_sink () const = 0;
-
-  unsigned width, height;
 };
 
 class ImageOutput
@@ -99,10 +99,7 @@ public:
 
   static const aa_filter_t DEFAULT_AA_FILTER;
 
-  ImageOutput (const ImageSinkParams &params,
-	       unsigned aa_factor = 1, unsigned aa_overlap = 0,
-	       float (*aa_filter)(int, unsigned) = aa_box_filter);
-  ImageOutput (const ImageGeneralSinkParams &params);
+  ImageOutput (const ImageSinkParams &params);
   ~ImageOutput ();
 
   // Returns next row for storing into, after writing previous rows to
@@ -117,9 +114,6 @@ public:
   static float aa_gauss_filter (int offs, unsigned size);
 
 private:
-  void _init (unsigned width, unsigned _aa_factor, unsigned _aa_overlap,
-	      float (*aa_filter)(int, unsigned));
-
   void write_accumulated_rows ();
 
   float *make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
@@ -142,12 +136,23 @@ private:
 
 // Image input
 
-struct ImageGeneralSourceParams : ImageGeneralParams
+struct ImageSourceParams : ImageParams
 {
   class ImageSource *make_source () const;
 
   // This is called when something wrong is detect with some parameter
-  virtual void error (const char *msg) const = 0;
+  virtual void error (const char *msg) const __attribute__ ((noreturn)) = 0;
+};
+
+// This is the class that format-specific subclasses override; it just
+// provides a sturb error method which throws an exception if called.
+struct ImageFmtSourceParams : ImageSourceParams
+{
+  ImageFmtSourceParams (const ImageSourceParams &params)
+    : ImageSourceParams (params)
+  { }
+
+  virtual void error (const char *msg) const;
 };
 
 class ImageSource
@@ -158,19 +163,10 @@ public:
   virtual void read_row (ImageRow &row) = 0;
 };
 
-class ImageSourceParams
-{
-public:
-  virtual ImageSource *make_source () const = 0;
-};
-
 class ImageInput
 {
 public:
   ImageInput (const ImageSourceParams &params)
-    : source (params.make_source ())
-  { source->read_size (width, height); }
-  ImageInput (const ImageGeneralSourceParams &params)
     : source (params.make_source ())
   { source->read_size (width, height); }
   ~ImageInput () { delete source; }

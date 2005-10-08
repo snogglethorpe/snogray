@@ -13,21 +13,19 @@ TARGETS = snogray snogcvt
 
 all: $(TARGETS)
 
-#OPT = -O5
-DEBUG = -g
+OPT = -O5
+DEBUG = -g -Wall
 #PG = -pg
 #MUDFLAP = -fmudflap
 
 CFLAGS = $(OPT) $(DEBUG) $(MACHINE_CFLAGS) $(PG) $(MUDFLAP)
+CXXFLAGS = $(CFLAGS)
 LDFLAGS = $(PG) $(MUDFLAP)
 
 HOST_CFLAGS_dhapc248.dev.necel.com = $(ARCH_CFLAGS_pentium4)
-ARCH_CFLAGS_pentium3 = -march=pentium3 -fomit-frame-pointer
+ARCH_CFLAGS_pentium3 = -march=pentium3 -fomit-frame-pointer -mfpmath=sse
 ARCH_CFLAGS_pentium4 = -march=pentium4 -fomit-frame-pointer
 ARCH_CFLAGS_i686 = $(ARCH_CFLAGS_pentium3)
-
-CXXFLAGS = $(CFLAGS)
-DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
 HOST := $(shell hostname)
 ARCH := $(shell uname -m)
@@ -41,13 +39,18 @@ EXR_LIBS	= -lIlmImf -lIex -lHalf
 
 LIBS = $(PNG_LIBS) $(EXR_LIBS) $(MUDFLAP:-f%=-l%)
 
-_CFLAGS = $(CFLAGS) $(DEP_CFLAGS)
-_CXXFLAGS = $(CXXFLAGS) $(DEP_CFLAGS)
+DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
-SNOGRAY_SRCS = camera.cc cmdlineparser.cc color.cc glow.cc image.cc	 \
-	  image-cmdline.cc image-exr.cc image-png.cc intersect.cc	 \
-	  lambert.cc obj.cc phong.cc ray.cc scene.cc snogray.cc space.cc \
-	  sphere.cc triangle.cc voxtree.cc
+_CFLAGS_FILT = $(if $(filter -pg,$(CFLAGS)),$(filter-out -fomit-frame-pointer,$(CFLAGS)),$(CFLAGS))
+_CXXFLAGS_FILT = $(if $(filter -pg,$(CXXFLAGS)),$(filter-out -fomit-frame-pointer,$(CXXFLAGS)),$(CXXFLAGS))
+
+_CFLAGS = $(_CFLAGS_FILT) $(DEP_CFLAGS)
+_CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
+
+SNOGRAY_SRCS = camera.cc cmdlineparser.cc color.cc glow.cc image.cc	\
+	  image-cmdline.cc image-exr.cc image-png.cc intersect.cc	\
+	  lambert.cc material.cc obj.cc phong.cc ray.cc scene.cc	\
+	  snogray.cc space.cc sphere.cc triangle.cc voxtree.cc
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 
 snogray: $(SNOGRAY_OBJS)
@@ -64,7 +67,10 @@ snogcvt: $(SNOGCVT_OBJS)
 image-exr.o: image-exr.cc
 	$(CXX) -c $(EXR_CFLAGS) $(_CXXFLAGS) $<
 
-DEPS = $(SNOGRAY_SRCS:%.cc=.%.d)
+ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS))
+ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS))
+
+DEPS = $(ALL_SRCS:%.cc=.%.d)
 -include $(DEPS)
 
 %.o: %.cc
@@ -78,7 +84,7 @@ DEPS = $(SNOGRAY_SRCS:%.cc=.%.d)
 	$(CC) -S $(_CFLAGS) $<
 
 clean:
-	$(RM) $(TARGETS) $(SNOGRAY_OBJS)
+	$(RM) $(TARGETS) $(ALL_OBJS)
 
 cflags:
 	@echo "CFLAGS = $(CFLAGS)"

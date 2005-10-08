@@ -18,7 +18,7 @@
 namespace Snogray {
 
 // This class can be used when parsing image parameters
-struct ImageCmdlineSinkParams : ImageGeneralSinkParams
+struct ImageCmdlineSinkParams : ImageSinkParams
 {
   ImageCmdlineSinkParams (CmdLineParser &_clp) : clp (_clp) { }
 
@@ -59,7 +59,7 @@ struct ImageCmdlineSinkParams : ImageGeneralSinkParams
 };
 
 // This class can be used when parsing image parameters
-struct ImageCmdlineSourceParams : ImageGeneralSourceParams
+struct ImageCmdlineSourceParams : ImageSourceParams
 {
   ImageCmdlineSourceParams (CmdLineParser &_clp) : clp (_clp) { }
 

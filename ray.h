@@ -29,6 +29,11 @@ public:
       _end (_origin + _extent)
   {
   }
+  Ray (Pos _origin, Vec _dir, dist_t _len)
+    : origin (_origin), dir (_dir.unit ()), len (_len),
+      _end (_origin + _dir * _len)
+  {
+  }
   Ray (Pos _origin, Pos _targ)
     : origin (_origin), dir ((_targ - _origin).unit ()),
       len ((_targ - _origin).length ()), _end (_targ)
@@ -43,6 +48,8 @@ public:
   Pos extension (float _len) const { return origin + dir * _len; }
 
   Pos end () const { return _end; }
+
+  void set_len (dist_t _len) { len = _len; _end = origin + dir*len; }
 
   Pos origin;
 

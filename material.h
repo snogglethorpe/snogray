@@ -23,6 +23,8 @@ class Intersect;
 class Material
 {
 public:
+  virtual ~Material (); // stop gcc bitching
+
   virtual const Color render (const Intersect &isec,
 			      const Vec &light_dir, const Color &light_color)
     const = 0;

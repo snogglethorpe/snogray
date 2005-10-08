@@ -35,9 +35,9 @@ public:
   const char *opt_arg () const;
   float float_opt_arg () const;
   unsigned unsigned_opt_arg () const;
-  void opt_err (const char *phrase) const;
+  void opt_err (const char *phrase) const __attribute__ ((noreturn));
 
-  void err (const char *phrase) const;
+  void err (const char *phrase) const __attribute__ ((noreturn));
   std::string err_pfx () const;
   std::string opt_err_pfx () const;
 
@@ -46,11 +46,11 @@ public:
 
 private:
 
-  const char *short_opts;
-  const struct option *long_opts;
-
   int argc;
   char *const *argv;
+
+  const char *short_opts;
+  const struct option *long_opts;
 
   // These are set after calling getopt
   int long_opt_index;

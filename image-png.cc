@@ -35,7 +35,7 @@ private:
     if (com < 0)
       return 0;
 
-    if (gamma_correction != 1.0)
+    if (gamma_correction != 0.0)
       com = powf (com, gamma_correction);
 
     if (com >= 0.9999)
@@ -54,9 +54,15 @@ private:
 
 PngImageSink::PngImageSink (const PngImageSinkParams &params)
   : file_name (params.file_name), width (params.width),
-    gamma_correction (1 / params.targ_gamma),
     output_bytes (new unsigned char[params.width * 3])
 {
+  float targ_gamma = params.target_gamma;
+
+  if (targ_gamma == 0)
+    targ_gamma = ImageSinkParams::DEFAULT_TARGET_GAMMA;
+
+  gamma_correction = 1 / targ_gamma;
+
   stream = fopen (file_name, "wb");
   if (! stream)
     {
@@ -92,7 +98,7 @@ PngImageSink::PngImageSink (const PngImageSinkParams &params)
   png_set_IHDR (png, png_info, params.width, params.height,
 		8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
 		PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-  png_set_gAMA (png, png_info, params.targ_gamma);
+  png_set_gAMA (png, png_info, targ_gamma);
 
   png_init_io (png, stream);
 

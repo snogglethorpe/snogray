@@ -102,7 +102,11 @@ CmdLineParser::unsigned_opt_arg () const
 float
 CmdLineParser::float_opt_arg () const
 {
-  if (isdigit (optarg[0]) || (optarg[0] == '.' && isdigit (optarg[1])))
+  if (isdigit (optarg[0])
+      || (optarg[0] == '.' && isdigit (optarg[1]))
+      || (optarg[0] == '-'
+	  && (isdigit (optarg[1])
+	      || (optarg[1] == '.' && isdigit (optarg[2])))))
     return atof (optarg);
   else
     opt_err ("requires a numeric argument");

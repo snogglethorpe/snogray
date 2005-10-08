@@ -23,15 +23,13 @@ class Intersect
 public:
   Intersect (const Ray &_ray) : ray (_ray), obj (0) { }
 
-  bool hit () { !!obj; }
-
   void update (Obj *_obj)
   {
     dist_t dist = _obj->intersection_distance (ray);
-    if (dist > 0 && (!obj || dist < distance))
+    if (dist > 0 && (!obj || dist < ray.len))
       {
 	obj = _obj;
-	distance = dist;
+	ray.set_len (dist);
       }
   }
 
@@ -40,7 +38,7 @@ public:
     if (obj)
       {
 	eye_dir = -ray.dir;
-	point = ray.extension (distance);
+	point = ray.end ();
 	normal = obj->normal (point, eye_dir);
       }
   }
@@ -48,10 +46,9 @@ public:
   // Ray which intersected something.
   Ray ray;
 
-  // If non-zero, the object which RAY intersected, in which case DISTANCE
-  // is valid; if zero, there is no known intersection.
+  // If non-zero, the object which RAY intersected; if zero, there is no
+  // known intersection.
   const Obj *obj;		// If 0, no intersection
-  dist_t distance;		// Distance to intersection point on OBJ
 
   // Only valid once finish() is called, and if OBJ is non-NULL
   Pos point;

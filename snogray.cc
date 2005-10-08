@@ -55,9 +55,6 @@ define_scene (Scene &scene, Camera &camera)
 //   Material *mat3 = scene.add (new Phong (400, Color (0.1, 0.1, 0.1)));
   Material *mat3 = scene.add (new Phong (400, Color (0.8, 0, 0)));
   Material *mat4 = scene.add (new Lambert (Color (0.2, 0.5, 0.1)));
-  Material *mat5 = scene.add (new Lambert (Color (1, 0.5, 1)));
-
-  Material *bulb_mat = scene.add (new Glow (25 * Color::white));
 
   // First test scene
   add_bulb (scene, Pos (0, 15, 0), 30);
@@ -135,13 +132,13 @@ define_scene (Scene &scene, Camera &camera)
 struct LimitSpec
 {
   LimitSpec (const char *_name, unsigned _abs_val)
-    : name (_name), abs_val (_abs_val), is_frac (false), is_rel (false) { }
+    : name (_name), is_frac (false), abs_val (_abs_val), is_rel (false) { }
   LimitSpec (const char *_name, int _abs_val)
-    : name (_name), abs_val (_abs_val), is_frac (false), is_rel (false) { }
+    : name (_name), is_frac (false), abs_val (_abs_val), is_rel (false) { }
   LimitSpec (const char *_name, float _frac_val)
-    : name (_name), frac_val (_frac_val), is_frac (true), is_rel (false) { }
+    : name (_name), is_frac (true), frac_val (_frac_val), is_rel (false) { }
   LimitSpec (const char *_name, double _frac_val)
-    : name (_name), frac_val (_frac_val), is_frac (true), is_rel (false) { }
+    : name (_name), is_frac (true), frac_val (_frac_val), is_rel (false) { }
 
   bool parse (const char *&str);
   unsigned apply (CmdLineParser &clp, unsigned range, unsigned base = 0) const;
@@ -322,7 +319,6 @@ int main (int argc, char *const *argv)
   unsigned final_width = 640, final_height = 480;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
-  const char *limit = 0;
   bool quiet = false, progress = true; // quiet mode, progress indicator
   bool progress_set = false;
   ImageCmdlineSinkParams image_sink_params (clp);
@@ -420,10 +416,11 @@ int main (int argc, char *const *argv)
   // Print image info
   if (! quiet)
     {
-      cout << "image.size:	    "
+      cout << "image.size:         "
 	   << setw (11) << (stringify (final_width)
 			    + " x " + stringify (final_height))
 	   << endl;
+
       if (limit_x != 0 || limit_y != 0
 	  || limit_width != final_width || limit_height != final_height)
 	cout << "image.limit:"
@@ -528,6 +525,8 @@ int main (int argc, char *const *argv)
 	  float v = (float)(height - y) / (float)height;
 	  Ray camera_ray = camera.get_ray (u, v);
 
+	  camera_ray.set_len (10000);
+
 	  output_row[x - hr_limit_x] = scene.render (camera_ray);
 	  //scene.render (camera_ray);
 	}
@@ -552,8 +551,6 @@ int main (int argc, char *const *argv)
       cout << "     scene calls:       "
 	   << setw (14) << commify (sstats.scene_closest_intersect_calls)
 	   << endl;
-      cout << "     voxtree calls:     "
-	   << setw (14) << commify (vstats1.tree_intersect_calls) << endl;
       cout << "     voxtree node calls:"
 	   << setw (14) << commify (vstats1.node_intersect_calls) << endl;
       cout << "     obj calls:         "
@@ -562,8 +559,6 @@ int main (int argc, char *const *argv)
       cout << "  intersects:" << endl;
       cout << "     scene calls:       "
 	   << setw (14) << commify (sstats.scene_intersects_calls) << endl;
-      cout << "     voxtree calls:     "
-	   << setw (14) << commify (vstats2.tree_intersect_calls) << endl;
       cout << "     voxtree node calls:"
 	   << setw (14) << commify (vstats2.node_intersect_calls) << endl;
       cout << "     obj calls:         "

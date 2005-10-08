@@ -16,40 +16,26 @@
 
 namespace Snogray {
 
-class ExrImageSinkParams : public ImageSinkParams
+struct ExrImageSinkParams : public ImageFmtSinkParams
 {
-public:
-  ExrImageSinkParams (const ImageGeneralSinkParams &params)
-    : ImageSinkParams (params.width, params.height),
-      file_name (params.file_name)
+  ExrImageSinkParams (const ImageSinkParams &params)
+    : ImageFmtSinkParams (params)
   {
-    if (params.target_gamma != 0)
+    if (target_gamma != 0)
       params.error ("target-gamma not supported in EXR format");
   }
-  ExrImageSinkParams (const char *_file_name,
-		      unsigned _width, unsigned _height)
-    : ImageSinkParams (_width, _height),
-      file_name (_file_name)
-  { }
     
   virtual ImageSink *make_sink () const;
-
-  const char *file_name;
 };
 
-class ExrImageSourceParams : public ImageSourceParams
+class ExrImageSourceParams : public ImageFmtSourceParams
 {
 public:
-  ExrImageSourceParams (const ImageGeneralSourceParams &params)
-    : file_name (params.file_name)
-  { }
-  ExrImageSourceParams (const char *_file_name)
-    : file_name (_file_name)
+  ExrImageSourceParams (const ImageSourceParams &params)
+    : ImageFmtSourceParams (params)
   { }
     
   virtual ImageSource *make_source () const;
-
-  const char *file_name;
 };
 
 }

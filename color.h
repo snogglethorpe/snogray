@@ -13,6 +13,7 @@
 #define __COLOR_H__
 
 #include <fstream>
+#include <cmath>
 
 namespace Snogray {
 
@@ -59,8 +60,14 @@ public:
     green += col2.green;
     blue += col2.blue;
   }
+  void operator*= (float scale)
+  {
+    red *= scale;
+    green *= scale;
+    blue *= scale;
+  }
 
-  Color saturate (float max_intens) const
+  Color clamp (float max_intens) const
   {
     component_t r = red, g = green, b = blue;
     if (r > max_intens)
@@ -70,6 +77,12 @@ public:
     if (b > max_intens)
       b = max_intens;
     return Color (r, g, b);
+  }
+  Color pow (float exp) const
+  {
+    return Color (powf (red, exp),
+		  powf (green, exp),
+		  powf (blue, exp));
   }
 
   component_t red, green, blue;
@@ -82,6 +95,31 @@ operator* (float scale, const Color &color)
 }
 
 extern std::ostream& operator<< (std::ostream &os, const Color &col);
+
+
+// Colors with alpha channel
+
+#if 0
+
+class ColorAlpha : public Color 
+{
+public:
+  typedef float alpha_t;
+
+  ColorAlpha (component_t r = 0, component_t g = 0, component_t b = 0,
+	      alpha_t a)
+    : Color (r, g, b), alpha (a)
+  { }
+
+}
+
+// Convert from ColorAlpha to Color by throwing away alpha channel
+static inline Color operator(Color) (const ColorAlpha &cola)
+{
+  return Color (cola.red, cola.green, cola.blue);
+}
+
+#endif
 
 }
 
