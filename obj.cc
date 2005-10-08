@@ -7,6 +7,11 @@ Obj::closest_intersect (Intersect &isec) const
 {
 }
 
+void
+Obj::finish_intersect (Intersect &isec) const
+{
+}
+
 bool
 Obj::intersects (const Ray &ray) const
 {

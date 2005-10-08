@@ -1,10 +1,10 @@
 #include "intersect.h"
 #include "obj.h"
 
-Color Intersect::render () const
+Color Intersect::render (const Color &light_color, const Vec &light_dir) const
 {
   if (obj)
-    return obj->material->render (*this);
+    return obj->material->render (*this, light_color, light_dir);
   else
     return Color::black;
 }

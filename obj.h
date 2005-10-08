@@ -1,19 +1,22 @@
 #ifndef __OBJ_H__
 #define __OBJ_H__
 
-class Obj;
-
 #include "vec.h"
 #include "color.h"
+#include "ray.h"
 #include "material.h"
-#include "intersect.h"
 
 class Obj {
 public:
-  virtual void closest_intersect (Intersect &isec) const;
-  virtual bool intersects (const Ray &ray) const;
+  Obj (const Material *mat) { material = mat; }
 
-  Material *material;
+  virtual bool intersects (const Ray &ray, Space::dist_t max_dist_squared)
+    const;
+
+  virtual void closest_intersect (class Intersect &isec) const;
+  virtual void finish_intersect (class Intersect &isec) const;
+
+  const Material *material;
 };
 
 #endif /* __OBJ_H__ */

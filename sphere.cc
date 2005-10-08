@@ -1,25 +1,27 @@
 #include "sphere.h"
 
+#include "intersect.h"
+
 Space::dist_t
 Sphere::intersection_distance (const Ray &ray) const
 {
-  Vec dir = ray.dir.unit ();
+  Vec dir = ray.dir;		// must be a unit vector
   Vec diff = ray.origin - center;
-  float dirdiff = dir.dot (diff);
-  float dirdir =  dir.dot (dir);
-  float determ = dirdiff*dirdiff - dirdir * (diff.dot(diff) - radius*radius);
+  float dir_diff = dir.dot (diff);
+  float dir_dir =  dir.dot (dir);
+  float determ = dir_diff*dir_diff - dir_dir * (diff.dot(diff) - radius*radius);
 
   if (determ >= 0)
     {
-      float common = -dirdiff / dirdir;
-      float determfactor = sqrtf (determ) / dirdir;
+      float common = -dir_diff / dir_dir;
 
       if (determ == 0 && common > 0)
 	return common;
       else
 	{
-	  float t0 = common - determfactor;
-	  float t1 = common + determfactor;
+	  float determ_factor = sqrtf (determ) / dir_dir;
+	  float t0 = common - determ_factor;
+	  float t1 = common + determ_factor;
 
 	  if (t0 > 0)
 	    return t0;
@@ -34,20 +36,22 @@ Sphere::intersection_distance (const Ray &ray) const
 void
 Sphere::closest_intersect (Intersect &isec) const
 {
-  const Ray &ray = isec.ray;
-  Space::dist_t dist = intersection_distance (ray);
+  isec.set_obj_if_closer (this, intersection_distance (isec.ray));
+}
 
-  if (dist > isec.distance || (dist > 0 && !isec.obj))
-    {
-      Pos isec_point = ray.extension (dist);
-      isec.set (this, dist, isec_point, (isec_point - center).unit ());
-    }
+void
+Sphere::finish_intersect (Intersect &isec) const
+{
+  Space::dist_t dist = isec.distance;
+  isec.point = isec.ray.extension (dist);
+  isec.normal = (isec.point - center).unit ();
 }
 
 bool
-Sphere::intersects (const Ray &ray) const
+Sphere::intersects (const Ray &ray, Space::dist_t max_dist_squared) const
 {
-  return intersection_distance (ray) > 0;
+  Space::dist_t dist = intersection_distance (ray);
+  return (dist * dist) < max_dist_squared;
 }
 
 // arch-tag: dc88fe85-ed78-4f90-bbe2-7e670fde73a6

@@ -1,13 +1,19 @@
 #include <iostream>
 
-#include "mray.h"
+#include "snogray.h"
+#include "sphere.h"
 
 using namespace std;
 
 int main ()
 {
-  Mray mray;
-  Color color = mray.render (0, 0);
+  SnogRay snogray;
+  Lambert lamb;
+
+  snogray.scene.add (new Sphere (&lamb, Pos (0, 2, 7), 5));
+
+  Color color = snogray.render (0, 0);
+
   cout << "Rendering (u = 0, v = 0):  " << color << endl;
 }
 

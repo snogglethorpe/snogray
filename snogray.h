@@ -1,11 +1,11 @@
-#ifndef __MRAY_H__
-#define __MRAY_H__
+#ifndef __SNOGRAY_H__
+#define __SNOGRAY_H__
 
 #include "color.h"
 #include "camera.h"
 #include "scene.h"
 
-class Mray {
+class SnogRay {
 public:
   const Color render (float u, float v) const;
 
@@ -13,6 +13,6 @@ public:
   Camera camera;
 };
 
-#endif /* __MRAY_H__ */
+#endif /* __SNOGRAY_H__ */
 
-// arch-tag: c2710780-77b7-4a68-9f8d-b372ec6f2c6f
+// arch-tag: 030c7e91-757b-49f2-98c3-f70dcd83bddf

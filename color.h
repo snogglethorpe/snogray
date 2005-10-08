@@ -13,6 +13,18 @@ public:
   Color ()
     { red = green = blue = 0; }
 
+  Color lit_by (const Color &light_color) const
+  {
+    return Color (red * light_color.red,
+		  green * light_color.green,
+		  blue * light_color.blue);
+  }
+
+  Color operator* (float scale) const
+  {
+    return Color (red * scale, green * scale, blue * scale);
+  }
+
   component_t red, green, blue;
 
   static const Color black;

@@ -6,15 +6,15 @@
 
 class Ray {
 public:
-  Ray (Pos _origin, Vec _dir) { origin = _origin; dir = _dir; }
-  Ray (Pos _origin, Pos _targ) { origin = _origin; dir = _targ - _origin; }
+  Ray (Pos _origin, Vec _dir) { origin = _origin; dir = _dir.unit (); }
+  Ray (Pos _origin, Pos _targ) { Ray (_origin, _targ - _origin); }
   Ray () {}
 
   /* Returns the end point of the ray.  */
   Pos extension (float scale) const { return origin + dir * scale; }
 
   Pos origin;
-  Vec dir;
+  Vec dir;			// should always be a unit vector
 };
 
 #endif /* __RAY_H__ */
