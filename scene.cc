@@ -71,48 +71,80 @@ Scene::closest_intersect (const Ray &ray)
 // "Any" intersection testing (return true if any object intersects a ray)
 //
 
-struct SceneAnyIntersectCallback : Voxtree::IntersectCallback
+struct SceneShadowedCallback : Voxtree::IntersectCallback
 {
-  SceneAnyIntersectCallback (const Ray &_ray, const Obj *_ignore = 0,
-			     Voxtree::Stats *stats = 0)
+  SceneShadowedCallback (Light &_light, const Ray &_light_ray,
+			 const Obj *_ignore = 0,
+			 Voxtree::Stats *stats = 0)
     : IntersectCallback (stats), 
-      intersects (false), ray (_ray), ignore (_ignore), num_calls (0)
+      light (_light), light_ray (_light_ray), ignore (_ignore),
+      shadowed (false), num_tests (0)
   { }
 
   virtual void operator() (Obj *);
 
-  bool intersects;
-  const Ray &ray;
+  Light &light;
+  const Ray &light_ray;
   const Obj *ignore;
 
-  unsigned num_calls;
+  bool shadowed;
+
+  unsigned num_tests;
 };
 
 void
-SceneAnyIntersectCallback::operator () (Obj *obj)
+SceneShadowedCallback::operator () (Obj *obj)
 {
   if (obj != ignore && !obj->no_shadow)
     {
-      num_calls++;
-      intersects = obj->intersects (ray);
-      if (intersects)
-	stop_iteration ();
+      num_tests++;
+
+      shadowed = obj->intersects (light_ray);
+
+      if (shadowed)
+	{
+	  // Remember which object cast a shadow from this light, so we
+	  // can try it first next time.
+	  light.shadow_hint = obj;
+
+	  // Stop looking any further.
+	  stop_iteration ();
+	}
     }
 }
 
 bool
-Scene::intersects (const Ray &ray, const Obj *ignore)
+Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
 {
-  SceneAnyIntersectCallback
-    any_isec_cb (ray, ignore, &stats.voxtree_intersects);
+  stats.scene_shadowed_tests++;
 
-  stats.scene_intersects_calls++;
+  // If this light has a shadow hint (the last object that cast a shadow
+  // from it), then try that object first, as it stands a better chance
+  // of hitting than usual.
+  if (light.shadow_hint)
+    {
+      if (light.shadow_hint->intersects (light_ray))
+	// It worked!  Return quickly.
+	{
+	  stats.shadow_hint_hits++;
+	  return true;
+	}
+      else
+	// It didn't work; clear this hint out.
+	{
+	  stats.shadow_hint_misses++;
+	  light.shadow_hint = 0;
+	}
+    }
 
-  obj_voxtree.for_each_possible_intersector (ray, any_isec_cb);
+  SceneShadowedCallback
+    shadowed_cb (light, light_ray, ignore, &stats.voxtree_shadowed);
 
-  stats.obj_intersects_calls += any_isec_cb.num_calls;
+  obj_voxtree.for_each_possible_intersector (light_ray, shadowed_cb);
 
-  return any_isec_cb.intersects;
+  stats.obj_intersects_tests += shadowed_cb.num_tests;
+
+  return shadowed_cb.shadowed;
 }
 
 
@@ -135,7 +167,7 @@ Scene::render (const Intersect &isec)
 	      Ray light_ray = Ray (isec.point, light->pos);
 
 	      if (isec.normal.dot (light_ray.dir) >= 0
-		  && !intersects (light_ray, isec.obj))
+		  && !shadowed (*light, light_ray, isec.obj))
 		{
 		  Color light_color
 		    = light->color / (light_ray.len * light_ray.len);

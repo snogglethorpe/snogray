@@ -65,7 +65,7 @@ string
 CmdLineParser::opt_err_pfx () const
 {
   string pfx = err_pfx ();
-  pfx += "option `-";
+  pfx += "Option `-";
   if (long_opt_index >= 0)
     {
       pfx += "-";
@@ -104,7 +104,7 @@ CmdLineParser::float_opt_arg () const
 {
   if (isdigit (optarg[0])
       || (optarg[0] == '.' && isdigit (optarg[1]))
-      || (optarg[0] == '-'
+      || ((optarg[0] == '-' || optarg[0] == '+')
 	  && (isdigit (optarg[1])
 	      || (optarg[1] == '.' && isdigit (optarg[2])))))
     return atof (optarg);

@@ -295,25 +295,63 @@ commify (unsigned long long num, unsigned sep_count = 1)
 
 // Main driver
 
+static void
+usage (CmdLineParser &clp, ostream &os)
+{
+  os << "Usage: " << clp.prog_name()
+     << "[OPTION...] [OUTPUT_IMAGE_FILE]" << endl;
+}
+
+static void
+help (CmdLineParser &clp, ostream &os)
+{
+  usage (clp, os);
+  os << "Ray-trace an image" << endl
+     << endl
+<< "  -w, --width=PIXELS         Set image width to PIXELS wide" << endl
+<< "  -h, --height=LINES         Set image height to LINES high" << endl
+<< "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
+     << endl
+<< "  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
+     << endl
+     << endl
+<< "  -q, --quiet                Do not output informational or progress messages"
+     << endl
+<< "  -P, --no-progress          Do not output progress indicator" << endl
+<< "  -p, --progress             Output progress indicator despite --quiet"
+     << endl
+     << endl
+     << IMAGE_OUTPUT_OPTIONS_HELP << endl
+     << endl
+     << CMDLINEPARSER_GENERAL_OPTIONS_HELP << endl
+     << endl
+     << "If no filename is given, standard output is used.  The output"  << endl
+     << "image format is guessed using the output filename when possible"<< endl
+     << "(using the file's extension)." << endl;
+}
+
 int main (int argc, char *const *argv)
 {
   // Command-line option specs
   static struct option long_options[] = {
     { "width",		required_argument, 0, 'w' },
     { "height",		required_argument, 0, 'h' },
-    { "aa-factor",	required_argument, 0, 'a' },
-    { "aa-overlap",	required_argument, 0, 'A' },
-    { "aa-filter",	required_argument, 0, 'F' },
-    { "gamma",		required_argument, 0, 'g' },
     { "size",		required_argument, 0, 's' },
     { "limit",		required_argument, 0, 'l' },
-    { "output-format",	required_argument, 0, 'O' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
+    IMAGE_OUTPUT_LONG_OPTIONS,
+    CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
-  CmdLineParser clp (argc, argv, "a:A:F:w:h:g:s:l:O:qpP", long_options);
+  char short_options[] =
+    "w:h:s:l:qpP"
+    IMAGE_OUTPUT_SHORT_OPTIONS
+    IMAGE_INPUT_SHORT_OPTIONS
+    CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
+  //
+  CmdLineParser clp (argc, argv, short_options, long_options);
 
   // Parameters set from the command line
   unsigned final_width = 640, final_height = 480;
@@ -358,31 +396,15 @@ int main (int argc, char *const *argv)
 	final_height = clp.unsigned_opt_arg ();
 	break;
 
-	// Anti-aliasing options
-      case 'a':
-	image_sink_params.aa_factor = clp.unsigned_opt_arg ();
-	break;
-      case 'A':
-	image_sink_params.aa_overlap = clp.unsigned_opt_arg ();
-	break;
-      case 'F':
-	image_sink_params.parse_aa_filter_opt_arg ();
-	break;
+	IMAGE_OUTPUT_OPTION_CASES (clp, image_sink_params);
 
-	// Output image options
-      case 'g':
-	image_sink_params.target_gamma = clp.float_opt_arg ();
-	break;
-      case 'O':
-	image_sink_params.format = clp.opt_arg ();
-	break;
+	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
   // Final output file parameter
-  if (clp.num_remaining_args() != 1)
+  if (clp.num_remaining_args() > 1)
     {
-      cerr << "Usage: " << clp.prog_name()
-	   << "[OPTION...] [OUTPUT_IMAGE_FILE]" << endl;
+      usage (clp, cerr);
       cerr << "Try `" << clp.prog_name() << " --help' for more information"
 	   << endl;
       exit (10);
@@ -416,14 +438,15 @@ int main (int argc, char *const *argv)
   // Print image info
   if (! quiet)
     {
-      cout << "image.size:         "
+      cout << "Image:" << endl;
+      cout << "   size:         "
 	   << setw (11) << (stringify (final_width)
 			    + " x " + stringify (final_height))
 	   << endl;
 
       if (limit_x != 0 || limit_y != 0
 	  || limit_width != final_width || limit_height != final_height)
-	cout << "image.limit:"
+	cout << "   limit:"
 	     << setw (19) << (stringify (limit_x) + "," + stringify (limit_y)
 			      + " - " + stringify (limit_x + limit_width)
 			      + "," + stringify (limit_y + limit_height))
@@ -431,27 +454,27 @@ int main (int argc, char *const *argv)
 	     << endl;
 
       if (image_sink_params.target_gamma != 0)
-        cout << "image.target_gamma:        "
+        cout << "   target_gamma:        "
 	     << setw (4) << image_sink_params.target_gamma << endl;
 
       // Anti-aliasing info
       if ((aa_factor + image_sink_params.aa_overlap) > 1)
 	{
 	  if (aa_factor > 1)
-	    cout << "image.aa_factor:           "
+	    cout << "   aa_factor:           "
 		 << setw (4) << aa_factor << endl;
 
 	  if (image_sink_params.aa_overlap > 0)
-	    cout << "image.aa_kernel_size:      "
+	    cout << "   aa_kernel_size:      "
 		 << setw (4)
 		 << (aa_factor + image_sink_params.aa_overlap*2)
 		 << " (overlap = " << image_sink_params.aa_overlap << ")"
 		 << endl;
 	  else
-	    cout << "image.aa_kernel_size:      "
+	    cout << "   aa_kernel_size:      "
 		 << setw (4) << aa_factor << endl;
 
-	  cout << "image.aa_filter:       " << setw (8);
+	  cout << "   aa_filter:       " << setw (8);
 	  if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
 	    cout << "box";
 	  else if (image_sink_params.aa_filter == ImageOutput::aa_triang_filter)
@@ -478,15 +501,16 @@ int main (int argc, char *const *argv)
   // Print scene info
   if (! quiet)
     {
-      cout << "scene.num_objects:   "
+      cout << "Scene:" << endl;
+      cout << "   objects:       "
 	   << setw (10) << commify (scene.objs.size ()) << endl;
-      cout << "scene.num_lights:    "
+      cout << "   lights:        "
 	   << setw (10) << commify (scene.lights.size ()) << endl;
-      cout << "scene.num_materials:  "
-	   << setw (9) << commify (scene.materials.size ()) << endl;
-      cout << "scene.voxtree_num_nodes:"
-	   << setw (7) << commify (scene.obj_voxtree.num_nodes ()) << endl;
-      cout << "scene.voxtree_max_depth:"
+      cout << "   materials:     "
+	   << setw (10) << commify (scene.materials.size ()) << endl;
+      cout << "   voxtree nodes: "
+	   << setw (10) << commify (scene.obj_voxtree.num_nodes ()) << endl;
+      cout << "   voxtree max depth:"
 	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
     }
 
@@ -544,9 +568,9 @@ int main (int argc, char *const *argv)
     {
       Scene::Stats &sstats = scene.stats;
       Voxtree::Stats &vstats1 = sstats.voxtree_closest_intersect;
-      Voxtree::Stats &vstats2 = sstats.voxtree_intersects;
+      Voxtree::Stats &vstats2 = sstats.voxtree_shadowed;
 
-      cout << "Stats:" << endl;
+      cout << "Rendering stats:" << endl;
       cout << "  closest_intersect:" << endl;
       cout << "     scene calls:       "
 	   << setw (14) << commify (sstats.scene_closest_intersect_calls)
@@ -556,13 +580,17 @@ int main (int argc, char *const *argv)
       cout << "     obj calls:         "
 	   << setw (14) << commify (sstats.obj_closest_intersect_calls) << endl;
 
-      cout << "  intersects:" << endl;
-      cout << "     scene calls:       "
-	   << setw (14) << commify (sstats.scene_intersects_calls) << endl;
-      cout << "     voxtree node calls:"
+      cout << "  shadowed:" << endl;
+      cout << "     scene tests:       "
+	   << setw (14) << commify (sstats.scene_shadowed_tests) << endl;
+      cout << "     shadow hint hits:  "
+	   << setw (14) << commify (sstats.shadow_hint_hits) << endl;
+      cout << "     shadow hint misses:"
+	   << setw (14) << commify (sstats.shadow_hint_misses) << endl;
+      cout << "     voxtree node tests:"
 	   << setw (14) << commify (vstats2.node_intersect_calls) << endl;
-      cout << "     obj calls:         "
-	   << setw (14) << commify (sstats.obj_intersects_calls) << endl;
+      cout << "     obj tests:         "
+	   << setw (14) << commify (sstats.obj_intersects_tests) << endl;
     }
 }
 

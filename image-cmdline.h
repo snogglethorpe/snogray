@@ -23,7 +23,7 @@ struct ImageCmdlineSinkParams : ImageSinkParams
   ImageCmdlineSinkParams (CmdLineParser &_clp) : clp (_clp) { }
 
   // This is called when something wrong is detect with some parameter
-  virtual void error (const char *msg) const;
+  virtual void error (const std::string &msg) const;
 
   void parse_aa_filter_opt_arg ()
   {
@@ -64,7 +64,7 @@ struct ImageCmdlineSourceParams : ImageSourceParams
   ImageCmdlineSourceParams (CmdLineParser &_clp) : clp (_clp) { }
 
   // This is called when something wrong is detect with some parameter
-  virtual void error (const char *msg) const;
+  virtual void error (const std::string &msg) const;
 
   // We keep track of this so that we may format error messages nicely
   CmdLineParser &clp;

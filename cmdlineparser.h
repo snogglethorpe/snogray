@@ -16,6 +16,28 @@
 
 #include <getopt.h>
 
+// The following macros can be used in defining option parsers.
+//
+#define CMDLINEPARSER_GENERAL_OPTIONS_HELP "\
+      --help                 Output this help message\n\
+      --version              Output program version"
+//
+#define CMDLINEPARSER_GENERAL_SHORT_OPTIONS	""
+//
+#define CMDLINEPARSER_OPT_HELP		1
+#define CMDLINEPARSER_OPT_VERSION	2
+#define CMDLINEPARSER_GENERAL_LONG_OPTIONS				\
+  { "help",	no_argument,	   0, CMDLINEPARSER_OPT_HELP },		\
+  { "version",	no_argument,	   0, CMDLINEPARSER_OPT_VERSION }
+//
+#define CMDLINEPARSER_GENERAL_OPTION_CASES(clp)			\
+  case CMDLINEPARSER_OPT_HELP:					\
+    help (clp, cout);						\
+    exit (0);							\
+  case CMDLINEPARSER_OPT_VERSION:				\
+    cout << clp.prog_name() << " (snogray) 1.0" << endl;	\
+    exit (0);
+
 namespace Snogray {
 
 class CmdLineParser

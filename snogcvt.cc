@@ -19,6 +19,7 @@
 using namespace Snogray;
 using namespace std;
 
+
 static void
 usage (CmdLineParser &clp, ostream &os)
 {
@@ -30,39 +31,26 @@ static void
 help (CmdLineParser &clp, ostream &os)
 {
   usage (clp, os);
-  os << "\
-Change the format of or transform an image file\n\
-\n\
- Transforms:\n\
-  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops\n\
-  -c, --contrast=POW         Increase or decrease contrast\n\
-\n\
- Output options:\n\
-  -g, --gamma=GAMMA          Do gamma correction for a target display\n\
-                             gamma of GAMMA (default: 2.2, for output\n\
-                             formats that need gamma-correction)\n\
-  -O, --output-format=FMT    Output image format FMT (one of: exr, png)\n\
-\n\
- Input options:\n\
-  -I, --input-format=FMT     Input image format FMT (one of: exr, png)\n\
-\n\
- Anti-aliasing:\n\
-  -a, --aa-factor=N          Use NxN input pixels to compute each output pixel\n\
-  -A, --aa-overlap=M         Include M adjacent input pixels in anti-aliasing\n\
-  -F, --aa-filter=NAME       Use anti-aliasing filter NAME (one of: box,\n\
-                             triang, gauss; default: gauss)\n\
-\n\
-      --help                 Output this help message\n\
-      --version              Output program version\n\
-\n\
-If no filenames are given, standard input or output is used.  Input/output\n\
-image formats are guessed using the corresponding filenames when possible\n\
-(using the file's extension).\n\
-";
+  os << "Change the format of or transform an image file" << endl
+     << endl
+<< " Transforms:" << endl
+<< "  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
+     << endl
+<< "  -c, --contrast=POW         Increase or decrease contrast" << endl
+     << endl
+     << IMAGE_OUTPUT_OPTIONS_HELP << endl
+     << endl
+     << IMAGE_INPUT_OPTIONS_HELP << endl
+     << endl
+     << CMDLINEPARSER_GENERAL_OPTIONS_HELP << endl
+     << endl
+<< "If no filenames are given, standard input or output is used.  Input/output"
+     << endl
+<< "image formats are guessed using the corresponding filenames when possible"
+     << endl
+     << "(using the file's extension)." << endl;
 }
 
-#define OPT_HELP	1
-#define OPT_VERSION	2
 
 int main (int argc, char *const *argv)
 {
@@ -70,17 +58,18 @@ int main (int argc, char *const *argv)
   static struct option long_options[] = {
     { "exposure",	required_argument, 0, 'e' },
     { "contrast",	required_argument, 0, 'c' },
-    { "aa-factor",	required_argument, 0, 'a' },
-    { "aa-overlap",	required_argument, 0, 'A' },
-    { "aa-filter",	required_argument, 0, 'F' },
-    { "gamma",		required_argument, 0, 'g' },
-    { "input-format",	required_argument, 0, 'I' },
-    { "output-format",	required_argument, 0, 'O' },
-    { "help",		no_argument,	   0, OPT_HELP },
-    { "version",	no_argument,	   0, OPT_VERSION },
+    IMAGE_INPUT_LONG_OPTIONS,
+    IMAGE_OUTPUT_LONG_OPTIONS,
+    CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
-  CmdLineParser clp (argc, argv, "e:c:a:A:F:g:O:", long_options);
+  char short_options[] =
+    "e:c:"
+    IMAGE_OUTPUT_SHORT_OPTIONS
+    IMAGE_INPUT_SHORT_OPTIONS
+    CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
+  //
+  CmdLineParser clp (argc, argv, short_options, long_options);
 
   // Parameters set from the command line
   ImageCmdlineSourceParams src_image_params (clp);
@@ -100,36 +89,10 @@ int main (int argc, char *const *argv)
 	contrast = clp.float_opt_arg ();
 	break;
 
-	// Anti-aliasing options
-      case 'a':
-	dst_image_params.aa_factor = clp.unsigned_opt_arg ();
-	break;
-      case 'A':
-	dst_image_params.aa_overlap = clp.unsigned_opt_arg ();
-	break;
-      case 'F':
-	dst_image_params.parse_aa_filter_opt_arg ();
-	break;
+	IMAGE_OUTPUT_OPTION_CASES (clp, dst_image_params);
+	IMAGE_INPUT_OPTION_CASES (clp, src_image_params);
 
-	// Output image options
-      case 'g':
-	dst_image_params.target_gamma = clp.float_opt_arg ();
-	break;
-      case 'O':
-	dst_image_params.format = clp.opt_arg ();
-	break;
-
-	// Input image options
-      case 'I':
-	src_image_params.format = clp.opt_arg ();
-	break;
-
-      case OPT_HELP:
-	help (clp, cout);
-	exit (0);
-      case OPT_VERSION:
-	cout << "snogcvt (snogray) 1.0" << endl;
-	exit (0);
+	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
   if (clp.num_remaining_args() > 2)
@@ -157,6 +120,10 @@ int main (int argc, char *const *argv)
   ImageOutput dst_image (dst_image_params);
 
   float intensity_scale = (exposure == 0) ? 1 : powf (2.0, exposure);
+
+  cout << "intensity_scale: " << intensity_scale
+       << " (exposure: " << exposure << ")" << endl;
+  cout << "contrast: " << contrast << endl;
 
   for (unsigned y = 0; y < src_image.height; y++)
     {

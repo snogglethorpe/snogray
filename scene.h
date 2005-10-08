@@ -28,7 +28,7 @@ public:
   ~Scene ();
 
   Intersect closest_intersect (const Ray &ray);
-  bool intersects (const Ray &ray, const Obj *ignore = 0);
+  bool shadowed (Light &light, const Ray &light_ray, const Obj *ignore = 0);
   
   // Add various items to a scene.  All of the following "give" the
   // object to the scene -- freeing the scene will free them too.
@@ -55,15 +55,18 @@ public:
   struct Stats {
     Stats () : scene_closest_intersect_calls (0),
 	       obj_closest_intersect_calls (0),
-	       scene_intersects_calls (0),
-	       obj_intersects_calls (0)
+	       scene_shadowed_tests (0),
+	       shadow_hint_hits (0), shadow_hint_misses (0),
+	       obj_intersects_tests (0)
     { }
     unsigned long long scene_closest_intersect_calls;
     unsigned long long obj_closest_intersect_calls;
-    unsigned long long scene_intersects_calls;
-    unsigned long long obj_intersects_calls;
+    unsigned long long scene_shadowed_tests;
+    unsigned long long shadow_hint_hits;
+    unsigned long long shadow_hint_misses;
+    unsigned long long obj_intersects_tests;
     Voxtree::Stats voxtree_closest_intersect;
-    Voxtree::Stats voxtree_intersects;
+    Voxtree::Stats voxtree_shadowed;
   } stats;
 
   std::list<Obj *> objs;

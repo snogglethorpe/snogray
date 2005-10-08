@@ -17,7 +17,7 @@ using namespace Snogray;
 using namespace std;
 
 static void
-fatal_err (CmdLineParser &clp, const char *msg,
+fatal_err (CmdLineParser &clp, const string &msg,
 	   const char *name, const char *default_name)
 {
   if (! name)
@@ -27,13 +27,13 @@ fatal_err (CmdLineParser &clp, const char *msg,
 }
 
 void
-ImageCmdlineSinkParams::error (const char *msg) const
+ImageCmdlineSinkParams::error (const std::string &msg) const
 {
   fatal_err (clp, msg, file_name, "<standard output>");
 }
 
 void
-ImageCmdlineSourceParams::error (const char *msg) const
+ImageCmdlineSourceParams::error (const std::string &msg) const
 {
   fatal_err (clp, msg, file_name, "<standard input>");
 }

@@ -37,7 +37,9 @@ PNG_LIBS	= -lpng
 EXR_CFLAGS	= -I/usr/include/OpenEXR
 EXR_LIBS	= -lIlmImf -lIex -lHalf
 
-LIBS = $(PNG_LIBS) $(EXR_LIBS) $(MUDFLAP:-f%=-l%)
+JPEG_LIBS	= -ljpeg
+
+LIBS = $(PNG_LIBS) $(EXR_LIBS) $(JPEG_LIBS) $(MUDFLAP:-f%=-l%)
 
 DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
@@ -47,21 +49,34 @@ _CXXFLAGS_FILT = $(if $(filter -pg,$(CXXFLAGS)),$(filter-out -fomit-frame-pointe
 _CFLAGS = $(_CFLAGS_FILT) $(DEP_CFLAGS)
 _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
-SNOGRAY_SRCS = camera.cc cmdlineparser.cc color.cc glow.cc image.cc	\
-	  image-cmdline.cc image-exr.cc image-png.cc intersect.cc	\
-	  lambert.cc material.cc obj.cc phong.cc ray.cc scene.cc	\
-	  snogray.cc space.cc sphere.cc triangle.cc voxtree.cc
+#
+
+IMAGE_SRCS = image.cc image-cmdline.cc image-exr.cc image-jpeg.cc	\
+	  image-png.cc image-rgb-byte.cc
+
+COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
+
+#
+
+SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc material.cc obj.cc	\
+	  phong.cc ray.cc scene.cc snogray.cc space.cc sphere.cc		\
+	  triangle.cc voxtree.cc $(COMMON_SRCS)
+
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 
 snogray: $(SNOGRAY_OBJS)
 	$(CXX) -o $@ $(LDFLAGS) $(SNOGRAY_OBJS) $(LIBS)
 
-SNOGCVT_SRCS = cmdlineparser.cc color.cc image.cc image-cmdline.cc	\
-	  image-exr.cc image-png.cc snogcvt.cc
+#
+
+SNOGCVT_SRCS = snogcvt.cc $(COMMON_SRCS)
+
 SNOGCVT_OBJS = $(SNOGCVT_SRCS:.cc=.o)
 
 snogcvt: $(SNOGCVT_OBJS)
 	$(CXX) -o $@ $(LDFLAGS) $(SNOGCVT_OBJS) $(LIBS)
+
+#
 
 # OpenEXR include files expect their include directory to be in the include path
 image-exr.o: image-exr.cc

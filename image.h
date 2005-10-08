@@ -12,7 +12,77 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
+#include <string>
+#include <cmath>
+
 #include "color.h"
+
+// The following macros can be used in defining option parsers.
+
+// Image input options
+//
+#define IMAGE_INPUT_OPTIONS_HELP "\
+ Input options:\n\
+  -I, --input-format=FMT     Input image format FMT (one of: exr, png, jpeg)"
+//
+#define IMAGE_INPUT_SHORT_OPTIONS "I:"
+//
+#define IMAGE_INPUT_LONG_OPTIONS			\
+ { "input-format",	required_argument, 0, 'I' }
+//
+#define IMAGE_INPUT_OPTION_CASES(clp, params)	\
+  case 'I':					\
+    params.format = clp.opt_arg ();		\
+    break;
+
+// Image output options
+//
+#define IMAGE_OUTPUT_OPTIONS_HELP "\
+ Output options:\n\
+  -O, --output-format=FMT    Output image format FMT (one of: exr, png, jpeg)\n\
+  -g, --gamma=GAMMA          Do gamma correction for a target display\n\
+                             gamma of GAMMA (default: 2.2, for output\n\
+                             formats that need gamma-correction)\n\
+  -Q, --quality=PERCENT	     Set output quality, for formats that support it\n\
+                             (range: 0-100; default 98)\n\
+\n\
+ Anti-aliasing:\n\
+  -a, --aa-factor=N          Use NxN input pixels to compute each output pixel\n\
+  -A, --aa-overlap=M         Include M adjacent input pixels in anti-aliasing\n\
+  -F, --aa-filter=NAME       Use anti-aliasing filter NAME (one of: box,\n\
+                             triang, gauss; default: gauss)"
+//
+#define IMAGE_OUTPUT_SHORT_OPTIONS "a:A:F:O:g:Q:"
+//
+#define IMAGE_OUTPUT_LONG_OPTIONS			\
+  { "output-format",	required_argument, 0, 'O' },	\
+  { "gamma",		required_argument, 0, 'g' },	\
+  { "quality",		required_argument, 0, 'Q' },	\
+  { "aa-factor",	required_argument, 0, 'a' },	\
+  { "aa-overlap",	required_argument, 0, 'A' },	\
+  { "aa-filter",	required_argument, 0, 'F' }
+//
+#define IMAGE_OUTPUT_OPTION_CASES(clp, params)		\
+  case 'O':						\
+    params.format = clp.opt_arg ();			\
+    break;						\
+  case 'g':						\
+    params.target_gamma = clp.float_opt_arg ();		\
+    break;						\
+  case 'Q':						\
+    params.quality = clp.float_opt_arg ();		\
+    break;						\
+  /* Anti-aliasing options */				\
+  case 'a':						\
+    params.aa_factor = clp.unsigned_opt_arg ();		\
+    break;						\
+  case 'A':						\
+    params.aa_overlap = clp.unsigned_opt_arg ();	\
+    break;						\
+  case 'F':						\
+    params.parse_aa_filter_opt_arg ();			\
+    break;
+
 
 namespace Snogray {
 
@@ -38,7 +108,10 @@ struct ImageParams
   virtual ~ImageParams (); // stop gcc bitching
 
   // This is called when something wrong is detect with some parameter
-  virtual void error (const char *msg) const = 0;
+  virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
+
+  // Calls error with current errno message appended
+  void sys_error (const std::string &msg) const __attribute__ ((noreturn));
 
   // Return the file format to use; if the FORMAT field is 0, then try
   // to guess it from FILE_NAME.
@@ -54,23 +127,28 @@ struct ImageParams
 struct ImageSinkParams : ImageParams
 {
   static const float DEFAULT_TARGET_GAMMA = 2.2;
+  static const float DEFAULT_QUALITY = 98; // 0-100
 
   ImageSinkParams ()
-    : width (0), height (0), target_gamma (0),
-      aa_factor (0), aa_overlap (0), aa_filter (0)
+    : width (0), height (0),
+      aa_factor (0), aa_overlap (0), aa_filter (0),
+      target_gamma (0), quality (0)
   { }
 
   class ImageSink *make_sink () const;
 
   // This is called when something wrong is detect with some parameter
-  virtual void error (const char *msg) const = 0;
+  virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
 
   unsigned width, height;
 
-  float target_gamma;		// 0 means unspecified (use default)
-
   unsigned aa_factor, aa_overlap;
   float (*aa_filter) (int offs, unsigned size);
+
+  // The following are for use of backends.  Not all backends use all
+  // parameters.  0 means unspecified (use default/ignore).
+  float target_gamma;		// For backends with limited dynamic range
+  float quality;		// For lossy compression; range 0-100 ala jpeg
 };
 
 // This is the class that format-specific subclasses override; it just
@@ -78,16 +156,22 @@ struct ImageSinkParams : ImageParams
 struct ImageFmtSinkParams : ImageSinkParams
 {
   ImageFmtSinkParams (const ImageSinkParams &params)
-    : ImageSinkParams (params)
+    : ImageSinkParams (params), generic_params (&params)
   { }
 
-  virtual void error (const char *msg) const;
+  virtual void error (const std::string &msg) const __attribute__ ((noreturn));
+
+  // Original generic parameters, if any
+  const ImageSinkParams *generic_params;
 };
 
 class ImageSink
 {
 public:
+  ImageSink (const ImageSinkParams &params) { }
+
   virtual ~ImageSink () = 0;
+
   virtual void write_row (const ImageRow &row) = 0;
   virtual float max_intens () const;
 };
@@ -141,7 +225,7 @@ struct ImageSourceParams : ImageParams
   class ImageSource *make_source () const;
 
   // This is called when something wrong is detect with some parameter
-  virtual void error (const char *msg) const __attribute__ ((noreturn)) = 0;
+  virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
 };
 
 // This is the class that format-specific subclasses override; it just
@@ -149,10 +233,13 @@ struct ImageSourceParams : ImageParams
 struct ImageFmtSourceParams : ImageSourceParams
 {
   ImageFmtSourceParams (const ImageSourceParams &params)
-    : ImageSourceParams (params)
+    : ImageSourceParams (params), generic_params (&params)
   { }
 
-  virtual void error (const char *msg) const;
+  virtual void error (const std::string &msg) const __attribute__ ((noreturn));
+
+  // Original generic parameters, if any
+  const ImageSourceParams *generic_params;
 };
 
 class ImageSource

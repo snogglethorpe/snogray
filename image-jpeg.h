@@ -1,4 +1,4 @@
-// image-png.h -- PNG format image handling
+// image-jpeg.h -- JPEG format image handling
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,27 +9,24 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_PNG_H__
-#define __IMAGE_PNG_H__
+#ifndef __IMAGE_JPEG_H__
+#define __IMAGE_JPEG_H__
 
 #include "image-rgb-byte.h"
 
 namespace Snogray {
 
-struct PngImageSinkParams : public RgbByteImageSinkParams
+struct JpegImageSinkParams : public RgbByteImageSinkParams
 {
-  PngImageSinkParams (const ImageSinkParams &params)
+  JpegImageSinkParams (const ImageSinkParams &params)
     : RgbByteImageSinkParams (params)
-  {
-    if (params.quality)
-      params.error ("Quality parameter not supported in PNG format");
-  }
+  { }
 
   virtual ImageSink *make_sink () const;
 };
 
 }
 
-#endif /* __IMAGE_PNG_H__ */
+#endif /* __IMAGE_JPEG_H__ */
 
-// arch-tag: fb6efedc-7ae1-433c-a703-59cafdfb9882
+// arch-tag: 354fa041-9c04-419b-a6e5-5c76fb3734cb
