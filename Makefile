@@ -6,7 +6,7 @@ CXXFLAGS = -O2 $(DEP_CFLAGS)
 
 DEP_CFLAGS = -MMD -MF $(<:%.cc=.%.d)
 
-CXXSRCS = test.cc snogray.cc scene.cc obj.cc intersect.cc color.cc sphere.cc
+CXXSRCS = test.cc snogray.cc scene.cc obj.cc intersect.cc color.cc sphere.cc voxtree.cc
 
 OBJS = $(CXXSRCS:.cc=.o)
 

@@ -30,6 +30,11 @@ public:
   {
     x -= v2.x; y -= v2.y; z -= v2.z;
   }
+
+  Pos midpoint (const Pos &p2) const
+  {
+    return Pos((x + p2.x) / 2, (y + p2.y) / 2, (z + p2.z) / 2);
+  }
 };
 
 #endif /* __POS_H__ */
