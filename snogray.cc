@@ -552,7 +552,6 @@ int main (int argc, char *const *argv)
 	  camera_ray.set_len (10000);
 
 	  output_row[x - hr_limit_x] = scene.render (camera_ray);
-	  //scene.render (camera_ray);
 	}
     }
 

@@ -94,7 +94,7 @@ operator* (float scale, const Color &color)
   return color * scale;
 }
 
-extern std::ostream& operator<< (std::ostream &os, const Color &col);
+extern std::ostream& operator<< (std::ostream &os, const Snogray::Color &col);
 
 
 // Colors with alpha channel

@@ -18,7 +18,7 @@ const Color Color::white (1,1,1);
 const Color Color::funny (0,10,0);
 
 std::ostream&
-operator<< (std::ostream &os, const Color &col)
+Snogray::operator<< (std::ostream &os, const Color &col)
 {
   os << "rgb<" << col.red << ", " << col.green << ", " << col.blue << ">";
   return os;

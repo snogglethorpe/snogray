@@ -298,17 +298,16 @@ ImageOutput::fill_aa_row ()
 
 		  if (src_x < src_width)
 		    {
+		      Color col = (*src_row)[src_x];
+		      float filt_val = kernel_row[offs_x];
+
 		      if (aa_max_intens == 0)
-			aa_color = (*src_row)[src_x] * kernel_row[offs_x];
+			aa_color += col * filt_val;
 		      else
 			// Make sure to do anti-aliasing using the clamped
 			// value; otherwise the information added by
 			// anti-aliasing is lost in subsequenet clamping
-			{
-			  Color col = (*src_row)[src_x];
-			  aa_color
-			    += col.clamp (aa_max_intens) * kernel_row[offs_x];
-			}
+			aa_color += col.clamp (aa_max_intens) * filt_val;
 		    }
 		}
 	    }

@@ -52,6 +52,27 @@ help (CmdLineParser &clp, ostream &os)
 }
 
 
+static inline float
+adjust_component_contrast (Color::component_t com, float expon)
+{
+  com *= 2;
+  com -= 1;
+  if (com < 0)
+    com = -pow (-com, expon);
+  else
+    com = pow (com, expon);
+  return (com + 1) / 2;
+}
+
+static inline Color
+adjust_contrast (const Color &col, float expon)
+{
+  return Color (adjust_component_contrast (col.red, expon),
+		adjust_component_contrast (col.green, expon),
+		adjust_component_contrast (col.blue, expon));
+}
+
+
 int main (int argc, char *const *argv)
 {
   // Command-line option specs
@@ -120,7 +141,7 @@ int main (int argc, char *const *argv)
   ImageOutput dst_image (dst_image_params);
 
   float intensity_scale = (exposure == 0) ? 1 : powf (2.0, exposure);
-  float intensity_expon = (contrast == 0) ? 1 : powf (2.0, contrast);
+  float intensity_expon = (contrast == 0) ? 1 : powf (2.0, -contrast);
 
   for (unsigned y = 0; y < src_image.height; y++)
     {
@@ -133,7 +154,7 @@ int main (int argc, char *const *argv)
 	  {
 	    Color col = output_row[x];
 	    if (contrast != 0)
-	      col = col.pow (intensity_expon);
+	      col = adjust_contrast (col, intensity_expon);
 	    if (exposure != 0)
 	      col *= intensity_scale;
 	    output_row[x] = col;
