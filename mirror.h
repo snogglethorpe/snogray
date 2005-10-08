@@ -20,8 +20,13 @@ class Mirror : public Material
 {
 public:
   Mirror (float _reflectance, const Color &col = Color::white,
-	  const LightModel *lmodel = lambert)
-    : Material (col, lmodel), reflectance (_reflectance)
+	  const LightModel *lmodel)
+    : Material (col, lmodel),
+      reflectance (_reflectance)
+  { }
+  Mirror (float _reflectance, const Color &col, float phong_exp)
+    : Material (col, phong (phong_exp, _reflectance)),
+      reflectance (_reflectance)
   { }
 
   virtual Color render (const Intersect &isec, Scene &scene, unsigned depth)

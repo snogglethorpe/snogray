@@ -32,6 +32,10 @@ public:
   // models.
   static const Lambert *lambert;
   static const Phong *phong (float exp, const Color &spec_col = Color::white);
+  static const Phong *phong (float exp, float intens)
+  {
+    return phong (exp, Color::white * intens);
+  }
 
   Material (const Color &col, const LightModel *lmodel = lambert)
     : color (col), light_model (lmodel)

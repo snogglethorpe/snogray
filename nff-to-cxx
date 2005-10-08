@@ -21,6 +21,8 @@ function args3(first_field)
   return $first_field ", " $(first_field + 1) ", " $(first_field + 2)
 }
 
+$1 ~ /^#/ { next }
+
 reading_v && $1 == "from"     { cam_pos  = args3(2); next }
 reading_v && $1 == "at"       { cam_targ = args3(2); next }
 reading_v && $1 == "up"       { cam_up   = args3(2); next }
@@ -137,8 +139,6 @@ $1 == "pp" {
   p_cur_vert = 0
   next
 }
-
-$1 ~ /^#/ { next }
 
 { print "Unknown: " $0 }
 

@@ -590,4 +590,33 @@ Voxtree::Node::max_depth (unsigned cur_sibling_max) const
     return cur_sibling_max;
 }
 
+float
+Voxtree::Node::avg_depth () const
+{
+  unsigned num_subnodes = 0;
+  float subnode_sum = 0;
+
+  if (x_lo_y_lo_z_lo)
+    num_subnodes++, subnode_sum += x_lo_y_lo_z_lo->avg_depth ();
+  if (x_lo_y_lo_z_hi)
+    num_subnodes++, subnode_sum += x_lo_y_lo_z_hi->avg_depth ();
+  if (x_lo_y_hi_z_lo)
+    num_subnodes++, subnode_sum += x_lo_y_hi_z_lo->avg_depth ();
+  if (x_lo_y_hi_z_hi)
+    num_subnodes++, subnode_sum += x_lo_y_hi_z_hi->avg_depth ();
+  if (x_hi_y_lo_z_lo)
+    num_subnodes++, subnode_sum += x_hi_y_lo_z_lo->avg_depth ();
+  if (x_hi_y_lo_z_hi)
+    num_subnodes++, subnode_sum += x_hi_y_lo_z_hi->avg_depth ();
+  if (x_hi_y_hi_z_lo)
+    num_subnodes++, subnode_sum += x_hi_y_hi_z_lo->avg_depth ();
+  if (x_hi_y_hi_z_hi)
+    num_subnodes++, subnode_sum += x_hi_y_hi_z_hi->avg_depth ();
+
+  if (num_subnodes == 0)
+    return 1;
+  else
+    return (subnode_sum / num_subnodes) + 1;
+}
+
 // arch-tag: ec7b70cc-3cf6-40f3-9ec6-0ce71dbd20c5

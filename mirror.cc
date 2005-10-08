@@ -28,9 +28,8 @@ Mirror::render (const Intersect &isec, Scene &scene, unsigned depth) const
 
   Color total_color (reflectance * scene.render (mirror_ray, depth, isec.obj));
 
-  // Render contribution from surface
-  if (reflectance < 1 - E)
-    total_color += (1 - reflectance) * Material::render (isec, scene, depth);
+  // Render contribution from surface.
+  total_color += Material::render (isec, scene, depth);
 
   return total_color;
 }

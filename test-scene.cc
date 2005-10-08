@@ -50,11 +50,11 @@ Snogray::define_test_scene (const TestSceneParams *p, float light_intens,
 	  if (mp->exp <= E || mp->exp > 1000)
 	    lmodel = Material::lambert;
 	  else
-	    lmodel = Material::phong (mp->exp, Color::white * mp->Ks);
+	    lmodel = Material::phong (mp->exp, mp->Ks);
 
 	  // Reflectance
 	  if (mp->Ks > E)
-	    materials[i] = new Mirror (mp->Ks, diffuse / (1 - mp->Ks), lmodel);
+	    materials[i] = new Mirror (mp->Ks, diffuse, lmodel);
 	  else
 	    materials[i] = new Material (diffuse, lmodel);
 

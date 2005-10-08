@@ -85,10 +85,17 @@ public:
   // Return this vector reflected around NORMAL
   Vec reflection (const Vec &normal) const
   {
-    // Rr = 2 N (R1 . N) - R1
+    // Rr = 2 N (Ri . N) - Ri
 
     return normal * dot (normal) * 2 - *this;
   }
+
+//   Vec refraction (const Vec &normal) const
+//   {
+//     // Rr = ni / nr (cos(i)) - cos(r)N - ni / nr Ri
+//     //    = ni / nr (N . Ri)
+//     //       - sqrt (1- (ni / nr) 2 (1 - (N . Ri) 2 ) * N - (ni / nr) I)
+
 };
 
 static inline Vec

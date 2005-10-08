@@ -38,16 +38,17 @@ add_bulb (Scene &scene, const Pos &pos, float intens,
 static void
 def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 {
-  const Phong *ph300 = Material::phong (300), *ph400 = Material::phong (400);
-  const Phong *ph500 = Material::phong (500);
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
 //  Material *mat2 = scene.add (new Lambert (Color (0.5, 0.5, 0)));
 //  Material *mat3 = scene.add (new Lambert (Color (1, 0.5, 1)));
 //  Material *mat4 = scene.add (new Lambert (Color (1, 0.5, 1)));
-  Material *mat1 = scene.add (new Material (Color (1, 0.5, 0.2)));
-  Material *mat2 = scene.add (new Mirror (0.9, Color::white, ph300));
 //   Material *mat3 = scene.add (Material::phong (400, Color (0.1, 0.1, 0.1)));
-  Material *mat3 = scene.add (new Material (Color (0.8, 0, 0), ph400));
+  Material *mat1
+    = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
+  Material *mat2
+    = scene.add (new Mirror (0.5, Color::white * 0.5, 100));
+  Material *mat3
+    = scene.add (new Material (Color (0.8, 0, 0), Material::phong (400)));
   Material *mat4 = scene.add (new Material (Color (0.2, 0.5, 0.1)));
 
   // First test scene
@@ -109,7 +110,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 		     (float)i / (float)gsize);
 	color *= 0.3;
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
-	Material *mat = scene.add (new Material (color, ph500));
+	Material *mat = scene.add (new Material (color, Material::phong (500)));
 	scene.add (new Sphere (mat, pos, 0.5));
 	scene.add (new Triangle (mat,
 				 pos + Vec(1.5,-0.2,0),

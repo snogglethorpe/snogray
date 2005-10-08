@@ -469,6 +469,8 @@ int main (int argc, char *const *argv)
 	   << setw (10) << commify (scene.materials.size ()) << endl;
       cout << "   voxtree nodes: "
 	   << setw (10) << commify (scene.obj_voxtree.num_nodes ()) << endl;
+      cout << "   voxtree avg depth: "
+	   << setw (6) << scene.obj_voxtree.avg_depth () << endl;
       cout << "   voxtree max depth:"
 	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
     }
