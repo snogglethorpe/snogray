@@ -29,7 +29,7 @@ public:
       reflectance (_reflectance)
   { }
 
-  virtual Color render (const Intersect &isec, Scene &scene, unsigned depth)
+  virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
     const;
 
   float reflectance;

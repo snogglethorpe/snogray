@@ -21,7 +21,7 @@ class Glow : public Material
 public:
   Glow (const Color &_color) : Material (_color) { }
 
-  virtual Color render (const Intersect &isec, Scene &scene, unsigned depth)
+  virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
     const;
 };
 

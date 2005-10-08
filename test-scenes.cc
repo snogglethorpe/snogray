@@ -46,7 +46,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
   Material *mat1
     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
   Material *mat2
-    = scene.add (new Mirror (0.5, Color::white * 0.5, 100));
+    = scene.add (new Mirror (0.8, Color::white * 0.2, 100));
   Material *mat3
     = scene.add (new Material (Color (0.8, 0, 0), Material::phong (400)));
   Material *mat4 = scene.add (new Material (Color (0.2, 0.5, 0.1)));
@@ -386,18 +386,18 @@ test_scene (Scene &scene, Camera &camera, unsigned scene_num)
       define_test_scene (&f15_test_scene_params, 2500, scene, camera);
       break;
 
-    case 26:
-      extern TestSceneParams balls_5_test_scene_params;
-      define_test_scene (&balls_5_test_scene_params, 18, scene, camera);
-      break;
+//     case 26:
+//       extern TestSceneParams balls_5_test_scene_params;
+//       define_test_scene (&balls_5_test_scene_params, 18, scene, camera);
+//       break;
     case 27:
       extern TestSceneParams teapot_14_test_scene_params;
       define_test_scene (&teapot_14_test_scene_params, 115, scene, camera);
       break;
-    case 28:
-      extern TestSceneParams teapot_22_test_scene_params;
-      define_test_scene (&teapot_22_test_scene_params, 115, scene, camera);
-      break;
+//     case 28:
+//       extern TestSceneParams teapot_22_test_scene_params;
+//       define_test_scene (&teapot_22_test_scene_params, 115, scene, camera);
+//       break;
     case 29:
       extern TestSceneParams teapot_30_test_scene_params;
       define_test_scene (&teapot_30_test_scene_params, 115, scene, camera);

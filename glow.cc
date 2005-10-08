@@ -18,7 +18,7 @@
 using namespace Snogray;
 
 Color
-Glow::render (const Intersect &isec, Scene &scene, unsigned depth) const
+Glow::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {
   return color;
 }

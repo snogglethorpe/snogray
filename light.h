@@ -18,24 +18,21 @@ namespace Snogray {
 
 class Light {
 public:
+
   Light (const Pos &_pos, const Color &col)
-    : pos (_pos), color (col),
-      shadow_hint (0)
+    : pos (_pos), color (col), num (0)
   { }
   Light (const Pos &_pos, float intens = 1, const Color &col = Color::white)
-    : pos (_pos), color (col * intens),
-      shadow_hint (0)
+    : pos (_pos), color (col * intens), num (0)
   { }
 
   Pos pos;
   Color color;
 
-  // This is used to cache a hint to speed up shadow testing: It points
-  // to the most recent object which was found to cast a shadow in this
-  // light.  When doing intersection testing to find shadows, this object
-  // (if non-zero) is tested first; because nearby pixels are often in
-  // the same shadow, the most recent shadow-caster is often a good hint.
-  Obj *shadow_hint;
+  // Each light has a number, which we use as a index to access various
+  // data structures referring to lights.
+  //
+  unsigned num;
 };
 
 }

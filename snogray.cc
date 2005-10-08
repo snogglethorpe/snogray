@@ -523,6 +523,13 @@ int main (int argc, char *const *argv)
 	  cout.flush ();
 	}
 
+      // This is basically a cache to speed up tracing by holding hints
+      // that take advantage of spatial coherency.  We create a new one
+      // for each row as the state at the end of the previous row is
+      // probably not too useful anyway.
+      //
+      TraceState tstate (scene);
+
       // Process one image row
       //
       for (unsigned x = hr_limit_x; x < hr_limit_max_x; x++)
@@ -536,7 +543,7 @@ int main (int argc, char *const *argv)
 
 	  // Cast the camera ray and calculate the image color at that point.
 	  //
-	  Color pix = scene.render (camera_ray);
+	  Color pix = scene.render (camera_ray, tstate);
 
 	  // If necessary undo any bogus gamma-correction embedded in
 	  // the scene lighting.  We'll do proper gamma correct later.

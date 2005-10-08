@@ -49,7 +49,7 @@ Material::phong (float exp, const Color &spec_col)
 
 Color
 Material::illum (const Intersect &isec, const Color &color,
-		 Scene &scene, unsigned depth)
+		 Scene &scene, TraceState &tstate)
   const
 {
   // Iterate over every light, calculating its contribution to our
@@ -57,7 +57,7 @@ Material::illum (const Intersect &isec, const Color &color,
 
   Color total_color;	// Accumulated colors from all light sources
 
-  for (std::list<Light *>::const_iterator li = scene.lights.begin();
+  for (Scene::light_iterator_t li = scene.lights.begin();
        li != scene.lights.end(); li++)
     {
       Light *light = *li;
@@ -69,7 +69,7 @@ Material::illum (const Intersect &isec, const Color &color,
       // other object casts a shadow.
 
       if (isec.normal.dot (light_ray.dir) >= 0
-	  && !scene.shadowed (*light, light_ray, isec.obj))
+	  && !scene.shadowed (*light, light_ray, tstate, isec.obj))
 	{
 	  // This point is not shadowed, either by ourselves or by any
 	  // other object, so calculate the lighting contribution from
@@ -86,7 +86,7 @@ Material::illum (const Intersect &isec, const Color &color,
 }
 
 Color
-Material::render (const Intersect &isec, Scene &scene, unsigned depth) const
+Material::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {
   // If the dot product of the surface normal with the eye ray is
   // negative, we're looking at the back of the surface; we render
@@ -95,7 +95,7 @@ Material::render (const Intersect &isec, Scene &scene, unsigned depth) const
   // small negative dot-products as if they were zero.
 
   if (isec.normal.dot (isec.eye_dir) >= -0.0001)
-    return illum (isec, color, scene, depth);
+    return illum (isec, color, scene, tstate);
   else
     // We're looking at the back of the surface, render as wacky color.
     //

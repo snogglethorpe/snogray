@@ -18,14 +18,11 @@ using namespace std;
 //
 Scene::~Scene ()
 {
-  for (list<Obj *>::iterator oi = objs.begin();
-       oi != objs.end(); oi++)
+  for (obj_iterator_t oi = objs.begin(); oi != objs.end(); oi++)
     delete *oi;
-  for (list<Light *>::iterator li = lights.begin();
-       li != lights.end(); li++)
+  for (light_iterator_t li = lights.begin(); li != lights.end(); li++)
     delete *li;
-  for (list<Material *>::iterator mi = materials.begin();
-       mi != materials.end(); mi++)
+  for (material_iterator_t mi = materials.begin(); mi != materials.end(); mi++)
     delete *mi;
 }
 
@@ -59,14 +56,17 @@ SceneClosestIntersectCallback::operator () (Obj *obj)
 }
 
 Intersect
-Scene::closest_intersect (const Ray &ray, const Obj *ignore)
+Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *ignore)
 {
+  // XXX
+  Ray bounded_ray (ray, 10000);
+
   SceneClosestIntersectCallback
-    closest_isec_cb (ray, ignore, &stats.voxtree_closest_intersect);
+    closest_isec_cb (bounded_ray, ignore, &stats.voxtree_closest_intersect);
 
   stats.scene_closest_intersect_calls++;
 
-  obj_voxtree.for_each_possible_intersector (ray, closest_isec_cb);
+  obj_voxtree.for_each_possible_intersector (bounded_ray, closest_isec_cb);
 
   closest_isec_cb.isec.finish ();
 
@@ -81,11 +81,11 @@ Scene::closest_intersect (const Ray &ray, const Obj *ignore)
 struct SceneShadowedCallback : Voxtree::IntersectCallback
 {
   SceneShadowedCallback (Light &_light, const Ray &_light_ray,
-			 const Obj *_ignore = 0,
+			 TraceState &_tstate, const Obj *_ignore = 0,
 			 Voxtree::Stats *stats = 0)
     : IntersectCallback (stats), 
       light (_light), light_ray (_light_ray), ignore (_ignore),
-      shadowed (false), num_tests (0)
+      shadowed (false), tstate (_tstate), num_tests (0)
   { }
 
   virtual void operator() (Obj *);
@@ -95,6 +95,8 @@ struct SceneShadowedCallback : Voxtree::IntersectCallback
   const Obj *ignore;
 
   bool shadowed;
+
+  TraceState &tstate;
 
   unsigned num_tests;
 };
@@ -113,7 +115,7 @@ SceneShadowedCallback::operator () (Obj *obj)
 	  // Remember which object cast a shadow from this light, so we
 	  // can try it first next time.
 	  //
-	  light.shadow_hint = obj;
+	  tstate.shadow_hints[light.num] = obj;
 
 	  // Stop looking any further.
 	  //
@@ -123,7 +125,8 @@ SceneShadowedCallback::operator () (Obj *obj)
 }
 
 bool
-Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
+Scene::shadowed (Light &light, const Ray &light_ray,
+		 TraceState &tstate, const Obj *ignore)
 {
   stats.scene_shadowed_tests++;
 
@@ -132,9 +135,10 @@ Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
   // chance of hitting than usual (because nearby points are often shadowed
   // from a given light by the same object).
   //
-  if (light.shadow_hint && light.shadow_hint != ignore)
+  Obj *hint = tstate.shadow_hints[light.num];
+  if (hint && hint != ignore)
     {
-      if (light.shadow_hint->intersects (light_ray))
+      if (hint->intersects (light_ray))
 	// It worked!  Return quickly.
 	{
 	  stats.shadow_hint_hits++;
@@ -144,12 +148,12 @@ Scene::shadowed (Light &light, const Ray &light_ray, const Obj *ignore)
 	// It didn't work; clear this hint out.
 	{
 	  stats.shadow_hint_misses++;
-	  light.shadow_hint = 0;
+	  tstate.shadow_hints[light.num] = 0;
 	}
     }
 
   SceneShadowedCallback
-    shadowed_cb (light, light_ray, ignore, &stats.voxtree_shadowed);
+    shadowed_cb (light, light_ray, tstate, ignore, &stats.voxtree_shadowed);
 
   obj_voxtree.for_each_possible_intersector (light_ray, shadowed_cb);
 

@@ -21,16 +21,20 @@ using namespace Snogray;
 #define E 0.0001
 
 Color
-Glass::render (const Intersect &isec, Scene &scene, unsigned depth) const
+Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {
   // Render transmission
   Vec xmit_dir = isec.ray.dir.refraction (isec.normal, ior);
   Ray xmit_ray (isec.point, xmit_dir);
 
-  Color total_color (transmittance * scene.render (xmit_ray, depth, isec.obj));
+  TraceState &sub_tstate
+    = tstate.subtrace_state (TraceState::SUBTRACE_REFLECTION);
+
+  Color total_color (transmittance
+		     * scene.render (xmit_ray, sub_tstate, isec.obj));
 
   // Render contribution from reflections and surface
-  total_color += Mirror::render (isec, scene, depth);
+  total_color += Mirror::render (isec, scene, tstate);
 
   return total_color;
 }

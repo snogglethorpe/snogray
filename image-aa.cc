@@ -19,6 +19,7 @@ using namespace Snogray;
 // Filter types
 
 // "Box" filter weights each pixel in the source evenly
+//
 float
 ImageOutput::aa_box_filter (int offs, unsigned size)
 {
@@ -27,6 +28,7 @@ ImageOutput::aa_box_filter (int offs, unsigned size)
 
 // Triangle filter weights pixels in the source linearly according to
 // the (inverse of) their distance from the center pixel
+//
 float
 ImageOutput::aa_triang_filter (int offs, unsigned size)
 {
@@ -39,6 +41,7 @@ ImageOutput::aa_triang_filter (int offs, unsigned size)
 }
 
 // Gaussian filter weights pixels in the source using a Gaussian distribution
+//
 float
 ImageOutput::aa_gauss_filter (int offs, unsigned size)
 {
@@ -47,6 +50,9 @@ ImageOutput::aa_gauss_filter (int offs, unsigned size)
   return (M_SQRT2 * (1 / (2 * sqrt (M_PI))) * powf (M_E, -x*x / 2));
 }
 
+// Make a convolution kernel for anti-aliasing, from the filter function
+// AA_FILTER.  The kernel we make is KERNEL_SIZE columns x KERNEL_SIZE rows.
+//
 float *
 ImageOutput::make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
 			     unsigned kernel_size)
@@ -55,6 +61,7 @@ ImageOutput::make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
   unsigned center_offs = kernel_size / 2;
 
   // Calculate kernel elements.  This assumes that the filter is "separable".
+  //
   for (unsigned y = 0; y < kernel_size; y++)
     {
       int offs_y = y - center_offs;
@@ -72,12 +79,14 @@ ImageOutput::make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
   // Because we are using discrete samples, it's possible for small
   // kernel sizes to sum to some number noticeably less than one, making
   // the output image too dim; calculate a compensation factor.
+  //
   float kernel_sum = 0;
   for (unsigned y = 0; y < kernel_size; y++)
     for (unsigned x = 0; x < kernel_size; x++)
       kernel_sum += kernel[y * kernel_size + x];
 
   // If it's significant, adjust the kernel by that factor
+  //
   if (kernel_sum < 0.99 || kernel_sum > 1)
     {
       float compensation_factor = 1 / kernel_sum;
@@ -90,6 +99,10 @@ ImageOutput::make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
   return kernel;
 }
 
+// Compute the single row `aa_row' from the multiple input rows in
+// `recent_rows' by convoluting pixels recent_rows with our filter
+// kernel.
+//
 void
 ImageOutput::fill_aa_row ()
 {
@@ -132,6 +145,7 @@ ImageOutput::fill_aa_row ()
 			// Make sure to do anti-aliasing using the clamped
 			// value; otherwise the information added by
 			// anti-aliasing is lost in subsequent clamping
+			//
 			aa_color += col.clamp (aa_max_intens) * filt_val;
 		    }
 		}

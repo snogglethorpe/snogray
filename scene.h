@@ -13,12 +13,14 @@
 #define __SCENE_H__
 
 #include <list>
+#include <vector>
 
 #include "obj.h"
 #include "light.h"
 #include "intersect.h"
 #include "material.h"
 #include "voxtree.h"
+#include "trace-state.h"
 
 namespace Snogray {
 
@@ -26,18 +28,23 @@ class Scene
 {
 public:
 
+  typedef std::vector<Light *>::const_iterator light_iterator_t;
+  typedef std::list<Obj *>::const_iterator obj_iterator_t;
+  typedef std::list<Material *>::const_iterator material_iterator_t;
+
   static const unsigned DEFAULT_MAX_DEPTH = 5;
   static const unsigned DEFAULT_HORIZON = 10000;
   static const int DEFAULT_ASSUMED_GAMMA = 1;
 
   Scene ()
-    : max_depth (DEFAULT_MAX_DEPTH), horizon (DEFAULT_HORIZON),
-      assumed_gamma (DEFAULT_ASSUMED_GAMMA)
+    : max_depth (DEFAULT_MAX_DEPTH), assumed_gamma (DEFAULT_ASSUMED_GAMMA)
   { }
   ~Scene ();
 
-  Intersect closest_intersect (const Ray &ray, const Obj *ignore = 0);
-  bool shadowed (Light &light, const Ray &light_ray, const Obj *ignore = 0);
+  Intersect closest_intersect (const Ray &ray,
+			       TraceState &tstate, const Obj *ignore = 0);
+  bool shadowed (Light &light, const Ray &light_ray,
+		 TraceState &tstate, const Obj *ignore = 0);
   
   // Add various items to a scene.  All of the following "give" the
   // object to the scene -- freeing the scene will free them too.
@@ -50,28 +57,30 @@ public:
     return obj;
   }
 
-  Light *add (Light *light) { lights.push_back (light); return light; }
+  Light *add (Light *light)
+  {
+    light->num = num_lights();	// Give LIGHT an index
+    lights.push_back (light);
+    return light;
+  }
 
   Material *add (Material *mat) { materials.push_back (mat); return mat; }
 
+  unsigned num_lights () { return lights.size (); }
+
   void set_background (const Color &col) { background = col; }
 
-  Color render (const Intersect &isec, unsigned depth = 0)
+  Color render (const Ray &ray, TraceState &tstate, const Obj *ignore = 0)
   {
+    if (tstate.depth > max_depth)
+      return background;
+
+    Intersect isec = closest_intersect (ray, tstate, ignore);
+
     if (isec.obj)
-      return isec.obj->material->render (isec, *this, depth);
+      return isec.obj->material->render (isec, *this, tstate);
     else
       return background;
-  }
-  Color render (const Ray &ray, unsigned depth = 0, const Obj *ignore = 0)
-  {
-    if (depth > max_depth)
-      return background;
-
-    Ray bounded_ray (ray, horizon);
-    Intersect isec = closest_intersect (bounded_ray, ignore);
-
-    return isec.obj ? render (isec, depth + 1) : background;
   }
 
   void set_assumed_gamma (float g) { assumed_gamma = g; }
@@ -94,7 +103,9 @@ public:
   } stats;
 
   std::list<Obj *> objs;
-  std::list<Light *> lights;
+
+  std::vector<Light *> lights;
+
   std::list<Material *> materials;
 
   // Background color
@@ -103,7 +114,6 @@ public:
   Voxtree obj_voxtree;
 
   unsigned max_depth;
-  unsigned horizon;
 
   float assumed_gamma;
 };

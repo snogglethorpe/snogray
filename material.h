@@ -18,6 +18,7 @@
 #include "light-model.h"
 #include "phong.h"
 #include "lambert.h"
+#include "trace-state.h"
 
 namespace Snogray {
 
@@ -42,11 +43,11 @@ public:
   { }
   virtual ~Material ();
 
-  virtual Color render (const Intersect &isec, Scene &scene, unsigned depth)
+  virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
     const;
 
   Color illum (const Intersect &isec, const Color &color,
-	       Scene &scene, unsigned depth)
+	       Scene &scene, TraceState &tstate)
     const;
 
   Color color;
