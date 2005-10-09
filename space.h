@@ -17,21 +17,6 @@ namespace Snogray {
 typedef float coord_t;
 typedef coord_t dist_t;
 
-class Tuple3 {
-public:
-  Tuple3 (coord_t _x = 0, coord_t _y = 0, coord_t _z = 0)
-    : x (_x), y (_y), z (_z)
-  { }
-
-  // Mainly so we can use Tuple3 as a map key
-  bool operator< (const Tuple3 &t) const
-  {
-    return x < t.x || (x == t.x && (y < t.y || (y == t.y && z < t.z)));
-  }
-
-  coord_t x, y, z;
-};  
-
 }
 
 #endif /* __SPACE_H__ */

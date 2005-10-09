@@ -12,7 +12,6 @@
 #ifndef __POS_H__
 #define __POS_H__
 
-#include "space.h"
 #include "vec.h"
 
 namespace Snogray {
@@ -20,8 +19,13 @@ namespace Snogray {
 class Pos : public Tuple3 
 {
 public:
+
   Pos (coord_t _x = 0, coord_t _y = 0, coord_t _z = 0) : Tuple3 (_x, _y, _z) { }
   Pos (const Pos &pos) : Tuple3 (pos.x, pos.y, pos.z) { }
+
+  // Allow easy down-casting for sharing code
+  //
+  Pos (const Tuple3 &tuple) : Tuple3 (tuple) { }
 
   Pos operator+ (const Vec &v) const
   {
@@ -39,6 +43,17 @@ public:
   void operator-= (const Vec &v2)
   {
     x -= v2.x; y -= v2.y; z -= v2.z;
+  }
+
+  Pos operator* (const Transform &xform) const
+  {
+    return Pos (Tuple3::operator* (xform));
+  }
+  const Pos &operator*= (const Transform &xform)
+  {
+    Pos temp = *this * xform;
+    *this = temp;
+    return *this;
   }
 
   dist_t dist (const Pos &p2) const

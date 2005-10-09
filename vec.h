@@ -15,15 +15,20 @@
 #include <cmath>
 #include <fstream>
 
-#include "space.h"
+#include "tuple3.h"
 
 namespace Snogray {
 
 class Vec : public Tuple3
 {
 public:
+
   Vec (dist_t _x = 0, dist_t _y = 0, dist_t _z = 0) : Tuple3 (_x, _y, _z) { }
   Vec (const Vec &vec) : Tuple3 (vec.x, vec.y, vec.z) { }
+
+  // Allow easy down-casting for sharing code
+  //
+  Vec (const Tuple3 &tuple) : Tuple3 (tuple) { }
 
   bool null () const { return x == 0 && y == 0 && z == 0; }
 
@@ -60,6 +65,17 @@ public:
   void operator/= (const float denom)
   {
     x /= denom; y /= denom; z /= denom;
+  }
+
+  Vec operator* (const Transform &xform) const
+  {
+    return Vec (Tuple3::operator* (xform));
+  }
+  const Vec &operator*= (const Transform &xform)
+  {
+    Vec temp = *this * xform;
+    *this = temp;
+    return *this;
   }
 
   dist_t dot (const Vec &v2) const
@@ -102,7 +118,6 @@ public:
 //     // Rr = ni / nr (cos(i)) - cos(r)N - ni / nr Ri
 //     //    = ni / nr (N . Ri)
 //     //       - sqrt (1- (ni / nr) 2 (1 - (N . Ri) 2 ) * N - (ni / nr) I)
-
 };
 
 static inline Vec
