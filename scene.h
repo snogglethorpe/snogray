@@ -50,7 +50,7 @@ public:
 
   // Specific scene file formats
   //
-  void load_nff_file (std::istream &stream, Camera &camera);
+  void load_aff_file (std::istream &stream, Camera &camera);
 
   Intersect closest_intersect (const Ray &ray,
 			       TraceState &tstate, const Obj *ignore = 0);

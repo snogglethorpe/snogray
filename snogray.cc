@@ -237,7 +237,7 @@ s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
 n
 s " Scene options:"
-s "  -I, --scene-format=FMT     Input scene has format FMT (one of: test, nff)"
+s "  -I, --scene-format=FMT     Scene is in format FMT (one of: test, aff, nff)"
 s "  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA"
 s "  -L, --light-scale=SCALE    Scale all scene lighting by SCALE"
 n

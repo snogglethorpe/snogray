@@ -19,20 +19,27 @@ namespace Snogray {
 class Mirror : public Material
 {
 public:
-  Mirror (float _reflectance, const Color &col = Color::white,
-	  const LightModel *lmodel)
+  Mirror (float _reflectance, const Color &col, const LightModel *lmodel)
     : Material (col, lmodel),
-      reflectance (_reflectance)
+      reflectance (col * _reflectance)
   { }
   Mirror (float _reflectance, const Color &col, float phong_exp)
     : Material (col, phong (phong_exp)),
+      reflectance (col * _reflectance)
+  { }
+  Mirror (Color _reflectance, const Color &col, const LightModel *lmodel)
+    : Material (col, lmodel),
+      reflectance ( _reflectance)
+  { }
+  Mirror (Color _reflectance, const Color &col, float phong_exp)
+    : Material (col, phong (phong_exp, _reflectance)),
       reflectance (_reflectance)
   { }
 
   virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
     const;
 
-  float reflectance;
+  Color reflectance;
 };
 
 }

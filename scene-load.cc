@@ -43,8 +43,8 @@ Scene::load (const char *scene_file_name, const char *fmt, Camera &camera)
 void
 Scene::load (istream &stream, const char *fmt, Camera &camera)
 {
-  if (strcmp (fmt, "nff") == 0)
-    load_nff_file (stream, camera);
+  if (strcasecmp (fmt, "nff") == 0 || strcasecmp (fmt, "aff") == 0)
+    load_aff_file (stream, camera);
   else
     throw (runtime_error (string ("Unknown scene file format: ") + fmt));
 }

@@ -1,4 +1,4 @@
-// scene-load-nff.cc -- Load .nff scene file
+// scene-load-aff.cc -- Load AFF or NFF scene file
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -7,6 +7,18 @@
 // archive for more details.
 //
 // Written by Miles Bader <miles@gnu.org>
+//
+
+//
+// "AFF" (Neutral File Format) is the scene file format used by Eric Haines'
+// "Standard Procedural Databases" (SPD) project.
+//
+// "AFF" (Animated File Format) is an extension of AFF used by the
+// "BART: A Benchmark for Animated Ray Tracing" project, by Jonas Lext,
+// Ulf Assarsson, and Tomas Möller.
+//
+// AFF is strictly upward compatible with NFF, so we use the same code
+// to load both.
 //
 
 #include <fstream>
@@ -25,12 +37,12 @@ using namespace std;
 
 // How bright we make lights
 //
-#define NFF_LIGHT_INTENS 100
+#define AFF_LIGHT_INTENS 100
 
-// The .nff files we have seen all use wacky "gamma adjusted" lighting,
+// The .aff files we have seen all use wacky "gamma adjusted" lighting,
 // So try to compensate for that here.
 //
-#define NFF_ASSUMED_GAMMA 2.2
+#define AFF_ASSUMED_GAMMA 2.2
 
 
 // Low-level input functions
@@ -216,12 +228,12 @@ barf_if_no_material (const Material *mat, const char *op)
 }
 
 void
-Scene::load_nff_file (istream &stream, Camera &camera)
+Scene::load_aff_file (istream &stream, Camera &camera)
 {
   MeshState cur_mesh (*this);
   const Material *cur_material = 0;
 
-  set_assumed_gamma (NFF_ASSUMED_GAMMA);
+  set_assumed_gamma (AFF_ASSUMED_GAMMA);
 
   while (! stream.eof ())
     {
@@ -286,32 +298,49 @@ Scene::load_nff_file (istream &stream, Camera &camera)
 
       else if (strcmp (cmd_buf, "l") == 0)
 	//
-	// Positional light.  A light is defined by XYZ position.  Description:
+	// Positional light.  A light is defined by XYZ position.
+	//
+	// Description:
 	//     "l" X Y Z [R G B]
 	//
 	{
 	  Pos pos = read_pos (stream);
 
 	  if (stream.peek () == '\n')
-	    add (new Light (pos, NFF_LIGHT_INTENS));
+	    add (new Light (pos, AFF_LIGHT_INTENS));
 	  else
-	    add (new Light (pos, NFF_LIGHT_INTENS, read_color (stream)));
+	    add (new Light (pos, AFF_LIGHT_INTENS, read_color (stream)));
 	}
-      else if (strcmp (cmd_buf, "f") == 0)
+      else if (strcmp (cmd_buf, "f") == 0 || strcmp (cmd_buf, "fm") == 0)
 	//
-	// Fill color and shading parameters.  Description:
+	// Fill color and shading parameters.
+	//
+        // Description:
 	//     "f" red green blue Kd Ks Shine T index_of_refraction
+	//	"fm" amb_r amb_g amb_b diff_r diff_g diff_b spec_r spec_g spec_b Shine T index_of_refraction
+	//
+	// Format:
+	//	f %g %g %g %g %g %g %g %g
+	//	fm %g %g %g %g %g %g %g %g %g %g %g %g
 	//
 	{
-	  Color color = read_color (stream);
+	  Color diffuse, specular, ambient;
 
-	  float diffuse = read_float (stream);
-	  float specular = read_float (stream);
+	  if (strcmp (cmd_buf, "f") == 0)
+	    {
+	      Color color = read_color (stream);
+	      diffuse = color * read_float (stream);
+	      specular = Color::white * read_float (stream);
+	    }
+	  else
+	    {
+	      diffuse = read_color (stream);
+	      specular = read_color (stream);
+	    }
+	    
 	  float phong_exp = read_float (stream);
 	  float transmittance = read_float (stream);
 	  float ior = read_float (stream);
-
-	  color *= diffuse;
 
 	  const LightModel *lmodel = 0;
 	  if (phong_exp <= E || phong_exp > 1000)
@@ -319,10 +348,10 @@ Scene::load_nff_file (istream &stream, Camera &camera)
 	  else
 	    lmodel = Material::phong (phong_exp, specular);
 
-	  if (specular > E)
-	    cur_material = new Mirror (specular, color, lmodel);
+	  if (specular.intensity() > E)
+	    cur_material = new Mirror (specular, diffuse, lmodel);
 	  else
-	    cur_material = new Material (color, lmodel);
+	    cur_material = new Material (diffuse, lmodel);
 
 	  add (cur_material);
 	}
@@ -400,7 +429,7 @@ Scene::load_nff_file (istream &stream, Camera &camera)
 	}
 
       else
-	throw runtime_error (string ("Unknown NFF operator: ") + cmd_buf);
+	throw runtime_error (string ("Unknown AFF/NFF operator: ") + cmd_buf);
     }
 
   cur_mesh.finish ();

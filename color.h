@@ -44,6 +44,11 @@ public:
   {
     return Color (red * scale, green * scale, blue * scale);
   }
+  Color operator* (const Color &filter) const
+  {
+    return Color (red * filter.red, green * filter.green, blue * filter.blue);
+  }
+
   Color operator+ (const Color &col2) const
   {
     return Color (red + col2.red, green + col2.green, blue + col2.blue);

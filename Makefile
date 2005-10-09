@@ -90,7 +90,7 @@ COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 
 SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc light-model.cc	\
 	  material.cc mesh.cc mirror.cc obj.cc phong.cc primary-obj.cc	\
-	  ray.cc scene.cc scene-load.cc scene-load-nff.cc snogray.cc	\
+	  ray.cc scene.cc scene-load.cc scene-load-aff.cc snogray.cc	\
 	  space.cc sphere.cc test-scenes.cc timeval.cc trace-state.cc	\
 	  triangle.cc voxtree.cc $(COMMON_SRCS)
 
