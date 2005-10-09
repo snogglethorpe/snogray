@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "test-scenes.h"
+
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
@@ -19,10 +21,9 @@
 #include "glow.h"
 #include "mirror.h"
 #include "mesh.h"
-#include "test-scene.h"
 
 using namespace Snogray;
-
+using namespace std;
 
 
 // Define the scene, since can't read any kind of scene file yet
@@ -31,7 +32,7 @@ static void
 add_bulb (Scene &scene, const Pos &pos, float intens,
 	  const Color &col = Color::white)
 {
-  Material *bulb_mat = scene.add (new Glow (intens * col));
+  const Material *bulb_mat = scene.add (new Glow (intens * col));
   scene.add (new Light (pos, intens, col));
   scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
 }
@@ -44,13 +45,14 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 //  Material *mat3 = scene.add (new Lambert (Color (1, 0.5, 1)));
 //  Material *mat4 = scene.add (new Lambert (Color (1, 0.5, 1)));
 //   Material *mat3 = scene.add (Material::phong (400, Color (0.1, 0.1, 0.1)));
-  Material *mat1
+  const Material *mat1
     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
-  Material *mat2
+  const Material *mat2
     = scene.add (new Mirror (0.8, Color::white * 0.2, 100));
-  Material *mat3
+  const Material *mat3
     = scene.add (new Material (Color (0.8, 0, 0), Material::phong (400)));
-  Material *mat4 = scene.add (new Material (Color (0.2, 0.5, 0.1)));
+  const Material *mat4
+    = scene.add (new Material (Color (0.2, 0.5, 0.1)));
 
   // First test scene
   add_bulb (scene, Pos (0, 15, 0), 30);
@@ -111,7 +113,8 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 		     (float)i / (float)gsize);
 	color *= 0.3;
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
-	Material *mat = scene.add (new Material (color, Material::phong (500)));
+	const Material *mat
+	  = scene.add (new Material (color, Material::phong (500)));
 	scene.add (new Sphere (mat, pos, 0.5));
 	scene.add (new Triangle (mat,
 				 pos + Vec(1.5,-0.2,0),
@@ -123,27 +126,24 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 
 
 static void
-def_scene_miles_test2 (Scene &scene, Camera &camera, unsigned mesh_index)
+def_scene_teapot (Scene &scene, Camera &camera, const char *teapot_mesh_name)
 {
   // We copied various params from a .nff file with bogus gamma
   scene.set_assumed_gamma (2.2);
 
-  Material *teapot_mat
+  const Material *teapot_mat
     = scene.add (new Mirror (0.25, Color (1, 0.5, 0.1) * 0.75,
 			     Material::phong (3.0827, 0.25)));
-  Material *board1_mat
+  const Material *board1_mat
     = scene.add (new Mirror (0.3, Color::white * 0.1, 10));
-  Material *board2_mat
+  const Material *board2_mat
     = scene.add (new Mirror (0.3, Color::white * 0.8, 10));
     
   Mesh *teapot_mesh = new Mesh (teapot_mat);
-  switch (mesh_index)
-    {
-    default:
-    case 0: teapot_mesh->load ("teapot.msh"); break;
-    case 1: teapot_mesh->load ("teapot-14.msh"); break;
-    case 2: teapot_mesh->load ("teapot-30.msh"); break;
-    }      
+
+  string teapot_mesh_file_name (teapot_mesh_name);
+  teapot_mesh_file_name += ".msh";
+  teapot_mesh->load (teapot_mesh_file_name);
   teapot_mesh->compute_vertex_normals ();
   scene.add (teapot_mesh);
 
@@ -175,9 +175,9 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   // and one light directly above the center of the 3 spheres.
 
   const Phong *ph300 = Material::phong (300), *ph400 = Material::phong (400);
-  Material *mat1 = scene.add (new Material (Color (1, 0.5, 0.2)));
-  Material *mat2 = scene.add (new Material (Color (0.8, 0.8, 0.8), ph300));
-  Material *mat3 = scene.add (new Material (Color (0.8, 0, 0), ph400));
+  const Material *mat1 = scene.add (new Material (Color (1, 0.5, 0.2)));
+  const Material *mat2 = scene.add (new Material (Color (0.8, 0.8, 0.8), ph300));
+  const Material *mat3 = scene.add (new Material (Color (0.8, 0, 0), ph400));
 
   camera.move (Pos (0, 3, -4));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
@@ -197,9 +197,9 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
 
   const Phong *ph100 = Material::phong (100, Color (0.3, 0.3, 0.3));
 
-  Material *sphereMat
+  const Material *sphereMat
     = scene.add (new Material (Color (0.249804, 0.218627, 0.0505882), ph100));
-  Material *grey
+  const Material *grey
     = scene.add (new Material (Color (0.3, 0.3, 0.3)));
 
   scene.add (new Sphere (sphereMat, Pos (0, 0, 0), 1));
@@ -248,15 +248,15 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   const Phong *ph300_1 = Material::phong (300, Color (1, 1, 1));
   const Phong *ph300_2 = Material::phong (300, Color (2, 2, 2));
 
-  Material *shinyBlack
+  const Material *shinyBlack
     = scene.add (new Material (Color (0.02, 0.02, 0.02), ph300_2));
-  Material *shinyWhite
+  const Material *shinyWhite
     = scene.add (new Material (Color (0.6, 0.6, 0.6), ph300_1));
-  Material *shinyGray
+  const Material *shinyGray
     = scene.add (new Material (Color (0.2, 0.2, 0.2), ph300_2));
-  Material *boxMat
+  const Material *boxMat
     = scene.add (new Material (Color (0.3, 0.19, 0.09)));
-  Material *gray
+  const Material *gray
     = scene.add (new Material (Color (0.6, 0.6, 0.6)));
 	
   // box
@@ -350,9 +350,9 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera)
   camera.point (Pos (-0.25, -0.07, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
 
-  Material *red = scene.add (new Material (Color (0.5, 0.3, 0.05)));
+  const Material *red = scene.add (new Material (Color (0.5, 0.3, 0.05)));
   //Material *red = scene.add (new Mirror (0.05, Color (1, 0, 0), 500));
-  Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
+  const Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
 
   Mesh *bunny = new Mesh (red);
   bunny->load ("bunny500.msh");
@@ -375,121 +375,31 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera)
 
 
 void
-test_scene (Scene &scene, Camera &camera, unsigned scene_num)
+Snogray::def_test_scene (const char *name, Scene &scene, Camera &camera)
 {
-  switch (scene_num)
-    {
-    case 0:
-    default:
-      def_scene_miles_test1 (scene, camera, 0); break;
+  if (strcmp (name, "miles-0") == 0 || strcmp (name, "0") == 0)
+    def_scene_miles_test1 (scene, camera, 0);
+  else if (strcmp (name, "miles-1") == 0 || strcmp (name, "7") == 0)
+    def_scene_miles_test1 (scene, camera, 1);
+  else if (strcmp (name, "miles-2") == 0 || strcmp (name, "5") == 0)
+    def_scene_miles_test1 (scene, camera, 2);
+  else if (strcmp (name, "miles-3") == 0 || strcmp (name, "6") == 0)
+    def_scene_miles_test1 (scene, camera, 3);
 
-    case 1:
-      def_scene_cs465_test1 (scene, camera); break;
-    case 2:
-      def_scene_cs465_test2 (scene, camera); break;
-    case 3:
-      def_scene_cs465_test3 (scene, camera); break;
-    case 4:
-      def_scene_cs465_test4 (scene, camera); break;
+  else if (strncmp (name, "teapot", 6) == 0)
+    def_scene_teapot (scene, camera, name);
 
-    case 5:
-      def_scene_miles_test1 (scene, camera, 2); break;
-    case 6:
-      def_scene_miles_test1 (scene, camera, 3); break;
-    case 7:
-      def_scene_miles_test1 (scene, camera, 1); break;
+  else if (strcmp (name, "cs465-1") == 0 || strcmp (name, "1") == 0)
+    def_scene_cs465_test1 (scene, camera);
+  else if (strcmp (name, "cs465-2") == 0 || strcmp (name, "2") == 0)
+    def_scene_cs465_test2 (scene, camera);
+  else if (strcmp (name, "cs465-3") == 0 || strcmp (name, "3") == 0)
+    def_scene_cs465_test3 (scene, camera);
+  else if (strcmp (name, "cs465-4") == 0 || strcmp (name, "4") == 0)
+    def_scene_cs465_test4 (scene, camera);
 
-    case 10:
-      extern TestSceneParams teapot_test_scene_params;
-      define_test_scene (&teapot_test_scene_params, 115, scene, camera);
-      break;
-    case 11:
-      extern TestSceneParams balls_test_scene_params;
-      define_test_scene (&balls_test_scene_params, 18, scene, camera);
-      break;
-    case 12:
-      extern TestSceneParams rings_test_scene_params;
-      define_test_scene (&rings_test_scene_params, 25, scene, camera);
-      break;
-    case 13:
-      extern TestSceneParams tetra_test_scene_params;
-      define_test_scene (&tetra_test_scene_params, 25, scene, camera);
-      break;
-    case 14:
-      extern TestSceneParams mount_test_scene_params;
-      define_test_scene (&mount_test_scene_params, 35000, scene, camera);
-      break;
-    case 15:
-      extern TestSceneParams tree_test_scene_params;
-      define_test_scene (&tree_test_scene_params, 100, scene, camera);
-      break;
-    case 16:
-      extern TestSceneParams gears_test_scene_params;
-      define_test_scene (&gears_test_scene_params, 5, scene, camera);
-      break;
-    case 17:
-      extern TestSceneParams sample_test_scene_params;
-      define_test_scene (&sample_test_scene_params, 700, scene, camera);
-      break;
-    case 18:
-      extern TestSceneParams nurbtst_test_scene_params;
-      define_test_scene (&nurbtst_test_scene_params, 2500, scene, camera);
-      break;
-    case 19:
-      extern TestSceneParams lattice_test_scene_params;
-      define_test_scene (&lattice_test_scene_params, 0.5, scene, camera);
-      break;
-    case 20:
-      extern TestSceneParams jacks_test_scene_params;
-      define_test_scene (&jacks_test_scene_params, 25, scene, camera);
-      break;
-    case 21:
-      extern TestSceneParams sombrero_test_scene_params;
-      define_test_scene (&sombrero_test_scene_params, 500, scene, camera);
-      break;
-    case 22:
-      extern TestSceneParams shells_test_scene_params;
-      define_test_scene (&shells_test_scene_params, 50000, scene, camera);
-      break;
-    case 23:
-      extern TestSceneParams f117_test_scene_params;
-      define_test_scene (&f117_test_scene_params, 3000, scene, camera);
-      break;
-    case 24:
-      extern TestSceneParams skull_test_scene_params;
-      define_test_scene (&skull_test_scene_params, 1000, scene, camera);
-      break;
-    case 25:
-      extern TestSceneParams f15_test_scene_params;
-      define_test_scene (&f15_test_scene_params, 2500, scene, camera);
-      break;
-
-//     case 26:
-//       extern TestSceneParams balls_5_test_scene_params;
-//       define_test_scene (&balls_5_test_scene_params, 18, scene, camera);
-//       break;
-    case 27:
-      extern TestSceneParams teapot_14_test_scene_params;
-      define_test_scene (&teapot_14_test_scene_params, 115, scene, camera);
-      break;
-//     case 28:
-//       extern TestSceneParams teapot_22_test_scene_params;
-//       define_test_scene (&teapot_22_test_scene_params, 115, scene, camera);
-//       break;
-    case 29:
-      extern TestSceneParams teapot_30_test_scene_params;
-      define_test_scene (&teapot_30_test_scene_params, 115, scene, camera);
-      break;
-
-    case 30:
-      def_scene_miles_test2 (scene, camera, 0); break;
-    case 31:
-      def_scene_miles_test2 (scene, camera, 1); break;
-    case 32:
-      def_scene_miles_test2 (scene, camera, 2); break;
-
-    }
-
+  else
+    throw (runtime_error ("unknown test scene"));
 }
 
 // arch-tag: 307938a9-c663-4949-a58b-fb51040a6529

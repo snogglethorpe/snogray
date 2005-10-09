@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <string>
 #include <cstring>
+#include <stdexcept>
 
 #include "cmdlineparser.h"
 #include "rusage.h"
@@ -22,6 +23,7 @@
 #include "light.h"
 #include "image.h"
 #include "image-cmdline.h"
+#include "test-scenes.h"
 
 using namespace Snogray;
 using namespace std;
@@ -234,15 +236,22 @@ s "  -q, --quiet                Do not output informational or progress messages
 s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
 n
-s "  -t, --test-scene=NUM       Render test scene NUM"
+s " Scene options:"
+s "  -I, --scene-format=FMT     Input scene has format FMT (one of: test, nff)"
+s "  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA"
+s "  -L, --light-scale=SCALE    Scale all scene lighting by SCALE"
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
-s "If no filename is given, standard output is used.  The output"
-s "image format is guessed using the output filename when possible"
-s "(using the file's extension)."
+s "If no input/output filenames are given, standard input/output are used"
+s "respectively.  When no explicit scene/image formats are specified, the"
+s "filename extensions are used to guess the format (so an explicit format"
+s "must be specified when standard input/output are used)."
+n
+s "The \"test\" scene type is special, as no scene file is actually read;"
+s "instead, a built in test-scene with the given name is used."
 n
     ;
 
@@ -262,7 +271,9 @@ int main (int argc, char *const *argv)
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
-    { "test-scene", 	required_argument, 0, 't' },
+    { "scene-format", 	required_argument, 0, 'I' },
+    { "assumed-gamma", 	required_argument, 0, 'G' },
+    { "light-scale", 	required_argument, 0, 'L' },
 
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
@@ -271,7 +282,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:m:w:h:l:qpPt:"
+    "s:m:w:h:l:qpPI:G:L:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -285,8 +296,9 @@ int main (int argc, char *const *argv)
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   bool quiet = false, progress = true; // quiet mode, progress indicator
   bool progress_set = false;
-  unsigned test_scene_num = 0;
+  const char *scene_fmt = 0;
   unsigned multiple = 1;
+  float scene_assumed_gamma = 1, scene_light_scale = 1;
   ImageCmdlineSinkParams image_sink_params (clp);
 
   // Parse command-line options
@@ -297,8 +309,14 @@ int main (int argc, char *const *argv)
       {
 	// Scene options
 	//
-      case 't':
-	test_scene_num = clp.unsigned_opt_arg ();
+      case 'I':
+	scene_fmt = clp.opt_arg ();
+	break;
+      case 'G':
+	scene_assumed_gamma = clp.float_opt_arg ();
+	break;
+      case 'L':
+	scene_light_scale = clp.float_opt_arg ();
 	break;
 
 	// Size options
@@ -339,21 +357,75 @@ int main (int argc, char *const *argv)
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
-  // Final output file parameter
+  // Start of "overall elapsed" time
   //
-  if (clp.num_remaining_args() > 1)
+  Timeval beg_time (Timeval::TIME_OF_DAY);
+
+
+  //
+  // Define our scene!
+  //
+
+  Scene scene;
+  Camera camera;
+
+  // Default camera aspect ratio to give pixels a 1:1 aspect ratio
+  //
+  camera.set_aspect_ratio ((float)width / (float)height);
+
+  Rusage scene_beg_ru;		// start timing scene definition
+
+  const char *scene_file_name = clp.get_arg ();
+  if (strcmp (scene_file_name, "-") == 0)
+    scene_file_name = 0;
+
+  // Read in scene file (or built-in test scene)
+  //
+  try
     {
-      usage (clp, cerr);
-      cerr << "Try `" << clp.prog_name() << " --help' for more information"
-	   << endl;
-      exit (10);
+      if (scene_file_name && scene_fmt && strcmp (scene_fmt, "test") == 0)
+	def_test_scene (scene_file_name, scene, camera);
+      else if (scene_file_name && !scene_fmt
+	       && strncmp (scene_file_name, "test:", 5) == 0)
+	// The input filename "test:..." is the same as specifying -Itest
+	//
+	def_test_scene (scene_file_name + 5, scene, camera);
+      else if (scene_file_name)
+	scene.load (scene_file_name, scene_fmt, camera);
+      else if (! scene_fmt)
+	clp.err ("Scene format must be specified for stream input");
+      else if (strcmp (scene_fmt, "test") == 0)
+	clp.err ("No test scene name specified");
+      else
+	scene.load (cin, scene_fmt, camera);
+    }
+  catch (runtime_error &err)
+    {
+      clp.err (string (scene_file_name ? scene_file_name : "<standard input>")
+	       + ": Error reading scene: " + err.what ());
     }
 
-  // We reference this a lot below, so make a local copy
+  // Correct for bogus "gamma correction in lighting"
   //
-  unsigned aa_factor = image_sink_params.aa_factor;
-  if (aa_factor == 0)
-    aa_factor = 1;
+  if (scene_assumed_gamma != 1)
+    scene.set_assumed_gamma (scene_assumed_gamma);
+
+  // Correct scene lighting
+  //
+  if (scene_light_scale != 1)
+    for (Scene::light_iterator_t li = scene.lights.begin();
+	 li != scene.lights.end(); li++)
+      {
+	Light *light = *li;
+	light->color *= scene_light_scale;
+      }
+
+  Rusage scene_end_ru;		// stop timing scene definition
+
+
+  //
+  // Init output image
+  //
 
   // Set our drawing limits based on the scene size
   //
@@ -376,10 +448,41 @@ int main (int argc, char *const *argv)
   image_sink_params.height = limit_height * multiple;
   ImageOutput image (image_sink_params);
 
-  // Print image info
+  // Maybe print lots of useful information
   //
   if (! quiet)
     {
+      // Print scene info
+
+      cout << "Scene:" << endl;
+
+      cout << "   scene: "
+	   << setw (18)
+	   << (scene_file_name ? scene_file_name : "<standard input>") << endl;
+      cout << "   top-level objects:"
+	   << setw (7) << commify (scene.objs.size ()) << endl;
+      cout << "   lights:        "
+	   << setw (10) << commify (scene.lights.size ()) << endl;
+      if (scene.assumed_gamma != 1)
+	cout << "   assumed gamma: "
+	     << setw (10) << scene.assumed_gamma << endl;
+      if (scene_light_scale != 1)
+	cout << "   light scale:   "
+	     << setw (10) << scene_light_scale << endl;
+      cout << "   materials:     "
+	   << setw (10) << commify (scene.materials.size ()) << endl;
+      cout << "   voxtree objects:"
+	   << setw (9) << commify (scene.obj_voxtree.num_objs ()) << endl;
+      cout << "   voxtree nodes: "
+	   << setw (10) << commify (scene.obj_voxtree.num_nodes ()) << endl;
+      float vt_avg_depth = scene.obj_voxtree.avg_depth ();
+      cout << "   voxtree avg depth: "
+	   << setw (6) << int (vt_avg_depth) << endl;
+      cout << "   voxtree max depth:"
+	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
+
+      // Print image info
+
       cout << "Image:" << endl;
 
       if (multiple == 1)
@@ -409,21 +512,22 @@ int main (int argc, char *const *argv)
 
       // Anti-aliasing info
       //
-      if ((aa_factor + image_sink_params.aa_overlap) > 1)
+
+      if ((image.aa_factor + image_sink_params.aa_overlap) > 1)
 	{
-	  if (aa_factor > 1)
+	  if (image.aa_factor > 1)
 	    cout << "   aa_factor:           "
-		 << setw (4) << aa_factor << endl;
+		 << setw (4) << image.aa_factor << endl;
 
 	  if (image_sink_params.aa_overlap > 0)
 	    cout << "   aa_kernel_size:      "
 		 << setw (4)
-		 << (aa_factor + image_sink_params.aa_overlap*2)
+		 << (image.aa_factor + image_sink_params.aa_overlap*2)
 		 << " (overlap = " << image_sink_params.aa_overlap << ")"
 		 << endl;
 	  else
 	    cout << "   aa_kernel_size:      "
-		 << setw (4) << aa_factor << endl;
+		 << setw (4) << image.aa_factor << endl;
 
 	  cout << "   aa_filter:       " << setw (8);
 	  if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
@@ -437,53 +541,14 @@ int main (int argc, char *const *argv)
 	    cout << "???";
 	  cout << endl;
 	}
+
+      cout << endl;
     }
-
-  Timeval beg_time (Timeval::TIME_OF_DAY);
-
-  // 
-  Scene scene;
-  Camera camera;
-
-  // Set camera aspect ratio to give pixels a 1:1 aspect ratio
-  //
-  camera.set_aspect_ratio ((float)width / (float)height);
-
-  // Define our scene!
-  //
-  Rusage scene_beg_ru;
-  test_scene (scene, camera, test_scene_num);
-  Rusage scene_end_ru;
-
-  // Print scene info
-  //
-  if (! quiet)
-    {
-      cout << "Scene:" << endl;
-      cout << "   test scene:        " << setw (6) << test_scene_num << endl;
-      cout << "   top-level objects:"
-	   << setw (7) << commify (scene.objs.size ()) << endl;
-      cout << "   lights:        "
-	   << setw (10) << commify (scene.lights.size ()) << endl;
-      cout << "   materials:     "
-	   << setw (10) << commify (scene.materials.size ()) << endl;
-      cout << "   voxtree objects:"
-	   << setw (9) << commify (scene.obj_voxtree.num_objs ()) << endl;
-      cout << "   voxtree nodes: "
-	   << setw (10) << commify (scene.obj_voxtree.num_nodes ()) << endl;
-      cout << "   voxtree avg depth: "
-	   << setw (6) << scene.obj_voxtree.avg_depth () << endl;
-      cout << "   voxtree max depth:"
-	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
-    }
-
-  if (! quiet)
-    cout << endl;
 
   // For convenience, we fold the size increase due to anti-aliasing into
   // the user's specified size multiple.
   //
-  unsigned hr_multiple = multiple * aa_factor;
+  unsigned hr_multiple = multiple * image.aa_factor;
 
   // The size of the actual image we're calculating
   //
@@ -590,27 +655,38 @@ int main (int argc, char *const *argv)
 	   << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
       cout << "     horizon hint misses:" << setw (13) << commify (hhm)
 	   << " (" << setw(2) << (100 * hhm / sc) << "%)" << endl;
-      cout << "     voxtree node calls:" << setw (14) << commify (vnc)
-	   << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
-      cout << "     obj calls:         " << setw (14) << commify (ocic)
-	   << " (" << setw(2) << (100 * ocic / (sc * vno)) << "%)" << endl;
+      if (vnn != 0)
+	cout << "     voxtree node calls:" << setw (14) << commify (vnc)
+	     << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
+      if (vno != 0)
+	cout << "     obj calls:         " << setw (14) << commify (ocic)
+	     << " (" << setw(2) << (100 * ocic / (sc * vno)) << "%)" << endl;
 
       long long sst = sstats.scene_shadowed_tests;
-      long long shh = sstats.shadow_hint_hits;
-      long long shm = sstats.shadow_hint_misses;
-      long long vnt = vstats2.node_intersect_calls;
-      long long ot  = sstats.obj_intersects_tests;
 
-      cout << "  shadowed:" << endl;
-      cout << "     scene tests:       " << setw (14) << commify (sst) << endl;
-      cout << "     shadow hint hits:  " << setw (14) << commify (shh)
-	   << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
-      cout << "     shadow hint misses:" << setw (14) << commify (shm)
-	   << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
-      cout << "     voxtree node tests:" << setw (14) << commify (vnt)
-	   << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)" << endl;
-      cout << "     obj tests:         " << setw (14) << commify (ot)
-	   << " (" <<setw(2) << (100 * ot / (vno * (sst - shh))) << "%)" << endl;
+      if (sst != 0)
+	{
+	  long long shh = sstats.shadow_hint_hits;
+	  long long shm = sstats.shadow_hint_misses;
+	  long long vnt = vstats2.node_intersect_calls;
+	  long long ot  = sstats.obj_intersects_tests;
+
+	  cout << "  shadowed:" << endl;
+	  cout << "     scene tests:       " << setw (14) << commify (sst)
+	       << endl;
+	  cout << "     shadow hint hits:  " << setw (14) << commify (shh)
+	       << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
+	  cout << "     shadow hint misses:" << setw (14) << commify (shm)
+	       << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
+	  if (vnn != 0)
+	    cout << "     voxtree node tests:" << setw (14) << commify (vnt)
+		 << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)"
+		 << endl;
+	  if (vno != 0)
+	    cout << "     obj tests:         " << setw (14) << commify (ot)
+		 << " (" <<setw(2) << (100 * ot / (vno * (sst - shh))) << "%)"
+		 << endl;
+	}
 
       // a field width of 13 is enough for over a year of time...
       cout << "Time:" << endl;

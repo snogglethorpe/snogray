@@ -23,6 +23,12 @@ public:
     : x (_x), y (_y), z (_z)
   { }
 
+  // Mainly so we can use Tuple3 as a map key
+  bool operator< (const Tuple3 &t) const
+  {
+    return x < t.x || (x == t.x && (y < t.y || (y == t.y && z < t.z)));
+  }
+
   coord_t x, y, z;
 };  
 

@@ -12,6 +12,7 @@
 #ifndef __SCENE_H__
 #define __SCENE_H__
 
+#include <fstream>
 #include <list>
 #include <vector>
 
@@ -21,6 +22,7 @@
 #include "material.h"
 #include "voxtree.h"
 #include "trace-state.h"
+#include "camera.h"
 
 namespace Snogray {
 
@@ -30,7 +32,7 @@ public:
 
   typedef std::vector<Light *>::const_iterator light_iterator_t;
   typedef std::list<Obj *>::const_iterator obj_iterator_t;
-  typedef std::list<Material *>::const_iterator material_iterator_t;
+  typedef std::list<const Material *>::const_iterator material_iterator_t;
 
   static const unsigned DEFAULT_MAX_DEPTH = 5;
   static const unsigned DEFAULT_HORIZON = 10000;
@@ -40,6 +42,15 @@ public:
     : max_depth (DEFAULT_MAX_DEPTH), assumed_gamma (DEFAULT_ASSUMED_GAMMA)
   { }
   ~Scene ();
+
+  // Scene input
+  //
+  void load (const char *scene_file_name, const char *fmt, Camera &camera);
+  void load (std::istream &stream, const char *fmt, Camera &camera);
+
+  // Specific scene file formats
+  //
+  void load_nff_file (std::istream &stream, Camera &camera);
 
   Intersect closest_intersect (const Ray &ray,
 			       TraceState &tstate, const Obj *ignore = 0);
@@ -64,7 +75,10 @@ public:
     return light;
   }
 
-  Material *add (Material *mat) { materials.push_back (mat); return mat; }
+  const Material *add (const Material *mat)
+  {
+    materials.push_back (mat); return mat;
+  }
 
   unsigned num_lights () { return lights.size (); }
 
@@ -109,7 +123,7 @@ public:
 
   std::vector<Light *> lights;
 
-  std::list<Material *> materials;
+  std::list<const Material *> materials;
 
   // Background color
   Color background;

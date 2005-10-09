@@ -18,47 +18,104 @@ using namespace Snogray;
 using namespace std;
 
 
+// Add a vertex to the mesh
 
-class Mesh::Triangle : public Obj
+// This simple version always adds a new vertex
+//
+unsigned
+Mesh::add_vertex (const Pos &pos)
 {
-public:
+  unsigned vert_index = vertices.size ();
+  vertices.push_back (pos);
+  return vert_index;
+}
 
-  virtual dist_t intersection_distance (const Ray &ray) const;
+// This version uses VGROUP to keep track of vertex positions, and only
+// adds new vertices.
+//
+unsigned
+Mesh::add_vertex (const Pos &pos, VertexGroup &vgroup)
+{
+  VertexGroup::iterator prev_entry = vgroup.find (pos);
 
-  // Returns the normal vector for this surface at POINT.
-  // EYE_DIR points to the direction the objects is being viewed from;
-  // this can be used by dual-sided objects to decide which side's
-  // normal to return.
-  //
-  virtual Vec normal (const Pos &point, const Vec &eye_dir) const;
+  if (prev_entry != vgroup.end ())
+    return prev_entry->second;
+  else
+    {
+      unsigned vert_index = add_vertex (pos);
+      vgroup.insert (prev_entry, VertexGroup::value_type (pos, vert_index));
+      return vert_index;
+    }
+}
 
-  // Return a bounding box for this object.
-  //
-  virtual BBox bbox () const;
+
+// Add a vertex with normal to the mesh
 
-  // Returns the material this object is made from
-  //
-  virtual const Material *material () const;
+// This simple version always adds a new vertex+normal
+//
+unsigned
+Mesh::add_vertex (const Pos &pos, const Vec &normal)
+{
+  unsigned vert_index = vertices.size ();
 
-  // Vertex NUM of this triangle
-  //
-  const Pos &v (unsigned num) const { return mesh->vertices[vi[num]]; }
+  vertices.push_back (pos);
 
-  // Normal of vertex NUM (assuming this mesh contains vertex normals!)
-  //
-  const Vec &vnorm (unsigned num) const { return mesh->vertex_normals[vi[num]];}
+  if (vertex_normals.size() < vert_index + 1)
+    vertex_normals.resize (vert_index + 1);
 
-  const Vec raw_normal () const
-  {
-    return ((v(1) - v(0)).cross (v(2) - v(1))).unit ();
-  }
+  vertex_normals[vert_index] = normal;
 
-  Mesh *mesh;
+  return vert_index;
+}
 
-  // Indices into mesh vertices array
-  //
-  unsigned vi[3];
-};
+// This version uses VGROUP to keep track of vertex positions and normal
+// values, and only adds new vertices (but a vertex with a different
+// normal is considered "new").
+//
+unsigned
+Mesh::add_vertex (const Pos &pos, const Vec &normal, VertexNormalGroup &vgroup)
+{
+  VertexNormalGroup::key_type key (pos, normal);
+  VertexNormalGroup::iterator prev_entry = vgroup.find (key);
+
+  if (prev_entry != vgroup.end ())
+    return prev_entry->second;
+  else
+    {
+      unsigned vert_index = add_vertex (pos, normal);
+      vgroup.insert (prev_entry,
+		     VertexNormalGroup::value_type (key, vert_index));
+      return vert_index;
+    }
+}
+
+
+// Add a triangle to the mesh
+
+void
+Mesh::add_triangle (unsigned v0i, unsigned v1i, unsigned v2i)
+{
+  Triangle triang (*this, v0i, v1i, v2i);
+
+  triangles.push_back (triang);
+}
+
+void
+Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
+		    VertexGroup &vgroup)
+{
+  unsigned v0i = add_vertex (v0, vgroup);
+  unsigned v1i = add_vertex (v1, vgroup);
+  unsigned v2i = add_vertex (v2, vgroup);
+
+  add_triangle (v0i, v1i, v2i);
+}
+
+void
+Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2)
+{
+  add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2));
+}
 
 
 // Generic mesh-file loading
@@ -75,7 +132,7 @@ Mesh::load (const char *file_name)
 
 	if (! file_ext)
 	  throw
-	    file_error ("no filename extension to determine mesh file format");
+	    file_error ("No filename extension to determine mesh file format");
 	else
 	  file_ext++;
 
@@ -85,11 +142,11 @@ Mesh::load (const char *file_name)
     catch (std::runtime_error &err)
       {
 	throw file_error (string (file_name)
-			  + ": error reading mesh file: "
+			  + ": Error reading mesh file: "
 			  + err.what ());
       }
   else
-    throw file_error (string (file_name) + ": cannot open mesh file");
+    throw file_error (string (file_name) + ": Cannot open mesh file");
 }
 
 
@@ -98,14 +155,12 @@ Mesh::load (const char *file_name)
 void
 Mesh::load_msh_file (istream &stream)
 {
-  if (triangles || vertices)
-    throw std::runtime_error ("mesh already initialized");
-
+  unsigned num_vertices, num_triangles;
   stream >> num_vertices;
   stream >> num_triangles;
 
-  vertices = new Pos[num_vertices];
-  triangles = new Triangle[num_triangles];
+  vertices.reserve (num_vertices);
+  triangles.reserve (num_triangles);
 
   char kw[10];
 
@@ -113,11 +168,17 @@ Mesh::load_msh_file (istream &stream)
   if (strcmp (kw, "vertices") != 0)
     throw bad_format ();
 
+  unsigned base_vert = vertices.size ();
+
   for (unsigned i = 0; i < num_vertices; i++)
     {
-      stream >> vertices[i].x;
-      stream >> vertices[i].y;
-      stream >> vertices[i].z;
+      coord_t x, y, z;
+
+      stream >> x;
+      stream >> y;
+      stream >> z;
+
+      add_vertex (Pos (x, y, z));
     }
 
   stream >> kw;
@@ -126,10 +187,13 @@ Mesh::load_msh_file (istream &stream)
 
   for (unsigned i = 0; i < num_triangles; i++)
     {
-      for (unsigned num = 0; num < 3; num++)
-	stream >> triangles[i].vi[num];
+      unsigned v0i, v1i, v2i;
 
-      triangles[i].mesh = this;
+      stream >> v0i;
+      stream >> v1i;
+      stream >> v2i;
+
+      add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i);
     }
 }
 
@@ -250,7 +314,7 @@ Mesh::Triangle::normal (const Pos &point, const Vec &eye_dir) const
 {
   Vec norm;
 
-  if (mesh->vertex_normals)
+  if (! mesh.vertex_normals.empty ())
     {
       float w0, w1, w2;
       compute_barycentric_coords (point, v(0), v(1), v(2), w0, w1, w2);
@@ -286,32 +350,24 @@ Mesh::Triangle::bbox () const
 const Material *
 Mesh::Triangle::material () const
 {
-  return mesh->material ();
+  return mesh.material ();
 }
 
 
 
-Mesh::~Mesh ()
-{
-  if (triangles)
-    delete[] triangles;
-  if (vertices)
-    delete[] vertices;
-}
-
 void
 Mesh::compute_vertex_normals ()
 {
-  if (! vertex_normals)
+  unsigned num_verts = vertices.size ();
+  unsigned num_triangs = triangles.size ();
+
+  if (vertex_normals.size() < num_verts)
     {
-      vertex_normals = new Vec[num_vertices];
+      vector<unsigned> face_counts (num_verts, 0);
 
-      unsigned *face_counts = new unsigned[num_vertices];
+      vertex_normals.assign (num_verts, 0);
 
-      for (unsigned v = 0; v < num_vertices; v++)
-	face_counts[v] = 0;
-
-      for (unsigned t = 0; t < num_triangles; t++)
+      for (unsigned t = 0; t < num_triangs; t++)
 	{
 	  const Triangle &triang = triangles[t];
 	  const Vec norm (triang.raw_normal ());
@@ -324,11 +380,9 @@ Mesh::compute_vertex_normals ()
 	    }
 	}
 	
-      for (unsigned v = 0; v < num_vertices; v++)
+      for (unsigned v = 0; v < num_verts; v++)
 	if (face_counts[v] > 1)
 	  vertex_normals[v] /= face_counts[v];
-
-      delete[] face_counts;
     }
 }
 
@@ -337,10 +391,7 @@ Mesh::compute_vertex_normals ()
 void
 Mesh::add_to_space (Voxtree &space)
 {
-  if (! triangles)
-    throw std::runtime_error ("cannot instantiate unloaded mesh");
-
-  for (unsigned i = 0; i < num_triangles; i++)
+  for (unsigned i = 0; i < triangles.size(); i++)
     triangles[i].add_to_space (space);
 }
 

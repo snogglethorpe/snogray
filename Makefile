@@ -13,19 +13,13 @@ TARGETS = snogray snogcvt
 
 all: $(TARGETS)
 
-# Build directory for SPD (Standard Procedural Databases) package by
-# Eric Haines; used to generate test scenes.
-# See:  http://www.acm.org/tog/resources/SPD
-#
-SPD_DIR = ../spd3_13
-
 OPT = -O5 -fomit-frame-pointer
 DEBUG = -g -Wall
 #PG = -pg
 #MUDFLAP = -fmudflap
 
 CFLAGS = $(OPT) $(DEBUG) $(MACHINE_CFLAGS) $(PG) $(MUDFLAP)
-CXXFLAGS = $(CFLAGS)
+CXXFLAGS = $(CFLAGS) -frepo
 LDFLAGS = $(PG) $(MUDFLAP)
 
 ################################################################
@@ -81,24 +75,6 @@ _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
 ################################################################
 ##
-## Automatically generated test scenes from .nff files (from spd project)
-##
-
-SPD_TESTS = test-teapot.nff test-balls.nff test-rings.nff test-tetra.nff \
-	test-mount.nff test-tree.nff test-gears.nff test-sombrero.nff	 \
-	test-sample.nff test-jacks.nff test-shells.nff test-nurbtst.nff	 \
-	test-lattice.nff test-f117.nff test-skull.nff test-f15.nff	 \
-	test-teapot-14.nff test-teapot-30.nff
-
-# C++ source files generated from the .nff files
-comma = ,
-SPD_TEST_SRCS = $(SPD_TESTS:%.nff=$(comma)%.cc)
-
-# All depend on the conversion program
-$(SPD_TEST_SRCS): nff-cvt
-
-################################################################
-##
 ## Common sources between snogray and snogcvt
 ##
 
@@ -112,13 +88,11 @@ COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 ## Snogray
 ##
 
-TEST_SRCS = test-scenes.cc test-scene.cc $(SPD_TEST_SRCS)
-
 SNOGRAY_SRCS = camera.cc glow.cc intersect.cc lambert.cc light-model.cc	\
 	  material.cc mesh.cc mirror.cc obj.cc phong.cc primary-obj.cc	\
-	  ray.cc scene.cc snogray.cc space.cc sphere.cc timeval.cc	\
-	  trace-state.cc triangle.cc voxtree.cc $(COMMON_SRCS)		\
-	  $(TEST_SRCS)
+	  ray.cc scene.cc scene-load.cc scene-load-nff.cc snogray.cc	\
+	  space.cc sphere.cc test-scenes.cc timeval.cc trace-state.cc	\
+	  triangle.cc voxtree.cc $(COMMON_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 
@@ -165,31 +139,6 @@ image-jpeg.o: image-jpeg.cc
 
 DEPS = $(ALL_SRCS:%.cc=.%.d)
 -include $(DEPS)
-
-################################################################
-##
-## Build rules for making C++ sources from .nff files, and generating
-## the .nff files themselves using the "spd" package.
-##
-
-test-balls-5.nff: $(SPD_DIR)/balls
-	$(SPD_DIR)/balls -s 5 > $@
-test-teapot-14.nff: $(SPD_DIR)/teapot
-	$(SPD_DIR)/teapot -s 14 > $@
-test-teapot-22.nff: $(SPD_DIR)/teapot
-	$(SPD_DIR)/teapot -s 22 > $@
-test-teapot-30.nff: $(SPD_DIR)/teapot
-	$(SPD_DIR)/teapot -s 30 > $@
-
-test-%.nff: $(SPD_DIR)/%
-	$< > $@
-test-%.nff: $(SPD_DIR)/%.obj
-	$(SPD_DIR)/readobj -f $< > $@
-test-%.nff: $(SPD_DIR)/%.dxf
-	$(SPD_DIR)/readdxf -f $< > $@
-
-,%.cc: %.nff
-	nff-cvt $* < $< > $@
 
 ################################################################
 ##

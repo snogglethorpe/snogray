@@ -25,6 +25,8 @@ public:
   Vec (dist_t _x = 0, dist_t _y = 0, dist_t _z = 0) : Tuple3 (_x, _y, _z) { }
   Vec (const Vec &vec) : Tuple3 (vec.x, vec.y, vec.z) { }
 
+  bool null () const { return x == 0 && y == 0 && z == 0; }
+
   Vec operator* (const float scale) const
   {
     return Vec (x * scale, y * scale, z * scale);

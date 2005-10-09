@@ -60,6 +60,7 @@ public:
   void opt_err (const char *phrase) const __attribute__ ((noreturn));
 
   void err (const char *phrase) const __attribute__ ((noreturn));
+  void err (const std::string &phrase) const __attribute__ ((noreturn));
   std::string err_pfx () const;
   std::string opt_err_pfx () const;
 

@@ -33,6 +33,12 @@ CmdLineParser::err (const char *phrase) const
   exit (1);
 }
 
+void
+CmdLineParser::err (const string &phrase) const
+{
+  err (phrase.c_str ());
+}
+
 
 // Option handling
 
