@@ -48,10 +48,15 @@ LIBPNG_LIBS	= $(shell libpng-config --libs)
 LIBEXR_CFLAGS	= $(shell pkg-config OpenEXR --cflags)
 LIBEXR_LIBS	= $(shell pkg-config OpenEXR --libs)
 
-JPEG_CFFLAGS	=
-JPEG_LIBS	= -ljpeg
+LIBJPEG_CFLAGS	=
+LIBJPEG_LIBS	= -ljpeg
 
-LIBS = $(LIBPNG_LIBS) $(LIBEXR_LIBS) $(JPEG_LIBS) $(MUDFLAP:-f%=-l%)
+LIBNETPBM_CFLAGS =
+LIBNETPBM_LIBS	= -lnetpbm
+
+IMAGE_LIBS =	$(LIBPNG_LIBS) $(LIBEXR_LIBS) $(LIBJPEG_LIBS) $(LIBNETPBM_LIBS)
+
+LIBS =		$(IMAGE_LIBS) $(MUDFLAP:-f%=-l%)
 
 ################################################################
 ##
@@ -78,8 +83,9 @@ _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 ## Common sources between snogray and snogcvt
 ##
 
-IMAGE_SRCS = image.cc image-aa.cc image-cmdline.cc image-exr.cc	\
-	  image-jpeg.cc image-png.cc image-rgb-byte.cc
+IMAGE_SRCS = image.cc image-aa.cc image-cmdline.cc image-dispatch.cc	\
+	  image-exr.cc image-jpeg.cc image-ppm.cc image-png.cc		\
+	  image-rgb-byte.cc
 
 COMMON_SRCS = cmdlineparser.cc color.cc $(IMAGE_SRCS)
 
@@ -131,6 +137,8 @@ image-png.o: image-png.cc
 	$(CXX) -c $(LIBPNG_CFLAGS) $(_CXXFLAGS) $<
 image-jpeg.o: image-jpeg.cc
 	$(CXX) -c $(LIBJPEG_CFLAGS) $(_CXXFLAGS) $<
+image-ppm.o: image-ppm.cc
+	$(CXX) -c $(LIBNETPBM_CFLAGS) $(_CXXFLAGS) $<
 
 ################################################################
 ##

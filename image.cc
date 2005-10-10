@@ -15,20 +15,13 @@
 
 #include "image.h"
 
-// For image-type dispatch
-#include "image-exr.h"
-#include "image-png.h"
-#include "image-jpeg.h"
-
 using namespace Snogray;
-
 
 const float ImageSinkParams::DEFAULT_TARGET_GAMMA;
 const float ImageSinkParams::DEFAULT_QUALITY;
 
 const ImageOutput::aa_filter_t DEFAULT_AA_FILTER = ImageOutput::aa_gauss_filter;
 
-
 
 // Calls error with current errno message appended
 void
@@ -38,64 +31,6 @@ ImageParams::sys_error (const std::string &msg) const
   buf += ": ";
   buf += strerror (errno);
   error (buf);
-}
-
-// Return the file format to use; if the FORMAT field is 0, then try
-// to guess it from FILE_NAME.
-const char *
-ImageParams::find_format () const
-{
-  if (format)
-    // Format is user-specified
-    return format;
-
-  // Otherwise guess the output format automatically we can
-
-  if (! file_name)
-    error ("Image file type must be specified for stream I/O");
-      
-  const char *file_ext = rindex (file_name, '.');
-
-  if (! file_ext)
-    error ("No filename extension to determine image type");
-
-  return file_ext + 1;
-}
-
-ImageSink *
-ImageSinkParams::make_sink () const
-{
-  const char *fmt = find_format ();
-
-  // Make the output-format-specific parameter block
-  if (strcasecmp (fmt, "exr") == 0)
-    return ExrImageSinkParams (*this).make_sink ();
-  else if (strcasecmp (fmt, "png") == 0)
-    return PngImageSinkParams (*this).make_sink ();
-  else if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
-    return JpegImageSinkParams (*this).make_sink ();
-  else
-    error ("Unknown or unsupported output image type");
-  return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
-}
-
-ImageSource *
-ImageSourceParams::make_source () const
-{
-  const char *fmt = find_format ();
-
-  // Make the output-format-specific parameter block
-  if (strcasecmp (fmt, "exr") == 0)
-    return ExrImageSourceParams (*this).make_source ();
-#if 0
-  else if (strcasecmp (fmt, "png") == 0)
-    return PngImageSourceParams (*this).make_source ();
-  else if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
-    return JpegImageSourceParams (*this).make_source ();
-#endif
-  else
-    error ("Unknown or unsupported input image type");
-  return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
 }
 
 

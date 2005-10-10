@@ -21,6 +21,8 @@ struct ExrImageSinkParams : public ImageFmtSinkParams
   ExrImageSinkParams (const ImageSinkParams &params)
     : ImageFmtSinkParams (params)
   {
+    if (params.target_gamma && params.target_gamma != 1)
+      params.error ("EXR format does not use gamma correction");
   }
     
   virtual ImageSink *make_sink () const;
