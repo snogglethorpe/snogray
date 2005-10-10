@@ -12,14 +12,14 @@
 #ifndef __IMAGE_JPEG_H__
 #define __IMAGE_JPEG_H__
 
-#include "image-rgb-byte.h"
+#include "image-byte-vec.h"
 
 namespace Snogray {
 
-struct JpegImageSinkParams : public RgbByteImageSinkParams
+struct JpegImageSinkParams : public ByteVecImageSinkParams
 {
   JpegImageSinkParams (const ImageSinkParams &params)
-    : RgbByteImageSinkParams (params)
+    : ByteVecImageSinkParams (params)
   { }
 
   virtual ImageSink *make_sink () const;

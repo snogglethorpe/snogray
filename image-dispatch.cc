@@ -69,9 +69,9 @@ ImageSourceParams::make_source () const
   // Make the output-format-specific parameter block
   if (strcasecmp (fmt, "exr") == 0)
     return ExrImageSourceParams (*this).make_source ();
-#if 0
   else if (strcasecmp (fmt, "png") == 0)
     return PngImageSourceParams (*this).make_source ();
+#if 0
   else if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
     return JpegImageSourceParams (*this).make_source ();
 #endif

@@ -17,7 +17,7 @@
 
 using namespace Snogray;
 
-class JpegImageSink : public RgbByteImageSink
+class JpegImageSink : public ByteVecImageSink
 {  
 public:
   JpegImageSink (const JpegImageSinkParams &params);
@@ -33,7 +33,7 @@ private:
 };
 
 JpegImageSink::JpegImageSink (const JpegImageSinkParams &params)
-  : RgbByteImageSink (params)
+  : ByteVecImageSink (params)
 {
   int quality = (int)params.quality;
 
@@ -80,9 +80,9 @@ JpegImageSink::~JpegImageSink ()
 }
 
 void
-JpegImageSink::write_row (const unsigned char *rgb_bytes)
+JpegImageSink::write_row (const unsigned char *byte_vec)
 {
-  const JSAMPLE *rows[1] = { rgb_bytes };
+  const JSAMPLE *rows[1] = { byte_vec };
   jpeg_write_scanlines (&jpeg_info, const_cast<JSAMPLE **>(rows), 1);
 }
 

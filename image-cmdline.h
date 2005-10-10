@@ -21,7 +21,7 @@
 //
 #define IMAGE_INPUT_OPTIONS_HELP "\
  Input options:\n\
-  -I, --input-format=FMT     Input image format FMT (one of: exr, png, jpeg)"
+  -I, --input-format=FMT     Input image format FMT (one of: exr, png, ppm)"
 //
 #define IMAGE_INPUT_SHORT_OPTIONS "I:"
 //
@@ -37,18 +37,19 @@
 //
 #define IMAGE_OUTPUT_OPTIONS_HELP "\
  Output options:\n\
-  -O, --output-format=FMT    Output image format FMT (one of: exr, png, jpeg)\n\
+  -O, --output-format=FMT    Output image format FMT\n\
+                               (one of: exr, png, ppm, jpeg)\n\
   -g, --gamma=GAMMA          Do gamma correction for a target display\n\
-                             gamma of GAMMA (default: 2.2, for output\n\
-                             formats that need gamma-correction)\n\
+                               gamma of GAMMA (default: 2.2, for output\n\
+                               formats that need gamma-correction)\n\
   -Q, --quality=PERCENT	     Set output quality, for formats that support it\n\
-                             (range: 0-100; default 98)\n\
+                               (range: 0-100; default 98)\n\
 \n\
  Anti-aliasing:\n\
   -a, --aa-factor=N          Use NxN input pixels to compute each output pixel\n\
   -A, --aa-overlap=M         Include M adjacent input pixels in anti-aliasing\n\
   -F, --aa-filter=NAME       Use anti-aliasing filter NAME (one of: box,\n\
-                             triang, gauss; default: gauss)"
+                               triang, gauss; default: gauss)"
 //
 #define IMAGE_OUTPUT_SHORT_OPTIONS "a:A:F:O:g:Q:"
 //

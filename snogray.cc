@@ -17,6 +17,7 @@
 
 #include "cmdlineparser.h"
 #include "rusage.h"
+#include "string-funs.h"
 
 #include "scene.h"
 #include "camera.h"
@@ -177,33 +178,6 @@ parse_limit_opt_arg (CmdLineParser &clp,
 }
 
 
-// Random string helper functions
-
-// Return a string version of NUM
-//
-static string 
-stringify (unsigned num)
-{
-  string str = (num > 9) ? stringify (num / 10) : "";
-  char ch = (num % 10) + '0';
-  str += ch;
-  return str;
-}
-
-// Return a string version of NUM, with commas added every 3rd place
-//
-static string 
-commify (unsigned long long num, unsigned sep_count = 1)
-{
-  string str = (num > 9) ? commify (num / 10, sep_count % 3 + 1) : "";
-  char ch = (num % 10) + '0';
-  if (sep_count == 3 && num > 9)
-    str += ',';
-  str += ch;
-  return str;
-}
-
-
 // Main driver
 
 static void
@@ -229,7 +203,7 @@ help (CmdLineParser &clp, ostream &os)
 n
 s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 s "  -m, --multiple=NUM         Make real output size NUM times specified size"
-s "                             (useful if it will later be anti-aliased)"
+s "                               (useful if it will later be anti-aliased)"
 s "  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
 n
 s "  -q, --quiet                Do not output informational or progress messages"
