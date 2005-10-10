@@ -77,24 +77,33 @@ static void
 help (CmdLineParser &clp, ostream &os)
 {
   usage (clp, os);
-  os << "Change the format of or transform an image file" << endl
-     << endl
-<< " Transforms:" << endl
-<< "  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
-     << endl
-<< "  -c, --contrast=POW         Increase or decrease contrast" << endl
-     << endl
-     << IMAGE_OUTPUT_OPTIONS_HELP << endl
-     << endl
-     << IMAGE_INPUT_OPTIONS_HELP << endl
-     << endl
-     << CMDLINEPARSER_GENERAL_OPTIONS_HELP << endl
-     << endl
-<< "If no filenames are given, standard input or output is used.  Input/output"
-     << endl
-<< "image formats are guessed using the corresponding filenames when possible"
-     << endl
-     << "(using the file's extension)." << endl;
+
+  // These macros just makes the source code for help output easier to line up
+  //
+#define s  << endl <<
+#define n  << endl
+
+  os <<
+  "Change the format of or transform an image file"
+n
+s " Transforms:"
+s "  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
+s "  -c, --contrast=POW         Increase or decrease contrast"
+n
+s IMAGE_INPUT_OPTIONS_HELP
+n
+s IMAGE_OUTPUT_OPTIONS_HELP
+n
+s CMDLINEPARSER_GENERAL_OPTIONS_HELP
+n
+s "If no filenames are given, standard input or output is used.  Input/output"
+s "image formats are guessed using the corresponding filenames when possible"
+s "(using the file's extension)."
+n
+    ;
+
+#undef s
+#undef n
 }
 
 
