@@ -1,0 +1,962 @@
+Before voxtree:
+   image.size = 640 x 480
+   image.target_gamma = 2.2
+   scene.num_objects = 212
+   scene.num_lights = 7
+   scene.num_materials = 113
+   rendering: line 479 (99%)
+   stats.scene_closest_intersect_calls = 307,200
+   stats.obj_closest_intersect_calls = 65,126,400
+   stats.scene_intersects_calls = 1,791,146
+   stats.obj_intersects_calls = 334,837,339
+
+Initial voxtree implementation:
+   image.size = 640 x 480
+   image.target_gamma = 2.2
+   scene.num_objects = 212
+   scene.num_lights = 7
+   scene.num_materials = 113
+   rendering: line 479 (99%)
+   stats.scene_closest_intersect_calls = 307,200
+   stats.obj_closest_intersect_calls = 20,475,088
+   stats.scene_intersects_calls = 1,791,146
+   stats.obj_intersects_calls = 103,282,178
+
+After subnode-forcing (size ratio = 2):
+   image.size = 640 x 480
+   image.target_gamma = 2.2
+   scene.num_objects = 212
+   scene.num_lights = 7
+   scene.num_materials = 113
+   rendering: line 479 (99%)
+   stats.scene_closest_intersect_calls = 307,200
+   stats.obj_closest_intersect_calls = 4,972,893
+   stats.scene_intersects_calls = 1,791,146
+   stats.obj_intersects_calls = 17,859,594
+
+   image.size = 1280 x 1024
+   image.target_gamma = 1.8
+   image.aa_factor = 7
+   image.aa_kernel_size = 7
+   image.aa_filter = gauss
+   scene.num_objects = 212
+   scene.num_lights = 7
+   scene.num_materials = 113
+   rendering: line 1023_6 (99%)
+   stats.scene_closest_intersect_calls =  64,225,280
+   stats.obj_closest_intersect_calls = 1,017,956,564
+   stats.scene_intersects_calls = 370,700,603
+   stats.obj_intersects_calls = 3,657,779,352
+
+After light-ray normal test and some reorg:
+
+   [work]
+   image.size:           640 x 480
+   image.target_gamma:         1.8
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree calls:            307,200
+	voxtree node calls:    18,986,695
+	obj calls:              7,440,323
+     intersects:
+	scene calls:            1,395,690
+	voxtree calls:          1,395,690
+	voxtree node calls:    82,248,070
+	obj calls:             23,661,087
+
+   real    0m13.945s
+   user    0m12.812s
+   sys     0m0.025s
+
+   [home]
+   image.size:	     1024 x 768
+   image.target_gamma:         2.2
+   image.aa_factor:              3
+   image.aa_kernel_size:         3
+   image.aa_filter:          gauss
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   rendering: done              
+
+   Stats:
+     closest_intersect:
+	scene calls:            7,077,888
+	voxtree calls:          7,077,888
+	voxtree node calls:   437,504,653
+	obj calls:            171,485,056
+     intersects:
+	scene calls:           32,200,107
+	voxtree calls:         32,200,107
+	voxtree node calls: 1,897,830,918
+	obj calls:            546,027,886
+
+   real	25m4.301s
+   user	19m38.563s
+   sys	0m1.506s
+
+   [home, overhead view]
+   image.size:           640 x 480
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree calls:            307,200
+	voxtree node calls:     9,594,781
+	obj calls:              2,562,446
+     intersects:
+	scene calls:            2,042,272
+	voxtree calls:          2,042,272
+	voxtree node calls:    95,036,615
+	obj calls:             25,534,067
+
+   real	1m3.343s
+   user	0m52.874s
+   sys	0m0.028s
+
+   [home]
+   image.size:           640 x 480
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree calls:            307,200
+	voxtree node calls:    18,986,695
+	obj calls:              7,440,323
+     intersects:
+	scene calls:            1,395,690
+	voxtree calls:          1,395,690
+	voxtree node calls:    82,248,070
+	obj calls:             23,661,087
+
+   real	1m0.516s
+   user	0m52.312s
+   sys	0m0.021s
+
+After voxtree ray-endpoint bounding-box tests:
+
+   [home]
+   image.size:           640 x 480
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree calls:            307,200
+	voxtree node calls:    18,416,779
+	obj calls:              7,133,123
+     intersects:
+	scene calls:            1,395,690
+	voxtree calls:          1,395,690
+	voxtree node calls:    52,133,938
+	obj calls:             12,530,843
+
+   real	0m39.109s
+   user	0m38.366s
+   sys	0m0.012s
+
+   [home]
+   image.size:         3072 x 2304
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:            7,077,888
+	voxtree calls:          7,077,888
+	voxtree node calls:   424,370,706
+	obj calls:            164,407,149
+     intersects:
+	scene calls:           32,200,107
+	voxtree calls:         32,200,107
+	voxtree node calls: 1,203,120,809
+	obj calls:            289,287,817
+
+   real	14m30.404s
+   user	14m20.479s
+   sys	0m0.130s
+
+
+After re-arrangement of voxtree ray-endpoint bounding-box tests:
+
+   [home]
+   image.size:           640 x 480
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree calls:            307,200
+	voxtree node calls:    15,165,878
+	obj calls:              7,133,123
+     intersects:
+	scene calls:            1,395,690
+	voxtree calls:          1,395,690
+	voxtree node calls:    36,936,794
+	obj calls:             12,530,843
+
+   real	0m36.249s
+   user	0m35.707s
+   sys	0m0.010s
+
+   [home, -fpmath=sse]
+   image.size:           640 x 480
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree node calls:    15,165,873
+	obj calls:              7,133,126
+     intersects:
+	scene calls:            1,395,704
+	voxtree node calls:    36,937,252
+	obj calls:             12,530,999
+
+   real	0m33.353s
+   user	0m32.832s
+   sys	0m0.015s
+
+   [home, -fpmath=sse]
+   image.size:         3072 x 2304
+   scene.num_objects:          212
+   scene.num_lights:             7
+   scene.num_materials:        113
+   scene.voxtree_num_nodes:    395
+   scene.voxtree_max_depth:     13
+
+   Stats:
+     closest_intersect:
+	scene calls:            7,077,888
+	voxtree node calls:   349,398,818
+	obj calls:            164,407,195
+     intersects:
+	scene calls:           32,199,966
+	voxtree node calls:   854,787,128
+	obj calls:            288,760,890
+
+   real	12m21.612s
+   user	12m2.229s
+   sys	0m0.121s
+
+After adding shadow-hints:
+
+   [home, -fpmath=sse]
+   Image:
+      size:           640 x 480
+   Scene:
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        395
+      voxtree max depth:     13
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree node calls:    15,165,873
+	obj calls:              7,133,126
+     shadowed:
+	scene calls:            1,395,704
+	voxtree node calls:    33,773,428
+	obj calls:             11,259,276
+	shadow hint hits:         225,143
+	shadow hint misses:         5,171
+
+   real	0m46.987s
+   user	0m30.840s
+   sys	0m0.026s
+
+   [home, -fpmath=sse]
+   Image:
+      size:           640 x 480
+      aa_factor:              3
+      aa_kernel_size:         3
+      aa_filter:          gauss
+   Scene:
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        395
+      voxtree max depth:     13
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            2,764,800
+	voxtree node calls:   136,484,535
+	obj calls:             64,217,641
+     shadowed:
+	scene calls:           12,575,346
+	voxtree node calls:   303,948,212
+	obj calls:            101,325,043
+	shadow hint hits:       2,057,014
+	shadow hint misses:        15,759
+
+   real	5m45.050s
+   user	4m23.684s
+   sys	0m0.204s
+
+   [work, -fpmath=sse]
+   Image:
+      size:         3840 x 3072
+   Scene:
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        395
+      voxtree max depth:     13
+
+   rendering: done
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           11,796,480
+	voxtree node calls:   572,333,482
+	obj calls:            266,559,900
+     shadowed:
+	scene tests:           53,526,677
+	shadow hint hits:       8,826,700
+	shadow hint misses:        32,567
+	voxtree node tests: 1,296,279,522
+	obj tests:            433,117,320
+
+   real    4m39.698s
+   user    4m29.151s
+   sys     0m0.443s
+
+   [work, -fpmath=sse]
+   Image:
+      size:           640 x 480
+   Scene:
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        395
+      voxtree max depth:     13
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree node calls:    15,165,873
+	obj calls:              7,133,126
+     shadowed:
+	scene tests:            1,395,704
+	shadow hint hits:         225,143
+	shadow hint misses:         5,171
+	voxtree node tests:    33,773,428
+	obj tests:             11,259,276
+
+   real    0m7.358s
+   user    0m7.205s
+   sys     0m0.015s
+
+   [work, -fpmath=sse]
+   cmd: time snogray -s1280x1024 -m7 -t6 ../images/image72-s1280x1024-m7.exr
+   Image:
+      size:     1280 x 1024 x 7 (8960 x 7168)
+   Scene:
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        395
+      voxtree max depth:     13
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           64,225,280
+	voxtree node calls: 2,329,902,045
+	obj calls:            934,646,643
+     shadowed:
+	scene tests:          195,351,303
+	shadow hint hits:      42,452,079
+	shadow hint misses:       109,931
+	voxtree node tests: 4,225,544,259
+	obj tests:          1,367,767,315
+
+   real	19m19.435s
+   user	15m16.127s
+   sys	0m3.316s
+
+   [work, -fpmath=sse]
+   cmd: time snogray -s1280x1024 -m3 -t6 ../images/image72-s1280x1024-m3.exr
+   Image:
+      size:     1280 x 1024 x 3 (3840 x 3072)
+   Scene:
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        395
+      voxtree max depth:     13
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           11,796,480
+	voxtree node calls:   427,907,549
+	obj calls:            171,656,639
+     shadowed:
+	scene tests:           35,871,136
+	shadow hint hits:       7,768,350
+	shadow hint misses:        45,309
+	voxtree node tests:   776,322,787
+	obj tests:            251,295,723
+
+   real	4m12.656s
+   user	2m51.254s
+   sys	0m1.602s
+
+Before changing voxtree "force" metric:
+
+   [home, -fpmath=sse]
+   cmd: time snogray -t10 /tmp/teapot.png
+   Image:
+      size:           640 x 480
+   Scene:
+      test scene:            10
+      objects:            2,328
+      lights:                 2
+      materials:              3
+      voxtree nodes:        882
+      voxtree max depth:     21
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree node calls:    11,020,576 ( 4%)
+	obj calls:             17,875,786 ( 2%)
+     shadowed:
+	scene tests:              279,657
+	shadow hint hits:          13,298 ( 4%)
+	shadow hint misses:         4,436 ( 1%)
+	voxtree node tests:     4,251,929 ( 1%)
+	obj tests:              9,912,057 ( 1%)
+
+   real	0m33.985s
+   user	0m19.394s
+   sys	0m0.022s
+
+After changing voxtree "force" metric to "obj_bbox.avg_size":
+
+   [home, -fpmath=sse]
+   cmd: time snogray -t10 /tmp/teapot.png
+   Image:
+      size:           640 x 480
+   Scene:
+      test scene:            10
+      objects:            2,328
+      lights:                 2
+      materials:              3
+      voxtree nodes:      1,552
+      voxtree max depth:     22
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:              307,200
+	voxtree node calls:    12,076,647 ( 2%)
+	obj calls:              9,851,749 ( 1%)
+     shadowed:
+	scene tests:              279,657
+	shadow hint hits:          13,283 ( 4%)
+	shadow hint misses:         4,451 ( 1%)
+	voxtree node tests:     4,537,607 ( 1%)
+	obj tests:              5,220,383 ( 0%)
+
+   real	0m21.018s
+   user	0m14.796s
+   sys	0m0.022s
+
+   [home, -fpmath=sse]
+   cmd: time snogray -t11 -s1024x768 -m3 ../images/balls-s1024x768-m3.exr
+   Image:
+      size:      1024 x 768 x 3 (3072 x 2304)
+   Scene:
+      test scene:            11
+      objects:            7,383
+      lights:                 3
+      materials:              2
+      voxtree nodes:     11,883
+      voxtree max depth:     15
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            7,077,888
+	voxtree node calls:   393,005,692 ( 0%)
+	obj calls:            118,129,019 ( 0%)
+     shadowed:
+	scene tests:           19,731,080
+	shadow hint hits:       3,677,448 (18%)
+	shadow hint misses:       150,347 ( 0%)
+	voxtree node tests:   322,344,237 ( 0%)
+	obj tests:             92,206,753 ( 0%)
+
+   real	6m40.582s
+   user	5m56.073s
+   sys	0m0.197s
+
+   [home, -fpmath=sse]
+   cmd: time snogray -t26 -s1024x768 -m3 ../images/balls5-s1024x768-m3.exr
+   Image:
+      size:      1024 x 768 x 3 (3072 x 2304)
+   Scene:
+      test scene:            26
+      objects:           66,432
+      lights:                 3
+      materials:              2
+      voxtree nodes:    153,658
+      voxtree max depth:     18
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            7,077,888
+	voxtree node calls:   517,290,672 ( 0%)
+	obj calls:            140,354,583 ( 0%)
+     shadowed:
+	scene tests:           19,672,807
+	shadow hint hits:       3,727,532 (18%)
+	shadow hint misses:       299,495 ( 1%)
+	voxtree node tests:   358,512,331 ( 0%)
+	obj tests:             96,783,209 ( 0%)
+
+   real	8m19.956s
+   user	7m7.680s
+   sys	0m0.277s
+
+   [work, -fpmath=sse]
+   cmd: time snogray -a3 -g1.8 -P -t10 /tmp/teapot.png
+   Image:
+      size:           640 x 480
+      target_gamma:         1.8
+      aa_factor:              3
+      aa_kernel_size:         3
+      aa_filter:          gauss
+   Scene:
+      test scene:            10
+      objects:            2,328
+      lights:                 2
+      materials:              3
+      voxtree nodes:      1,552
+      voxtree max depth:     22
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            2,764,800
+	voxtree node calls:   108,678,780 ( 2%)
+	obj calls:             88,666,679 ( 1%)
+     shadowed:
+	scene tests:            2,517,997
+	shadow hint hits:         144,699 ( 5%)
+	shadow hint misses:        15,084 ( 0%)
+	voxtree node tests:    40,315,455 ( 1%)
+	obj tests:             46,107,533 ( 0%)
+
+   real    0m28.668s
+   user    0m28.054s
+   sys     0m0.026s
+
+   [work, -fpmath=sse]
+   cmd: time snogray -a3 -g1.8 -P -t11 /tmp/balls.png
+   Image:
+      size:           640 x 480
+      target_gamma:         1.8
+      aa_factor:              3
+      aa_kernel_size:         3
+      aa_filter:          gauss
+   Scene:
+      test scene:            11
+      objects:            7,383
+      lights:                 3
+      materials:              2
+      voxtree nodes:     11,883
+      voxtree max depth:     15
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            2,764,800
+	voxtree node calls:   153,524,437 ( 0%)
+	obj calls:             46,144,598 ( 0%)
+     shadowed:
+	scene tests:            7,707,233
+	shadow hint hits:       1,404,267 (18%)
+	shadow hint misses:        90,179 ( 1%)
+	voxtree node tests:   126,836,190 ( 0%)
+	obj tests:             36,490,638 ( 0%)
+
+   real    0m31.498s
+   user    0m31.225s
+   sys     0m0.021s
+
+   [work, -fpmath=sse]
+   cmd: time snogray -a3 -g1.8 -P -t16 /tmp/gears.png
+   Image:
+      size:           640 x 480
+      target_gamma:         1.8
+      aa_factor:              3
+      aa_kernel_size:         3
+      aa_filter:          gauss
+   Scene:
+      test scene:            16
+      objects:           36,610
+      lights:                 5
+      materials:             65
+      voxtree nodes:     11,195
+      voxtree max depth:     13
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            2,764,800
+	voxtree node calls:   173,094,967 ( 0%)
+	obj calls:          2,930,116,813 ( 2%)
+     shadowed:
+	scene tests:           11,378,725
+	shadow hint hits:       2,261,540 (19%)
+	shadow hint misses:       470,908 ( 4%)
+	voxtree node tests:   194,435,914 ( 0%)
+	obj tests:          3,914,084,781 ( 1%)
+
+   real    17m42.614s
+   user    16m50.708s
+   sys     0m1.626s
+
+After adding mirroring:
+
+   [home, -fpmath=sse]
+   cmd: snogray -t10 -s1024x768 -m3 ../images/teapot-0-s1024x768-m3.exr
+   Image:
+      size:      1024 x 768 x 3 (3072 x 2304)
+   Scene:
+      test scene:            10
+      objects:            2,328
+      lights:                 2
+      materials:              3
+      voxtree nodes:      1,552
+      voxtree max depth:     22
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           11,667,189
+	voxtree node calls:   436,307,368 ( 2%)
+	obj calls:            446,899,430 ( 1%)
+     shadowed:
+	scene tests:            8,261,785
+	shadow hint hits:         342,715 ( 4%)
+	shadow hint misses:       433,264 ( 5%)
+	voxtree node tests:   143,316,072 ( 1%)
+	obj tests:            185,315,892 ( 1%)
+   Time:
+     scene def cpu:         0.014
+     rendering cpu:      8:44.957
+     total elapsed:     11:12.750
+
+   [home]
+   cmd: snogray -t27 -s512x512 -m3 ../images/teapot14-0-s512x512-m3.exr
+   Image:
+      size:       512 x 512 x 3 (1536 x 1536)
+   Scene:
+      test scene:            27
+      objects:           12,824
+      lights:                 2
+      materials:              3
+      voxtree nodes:      8,221
+      voxtree max depth:     25
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            4,416,625
+	voxtree node calls:   266,166,628 ( 0%)
+	obj calls:            233,308,797 ( 0%)
+     shadowed:
+	scene tests:            3,692,453
+	shadow hint hits:         126,056 ( 3%)
+	shadow hint misses:       236,496 ( 6%)
+	voxtree node tests:   100,330,550 ( 0%)
+	obj tests:            101,002,687 ( 0%)
+   Time:
+     scene def cpu:         0.073
+     rendering cpu:      5:06.648
+     total elapsed:      5:28.810
+
+   [work, -fpmath=sse]
+   cmd: snogray -m3 -s1024x1024 -t29 ../images/teapot30-0-s1024x1024-m3.exr
+   Image:
+      size:     1024 x 1024 x 3 (3072 x 3072)
+   Scene:
+      test scene:            29
+      objects:           59,160
+      lights:                 2
+      materials:              3
+      voxtree nodes:     38,302
+      voxtree max depth:     21
+
+   rendering: done
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           17,664,248
+	voxtree node calls: 1,357,747,013 ( 0%)
+	obj calls:            962,834,627 ( 0%)
+     shadowed:
+	scene tests:           14,752,755
+	shadow hint hits:         484,946 ( 3%)
+	shadow hint misses:       962,489 ( 6%)
+	voxtree node tests:   475,672,347 ( 0%)
+	obj tests:            429,237,054 ( 0%)
+   Time:
+     scene def cpu:         0.101
+     rendering cpu:      6:34.595
+     total elapsed:      7:02.459
+
+   [work, -fpmath=sse]
+   cmd: snogray -m3 -s1280x1024 -t6 ../images/image90-s1280x1024-m3.exr
+   Image:
+      size:     1280 x 1024 x 3 (3840 x 3072)
+   Scene:
+      test scene:             6
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        552
+      voxtree max depth:     13
+
+   rendering: done
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           12,536,634
+	voxtree node calls:   478,585,652 ( 6%)
+	obj calls:            120,795,440 ( 4%)
+     shadowed:
+	scene tests:           38,212,465
+	shadow hint hits:       8,355,466 (21%)
+	shadow hint misses:       323,237 ( 0%)
+	voxtree node tests:   874,690,472 ( 5%)
+	obj tests:            189,106,167 ( 2%)
+   Time:
+     scene def cpu:         0.000
+     rendering cpu:      2:47.078
+     total elapsed:      3:00.454
+
+After adding trace-state tree, horizon hints:
+
+   [work, -fpmath=sse]
+   cmd: snogray -t10 -s1024x768 -m3 ../images/teapot-1-s1024x768-m3.exr
+   Image:
+      size:      1024 x 768 x 3 (3072 x 2304)
+   Scene:
+      test scene:            10
+      objects:            2,328
+      lights:                 2
+      materials:              3
+      voxtree nodes:      1,552
+      voxtree avg depth: 10.1356
+      voxtree max depth:     22
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           11,669,006
+	horizon hint hits:      4,495,074 (38%)
+	horizon hint misses:      140,233 ( 1%)
+	voxtree node calls:   263,146,345 ( 1%)
+	obj calls:            256,437,340 ( 0%)
+     shadowed:
+	scene tests:            8,264,129
+	shadow hint hits:         703,149 ( 8%)
+	shadow hint misses:        71,636 ( 0%)
+	voxtree node tests:   136,838,573 ( 1%)
+	obj tests:            171,529,870 ( 0%)
+   Time:
+     scene def cpu:         0.005
+     rendering cpu:      1:32.448
+     total elapsed:      2:14.904
+
+   [work, -fpmath=sse]
+   cmd: snogray -P -m3 -s1024x1024 -t29 ../images/teapot30-1-s1024x1024-m3.exr
+   Image:
+      size:     1024 x 1024 x 3 (3072 x 3072)
+   Scene:
+      test scene:            29
+      objects:           59,160
+      lights:                 2
+      materials:              3
+      voxtree nodes:     38,302
+      voxtree avg depth: 10.3332
+      voxtree max depth:     21
+
+   rendering...done
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           17,664,257
+	horizon hint hits:      7,503,104 (42%)
+	horizon hint misses:      807,265 ( 4%)
+	voxtree node calls:   734,068,992 ( 0%)
+	obj calls:            557,313,047 ( 0%)
+     shadowed:
+	scene tests:           14,752,773
+	shadow hint hits:       1,068,406 ( 7%)
+	shadow hint misses:       374,032 ( 2%)
+	voxtree node tests:   452,518,916 ( 0%)
+	obj tests:            398,767,706 ( 0%)
+   Time:
+     scene def cpu:         0.098
+     rendering cpu:      4:10.791
+     total elapsed:      4:15.631
+
+   [note: scene -t6 chanced to add mirroring to biggest ball]
+
+   [work, -fpmath=sse]
+   cmd: snogray -m3 -s1280x1024 -t6 ../images/image92-s1280x1024-m3.exr
+   Image:
+      size:     1280 x 1024 x 3 (3840 x 3072)
+   Scene:
+      test scene:             6
+      objects:              212
+      lights:                 7
+      materials:            111
+      voxtree nodes:        552
+      voxtree avg depth: 9.85938
+      voxtree max depth:     13
+
+   rendering: done
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           14,366,905
+	horizon hint hits:      8,117,295 (56%)
+	horizon hint misses:       22,811 ( 0%)
+	voxtree node calls:   301,730,363 ( 3%)
+	obj calls:             84,385,557 ( 2%)
+     shadowed:
+	scene tests:           43,932,092
+	shadow hint hits:      10,580,797 (24%)
+	shadow hint misses:       117,301 ( 0%)
+	voxtree node tests: 1,001,192,135 ( 5%)
+	obj tests:            216,015,604 ( 3%)
+   Time:
+     scene def cpu:         0.001
+     rendering cpu:      2:57.636
+     total elapsed:      3:04.179
+
+   [work, -fpmath=sse]
+   cmd: snogray -t29 -s1280x1024 -m3 ../images/teapot30-bg-s1280x1024-m3.exr
+   Image:
+      size:     1280 x 1024 x 3 (3840 x 3072)
+   Scene:
+      test scene:            29
+      objects:           59,160
+      lights:                 2
+      materials:              3
+      voxtree nodes:     38,302
+      voxtree avg depth: 10.3332
+      voxtree max depth:     21
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:           18,172,009
+	horizon hint hits:      5,726,428 (31%)
+	horizon hint misses:      715,237 ( 3%)
+	voxtree node calls:   662,146,899 ( 0%)
+	obj calls:            436,277,126 ( 0%)
+     shadowed:
+	scene tests:           11,434,008
+	shadow hint hits:         823,760 ( 7%)
+	shadow hint misses:       331,534 ( 2%)
+	voxtree node tests:   349,837,359 ( 0%)
+	obj tests:            304,412,916 ( 0%)
+   Time:
+     scene def cpu:         0.096
+     rendering cpu:      3:33.866
+     total elapsed:      5:27.335
+
+   [home, -fpmath=sse]
+   cmd: snogray -t27 -s512x512 -m3 /tmp/teapot14-1-s512x512-m3.exr
+   Image:
+      size:       512 x 512 x 3 (1536 x 1536)
+   Scene:
+      test scene:            27
+      objects:           12,824
+      lights:                 2
+      materials:              3
+      voxtree nodes:      8,221
+      voxtree avg depth: 10.0579
+      voxtree max depth:     25
+
+   rendering: done              
+
+   Rendering stats:
+     closest_intersect:
+	scene calls:            4,416,625
+	horizon hint hits:      1,888,453 (42%)
+	horizon hint misses:      189,720 ( 4%)
+	voxtree node calls:   150,595,912 ( 0%)
+	obj calls:            134,278,956 ( 0%)
+     shadowed:
+	scene tests:            3,692,453
+	shadow hint hits:         269,065 ( 7%)
+	shadow hint misses:        90,858 ( 2%)
+	voxtree node tests:    96,320,972 ( 0%)
+	obj tests:             94,359,920 ( 0%)
+   Time:
+     scene def cpu:         0.068
+     rendering cpu:      3:34.837
+     total elapsed:      4:35.977
+
+
+;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
