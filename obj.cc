@@ -18,8 +18,23 @@ using namespace Snogray;
 
 Obj::~Obj () { } // stop gcc bitching
 
+// Return the distance from RAY's origin of the closest intersection of
+// this object with RAY, or 0 if there is none.
+//
 dist_t
 Obj::intersection_distance (const Ray &ray) const
+{
+  return 0;
+}
+
+// Given that RAY's origin is known to lie on this object, return the
+// distance from RAY's origin to the _next_ closest intersection of this
+// object with RAY, or 0 if there is none.  For non-convex objects such
+// as triangles, the default implementation which always returns 0 is
+// correct.
+//
+dist_t
+Obj::next_intersection_distance (const Ray &ray) const
 {
   return 0;
 }

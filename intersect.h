@@ -28,9 +28,13 @@ public:
     ray.set_len (horizon);
   }
 
-  void update (const Obj *_obj)
+  void update (const Obj *_obj, const Obj *origin)
   {
-    dist_t dist = _obj->intersection_distance (ray);
+    dist_t dist
+      = (_obj == origin
+	 ? _obj->next_intersection_distance (ray)
+	 : _obj->intersection_distance (ray));
+
     if (dist > 0 && (!obj || dist < ray.len))
       {
 	obj = _obj;

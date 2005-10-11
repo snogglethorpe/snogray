@@ -52,7 +52,8 @@ Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 
       TraceState &sub_tstate = tstate.subtrace_state (substate_type, new_ior);
 
-      total_color = transmittance * scene.render (xmit_ray, sub_tstate);
+      total_color
+	= transmittance * scene.render (xmit_ray, sub_tstate, isec.obj);
     }
   else if (old_ior > new_ior)
     total_color = Color (100, 0, 0);

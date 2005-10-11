@@ -52,9 +52,9 @@ struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 void
 SceneClosestIntersectCallback::operator () (Obj *obj)
 {
-  if (obj != origin && obj != tstate.horizon_hint)
+  if (obj != tstate.horizon_hint)
     {
-      isec.update (obj);
+      isec.update (obj, origin);
       num_calls++;
     }
 }
@@ -70,9 +70,9 @@ Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *origin)
   // searching (voxtree searching can dramatically improve given a limited
   // search space).
   //
-  if (tstate.horizon_hint && tstate.horizon_hint != origin)
+  if (tstate.horizon_hint)
     {
-      isec.update (tstate.horizon_hint);
+      isec.update (tstate.horizon_hint, origin);
 
       if (isec.obj)
 	stats.horizon_hint_hits++;

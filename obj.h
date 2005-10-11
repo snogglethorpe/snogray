@@ -28,7 +28,18 @@ public:
   Obj () : no_shadow (false) { }
   virtual ~Obj (); // stop gcc bitching
 
+  // Return the distance from RAY's origin of the closest intersection of
+  // this object with RAY, or 0 if there is none.
+  //
   virtual dist_t intersection_distance (const Ray &ray) const;
+
+  // Given that RAY's origin is known to lie on this object, return the
+  // distance from RAY's origin to the _next_ closest intersection of this
+  // object with RAY, or 0 if there is none.  For non-convex objects such
+  // as triangles, the default implementation which always returns 0 is
+  // correct.
+  //
+  virtual dist_t next_intersection_distance (const Ray &ray) const;
 
   // Making the following virtual slows things down measurably, and there
   // are no cases where it's needed yet:
