@@ -88,18 +88,10 @@ Material::illum (const Intersect &isec, const Color &color,
 Color
 Material::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {
-  // If the dot product of the surface normal with the eye ray is
-  // negative, we're looking at the back of the surface; we render
-  // this as a striking color to make it easier to detect mistakes.
-  // However to accomodate small cumulative errors, we allow very
-  // small negative dot-products as if they were zero.
-
-  if (isec.normal.dot (isec.eye_dir) >= -0.0001)
-    return illum (isec, color, scene, tstate);
-  else
-    // We're looking at the back of the surface, render as wacky color.
-    //
+  if (isec.reverse)
     return Color::funny;
+  else
+    return illum (isec, color, scene, tstate);
 }
 
 // arch-tag: 3d971faa-322c-4479-acf0-effb05aca10a

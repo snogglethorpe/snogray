@@ -15,25 +15,66 @@
 
 using namespace Snogray;
 
-TraceState::TraceState (Scene &_scene, unsigned _depth)
-  : horizon_hint (0), scene (_scene), depth (_depth)
+// Constructor for root TraceState
+//
+TraceState::TraceState (Scene &_scene)
+  : scene (_scene), parent (0), type (TRACE_SPONTANEOUS),
+    horizon_hint (0), depth (0), ior (1)
 {
-  unsigned num_lights = _scene.num_lights ();
+  _init ();
+}
+
+// Constructor for sub-traces
+//
+TraceState::TraceState (TraceType _type, TraceState *_parent)
+  : scene (_parent->scene), parent (_parent), type (_type),
+    horizon_hint (0), depth (_parent->depth + 1), ior (1)
+{
+  _init ();
+}
+
+void
+TraceState::_init ()
+{
+  unsigned num_lights = scene.num_lights ();
 
   shadow_hints = new const Obj*[num_lights];
   for (unsigned i = 0; i < num_lights; i++)
     shadow_hints[i] = 0;
 
-  for (unsigned i = 0; i < NUM_SUBTRACE_TYPES; i++)
+  for (unsigned i = 0; i < NUM_TRACE_TYPES; i++)
     subtrace_states[i] = 0;
 }
 
 TraceState::~TraceState ()
 {
-  for (unsigned i = 0; i < NUM_SUBTRACE_TYPES; i++)
+  for (unsigned i = 0; i < NUM_TRACE_TYPES; i++)
     delete subtrace_states[i];
 
   delete[] shadow_hints;
+}
+
+// Searches back through the trace history to find the enclosing
+// medium, and returns its index of refraction.
+//
+const TraceState *
+TraceState::enclosing_medium_state ()
+{
+  const TraceState *ts = this;
+
+  int enclosure_level = 0;
+
+  while (enclosure_level >= 0 && ts)
+    {
+      if (ts->type == TRACE_REFRACTION_IN)
+	enclosure_level--;
+      else if (ts->type == TRACE_REFRACTION_OUT)
+	enclosure_level++;
+
+      ts = ts->parent;
+    }
+
+  return ts;
 }
 
 // arch-tag: 03555891-462c-40bb-80b8-5f889c4cba44

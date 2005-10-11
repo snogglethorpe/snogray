@@ -35,7 +35,7 @@ Obj::intersection_distance (const Ray &ray) const
 // }
 
 Vec
-Obj::normal (const Pos &point, const Vec &eye_dir) const
+Obj::normal (const Pos &point, const Vec &incoming) const
 {
   return 0;
 }

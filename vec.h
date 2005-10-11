@@ -106,18 +106,37 @@ public:
   }
 
   // Return this vector reflected around NORMAL
+  //
   Vec reflection (const Vec &normal) const
   {
-    // Rr = 2 N (Ri . N) - Ri
+    // Rr =  Ri - 2 N (Ri . N)
 
-    return normal * dot (normal) * 2 - *this;
+    return  *this - normal * dot (normal) * 2;
   }
 
-//   Vec refraction (const Vec &normal) const
-//   {
-//     // Rr = ni / nr (cos(i)) - cos(r)N - ni / nr Ri
-//     //    = ni / nr (N . Ri)
-//     //       - sqrt (1- (ni / nr) 2 (1 - (N . Ri) 2 ) * N - (ni / nr) I)
+  // Return this vector refracted through a medium transition across a
+  // surface with normal NORMAL.  IOR_IN and IOR_OUT are the indices of
+  // refraction for the incoming and outgoing media.
+  //
+  Vec refraction (const Vec &normal, float ior_in, float ior_out) const
+  {
+    // From:
+    //
+    //   Heckbert, Paul S., Pat Hanrahan, "Beam Tracing Polygonal Objects,",
+    //   _Computer Graphics (SIGGRAPH '84 Proceedings)_, vol. 18, no. 3,
+    //   July 1984, pp. 119-127.
+    // 
+
+    float ior_ratio = ior_in / ior_out;
+
+    float c1 = -dot (normal);
+    float c2_sq = 1 - (ior_ratio * ior_ratio) * (1 - c1 * c1);
+
+    if (c2_sq < 0)
+      return Vec (0, 0, 0);	// Total internal reflection
+    else
+      return (*this * ior_ratio) + (normal * (ior_ratio * c1 - sqrt (c2_sq)));
+  }
 };
 
 static inline Vec

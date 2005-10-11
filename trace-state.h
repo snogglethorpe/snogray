@@ -21,29 +21,71 @@ class TraceState
 {
 public:
 
-  enum SubTraceType {
-    SUBTRACE_REFLECTION,
-    SUBTRACE_REFRACTION,
-    NUM_SUBTRACE_TYPES
+  enum TraceType {
+    TRACE_SPONTANEOUS,
+    TRACE_REFLECTION,
+    TRACE_REFRACTION_IN,
+    TRACE_REFRACTION_OUT,
+    NUM_TRACE_TYPES
   };
 
-  TraceState (Scene &_scene, unsigned _depth = 0);
+  TraceState (Scene &_scene);
+  TraceState (TraceType _type, TraceState *_parent);
   ~TraceState ();
 
   // Returns a pointer to the trace-state for a subtrace of the given
   // type (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  TraceState &subtrace_state (SubTraceType type)
+  TraceState &subtrace_state (TraceType type, float _ior)
   {
     TraceState *sub = subtrace_states[type];
+
     if (! sub)
       {
-	sub = new TraceState (scene, depth + 1);
+	sub = new TraceState (type, this);
 	subtrace_states[type] = sub;
       }
+
+    sub->ior = _ior;		// make sure it's up to date
+
     return *sub;
   }
+
+  // For sub-traces with no specified index of refraction, always
+  // propagate the current one.
+  //
+  TraceState &subtrace_state (TraceType type)
+  {
+    return subtrace_state (type, ior);
+  }
+
+
+  // Searches back through the trace history to find the enclosing
+  // medium, and returns its trace-state.  If there is no enclosing
+  // medium returns 0.
+  //
+  const TraceState *enclosing_medium_state ();
+
+  // Searches back through the trace history to find the enclosing
+  // medium, and returns its index of refraction.
+  //
+  float enclosing_medium_ior ()
+  {
+    const TraceState *ts = enclosing_medium_state  ();
+    return ts ? ts->ior : 1;
+  }
+
+
+  Scene &scene;
+
+  // Parent state
+  //
+  TraceState *parent;
+
+  // What kind of trace this is
+  //
+  TraceType type;
 
   // If non-zero, the last object we found as the closest intersection.
   // When we do a new trace, we first test that object for intersection;
@@ -65,13 +107,19 @@ public:
   // level).  Trace-states form a tree with the primary trace as the
   // root, and various possible recursive traces as children.
   //
-  TraceState *subtrace_states[NUM_SUBTRACE_TYPES];
-
-  Scene &scene;
+  TraceState *subtrace_states[NUM_TRACE_TYPES];
 
   // Depth of tracing at this trace-state.  1 == the main (camera/eye) ray.
   //
   unsigned depth;
+
+  // The index of refraction of the current material (1 == air)
+  //
+  float ior;
+
+private:
+
+  void _init ();
 };
 
 }

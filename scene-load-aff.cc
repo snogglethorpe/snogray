@@ -10,7 +10,7 @@
 //
 
 //
-// "AFF" (Neutral File Format) is the scene file format used by Eric Haines'
+// "NFF" (Neutral File Format) is the scene file format used by Eric Haines'
 // "Standard Procedural Databases" (SPD) project.
 //
 // "AFF" (Animated File Format) is an extension of AFF used by the
@@ -24,11 +24,12 @@
 #include <fstream>
 #include <string>
 
-#include "scene.h"
-#include "mesh.h"
 #include "excepts.h"
+#include "scene.h"
 #include "mirror.h"
+#include "glass.h"
 #include "sphere.h"
+#include "mesh.h"
 
 using namespace Snogray;
 using namespace std;
@@ -208,6 +209,8 @@ MeshState::finish ()
 	   << ", ntriangles = " << mesh->triangles.size()
 	   << endl;
 
+      // mesh->compute_vertex_normals ();
+
       scene.add (mesh);
 
       vertex_group.clear ();
@@ -348,7 +351,10 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  else
 	    lmodel = Material::phong (phong_exp, specular);
 
-	  if (specular.intensity() > E)
+	  if (transmittance > E)
+	    cur_material = new Glass (transmittance * Color::white, ior,
+				      specular, diffuse, lmodel);
+	  else if (specular.intensity() > E)
 	    cur_material = new Mirror (specular, diffuse, lmodel);
 	  else
 	    cur_material = new Material (diffuse, lmodel);

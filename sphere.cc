@@ -47,7 +47,7 @@ Sphere::intersection_distance (const Ray &ray) const
 }
 
 Vec
-Sphere::normal (const Pos &point, const Vec &eye_dir) const
+Sphere::normal (const Pos &point, const Vec &incoming) const
 {
   return (point - center).unit ();
 }

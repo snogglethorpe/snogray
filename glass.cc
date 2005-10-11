@@ -18,22 +18,52 @@
 
 using namespace Snogray;
 
-#define E 0.0001
-
 Color
 Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {
   // Render transmission
-  Vec xmit_dir = isec.ray.dir.refraction (isec.normal, ior);
-  Ray xmit_ray (isec.point, xmit_dir);
 
-  TraceState &sub_tstate
-    = tstate.subtrace_state (TraceState::SUBTRACE_REFLECTION);
+  float new_ior, old_ior;
+  TraceState::TraceType substate_type;
+  Vec normal = isec.normal;
 
-  Color total_color (transmittance
-		     * scene.render (xmit_ray, sub_tstate, isec.obj));
+  if (isec.reverse)
+    {
+      // Exiting this object
+
+      new_ior = tstate.enclosing_medium_ior ();
+      old_ior = ior;
+      substate_type = TraceState::TRACE_REFRACTION_OUT;
+      normal = -normal;
+    }
+  else
+    {
+      // Entering this object
+
+      new_ior = ior;
+      old_ior = tstate.ior;
+      substate_type = TraceState::TRACE_REFRACTION_IN;
+    }
+
+  Vec xmit_dir = isec.ray.dir.refraction (normal, old_ior, new_ior);
+  Color total_color;
+
+  if (! xmit_dir.null ())
+    {
+      Ray xmit_ray (isec.point, xmit_dir);
+
+      TraceState &sub_tstate = tstate.subtrace_state (substate_type, new_ior);
+
+      total_color
+	= transmittance * scene.render (xmit_ray, sub_tstate, isec.obj);
+    }
+  else
+    total_color = Color::funny;
+  // otherwise we need someway to signal our superclass that we need even
+  // more reflection than normal???? XXX
 
   // Render contribution from reflections and surface
+  //
   total_color += Mirror::render (isec, scene, tstate);
 
   return total_color;

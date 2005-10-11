@@ -310,7 +310,7 @@ Mesh::Triangle::intersection_distance (const Ray &ray) const
 }
 
 Vec
-Mesh::Triangle::normal (const Pos &point, const Vec &eye_dir) const
+Mesh::Triangle::normal (const Pos &point, const Vec &incoming) const
 {
   Vec norm;
 
@@ -329,7 +329,7 @@ Mesh::Triangle::normal (const Pos &point, const Vec &eye_dir) const
     norm = raw_normal ();
 
   // Triangles are visible from both sides, so keep the normal sane
-  if (norm.dot (eye_dir) < 0)
+  if (norm.dot (incoming) > 0)
     norm = -norm;
 
   return norm;

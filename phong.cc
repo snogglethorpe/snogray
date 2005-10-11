@@ -27,7 +27,7 @@ Phong::illum (const Intersect &isec, const Color &color,
   if (diffuse_component >= 0)
     {
       float specular_component
-	= powf (isec.normal.dot ((isec.eye_dir + light_dir).unit()), exponent);
+	= powf (isec.normal.dot ((light_dir - isec.ray.dir).unit()), exponent);
 
       Color total_color = color * diffuse_component;
 

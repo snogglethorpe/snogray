@@ -42,9 +42,9 @@ public:
   {
     if (obj)
       {
-	eye_dir = -ray.dir;
 	point = ray.end ();
-	normal = obj->normal (point, eye_dir);
+	normal = obj->normal (point, ray.dir);
+	reverse = normal.dot (ray.dir) > 0;
       }
   }
 
@@ -53,12 +53,14 @@ public:
 
   // If non-zero, the object which RAY intersected; if zero, there is no
   // known intersection.
+  //
   const Obj *obj;		// If 0, no intersection
 
   // Only valid once finish() is called, and if OBJ is non-NULL
-  Pos point;
-  Vec eye_dir;
-  Vec normal;
+  //
+  Pos point;			// Point where RAY intersects OBJ
+  Vec normal;			// Surface normal at POINT
+  bool reverse;			// True if NORMAL points away from RAY
 };
 
 }

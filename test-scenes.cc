@@ -20,6 +20,7 @@
 #include "phong.h"
 #include "glow.h"
 #include "mirror.h"
+#include "glass.h"
 #include "mesh.h"
 
 using namespace Snogray;
@@ -45,8 +46,10 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 //  Material *mat3 = scene.add (new Lambert (Color (1, 0.5, 1)));
 //  Material *mat4 = scene.add (new Lambert (Color (1, 0.5, 1)));
 //   Material *mat3 = scene.add (Material::phong (400, Color (0.1, 0.1, 0.1)));
+//   const Material *mat1
+//     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
   const Material *mat1
-    = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
+    = scene.add (new Glass (0.8, 1.1, 0.2, Color::white * 0.2, 500));
   const Material *mat2
     = scene.add (new Mirror (0.8, Color::white * 0.2, 100));
   const Material *mat3

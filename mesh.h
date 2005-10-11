@@ -97,11 +97,11 @@ public:
     virtual dist_t intersection_distance (const Ray &ray) const;
 
     // Returns the normal vector for this surface at POINT.
-    // EYE_DIR points to the direction the objects is being viewed from;
+    // INCOMING is the direction of the incoming ray that has hit POINT;
     // this can be used by dual-sided objects to decide which side's
     // normal to return.
     //
-    virtual Vec normal (const Pos &point, const Vec &eye_dir) const;
+    virtual Vec normal (const Pos &point, const Vec &incoming) const;
 
     // Return a bounding box for this object.
     //
