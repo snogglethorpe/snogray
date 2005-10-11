@@ -68,7 +68,7 @@ Material::illum (const Intersect &isec, const Color &color,
       // cannot light it ("self-shadowing"); otherwise, see if some
       // other object casts a shadow.
 
-      if (isec.normal.dot (light_ray.dir) >= 0
+      if (isec.normal.dot (light_ray.dir) >= -Eps
 	  && !scene.shadowed (*light, light_ray, tstate, isec.obj))
 	{
 	  // This point is not shadowed, either by ourselves or by any
@@ -88,9 +88,9 @@ Material::illum (const Intersect &isec, const Color &color,
 Color
 Material::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {
-  if (isec.reverse)
-    return Color::funny;
-  else
+//   if (isec.reverse)
+//     return Color::funny;
+//   else
     return illum (isec, color, scene, tstate);
 }
 

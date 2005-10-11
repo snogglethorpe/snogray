@@ -53,9 +53,9 @@ public:
   void load_aff_file (std::istream &stream, Camera &camera);
 
   Intersect closest_intersect (const Ray &ray,
-			       TraceState &tstate, const Obj *ignore = 0);
+			       TraceState &tstate, const Obj *origin = 0);
   bool shadowed (Light &light, const Ray &light_ray,
-		 TraceState &tstate, const Obj *ignore = 0);
+		 TraceState &tstate, const Obj *origin = 0);
   
   // Add various items to a scene.  All of the following "give" the
   // object to the scene -- freeing the scene will free them too.
@@ -84,12 +84,12 @@ public:
 
   void set_background (const Color &col) { background = col; }
 
-  Color render (const Ray &ray, TraceState &tstate, const Obj *ignore = 0)
+  Color render (const Ray &ray, TraceState &tstate, const Obj *origin = 0)
   {
     if (tstate.depth > max_depth)
       return background;
 
-    Intersect isec = closest_intersect (ray, tstate, ignore);
+    Intersect isec = closest_intersect (ray, tstate, origin);
 
     if (isec.obj)
       return isec.obj->material()->render (isec, *this, tstate);

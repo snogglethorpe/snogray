@@ -20,25 +20,25 @@ Sphere::intersection_distance (const Ray &ray) const
 {
   Vec dir = ray.dir;		// must be a unit vector
   Vec diff = ray.origin - center;
-  float dir_diff = dir.dot (diff);
-  float dir_dir =  dir.dot (dir);
-  float determ = dir_diff*dir_diff - dir_dir * (diff.dot(diff) - radius*radius);
+  double dir_diff = dir.dot (diff);
+  double dir_dir =  dir.dot (dir);
+  double determ = dir_diff*dir_diff - dir_dir * (diff.dot(diff) - radius*radius);
 
-  if (determ >= 0)
+  if (determ >= Eps)
     {
-      float common = -dir_diff / dir_dir;
+      double common = -dir_diff / dir_dir;
 
-      if (determ == 0 && common > 0)
+      if (determ < Eps && common > Eps)
 	return common;
       else
 	{
-	  float determ_factor = sqrtf (determ) / dir_dir;
-	  float t0 = common - determ_factor;
-	  float t1 = common + determ_factor;
+	  double determ_factor = sqrtf (determ) / dir_dir;
+	  double t0 = common - determ_factor;
+	  double t1 = common + determ_factor;
 
-	  if (t0 > 0)
+	  if (t0 > Eps)
 	    return t0;
-	  else if (t1 > 0)
+	  else if (t1 > Eps)
 	    return t1;
 	}
     }

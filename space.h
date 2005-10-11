@@ -14,7 +14,9 @@
 
 namespace Snogray {
 
-typedef float coord_t;
+#define Eps	0.000001
+
+typedef double coord_t;
 typedef coord_t dist_t;
 
 }

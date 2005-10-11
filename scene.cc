@@ -33,16 +33,16 @@ Scene::~Scene ()
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
   SceneClosestIntersectCallback (Intersect &_isec,
-				 TraceState &_tstate, const Obj *_ignore = 0,
+				 TraceState &_tstate, const Obj *_origin = 0,
 				 Voxtree::Stats *stats = 0)
-    : IntersectCallback (stats), isec (_isec), ignore (_ignore),
+    : IntersectCallback (stats), isec (_isec), origin (_origin),
       tstate (_tstate), num_calls (0)
   { }
 
   virtual void operator() (Obj *);
 
   Intersect &isec;
-  const Obj *ignore;
+  const Obj *origin;
 
   TraceState &tstate;
 
@@ -52,7 +52,7 @@ struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 void
 SceneClosestIntersectCallback::operator () (Obj *obj)
 {
-  if (obj != ignore && obj != tstate.horizon_hint)
+  if (obj != origin && obj != tstate.horizon_hint)
     {
       isec.update (obj);
       num_calls++;
@@ -60,7 +60,7 @@ SceneClosestIntersectCallback::operator () (Obj *obj)
 }
 
 Intersect
-Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *ignore)
+Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *origin)
 {
   stats.scene_closest_intersect_calls++;
 
@@ -70,7 +70,7 @@ Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *ignore)
   // searching (voxtree searching can dramatically improve given a limited
   // search space).
   //
-  if (tstate.horizon_hint && tstate.horizon_hint != ignore)
+  if (tstate.horizon_hint && tstate.horizon_hint != origin)
     {
       isec.update (tstate.horizon_hint);
 
@@ -84,7 +84,7 @@ Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *ignore)
   // intersect the ray.
 
   SceneClosestIntersectCallback
-    closest_isec_cb (isec, tstate, ignore, &stats.voxtree_closest_intersect);
+    closest_isec_cb (isec, tstate, origin, &stats.voxtree_closest_intersect);
 
   obj_voxtree.for_each_possible_intersector (isec.ray, closest_isec_cb);
 
@@ -107,10 +107,10 @@ Scene::closest_intersect (const Ray &ray, TraceState &tstate, const Obj *ignore)
 struct SceneShadowedCallback : Voxtree::IntersectCallback
 {
   SceneShadowedCallback (Light &_light, const Ray &_light_ray,
-			 TraceState &_tstate, const Obj *_ignore = 0,
+			 TraceState &_tstate, const Obj *_origin = 0,
 			 Voxtree::Stats *stats = 0)
     : IntersectCallback (stats), 
-      light (_light), light_ray (_light_ray), ignore (_ignore),
+      light (_light), light_ray (_light_ray), origin (_origin),
       shadowed (false), tstate (_tstate), num_tests (0)
   { }
 
@@ -118,7 +118,7 @@ struct SceneShadowedCallback : Voxtree::IntersectCallback
 
   Light &light;
   const Ray &light_ray;
-  const Obj *ignore;
+  const Obj *origin;
 
   bool shadowed;
 
@@ -130,7 +130,7 @@ struct SceneShadowedCallback : Voxtree::IntersectCallback
 void
 SceneShadowedCallback::operator () (Obj *obj)
 {
-  if (obj != ignore && !obj->no_shadow)
+  if (obj != origin && !obj->no_shadow)
     {
       num_tests++;
 
@@ -152,7 +152,7 @@ SceneShadowedCallback::operator () (Obj *obj)
 
 bool
 Scene::shadowed (Light &light, const Ray &light_ray,
-		 TraceState &tstate, const Obj *ignore)
+		 TraceState &tstate, const Obj *origin)
 {
   stats.scene_shadowed_tests++;
 
@@ -162,7 +162,7 @@ Scene::shadowed (Light &light, const Ray &light_ray,
   // from a given light by the same object).
   //
   const Obj *hint = tstate.shadow_hints[light.num];
-  if (hint && hint != ignore)
+  if (hint && hint != origin)
     {
       if (hint->intersects (light_ray))
 	// It worked!  Return quickly.
@@ -179,7 +179,7 @@ Scene::shadowed (Light &light, const Ray &light_ray,
     }
 
   SceneShadowedCallback
-    shadowed_cb (light, light_ray, tstate, ignore, &stats.voxtree_shadowed);
+    shadowed_cb (light, light_ray, tstate, origin, &stats.voxtree_shadowed);
 
   obj_voxtree.for_each_possible_intersector (light_ray, shadowed_cb);
 

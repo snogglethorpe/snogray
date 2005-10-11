@@ -132,10 +132,13 @@ public:
     float c1 = -dot (normal);
     float c2_sq = 1 - (ior_ratio * ior_ratio) * (1 - c1 * c1);
 
-    if (c2_sq < 0)
+    if (c2_sq < -Eps)
       return Vec (0, 0, 0);	// Total internal reflection
-    else
-      return (*this * ior_ratio) + (normal * (ior_ratio * c1 - sqrt (c2_sq)));
+
+    if (c2_sq < 0)
+      c2_sq = 0;
+
+    return (*this * ior_ratio) + (normal * (ior_ratio * c1 - sqrt (c2_sq)));
   }
 };
 

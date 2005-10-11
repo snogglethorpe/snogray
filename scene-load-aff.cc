@@ -34,8 +34,6 @@
 using namespace Snogray;
 using namespace std;
 
-#define E 0.00001
-
 // How bright we make lights
 //
 #define AFF_LIGHT_INTENS 100
@@ -346,15 +344,15 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  float ior = read_float (stream);
 
 	  const LightModel *lmodel = 0;
-	  if (phong_exp <= E || phong_exp > 1000)
+	  if (phong_exp <= Eps || phong_exp > 1000)
 	    lmodel = Material::lambert;
 	  else
 	    lmodel = Material::phong (phong_exp, specular);
 
-	  if (transmittance > E)
+	  if (transmittance > Eps)
 	    cur_material = new Glass (transmittance * Color::white, ior,
 				      specular, diffuse, lmodel);
-	  else if (specular.intensity() > E)
+	  else if (specular.intensity() > Eps)
 	    cur_material = new Mirror (specular, diffuse, lmodel);
 	  else
 	    cur_material = new Material (diffuse, lmodel);

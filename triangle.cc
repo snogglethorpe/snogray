@@ -20,42 +20,42 @@ using namespace Snogray;
 dist_t
 Triangle::intersection_distance (const Ray &ray) const
 {
-  float a = v0.x - v1.x; 
-  float b = v0.y - v1.y; 
-  float c = v0.z - v1.z; 
-  float d = v0.x - v2.x; 
-  float e = v0.y - v2.y; 
-  float f = v0.z - v2.z; 
-  float g = ray.dir.x;
-  float h = ray.dir.y; 
-  float i = ray.dir.z; 
-  float j = v0.x - ray.origin.x; 
-  float k = v0.y - ray.origin.y; 
-  float l = v0.z - ray.origin.z; 
+  double a = v0.x - v1.x; 
+  double b = v0.y - v1.y; 
+  double c = v0.z - v1.z; 
+  double d = v0.x - v2.x; 
+  double e = v0.y - v2.y; 
+  double f = v0.z - v2.z; 
+  double g = ray.dir.x;
+  double h = ray.dir.y; 
+  double i = ray.dir.z; 
+  double j = v0.x - ray.origin.x; 
+  double k = v0.y - ray.origin.y; 
+  double l = v0.z - ray.origin.z; 
 	
-  float one = a*k - j*b; 
-  float two = j*c - a*l; 
-  float three = b*l - k*c; 
+  double one = a*k - j*b; 
+  double two = j*c - a*l; 
+  double three = b*l - k*c; 
 
-  float four = (e*i - h*f); 
-  float five = (g*f - d*i); 
-  float six = (d*h - e*g); 
+  double four = (e*i - h*f); 
+  double five = (g*f - d*i); 
+  double six = (d*h - e*g); 
 
-  float M = a*four + b*five + c*six;
+  double M = a*four + b*five + c*six;
 	
   //	 compute t 
-  float t = -(f*one + e*two + d*three) / M; 
-  if (t < 0)
+  double t = -(f*one + e*two + d*three) / M; 
+  if (t < -Eps)
     return 0;
 		
   //	 compute R
-  float R = (i*one + h*two + g*three) / M; 
-  if (R < 0 || R > 1)
+  double R = (i*one + h*two + g*three) / M; 
+  if (R < -Eps || R > 1 + Eps)
     return 0;
 	
   // 	compute B
-  float B = (j*four + k*five + l*six) / M; 
-  if(B < 0 || B > (1 - R))
+  double B = (j*four + k*five + l*six) / M; 
+  if(B < -Eps || B > (1 - R - Eps))
     return 0;
 
   return t;
@@ -64,13 +64,7 @@ Triangle::intersection_distance (const Ray &ray) const
 Vec
 Triangle::normal (const Pos &point, const Vec &incoming) const
 {
-  Vec norm (((v1 - v0).cross (v1 - v2)).unit ());
-
-  // Triangles are visible from both sides, so keep the normal sane
-  if (norm.dot (incoming) > 0)
-    norm = -norm;
-
-  return norm;
+  return ((v1 - v0).cross (v1 - v2)).unit ();
 }
 
 // Return a bounding box for this object.

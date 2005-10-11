@@ -44,7 +44,9 @@ public:
       {
 	point = ray.end ();
 	normal = obj->normal (point, ray.dir);
-	reverse = normal.dot (ray.dir) > 0;
+	reverse = normal.dot (ray.dir) > Eps;
+	if (reverse)
+	  normal = -normal;
       }
   }
 

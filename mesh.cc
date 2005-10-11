@@ -234,17 +234,17 @@ Mesh::load_msh_file (istream &stream)
 static void
 compute_barycentric_coords (const Pos &p,
 			    const Pos &v0, const Pos &v1, const Pos &v2,
-			    float &u, float &v)
+			    double &u, double &v)
 {
-  float a = v0.x - v2.x;
-  float b = v1.x - v2.x;
-  float c = v2.x - p.x;
-  float d = v0.y - v2.y;
-  float e = v1.y - v2.y;
-  float f = v2.y - p.y;
-  float g = v0.z - v2.z;
-  float h = v1.z - v2.z;
-  float i = v2.z - p.z;
+  double a = v0.x - v2.x;
+  double b = v1.x - v2.x;
+  double c = v2.x - p.x;
+  double d = v0.y - v2.y;
+  double e = v1.y - v2.y;
+  double f = v2.y - p.y;
+  double g = v0.z - v2.z;
+  double h = v1.z - v2.z;
+  double i = v2.z - p.z;
 
   u = (b * (f + i) - c * (e + h)) / (a * (e + h) - b * (d + g));
   v = (a * (f + i) - c * (d + g)) / (b * (d + g) - a * (e + h));
@@ -255,7 +255,7 @@ compute_barycentric_coords (const Pos &p,
 static void
 compute_barycentric_coords (const Pos &p,
 			    const Pos &v0, const Pos &v1, const Pos &v2,
-			    float &u, float &v, float &w)
+			    double &u, double &v, double &w)
 {
   compute_barycentric_coords (p, v0, v1, v2, u, v);
   w = 1 - u - v;
@@ -268,42 +268,42 @@ Mesh::Triangle::intersection_distance (const Ray &ray) const
 {
   const Pos &_v0 = v (0), &_v1 = v (1), &_v2 = v (2);
 
-  float a = _v0.x - _v1.x; 
-  float b = _v0.y - _v1.y; 
-  float c = _v0.z - _v1.z; 
-  float d = _v0.x - _v2.x; 
-  float e = _v0.y - _v2.y; 
-  float f = _v0.z - _v2.z; 
-  float g = ray.dir.x;
-  float h = ray.dir.y; 
-  float i = ray.dir.z; 
-  float j = _v0.x - ray.origin.x; 
-  float k = _v0.y - ray.origin.y; 
-  float l = _v0.z - ray.origin.z; 
+  double a = _v0.x - _v1.x; 
+  double b = _v0.y - _v1.y; 
+  double c = _v0.z - _v1.z; 
+  double d = _v0.x - _v2.x; 
+  double e = _v0.y - _v2.y; 
+  double f = _v0.z - _v2.z; 
+  double g = ray.dir.x;
+  double h = ray.dir.y; 
+  double i = ray.dir.z; 
+  double j = _v0.x - ray.origin.x; 
+  double k = _v0.y - ray.origin.y; 
+  double l = _v0.z - ray.origin.z; 
 	
-  float one = a*k - j*b; 
-  float two = j*c - a*l; 
-  float three = b*l - k*c; 
+  double one = a*k - j*b; 
+  double two = j*c - a*l; 
+  double three = b*l - k*c; 
 
-  float four = (e*i - h*f); 
-  float five = (g*f - d*i); 
-  float six = (d*h - e*g); 
+  double four = (e*i - h*f); 
+  double five = (g*f - d*i); 
+  double six = (d*h - e*g); 
 
-  float M = a*four + b*five + c*six;
+  double M = a*four + b*five + c*six;
 	
   //	 compute t 
-  float t = -(f*one + e*two + d*three) / M; 
-  if (t < 0)
+  double t = -(f*one + e*two + d*three) / M; 
+  if (t < -Eps)
     return 0;
 		
   //	 compute R
-  float R = (i*one + h*two + g*three) / M; 
-  if (R < 0 || R > 1)
+  double R = (i*one + h*two + g*three) / M; 
+  if (R < Eps || R > 1 + Eps)
     return 0;
 	
   // 	compute B
-  float B = (j*four + k*five + l*six) / M; 
-  if(B < 0 || B > (1 - R))
+  double B = (j*four + k*five + l*six) / M; 
+  if(B < Eps || B > (1 - R - Eps))
     return 0;
 
   return t;
@@ -316,7 +316,7 @@ Mesh::Triangle::normal (const Pos &point, const Vec &incoming) const
 
   if (! mesh.vertex_normals.empty ())
     {
-      float w0, w1, w2;
+      double w0, w1, w2;
       compute_barycentric_coords (point, v(0), v(1), v(2), w0, w1, w2);
 
       norm = vnorm(0) * w0;
@@ -327,10 +327,6 @@ Mesh::Triangle::normal (const Pos &point, const Vec &incoming) const
     }
   else
     norm = raw_normal ();
-
-  // Triangles are visible from both sides, so keep the normal sane
-  if (norm.dot (incoming) > 0)
-    norm = -norm;
 
   return norm;
 }

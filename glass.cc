@@ -23,9 +23,8 @@ Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 {
   // Render transmission
 
-  float new_ior, old_ior;
+  double new_ior, old_ior;
   TraceState::TraceType substate_type;
-  Vec normal = isec.normal;
 
   if (isec.reverse)
     {
@@ -34,7 +33,6 @@ Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
       new_ior = tstate.enclosing_medium_ior ();
       old_ior = ior;
       substate_type = TraceState::TRACE_REFRACTION_OUT;
-      normal = -normal;
     }
   else
     {
@@ -45,7 +43,7 @@ Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
       substate_type = TraceState::TRACE_REFRACTION_IN;
     }
 
-  Vec xmit_dir = isec.ray.dir.refraction (normal, old_ior, new_ior);
+  Vec xmit_dir = isec.ray.dir.refraction (isec.normal, old_ior, new_ior);
   Color total_color;
 
   if (! xmit_dir.null ())
@@ -54,9 +52,10 @@ Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 
       TraceState &sub_tstate = tstate.subtrace_state (substate_type, new_ior);
 
-      total_color
-	= transmittance * scene.render (xmit_ray, sub_tstate, isec.obj);
+      total_color = transmittance * scene.render (xmit_ray, sub_tstate);
     }
+  else if (old_ior > new_ior)
+    total_color = Color (100, 0, 0);
   else
     total_color = Color::funny;
   // otherwise we need someway to signal our superclass that we need even
