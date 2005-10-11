@@ -43,11 +43,9 @@ public:
   { }
   virtual ~Material ();
 
-  virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
-    const;
+  virtual Color render (const Intersect &isec, TraceState &tstate) const;
 
-  Color illum (const Intersect &isec, const Color &color,
-	       Scene &scene, TraceState &tstate)
+  Color illum (const Intersect &isec, const Color &color, TraceState &tstate)
     const;
 
   Color color;

@@ -12,10 +12,13 @@
 #ifndef __TRACE_STATE_H__
 #define __TRACE_STATE_H__
 
+#include "color.h"
+
 namespace Snogray {
 
 class Scene;
 class Obj;
+class Ray;
 
 class TraceState
 {
@@ -60,6 +63,10 @@ public:
     return subtrace_state (type, ior);
   }
 
+  // Convenience method that just calls the scene's render method using
+  // this as the trace  state.
+  //
+  Color render (const Ray &ray, const Obj *origin = 0);
 
   // Searches back through the trace history to find the enclosing
   // medium, and returns its trace-state.  If there is no enclosing

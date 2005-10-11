@@ -92,7 +92,7 @@ public:
     Intersect isec = closest_intersect (ray, tstate, origin);
 
     if (isec.obj)
-      return isec.obj->material()->render (isec, *this, tstate);
+      return isec.obj->material()->render (isec, tstate);
     else
       return background;
   }
@@ -134,6 +134,15 @@ public:
 
   float assumed_gamma;
 };
+
+// This belongs in "trace-state.h", but is here to avoid circular
+// dependency problems.
+//
+inline Color
+TraceState::render (const Ray &ray, const Obj *origin)
+{
+  return scene.render (ray, *this, origin);
+}
 
 }
 

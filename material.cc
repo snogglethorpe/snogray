@@ -48,10 +48,11 @@ Material::phong (float exp, const Color &spec_col)
 
 
 Color
-Material::illum (const Intersect &isec, const Color &color,
-		 Scene &scene, TraceState &tstate)
+Material::illum (const Intersect &isec, const Color &color, TraceState &tstate)
   const
 {
+  Scene &scene = tstate.scene;
+
   // Iterate over every light, calculating its contribution to our
   // color.
 
@@ -86,12 +87,12 @@ Material::illum (const Intersect &isec, const Color &color,
 }
 
 Color
-Material::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
+Material::render (const Intersect &isec, TraceState &tstate) const
 {
 //   if (isec.reverse)
 //     return Color::funny;
 //   else
-    return illum (isec, color, scene, tstate);
+    return illum (isec, color, tstate);
 }
 
 // arch-tag: 3d971faa-322c-4479-acf0-effb05aca10a

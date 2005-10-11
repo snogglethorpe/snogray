@@ -40,8 +40,7 @@ public:
       transmittance (_transmittance), ior (_ior)
   { }
 
-  virtual Color render (const Intersect &isec, Scene &scene, TraceState &tstate)
-    const;
+  virtual Color render (const Intersect &isec, TraceState &tstate) const;
 
   Color transmittance;
 

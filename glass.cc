@@ -19,7 +19,7 @@
 using namespace Snogray;
 
 Color
-Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
+Glass::render (const Intersect &isec, TraceState &tstate) const
 {
   // Render transmission
 
@@ -44,7 +44,6 @@ Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
     }
 
   Vec xmit_dir = isec.ray.dir.refraction (isec.normal, old_ior, new_ior);
-  Color total_color;
 
   if (! xmit_dir.null ())
     {
@@ -52,21 +51,18 @@ Glass::render (const Intersect &isec, Scene &scene, TraceState &tstate) const
 
       TraceState &sub_tstate = tstate.subtrace_state (substate_type, new_ior);
 
-      total_color
-	= transmittance * scene.render (xmit_ray, sub_tstate, isec.obj);
+      // Start with refraction
+      //
+      Color refraction (transmittance * sub_tstate.render (xmit_ray, isec.obj));
+
+      // ... and add contribution from reflections and surface
+      //
+      return refraction + Mirror::render (isec, tstate);
     }
-  else if (old_ior > new_ior)
-    total_color = Color (100, 0, 0);
   else
-    total_color = Color::funny;
-  // otherwise we need someway to signal our superclass that we need even
-  // more reflection than normal???? XXX
-
-  // Render contribution from reflections and surface
-  //
-  total_color += Mirror::render (isec, scene, tstate);
-
-  return total_color;
+    // "Total internal reflection"
+    //
+    return reflection (isec, tstate);
 }
 
 // arch-tag: a8209bc5-a88c-4f6c-b598-ee89c9587a6f
