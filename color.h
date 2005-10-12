@@ -24,9 +24,10 @@ public:
 
   static const Color black, white, funny;
 
-  Color (component_t _red = 0, component_t _green = 0, component_t _blue = 0)
+  Color (component_t _red, component_t _green, component_t _blue)
     : red (_red), green (_green), blue (_blue)
   { }
+  Color (component_t grey = 0) : red (grey), green (grey), blue (grey) { }
 
   Color lit_by (const Color &light_color) const
   {

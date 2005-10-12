@@ -22,9 +22,6 @@ public:
   Light (const Pos &_pos, const Color &col)
     : pos (_pos), color (col), num (0)
   { }
-  Light (const Pos &_pos, float intens = 1, const Color &col = Color::white)
-    : pos (_pos), color (col * intens), num (0)
-  { }
 
   Pos pos;
   Color color;

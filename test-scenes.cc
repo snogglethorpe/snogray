@@ -30,11 +30,10 @@ using namespace std;
 // Define the scene, since can't read any kind of scene file yet
 
 static void
-add_bulb (Scene &scene, const Pos &pos, float intens,
-	  const Color &col = Color::white)
+add_bulb (Scene &scene, const Pos &pos, const Color &col = Color::white)
 {
-  const Material *bulb_mat = scene.add (new Glow (intens * col));
-  scene.add (new Light (pos, intens, col));
+  const Material *bulb_mat = scene.add (new Glow (col));
+  scene.add (new Light (pos, col));
   scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
 }
 
@@ -49,9 +48,9 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 //   const Material *mat1
 //     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
   const Material *mat1
-    = scene.add (new Glass (0.8, 1.1, 0.2, Color::white * 0.2, 500));
+    = scene.add (new Glass (0.8, 1.1, 0.2, 0.2, 500));
   const Material *mat2
-    = scene.add (new Mirror (0.8, Color::white * 0.2, 100));
+    = scene.add (new Mirror (0.8, 0.2, 100));
   const Material *mat3
     = scene.add (new Material (Color (0.8, 0, 0), Material::phong (400)));
   const Material *mat4
@@ -60,7 +59,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
   // First test scene
   add_bulb (scene, Pos (0, 15, 0), 30);
   add_bulb (scene, Pos (0, 0, -5), 30);
-  add_bulb (scene, Pos (-5, 10, 0), 40, Color (0, 0, 1));
+  add_bulb (scene, Pos (-5, 10, 0), 40 * Color (0, 0, 1));
   add_bulb (scene, Pos (-40, 15, -40), 300);
   add_bulb (scene, Pos (-40, 15,  40), 300);
   add_bulb (scene, Pos ( 40, 15, -40), 300);
@@ -137,10 +136,8 @@ def_scene_teapot (Scene &scene, Camera &camera, const char *teapot_mesh_name)
   const Material *teapot_mat
     = scene.add (new Mirror (0.25, Color (1, 0.5, 0.1) * 0.75,
 			     Material::phong (3.0827, 0.25)));
-  const Material *board1_mat
-    = scene.add (new Mirror (0.3, Color::white * 0.1, 10));
-  const Material *board2_mat
-    = scene.add (new Mirror (0.3, Color::white * 0.8, 10));
+  const Material *board1_mat = scene.add (new Mirror (0.3, 0.1, 10));
+  const Material *board2_mat = scene.add (new Mirror (0.3, 0.8, 10));
     
   Mesh *teapot_mesh = new Mesh (teapot_mat);
 

@@ -22,9 +22,6 @@ public:
   Phong (float _exponent, const Color &_specular_color = Color::white)
     : specular_color (_specular_color), exponent (_exponent)
   { }
-  Phong (float _exponent, float _intens)
-    : specular_color (Color::white * _intens), exponent (_exponent)
-  { }
 
   virtual Color illum (const Intersect &isec, const Color &color,
 		       const Vec &light_dir, const Color &light_color)

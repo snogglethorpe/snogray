@@ -24,19 +24,9 @@ public:
     : Mirror (reflectance, col, lmodel),
       transmittance (_transmittance), ior (_ior)
   { }
-  Glass (float _transmittance, float _ior,
-	 const Color &col = Color::white, const LightModel *lmodel = lambert)
-    : Mirror (1 - _transmittance, col, lmodel),
-      transmittance (_transmittance), ior (_ior)
-  { }
   Glass (Color _transmittance, float _ior, Color reflectance,
 	 const Color &col = Color::white, float phong_exp)
     : Mirror (reflectance, col, phong_exp),
-      transmittance (_transmittance), ior (_ior)
-  { }
-  Glass (float _transmittance, float _ior,
-	 const Color &col = Color::white, float phong_exp)
-    : Mirror (1 - _transmittance, col, phong_exp),
       transmittance (_transmittance), ior (_ior)
   { }
 

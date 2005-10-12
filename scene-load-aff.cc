@@ -310,7 +310,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  if (stream.peek () == '\n')
 	    add (new Light (pos, AFF_LIGHT_INTENS));
 	  else
-	    add (new Light (pos, AFF_LIGHT_INTENS, read_color (stream)));
+	    add (new Light (pos, AFF_LIGHT_INTENS * read_color (stream)));
 	}
       else if (strcmp (cmd_buf, "f") == 0 || strcmp (cmd_buf, "fm") == 0)
 	//
