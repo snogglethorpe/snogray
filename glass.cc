@@ -23,41 +23,44 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
 {
   // Render transmission
 
-  double new_ior, old_ior;
   TraceState::TraceType substate_type;
+  const Medium *old_medium, *new_medium;
 
   if (isec.reverse)
     {
       // Exiting this object
 
-      new_ior = tstate.enclosing_medium_ior ();
-      old_ior = ior;
+      new_medium = tstate.enclosing_medium ();
+      old_medium = &medium;
       substate_type = TraceState::TRACE_REFRACTION_OUT;
     }
   else
     {
       // Entering this object
 
-      new_ior = ior;
-      old_ior = tstate.ior;
+      new_medium = &medium;
+      old_medium = tstate.medium;
       substate_type = TraceState::TRACE_REFRACTION_IN;
     }
 
-  Vec xmit_dir = isec.ray.dir.refraction (isec.normal, old_ior, new_ior);
+  Vec xmit_dir (
+	isec.ray.dir.refraction (isec.normal,
+				 old_medium ? old_medium->ior : 1,
+				 new_medium ? new_medium->ior : 1));
 
   if (! xmit_dir.null ())
     {
       Ray xmit_ray (isec.point, xmit_dir);
 
-      TraceState &sub_tstate = tstate.subtrace_state (substate_type, new_ior);
+      TraceState &sub_tstate
+	(tstate.subtrace_state (substate_type, new_medium));
 
-      // Start with refraction
+      // Render the refracted ray, and combine it with any contribution
+      // from reflections and surface lighting.
       //
-      Color refraction (transmittance * sub_tstate.render (xmit_ray, isec.obj));
-
-      // ... and add contribution from reflections and surface
-      //
-      return refraction + Mirror::render (isec, tstate);
+      return
+	sub_tstate.render (xmit_ray, isec.obj)
+	+ Mirror::render (isec, tstate);
     }
   else
     // "Total internal reflection"

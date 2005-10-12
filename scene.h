@@ -92,7 +92,20 @@ public:
     Intersect isec = closest_intersect (ray, tstate, origin);
 
     if (isec.obj)
-      return isec.obj->material()->render (isec, tstate);
+      {
+	// Calculate the appearance of the point on the object we hit
+	//
+	Color result (isec.obj->material()->render (isec, tstate));
+
+	// If we are looking through something other than air, attentuate
+	// the surface appearance due to transmission through the current
+	// medium.
+	//
+	if (tstate.medium)
+	  result = tstate.medium->attenuate (result, isec.ray.len);
+
+	return result;
+      }
     else
       return background;
   }
@@ -135,7 +148,7 @@ public:
   float assumed_gamma;
 };
 
-// This belongs in "trace-state.h", but is here to avoid circular
+// These belong in "trace-state.h", but are here to avoid circular
 // dependency problems.
 //
 inline Color

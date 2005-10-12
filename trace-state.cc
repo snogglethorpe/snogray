@@ -19,7 +19,7 @@ using namespace Snogray;
 //
 TraceState::TraceState (Scene &_scene)
   : scene (_scene), parent (0), type (TRACE_SPONTANEOUS),
-    horizon_hint (0), depth (0), ior (1)
+    horizon_hint (0), depth (0), medium (0)
 {
   _init ();
 }
@@ -28,7 +28,7 @@ TraceState::TraceState (Scene &_scene)
 //
 TraceState::TraceState (TraceType _type, TraceState *_parent)
   : scene (_parent->scene), parent (_parent), type (_type),
-    horizon_hint (0), depth (_parent->depth + 1), ior (1)
+    horizon_hint (0), depth (_parent->depth + 1), medium (parent->medium)
 {
   _init ();
 }
@@ -54,11 +54,10 @@ TraceState::~TraceState ()
   delete[] shadow_hints;
 }
 
-// Searches back through the trace history to find the enclosing
-// medium, and returns its index of refraction.
+// Searches back through the trace history to find the enclosing medium.
 //
-const TraceState *
-TraceState::enclosing_medium_state ()
+const Medium *
+TraceState::enclosing_medium ()
 {
   const TraceState *ts = this;
 
@@ -74,7 +73,7 @@ TraceState::enclosing_medium_state ()
       ts = ts->parent;
     }
 
-  return ts;
+  return ts ? ts->medium : 0;
 }
 
 // arch-tag: 03555891-462c-40bb-80b8-5f889c4cba44

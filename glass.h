@@ -19,23 +19,19 @@ namespace Snogray {
 class Glass : public Mirror
 {
 public:
-  Glass (Color _transmittance, float _ior, Color reflectance,
+
+  Glass (Medium _medium, Color reflectance,
 	 const Color &col = Color::white, const LightModel *lmodel = lambert)
-    : Mirror (reflectance, col, lmodel),
-      transmittance (_transmittance), ior (_ior)
+    : Mirror (reflectance, col, lmodel), medium (_medium)
   { }
-  Glass (Color _transmittance, float _ior, Color reflectance,
+  Glass (Medium _medium, Color reflectance,
 	 const Color &col = Color::white, float phong_exp)
-    : Mirror (reflectance, col, phong_exp),
-      transmittance (_transmittance), ior (_ior)
+    : Mirror (reflectance, col, phong_exp), medium (_medium)
   { }
 
   virtual Color render (const Intersect &isec, TraceState &tstate) const;
 
-  Color transmittance;
-
-  // Index of refraction
-  float ior;
+  Medium medium;
 };
 
 }

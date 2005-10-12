@@ -13,6 +13,7 @@
 #define __TRACE_STATE_H__
 
 #include "color.h"
+#include "medium.h"
 
 namespace Snogray {
 
@@ -40,7 +41,7 @@ public:
   // type (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  TraceState &subtrace_state (TraceType type, float _ior)
+  TraceState &subtrace_state (TraceType type, const Medium *_medium)
   {
     TraceState *sub = subtrace_states[type];
 
@@ -50,17 +51,16 @@ public:
 	subtrace_states[type] = sub;
       }
 
-    sub->ior = _ior;		// make sure it's up to date
+    sub->medium = _medium;	// make sure it's up to date
 
     return *sub;
   }
 
-  // For sub-traces with no specified index of refraction, always
-  // propagate the current one.
+  // For sub-traces with no specified medium, propagate the current one.
   //
   TraceState &subtrace_state (TraceType type)
   {
-    return subtrace_state (type, ior);
+    return subtrace_state (type, medium);
   }
 
   // Convenience method that just calls the scene's render method using
@@ -68,20 +68,9 @@ public:
   //
   Color render (const Ray &ray, const Obj *origin = 0);
 
-  // Searches back through the trace history to find the enclosing
-  // medium, and returns its trace-state.  If there is no enclosing
-  // medium returns 0.
+  // Searches back through the trace history to find the enclosing medium.
   //
-  const TraceState *enclosing_medium_state ();
-
-  // Searches back through the trace history to find the enclosing
-  // medium, and returns its index of refraction.
-  //
-  float enclosing_medium_ior ()
-  {
-    const TraceState *ts = enclosing_medium_state  ();
-    return ts ? ts->ior : 1;
-  }
+  const Medium *enclosing_medium ();
 
 
   Scene &scene;
@@ -120,9 +109,9 @@ public:
   //
   unsigned depth;
 
-  // The index of refraction of the current material (1 == air)
+  // The medium this trace is through.  Zero means "air".
   //
-  float ior;
+  const Medium *medium;
 
 private:
 

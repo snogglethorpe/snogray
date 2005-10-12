@@ -38,6 +38,13 @@ using namespace std;
 //
 #define AFF_LIGHT_INTENS 100
 
+// A kludge to account for the fact that we model the falloff of light
+// through an object according to the thickness of the object.  The
+// "transmittance" values from .nff files will be adjust to make them
+// correct for objects of this thickness.
+//
+#define AFF_TRANSMITTANCE_KLUDGE 0.2
+
 // The .aff files we have seen all use wacky "gamma adjusted" lighting,
 // So try to compensate for that here.
 //
@@ -350,8 +357,11 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	    lmodel = Material::phong (phong_exp, specular);
 
 	  if (transmittance > Eps)
-	    cur_material = new Glass (transmittance * Color::white, ior,
-				      specular, diffuse, lmodel);
+	    cur_material
+	      = new Glass (Medium (powf (transmittance,
+					 1 / AFF_TRANSMITTANCE_KLUDGE),
+				   ior),
+			   specular, diffuse, lmodel);
 	  else if (specular.intensity() > Eps)
 	    cur_material = new Mirror (specular, diffuse, lmodel);
 	  else

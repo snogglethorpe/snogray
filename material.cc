@@ -92,7 +92,7 @@ Material::render (const Intersect &isec, TraceState &tstate) const
 //   if (isec.reverse)
 //     return Color::funny;
 //   else
-    return illum (isec, color, tstate);
+  return illum (isec, color, tstate);
 }
 
 // arch-tag: 3d971faa-322c-4479-acf0-effb05aca10a

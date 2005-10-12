@@ -48,7 +48,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 //   const Material *mat1
 //     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
   const Material *mat1
-    = scene.add (new Glass (0.8, 1.1, 0.2, 0.2, 500));
+    = scene.add (new Glass (Medium (0.8, 1.1), 0.2, 0.2, 500));
   const Material *mat2
     = scene.add (new Mirror (0.8, 0.2, 100));
   const Material *mat3
