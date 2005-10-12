@@ -157,7 +157,7 @@ DEPS = $(ALL_SRCS:%.cc=.%.d)
 %.o: %.cc
 	$(CXX) -c $(_CXXFLAGS) $<
 %.s: %.cc
-	$(CXX) -S $(_CXXFLAGS) $<
+	$(CXX) -S $(filter-out -frepo -g,$(_CXXFLAGS)) $<
 
 %.o: %.c
 	$(CC) -c $(_CFLAGS) $<
