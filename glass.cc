@@ -43,17 +43,17 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
       substate_type = TraceState::TRACE_REFRACTION_IN;
     }
 
-  Vec xmit_dir (
-	isec.ray.dir.refraction (isec.normal,
-				 old_medium ? old_medium->ior : 1,
-				 new_medium ? new_medium->ior : 1));
+  Vec xmit_dir
+    = isec.ray.dir.refraction (isec.normal,
+			       old_medium ? old_medium->ior : 1,
+			       new_medium ? new_medium->ior : 1);
 
   if (! xmit_dir.null ())
     {
       Ray xmit_ray (isec.point, xmit_dir);
 
       TraceState &sub_tstate
-	(tstate.subtrace_state (substate_type, new_medium));
+	= tstate.subtrace_state (substate_type, new_medium);
 
       // Render the refracted ray, and combine it with any contribution
       // from reflections and surface lighting.

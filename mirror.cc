@@ -34,7 +34,7 @@ Mirror::reflection (const Intersect &isec, TraceState &tstate) const
 Color
 Mirror::render (const Intersect &isec, TraceState &tstate) const
 {
-  Color total_color (reflectance * reflection (isec, tstate));
+  Color total_color = reflectance * reflection (isec, tstate);
 
   // Render contribution from surface.
   //

@@ -19,7 +19,7 @@ using namespace std;
 string 
 Snogray::stringify (unsigned num)
 {
-  string str ((num > 9) ? stringify (num / 10) : "");
+  string str = (num > 9) ? stringify (num / 10) : "";
   char ch = (num % 10) + '0';
   str += ch;
   return str;
@@ -30,7 +30,7 @@ Snogray::stringify (unsigned num)
 string 
 Snogray::commify (unsigned long long num, unsigned sep_count)
 {
-  string str ((num > 9) ? commify (num / 10, sep_count % 3 + 1) : "");
+  string str = (num > 9) ? commify (num / 10, sep_count % 3 + 1) : "";
   char ch = (num % 10) + '0';
   if (sep_count == 3 && num > 9)
     str += ',';
