@@ -23,7 +23,7 @@ Lambert::illum (const Intersect &isec, const Color &color,
   float diffuse_component = isec.normal.dot (light_dir);
 
   if (diffuse_component > 0)
-    return color.lit_by (light_color) * diffuse_component;
+    return color * light_color * diffuse_component;
   else
     return Color::black;
 }

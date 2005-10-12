@@ -33,7 +33,7 @@ Phong::illum (const Intersect &isec, const Color &color,
 
       total_color += specular_color * specular_component;
 
-      return total_color.lit_by (light_color);
+      return total_color * light_color;
     }
   else
     return Color::black;
