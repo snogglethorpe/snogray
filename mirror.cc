@@ -26,7 +26,7 @@ Mirror::reflection (const Intersect &isec, TraceState &tstate) const
   Vec mirror_dir = isec.ray.dir.reflection (isec.normal);
   Ray mirror_ray (isec.point, mirror_dir);
 
-  TraceState &sub_tstate = tstate.subtrace_state (TraceState::TRACE_REFLECTION);
+  TraceState &sub_tstate = tstate.subtrace_state (TraceState::REFLECTION);
 
   return sub_tstate.render (mirror_ray, isec.obj);
 }

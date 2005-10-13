@@ -23,7 +23,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
 {
   // Render transmission
 
-  TraceState::TraceType substate_type;
+  TraceState::TraceType subtrace_type;
   const Medium *old_medium, *new_medium;
 
   if (isec.reverse)
@@ -32,7 +32,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
 
       new_medium = tstate.enclosing_medium ();
       old_medium = &medium;
-      substate_type = TraceState::TRACE_REFRACTION_OUT;
+      subtrace_type = TraceState::REFRACTION_OUT;
     }
   else
     {
@@ -40,7 +40,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
 
       new_medium = &medium;
       old_medium = tstate.medium;
-      substate_type = TraceState::TRACE_REFRACTION_IN;
+      subtrace_type = TraceState::REFRACTION_IN;
     }
 
   Vec xmit_dir
@@ -53,7 +53,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
       Ray xmit_ray (isec.point, xmit_dir);
 
       TraceState &sub_tstate
-	= tstate.subtrace_state (substate_type, new_medium);
+	= tstate.subtrace_state (subtrace_type, new_medium);
 
       // Render the refracted ray, and combine it with any contribution
       // from reflections and surface lighting.

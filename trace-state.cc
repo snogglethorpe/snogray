@@ -18,7 +18,7 @@ using namespace Snogray;
 // Constructor for root TraceState
 //
 TraceState::TraceState (Scene &_scene)
-  : scene (_scene), parent (0), type (TRACE_SPONTANEOUS),
+  : scene (_scene), parent (0), type (SPONTANEOUS),
     horizon_hint (0), depth (0), medium (0)
 {
   _init ();
@@ -65,9 +65,9 @@ TraceState::enclosing_medium ()
 
   while (enclosure_level >= 0 && ts)
     {
-      if (ts->type == TRACE_REFRACTION_IN)
+      if (ts->type == REFRACTION_IN)
 	enclosure_level--;
-      else if (ts->type == TRACE_REFRACTION_OUT)
+      else if (ts->type == REFRACTION_OUT)
 	enclosure_level++;
 
       ts = ts->parent;
