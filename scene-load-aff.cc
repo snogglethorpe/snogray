@@ -36,19 +36,23 @@ using namespace std;
 
 // How bright we make lights
 //
-#define AFF_LIGHT_INTENS 100
-
-// A kludge to account for the fact that we model the falloff of light
-// through an object according to the thickness of the object.  The
-// "transmittance" values from .nff files will be adjust to make them
-// correct for objects of this thickness.
-//
-#define AFF_TRANSMITTANCE_KLUDGE 0.2
+#define AFF_LIGHT_INTENS		100
 
 // The .aff files we have seen all use wacky "gamma adjusted" lighting,
 // So try to compensate for that here.
 //
-#define AFF_ASSUMED_GAMMA 2.2
+#define AFF_ASSUMED_GAMMA		2.2
+
+// We scale phong highlights this much (over the Ks parametr) -- .nff
+// files don't have a separate "phong intensity" parameter in material
+// descriptions, whereas other SPD output formats do (and SPD actually
+// uses it), so we just pick something arbitrary.
+//
+#define AFF_PHONG_ADJ			3
+
+// Filtering effect of transparent objects
+//
+#define AFF_MEDIUM_TRANSMITTANCE	0.85
 
 
 // Low-level input functions
@@ -354,13 +358,11 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  if (phong_exp <= Eps || phong_exp > 1000)
 	    lmodel = Material::lambert;
 	  else
-	    lmodel = Material::phong (phong_exp, specular);
+	    lmodel = Material::phong (phong_exp, specular * AFF_PHONG_ADJ);
 
 	  if (transmittance > Eps)
 	    cur_material
-	      = new Glass (Medium (powf (transmittance,
-					 1 / AFF_TRANSMITTANCE_KLUDGE),
-				   ior),
+	      = new Glass (Medium (AFF_MEDIUM_TRANSMITTANCE, ior),
 			   specular, diffuse, lmodel);
 	  else if (specular.intensity() > Eps)
 	    cur_material = new Mirror (specular, diffuse, lmodel);

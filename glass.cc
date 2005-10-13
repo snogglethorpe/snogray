@@ -59,7 +59,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
       // from reflections and surface lighting.
       //
       return
-	sub_tstate.render (xmit_ray, isec.obj)
+	(1 - reflectance) * sub_tstate.render (xmit_ray, isec.obj)
 	+ Mirror::render (isec, tstate);
     }
   else
