@@ -438,7 +438,7 @@ Snogray::def_test_scene (const char *name, Scene &scene, Camera &camera)
   else if (strncmp (name, "teapot", 6) == 0)
     def_scene_teapot (scene, camera, name);
 
-  else if (strlen (name) > 5 && strcmp (name + strlen (name) - 5, "bunny") == 0)
+  else if (strlen (name) >= 5 && strcmp (name + strlen(name) - 5, "bunny") == 0)
     def_scene_pretty_bunny (scene, camera, name);
 
   else if (strcmp (name, "cs465-1") == 0 || strcmp (name, "1") == 0)
