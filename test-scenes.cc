@@ -48,7 +48,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 //   const Material *mat1
 //     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
   const Material *mat1
-    = scene.add (new Glass (Medium (0.999, 1.1), 0.1, 0.05, 300));
+    = scene.add (new Glass (Medium (1, 1.1), 0.1, 0, 300));
   const Material *mat2
     = scene.add (new Mirror (0.8, 0.2, 100));
   const Material *mat3
@@ -123,6 +123,57 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 				 pos + Vec(-0.5,-0.2,-1.1),
 				 pos + Vec(-0.5,-0.2,1.1)));
       }
+}
+
+void 
+def_scene_pretty_bunny (Scene &scene, Camera &camera, const char *name)
+{
+  // This is a mutation of test:cs465-4
+
+  camera.move (Pos (-1, 0.7, 2.3)); // y=0.5
+  camera.point (Pos (-0.75, -0.07, 0), Vec (0, 1, 0));
+  camera.set_vert_fov (M_PI_4);
+
+  const Material *gray
+    = scene.add (new Material (0.6));
+  const Material *red
+    = scene.add (new Material (Color (1, 0, 0), Material::phong (500)));
+  const Material *yellow
+    = scene.add (new Material (Color (1, 1, 0), Material::phong (500)));
+  const Material *green
+    = scene.add (new Material (Color (0, 1, 0), Material::phong (500)));
+  const Material *crystal
+    = scene.add (new Glass (Medium (0.6, 1.8), 0.2, 0.01,
+			    Material::phong (2000, 1.5)));
+  const Material *gold
+    = scene.add (new Mirror (0.9 * Color (0.71, 0.63, 0.1),
+			     0.05 * Color (0.80, 0.80, 0.05),
+			     Material::phong (500, Color (1, 1, 0.2))));
+
+  bool goldbunny = (strncmp (name, "gold", 4) == 0);
+
+  Mesh *bunny = new Mesh (goldbunny ? gold : crystal);
+  bunny->load ("bunny500.msh");
+  bunny->compute_vertex_normals ();
+  scene.add (bunny);
+
+  scene.add (new Sphere (goldbunny ? crystal : gold, Pos (-3, 0, -3), 1.5));
+
+  scene.add (new Sphere (red,    Pos (3.5, 0.65 - 0.65, -5.0), 0.65));
+  scene.add (new Sphere (green,  Pos (2.5, 0.40 - 0.65, -7.0), 0.40));
+  scene.add (new Sphere (yellow, Pos (0.3, 0.40 - 0.65, -2.5), 0.40));
+
+  // ground
+  scene.add (new Triangle (gray,
+			   Pos (-10, -0.65, -10), Pos (-10, -0.65, 10),
+			   Pos (10, -0.65, -10)));
+  scene.add (new Triangle (gray,
+			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
+			   Pos (10, -0.65, 10)));
+  
+  add_bulb (scene, Pos (0, 10, 0), 100);
+  add_bulb (scene, Pos (15, 2, 0), 100);
+  add_bulb (scene, Pos (0, 1, 15), 100);
 }
 
 
@@ -350,13 +401,11 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera)
   camera.point (Pos (-0.25, -0.07, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
 
-  const Material *red = scene.add (new Material (Color (0.5, 0.3, 0.05)));
-  //Material *red = scene.add (new Mirror (0.05, Color (1, 0, 0), 500));
+  const Material *red = scene.add (new Material (Color (1, 0, 0)));
   const Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
 
   Mesh *bunny = new Mesh (red);
   bunny->load ("bunny500.msh");
-  bunny->compute_vertex_normals ();
   scene.add (bunny);
   
   // ground
@@ -388,6 +437,9 @@ Snogray::def_test_scene (const char *name, Scene &scene, Camera &camera)
 
   else if (strncmp (name, "teapot", 6) == 0)
     def_scene_teapot (scene, camera, name);
+
+  else if (strlen (name) > 5 && strcmp (name + strlen (name) - 5, "bunny") == 0)
+    def_scene_pretty_bunny (scene, camera, name);
 
   else if (strcmp (name, "cs465-1") == 0 || strcmp (name, "1") == 0)
     def_scene_cs465_test1 (scene, camera);
