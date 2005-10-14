@@ -42,8 +42,8 @@ public:
   {
     user_up = _user_up;
     forward = vec.unit ();
-    right = forward.cross (_user_up.unit ()).unit ();
-    up = right.cross (forward).unit ();
+    right = _user_up.cross (forward).unit ();
+    up = forward.cross (right).unit ();
   }
   void point (const Pos &targ, const Vec &_user_up)
   {
