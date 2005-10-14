@@ -133,6 +133,7 @@ def_scene_pretty_bunny (Scene &scene, Camera &camera, const char *name)
   camera.move (Pos (-1, 0.7, 2.3)); // y=0.5
   camera.point (Pos (-0.75, -0.07, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
   const Material *gray
     = scene.add (new Material (0.6));

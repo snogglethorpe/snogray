@@ -25,12 +25,21 @@ public:
   static const float DEFAULT_ASPECT_RATIO = 4.0 / 3.0;
   static const float DEFAULT_HORIZ_FOV = M_PI / 4;
 
+  // Whether the (camera-relative) Z-axis increases when we move forward
+  // (into the image), or decreases.  Our native mode is "increases forward",
+  // but imported scenes may use a different convention.
+  //
+  enum z_mode {
+    Z_INCREASES_FORWARD,
+    Z_DECREASES_FORWARD
+  };
+
   Camera (const Pos &_pos = DEFAULT_POS,
 	  float aspect = DEFAULT_ASPECT_RATIO,
 	  float horiz_fov = DEFAULT_HORIZ_FOV)
     : pos (_pos), user_up (Vec (0, 1, 0)),
       forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
-      fov_x (horiz_fov)
+      z_mode (Z_INCREASES_FORWARD), fov_x (horiz_fov)
   {
     set_aspect_ratio (aspect);
   }
@@ -41,8 +50,13 @@ public:
   void point (const Vec &vec, const Vec &_user_up)
   {
     user_up = _user_up;
+
     forward = vec.unit ();
+
     right = _user_up.cross (forward).unit ();
+    if (z_mode == Z_DECREASES_FORWARD)
+      right = -right;
+
     up = forward.cross (right).unit ();
   }
   void point (const Pos &targ, const Vec &_user_up)
@@ -92,10 +106,25 @@ public:
     return Ray (pos, targ);
   }
 
+  // Set whether the Z axis increases into the image or decreases
+  //
+  void set_z_mode (enum z_mode _z_mode)
+  {
+    if (_z_mode != z_mode)
+      {
+	right = -right;
+	z_mode = _z_mode;
+      }
+  }
+
   Pos pos;
   Vec user_up;
 
   Vec forward, up, right;
+
+  // How the Z axis behaves with respect to the camera
+  //
+  enum z_mode z_mode;
 
   float aspect_ratio; /* horiz / vert */
 
