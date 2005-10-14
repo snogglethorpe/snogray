@@ -47,10 +47,18 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 //   Material *mat3 = scene.add (Material::phong (400, Color (0.1, 0.1, 0.1)));
 //   const Material *mat1
 //     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
-  const Material *mat1
-    = scene.add (new Glass (Medium (1, 1.1), 0.1, 0, 300));
-  const Material *mat2
-    = scene.add (new Mirror (0.8, 0.2, 100));
+  const Material *crystal
+    = scene.add (new Glass (Medium (0.99, 1.8), 0.1, 0.01,
+			    Material::phong (2000, 1.5)));
+  const Material *gold
+    = scene.add (new Mirror (0.9 * Color (0.71, 0.63, 0.1),
+			     0.1 * Color (0.80, 0.80, 0.05),
+			     Material::phong (500, Color (1, 1, 0.2))));
+  const Material *mat1 = crystal, *mat2 = gold;
+//   const Material *mat1
+//     = scene.add (new Glass (Medium (1, 1.1), 0.1, 0, 300));
+//   const Material *mat2
+//     = scene.add (new Mirror (0.8, 0.2, 100));
   const Material *mat3
     = scene.add (new Material (Color (0.8, 0, 0), Material::phong (400)));
   const Material *mat4
@@ -214,6 +222,174 @@ def_scene_teapot (Scene &scene, Camera &camera, const char *teapot_mesh_name)
 
   camera.move (Pos (4.86, 7.2, 5.4));
   camera.point (Pos (0, 0, 0), Vec (0, 0, 1));
+}
+
+
+
+const void
+add_rect (Scene &scene, const Material *mat,
+	  const Pos &corner_0, const Pos &mid_corner_0, const Pos &corner_1,
+	  bool no_shadow = false)
+{
+  Triangle *t0
+    = new Triangle (mat, corner_0, mid_corner_0, corner_1);
+  Triangle *t1
+    = new Triangle (mat,
+		    corner_1, corner_1 + (corner_0 - mid_corner_0), corner_0);
+
+  if (no_shadow)
+    t0->no_shadow = t1->no_shadow = true;
+
+  scene.add (t0);
+  scene.add (t1);
+}
+
+
+static void
+def_scene_cornell_box (Scene &scene, Camera &camera, const char *name)
+{
+  // Find "scene number" part of name
+  //
+  while (*name && (*name < '0' || *name > '9'))
+    name++;
+
+  unsigned soft_shadow_count = 5;
+  float light_intens = 2.5;
+  const float scale = 1;
+
+  const coord_t rear   =  2   * scale, front = -3   * scale;
+  const coord_t left   = -1.2 * scale, right =  1.2 * scale;
+  const coord_t bottom =  0   * scale, top   =  2   * scale;
+  const dist_t width = right - left;
+  const dist_t height = top - bottom;
+
+  const dist_t light_width = width / 3;
+  const dist_t light_inset = 0.01 * scale;
+  const coord_t light_x     = left + width / 2;
+  const coord_t light_z     = -1 * scale;
+  const coord_t light_left  = light_x - light_width / 2;
+  const coord_t light_right = light_x + light_width / 2;
+  const coord_t light_front = light_z - light_width / 2;
+  const coord_t light_back  = light_z + light_width / 2;
+
+  // Various spheres use this radius
+  //
+  const dist_t rad = 0.45 * scale;
+
+  // Appearance of left and right walls; set in ifs below
+  //
+  const Material *left_wall_mat, *right_wall_mat;
+
+  // Corners of room (Left/Right + Bottom/Top + Rear/Front)
+  //
+  const Pos LBR (left, bottom, rear),   RBR (right, bottom, rear);
+  const Pos RTR (right, top, rear),     LTR (left, top, rear);
+  const Pos RBF (right, bottom, front), RTF (right, top, front);
+  const Pos LBF (left, bottom, front),  LTF (left, top, front);
+
+  const Material *wall_mat = scene.add (new Material (1));
+
+  if (strcmp (name, "1") == 0)
+    {
+      const Material *crystal
+	= scene.add (new Glass (Medium (0.8, 1.8), 0.1, 0.01,
+				Material::lambert));
+//    const Material *crystal
+// 	= scene.add (new Glass (Medium (0.8, 1.8), 0.1, 0.01,
+//				Material::phong (2000, 1.5)));
+      const Material *silver
+	= scene.add (new Mirror (0.9, 0.05, Material::lambert));
+//       const Material *silver
+// 	= scene.add (new Mirror (0.9, 0.05, 500));
+
+      // silver sphere
+      scene.add (new Sphere (silver, LBR + Vec (rad*1.5, rad, -rad*3), rad));
+      // crystal sphere
+      scene.add (new Sphere (crystal, Pos (right - rad*1.5, rad, -rad*2), rad));
+
+      left_wall_mat = scene.add (new Material (Color (1, 0.1, 0.1)));
+      right_wall_mat = scene.add (new Material (Color (0.1, 0.1, 1)));
+    }
+  else
+    {
+      Color light_blue (0.5, 0.5, 1);
+      const Material *gloss_blue
+	= scene.add (new Mirror (0.2 * light_blue, 0.8 * light_blue,
+				 Material::lambert));
+
+      // blue sphere
+      scene.add (new Sphere (gloss_blue, RBR + Vec (-rad*1.6, rad, -rad*4), rad));
+
+      left_wall_mat = scene.add (new Material (Color (1, 0.4, 0.4)));
+      right_wall_mat = scene.add (new Material (Color (0.4, 1, 0.4)));
+
+      //      light_intens *= 1.5;
+    }
+
+  // Back wall
+  add_rect (scene, wall_mat, LBR, LTR, RTR);
+  // Right wall
+  add_rect (scene, right_wall_mat, RBR, RTR, RTF);
+  // Left wall
+  add_rect (scene, left_wall_mat, LBR, LTR, LTF);
+  // Floor
+  add_rect (scene, wall_mat, LBF, LBR, RBR);
+  // Ceiling
+  add_rect (scene, wall_mat, LTF, LTR, Pos (light_left, top, rear));
+  add_rect (scene, wall_mat, RTR, RTF, Pos (light_right, top, front));
+  add_rect (scene, wall_mat,
+	    Pos (light_left, top, front),
+	    Pos (light_left, top, light_front),
+	    Pos (light_right, top, light_front));
+  add_rect (scene, wall_mat,
+	    Pos (light_left, top, light_back),
+	    Pos (light_left, top, rear),
+	    Pos (light_right, top, rear));
+
+  // light
+
+  add_rect (scene, scene.add (new Glow (light_intens)),
+	    Pos (light_left, top, light_front),
+	    Pos (light_left, top, light_back),
+	    Pos (light_right, top, light_back),
+	    true);
+
+  if (soft_shadow_count > 1)
+    {
+      unsigned num_sublights_per_dimen = soft_shadow_count;
+      dist_t sub_light_edge_offs = light_width / 12;
+      dist_t sub_light_spacing
+	= ((light_width - sub_light_edge_offs * 2)
+	   / (num_sublights_per_dimen - 1));
+      float sub_light_intens
+	= light_intens / (num_sublights_per_dimen * num_sublights_per_dimen);
+  
+      coord_t x = light_left + sub_light_edge_offs;
+      for (unsigned i = 0; i < num_sublights_per_dimen; i++)
+	{
+	  coord_t z = light_front + sub_light_edge_offs;
+	  for (unsigned j = 0; j < num_sublights_per_dimen; j++)
+	    {
+	      scene.add (new Light (Pos (x, top + light_inset, z),
+				    sub_light_intens));
+	      z += sub_light_spacing;
+	    }
+	  x += sub_light_spacing;
+	}
+    }
+  else
+    {
+      scene.add (new Light (Pos (light_x, top + light_inset, light_z), light_intens));
+    }
+
+  // for debugging
+  scene.add (new Light (Pos (left + 0.1, bottom + 0.1, front + 0.1),
+			light_intens / 4));
+
+  coord_t mid_x = left + width / 2;
+  camera.move (Pos  (mid_x, 0.525 * height + bottom, -6.6 * scale));
+  camera.point (Pos (mid_x, 0.475 * height + bottom, 0), Vec (0, 1, 0));
+  camera.set_horiz_fov (M_PI_4 * 0.7);
 }
 
 
@@ -441,6 +617,9 @@ Snogray::def_test_scene (const char *name, Scene &scene, Camera &camera)
 
   else if (strlen (name) >= 5 && strcmp (name + strlen(name) - 5, "bunny") == 0)
     def_scene_pretty_bunny (scene, camera, name);
+
+  else if (strncmp (name, "cornell", 7) == 0 || strncmp (name, "box", 3) == 0)
+    def_scene_cornell_box (scene, camera, name);
 
   else if (strcmp (name, "cs465-1") == 0 || strcmp (name, "1") == 0)
     def_scene_cs465_test1 (scene, camera);
