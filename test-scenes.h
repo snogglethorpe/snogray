@@ -12,12 +12,15 @@
 #ifndef __TEST_SCENES_H__
 #define __TEST_SCENES_H__
 
+#include <string>
+
 #include "scene.h"
 #include "camera.h"
 
 namespace Snogray {
 
-extern void def_test_scene (const char *name, Scene &scene, Camera &camera);
+extern void def_test_scene (const std::string &name,
+			    Scene &scene, Camera &camera);
 
 }
 

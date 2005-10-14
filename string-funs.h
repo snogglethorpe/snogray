@@ -24,6 +24,14 @@ extern std::string stringify (unsigned num);
 //
 extern std::string commify (unsigned long long num, unsigned sep_count = 1);
 
+static inline bool
+ends_in (const std::string &str, const std::string &sfx)
+{
+  size_t str_len = str.length ();
+  size_t sfx_len = sfx.length ();
+  return str_len >= sfx_len && str.substr (str_len - sfx_len) == sfx;
+}
+
 }
 
 #endif /* __STRING_FUNS__ */

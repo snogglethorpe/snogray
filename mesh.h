@@ -59,7 +59,7 @@ public:
   // For loading mesh from any file-type (automatically determined)
   //
   void load (const char *file_name);
-  void load (std::string &file_name) { load (file_name.c_str ()); }
+  void load (const std::string &file_name) { load (file_name.c_str ()); }
 
   // For loading mesh from .msh file
   //

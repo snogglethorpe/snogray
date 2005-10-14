@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <sstream>
+
 #include "test-scenes.h"
 
 #include "scene.h"
@@ -22,6 +24,7 @@
 #include "mirror.h"
 #include "glass.h"
 #include "mesh.h"
+#include "string-funs.h"
 
 using namespace Snogray;
 using namespace std;
@@ -38,7 +41,8 @@ add_bulb (Scene &scene, const Pos &pos, const Color &col = Color::white)
 }
 
 static void
-def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
+def_scene_miles_test1 (const string &name, unsigned num,
+		       Scene &scene, Camera &camera)
 {
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
 //  Material *mat2 = scene.add (new Lambert (Color (0.5, 0.5, 0)));
@@ -90,7 +94,7 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 			   Pos (100, -3, 100),
 			   Pos (-100, -3, 100)));
 
-  switch (camera_pos)
+  switch (num)
     {
     case 0:
     default:
@@ -134,7 +138,8 @@ def_scene_miles_test1 (Scene &scene, Camera &camera, unsigned camera_pos)
 }
 
 void 
-def_scene_pretty_bunny (Scene &scene, Camera &camera, const char *name)
+def_scene_pretty_bunny (const string &name, unsigned num,
+			Scene &scene, Camera &camera)
 {
   // This is a mutation of test:cs465-4
 
@@ -159,7 +164,7 @@ def_scene_pretty_bunny (Scene &scene, Camera &camera, const char *name)
 			     0.05 * Color (0.80, 0.80, 0.05),
 			     Material::phong (500, Color (1, 1, 0.2))));
 
-  bool goldbunny = (strncmp (name, "gold", 4) == 0);
+  bool goldbunny = ends_in (name, "gold");
 
   Mesh *bunny = new Mesh (goldbunny ? gold : crystal);
   bunny->load ("bunny500.msh");
@@ -188,7 +193,8 @@ def_scene_pretty_bunny (Scene &scene, Camera &camera, const char *name)
 
 
 static void
-def_scene_teapot (Scene &scene, Camera &camera, const char *teapot_mesh_name)
+def_scene_teapot (const string &name, unsigned num,
+		  Scene &scene, Camera &camera)
 {
   // We copied various params from a .nff file with bogus gamma
   scene.set_assumed_gamma (2.2);
@@ -201,9 +207,7 @@ def_scene_teapot (Scene &scene, Camera &camera, const char *teapot_mesh_name)
     
   Mesh *teapot_mesh = new Mesh (teapot_mat);
 
-  string teapot_mesh_file_name (teapot_mesh_name);
-  teapot_mesh_file_name += ".msh";
-  teapot_mesh->load (teapot_mesh_file_name);
+  teapot_mesh->load (name + ".msh");
   teapot_mesh->compute_vertex_normals ();
   scene.add (teapot_mesh);
 
@@ -245,36 +249,42 @@ add_rect (Scene &scene, const Material *mat,
 }
 
 
-static void
-def_scene_cornell_box (Scene &scene, Camera &camera, const char *name)
+const void
+add_cube (Scene &scene, const Material *mat,
+	  const Pos &corner, const Vec &up, const Vec &right, const Vec &fwd)
 {
-  // Find "scene number" part of name
-  //
-  while (*name && (*name < '0' || *name > '9'))
-    name++;
+  add_rect (scene, mat, corner, corner + up, corner + right + up);
+  add_rect (scene, mat, corner, corner + fwd, corner + fwd + up);
+  add_rect (scene, mat, corner + up, corner + up + fwd, corner + up + fwd + right);
+}
 
-  unsigned soft_shadow_count = 5;
+static void
+def_scene_cornell_box (const string &name, unsigned num,
+		       Scene &scene, Camera &camera)
+{
+  unsigned soft_shadow_count = 1; //5;
   float light_intens = 2.5;
-  const float scale = 1;
+  unsigned glow_mag = 1;
+  bool fill_light = true;
+  float scale = 1;
 
-  const coord_t rear   =  2   * scale, front = -3   * scale;
-  const coord_t left   = -1.2 * scale, right =  1.2 * scale;
-  const coord_t bottom =  0   * scale, top   =  2   * scale;
-  const dist_t width = right - left;
-  const dist_t height = top - bottom;
+  coord_t rear   =  2   * scale, front = -3   * scale;
+  coord_t left   = -1.2 * scale, right =  1.2 * scale;
+  coord_t bottom =  0   * scale, top   =  2   * scale;
 
-  const dist_t light_width = width / 3;
-  const dist_t light_inset = 0.01 * scale;
-  const coord_t light_x     = left + width / 2;
-  const coord_t light_z     = -1 * scale;
-  const coord_t light_left  = light_x - light_width / 2;
-  const coord_t light_right = light_x + light_width / 2;
-  const coord_t light_front = light_z - light_width / 2;
-  const coord_t light_back  = light_z + light_width / 2;
+  dist_t width   = right - left;
+  dist_t height  = top - bottom;
+  coord_t mid_x  = left + width / 2;
+  coord_t mid_z  = 0;
+
+  dist_t light_width = width / 3;
+  dist_t light_inset = 0.01 * scale;
+  coord_t light_x    = left + width / 2;
+  coord_t light_z    = 0;
 
   // Various spheres use this radius
   //
-  const dist_t rad = 0.45 * scale;
+  dist_t rad = 0.4 * scale;
 
   // Appearance of left and right walls; set in ifs below
   //
@@ -289,66 +299,62 @@ def_scene_cornell_box (Scene &scene, Camera &camera, const char *name)
 
   const Material *wall_mat = scene.add (new Material (1));
 
-  if (strcmp (name, "1") == 0)
+  if (num == 1)
     {
+      light_intens = 1.5;
+      fill_light = false;
+      light_z += scale * 0.2;
+
       const Material *crystal
-	= scene.add (new Glass (Medium (0.8, 1.8), 0.1, 0.01,
+	= scene.add (new Glass (Medium (0.5, 1.35), 0.15, 0.1,
 				Material::lambert));
-//    const Material *crystal
-// 	= scene.add (new Glass (Medium (0.8, 1.8), 0.1, 0.01,
-//				Material::phong (2000, 1.5)));
       const Material *silver
 	= scene.add (new Mirror (0.9, 0.05, Material::lambert));
-//       const Material *silver
-// 	= scene.add (new Mirror (0.9, 0.05, 500));
 
       // silver sphere
-      scene.add (new Sphere (silver, LBR + Vec (rad*1.5, rad, -rad*3), rad));
+      scene.add (new Sphere (silver, LBR + Vec (rad*1.55, rad, -rad*3), rad));
       // crystal sphere
-      scene.add (new Sphere (crystal, Pos (right - rad*1.5, rad, -rad*2), rad));
+      scene.add (new Sphere (crystal, Pos (right - rad*1.5, rad, -rad), rad));
 
-      left_wall_mat = scene.add (new Material (Color (1, 0.1, 0.1)));
-      right_wall_mat = scene.add (new Material (Color (0.1, 0.1, 1)));
+      left_wall_mat = scene.add (new Material (Color (0.6, 0.1, 0.1)));
+      right_wall_mat = scene.add (new Material (Color (0.1, 0.1, 0.6)));
     }
-  else
+  else // default
     {
-      Color light_blue (0.5, 0.5, 1);
+      soft_shadow_count = 5;
+
+      Color light_blue (0.6, 0.6, 1);
       const Material *gloss_blue
-	= scene.add (new Mirror (0.2 * light_blue, 0.8 * light_blue,
-				 Material::lambert));
+	= scene.add (new Material (light_blue, Material::phong (700, 5)));
+//       const Material *gloss_blue
+// 	= scene.add (new Mirror (0.1, light_blue, Material::lambert));
+      const Material *white
+	= scene.add (new Material (1, Material::phong (50)));
 
       // blue sphere
-      scene.add (new Sphere (gloss_blue, RBR + Vec (-rad*1.6, rad, -rad*4), rad));
+      scene.add (new Sphere (gloss_blue, RBR + Vec (-rad*1.7, rad, -rad*4), rad));
 
-      left_wall_mat = scene.add (new Material (Color (1, 0.4, 0.4)));
-      right_wall_mat = scene.add (new Material (Color (0.4, 1, 0.4)));
+      left_wall_mat = scene.add (new Material (Color (1, 0.35, 0.35)));
+      right_wall_mat = scene.add (new Material (Color (0.35, 1, 0.35)));
 
-      //      light_intens *= 1.5;
+      dist_t cube_sz = height * 0.4;
+      float cube_angle = 50 * (M_PI / 180);
+      Vec cube_up (0, cube_sz, 0);
+      Vec cube_right (cube_sz * cos(cube_angle), 0, cube_sz * sin(cube_angle));
+      Vec cube_fwd (cube_sz * -sin(cube_angle), 0, cube_sz * cos(cube_angle));
+      add_cube (scene, white,
+		Pos (mid_x - width / 4.5, bottom, mid_z - width / 3),
+		cube_up, cube_right, cube_fwd);
     }
-
-  // Back wall
-  add_rect (scene, wall_mat, LBR, LTR, RTR);
-  // Right wall
-  add_rect (scene, right_wall_mat, RBR, RTR, RTF);
-  // Left wall
-  add_rect (scene, left_wall_mat, LBR, LTR, LTF);
-  // Floor
-  add_rect (scene, wall_mat, LBF, LBR, RBR);
-  // Ceiling
-  add_rect (scene, wall_mat, LTF, LTR, Pos (light_left, top, rear));
-  add_rect (scene, wall_mat, RTR, RTF, Pos (light_right, top, front));
-  add_rect (scene, wall_mat,
-	    Pos (light_left, top, front),
-	    Pos (light_left, top, light_front),
-	    Pos (light_right, top, light_front));
-  add_rect (scene, wall_mat,
-	    Pos (light_left, top, light_back),
-	    Pos (light_left, top, rear),
-	    Pos (light_right, top, rear));
 
   // light
 
-  add_rect (scene, scene.add (new Glow (light_intens)),
+  const coord_t light_left  = light_x - light_width / 2;
+  const coord_t light_right = light_x + light_width / 2;
+  const coord_t light_front = light_z - light_width / 2;
+  const coord_t light_back  = light_z + light_width / 2;
+
+  add_rect (scene, scene.add (new Glow (light_intens * glow_mag)),
 	    Pos (light_left, top, light_front),
 	    Pos (light_left, top, light_back),
 	    Pos (light_right, top, light_back),
@@ -382,11 +388,31 @@ def_scene_cornell_box (Scene &scene, Camera &camera, const char *name)
       scene.add (new Light (Pos (light_x, top + light_inset, light_z), light_intens));
     }
 
-  // for debugging
-  scene.add (new Light (Pos (left + 0.1, bottom + 0.1, front + 0.1),
-			light_intens / 4));
+  // Back wall
+  add_rect (scene, wall_mat, LBR, LTR, RTR);
+  // Right wall
+  add_rect (scene, right_wall_mat, RBR, RTR, RTF);
+  // Left wall
+  add_rect (scene, left_wall_mat, LBR, LTR, LTF);
+  // Floor
+  add_rect (scene, wall_mat, LBF, LBR, RBR);
+  // Ceiling
+  add_rect (scene, wall_mat, LTF, LTR, Pos (light_left, top, rear));
+  add_rect (scene, wall_mat, RTR, RTF, Pos (light_right, top, front));
+  add_rect (scene, wall_mat,
+	    Pos (light_left, top, front),
+	    Pos (light_left, top, light_front),
+	    Pos (light_right, top, light_front));
+  add_rect (scene, wall_mat,
+	    Pos (light_left, top, light_back),
+	    Pos (light_left, top, rear),
+	    Pos (light_right, top, rear));
 
-  coord_t mid_x = left + width / 2;
+  // for debugging
+  if (fill_light)
+    scene.add (new Light (Pos (left + 0.1, bottom + 0.1, front + 0.1),
+			  light_intens / 4));
+
   camera.move (Pos  (mid_x, 0.525 * height + bottom, -6.6 * scale));
   camera.point (Pos (mid_x, 0.475 * height + bottom, 0), Vec (0, 1, 0));
   camera.set_horiz_fov (M_PI_4 * 0.7);
@@ -598,40 +624,59 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera)
   scene.add (new Light (Pos (0, 1, 15), 100));
 }
 
+static void
+def_scene_cs465_test (const string &name, unsigned num,
+		      Scene &scene, Camera &camera)
+{
+  switch (num)
+    {
+    case 1: def_scene_cs465_test1 (scene, camera); break;
+    case 2: def_scene_cs465_test2 (scene, camera); break;
+    case 3: def_scene_cs465_test3 (scene, camera); break;
+    case 4: def_scene_cs465_test4 (scene, camera); break;
+    default:
+      throw runtime_error ("unknown cs465 test scene");
+    }
+}
+
 
 
 void
-Snogray::def_test_scene (const char *name, Scene &scene, Camera &camera)
+Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
-  if (strcmp (name, "miles-0") == 0 || strcmp (name, "0") == 0)
-    def_scene_miles_test1 (scene, camera, 0);
-  else if (strcmp (name, "miles-1") == 0 || strcmp (name, "7") == 0)
-    def_scene_miles_test1 (scene, camera, 1);
-  else if (strcmp (name, "miles-2") == 0 || strcmp (name, "5") == 0)
-    def_scene_miles_test1 (scene, camera, 2);
-  else if (strcmp (name, "miles-3") == 0 || strcmp (name, "6") == 0)
-    def_scene_miles_test1 (scene, camera, 3);
+  string name (_name);		// make a local copy
 
-  else if (strncmp (name, "teapot", 6) == 0)
-    def_scene_teapot (scene, camera, name);
+  // Devide the name into a "base name" and "scene number" if possible
+  //
+  unsigned num = 0;
+  unsigned base_end = name.find_last_not_of ("0123456789");
+  if (base_end < name.length ())
+    {
+      istringstream idiots (name.substr (base_end + 1));
+      idiots >> num;
 
-  else if (strlen (name) >= 5 && strcmp (name + strlen(name) - 5, "bunny") == 0)
-    def_scene_pretty_bunny (scene, camera, name);
+      base_end = name.find_last_not_of ("-_ ", base_end);
 
-  else if (strncmp (name, "cornell", 7) == 0 || strncmp (name, "box", 3) == 0)
-    def_scene_cornell_box (scene, camera, name);
+      name = name.substr (0, base_end + 1);
+    }
 
-  else if (strcmp (name, "cs465-1") == 0 || strcmp (name, "1") == 0)
-    def_scene_cs465_test1 (scene, camera);
-  else if (strcmp (name, "cs465-2") == 0 || strcmp (name, "2") == 0)
-    def_scene_cs465_test2 (scene, camera);
-  else if (strcmp (name, "cs465-3") == 0 || strcmp (name, "3") == 0)
-    def_scene_cs465_test3 (scene, camera);
-  else if (strcmp (name, "cs465-4") == 0 || strcmp (name, "4") == 0)
-    def_scene_cs465_test4 (scene, camera);
+if (name == "miles")
+  def_scene_miles_test1 (name, num, scene, camera);
 
-  else
-    throw (runtime_error ("unknown test scene"));
+ else if (name == "teapot")
+   def_scene_teapot (name, num, scene, camera);
+
+ else if (ends_in (name, "bunny"))
+   def_scene_pretty_bunny (name, num, scene, camera);
+
+ else if (name == "cornell-box" || name == "cbox")
+   def_scene_cornell_box (name, num, scene, camera);
+
+ else if (name == "cs465")
+   def_scene_cs465_test (name, num, scene, camera);
+
+ else
+   throw (runtime_error ("Unknown test scene"));
 }
 
 // arch-tag: 307938a9-c663-4949-a58b-fb51040a6529
