@@ -1,0 +1,111 @@
+Todo list for snogray
+
+
+
+ + Optimize triangle intersection calcuation.
+
+     (Accounts for a huge proportion of tracing time)
+
+
+ + Simple support for shadows of transparent/translucent objects
+
+     Real support (bending of light rays) is too hard, but for a simple
+     straight light ray, it should be easy and better than nothing.
+     [For real support, caustics etc., use photon transport]
+
+
+ + Make voxtree smarter
+
+     See "voxtree-hacks-20050928-0.patch"
+
+     Have different types of voxtree node for different situations:
+
+       * Normal octree nodes
+
+       * Leaf nodes (no children nodes, just objects)
+
+       * Bounding-box-sub-nodes nodes:  instead of a simple octree,
+	 children nodes can have an arbitrary bounding box -- this is
+	 good for the case where the child(ren) has a dramtically
+	 different scale, as degenerate long single chains of octree
+	 nodes can be avoided (the "teapot in a stadium" problem)
+
+
+ + Make voxtree searching directional
+
+     Currently it will find object in random order; typically it would be
+     much better to find closer objects first.
+
+     For octree, put children node pointers in a length-8 array, where
+     the 3 bits in the array index correspond to x-hi/lo, y-hi/lo,
+     z-hi/lo respectively.  Then when starting the search at the
+     top-level, we compute a quick "first check" index according to the
+     rough direction of the ray we're searching for.  When iterating
+     over subnodes in the octree, we can simply do:
+
+	for (index_mask = 0; index_mask < 8; index_mask)
+	  search_subnode (subnodes[ray_start_index ^ index_mask]);
+
+
+ + Soft shadows
+
+     Lights can have an associated object.  When calculating lighting
+     from a given light, send out a sampling of rays to its object's
+     bounding box (vary number of samples based on "importance" -- goes
+     down for increased tracing depths; maybe also based on distance
+     from cameras).
+
+
+ + Global Illumination.
+
+     Probably use "photon mapping", as described by Henrik Wann Jensen.
+     See http://graphics.ucsd.edu/~henrik/papers/ewr7/
+
+     ["Metropolitan transport"?]
+
+
+ + Better light management to handle huge numbers of lights.
+
+     * Keep list of lights ordered in terms of "apparent strength";
+       this varies per pixel, but is a good candidate for caching as it
+       will change slowly for nearby points.
+
+     * For a given point, stop calculating when the contribution from
+       further lights would be negligible (radiance also adds an
+       estimated term to represent lights which weren't actually
+       calculated).
+
+     * The cached ordered list of lights can have two categories: nearby
+       lights and far-away lights (based on given point/bounding-box).
+       When moving to a new point, we (1) see if any far-away lights
+       have become "nearby", in which case we recalculate the whole
+       list, and otherwise (2) reorder lights in the "nearby" list
+       according to their current apparent strengths.
+
+       Note that "nearby" lights are _not_ necessarily stronger than
+       faraway lights, merely more likely to change in strength (the sun
+       for instance, is probably always at the front of the "apparent
+       strength" list, yet always in the faraway list).  For typical
+       scenes, the number of nearby lights is probably much smaller than
+       faraway lights.
+
+
+ + Get rid of weird error handling in image code and just use exceptions
+
+
+ + Get rid of "Image{Source,Sink}Params" classes and instead just pass
+   user-supplied  "parameter strings" to image backends.
+
+     The parameter strings can be appended to the "image type" command-line
+     options, separated by ":", with "=" mean assign value.  So for
+     instance, for jpeg, the user could specify "-Ojpeg:quality=98" (as the
+     user will usually specify the image type indirectly via the output
+     file extension, it could assume a "=" before the first ":" meant that
+     the first element was a parameter rather than a type).
+
+
+ + Use a similar scheme (same parser?) for test-image parameters.
+
+
+
+;; arch-tag: 87fcbf10-c76f-43d6-9b09-469aba284b80
