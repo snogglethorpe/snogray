@@ -14,6 +14,19 @@ Todo list for snogray
      [For real support, caustics etc., use photon transport]
 
 
+ + Implement better light-model
+
+     Ashikhmin?  Cook-Torrance?
+
+
+ + Make mirror reflections use light-model
+
+     [Is this correct?]
+
+
+ + Texture support
+
+
  + Make voxtree smarter
 
      See "voxtree-hacks-20050928-0.patch"
