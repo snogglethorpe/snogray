@@ -323,11 +323,14 @@ def_scene_cornell_box (const string &name, unsigned num,
     {
       soft_shadow_count = 5;
 
+      // The reflected light doesn't look bright enough otherwise... XXX
+      glow_mag = 4;
+
       Color light_blue (0.6, 0.6, 1);
-      const Material *gloss_blue
-	= scene.add (new Material (light_blue, Material::phong (700, 5)));
 //       const Material *gloss_blue
-// 	= scene.add (new Mirror (0.1, light_blue, Material::lambert));
+// 	= scene.add (new Material (light_blue, Material::phong (700, 5)));
+      const Material *gloss_blue
+	= scene.add (new Mirror (0.1, light_blue, Material::lambert));
       const Material *white
 	= scene.add (new Material (1, Material::phong (50)));
 
