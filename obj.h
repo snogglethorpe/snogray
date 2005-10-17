@@ -25,26 +25,50 @@ class Voxtree;
 class Obj 
 {
 public:
+
   Obj () : no_shadow (false) { }
   virtual ~Obj (); // stop gcc bitching
 
-  // Return the distance from RAY's origin of the closest intersection of
-  // this object with RAY, or 0 if there is none.
+  // Return the distance from RAY's origin to the closest intersection
+  // of this object with RAY, or 0 if there is none.  RAY is considered
+  // to be unbounded.
   //
   virtual dist_t intersection_distance (const Ray &ray) const;
 
   // Given that RAY's origin is known to lie on this object, return the
-  // distance from RAY's origin to the _next_ closest intersection of this
-  // object with RAY, or 0 if there is none.  For non-convex objects such
-  // as triangles, the default implementation which always returns 0 is
-  // correct.
+  // distance from RAY's origin to the _next_ closest intersection of
+  // this object with RAY, or 0 if there is none.  For non-convex
+  // objects such as triangles, the default implementation which always
+  // returns 0 is correct.  RAY is considered to be unbounded.
   //
   virtual dist_t next_intersection_distance (const Ray &ray) const;
 
-  // Making the following virtual slows things down measurably, and there
-  // are no cases where it's needed yet:
+  // If this object intersects the bounded-ray RAY, change RAY's length
+  // to reflect the point of intersection, and return true; otherwise
+  // return false.  If ORIGIN points to this object (meaning it is the
+  // origin of RAY), the first intersection is ignored, and only a 2nd,
+  // farther, intersection (if any; see `next_intersection_distance') is
+  // considered.
   //
-  //   virtual bool intersects (const Ray &ray) const;
+  bool intersect (Ray &ray, const Obj *origin) const
+  {
+    dist_t dist
+      = (origin == this
+	 ? next_intersection_distance (ray)
+	 : intersection_distance (ray));
+
+    if (dist > 0 && dist < ray.len)
+      {
+	ray.set_len (dist);
+	return true;
+      }
+    else
+      return false;
+  }
+
+  // A simpler interface to intersection: just returns true if this object
+  // intersects the bounded-ray RAY.  Unlike the `intersect' method, RAY is
+  // never modified.
   //
   bool intersects (const Ray &ray) const
   {

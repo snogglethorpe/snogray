@@ -1,4 +1,4 @@
-// intersect.h -- Datatype for recording object-ray intersection results
+// intersect.h -- Datatype for recording scene-ray intersection result
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -18,55 +18,40 @@
 
 namespace Snogray {
 
+// This just packages up the result of a scene intersection search and
+// some handy values calculated from it.  It is passed to rendering
+// methods.
+//
 class Intersect
 {
 public:
 
-  Intersect (const Ray &_ray, dist_t horizon)
-    : ray (_ray), obj (0)
+  Intersect (const Ray &_ray, const Obj *_obj)
+    : ray (_ray), obj (_obj),
+      point (_ray.end()),
+      normal (_obj->normal (point, _ray.dir)),
+      reverse (normal.dot (_ray.dir) > Eps)
   {
-    ray.set_len (horizon);
+    // We want to flip the sign on `normal' if `reverse' is true, but we've
+    // declared `normal' const to avoid anybody mucking with it...
+    //
+    if (reverse)
+      const_cast<Vec&> (normal) = -normal;
   }
 
-  void update (const Obj *_obj, const Obj *origin)
-  {
-    dist_t dist
-      = (_obj == origin
-	 ? _obj->next_intersection_distance (ray)
-	 : _obj->intersection_distance (ray));
+  // Ray which intersected something; its endpoint is the point of intersection.
+  const Ray ray;
 
-    if (dist > 0 && (!obj || dist < ray.len))
-      {
-	obj = _obj;
-	ray.set_len (dist);
-      }
-  }
-
-  void finish ()
-  {
-    if (obj)
-      {
-	point = ray.end ();
-	normal = obj->normal (point, ray.dir);
-	reverse = normal.dot (ray.dir) > Eps;
-	if (reverse)
-	  normal = -normal;
-      }
-  }
-
-  // Ray which intersected something.
-  Ray ray;
-
-  // If non-zero, the object which RAY intersected; if zero, there is no
-  // known intersection.
+  // The object which RAY intersected.  This should always be non-zero
+  // (it's not a reference because all uses are as a pointer).
   //
-  const Obj *obj;		// If 0, no intersection
+  const Obj *obj;
 
-  // Only valid once finish() is called, and if OBJ is non-NULL
+  // Details of the intersection.
   //
-  Pos point;			// Point where RAY intersects OBJ
-  Vec normal;			// Surface normal at POINT
-  bool reverse;			// True if NORMAL points away from RAY
+  const Pos point;		// Point where RAY intersects OBJ
+  const Vec normal;		// Surface normal at POINT
+  const bool reverse;		// True if NORMAL points away from RAY
 };
 
 }

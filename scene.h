@@ -43,6 +43,79 @@ public:
   { }
   ~Scene ();
 
+  // Calculate the color perceived by looking along RAY.  This is the
+  // basic ray-tracing method.
+  //
+  Color render (const Ray &ray, TraceState &tstate, const Obj *origin = 0)
+    const
+  {
+    if (tstate.depth > max_depth)
+      return background;
+
+    Ray intersected_ray (ray, DEFAULT_HORIZON);
+
+    const Obj *closest = intersect (intersected_ray, tstate, origin);
+
+    if (closest)
+      {
+	Intersect isec (intersected_ray, closest);
+
+	// Calculate the appearance of the point on the object we hit
+	//
+	Color result = closest->material()->render (isec, tstate);
+
+	// If we are looking through something other than air, attentuate
+	// the surface appearance due to transmission through the current
+	// medium.
+	//
+	if (tstate.medium)
+	  result = tstate.medium->attenuate (result, intersected_ray.len);
+
+	return result;
+      }
+    else
+      return background;
+  }
+
+  // Return the closest object in this scene which intersects the
+  // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
+  // to reflect the point of intersection.  If ORIGIN is non-zero, then the
+  // _first_ intersection with that object is ignored (meaning that ORIGIN
+  // is totally ignored if it is flat).
+  //
+  const Obj *intersect (Ray &ray, TraceState &tstate, const Obj *origin) const;
+
+  bool shadowed (Light &light, const Ray &light_ray,
+		 TraceState &tstate, const Obj *origin = 0)
+    const;
+  
+  // Add various items to a scene.  All of the following "give" the
+  // object to the scene -- freeing the scene will free them too.
+
+  // Add an object
+  //
+  Obj *add (Obj *obj)
+  {
+    objs.push_back (obj);
+    obj->add_to_space (obj_voxtree);
+    return obj;
+  }
+
+  // Add a light
+  Light *add (Light *light)
+  {
+    light->num = num_lights();	// Give LIGHT an index
+    lights.push_back (light);
+    return light;
+  }
+
+  // Add a material (we actually do nothing with these...)
+  //
+  const Material *add (const Material *mat)
+  {
+    materials.push_back (mat); return mat;
+  }
+
   // Scene input
   //
   void load (const char *scene_file_name, const char *fmt, Camera &camera);
@@ -52,67 +125,13 @@ public:
   //
   void load_aff_file (std::istream &stream, Camera &camera);
 
-  Intersect closest_intersect (const Ray &ray,
-			       TraceState &tstate, const Obj *origin = 0);
-  bool shadowed (Light &light, const Ray &light_ray,
-		 TraceState &tstate, const Obj *origin = 0);
-  
-  // Add various items to a scene.  All of the following "give" the
-  // object to the scene -- freeing the scene will free them too.
-
-  // Add an object
-  Obj *add (Obj *obj)
-  {
-    objs.push_back (obj);
-    obj->add_to_space (obj_voxtree);
-    return obj;
-  }
-
-  Light *add (Light *light)
-  {
-    light->num = num_lights();	// Give LIGHT an index
-    lights.push_back (light);
-    return light;
-  }
-
-  const Material *add (const Material *mat)
-  {
-    materials.push_back (mat); return mat;
-  }
-
   unsigned num_lights () { return lights.size (); }
 
   void set_background (const Color &col) { background = col; }
 
-  Color render (const Ray &ray, TraceState &tstate, const Obj *origin = 0)
-  {
-    if (tstate.depth > max_depth)
-      return background;
-
-    Intersect isec = closest_intersect (ray, tstate, origin);
-
-    if (isec.obj)
-      {
-	// Calculate the appearance of the point on the object we hit
-	//
-	Color result (isec.obj->material()->render (isec, tstate));
-
-	// If we are looking through something other than air, attentuate
-	// the surface appearance due to transmission through the current
-	// medium.
-	//
-	if (tstate.medium)
-	  result = tstate.medium->attenuate (result, isec.ray.len);
-
-	return result;
-      }
-    else
-      return background;
-  }
-
   void set_assumed_gamma (float g) { assumed_gamma = g; }
 
-  struct Stats {
+  mutable struct Stats {
     Stats () : scene_closest_intersect_calls (0),
 	       obj_closest_intersect_calls (0),
 	       scene_shadowed_tests (0),

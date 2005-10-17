@@ -30,7 +30,7 @@ public:
   {
   }
   Ray (Pos _origin, Vec _dir, dist_t _len)
-    : origin (_origin), dir (_dir.unit ()), len (_len),
+    : origin (_origin), dir (_dir), len (_len),
       _end (_origin + _dir * _len)
   {
   }
