@@ -31,10 +31,10 @@ public:
 
   // As a convenience, provide a global lookup service for common lighting
   // models.
-  static const Lambert *lambert;
-  static const Phong *phong (float exp, const Color &spec_col = Color::white);
+  static const Lambert lambert;
+  static const Phong &phong (float exp, const Color &spec_col = Color::white);
 
-  Material (const Color &col, const LightModel *lmodel = lambert)
+  Material (const Color &col, const LightModel &lmodel = lambert)
     : color (col), light_model (lmodel)
   { }
   virtual ~Material ();
@@ -45,7 +45,7 @@ public:
     const;
 
   Color color;
-  const LightModel *light_model;
+  const LightModel &light_model;
 };
 
 }

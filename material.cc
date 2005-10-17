@@ -23,9 +23,9 @@ Material::~Material () { } // stop gcc bitching
 
 // As a convenience, provide a global lookup service for common lighting models.
 
-const Lambert *Material::lambert = new Lambert;
+const Lambert Material::lambert;
 
-const Phong *
+const Phong &
 Material::phong (float exp, const Color &spec_col)
 {
   static std::list<const Phong *> global_phongs;
@@ -35,14 +35,14 @@ Material::phong (float exp, const Color &spec_col)
     {
       const Phong *phong = *pi;
       if (phong->exponent == exp && phong->specular_color == spec_col)
-	return phong;
+	return *phong;
     }
 
   Phong *phong = new Phong (exp, spec_col);
 
   global_phongs.push_front (phong);
 
-  return phong;
+  return *phong;
 }
 
 
@@ -79,7 +79,7 @@ Material::illum (const Intersect &isec, const Color &color, TraceState &tstate)
 	  Color light_color = light->color / (light_ray.len * light_ray.len);
 
 	  total_color
-	    += light_model->illum (isec, color, light_ray.dir, light_color);
+	    += light_model.illum (isec, color, light_ray.dir, light_color);
 	}
     }
 

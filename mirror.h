@@ -20,7 +20,7 @@ class Mirror : public Material
 {
 public:
 
-  Mirror (Color _reflectance, const Color &col, const LightModel *lmodel)
+  Mirror (Color _reflectance, const Color &col, const LightModel &lmodel)
     : Material (col, lmodel),
       reflectance ( _reflectance)
   { }

@@ -354,20 +354,20 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  float transmittance = read_float (stream);
 	  float ior = read_float (stream);
 
-	  const LightModel *lmodel = 0;
+	  const LightModel *lmodel;
 	  if (phong_exp <= Eps || phong_exp > 1000)
-	    lmodel = Material::lambert;
+	    lmodel = &Material::lambert;
 	  else
-	    lmodel = Material::phong (phong_exp, specular * AFF_PHONG_ADJ);
+	    lmodel = &Material::phong (phong_exp, specular * AFF_PHONG_ADJ);
 
 	  if (transmittance > Eps)
 	    cur_material
 	      = new Glass (Medium (AFF_MEDIUM_TRANSMITTANCE, ior),
-			   specular, diffuse, lmodel);
+			   specular, diffuse, *lmodel);
 	  else if (specular.intensity() > Eps)
-	    cur_material = new Mirror (specular, diffuse, lmodel);
+	    cur_material = new Mirror (specular, diffuse, *lmodel);
 	  else
-	    cur_material = new Material (diffuse, lmodel);
+	    cur_material = new Material (diffuse, *lmodel);
 
 	  add (cur_material);
 	}

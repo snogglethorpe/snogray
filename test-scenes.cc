@@ -431,7 +431,7 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   // First test scene, only uses spheres, Lambertian shading,
   // and one light directly above the center of the 3 spheres.
 
-  const Phong *ph300 = Material::phong (300), *ph400 = Material::phong (400);
+  const Phong &ph300 = Material::phong (300), &ph400 = Material::phong (400);
   const Material *mat1 = scene.add (new Material (Color (1, 0.5, 0.2)));
   const Material *mat2 = scene.add (new Material (Color (0.8, 0.8, 0.8), ph300));
   const Material *mat3 = scene.add (new Material (Color (0.8, 0, 0), ph400));
@@ -452,7 +452,7 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
   camera.move (Pos (0, 4, 4));
   camera.point (Pos (-0.5, 0, 0.5), Vec (0, 1, 0));
 
-  const Phong *ph100 = Material::phong (100, Color (0.3, 0.3, 0.3));
+  const Phong &ph100 = Material::phong (100, Color (0.3, 0.3, 0.3));
 
   const Material *sphereMat
     = scene.add (new Material (Color (0.249804, 0.218627, 0.0505882), ph100));
@@ -502,8 +502,8 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   camera.move (Pos (6, 6, 6));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
 
-  const Phong *ph300_1 = Material::phong (300, Color (1, 1, 1));
-  const Phong *ph300_2 = Material::phong (300, Color (2, 2, 2));
+  const Phong &ph300_1 = Material::phong (300, Color (1, 1, 1));
+  const Phong &ph300_2 = Material::phong (300, Color (2, 2, 2));
 
   const Material *shinyBlack
     = scene.add (new Material (Color (0.02, 0.02, 0.02), ph300_2));

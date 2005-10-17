@@ -21,7 +21,7 @@ class Glass : public Mirror
 public:
 
   Glass (Medium _medium, Color reflectance,
-	 const Color &col = Color::white, const LightModel *lmodel = lambert)
+	 const Color &col = Color::white, const LightModel &lmodel = lambert)
     : Mirror (reflectance, col, lmodel), medium (_medium)
   { }
   Glass (Medium _medium, Color reflectance,
