@@ -302,7 +302,7 @@ def_scene_cornell_box (const string &name, unsigned num,
       light_z += scale * 0.2;
 
       const Material *crystal
-	= scene.add (new Glass (Medium (0.5, 1.35), 0.15, 0.1,
+	= scene.add (new Glass (Medium (Color (0.8, 0.8, 0.4), 1.35), 0.25, 0.1,
 				Material::lambert));
       const Material *silver
 	= scene.add (new Mirror (0.9, 0.05, Material::lambert));
