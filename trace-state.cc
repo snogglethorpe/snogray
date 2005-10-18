@@ -38,7 +38,7 @@ TraceState::_init ()
 {
   unsigned num_lights = scene.num_lights ();
 
-  shadow_hints = new const Obj*[num_lights];
+  shadow_hints = new const Surface*[num_lights];
   for (unsigned i = 0; i < num_lights; i++)
     shadow_hints[i] = 0;
 

@@ -1,4 +1,4 @@
-// obj.h -- Root of object class hierarchy
+// surface.h -- Physical surface
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,8 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __OBJ_H__
-#define __OBJ_H__
+#ifndef __SURFACE_H__
+#define __SURFACE_H__
 
 #include "vec.h"
 #include "color.h"
@@ -23,22 +23,26 @@ namespace Snogray {
 class Material;
 class Voxtree;
 
-class Obj 
+// A surface is the basic object scenes are constructed of.
+// Surfaces exist in 3D space, but are basically 2D -- volumetric
+// properties are only modelled in certain special cases.
+//
+class Surface 
 {
 public:
 
-  Obj (Material::ShadowType _shadow_type = Material::SHADOW_OPAQUE)
+  Surface (Material::ShadowType _shadow_type = Material::SHADOW_OPAQUE)
     : shadow_type (_shadow_type)
   { }
-  virtual ~Obj (); // stop gcc bitching
+  virtual ~Surface (); // stop gcc bitching
 
-  // If this object intersects the bounded-ray RAY, change RAY's length to
+  // If this surface intersects the bounded-ray RAY, change RAY's length to
   // reflect the point of intersection, and return true; otherwise return
   // false.
   //
-  // NUM is which intersection to return, for non-flat objects that may
+  // NUM is which intersection to return, for non-flat surfaces that may
   // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-  // (flat objects will return failure for anything except 0).
+  // (flat surfaces will return failure for anything except 0).
   //
   bool intersect (Ray &ray, unsigned num = 0) const
   {
@@ -53,7 +57,7 @@ public:
       return false;
   }
 
-  // A simpler interface to intersection: just returns true if this object
+  // A simpler interface to intersection: just returns true if this surface
   // intersects the bounded-ray RAY.  Unlike the `intersect' method, RAY is
   // never modified.
   //
@@ -64,36 +68,36 @@ public:
   }
 
   // Return the distance from RAY's origin to the closest intersection
-  // of this object with RAY, or 0 if there is none.  RAY is considered
+  // of this surface with RAY, or 0 if there is none.  RAY is considered
   // to be unbounded.
   //
-  // NUM is which intersection to return, for non-flat objects that may
+  // NUM is which intersection to return, for non-flat surfaces that may
   // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-  // (flat objects will return failure for anything except 0).
+  // (flat surfaces will return failure for anything except 0).
   //
   virtual dist_t intersection_distance (const Ray &ray, unsigned num = 0) const;
 
   // Returns the normal vector for this surface at POINT.
   // INCOMING is the direction of the incoming ray that has hit POINT;
-  // this can be used by dual-sided objects to decide which side's
+  // this can be used by dual-sided surfaces to decide which side's
   // normal to return.
   //
   virtual Vec normal (const Pos &point, const Vec &incoming) const;
 
-  // Return a bounding box for this object.
+  // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;
 
-  // Returns the material this object is made from
+  // Returns the material this surface is made from
   //
   virtual const Material *material () const;
 
-  // Add this (or some other ...) objects to SPACE
+  // Add this (or some other ...) surfaces to SPACE
   //
   virtual void add_to_space (Voxtree &space);
 
-  // What special handling this object needs when it casts a shadow.
-  // This is initialized by calling the object's material's
+  // What special handling this surface needs when it casts a shadow.
+  // This is initialized by calling the surface's material's
   // `shadow_type' method -- it's too expensive to call that during
   // tracing.
   //
@@ -103,6 +107,6 @@ public:
 
 }
 
-#endif /* __OBJ_H__ */
+#endif /* __SURFACE_H__ */
 
 // arch-tag: 85997b65-c9ab-4542-80be-0c3a114593ba

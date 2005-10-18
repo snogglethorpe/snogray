@@ -1,4 +1,4 @@
-// obj.cc -- Root of object class hierarchy
+// surface.cc -- Physical surface
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -11,23 +11,23 @@
 
 #include <stdexcept>
 
-#include "obj.h"
+#include "surface.h"
 #include "voxtree.h"
 
 using namespace Snogray;
 
-Obj::~Obj () { } // stop gcc bitching
+Surface::~Surface () { } // stop gcc bitching
 
 // Return the distance from RAY's origin to the closest intersection
-// of this object with RAY, or 0 if there is none.  RAY is considered
+// of this surface with RAY, or 0 if there is none.  RAY is considered
 // to be unbounded.
 //
-// NUM is which intersection to return, for non-flat objects that may
+// NUM is which intersection to return, for non-flat surfaces that may
 // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-// (flat objects will return failure for anything except 0).
+// (flat surfaces will return failure for anything except 0).
 //
 dist_t
-Obj::intersection_distance (const Ray &ray, unsigned num) const
+Surface::intersection_distance (const Ray &ray, unsigned num) const
 {
   return 0;
 }
@@ -36,36 +36,36 @@ Obj::intersection_distance (const Ray &ray, unsigned num) const
 // are no cases where it's needed yet:
 //
 // bool
-// Obj::intersects (const Ray &ray) const
+// Surface::intersects (const Ray &ray) const
 // {
 //   Space::dist_t dist = intersection_distance (ray);
 //   return dist > 0 && dist < ray.len;
 // }
 
 Vec
-Obj::normal (const Pos &point, const Vec &incoming) const
+Surface::normal (const Pos &point, const Vec &incoming) const
 {
   return 0;
 }
 
 BBox
-Obj::bbox () const
+Surface::bbox () const
 {
   return BBox (Pos (0,0,0));
 }
 
-// Returns the material this object is made from
+// Returns the material this surface is made from
 //
 const Material *
-Obj::material () const
+Surface::material () const
 {
-  throw std::runtime_error ("tried to render abstract object");
+  throw std::runtime_error ("tried to render abstract surface");
 }
 
-// Add this (or some other ...) objects to SPACE
+// Add this (or some other ...) surfaces to SPACE
 //
 void
-Obj::add_to_space (Voxtree &space)
+Surface::add_to_space (Voxtree &space)
 {
   space.add (this);
 }

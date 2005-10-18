@@ -1,4 +1,4 @@
-// intersect.h -- Datatype for recording object-ray intersection results
+// intersect.h -- Datatype for recording surface-ray intersection results
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -10,7 +10,7 @@
 //
 
 #include "intersect.h"
-#include "obj.h"
+#include "surface.h"
 
 using namespace Snogray;
 

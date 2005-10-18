@@ -1,4 +1,4 @@
-// mesh.h -- Mesh object
+// mesh.h -- Mesh surface
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -19,12 +19,12 @@
 #include <map>
 #include <utility>		// for std::pair
 
-#include "primary-obj.h"
+#include "primary-surface.h"
 #include "pos.h"
 
 namespace Snogray {
 
-class Mesh : public PrimaryObj
+class Mesh : public PrimarySurface
 {
 public:
 
@@ -33,9 +33,9 @@ public:
   typedef std::map<Pos, unsigned> VertexGroup;
   typedef std::map<std::pair<Pos, Vec>, unsigned> VertexNormalGroup;
 
-  Mesh (const Material *mat) : PrimaryObj (mat), triangles (0, *this) { }
+  Mesh (const Material *mat) : PrimarySurface (mat), triangles (0, *this) { }
   Mesh (const Material *mat, const char *file_name)
-    : PrimaryObj (mat), triangles (0, *this)
+    : PrimarySurface (mat), triangles (0, *this)
   { load (file_name); }
 
   // Add a triangle to the mesh
@@ -65,7 +65,7 @@ public:
   //
   void load_msh_file (std::istream &stream);
 
-  // Add this (or some other ...) objects to SPACE
+  // Add this (or some other ...) surfaces to SPACE
   //
   virtual void add_to_space (Voxtree &space);
 
@@ -74,15 +74,15 @@ public:
 
   //private:
 
-  class Triangle : public Obj
+  class Triangle : public Surface
   {
   public:
 
     Triangle (const Mesh &_mesh)
-      : Obj (_mesh.material()->shadow_type ()), mesh (_mesh)
+      : Surface (_mesh.material()->shadow_type ()), mesh (_mesh)
     { }
     Triangle (const Mesh &_mesh, unsigned v0i, unsigned v1i, unsigned v2i)
-      : Obj (_mesh.material()->shadow_type ()), mesh (_mesh)
+      : Surface (_mesh.material()->shadow_type ()), mesh (_mesh)
     {
       vi[0] = v0i;
       vi[1] = v1i;
@@ -97,27 +97,27 @@ public:
     }
 
     // Return the distance from RAY's origin to the closest intersection
-    // of this object with RAY, or 0 if there is none.  RAY is considered
+    // of this surface with RAY, or 0 if there is none.  RAY is considered
     // to be unbounded.
     //
-    // NUM is which intersection to return, for non-flat objects that may
+    // NUM is which intersection to return, for non-flat surfaces that may
     // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-    // (flat objects will return failure for anything except 0).
+    // (flat surfaces will return failure for anything except 0).
     //
     virtual dist_t intersection_distance (const Ray &ray, unsigned num) const;
 
     // Returns the normal vector for this surface at POINT.
     // INCOMING is the direction of the incoming ray that has hit POINT;
-    // this can be used by dual-sided objects to decide which side's
+    // this can be used by dual-sided surfaces to decide which side's
     // normal to return.
     //
     virtual Vec normal (const Pos &point, const Vec &incoming) const;
 
-    // Return a bounding box for this object.
+    // Return a bounding box for this surface.
     //
     virtual BBox bbox () const;
 
-    // Returns the material this object is made from
+    // Returns the material this surface is made from
     //
     virtual const Material *material () const;
 
@@ -145,7 +145,7 @@ public:
   std::vector<Pos> vertices;
   std::vector<Vec> vertex_normals;
 
-  // A vector of Mesh::Triangle objects that use this part.
+  // A vector of Mesh::Triangle surfaces that use this part.
   std::vector<Triangle> triangles;
 };
 

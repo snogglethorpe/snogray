@@ -31,19 +31,19 @@ Glow::shadow_type () const
   return Material::SHADOW_NONE;
 }
 
-// Calculate the shadowing effect of OBJ on LIGHT_RAY (which points at
-// the light, not at the object).  The "non-shadowed" light has color
+// Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points at
+// the light, not at the surface).  The "non-shadowed" light has color
 // LIGHT_COLOR; it's also this method's job to find any further
 // shadowing surfaces.
 //
 Color
-Glow::shadow (const Obj *obj, const Ray &light_ray, const Color &light_color,
+Glow::shadow (const Surface *surface, const Ray &light_ray, const Color &light_color,
 	      TraceState &tstate)
   const
 {
   // Just pass straight through
   //
-  TraceState &sub_tstate = tstate.subtrace_state (TraceState::SHADOW, obj);
+  TraceState &sub_tstate = tstate.subtrace_state (TraceState::SHADOW, surface);
   return sub_tstate.shadow (light_ray, light_color);
 }
 

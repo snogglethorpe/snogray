@@ -14,7 +14,7 @@
 
 #include "ray.h"
 #include "color.h"
-#include "obj.h"
+#include "surface.h"
 
 namespace Snogray {
 
@@ -26,10 +26,10 @@ class Intersect
 {
 public:
 
-  Intersect (const Ray &_ray, const Obj *_obj)
-    : ray (_ray), obj (_obj),
+  Intersect (const Ray &_ray, const Surface *_surface)
+    : ray (_ray), surface (_surface),
       point (_ray.end()),
-      normal (_obj->normal (point, _ray.dir)),
+      normal (_surface->normal (point, _ray.dir)),
       reverse (normal.dot (_ray.dir) > Eps)
   {
     // We want to flip the sign on `normal' if `reverse' is true, but we've
@@ -42,14 +42,14 @@ public:
   // Ray which intersected something; its endpoint is the point of intersection.
   const Ray ray;
 
-  // The object which RAY intersected.  This should always be non-zero
+  // The surface which RAY intersected.  This should always be non-zero
   // (it's not a reference because all uses are as a pointer).
   //
-  const Obj *obj;
+  const Surface *surface;
 
   // Details of the intersection.
   //
-  const Pos point;		// Point where RAY intersects OBJ
+  const Pos point;		// Point where RAY intersects SURFACE
   const Vec normal;		// Surface normal at POINT
   const bool reverse;		// True if NORMAL points away from RAY
 };

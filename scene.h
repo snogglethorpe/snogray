@@ -16,7 +16,7 @@
 #include <list>
 #include <vector>
 
-#include "obj.h"
+#include "surface.h"
 #include "light.h"
 #include "intersect.h"
 #include "material.h"
@@ -31,7 +31,7 @@ class Scene
 public:
 
   typedef std::vector<Light *>::const_iterator light_iterator_t;
-  typedef std::list<Obj *>::const_iterator obj_iterator_t;
+  typedef std::list<Surface *>::const_iterator surface_iterator_t;
   typedef std::list<const Material *>::const_iterator material_iterator_t;
 
   static const unsigned DEFAULT_MAX_DEPTH = 5;
@@ -54,13 +54,13 @@ public:
 
     Ray intersected_ray (ray, DEFAULT_HORIZON);
 
-    const Obj *closest = intersect (intersected_ray, tstate);
+    const Surface *closest = intersect (intersected_ray, tstate);
 
     if (closest)
       {
 	Intersect isec (intersected_ray, closest);
 
-	// Calculate the appearance of the point on the object we hit
+	// Calculate the appearance of the point on the surface we hit
 	//
 	Color result = closest->material()->render (isec, tstate);
 
@@ -94,16 +94,16 @@ public:
 
     Ray intersected_ray = light_ray;
 
-    const Obj *closest = intersect (intersected_ray, tstate);
+    const Surface *closest = intersect (intersected_ray, tstate);
 
-    stats.obj_slow_shadow_traces++;
+    stats.surface_slow_shadow_traces++;
 
     if (closest)
       {
 	Ray continued_light_ray (intersected_ray.end(), intersected_ray.dir,
 				 light_ray.len - intersected_ray.len);
 
-	// Calculate the shadowing effect of the object we hit
+	// Calculate the shadowing effect of the surface we hit
 	//
 	Color result
 	  = closest->material()->shadow (closest, continued_light_ray,
@@ -122,22 +122,22 @@ public:
       return light_color;
   }
 
-  // Return the closest object in this scene which intersects the
+  // Return the closest surface in this scene which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Obj *intersect (Ray &ray, TraceState &tstate) const;
+  const Surface *intersect (Ray &ray, TraceState &tstate) const;
 
-  // Return some object shadowing LIGHT_RAY from LIGHT, or 0 if there is
-  // no shadowing object.  If an object it is returned, and it is _not_ an 
-  // "opaque" object (shadow-type Material::SHADOW_OPAQUE), then it is
-  // guaranteed there are no opaque objects casting a shadow.
+  // Return some surface shadowing LIGHT_RAY from LIGHT, or 0 if there is
+  // no shadowing surface.  If an surface it is returned, and it is _not_ an 
+  // "opaque" surface (shadow-type Material::SHADOW_OPAQUE), then it is
+  // guaranteed there are no opaque surfaces casting a shadow.
   //
   // This is similar, but not identical to the behavior of the `intersect'
-  // method -- `intersect' always returns the closest object and makes no
+  // method -- `intersect' always returns the closest surface and makes no
   // guarantees about the properties of further intersections.
   //
-  const Obj *shadow_caster (const Ray &light_ray, Light &light,
+  const Surface *shadow_caster (const Ray &light_ray, Light &light,
 			    TraceState &tstate)
     const;
 
@@ -150,15 +150,15 @@ public:
     const;
 
   // Add various items to a scene.  All of the following "give" the
-  // object to the scene -- freeing the scene will free them too.
+  // surface to the scene -- freeing the scene will free them too.
 
-  // Add an object
+  // Add an surface
   //
-  Obj *add (Obj *obj)
+  Surface *add (Surface *surface)
   {
-    objs.push_back (obj);
-    obj->add_to_space (obj_voxtree);
-    return obj;
+    surfaces.push_back (surface);
+    surface->add_to_space (surface_voxtree);
+    return surface;
   }
 
   // Add a light
@@ -193,28 +193,28 @@ public:
 
   mutable struct Stats {
     Stats () : scene_intersect_calls (0),
-	       obj_intersect_calls (0),
+	       surface_intersect_calls (0),
 	       scene_shadow_tests (0),
 	       shadow_hint_hits (0), shadow_hint_misses (0),
-	       scene_slow_shadow_traces (0), obj_slow_shadow_traces (0),
+	       scene_slow_shadow_traces (0), surface_slow_shadow_traces (0),
 	       horizon_hint_hits (0), horizon_hint_misses (0),
-	       obj_intersects_tests (0)
+	       surface_intersects_tests (0)
     { }
     unsigned long long scene_intersect_calls;
-    unsigned long long obj_intersect_calls;
+    unsigned long long surface_intersect_calls;
     unsigned long long scene_shadow_tests;
     unsigned long long shadow_hint_hits;
     unsigned long long shadow_hint_misses;
     unsigned long long scene_slow_shadow_traces;
-    unsigned long long obj_slow_shadow_traces;
+    unsigned long long surface_slow_shadow_traces;
     unsigned long long horizon_hint_hits;
     unsigned long long horizon_hint_misses;
-    unsigned long long obj_intersects_tests;
+    unsigned long long surface_intersects_tests;
     Voxtree::Stats voxtree_intersect;
     Voxtree::Stats voxtree_shadow;
   } stats;
 
-  std::list<Obj *> objs;
+  std::list<Surface *> surfaces;
 
   std::vector<Light *> lights;
 
@@ -223,7 +223,7 @@ public:
   // Background color
   Color background;
 
-  Voxtree obj_voxtree;
+  Voxtree surface_voxtree;
 
   unsigned max_depth;
 

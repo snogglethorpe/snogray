@@ -15,7 +15,7 @@
 #include <list>
 
 #include "pos.h"
-#include "obj.h"
+#include "surface.h"
 
 namespace Snogray {
 
@@ -25,10 +25,10 @@ public:
 
   Voxtree () : root (0) { }
 
-  // Add OBJ to the voxtree
+  // Add SURFACE to the voxtree
   //
-  void add (Obj *obj, const BBox &obj_bbox);
-  void add (Obj *obj) { add (obj, obj->bbox ()); }
+  void add (Surface *surface, const BBox &surface_bbox);
+  void add (Surface *surface) { add (surface, surface->bbox ()); }
 
   struct Stats {
     Stats () : node_intersect_calls (0)
@@ -45,7 +45,7 @@ public:
     IntersectCallback (Stats *_stats) : stop (false), stats (_stats) { }
     virtual ~IntersectCallback (); // stop gcc bitching
 
-    virtual void operator() (Obj *) = 0;
+    virtual void operator() (Surface *) = 0;
 
     void stop_iteration () { stop = true; }
 
@@ -56,9 +56,9 @@ public:
     Stats *stats;
   };
 
-  // Call CALLBACK for each object in the voxel tree that _might_
+  // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
-  // directly on the resulting objects).
+  // directly on the resulting surfaces).
   //
   void for_each_possible_intersector (const Ray &ray,
 				      IntersectCallback &callback)
@@ -67,7 +67,7 @@ public:
   unsigned num_nodes () const { return root ? root->num_nodes() : 0; }
   unsigned max_depth () const { return root ? root->max_depth() : 0; }
   float avg_depth () const { return root ? root->avg_depth() : 0; }
-  unsigned num_objs () const { return root ? root->num_objs() : 0; }
+  unsigned num_surfaces () const { return root ? root->num_surfaces() : 0; }
 
   // One corner of the voxtree
   Pos origin;
@@ -77,11 +77,11 @@ public:
 
 private:  
 
-  // The current root of this voxtree is too small to encompass OBJ;
-  // add surrounding levels of nodes until one can hold OBJ, and make that
+  // The current root of this voxtree is too small to encompass SURFACE;
+  // add surrounding levels of nodes until one can hold SURFACE, and make that
   // the new root node.
   //
-  void grow_to_include (Obj *obj, const BBox &obj_bbox);
+  void grow_to_include (Surface *surface, const BBox &surface_bbox);
 
   // A voxtree node is one level of the tree, containing a cubic volume
   // (the size is not explicitly stored in the node).  It is divided
@@ -115,17 +115,17 @@ private:
 					const Pos &z_max_isec)
       const;
 
-    // Add OBJ, with bounding box OBJ_BBOX, to this node or some subnode;
-    // OBJ is assumed to fit.  X, Y, Z, and SIZE indicate the volume this
+    // Add SURFACE, with bounding box SURFACE_BBOX, to this node or some subnode;
+    // SURFACE is assumed to fit.  X, Y, Z, and SIZE indicate the volume this
     // node encompasses.
     //
-    void add (Obj *obj, const BBox &obj_bbox,
+    void add (Surface *surface, const BBox &surface_bbox,
 	      coord_t x, coord_t y, coord_t z, dist_t size);
 
     // A helper method that calls NODE's `add' method, after first
     // making sure that NODE exists (creating it if it does not).
     //
-    void add_or_create (Node* &node, Obj *obj, const BBox &obj_bbox,
+    void add_or_create (Node* &node, Surface *surface, const BBox &surface_bbox,
 			coord_t x, coord_t y, coord_t z, dist_t size)
     {
       if (! node)
@@ -134,19 +134,19 @@ private:
 	  has_subnodes = true;
 	}
 
-      node->add (obj, obj_bbox, x, y, z, size);
+      node->add (surface, surface_bbox, x, y, z, size);
     }
     
     unsigned num_nodes () const;
     unsigned max_depth (unsigned cur_sibling_max = 0) const;
     float avg_depth () const;
-    unsigned num_objs () const;
+    unsigned num_surfaces () const;
 
-    // Objects at this level of the tree.  All objects listed in a node
-    // must fit entirely within it.  Any given object is only present in
+    // Surfaces at this level of the tree.  All surfaces listed in a node
+    // must fit entirely within it.  Any given surface is only present in
     // a single node.
     //
-    std::list<Obj *> objs;
+    std::list<Surface *> surfaces;
 
     // The sub-nodes of this node; each sub-node is exactly half the
     // size of this node in all dimensions, so in total there are eight.

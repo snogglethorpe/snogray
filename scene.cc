@@ -18,7 +18,7 @@ using namespace std;
 //
 Scene::~Scene ()
 {
-  for (obj_iterator_t oi = objs.begin(); oi != objs.end(); oi++)
+  for (surface_iterator_t oi = surfaces.begin(); oi != surfaces.end(); oi++)
     delete *oi;
   for (light_iterator_t li = lights.begin(); li != lights.end(); li++)
     delete *li;
@@ -27,7 +27,7 @@ Scene::~Scene ()
 }
 
 
-// "Closest" intersection testing (tests all objects for intersection
+// "Closest" intersection testing (tests all surfaces for intersection
 // with a ray, returns the distance to the closest intersection)
 
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
@@ -38,13 +38,13 @@ struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
       closest (0), tstate (_tstate), num_calls (0)
   { }
 
-  virtual void operator() (Obj *);
+  virtual void operator() (Surface *);
 
   Ray &ray;
 
-  // The the closest intersecting object we've found
+  // The the closest intersecting surface we've found
   //
-  const Obj *closest;
+  const Surface *closest;
 
   TraceState &tstate;
 
@@ -52,28 +52,28 @@ struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 };
 
 void
-SceneClosestIntersectCallback::operator () (Obj *obj)
+SceneClosestIntersectCallback::operator () (Surface *surface)
 {
-  if (obj != tstate.horizon_hint)
+  if (surface != tstate.horizon_hint)
     {
-      if (obj->intersect (ray, tstate.origin_count (obj)))
-	closest = obj;
+      if (surface->intersect (ray, tstate.origin_count (surface)))
+	closest = surface;
 
       num_calls++;
     }
 }
 
-// Return the closest object in this scene which intersects the
+// Return the closest surface in this scene which intersects the
 // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
 // to reflect the point of intersection.
 //
-const Obj *
+const Surface *
 Scene::intersect (Ray &ray, TraceState &tstate)
   const
 {
   stats.scene_intersect_calls++;
 
-  // Make a callback, and call it for each object in the voxtree that may
+  // Make a callback, and call it for each surface in the voxtree that may
   // intersect the ray.
 
   SceneClosestIntersectCallback
@@ -83,7 +83,7 @@ Scene::intersect (Ray &ray, TraceState &tstate)
   // searching -- voxtree searching can dramatically improve given a
   // limited search space.
   //
-  const Obj *hint = tstate.horizon_hint;
+  const Surface *hint = tstate.horizon_hint;
   if (hint)
     {
       if (hint->intersect (ray, tstate.origin_count (hint)))
@@ -95,9 +95,9 @@ Scene::intersect (Ray &ray, TraceState &tstate)
 	stats.horizon_hint_misses++;
     }
 
-  obj_voxtree.for_each_possible_intersector (ray, closest_isec_cb);
+  surface_voxtree.for_each_possible_intersector (ray, closest_isec_cb);
 
-  stats.obj_intersect_calls += closest_isec_cb.num_calls;
+  stats.surface_intersect_calls += closest_isec_cb.num_calls;
 
   // Update the horizon hint to reflect what we found (0 if nothing).
   //
@@ -118,14 +118,14 @@ struct SceneShadowCallback : Voxtree::IntersectCallback
       shadower (0), tstate (_tstate), num_tests (0)
   { }
 
-  virtual void operator() (Obj *);
+  virtual void operator() (Surface *);
 
   Light &light;
   const Ray &light_ray;
 
-  // Shadowing object discovered.
+  // Shadowing surface discovered.
   //
-  const Obj *shadower;
+  const Surface *shadower;
 
   TraceState &tstate;
 
@@ -133,27 +133,27 @@ struct SceneShadowCallback : Voxtree::IntersectCallback
 };
 
 void
-SceneShadowCallback::operator () (Obj *obj)
+SceneShadowCallback::operator () (Surface *surface)
 {
-  Material::ShadowType shadow_type = obj->shadow_type;
+  Material::ShadowType shadow_type = surface->shadow_type;
 
-  if (obj != tstate.origin && shadow_type != Material::SHADOW_NONE)
+  if (surface != tstate.origin && shadow_type != Material::SHADOW_NONE)
     {
       num_tests++;
 
-      if (obj->intersects (light_ray))
+      if (surface->intersects (light_ray))
 	{
-	  shadower = obj;
+	  shadower = surface;
 
 	  if (shadow_type == Material::SHADOW_OPAQUE)
 	    //
-	    // A simple opaque object blocks everything; we can
+	    // A simple opaque surface blocks everything; we can
 	    // immediately return it.
 	    {
-	      // Remember which object cast a shadow from this light, so we
+	      // Remember which surface cast a shadow from this light, so we
 	      // can try it first next time.
 	      //
-	      tstate.shadow_hints[light.num] = obj;
+	      tstate.shadow_hints[light.num] = surface;
 
 	      // Stop looking any further.
 	      //
@@ -163,32 +163,32 @@ SceneShadowCallback::operator () (Obj *obj)
     }
 }
 
-// Return some object shadowing LIGHT_RAY from LIGHT, or 0 if there is
-// no shadowing object.  If an object it is returned, and it is _not_ an 
-// "opaque" object (shadow-type Material::SHADOW_OPAQUE), then it is
-// guaranteed there are no opaque objects casting a shadow.
+// Return some surface shadowing LIGHT_RAY from LIGHT, or 0 if there is
+// no shadowing surface.  If an surface it is returned, and it is _not_ an 
+// "opaque" surface (shadow-type Material::SHADOW_OPAQUE), then it is
+// guaranteed there are no opaque surfaces casting a shadow.
 //
 // This is similar, but not identical to the behavior of the `intersect'
-// method -- `intersect' always returns the closest object and makes no
+// method -- `intersect' always returns the closest surface and makes no
 // guarantees about the properties of further intersections.
 //
-const Obj *
+const Surface *
 Scene::shadow_caster (const Ray &light_ray, Light &light, TraceState &tstate)
   const
 {
   stats.scene_shadow_tests++;
 
-  // See if this light has a shadow hint (the last object that cast a shadow
-  // from it); if it does, then try that object first, as it stands a better
+  // See if this light has a shadow hint (the last surface that cast a shadow
+  // from it); if it does, then try that surface first, as it stands a better
   // chance of hitting than usual (because nearby points are often obscured
-  // from a given light by the same object).
+  // from a given light by the same surface).
   //
-  // Note that we only store hints for opaque objects, because only when we
+  // Note that we only store hints for opaque surfaces, because only when we
   // find an opaque shadow caster can we immediately return (for non-opaque
   // shadow casters, we must keep looking in case there is also an opaque
   // shadow caster, or a closer non-opaque caster).
   //
-  const Obj *hint = tstate.shadow_hints[light.num];
+  const Surface *hint = tstate.shadow_hints[light.num];
   if (hint && hint != tstate.origin)
     {
       if (hint->intersects (light_ray))
@@ -207,9 +207,9 @@ Scene::shadow_caster (const Ray &light_ray, Light &light, TraceState &tstate)
   SceneShadowCallback
     shadow_cb (light, light_ray, tstate, &stats.voxtree_shadow);
 
-  obj_voxtree.for_each_possible_intersector (light_ray, shadow_cb);
+  surface_voxtree.for_each_possible_intersector (light_ray, shadow_cb);
 
-  stats.obj_intersects_tests += shadow_cb.num_tests;
+  stats.surface_intersects_tests += shadow_cb.num_tests;
 
   return shadow_cb.shadower;
 }
@@ -227,7 +227,7 @@ Scene::illum (const Intersect &isec, const Color &color,
   Color total_color;	// Accumulated colors from all light sources
 
   TraceState &shadow_tstate
-    = tstate.subtrace_state (TraceState::SHADOW, isec.obj);
+    = tstate.subtrace_state (TraceState::SHADOW, isec.surface);
 
   for (light_iterator_t li = lights.begin(); li != lights.end(); li++)
     {
@@ -237,15 +237,15 @@ Scene::illum (const Intersect &isec, const Color &color,
       // If the dot-product of the light-ray with the surface normal
       // is negative, that means the light is behind the surface, so
       // cannot light it ("self-shadowing"); otherwise, see if some
-      // other object casts a shadow.
+      // other surface casts a shadow.
 
       if (isec.normal.dot (light_ray.dir) >= -Eps)
 	{
-	  // Find any object that's shadowing LIGHT_RAY.
+	  // Find any surface that's shadowing LIGHT_RAY.
 	  //
-	  const Obj *shadower = shadow_caster(light_ray, *light, shadow_tstate);
+	  const Surface *shadower = shadow_caster(light_ray, *light, shadow_tstate);
 
-	  // If there's a shadowing object, and it it is opaque, then we
+	  // If there's a shadowing surface, and it it is opaque, then we
 	  // need do nothing more...
 	  //
 	  if (!shadower || shadower->shadow_type == Material::SHADOW_MEDIUM)
@@ -255,9 +255,9 @@ Scene::illum (const Intersect &isec, const Color &color,
 
 	      Color light_color = light->color / (light_ray.len * light_ray.len);
 
-	      // If there was actually some object shadowing LIGHT_RAY,
+	      // If there was actually some surface shadowing LIGHT_RAY,
 	      // it must be casting a partial shadow, so give it (and any
-	      // further objects) a chance to attentuate LIGHT_COLOR.
+	      // further surfaces) a chance to attentuate LIGHT_COLOR.
 	      //
 	      if (shadower)
 		{

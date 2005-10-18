@@ -1,4 +1,4 @@
-// sphere.cc -- Sphere object
+// sphere.cc -- Sphere surface
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -16,12 +16,12 @@
 using namespace Snogray;
 
 // Return the distance from RAY's origin to the closest intersection
-// of this object with RAY, or 0 if there is none.  RAY is considered
+// of this surface with RAY, or 0 if there is none.  RAY is considered
 // to be unbounded.
 //
-// NUM is which intersection to return, for non-flat objects that may
+// NUM is which intersection to return, for non-flat surfaces that may
 // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-// (flat objects will return failure for anything except 0).
+// (flat surfaces will return failure for anything except 0).
 //
 dist_t
 Sphere::intersection_distance (const Ray &ray, unsigned num) const
@@ -68,7 +68,7 @@ Sphere::normal (const Pos &point, const Vec &incoming) const
   return (point - center).unit ();
 }
 
-// Return a bounding box for this object.
+// Return a bounding box for this surface.
 BBox
 Sphere::bbox () const
 {

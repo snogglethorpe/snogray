@@ -433,8 +433,8 @@ int main (int argc, char *const *argv)
       cout << "   scene: "
 	   << setw (18)
 	   << (scene_file_name ? scene_file_name : "<standard input>") << endl;
-      cout << "   top-level objects:"
-	   << setw (7) << commify (scene.objs.size ()) << endl;
+      cout << "   top-level surfaces:"
+	   << setw (7) << commify (scene.surfaces.size ()) << endl;
       cout << "   lights:        "
 	   << setw (10) << commify (scene.lights.size ()) << endl;
       if (scene.assumed_gamma != 1)
@@ -445,15 +445,15 @@ int main (int argc, char *const *argv)
 	     << setw (10) << scene_light_scale << endl;
       cout << "   materials:     "
 	   << setw (10) << commify (scene.materials.size ()) << endl;
-      cout << "   voxtree objects:"
-	   << setw (9) << commify (scene.obj_voxtree.num_objs ()) << endl;
+      cout << "   voxtree surfaces:"
+	   << setw (9) << commify (scene.surface_voxtree.num_surfaces ()) << endl;
       cout << "   voxtree nodes: "
-	   << setw (10) << commify (scene.obj_voxtree.num_nodes ()) << endl;
-      float vt_avg_depth = scene.obj_voxtree.avg_depth ();
+	   << setw (10) << commify (scene.surface_voxtree.num_nodes ()) << endl;
+      float vt_avg_depth = scene.surface_voxtree.avg_depth ();
       cout << "   voxtree avg depth: "
 	   << setw (6) << int (vt_avg_depth) << endl;
       cout << "   voxtree max depth:"
-	   << setw (7) << commify (scene.obj_voxtree.max_depth ()) << endl;
+	   << setw (7) << commify (scene.surface_voxtree.max_depth ()) << endl;
 
       // Print image info
 
@@ -614,12 +614,12 @@ int main (int argc, char *const *argv)
 
       long long sc  = sstats.scene_intersect_calls;
       long long vnc = vstats1.node_intersect_calls;
-      long long ocic = sstats.obj_intersect_calls;
+      long long ocic = sstats.surface_intersect_calls;
       long long hhh = sstats.horizon_hint_hits;
       long long hhm = sstats.horizon_hint_misses;
 
-      unsigned vnn = scene.obj_voxtree.num_nodes ();
-      unsigned vno  = scene.obj_voxtree.num_objs ();
+      unsigned vnn = scene.surface_voxtree.num_nodes ();
+      unsigned vno  = scene.surface_voxtree.num_surfaces ();
 
       cout << endl;
       cout << "Rendering stats:" << endl;
@@ -633,7 +633,7 @@ int main (int argc, char *const *argv)
 	cout << "     voxtree node calls:" << setw (14) << commify (vnc)
 	     << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
       if (vno != 0)
-	cout << "     obj calls:         " << setw (14) << commify (ocic)
+	cout << "     surface calls:         " << setw (14) << commify (ocic)
 	     << " (" << setw(2) << (100 * ocic / (sc * vno)) << "%)" << endl;
 
       long long sst = sstats.scene_shadow_tests;
@@ -643,9 +643,9 @@ int main (int argc, char *const *argv)
 	  long long shh = sstats.shadow_hint_hits;
 	  long long shm = sstats.shadow_hint_misses;
 	  long long sss = sstats.scene_slow_shadow_traces;
-	  long long oss = sstats.obj_slow_shadow_traces;
+	  long long oss = sstats.surface_slow_shadow_traces;
 	  long long vnt = vstats2.node_intersect_calls;
-	  long long ot  = sstats.obj_intersects_tests;
+	  long long ot  = sstats.surface_intersects_tests;
 
 	  cout << "  shadow:" << endl;
 	  cout << "     scene tests:       " << setw (14) << commify (sst)
@@ -663,7 +663,7 @@ int main (int argc, char *const *argv)
 		 << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)"
 		 << endl;
 	  if (vno != 0)
-	    cout << "     obj tests:         " << setw (14) << commify (ot)
+	    cout << "     surface tests:         " << setw (14) << commify (ot)
 		 << " (" <<setw(2) << (100 * ot / (vno * (sst - shh))) << "%)"
 		 << endl;
 	}

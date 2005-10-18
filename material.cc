@@ -1,4 +1,4 @@
-// material.cc -- Object material datatype
+// material.cc -- Surface material datatype
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -62,13 +62,13 @@ Material::shadow_type () const
   return Material::SHADOW_OPAQUE;
 }
 
-// Calculate the shadowing effect of OBJ on LIGHT_RAY (which points at
-// the light, not at the object).  The "non-shadowed" light has color
+// Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points at
+// the light, not at the surface).  The "non-shadowed" light has color
 // LIGHT_COLOR; it's also this method's job to find any further
 // shadowing surfaces.
 //
 Color
-Material::shadow (const Obj *obj, const Ray &light_ray, const Color &light_color,
+Material::shadow (const Surface *surface, const Ray &light_ray, const Color &light_color,
 		  TraceState &tstate)
   const
 {

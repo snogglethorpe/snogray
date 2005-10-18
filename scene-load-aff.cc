@@ -50,7 +50,7 @@ using namespace std;
 //
 #define AFF_PHONG_ADJ			3
 
-// Filtering effect of transparent objects
+// Filtering effect of transparent surfaces
 //
 #define AFF_MEDIUM_TRANSMITTANCE	0.85
 

@@ -1,4 +1,4 @@
-// sphere.h -- Sphere object
+// sphere.h -- Sphere surface
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -12,36 +12,36 @@
 #ifndef __SPHERE_H__
 #define __SPHERE_H__
 
-#include "primary-obj.h"
+#include "primary-surface.h"
 
 namespace Snogray {
 
-class Sphere : public PrimaryObj
+class Sphere : public PrimarySurface
 {
 public:
 
   Sphere (const Material *mat, const Pos &_center, dist_t _radius)
-    : PrimaryObj (mat), center (_center), radius (_radius)
+    : PrimarySurface (mat), center (_center), radius (_radius)
   { }
 
   // Return the distance from RAY's origin to the closest intersection
-  // of this object with RAY, or 0 if there is none.  RAY is considered
+  // of this surface with RAY, or 0 if there is none.  RAY is considered
   // to be unbounded.
   //
-  // NUM is which intersection to return, for non-flat objects that may
+  // NUM is which intersection to return, for non-flat surfaces that may
   // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-  // (flat objects will return failure for anything except 0).
+  // (flat surfaces will return failure for anything except 0).
   //
   virtual dist_t intersection_distance (const Ray &ray, unsigned num) const;
 
   // Returns the normal vector for this surface at POINT.
   // INCOMING is the direction of the incoming ray that has hit POINT;
-  // this can be used by dual-sided objects to decide which side's
+  // this can be used by dual-sided surfaces to decide which side's
   // normal to return.
   //
   virtual Vec normal (const Pos &point, const Vec &incoming) const;
 
-  // Return a bounding box for this object.
+  // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;
 

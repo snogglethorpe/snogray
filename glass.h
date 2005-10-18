@@ -36,12 +36,12 @@ public:
   //
   virtual ShadowType shadow_type () const;
 
-  // Calculate the shadowing effect of OBJ on LIGHT_RAY (which points at
-  // the light, not at the object).  The "non-shadowed" light has color
+  // Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points at
+  // the light, not at the surface).  The "non-shadowed" light has color
   // LIGHT_COLOR; it's also this method's job to find any further
   // shadowing surfaces.
   //
-  virtual Color shadow (const Obj *obj,
+  virtual Color shadow (const Surface *surface,
 			const Ray &light_ray, const Color &light_color,
 			TraceState &tstate)
     const;

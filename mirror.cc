@@ -27,7 +27,7 @@ Mirror::reflection (const Intersect &isec, TraceState &tstate) const
   Ray mirror_ray (isec.point, mirror_dir);
 
   TraceState &sub_tstate
-    = tstate.subtrace_state (TraceState::REFLECTION, isec.obj);
+    = tstate.subtrace_state (TraceState::REFLECTION, isec.surface);
 
   return sub_tstate.render (mirror_ray);
 }

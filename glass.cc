@@ -28,7 +28,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
 
   if (isec.reverse)
     {
-      // Exiting this object
+      // Exiting this surface
 
       new_medium = tstate.enclosing_medium ();
       old_medium = &medium;
@@ -36,7 +36,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
     }
   else
     {
-      // Entering this object
+      // Entering this surface
 
       new_medium = &medium;
       old_medium = tstate.medium;
@@ -53,7 +53,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
       Ray xmit_ray (isec.point, xmit_dir);
 
       TraceState &sub_tstate
-	= tstate.subtrace_state (subtrace_type, new_medium, isec.obj);
+	= tstate.subtrace_state (subtrace_type, new_medium, isec.surface);
 
       // Render the refracted ray, and combine it with any contribution
       // from reflections and surface lighting.
@@ -77,13 +77,13 @@ Glass::shadow_type () const
   return Material::SHADOW_MEDIUM;
 }
 
-// Calculate the shadowing effect of OBJ on LIGHT_RAY (which points at
-// the light, not at the object).  The "non-shadowed" light has color
+// Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points at
+// the light, not at the surface).  The "non-shadowed" light has color
 // LIGHT_COLOR; it's also this method's job to find any further
 // shadowing surfaces.
 //
 Color
-Glass::shadow (const Obj *obj, const Ray &light_ray, const Color &light_color,
+Glass::shadow (const Surface *surface, const Ray &light_ray, const Color &light_color,
 	       TraceState &tstate)
   const
 {
@@ -91,7 +91,7 @@ Glass::shadow (const Obj *obj, const Ray &light_ray, const Color &light_color,
   // direction!  Just do straight "transparency".
 
   TraceState &sub_tstate
-    = tstate.subtrace_state (TraceState::SHADOW, &medium, obj);
+    = tstate.subtrace_state (TraceState::SHADOW, &medium, surface);
 
   return sub_tstate.shadow (light_ray, light_color * (1 - reflectance));
 }

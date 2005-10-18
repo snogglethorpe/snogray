@@ -18,7 +18,7 @@
 namespace Snogray {
 
 class Scene;
-class Obj;
+class Surface;
 class Ray;
 class Intersect;
 class LightModel;
@@ -30,7 +30,7 @@ public:
   enum TraceType {
     SPONTANEOUS,
     REFLECTION,
-    REFRACTION_IN,		// entering a transparent object
+    REFRACTION_IN,		// entering a transparent surface
     REFRACTION_OUT,		// exiting it
     SHADOW,			// only used for non-opaque shadows
     NUM_TRACE_TYPES
@@ -45,7 +45,7 @@ public:
   // encountered).
   //
   TraceState &subtrace_state (TraceType type, const Medium *_medium,
-			      const Obj *_origin)
+			      const Surface *_origin)
   {
     TraceState *sub = subtrace_states[type];
 
@@ -65,22 +65,22 @@ public:
 
   // For sub-traces with no specified medium, propagate the current one.
   //
-  TraceState &subtrace_state (TraceType type, const Obj *_origin)
+  TraceState &subtrace_state (TraceType type, const Surface *_origin)
   {
     return subtrace_state (type, medium, _origin);
   }
 
-  // Return the "origin count" of OBJ:  this is 0 if OBJ is not the origin
-  // of this trace, 1 if this trace originated from OBJ, but prior traces
+  // Return the "origin count" of SURFACE:  this is 0 if SURFACE is not the origin
+  // of this trace, 1 if this trace originated from SURFACE, but prior traces
   // did not, and 2 if both this trace and its progenitor both originated
-  // from OBJ (depths greater than 2 are not supported).  This is used to
+  // from SURFACE (depths greater than 2 are not supported).  This is used to
   // avoid precision errors when intersecting a ray.
   //
-  unsigned origin_count (const Obj *obj) const
+  unsigned origin_count (const Surface *surface) const
   {
-    if (origin != obj)
+    if (origin != surface)
       return 0;
-    else if (parent && parent->origin == obj)
+    else if (parent && parent->origin == surface)
       return 2;
     else
       return 1;
@@ -109,24 +109,24 @@ public:
   //
   TraceType type;
 
-  // The object this trace originated from (or zero for spontaneous)
+  // The surface this trace originated from (or zero for spontaneous)
   //
-  const Obj *origin;
+  const Surface *origin;
 
-  // If non-zero, the last object we found as the closest intersection.
-  // When we do a new trace, we first test that object for intersection;
+  // If non-zero, the last surface we found as the closest intersection.
+  // When we do a new trace, we first test that surface for intersection;
   // if it intersects, it is used to set the initial ray horizon, which
   // can drastically reduce the search space by excluding all further
-  // objects.
+  // surfaces.
   //
-  const Obj *horizon_hint;
+  const Surface *horizon_hint;
 
   // An array, indexed by "light number".  Each non-zero entry is an
-  // object previously found to shadow the given light.  Because nearby
-  // points are often shadowed from a given light by the same object(s),
-  // testing these objects often yields a shadow object without searching.
+  // surface previously found to shadow the given light.  Because nearby
+  // points are often shadowed from a given light by the same surface(s),
+  // testing these surfaces often yields a shadow surface without searching.
   //
-  const Obj **shadow_hints;
+  const Surface **shadow_hints;
 
   // Trace-states for various possible sub-traces of this trace (or zero
   // when a given subtrace-type hasn't yet been encountered at this

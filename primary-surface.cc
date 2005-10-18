@@ -1,4 +1,4 @@
-// primary-obj.cc -- Standalone (non-embedded) objects
+// primary-surface.cc -- Standalone (non-embedded) surfaces
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,14 +9,14 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "primary-obj.h"
+#include "primary-surface.h"
 
 using namespace Snogray;
 
-// Returns the material this object is made from
+// Returns the material this surface is made from
 //
 const Material *
-PrimaryObj::material () const
+PrimarySurface::material () const
 {
   return _material;
 }

@@ -1,4 +1,4 @@
-// mesh.cc -- Mesh object
+// mesh.cc -- Mesh surface
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -264,12 +264,12 @@ compute_barycentric_coords (const Pos &p,
 
 
 // Return the distance from RAY's origin to the closest intersection
-// of this object with RAY, or 0 if there is none.  RAY is considered
+// of this surface with RAY, or 0 if there is none.  RAY is considered
 // to be unbounded.
 //
-// NUM is which intersection to return, for non-flat objects that may
+// NUM is which intersection to return, for non-flat surfaces that may
 // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-// (flat objects will return failure for anything except 0).
+// (flat surfaces will return failure for anything except 0).
 //
 dist_t
 Mesh::Triangle::intersection_distance (const Ray &ray, unsigned num) const
@@ -342,7 +342,7 @@ Mesh::Triangle::normal (const Pos &point, const Vec &incoming) const
   return norm;
 }
 
-// Return a bounding box for this object.
+// Return a bounding box for this surface.
 BBox
 Mesh::Triangle::bbox () const
 {
@@ -352,7 +352,7 @@ Mesh::Triangle::bbox () const
   return bbox;
 }
 
-// Returns the material this object is made from
+// Returns the material this surface is made from
 //
 const Material *
 Mesh::Triangle::material () const
@@ -393,7 +393,7 @@ Mesh::compute_vertex_normals ()
     }
 }
 
-// Add this (or some other ...) objects to SPACE
+// Add this (or some other ...) surfaces to SPACE
 //
 void
 Mesh::add_to_space (Voxtree &space)

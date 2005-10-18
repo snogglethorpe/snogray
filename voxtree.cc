@@ -20,9 +20,9 @@ Voxtree::IntersectCallback::~IntersectCallback () { } // stop gcc bitching
 
 // Ray intersection testing
 
-// Call CALLBACK for each object in the voxel tree that _might_
+// Call CALLBACK for each surface in the voxel tree that _might_
 // intersect RAY (any further intersection testing needs to be done
-// directly on the resulting objects).
+// directly on the resulting surfaces).
 //
 void
 Voxtree::for_each_possible_intersector (const Ray &ray,
@@ -124,29 +124,41 @@ Voxtree::Node::for_each_possible_intersector (const Ray &ray,
   // need special cases for that occurance.
   //
   if (// RAY intersects x-min face
+      //
       (x_min_isec.y >= y_min && x_min_isec.y <= y_max
        && x_min_isec.z >= z_min && x_min_isec.z <= z_max)
+      //
       // RAY intersects x-max face
+      //
       || (x_max_isec.y >= y_min && x_max_isec.y <= y_max
 	  && x_max_isec.z >= z_min && x_max_isec.z <= z_max)
+      //
       // RAY intersects y-min face
+      //
       || (y_min_isec.x >= x_min && y_min_isec.x <= x_max
 	  && y_min_isec.z >= z_min && y_min_isec.z <= z_max)
+      //
       // RAY intersects y-max face
+      //
       || (y_max_isec.x >= x_min && y_max_isec.x <= x_max
 	  && y_max_isec.z >= z_min && y_max_isec.z <= z_max)
+      //
       // RAY intersects z-min face
+      //
       || (z_min_isec.x >= x_min && z_min_isec.x <= x_max
 	  && z_min_isec.y >= y_min && z_min_isec.y <= y_max)
+      //
       // RAY intersects z-max face
+      //
       || (z_max_isec.x >= x_min && z_max_isec.x <= x_max
 	  && z_max_isec.y >= y_min && z_max_isec.y <= y_max))
     {
       // RAY intersects some face, so it must intersect our volume
 
-      // Invoke CALLBACK on each of this node's objects
-      for (list<Obj *>::const_iterator oi = objs.begin();
-	   oi != objs.end(); oi++)
+      // Invoke CALLBACK on each of this node's surfaces
+      //
+      for (list<Surface *>::const_iterator oi = surfaces.begin();
+	   oi != surfaces.end(); oi++)
 	{
 	  callback (*oi);
 
@@ -155,11 +167,13 @@ Voxtree::Node::for_each_possible_intersector (const Ray &ray,
 	}
 
       // Recursively deal with any non-null sub-nodes
+      //
       if (has_subnodes)
 	{
 	  // Calculate the mid-point intersections.  This the only real
 	  // calculation we do in this method (hopefully dividing by two
 	  // is efficient).
+	  //
 	  const Pos x_mid_isec = x_min_isec.midpoint (x_max_isec);
 	  const Pos y_mid_isec = y_min_isec.midpoint (y_max_isec);
 	  const Pos z_mid_isec = z_min_isec.midpoint (z_max_isec);
@@ -260,65 +274,74 @@ Voxtree::Node::for_each_possible_intersector (const Ray &ray,
 
 // Voxtree construction
 
-// Add OBJ to the voxtree
+// Add SURFACE to the voxtree
 //
 void
-Voxtree::add (Obj *obj, const BBox &obj_bbox)
+Voxtree::add (Surface *surface, const BBox &surface_bbox)
 {
   if (root)
     // We've already got some nodes.
     {
-      // See if OBJ fits...
-      if (origin.x <= obj_bbox.min.x
-	  && origin.y <= obj_bbox.min.y
-	  && origin.z <= obj_bbox.min.z
-	  && (origin.x + size) >= obj_bbox.max.x
-	  && (origin.y + size) >= obj_bbox.max.y
-	  && (origin.z + size) >= obj_bbox.max.z)
-	// OBJ fits within out root node, add it there, or in some sub-node
-	root->add (obj, obj_bbox, origin.x, origin.y, origin.z, size);
+      // See if SURFACE fits...
+      //
+      if (origin.x <= surface_bbox.min.x
+	  && origin.y <= surface_bbox.min.y
+	  && origin.z <= surface_bbox.min.z
+	  && (origin.x + size) >= surface_bbox.max.x
+	  && (origin.y + size) >= surface_bbox.max.y
+	  && (origin.z + size) >= surface_bbox.max.z)
+	//
+	// SURFACE fits within out root node, add it there, or in some sub-node
+	//
+	root->add (surface, surface_bbox, origin.x, origin.y, origin.z, size);
       else
-	// OBJ doesn't fit within our root node, we'll have to make a new root
-	grow_to_include (obj, obj_bbox);
+	//
+	// SURFACE doesn't fit within our root node, we have to make a new root
+	//
+	grow_to_include (surface, surface_bbox);
     }
   else
-    // OBJ will be the first node
+    // SURFACE will be the first node
     {
       root = new Node ();
-      origin = obj_bbox.min;
-      size = obj_bbox.max_size ();
+      origin = surface_bbox.min;
+      size = surface_bbox.max_size ();
 
 #if 0
       cout << "made initial voxtree root at " << origin
 	   << ", size = " << size << endl;
 #endif
 
-      // As we know that OBJ will fit exactly in ROOT, we don't bother
-      // calling ROOT's add method, we just add OBJ directly to ROOT's
-      // object list.
-      root->objs.push_front (obj);
+      // As we know that SURFACE will fit exactly in ROOT, we don't bother
+      // calling ROOT's add method, we just add SURFACE directly to ROOT's
+      // surface list.
+      //
+      root->surfaces.push_front (surface);
     }
 }
 
-// The current root of this voxtree is too small to encompass OBJ;
-// add surrounding levels of nodes until one can hold OBJ, and make that
+// The current root of this voxtree is too small to encompass SURFACE;
+// add surrounding levels of nodes until one can hold SURFACE, and make that
 // the new root node.
 //
 void
-Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
+Voxtree::grow_to_include (Surface *surface, const BBox &surface_bbox)
 {
   // New root node
+  //
   Node *new_root = new Node ();
 
   // Decide which directions to grow our volume
-  dist_t x_lo_grow = origin.x - obj_bbox.min.x;
-  dist_t x_hi_grow = obj_bbox.max.x - (origin.x + size);
-  dist_t y_lo_grow = origin.y - obj_bbox.min.y;
-  dist_t y_hi_grow = obj_bbox.max.y - (origin.y + size);
-  dist_t z_lo_grow = origin.z - obj_bbox.min.z;
-  dist_t z_hi_grow = obj_bbox.max.z - (origin.z + size);
+  //
+  dist_t x_lo_grow = origin.x - surface_bbox.min.x;
+  dist_t x_hi_grow = surface_bbox.max.x - (origin.x + size);
+  dist_t y_lo_grow = origin.y - surface_bbox.min.y;
+  dist_t y_hi_grow = surface_bbox.max.y - (origin.y + size);
+  dist_t z_lo_grow = origin.z - surface_bbox.min.z;
+  dist_t z_hi_grow = surface_bbox.max.z - (origin.z + size);
 
   // Install old root as appropriate sub-node of NEW_ROOT.
+  //
   if (x_hi_grow > x_lo_grow)
     {					// grow in x-positive direction
       if (y_hi_grow > y_lo_grow)
@@ -358,6 +381,7 @@ Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
   // root is installed in the "hi" slot, our old origin position now
   // becomes our new midpoint; for axes on which the old root is
   // installed in the "lo" slot, our origin remains the same.
+  //
   if (x_hi_grow <= x_lo_grow)
     origin.x -= size;
   if (y_hi_grow <= y_lo_grow)
@@ -366,6 +390,7 @@ Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
     origin.z -= size;
 
   // Our size doubles with each new level.
+  //
   size *= 2;
 
 #if 0
@@ -376,157 +401,176 @@ Voxtree::grow_to_include (Obj *obj, const BBox &obj_bbox)
   new_root->has_subnodes = true;
 
   // Replace the old root!
+  //
   root = new_root;
 
-  // Now that we have a new root, try adding OBJ again (if it still
+  // Now that we have a new root, try adding SURFACE again (if it still
   // doesn't fit, we'll be called again to add another level).
-  add (obj, obj_bbox);
+  //
+  add (surface, surface_bbox);
 }
 
-// Add OBJ, with bounding box OBJ_BBOX, to this node or some subnode;
-// OBJ is assumed to fit.  X, Y, Z, and SIZE indicate the volume this
+// Add SURFACE, with bounding box SURFACE_BBOX, to this node or some subnode;
+// SURFACE is assumed to fit.  X, Y, Z, and SIZE indicate the volume this
 // node encompasses.
 //
 // This function is "eager": it splits empty nodes to find the smallest
-// possible node for each new object.  Not only does this simplify the
+// possible node for each new surface.  Not only does this simplify the
 // algorithm, but it should also be more efficient for intersection
 // testing -- testing whether a ray intersects a voxtree node for is a
-// lot more efficient testing even simple objects, so the increased
-// possibility of rejecting a ray without calling an object's
+// lot more efficient testing even simple surfaces, so the increased
+// possibility of rejecting a ray without calling an surface's
 // intersection routine is worth a fair number of levels of sparsely
 // populated voxtree levels.
 // 
 void
-Voxtree::Node::add (Obj *obj, const BBox &obj_bbox,
+Voxtree::Node::add (Surface *surface, const BBox &surface_bbox,
 		    coord_t x, coord_t y, coord_t z, dist_t size)
 {
   dist_t sub_size = size / 2;
   coord_t mid_x = x + sub_size, mid_y = y + sub_size, mid_z = z + sub_size;
 
-  // See if OBJ fits in some sub-node's volume, and if so, try to add it there.
+  // See if SURFACE fits in some sub-node's volume, and if so, try to add
+  // it there.
 
   // Start out assuming we'll add it at this level and set `add_here' to
   // false if we end up adding it to a subnode.
+  //
   bool add_here = true;
 
-  // If force_into_subnodes is true, we "force" an object into multiple
+  // If force_into_subnodes is true, we "force" an surface into multiple
   // subnodes even if it doesn't fit cleanly into any of them.  We do
-  // this for oversized objects that straddle the volume midpoint,
+  // this for oversized surfaces that straddle the volume midpoint,
   // taking a gamble that the risk of multiple calls to their
-  // intersection method (because such forced objects will be present in
+  // intersection method (because such forced surfaces will be present in
   // multiple subnodes) is outweighed by a much closer fit with the
   // descendent node they eventually end up in, allowing the voxtree to
   // reject more rays before reaching them.
   //
-  bool force_into_subnodes = obj_bbox.avg_size() < size / 4;
+  bool force_into_subnodes = surface_bbox.avg_size() < size / 4;
 
-  if (obj_bbox.max.x < mid_x
-      || (obj_bbox.max.x == mid_x && obj_bbox.min.x != obj_bbox.max.x)
-      || (force_into_subnodes && obj_bbox.min.x < mid_x))
+  if (surface_bbox.max.x < mid_x
+      || (surface_bbox.max.x == mid_x
+	  && surface_bbox.min.x != surface_bbox.max.x)
+      || (force_into_subnodes && surface_bbox.min.x < mid_x))
     {
-      if (obj_bbox.max.y < mid_y
-	  || (obj_bbox.max.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
-	  || (force_into_subnodes && obj_bbox.min.y < mid_y))
+      if (surface_bbox.max.y < mid_y
+	  || (surface_bbox.max.y == mid_y
+	      && surface_bbox.min.y != surface_bbox.max.y)
+	  || (force_into_subnodes && surface_bbox.min.y < mid_y))
 	{
-	  if (obj_bbox.max.z < mid_z
-	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	  if (surface_bbox.max.z < mid_z
+	      || (surface_bbox.max.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
 	    {
-	      add_or_create (x_lo_y_lo_z_lo, obj, obj_bbox,
+	      add_or_create (x_lo_y_lo_z_lo, surface, surface_bbox,
 			     x, y, z, sub_size);
 	      add_here = false;
 	    }
-	  if (obj_bbox.min.z >= mid_z
-	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	  if (surface_bbox.min.z >= mid_z
+	      || (surface_bbox.min.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.max.z >= mid_z))
 	    {
-	      add_or_create (x_lo_y_lo_z_hi, obj, obj_bbox,
+	      add_or_create (x_lo_y_lo_z_hi, surface, surface_bbox,
 			     x, y, mid_z, sub_size);
 	      add_here = false;
 	    }
 	}
-      if (obj_bbox.min.y >= mid_y
-	  || (obj_bbox.min.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
-	  || (force_into_subnodes && obj_bbox.max.y >= mid_y))
+      if (surface_bbox.min.y >= mid_y
+	  || (surface_bbox.min.y == mid_y
+	      && surface_bbox.min.y != surface_bbox.max.y)
+	  || (force_into_subnodes && surface_bbox.max.y >= mid_y))
 	{
-	  if (obj_bbox.max.z < mid_z
-	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	  if (surface_bbox.max.z < mid_z
+	      || (surface_bbox.max.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
 	    {
-	      add_or_create (x_lo_y_hi_z_lo, obj, obj_bbox,
+	      add_or_create (x_lo_y_hi_z_lo, surface, surface_bbox,
 			     x, mid_y, z, sub_size);
 	      add_here = false;
 	    }
-	  if (obj_bbox.min.z >= mid_z
-	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	  if (surface_bbox.min.z >= mid_z
+	      || (surface_bbox.min.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.max.z >= mid_z))
 	    {
-	      add_or_create (x_lo_y_hi_z_hi, obj, obj_bbox,
+	      add_or_create (x_lo_y_hi_z_hi, surface, surface_bbox,
 			     x, mid_y, mid_z, sub_size);
 	      add_here = false;
 	    }
 	}
     }
-  if (obj_bbox.min.x > mid_x
-      || (obj_bbox.min.x == mid_x && obj_bbox.min.x != obj_bbox.max.x)
-      || (force_into_subnodes && obj_bbox.max.x >= mid_x))
+  if (surface_bbox.min.x > mid_x
+      || (surface_bbox.min.x == mid_x
+	  && surface_bbox.min.x != surface_bbox.max.x)
+      || (force_into_subnodes && surface_bbox.max.x >= mid_x))
     {
-      if (obj_bbox.max.y < mid_y
-	  || (obj_bbox.max.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
-	  || (force_into_subnodes && obj_bbox.min.y < mid_y))
+      if (surface_bbox.max.y < mid_y
+	  || (surface_bbox.max.y == mid_y
+	      && surface_bbox.min.y != surface_bbox.max.y)
+	  || (force_into_subnodes && surface_bbox.min.y < mid_y))
 	{
-	  if (obj_bbox.max.z < mid_z
-	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	  if (surface_bbox.max.z < mid_z
+	      || (surface_bbox.max.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
 	    {
-	      add_or_create (x_hi_y_lo_z_lo, obj, obj_bbox,
+	      add_or_create (x_hi_y_lo_z_lo, surface, surface_bbox,
 			     mid_x, y, z, sub_size);
 	      add_here = false;
 	    }
-	  if (obj_bbox.min.z >= mid_z
-	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	  if (surface_bbox.min.z >= mid_z
+	      || (surface_bbox.min.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.max.z >= mid_z))
 	    {
-	      add_or_create (x_hi_y_lo_z_hi, obj, obj_bbox,
+	      add_or_create (x_hi_y_lo_z_hi, surface, surface_bbox,
 			     mid_x, y, mid_z, sub_size);
 	      add_here = false;
 	    }
 	}
-      if (obj_bbox.min.y >= mid_y
-	  || (obj_bbox.min.y == mid_y && obj_bbox.min.y != obj_bbox.max.y)
-	  || (force_into_subnodes && obj_bbox.max.y >= mid_y))
+      if (surface_bbox.min.y >= mid_y
+	  || (surface_bbox.min.y == mid_y
+	      && surface_bbox.min.y != surface_bbox.max.y)
+	  || (force_into_subnodes && surface_bbox.max.y >= mid_y))
 	{
-	  if (obj_bbox.max.z < mid_z
-	      || (obj_bbox.max.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.min.z < mid_z))
+	  if (surface_bbox.max.z < mid_z
+	      || (surface_bbox.max.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
 	    {
-	      add_or_create (x_hi_y_hi_z_lo, obj, obj_bbox,
+	      add_or_create (x_hi_y_hi_z_lo, surface, surface_bbox,
 			     mid_x, mid_y, z, sub_size);
 	      add_here = false;
 	    }
-	  if (obj_bbox.min.z >= mid_z
-	      || (obj_bbox.min.z == mid_z && obj_bbox.min.z != obj_bbox.max.z)
-	      || (force_into_subnodes && obj_bbox.max.z >= mid_z))
+	  if (surface_bbox.min.z >= mid_z
+	      || (surface_bbox.min.z == mid_z
+		  && surface_bbox.min.z != surface_bbox.max.z)
+	      || (force_into_subnodes && surface_bbox.max.z >= mid_z))
 	    {
-	      add_or_create (x_hi_y_hi_z_hi, obj, obj_bbox,
+	      add_or_create (x_hi_y_hi_z_hi, surface, surface_bbox,
 			     mid_x, mid_y, mid_z, sub_size);
 	      add_here = false;
 	    }
 	}
     }
 
-  // If OBJ didn't fit in any sub-node, add to this one
+  // If SURFACE didn't fit in any sub-node, add to this one
+  //
   if (add_here)
     {
 #if 0
-      cout << "adding object with bbox " << obj_bbox.min
-	   << " - " << obj_bbox.max << endl
+      cout << "adding surface with bbox " << surface_bbox.min
+	   << " - " << surface_bbox.max << endl
 	   << "   to node @(" << x << ", " << y << ", " << z << ")" << endl
 	   << "      size = " << size << endl
-	   << "      prev num objs = " << objs.size() << endl;
+	   << "      prev num surfaces = " << surfaces.size() << endl;
 #endif
 
-      objs.push_back (obj);
+      surfaces.push_back (surface);
     }
 }
 
@@ -634,26 +678,26 @@ Voxtree::Node::avg_depth () const
 }
 
 unsigned
-Voxtree::Node::num_objs () const
+Voxtree::Node::num_surfaces () const
 {
-  unsigned num = objs.size ();
+  unsigned num = surfaces.size ();
 
   if (x_lo_y_lo_z_lo)
-    num += x_lo_y_lo_z_lo->num_objs ();
+    num += x_lo_y_lo_z_lo->num_surfaces ();
   if (x_lo_y_lo_z_hi)
-    num += x_lo_y_lo_z_hi->num_objs ();
+    num += x_lo_y_lo_z_hi->num_surfaces ();
   if (x_lo_y_hi_z_lo)
-    num += x_lo_y_hi_z_lo->num_objs ();
+    num += x_lo_y_hi_z_lo->num_surfaces ();
   if (x_lo_y_hi_z_hi)
-    num += x_lo_y_hi_z_hi->num_objs ();
+    num += x_lo_y_hi_z_hi->num_surfaces ();
   if (x_hi_y_lo_z_lo)
-    num += x_hi_y_lo_z_lo->num_objs ();
+    num += x_hi_y_lo_z_lo->num_surfaces ();
   if (x_hi_y_lo_z_hi)
-    num += x_hi_y_lo_z_hi->num_objs ();
+    num += x_hi_y_lo_z_hi->num_surfaces ();
   if (x_hi_y_hi_z_lo)
-    num += x_hi_y_hi_z_lo->num_objs ();
+    num += x_hi_y_hi_z_lo->num_surfaces ();
   if (x_hi_y_hi_z_hi)
-    num += x_hi_y_hi_z_hi->num_objs ();
+    num += x_hi_y_hi_z_hi->num_surfaces ();
   
   return num;
 }
