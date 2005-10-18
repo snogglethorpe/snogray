@@ -23,7 +23,9 @@ namespace Snogray {
 class PrimaryObj : public Obj
 {
 public:
-  PrimaryObj (const Material *mat) : _material (mat) { }
+  PrimaryObj (const Material *mat)
+    : Obj (mat->shadow_type ()), _material (mat)
+  { }
 
   // Returns the material this object is made from
   //

@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <stdexcept>
+
 #include "material.h"
 
 #include "scene.h"
@@ -45,54 +47,32 @@ Material::phong (float exp, const Color &spec_col)
   return *phong;
 }
 
-
-
-Color
-Material::illum (const Intersect &isec, const Color &color, TraceState &tstate)
-  const
-{
-  Scene &scene = tstate.scene;
-
-  // Iterate over every light, calculating its contribution to our
-  // color.
-
-  Color total_color;	// Accumulated colors from all light sources
-
-  for (Scene::light_iterator_t li = scene.lights.begin();
-       li != scene.lights.end(); li++)
-    {
-      Light *light = *li;
-      Ray light_ray (isec.point, light->pos);
-
-      // If the dot-product of the light-ray with the surface normal
-      // is negative, that means the light is behind the surface, so
-      // cannot light it ("self-shadowing"); otherwise, see if some
-      // other object casts a shadow.
-
-      if (isec.normal.dot (light_ray.dir) >= -Eps
-	  && !scene.shadowed (*light, light_ray, tstate, isec.obj))
-	{
-	  // This point is not shadowed, either by ourselves or by any
-	  // other object, so calculate the lighting contribution from
-	  // LIGHT.
-
-	  Color light_color = light->color / (light_ray.len * light_ray.len);
-
-	  total_color
-	    += light_model.illum (isec, color, light_ray.dir, light_color);
-	}
-    }
-
-  return total_color;
-}
-
 Color
 Material::render (const Intersect &isec, TraceState &tstate) const
 {
-//   if (isec.reverse)
-//     return Color::funny;
-//   else
-  return illum (isec, color, tstate);
+  return tstate.illum (isec, color, light_model);
+}
+
+// The general sort of shadow this material will cast.  This value
+// should never change for a given material, so can be cached.
+//
+Material::ShadowType
+Material::shadow_type () const
+{
+  return Material::SHADOW_OPAQUE;
+}
+
+// Calculate the shadowing effect of OBJ on LIGHT_RAY (which points at
+// the light, not at the object).  The "non-shadowed" light has color
+// LIGHT_COLOR; it's also this method's job to find any further
+// shadowing surfaces.
+//
+Color
+Material::shadow (const Obj *obj, const Ray &light_ray, const Color &light_color,
+		  TraceState &tstate)
+  const
+{
+  return Color (0, 0, 0);
 }
 
 // arch-tag: 3d971faa-322c-4479-acf0-effb05aca10a

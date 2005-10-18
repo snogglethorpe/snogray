@@ -18,23 +18,16 @@ using namespace Snogray;
 
 Obj::~Obj () { } // stop gcc bitching
 
-// Return the distance from RAY's origin of the closest intersection of
-// this object with RAY, or 0 if there is none.
+// Return the distance from RAY's origin to the closest intersection
+// of this object with RAY, or 0 if there is none.  RAY is considered
+// to be unbounded.
+//
+// NUM is which intersection to return, for non-flat objects that may
+// have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+// (flat objects will return failure for anything except 0).
 //
 dist_t
-Obj::intersection_distance (const Ray &ray) const
-{
-  return 0;
-}
-
-// Given that RAY's origin is known to lie on this object, return the
-// distance from RAY's origin to the _next_ closest intersection of this
-// object with RAY, or 0 if there is none.  For non-convex objects such
-// as triangles, the default implementation which always returns 0 is
-// correct.
-//
-dist_t
-Obj::next_intersection_distance (const Ray &ray) const
+Obj::intersection_distance (const Ray &ray, unsigned num) const
 {
   return 0;
 }

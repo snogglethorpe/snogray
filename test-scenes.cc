@@ -37,7 +37,7 @@ add_bulb (Scene &scene, const Pos &pos, const Color &col = Color::white)
 {
   const Material *bulb_mat = scene.add (new Glow (col));
   scene.add (new Light (pos, col));
-  scene.add (new Sphere (bulb_mat, pos, 0.06))->no_shadow = true;
+  scene.add (new Sphere (bulb_mat, pos, 0.06));
 }
 
 static void
@@ -157,7 +157,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   const Material *green
     = scene.add (new Material (Color (0, 1, 0), Material::phong (500)));
   const Material *crystal
-    = scene.add (new Glass (Medium (0.6, 1.8), 0.2, 0.01,
+    = scene.add (new Glass (Medium (0.9, 1.8), 0.2, 0.01,
 			    Material::phong (2000, 1.5)));
   const Material *gold
     = scene.add (new Mirror (0.9 * Color (0.71, 0.63, 0.1),
@@ -232,17 +232,13 @@ def_scene_teapot (const string &name, unsigned num,
 
 const void
 add_rect (Scene &scene, const Material *mat,
-	  const Pos &corner_0, const Pos &mid_corner_0, const Pos &corner_1,
-	  bool no_shadow = false)
+	  const Pos &corner_0, const Pos &mid_corner_0, const Pos &corner_1)
 {
   Triangle *t0
     = new Triangle (mat, corner_0, mid_corner_0, corner_1);
   Triangle *t1
     = new Triangle (mat,
 		    corner_1, corner_1 + (corner_0 - mid_corner_0), corner_0);
-
-  if (no_shadow)
-    t0->no_shadow = t1->no_shadow = true;
 
   scene.add (t0);
   scene.add (t1);
@@ -360,8 +356,7 @@ def_scene_cornell_box (const string &name, unsigned num,
   add_rect (scene, scene.add (new Glow (light_intens * glow_mag)),
 	    Pos (light_left, top, light_front),
 	    Pos (light_left, top, light_back),
-	    Pos (light_right, top, light_back),
-	    true);
+	    Pos (light_right, top, light_back));
 
   if (soft_shadow_count > 1)
     {

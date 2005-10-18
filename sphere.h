@@ -24,16 +24,15 @@ public:
     : PrimaryObj (mat), center (_center), radius (_radius)
   { }
 
-  // Return the distance from RAY's origin of the closest intersection of
-  // this object with RAY, or 0 if there is none.
+  // Return the distance from RAY's origin to the closest intersection
+  // of this object with RAY, or 0 if there is none.  RAY is considered
+  // to be unbounded.
   //
-  virtual dist_t intersection_distance (const Ray &ray) const;
-
-  // Given that RAY's origin is known to lie on this object, return the
-  // distance from RAY's origin to the _next_ closest intersection of this
-  // object with RAY, or 0 if there is none.
+  // NUM is which intersection to return, for non-flat objects that may
+  // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+  // (flat objects will return failure for anything except 0).
   //
-  virtual dist_t next_intersection_distance (const Ray &ray) const;
+  virtual dist_t intersection_distance (const Ray &ray, unsigned num) const;
 
   // Returns the normal vector for this surface at POINT.
   // INCOMING is the direction of the incoming ray that has hit POINT;
@@ -47,8 +46,6 @@ public:
   virtual BBox bbox () const;
 
 private:
-
-  dist_t intersection_distance (const Ray &ray, bool closest_ok) const;
 
   Pos center;
   dist_t radius;

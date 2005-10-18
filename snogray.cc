@@ -609,12 +609,12 @@ int main (int argc, char *const *argv)
   if (! quiet)
     {
       Scene::Stats &sstats = scene.stats;
-      Voxtree::Stats &vstats1 = sstats.voxtree_closest_intersect;
-      Voxtree::Stats &vstats2 = sstats.voxtree_shadowed;
+      Voxtree::Stats &vstats1 = sstats.voxtree_intersect;
+      Voxtree::Stats &vstats2 = sstats.voxtree_shadow;
 
-      long long sc  = sstats.scene_closest_intersect_calls;
+      long long sc  = sstats.scene_intersect_calls;
       long long vnc = vstats1.node_intersect_calls;
-      long long ocic = sstats.obj_closest_intersect_calls;
+      long long ocic = sstats.obj_intersect_calls;
       long long hhh = sstats.horizon_hint_hits;
       long long hhm = sstats.horizon_hint_misses;
 
@@ -623,7 +623,7 @@ int main (int argc, char *const *argv)
 
       cout << endl;
       cout << "Rendering stats:" << endl;
-      cout << "  closest_intersect:" << endl;
+      cout << "  intersect:" << endl;
       cout << "     scene calls:       " << setw (14) << commify (sc) << endl;
       cout << "     horizon hint hits: " << setw (14) << commify (hhh)
 	   << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
@@ -636,22 +636,28 @@ int main (int argc, char *const *argv)
 	cout << "     obj calls:         " << setw (14) << commify (ocic)
 	     << " (" << setw(2) << (100 * ocic / (sc * vno)) << "%)" << endl;
 
-      long long sst = sstats.scene_shadowed_tests;
+      long long sst = sstats.scene_shadow_tests;
 
       if (sst != 0)
 	{
 	  long long shh = sstats.shadow_hint_hits;
 	  long long shm = sstats.shadow_hint_misses;
+	  long long sss = sstats.scene_slow_shadow_traces;
+	  long long oss = sstats.obj_slow_shadow_traces;
 	  long long vnt = vstats2.node_intersect_calls;
 	  long long ot  = sstats.obj_intersects_tests;
 
-	  cout << "  shadowed:" << endl;
+	  cout << "  shadow:" << endl;
 	  cout << "     scene tests:       " << setw (14) << commify (sst)
 	       << endl;
 	  cout << "     shadow hint hits:  " << setw (14) << commify (shh)
 	       << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
 	  cout << "     shadow hint misses:" << setw (14) << commify (shm)
 	       << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
+	  cout << "     non-opaque traces: " << setw (14) << commify (sss)
+	       << " (" << setw(2) << (100 * sss / sst) << "%"
+	       << "; average depth = " << (float (oss) / float (sss)) << ")"
+	       << endl;
 	  if (vnn != 0)
 	    cout << "     voxtree node tests:" << setw (14) << commify (vnt)
 		 << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)"

@@ -29,6 +29,8 @@ class Material
 {
 public:
 
+  enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
+
   // As a convenience, provide a global lookup service for common lighting
   // models.
   static const Lambert lambert;
@@ -41,7 +43,19 @@ public:
 
   virtual Color render (const Intersect &isec, TraceState &tstate) const;
 
-  Color illum (const Intersect &isec, const Color &color, TraceState &tstate)
+  // The general sort of shadow this material will cast.  This value
+  // should never change for a given material, so can be cached.
+  //
+  virtual ShadowType shadow_type () const;
+
+  // Calculate the shadowing effect of OBJ on LIGHT_RAY (which points at
+  // the light, not at the object).  The "non-shadowed" light has color
+  // LIGHT_COLOR; it's also this method's job to find any further
+  // shadowing surfaces.
+  //
+  virtual Color shadow (const Obj *obj,
+			const Ray &light_ray, const Color &light_color,
+			TraceState &tstate)
     const;
 
   Color color;

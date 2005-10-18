@@ -24,7 +24,15 @@ public:
     : PrimaryObj (mat), v0 (_v0), v1 (_v1), v2 (_v2)
   { }
 
-  virtual dist_t intersection_distance (const Ray &ray) const;
+  // Return the distance from RAY's origin to the closest intersection
+  // of this object with RAY, or 0 if there is none.  RAY is considered
+  // to be unbounded.
+  //
+  // NUM is which intersection to return, for non-flat objects that may
+  // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+  // (flat objects will return failure for anything except 0).
+  //
+  virtual dist_t intersection_distance (const Ray &ray, unsigned num) const;
 
   // Returns the normal vector for this surface at POINT.
   // INCOMING is the direction of the incoming ray that has hit POINT;

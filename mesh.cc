@@ -263,9 +263,20 @@ compute_barycentric_coords (const Pos &p,
 
 
 
+// Return the distance from RAY's origin to the closest intersection
+// of this object with RAY, or 0 if there is none.  RAY is considered
+// to be unbounded.
+//
+// NUM is which intersection to return, for non-flat objects that may
+// have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+// (flat objects will return failure for anything except 0).
+//
 dist_t
-Mesh::Triangle::intersection_distance (const Ray &ray) const
+Mesh::Triangle::intersection_distance (const Ray &ray, unsigned num) const
 {
+  if (num != 0)
+    return 0;
+
   const Pos &_v0 = v (0), &_v1 = v (1), &_v2 = v (2);
 
   double a = _v0.x - _v1.x; 

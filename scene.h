@@ -46,7 +46,7 @@ public:
   // Calculate the color perceived by looking along RAY.  This is the
   // basic ray-tracing method.
   //
-  Color render (const Ray &ray, TraceState &tstate, const Obj *origin = 0)
+  Color render (const Ray &ray, TraceState &tstate)
     const
   {
     if (tstate.depth > max_depth)
@@ -54,7 +54,7 @@ public:
 
     Ray intersected_ray (ray, DEFAULT_HORIZON);
 
-    const Obj *closest = intersect (intersected_ray, tstate, origin);
+    const Obj *closest = intersect (intersected_ray, tstate);
 
     if (closest)
       {
@@ -77,18 +77,78 @@ public:
       return background;
   }
 
+  // Shadow LIGHT_RAY, which points to a light with (apparent) color
+  // LIGHT_COLOR. and return the shadow color.  This is basically like
+  // the `render' method, but calls the material's `shadow' method
+  // instead of it's `render' method.
+  //
+  // Note that this method is only used for `non-opaque' shadows --
+  // opaque shadows (the most common kind) don't use it!
+  //
+  Color shadow (const Ray &light_ray, const Color &light_color,
+		TraceState &tstate)
+    const
+  {
+    if (tstate.depth > max_depth * 2)
+      return background;
+
+    Ray intersected_ray = light_ray;
+
+    const Obj *closest = intersect (intersected_ray, tstate);
+
+    stats.obj_slow_shadow_traces++;
+
+    if (closest)
+      {
+	Ray continued_light_ray (intersected_ray.end(), intersected_ray.dir,
+				 light_ray.len - intersected_ray.len);
+
+	// Calculate the shadowing effect of the object we hit
+	//
+	Color result
+	  = closest->material()->shadow (closest, continued_light_ray,
+					 light_color, tstate);
+
+	// If we are looking through something other than air, attentuate
+	// the surface appearance due to transmission through the current
+	// medium.
+	//
+	if (tstate.medium)
+	  result = tstate.medium->attenuate (result, intersected_ray.len);
+
+	return result;
+      }
+    else
+      return light_color;
+  }
+
   // Return the closest object in this scene which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
-  // to reflect the point of intersection.  If ORIGIN is non-zero, then the
-  // _first_ intersection with that object is ignored (meaning that ORIGIN
-  // is totally ignored if it is flat).
+  // to reflect the point of intersection.
   //
-  const Obj *intersect (Ray &ray, TraceState &tstate, const Obj *origin) const;
+  const Obj *intersect (Ray &ray, TraceState &tstate) const;
 
-  bool shadowed (Light &light, const Ray &light_ray,
-		 TraceState &tstate, const Obj *origin = 0)
+  // Return some object shadowing LIGHT_RAY from LIGHT, or 0 if there is
+  // no shadowing object.  If an object it is returned, and it is _not_ an 
+  // "opaque" object (shadow-type Material::SHADOW_OPAQUE), then it is
+  // guaranteed there are no opaque objects casting a shadow.
+  //
+  // This is similar, but not identical to the behavior of the `intersect'
+  // method -- `intersect' always returns the closest object and makes no
+  // guarantees about the properties of further intersections.
+  //
+  const Obj *shadow_caster (const Ray &light_ray, Light &light,
+			    TraceState &tstate)
     const;
-  
+
+  // Iterate over every light, calculating its contribution the color of
+  // ISEC.  LIGHT_MODEL is used to calculate the actual effect; COLOR is
+  // the "base color"
+  //
+  Color illum (const Intersect &isec, const Color &color,
+	       const LightModel &light_model, TraceState &tstate)
+    const;
+
   // Add various items to a scene.  All of the following "give" the
   // object to the scene -- freeing the scene will free them too.
 
@@ -132,23 +192,26 @@ public:
   void set_assumed_gamma (float g) { assumed_gamma = g; }
 
   mutable struct Stats {
-    Stats () : scene_closest_intersect_calls (0),
-	       obj_closest_intersect_calls (0),
-	       scene_shadowed_tests (0),
+    Stats () : scene_intersect_calls (0),
+	       obj_intersect_calls (0),
+	       scene_shadow_tests (0),
 	       shadow_hint_hits (0), shadow_hint_misses (0),
+	       scene_slow_shadow_traces (0), obj_slow_shadow_traces (0),
 	       horizon_hint_hits (0), horizon_hint_misses (0),
 	       obj_intersects_tests (0)
     { }
-    unsigned long long scene_closest_intersect_calls;
-    unsigned long long obj_closest_intersect_calls;
-    unsigned long long scene_shadowed_tests;
+    unsigned long long scene_intersect_calls;
+    unsigned long long obj_intersect_calls;
+    unsigned long long scene_shadow_tests;
     unsigned long long shadow_hint_hits;
     unsigned long long shadow_hint_misses;
+    unsigned long long scene_slow_shadow_traces;
+    unsigned long long obj_slow_shadow_traces;
     unsigned long long horizon_hint_hits;
     unsigned long long horizon_hint_misses;
     unsigned long long obj_intersects_tests;
-    Voxtree::Stats voxtree_closest_intersect;
-    Voxtree::Stats voxtree_shadowed;
+    Voxtree::Stats voxtree_intersect;
+    Voxtree::Stats voxtree_shadow;
   } stats;
 
   std::list<Obj *> objs;
@@ -171,9 +234,22 @@ public:
 // dependency problems.
 //
 inline Color
-TraceState::render (const Ray &ray, const Obj *origin)
+TraceState::render (const Ray &ray)
 {
-  return scene.render (ray, *this, origin);
+  return scene.render (ray, *this);
+}
+
+inline Color
+TraceState::illum (const Intersect &isec, const Color &color,
+		   const LightModel &light_model)
+{
+  return scene.illum (isec, color, light_model, *this);
+}
+
+inline Color
+TraceState::shadow (const Ray &light_ray, const Color &light_color)
+{
+  return scene.shadow (light_ray, light_color, *this);
 }
 
 }

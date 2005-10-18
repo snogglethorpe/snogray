@@ -20,6 +20,8 @@ namespace Snogray {
 class Scene;
 class Obj;
 class Ray;
+class Intersect;
+class LightModel;
 
 class TraceState
 {
@@ -28,8 +30,9 @@ public:
   enum TraceType {
     SPONTANEOUS,
     REFLECTION,
-    REFRACTION_IN,
-    REFRACTION_OUT,
+    REFRACTION_IN,		// entering a transparent object
+    REFRACTION_OUT,		// exiting it
+    SHADOW,			// only used for non-opaque shadows
     NUM_TRACE_TYPES
   };
 
@@ -41,7 +44,8 @@ public:
   // type (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  TraceState &subtrace_state (TraceType type, const Medium *_medium)
+  TraceState &subtrace_state (TraceType type, const Medium *_medium,
+			      const Obj *_origin)
   {
     TraceState *sub = subtrace_states[type];
 
@@ -51,22 +55,44 @@ public:
 	subtrace_states[type] = sub;
       }
 
-    sub->medium = _medium;	// make sure it's up to date
+    // make sure fields are up-to-date
+    //
+    sub->origin = _origin;
+    sub->medium = _medium;
 
     return *sub;
   }
 
   // For sub-traces with no specified medium, propagate the current one.
   //
-  TraceState &subtrace_state (TraceType type)
+  TraceState &subtrace_state (TraceType type, const Obj *_origin)
   {
-    return subtrace_state (type, medium);
+    return subtrace_state (type, medium, _origin);
   }
 
-  // Convenience method that just calls the scene's render method using
-  // this as the trace  state.
+  // Return the "origin count" of OBJ:  this is 0 if OBJ is not the origin
+  // of this trace, 1 if this trace originated from OBJ, but prior traces
+  // did not, and 2 if both this trace and its progenitor both originated
+  // from OBJ (depths greater than 2 are not supported).  This is used to
+  // avoid precision errors when intersecting a ray.
   //
-  Color render (const Ray &ray, const Obj *origin = 0);
+  unsigned origin_count (const Obj *obj) const
+  {
+    if (origin != obj)
+      return 0;
+    else if (parent && parent->origin == obj)
+      return 2;
+    else
+      return 1;
+  }
+
+  // The following are convenience methods that just call the equivalent
+  // method in the scene.
+  //
+  Color render (const Ray &ray);
+  Color illum (const Intersect &isec, const Color &color,
+	       const LightModel &light_model);
+  Color shadow (const Ray &light_ray, const Color &light_color);
 
   // Searches back through the trace history to find the enclosing medium.
   //
@@ -82,6 +108,10 @@ public:
   // What kind of trace this is
   //
   TraceType type;
+
+  // The object this trace originated from (or zero for spontaneous)
+  //
+  const Obj *origin;
 
   // If non-zero, the last object we found as the closest intersection.
   // When we do a new trace, we first test that object for intersection;

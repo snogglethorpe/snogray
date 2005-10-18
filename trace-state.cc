@@ -18,7 +18,7 @@ using namespace Snogray;
 // Constructor for root TraceState
 //
 TraceState::TraceState (Scene &_scene)
-  : scene (_scene), parent (0), type (SPONTANEOUS),
+  : scene (_scene), parent (0), type (SPONTANEOUS), origin (0),
     horizon_hint (0), depth (0), medium (0)
 {
   _init ();
@@ -27,7 +27,7 @@ TraceState::TraceState (Scene &_scene)
 // Constructor for sub-traces
 //
 TraceState::TraceState (TraceType _type, TraceState *_parent)
-  : scene (_parent->scene), parent (_parent), type (_type),
+  : scene (_parent->scene), parent (_parent), type (_type), origin (0),
     horizon_hint (0), depth (_parent->depth + 1), medium (parent->medium)
 {
   _init ();

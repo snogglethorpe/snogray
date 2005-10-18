@@ -17,9 +17,20 @@
 
 using namespace Snogray;
 
+// Return the distance from RAY's origin to the closest intersection
+// of this object with RAY, or 0 if there is none.  RAY is considered
+// to be unbounded.
+//
+// NUM is which intersection to return, for non-flat objects that may
+// have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+// (flat objects will return failure for anything except 0).
+//
 dist_t
-Triangle::intersection_distance (const Ray &ray) const
+Triangle::intersection_distance (const Ray &ray, unsigned num) const
 {
+  if (num != 0)
+    return 0;
+
   double a = v0.x - v1.x; 
   double b = v0.y - v1.y; 
   double c = v0.z - v1.z; 

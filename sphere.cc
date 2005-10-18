@@ -15,13 +15,25 @@
 
 using namespace Snogray;
 
-inline dist_t
-Sphere::intersection_distance (const Ray &ray, bool closest_ok) const
+// Return the distance from RAY's origin to the closest intersection
+// of this object with RAY, or 0 if there is none.  RAY is considered
+// to be unbounded.
+//
+// NUM is which intersection to return, for non-flat objects that may
+// have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+// (flat objects will return failure for anything except 0).
+//
+dist_t
+Sphere::intersection_distance (const Ray &ray, unsigned num) const
 {
-  Vec dir = ray.dir;		// must be a unit vector
+  if (num > 1)
+    return 0;
+
+  Vec dir = ray.dir;		  // must be a unit vector
+  double dir_dir = dir.dot (dir); // theoretically, exactly 1; in
+				  // practice, not _quite_
   Vec diff = ray.origin - center;
   double dir_diff = dir.dot (diff);
-  double dir_dir =  dir.dot (dir);
   double determ
     = (dir_diff * dir_diff) - dir_dir * (diff.dot(diff) - (radius * radius));
 
@@ -31,16 +43,16 @@ Sphere::intersection_distance (const Ray &ray, bool closest_ok) const
 
       if (determ < Eps && common > Eps)
 	{
-	  if (closest_ok)
+	  if (num == 0)
 	    return common;
 	}
       else
 	{
-	  double determ_factor = sqrtf (determ) / dir_dir;
+	  double determ_factor = sqrt (determ) / dir_dir;
 	  double t0 = common - determ_factor;
 	  double t1 = common + determ_factor;
 
-	  if (closest_ok && t0 > Eps)
+	  if (num == 0 && t0 > Eps)
 	    return t0;
 	  else if (t1 > Eps)
 	    return t1;
@@ -48,27 +60,6 @@ Sphere::intersection_distance (const Ray &ray, bool closest_ok) const
     }
 
   return 0;
-}
-
-// Return the distance from RAY's origin of the closest intersection of
-// this object with RAY, or 0 if there is none.
-//
-dist_t
-Sphere::intersection_distance (const Ray &ray) const
-{
-  return intersection_distance (ray, true);
-}
-
-// Given that RAY's origin is known to lie on this object, return the
-// distance from RAY's origin to the _next_ closest intersection of this
-// object with RAY, or 0 if there is none.  For non-convex objects such
-// as triangles, the default implementation which always returns 0 is
-// correct.
-//
-dist_t
-Sphere::next_intersection_distance (const Ray &ray) const
-{
-  return intersection_distance (ray, false);
 }
 
 Vec

@@ -7,6 +7,7 @@ Todo list for snogray
      (Accounts for a huge proportion of tracing time)
 
 
+ [DONE]
  + Simple support for shadows of transparent/translucent objects
 
      Real support (bending of light rays) is too hard, but for a simple

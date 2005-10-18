@@ -16,6 +16,7 @@
 #include "color.h"
 #include "ray.h"
 #include "bbox.h"
+#include "material.h"
 
 namespace Snogray {
 
@@ -26,36 +27,22 @@ class Obj
 {
 public:
 
-  Obj () : no_shadow (false) { }
+  Obj (Material::ShadowType _shadow_type = Material::SHADOW_OPAQUE)
+    : shadow_type (_shadow_type)
+  { }
   virtual ~Obj (); // stop gcc bitching
 
-  // Return the distance from RAY's origin to the closest intersection
-  // of this object with RAY, or 0 if there is none.  RAY is considered
-  // to be unbounded.
+  // If this object intersects the bounded-ray RAY, change RAY's length to
+  // reflect the point of intersection, and return true; otherwise return
+  // false.
   //
-  virtual dist_t intersection_distance (const Ray &ray) const;
-
-  // Given that RAY's origin is known to lie on this object, return the
-  // distance from RAY's origin to the _next_ closest intersection of
-  // this object with RAY, or 0 if there is none.  For non-convex
-  // objects such as triangles, the default implementation which always
-  // returns 0 is correct.  RAY is considered to be unbounded.
+  // NUM is which intersection to return, for non-flat objects that may
+  // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+  // (flat objects will return failure for anything except 0).
   //
-  virtual dist_t next_intersection_distance (const Ray &ray) const;
-
-  // If this object intersects the bounded-ray RAY, change RAY's length
-  // to reflect the point of intersection, and return true; otherwise
-  // return false.  If ORIGIN points to this object (meaning it is the
-  // origin of RAY), the first intersection is ignored, and only a 2nd,
-  // farther, intersection (if any; see `next_intersection_distance') is
-  // considered.
-  //
-  bool intersect (Ray &ray, const Obj *origin) const
+  bool intersect (Ray &ray, unsigned num = 0) const
   {
-    dist_t dist
-      = (origin == this
-	 ? next_intersection_distance (ray)
-	 : intersection_distance (ray));
+    dist_t dist = intersection_distance (ray, num);
 
     if (dist > 0 && dist < ray.len)
       {
@@ -70,11 +57,21 @@ public:
   // intersects the bounded-ray RAY.  Unlike the `intersect' method, RAY is
   // never modified.
   //
-  bool intersects (const Ray &ray) const
+  bool intersects (const Ray &ray, unsigned num = 0) const
   {
-    dist_t dist = intersection_distance (ray);
+    dist_t dist = intersection_distance (ray, num);
     return dist > 0 && dist < ray.len;
   }
+
+  // Return the distance from RAY's origin to the closest intersection
+  // of this object with RAY, or 0 if there is none.  RAY is considered
+  // to be unbounded.
+  //
+  // NUM is which intersection to return, for non-flat objects that may
+  // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+  // (flat objects will return failure for anything except 0).
+  //
+  virtual dist_t intersection_distance (const Ray &ray, unsigned num = 0) const;
 
   // Returns the normal vector for this surface at POINT.
   // INCOMING is the direction of the incoming ray that has hit POINT;
@@ -95,10 +92,13 @@ public:
   //
   virtual void add_to_space (Voxtree &space);
 
-  // Ideally this would be represented via some virtual method instead, but
-  // it gets used _very_ often and doing so slows down tracing by about 2%.
+  // What special handling this object needs when it casts a shadow.
+  // This is initialized by calling the object's material's
+  // `shadow_type' method -- it's too expensive to call that during
+  // tracing.
   //
-  bool no_shadow;
+  Material::ShadowType shadow_type;
+
 };
 
 }

@@ -78,9 +78,11 @@ public:
   {
   public:
 
-    Triangle (const Mesh &_mesh) : mesh (_mesh) { }
+    Triangle (const Mesh &_mesh)
+      : Obj (_mesh.material()->shadow_type ()), mesh (_mesh)
+    { }
     Triangle (const Mesh &_mesh, unsigned v0i, unsigned v1i, unsigned v2i)
-      : mesh (_mesh)
+      : Obj (_mesh.material()->shadow_type ()), mesh (_mesh)
     {
       vi[0] = v0i;
       vi[1] = v1i;
@@ -94,7 +96,15 @@ public:
       vi[2] = triang.vi[2];
     }
 
-    virtual dist_t intersection_distance (const Ray &ray) const;
+    // Return the distance from RAY's origin to the closest intersection
+    // of this object with RAY, or 0 if there is none.  RAY is considered
+    // to be unbounded.
+    //
+    // NUM is which intersection to return, for non-flat objects that may
+    // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
+    // (flat objects will return failure for anything except 0).
+    //
+    virtual dist_t intersection_distance (const Ray &ray, unsigned num) const;
 
     // Returns the normal vector for this surface at POINT.
     // INCOMING is the direction of the incoming ray that has hit POINT;
