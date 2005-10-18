@@ -41,7 +41,7 @@ add_bulb (Scene &scene, const Pos &pos, const Color &col = Color::white)
 }
 
 static void
-def_scene_miles_test1 (const string &name, unsigned num,
+def_scene_miles (const string &name, unsigned num,
 		       Scene &scene, Camera &camera)
 {
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
@@ -137,7 +137,16 @@ def_scene_miles_test1 (const string &name, unsigned num,
       }
 }
 
-void 
+static void
+add_scene_descs_miles (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("miles0", "Lots of spheres and triangles, low angle"));
+  descs.push_back (TestSceneDesc ("miles1", "Lots of spheres and triangles, square angle"));
+  descs.push_back (TestSceneDesc ("miles2", "Lots of spheres and triangles, high angle"));
+  descs.push_back (TestSceneDesc ("miles3", "Lots of spheres and triangles, slightly wider angle"));
+}
+
+static void 
 def_scene_pretty_bunny (const string &name, unsigned num,
 			Scene &scene, Camera &camera)
 {
@@ -190,6 +199,13 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   add_bulb (scene, Pos (0, 1, 15), 100);
 }
 
+static void
+add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("pretty-bunny", "Crystal Stanford bunny with some spheres"));
+  descs.push_back (TestSceneDesc ("goldbunny", "Gold Stanford bunny with some spheres"));
+}
+
 
 
 static void
@@ -228,6 +244,12 @@ def_scene_teapot (const string &name, unsigned num,
   camera.point (Pos (0, 0, 0), Vec (0, 0, 1));
 }
 
+static void
+add_scene_descs_teapot (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("teapot", "Classic teapot on checkerboard"));
+}
+
 
 
 const void
@@ -243,7 +265,6 @@ add_rect (Scene &scene, const Material *mat,
   scene.add (t0);
   scene.add (t1);
 }
-
 
 const void
 add_cube (Scene &scene, const Material *mat,
@@ -414,6 +435,13 @@ def_scene_cornell_box (const string &name, unsigned num,
   camera.move (Pos  (mid_x, 0.525 * height + bottom, -6.6 * scale));
   camera.point (Pos (mid_x, 0.475 * height + bottom, 0), Vec (0, 1, 0));
   camera.set_horiz_fov (M_PI_4 * 0.7);
+}
+
+static void
+add_scene_descs_cornell_box (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("cbox0", "Cornell box, Henrik Jensen version 1 (simulated soft shadows)"));
+  descs.push_back (TestSceneDesc ("cbox1", "Cornell box, Henrik Jensen version 0 (glass & mirror spheres)"));
 }
 
 
@@ -623,8 +651,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera)
 }
 
 static void
-def_scene_cs465_test (const string &name, unsigned num,
-		      Scene &scene, Camera &camera)
+def_scene_cs465 (const string &name, unsigned num, Scene &scene, Camera &camera)
 {
   switch (num)
     {
@@ -635,6 +662,15 @@ def_scene_cs465_test (const string &name, unsigned num,
     default:
       throw runtime_error ("unknown cs465 test scene");
     }
+}
+
+static void
+add_scene_descs_cs465 (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("cs465-1", "Cornell CS465 test-scene 1"));
+  descs.push_back (TestSceneDesc ("cs465-2", "Cornell CS465 test-scene 2"));
+  descs.push_back (TestSceneDesc ("cs465-3", "Cornell CS465 test-scene 3"));
+  descs.push_back (TestSceneDesc ("cs465-4", "Cornell CS465 test-scene 4"));
 }
 
 
@@ -659,7 +695,7 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     }
 
 if (name == "miles")
-  def_scene_miles_test1 (name, num, scene, camera);
+  def_scene_miles (name, num, scene, camera);
 
  else if (name == "teapot")
    def_scene_teapot (name, num, scene, camera);
@@ -671,10 +707,24 @@ if (name == "miles")
    def_scene_cornell_box (name, num, scene, camera);
 
  else if (name == "cs465")
-   def_scene_cs465_test (name, num, scene, camera);
+   def_scene_cs465 (name, num, scene, camera);
 
  else
    throw (runtime_error ("Unknown test scene"));
+}
+
+vector<TestSceneDesc>
+Snogray::list_test_scenes ()
+{
+  vector<TestSceneDesc> descs;
+
+  add_scene_descs_miles (descs);
+  add_scene_descs_teapot (descs);
+  add_scene_descs_pretty_bunny (descs);
+  add_scene_descs_cornell_box (descs);
+  add_scene_descs_cs465 (descs);
+
+  return descs;
 }
 
 // arch-tag: 307938a9-c663-4949-a58b-fb51040a6529

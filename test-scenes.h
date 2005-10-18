@@ -12,6 +12,7 @@
 #ifndef __TEST_SCENES_H__
 #define __TEST_SCENES_H__
 
+#include <vector>
 #include <string>
 
 #include "scene.h"
@@ -21,6 +22,17 @@ namespace Snogray {
 
 extern void def_test_scene (const std::string &name,
 			    Scene &scene, Camera &camera);
+
+struct TestSceneDesc
+{
+  TestSceneDesc (const std::string &_name, const std::string &_desc)
+    : name (_name), desc (_desc)
+  { }
+
+  std::string name, desc;
+};
+
+extern std::vector<TestSceneDesc> list_test_scenes ();
 
 }
 

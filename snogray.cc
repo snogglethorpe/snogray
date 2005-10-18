@@ -29,9 +29,6 @@
 using namespace Snogray;
 using namespace std;
 
-// This defines a test scene
-extern void test_scene (Scene &scene, Camera &camera, unsigned scene_num);
-
 
 
 // LimitSpec datatype
@@ -184,9 +181,8 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << "[OPTION...] [OUTPUT_IMAGE_FILE]" << endl;
+     << " [OPTION...] [SCENE_FILE [OUTPUT_IMAGE_FILE]]" << endl;
 }
-
 
 static void
 help (CmdLineParser &clp, ostream &os)
@@ -217,6 +213,8 @@ s "  -L, --light-scale=SCALE    Scale all scene lighting by SCALE"
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
 n
+s "      --list-test-scenes     Ouput a list of builtin test-scenes to stdout"
+n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
 s "If no input/output filenames are given, standard input/output are used"
@@ -225,7 +223,11 @@ s "filename extensions are used to guess the format (so an explicit format"
 s "must be specified when standard input/output are used)."
 n
 s "The \"test\" scene type is special, as no scene file is actually read;"
-s "instead, a built in test-scene with the given name is used."
+s "instead, a built in test-scene with the given name is used.  As a shortcut"
+s "a prefix of `test:' maybe be used instead of the `-Itest' option;"
+s "e.g. `test:cbox1' refers to the built-in test-scene `cbox1'." 
+n
+s "For a full list of test-scenes, use the `--list-test-scenes' option."
 n
     ;
 
@@ -238,6 +240,8 @@ int main (int argc, char *const *argv)
 {
   // Command-line option specs
   //
+#define OPT_LIST_TEST_SCENES	10
+  //
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
     { "multiple",	required_argument, 0, 'm' },
@@ -248,6 +252,7 @@ int main (int argc, char *const *argv)
     { "scene-format", 	required_argument, 0, 'I' },
     { "assumed-gamma", 	required_argument, 0, 'G' },
     { "light-scale", 	required_argument, 0, 'L' },
+    { "list-test-scenes", no_argument,     0, OPT_LIST_TEST_SCENES },
 
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
@@ -292,6 +297,19 @@ int main (int argc, char *const *argv)
       case 'L':
 	scene_light_scale = clp.float_opt_arg ();
 	break;
+
+      case OPT_LIST_TEST_SCENES:
+	{
+	  vector<TestSceneDesc> descs = list_test_scenes ();
+
+	  cout << "Built-in test scenes:" << endl << endl;
+	  cout.setf (ios::left);
+
+	  for (vector<TestSceneDesc>::const_iterator di = descs.begin();
+	       di != descs.end(); di++)
+	    cout << "   " << setw(15) << di->name << di->desc << endl;
+	}
+	exit (0);
 
 	// Size options
 	//
@@ -434,7 +452,7 @@ int main (int argc, char *const *argv)
 	   << setw (18)
 	   << (scene_file_name ? scene_file_name : "<standard input>") << endl;
       cout << "   top-level surfaces:"
-	   << setw (7) << commify (scene.surfaces.size ()) << endl;
+	   << setw (6) << commify (scene.surfaces.size ()) << endl;
       cout << "   lights:        "
 	   << setw (10) << commify (scene.lights.size ()) << endl;
       if (scene.assumed_gamma != 1)
@@ -446,7 +464,7 @@ int main (int argc, char *const *argv)
       cout << "   materials:     "
 	   << setw (10) << commify (scene.materials.size ()) << endl;
       cout << "   voxtree surfaces:"
-	   << setw (9) << commify (scene.surface_voxtree.num_surfaces ()) << endl;
+	   << setw (8) << commify (scene.surface_voxtree.num_surfaces ()) << endl;
       cout << "   voxtree nodes: "
 	   << setw (10) << commify (scene.surface_voxtree.num_nodes ()) << endl;
       float vt_avg_depth = scene.surface_voxtree.avg_depth ();
@@ -633,7 +651,7 @@ int main (int argc, char *const *argv)
 	cout << "     voxtree node calls:" << setw (14) << commify (vnc)
 	     << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
       if (vno != 0)
-	cout << "     surface calls:         " << setw (14) << commify (ocic)
+	cout << "     surface calls:     " << setw (14) << commify (ocic)
 	     << " (" << setw(2) << (100 * ocic / (sc * vno)) << "%)" << endl;
 
       long long sst = sstats.scene_shadow_tests;
@@ -654,16 +672,17 @@ int main (int argc, char *const *argv)
 	       << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
 	  cout << "     shadow hint misses:" << setw (14) << commify (shm)
 	       << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
-	  cout << "     non-opaque traces: " << setw (14) << commify (sss)
-	       << " (" << setw(2) << (100 * sss / sst) << "%"
-	       << "; average depth = " << (float (oss) / float (sss)) << ")"
-	       << endl;
+	  if (sss != 0)
+	    cout << "     non-opaque traces: " << setw (14) << commify (sss)
+		 << " (" << setw(2) << (100 * sss / sst) << "%"
+		 << "; average depth = " << (float (oss) / float (sss)) << ")"
+		 << endl;
 	  if (vnn != 0)
 	    cout << "     voxtree node tests:" << setw (14) << commify (vnt)
 		 << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)"
 		 << endl;
 	  if (vno != 0)
-	    cout << "     surface tests:         " << setw (14) << commify (ot)
+	    cout << "     surface tests:     " << setw (14) << commify (ot)
 		 << " (" <<setw(2) << (100 * ot / (vno * (sst - shh))) << "%)"
 		 << endl;
 	}
