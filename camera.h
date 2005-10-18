@@ -54,10 +54,10 @@ public:
     forward = vec.unit ();
 
     right = _user_up.cross (forward).unit ();
+    up = forward.cross (right).unit ();
+
     if (z_mode == Z_DECREASES_FORWARD)
       right = -right;
-
-    up = forward.cross (right).unit ();
   }
   void point (const Pos &targ, const Vec &_user_up)
   {
