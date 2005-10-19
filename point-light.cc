@@ -61,4 +61,12 @@ PointLight::illum (const Intersect &isec, const Color &surface_color,
     }
 }
 
+// Adjust this light's intensity by a factor of SCALE.
+//
+void
+PointLight::scale_intensity (float scale)
+{
+  color *= scale;
+}
+
 // arch-tag: 1ef7bd92-c1c5-4053-b4fb-f8a6bee1a1de

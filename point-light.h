@@ -33,6 +33,10 @@ public:
 		       const LightModel &light_model, TraceState &tstate)
     const;
 
+  // Adjust this light's intensity by a factor of SCALE.
+  //
+  virtual void scale_intensity (float scale);
+
   Color color;
 };
 
