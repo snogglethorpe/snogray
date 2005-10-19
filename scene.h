@@ -137,8 +137,8 @@ public:
   // method -- `intersect' always returns the closest surface and makes no
   // guarantees about the properties of further intersections.
   //
-  const Surface *shadow_caster (const Ray &light_ray, Light &light,
-			    TraceState &tstate)
+  const Surface *shadow_caster (const Ray &light_ray, const Light &light,
+				TraceState &tstate)
     const;
 
   // Iterate over every light, calculating its contribution the color of
@@ -250,6 +250,12 @@ inline Color
 TraceState::shadow (const Ray &light_ray, const Color &light_color)
 {
   return scene.shadow (light_ray, light_color, *this);
+}
+
+inline const Surface *
+TraceState::shadow_caster (const Ray &light_ray, const Light &light)
+{
+  return scene.shadow_caster (light_ray, light, *this);
 }
 
 }

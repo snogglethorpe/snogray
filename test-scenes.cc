@@ -15,7 +15,7 @@
 
 #include "scene.h"
 #include "camera.h"
-#include "light.h"
+#include "point-light.h"
 #include "sphere.h"
 #include "triangle.h"
 #include "lambert.h"
@@ -36,7 +36,7 @@ static void
 add_bulb (Scene &scene, const Pos &pos, const Color &col = Color::white)
 {
   const Material *bulb_mat = scene.add (new Glow (col));
-  scene.add (new Light (pos, col));
+  scene.add (new PointLight (pos, col));
   scene.add (new Sphere (bulb_mat, pos, 0.06));
 }
 
@@ -235,8 +235,8 @@ def_scene_teapot (const string &name, unsigned num,
   board2_mesh->load ("board2.msh");
   scene.add (board2_mesh);
 
-  scene.add (new Light (Pos (-3.1, 9.8, 12.1), 100));
-  scene.add (new Light (Pos (11.3, 5.1, 8.8), 100));
+  scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
+  scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 100));
 
   scene.set_background (Color (0.078, 0.361, 0.753));
 
@@ -395,8 +395,8 @@ def_scene_cornell_box (const string &name, unsigned num,
 	  coord_t z = light_front + sub_light_edge_offs;
 	  for (unsigned j = 0; j < num_sublights_per_dimen; j++)
 	    {
-	      scene.add (new Light (Pos (x, top + light_inset, z),
-				    sub_light_intens));
+	      scene.add (new PointLight (Pos (x, top + light_inset, z),
+					 sub_light_intens));
 	      z += sub_light_spacing;
 	    }
 	  x += sub_light_spacing;
@@ -404,7 +404,8 @@ def_scene_cornell_box (const string &name, unsigned num,
     }
   else
     {
-      scene.add (new Light (Pos (light_x, top + light_inset, light_z), light_intens));
+      scene.add (new PointLight (Pos (light_x, top + light_inset, light_z),
+				 light_intens));
     }
 
   // Back wall
@@ -429,8 +430,8 @@ def_scene_cornell_box (const string &name, unsigned num,
 
   // for debugging
   if (fill_light)
-    scene.add (new Light (Pos (left + 0.1, bottom + 0.1, front + 0.1),
-			  light_intens / 4));
+    scene.add (new PointLight (Pos (left + 0.1, bottom + 0.1, front + 0.1),
+			       light_intens / 4));
 
   camera.move (Pos  (mid_x, 0.525 * height + bottom, -6.6 * scale));
   camera.point (Pos (mid_x, 0.475 * height + bottom, 0), Vec (0, 1, 0));
@@ -464,7 +465,7 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   scene.add (new Sphere (mat1, Pos (0, 0, -0.866), 1));
   scene.add (new Sphere (mat2, Pos (1, 0, 0.866), 1));
   scene.add (new Sphere (mat3, Pos (-1, 0, 0.866), 1));
-  scene.add (new Light (Pos (0, 5, 0), 25));
+  scene.add (new PointLight (Pos (0, 5, 0), 25));
 }
 
 static void
@@ -495,25 +496,25 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
 			   Pos (10, -1, 10)));
 
   // Small Area type light
-  scene.add (new Light (Pos (5, 5, 0), 8));
-  scene.add (new Light (Pos (5.1, 5, 0), 8));
-  scene.add (new Light (Pos (5.2, 5, 0), 8));
-  scene.add (new Light (Pos (5.3, 5, 0), 8));
-  scene.add (new Light (Pos (5, 5.1, 0), 8));
-  scene.add (new Light (Pos (5.1, 5.1, 0), 8));
-  scene.add (new Light (Pos (5.2, 5.1, 0), 8));
-  scene.add (new Light (Pos (5.3, 5.1, 0), 8));
-  scene.add (new Light (Pos (5, 5.2, 0), 8));
-  scene.add (new Light (Pos (5.1, 5.2, 0), 8));
-  scene.add (new Light (Pos (5.2, 5.2, 0), 8));
-  scene.add (new Light (Pos (5.3, 5.2, 0), 8));
-  scene.add (new Light (Pos (5, 5.3, 0), 8));
-  scene.add (new Light (Pos (5.1, 5.3, 0), 8));
-  scene.add (new Light (Pos (5.2, 5.3, 0), 8));
-  scene.add (new Light (Pos (5.3, 5.3, 0), 8));
+  scene.add (new PointLight (Pos (5, 5, 0), 8));
+  scene.add (new PointLight (Pos (5.1, 5, 0), 8));
+  scene.add (new PointLight (Pos (5.2, 5, 0), 8));
+  scene.add (new PointLight (Pos (5.3, 5, 0), 8));
+  scene.add (new PointLight (Pos (5, 5.1, 0), 8));
+  scene.add (new PointLight (Pos (5.1, 5.1, 0), 8));
+  scene.add (new PointLight (Pos (5.2, 5.1, 0), 8));
+  scene.add (new PointLight (Pos (5.3, 5.1, 0), 8));
+  scene.add (new PointLight (Pos (5, 5.2, 0), 8));
+  scene.add (new PointLight (Pos (5.1, 5.2, 0), 8));
+  scene.add (new PointLight (Pos (5.2, 5.2, 0), 8));
+  scene.add (new PointLight (Pos (5.3, 5.2, 0), 8));
+  scene.add (new PointLight (Pos (5, 5.3, 0), 8));
+  scene.add (new PointLight (Pos (5.1, 5.3, 0), 8));
+  scene.add (new PointLight (Pos (5.2, 5.3, 0), 8));
+  scene.add (new PointLight (Pos (5.3, 5.3, 0), 8));
 
   // fill light
-  scene.add (new Light (Pos (-5, 1, -22), 100));
+  scene.add (new PointLight (Pos (-5, 1, -22), 100));
 }
 
 static void
@@ -615,10 +616,10 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   scene.add (new Sphere (shinyGray, Pos (0, 0, 2.5), 1));
   scene.add (new Sphere (shinyWhite, Pos (2.5, 0, 0), 1));
 
-  scene.add (new Light (Pos (0, 10, 5), Color (50, 30, 30)));
-  scene.add (new Light (Pos (5, 10, 0), Color (30, 30, 50)));
-  scene.add (new Light (Pos (5, 10, 5), Color (30, 50, 30)));
-  scene.add (new Light (Pos (6, 6, 6), Color (25, 25, 25)));
+  scene.add (new PointLight (Pos (0, 10, 5), Color (50, 30, 30)));
+  scene.add (new PointLight (Pos (5, 10, 0), Color (30, 30, 50)));
+  scene.add (new PointLight (Pos (5, 10, 5), Color (30, 50, 30)));
+  scene.add (new PointLight (Pos (6, 6, 6), Color (25, 25, 25)));
 }
 
 void 
@@ -645,9 +646,9 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera)
 			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
 			   Pos (10, -0.65, 10)));
   
-  scene.add (new Light (Pos (0, 10, 0), 100));
-  scene.add (new Light (Pos (15, 2, 0), 100));
-  scene.add (new Light (Pos (0, 1, 15), 100));
+  scene.add (new PointLight (Pos (0, 10, 0), 100));
+  scene.add (new PointLight (Pos (15, 2, 0), 100));
+  scene.add (new PointLight (Pos (0, 1, 15), 100));
 }
 
 static void

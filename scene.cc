@@ -111,7 +111,7 @@ Scene::intersect (Ray &ray, TraceState &tstate)
 
 struct SceneShadowCallback : Voxtree::IntersectCallback
 {
-  SceneShadowCallback (Light &_light, const Ray &_light_ray,
+  SceneShadowCallback (const Light &_light, const Ray &_light_ray,
 		       TraceState &_tstate, Voxtree::Stats *stats = 0)
     : IntersectCallback (stats), 
       light (_light), light_ray (_light_ray),
@@ -120,7 +120,7 @@ struct SceneShadowCallback : Voxtree::IntersectCallback
 
   virtual void operator() (Surface *);
 
-  Light &light;
+  const Light &light;
   const Ray &light_ray;
 
   // Shadowing surface discovered.
@@ -173,7 +173,8 @@ SceneShadowCallback::operator () (Surface *surface)
 // guarantees about the properties of further intersections.
 //
 const Surface *
-Scene::shadow_caster (const Ray &light_ray, Light &light, TraceState &tstate)
+Scene::shadow_caster (const Ray &light_ray, const Light &light,
+		      TraceState &tstate)
   const
 {
   stats.scene_shadow_tests++;
@@ -226,52 +227,20 @@ Scene::illum (const Intersect &isec, const Color &color,
 {
   Color total_color;	// Accumulated colors from all light sources
 
-  TraceState &shadow_tstate
+  TraceState &sub_tstate
     = tstate.subtrace_state (TraceState::SHADOW, isec.surface);
 
   for (light_iterator_t li = lights.begin(); li != lights.end(); li++)
     {
-      Light *light = *li;
-      Ray light_ray (isec.point, light->pos);
+      const Light *light = *li;
 
-      // If the dot-product of the light-ray with the surface normal
-      // is negative, that means the light is behind the surface, so
-      // cannot light it ("self-shadowing"); otherwise, see if some
+      // If the dot-product of the impinging light-ray with the surface
+      // normal is positive, that means the light is behind the surface,
+      // so cannot light it ("self-shadowing"); otherwise, see if some
       // other surface casts a shadow.
 
-      if (isec.normal.dot (light_ray.dir) >= -Eps)
-	{
-	  // Find any surface that's shadowing LIGHT_RAY.
-	  //
-	  const Surface *shadower = shadow_caster(light_ray, *light, shadow_tstate);
-
-	  // If there's a shadowing surface, and it it is opaque, then we
-	  // need do nothing more...
-	  //
-	  if (!shadower || shadower->shadow_type == Material::SHADOW_MEDIUM)
-	    {
-	      // ... otherwise, we need to calculate exactly how much
-	      // light is received from LIGHT.
-
-	      Color light_color = light->color / (light_ray.len * light_ray.len);
-
-	      // If there was actually some surface shadowing LIGHT_RAY,
-	      // it must be casting a partial shadow, so give it (and any
-	      // further surfaces) a chance to attentuate LIGHT_COLOR.
-	      //
-	      if (shadower)
-		{
-		  light_color = shadow (light_ray, light_color, shadow_tstate);
-		  stats.scene_slow_shadow_traces++;
-		}
-
-	      // Use the lighting model to calculate the resulting color
-	      // of the light-ray when viewd from our perspective.
-	      //
-	      total_color
-		+= light_model.illum (isec, color, light_ray.dir, light_color);
-	    }
-	}
+      if (isec.normal.dot (light->pos - isec.point) >= -Eps)
+	total_color += light->illum (isec, color, light_model, sub_tstate);
     }
 
   return total_color;

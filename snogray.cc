@@ -405,12 +405,13 @@ int main (int argc, char *const *argv)
   // Correct scene lighting
   //
   if (scene_light_scale != 1)
-    for (Scene::light_iterator_t li = scene.lights.begin();
-	 li != scene.lights.end(); li++)
-      {
-	Light *light = *li;
-	light->color *= scene_light_scale;
-      }
+    clp.err ("-L option is currently broken");
+//     for (Scene::light_iterator_t li = scene.lights.begin();
+// 	 li != scene.lights.end(); li++)
+//       {
+// 	Light *light = *li;
+// 	light->color *= scene_light_scale;
+//       }
 
   Rusage scene_end_ru;		// stop timing scene definition
 

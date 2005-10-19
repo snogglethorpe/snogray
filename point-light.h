@@ -1,4 +1,4 @@
-// light.h -- Light object
+// point-light.h -- Point light
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,24 +9,21 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LIGHT_H__
-#define __LIGHT_H__
+#ifndef __POINT_LIGHT_H__
+#define __POINT_LIGHT_H__
 
-#include "pos.h"
+#include "light.h"
+#include "color.h"
 
 namespace Snogray {
 
-class Intersect;
-class Color;
-class LightModel;
-class TraceState;
-
-class Light
+class PointLight : public Light
 {
 public:
 
-  Light (const Pos &_pos) : pos (_pos), num (0) { }
-  virtual ~Light (); // stop gcc bitching
+  PointLight (const Pos &_pos, const Color &col)
+    : Light (_pos), color (col)
+  { }
 
   // Return the color of the surface at ISEC, with nominal color
   // SURFACE_COLOR, as lit by this light with lighting-model
@@ -34,18 +31,13 @@ public:
   //
   virtual Color illum (const Intersect &isec, const Color &surface_color,
 		       const LightModel &light_model, TraceState &tstate)
-    const = 0;
+    const;
 
-  Pos pos;
-
-  // Each light has a number, which we use as a index to access various
-  // data structures referring to lights.
-  //
-  unsigned num;
+  Color color;
 };
 
 }
 
-#endif /* __LIGHT_H__ */
+#endif /* __POINT_LIGHT_H__ */
 
-// arch-tag: 07d0a36e-d44f-44f8-bb69-e57c9681de14
+// arch-tag: de5d75ba-f8bd-4dde-a729-37ea8f37a7cc

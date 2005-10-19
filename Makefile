@@ -94,12 +94,12 @@ COMMON_SRCS = cmdlineparser.cc color.cc string-funs.cc $(IMAGE_SRCS)
 ## Snogray
 ##
 
-SNOGRAY_SRCS = camera.cc glass.cc glow.cc intersect.cc lambert.cc	 \
-	  light-model.cc material.cc mesh.cc mirror.cc surface.cc	 \
-	  phong.cc primary-surface.cc ray.cc scene.cc scene-load.cc	 \
-	  scene-load-aff.cc snogray.cc space.cc sphere.cc test-scenes.cc \
-	  timeval.cc trace-state.cc transform.cc triangle.cc voxtree.cc	 \
-	  $(COMMON_SRCS)
+SNOGRAY_SRCS = camera.cc glass.cc glow.cc intersect.cc lambert.cc	\
+	  light.cc light-model.cc material.cc mesh.cc mirror.cc		\
+	  surface.cc phong.cc point-light.cc primary-surface.cc ray.cc	\
+	  scene.cc scene-load.cc scene-load-aff.cc snogray.cc space.cc	\
+	  sphere.cc test-scenes.cc timeval.cc trace-state.cc		\
+	  transform.cc triangle.cc voxtree.cc $(COMMON_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 

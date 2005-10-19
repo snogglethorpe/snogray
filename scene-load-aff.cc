@@ -30,6 +30,7 @@
 #include "glass.h"
 #include "sphere.h"
 #include "mesh.h"
+#include "point-light.h"
 
 using namespace Snogray;
 using namespace std;
@@ -320,9 +321,9 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  Pos pos = read_pos (stream);
 
 	  if (stream.peek () == '\n')
-	    add (new Light (pos, AFF_LIGHT_INTENS));
+	    add (new PointLight (pos, AFF_LIGHT_INTENS));
 	  else
-	    add (new Light (pos, AFF_LIGHT_INTENS * read_color (stream)));
+	    add (new PointLight (pos, AFF_LIGHT_INTENS * read_color (stream)));
 	}
       else if (strcmp (cmd_buf, "f") == 0 || strcmp (cmd_buf, "fm") == 0)
 	//
