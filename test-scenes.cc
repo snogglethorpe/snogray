@@ -212,31 +212,33 @@ static void
 def_scene_teapot (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
 {
-  // We copied various params from a .nff file with bogus gamma
-  scene.set_assumed_gamma (2.2);
+  // Teapot mesh and coords come from .nff file
+  //
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
-  const Material *teapot_mat
-    = scene.add (new Mirror (0.25, Color (1, 0.5, 0.1) * 0.75,
-			     Material::phong (3.0827, 0.25)));
-  const Material *board1_mat = scene.add (new Mirror (0.3, 0.1, 10));
-  const Material *board2_mat = scene.add (new Mirror (0.3, 0.8, 10));
+  const Material *chrome
+    = scene.add (new Mirror (0.5, Color (0.25, 0.4, 0.2), 10));
+  const Material *gloss_black
+    = scene.add (new Mirror (0.3, 0.02, 10));
+  const Material *gloss_rose
+    = scene.add (new Mirror (0.3, Color (1.5, 0.8, 0.5), 10));
     
-  Mesh *teapot_mesh = new Mesh (teapot_mat);
+  Mesh *teapot_mesh = new Mesh (chrome);
 
   teapot_mesh->load (name + ".msh");
   teapot_mesh->compute_vertex_normals ();
   scene.add (teapot_mesh);
 
-  Mesh *board1_mesh = new Mesh (board1_mat);
+  Mesh *board1_mesh = new Mesh (gloss_black);
   board1_mesh->load ("board1.msh");
   scene.add (board1_mesh);
 
-  Mesh *board2_mesh = new Mesh (board2_mat);
+  Mesh *board2_mesh = new Mesh (gloss_rose);
   board2_mesh->load ("board2.msh");
   scene.add (board2_mesh);
 
   scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
-  scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 100));
+  // scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
 
   scene.set_background (Color (0.078, 0.361, 0.753));
 
