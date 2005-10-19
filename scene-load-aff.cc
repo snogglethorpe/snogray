@@ -344,7 +344,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	    {
 	      Color color = read_color (stream);
 	      diffuse = color * read_float (stream);
-	      specular = Color::white * read_float (stream);
+	      specular = read_float (stream);
 	    }
 	  else
 	    {
@@ -364,7 +364,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 
 	  if (transmittance > Eps)
 	    cur_material
-	      = new Glass (Medium (AFF_MEDIUM_TRANSMITTANCE, ior),
+	      = new Glass (Medium (transmittance, ior),
 			   specular, diffuse, *lmodel);
 	  else if (specular.intensity() > Eps)
 	    cur_material = new Mirror (specular, diffuse, *lmodel);
