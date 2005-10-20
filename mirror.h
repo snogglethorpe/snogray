@@ -24,8 +24,9 @@ public:
     : Material (col, lmodel),
       reflectance ( _reflectance)
   { }
-  Mirror (Color _reflectance, const Color &col, float phong_exp)
-    : Material (col, phong (phong_exp, _reflectance)),
+  Mirror (Color _reflectance, const Color &col,
+	  float phong_exp, float phong_scale = 1)
+    : Material (col, phong (phong_exp, _reflectance * phong_scale)),
       reflectance (_reflectance)
   { }
 

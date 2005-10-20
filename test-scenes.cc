@@ -216,14 +216,14 @@ def_scene_teapot (const string &name, unsigned num,
   //
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
-  const Material *chrome
-    = scene.add (new Mirror (0.5, Color (0.25, 0.4, 0.2), 10));
+  const Material *silver
+    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
   const Material *gloss_black
     = scene.add (new Mirror (0.3, 0.02, 10));
-  const Material *gloss_rose
-    = scene.add (new Mirror (0.3, Color (1.5, 0.8, 0.5), 10));
+  const Material *gloss_mint
+    = scene.add (new Mirror (0.3, Color (1, 2.2, 0.4), 10));
     
-  Mesh *teapot_mesh = new Mesh (chrome);
+  Mesh *teapot_mesh = new Mesh (silver);
 
   teapot_mesh->load (name + ".msh");
   teapot_mesh->compute_vertex_normals ();
@@ -233,23 +233,34 @@ def_scene_teapot (const string &name, unsigned num,
   board1_mesh->load ("board1.msh");
   scene.add (board1_mesh);
 
-  Mesh *board2_mesh = new Mesh (gloss_rose);
+  Mesh *board2_mesh = new Mesh (gloss_mint);
   board2_mesh->load ("board2.msh");
   scene.add (board2_mesh);
 
-  scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
-  // scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
+  switch (num)
+    {
+    case 1: /* night-time teapot */
+      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
+      scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
+      scene.set_background (Color (0.01, 0.01, 0.02));
+      break;
 
-  scene.set_background (Color (0.078, 0.361, 0.753));
+    default: /* day-time teapot */
+      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 90));
+      scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
+      scene.set_background (Color (0.078, 0.361, 0.753));
+    }
 
+  camera.set_vert_fov (M_PI_4 * 0.9);
   camera.move (Pos (4.86, 7.2, 5.4));
-  camera.point (Pos (0, 0, 0), Vec (0, 0, 1));
+  camera.point (Pos (0, -0.2, 0), Vec (0, 0, 1));
 }
 
 static void
 add_scene_descs_teapot (vector<TestSceneDesc> &descs)
 {
   descs.push_back (TestSceneDesc ("teapot", "Classic teapot on checkerboard"));
+  descs.push_back (TestSceneDesc ("teapot1", "Classic teapot at night"));
 }
 
 
