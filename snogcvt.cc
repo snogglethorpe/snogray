@@ -10,7 +10,6 @@
 //
 
 #include <iostream>
-#include <cmath>
 
 #include "cmdlineparser.h"
 #include "image.h"
@@ -20,57 +19,12 @@ using namespace Snogray;
 using namespace std;
 
 
-// Image transform functions
-
-static inline float
-adjust_component_contrast (Color::component_t com, float expon)
-{
-  com *= 2;
-  com -= 1;
-  if (com < 0)
-    com = -pow (-com, expon);
-  else
-    com = pow (com, expon);
-  return (com + 1) / 2;
-}
-
-// This might work alright for B&W, but handling each color component
-// separately tends to screw up colors in odd ways.
-//
-static inline Color
-adjust_contrast (const Color &col, float expon)
-{
-  return Color (adjust_component_contrast (col.red, expon),
-		adjust_component_contrast (col.green, expon),
-		adjust_component_contrast (col.blue, expon));
-}
-
-#if 0 /* this is just freaky */
-static inline Color
-adjust_contrast (const Color &col, float expon)
-{
-  Color::component_t r = col.red * 2 - 1;
-  Color::component_t g = col.green * 2 - 1;
-  Color::component_t b = col.blue * 2 - 1;
-
-  if (col.intensity() > 0.5)
-    return Color ((powf (r, expon) + 1) / 2,
-		  (powf (g, expon) + 1) / 2,
-		  (powf (b, expon) + 1) / 2);
-  else
-    return Color ((1 - powf (-r, expon)) / 2,
-		  (1 - powf (-g, expon)) / 2,
-		  (1 - powf (-b, expon)) / 2);
-}
-#endif
-
-
 
 static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << "[OPTION...] [INPUT_IMAGE_FILE [OUTPUT_IMAGE_FILE]]" << endl;
+     << "[OPTION...] [SOURCE_IMAGE [OUTPUT_IMAGE]]" << endl;
 }
 
 static void
@@ -108,14 +62,12 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "contrast",	required_argument, 0, 'c' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "c:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -127,21 +79,14 @@ int main (int argc, char *const *argv)
   ImageCmdlineSourceParams src_image_params (clp);
   ImageCmdlineSinkParams dst_image_params (clp);
 
-  float contrast = 0;
-
   // Parse command-line options
   //
   int opt;
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-      case 'c':
-	contrast = clp.float_opt_arg ();
-	break;
-
 	IMAGE_OUTPUT_OPTION_CASES (clp, dst_image_params);
 	IMAGE_INPUT_OPTION_CASES (clp, src_image_params);
-
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -181,8 +126,6 @@ int main (int argc, char *const *argv)
   dst_image_params.height = height;
   ImageOutput dst_image (dst_image_params);
 
-  float intensity_expon = (contrast == 0) ? 1 : powf (2.0, -contrast);
-
   // Copy input image to output image, doing any processing
   //
   for (unsigned y = 0; y < src_image.height; y++)
@@ -194,12 +137,6 @@ int main (int argc, char *const *argv)
       // Read into it from the input image
       //
       src_image.read_row (output_row);
-
-      // If the user requested any transforms, do them to the row
-      //
-      if (contrast != 0)
-	for (unsigned x = 0; x < output_row.width; x++)
-	  output_row[x] = adjust_contrast (output_row[x], intensity_expon);
     }
 }
 
