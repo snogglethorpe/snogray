@@ -220,9 +220,9 @@ def_scene_teapot (const string &name, unsigned num,
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
   const Material *gloss_black
     = scene.add (new Mirror (0.3, 0.02, 10));
-  const Material *gloss_mint
-    = scene.add (new Mirror (0.3, Color (1, 2.2, 0.4), 10));
-    
+  const Material *ivory
+    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+
   Mesh *teapot_mesh = new Mesh (silver);
 
   teapot_mesh->load (name + ".msh");
@@ -233,7 +233,7 @@ def_scene_teapot (const string &name, unsigned num,
   board1_mesh->load ("board1.msh");
   scene.add (board1_mesh);
 
-  Mesh *board2_mesh = new Mesh (gloss_mint);
+  Mesh *board2_mesh = new Mesh (ivory);
   board2_mesh->load ("board2.msh");
   scene.add (board2_mesh);
 
