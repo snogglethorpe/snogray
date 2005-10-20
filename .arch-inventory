@@ -4,8 +4,9 @@ source ^(\.gdbinit)$
 #
 backup ^(snogray|snogcvt)$
 
-# Ignore generated test scenes (which are very large)
+# Ignore mesh files used for test scenes that are too large to put in
+# the repository.
 #
-backup ^(test-.*\.nff)$
+backup ^((teapot|board1|board2)\.msh)$
 
 # arch-tag: 4938c158-1080-44bb-a904-898a34b9584f
