@@ -9,7 +9,7 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
-TARGETS = snogray snogcvt
+TARGETS = snogray snogcvt snogdiff
 
 all: $(TARGETS)
 
@@ -80,7 +80,7 @@ _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
 ################################################################
 ##
-## Common sources between snogray and snogcvt
+## Common sources between snogray and snogcvt/snogdiff
 ##
 
 IMAGE_SRCS = image.cc image-aa.cc image-cmdline.cc image-dispatch.cc	\
@@ -108,23 +108,28 @@ snogray: $(SNOGRAY_OBJS)
 
 ################################################################
 ##
-## Snogcvt (image conversion program)
+## snogcvt/snogdiff (image utilities)
 ##
 
 SNOGCVT_SRCS = snogcvt.cc $(COMMON_SRCS)
-
 SNOGCVT_OBJS = $(SNOGCVT_SRCS:.cc=.o)
 
 snogcvt: $(SNOGCVT_OBJS)
 	$(CXX) -o $@ $(LDFLAGS) $(SNOGCVT_OBJS) $(LIBS)
+
+SNOGDIFF_SRCS = snogdiff.cc $(COMMON_SRCS)
+SNOGDIFF_OBJS = $(SNOGDIFF_SRCS:.cc=.o)
+
+snogdiff: $(SNOGDIFF_OBJS)
+	$(CXX) -o $@ $(LDFLAGS) $(SNOGDIFF_OBJS) $(LIBS)
 
 ################################################################
 ##
 ## Union of all source/object files, used in cleaning
 ##
 
-ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS))
-ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS))
+ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS) $(SNOGDIFF_SRCS))
+ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS) $(SNOGDIFF_OBJS))
 
 ################################################################
 ##

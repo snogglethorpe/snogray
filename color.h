@@ -45,6 +45,12 @@ public:
     green += col2.green;
     blue += col2.blue;
   }
+  void operator-= (const Color &col2)
+  {
+    red -= col2.red;
+    green -= col2.green;
+    blue -= col2.blue;
+  }
   void operator*= (float scale)
   {
     red *= scale;

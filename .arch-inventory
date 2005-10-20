@@ -2,7 +2,7 @@ source ^(\.gdbinit)$
 
 # Ignore generated binaries
 #
-backup ^(snogray|snogcvt)$
+backup ^(snogray|snogcvt|snogdiff)$
 
 # Ignore mesh files used for test scenes that are too large to put in
 # the repository.
