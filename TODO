@@ -20,12 +20,50 @@ Todo list for snogray
      Ashikhmin?  Cook-Torrance?
 
 
+ + Use Fresnel equations to calculate reflectance/transmittance
+
+     http://scienceworld.wolfram.com/physics/FresnelEquations.html
+
+
+ [XXX]
  + Make mirror reflections use light-model
 
-     [Is this correct?]
+     [Is this correct?] [Probably not]
 
 
  + Texture support
+
+     Add a "TextureMap" data type which maps between a surface point and
+     texture coordinates.
+
+     New class TexCoords to hold two texture coordinates?
+
+     Add a "Pigment" data type, which contains a Color and a Texture
+     pointer; most places where Color is now used in materials, should
+     use Pigment instead (have constructors so that it can be
+     initialized just like a color, resulting in a 0 Texture pointer).
+
+     Pigment has a "color(...)" method, which takes an a texture-map and
+     a location, and returns a color by using the texure-map to map the
+     location into texture coordinates, and looking them in the texture
+     (if the pigment's texture is 0 of course, return its color).
+
+     Surface class gets a "texture_coords" method that returns texture
+     coordinates for a given point on the surface.  PrimarySurface gets
+     a new field to explicitly store a texture map, and uses that to
+     implement texture_coords; mesh triangles use something else, e.g.,
+     explicit per-vertex texture-coordinate tables with interpolation.
+
+     Intersect constructor should look up and cache texture-coordinates
+     for the intersection point.
+
+     Anyplace where a Color has been replaced by a Pigment should now
+     call `pigment.color (isec.tex_coords)' instead of just returning
+     the color directly (when the pigment's texture pointers is 0, this
+     will be almost as fast).
+
+     Similar techniques are needed for looking up normals; shared
+     superclass with textures?
 
 
  + Make voxtree smarter
