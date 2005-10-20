@@ -37,7 +37,8 @@ ImageParams::sys_error (const std::string &msg) const
 // ImageOutput constructor/destructor
 
 ImageOutput::ImageOutput (const ImageSinkParams &params)
-  : aa_factor (params.aa_factor), sink (params.make_sink ())
+  : aa_factor (params.aa_factor), sink (params.make_sink ()),
+    intensity_scale (params.exposure == 0 ? 1 : powf (2.0, params.exposure))
 {
   aa_filter_t aa_filter = params.aa_filter;
 
@@ -92,15 +93,13 @@ ImageOutput::write_accumulated_rows ()
 {
   if (num_accumulated_rows)
     {
-      if (aa_kernel_size > 1)
-	// Anti-alias recent rows and write the result to our output file
-	{
-	  fill_aa_row ();
-	  sink->write_row (*aa_row);
-	}
-      else
-	// For non-anti-aliased output, just write what we have
-	sink->write_row (*recent_rows[0]);
+      ImageRow &row = (aa_kernel_size > 1) ? fill_aa_row() : *recent_rows[0];
+
+      if (exposure != 0)
+	for (unsigned x = 0; x < row.width; x++)
+	  row[x] *= intensity_scale;
+
+      sink->write_row (row);
 
       num_accumulated_rows = 0;
     }

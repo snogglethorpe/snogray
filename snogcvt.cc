@@ -86,10 +86,6 @@ help (CmdLineParser &clp, ostream &os)
   os <<
   "Change the format of or transform an image file"
 n
-s " Transforms:"
-s "  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
-s "  -c, --contrast=POW         Increase or decrease contrast"
-n
 s IMAGE_INPUT_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
@@ -112,7 +108,6 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "exposure",	required_argument, 0, 'e' },
     { "contrast",	required_argument, 0, 'c' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
@@ -120,7 +115,7 @@ int main (int argc, char *const *argv)
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "e:c:"
+    "c:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -132,7 +127,7 @@ int main (int argc, char *const *argv)
   ImageCmdlineSourceParams src_image_params (clp);
   ImageCmdlineSinkParams dst_image_params (clp);
 
-  float exposure = 0, contrast = 0;
+  float contrast = 0;
 
   // Parse command-line options
   //
@@ -140,9 +135,6 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-      case 'e':
-	exposure = clp.float_opt_arg ();
-	break;
       case 'c':
 	contrast = clp.float_opt_arg ();
 	break;
@@ -189,7 +181,6 @@ int main (int argc, char *const *argv)
   dst_image_params.height = height;
   ImageOutput dst_image (dst_image_params);
 
-  float intensity_scale = (exposure == 0) ? 1 : powf (2.0, exposure);
   float intensity_expon = (contrast == 0) ? 1 : powf (2.0, -contrast);
 
   // Copy input image to output image, doing any processing
@@ -206,16 +197,9 @@ int main (int argc, char *const *argv)
 
       // If the user requested any transforms, do them to the row
       //
-      if (contrast != 0 || exposure != 0)
+      if (contrast != 0)
 	for (unsigned x = 0; x < output_row.width; x++)
-	  {
-	    Color col = output_row[x];
-	    if (contrast != 0)
-	      col = adjust_contrast (col, intensity_expon);
-	    if (exposure != 0)
-	      col *= intensity_scale;
-	    output_row[x] = col;
-	  }
+	  output_row[x] = adjust_contrast (output_row[x], intensity_expon);
     }
 }
 

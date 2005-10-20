@@ -103,7 +103,7 @@ ImageOutput::make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
 // `recent_rows' by convoluting pixels recent_rows with our filter
 // kernel.
 //
-void
+ImageRow &
 ImageOutput::fill_aa_row ()
 {
   unsigned aa_overlap = aa_kernel_size - aa_factor;
@@ -156,6 +156,8 @@ ImageOutput::fill_aa_row ()
 
       (*aa_row)[x] = aa_color;
     }
+
+  return *aa_row;
 }
 
 // arch-tag: 5a5c9b8b-7c13-416c-821b-1f72aa4eccb8

@@ -65,6 +65,7 @@ struct ImageSinkParams : ImageParams
 
   ImageSinkParams ()
     : width (0), height (0),
+      exposure (0),
       aa_factor (0), aa_overlap (0), aa_filter (0),
       target_gamma (0), quality (0)
   { }
@@ -75,6 +76,10 @@ struct ImageSinkParams : ImageParams
   virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
 
   unsigned width, height;
+
+  // The intensity of the output image is scaled by 2^exposure
+  //
+  float exposure;
 
   unsigned aa_factor, aa_overlap;
   float (*aa_filter) (int offs, unsigned size);
@@ -124,6 +129,10 @@ public:
   // output sink.
   ImageRow &next_row ();
 
+  // The intensity of the output image is scaled by 2^exposure
+  //
+  float exposure;
+
   unsigned aa_factor;
 
   // Anti-aliasing filters
@@ -137,9 +146,11 @@ private:
 
   float *make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
 			 unsigned kernel_size);
-  void fill_aa_row ();
+  ImageRow &fill_aa_row ();
 
   ImageSink *sink;
+
+  float intensity_scale;	// 2^exposure
 
   ImageRow **recent_rows;
   ImageRow *aa_row;

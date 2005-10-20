@@ -49,9 +49,12 @@
   -a, --aa-factor=N          Use NxN input pixels to compute each output pixel\n\
   -A, --aa-overlap=M         Include M adjacent input pixels in anti-aliasing\n\
   -F, --aa-filter=NAME       Use anti-aliasing filter NAME (one of: box,\n\
-                               triang, gauss; default: gauss)"
+                               triang, gauss; default: gauss)\n\
+\n\
+ Transforms:\n\
+  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
 //
-#define IMAGE_OUTPUT_SHORT_OPTIONS "a:A:F:O:g:Q:"
+#define IMAGE_OUTPUT_SHORT_OPTIONS "a:A:F:O:g:Q:e:"
 //
 #define IMAGE_OUTPUT_LONG_OPTIONS			\
   { "output-format",	required_argument, 0, 'O' },	\
@@ -59,7 +62,8 @@
   { "quality",		required_argument, 0, 'Q' },	\
   { "aa-factor",	required_argument, 0, 'a' },	\
   { "aa-overlap",	required_argument, 0, 'A' },	\
-  { "aa-filter",	required_argument, 0, 'F' }
+  { "aa-filter",	required_argument, 0, 'F' },	\
+  { "exposure",		required_argument, 0, 'e' }
 //
 #define IMAGE_OUTPUT_OPTION_CASES(clp, params)		\
   case 'O':						\
@@ -80,6 +84,10 @@
     break;						\
   case 'F':						\
     params.parse_aa_filter_opt_arg ();			\
+    break;						\
+  /* Transform options */				\
+  case 'e':						\
+    params.exposure = clp.float_opt_arg ();		\
     break;
 
 
