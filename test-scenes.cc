@@ -33,11 +33,12 @@ using namespace std;
 // Define the scene, since can't read any kind of scene file yet
 
 static void
-add_bulb (Scene &scene, const Pos &pos, const Color &col = Color::white)
+add_bulb (Scene &scene, const Pos &pos, float radius,
+	  const Color &col = Color::white)
 {
   const Material *bulb_mat = scene.add (new Glow (col));
   scene.add (new PointLight (pos, col));
-  scene.add (new Sphere (bulb_mat, pos, 0.06));
+  scene.add (new Sphere (bulb_mat, pos, radius));
 }
 
 static void
@@ -69,13 +70,13 @@ def_scene_miles (const string &name, unsigned num,
     = scene.add (new Material (Color (0.2, 0.5, 0.1)));
 
   // First test scene
-  add_bulb (scene, Pos (0, 15, 0), 30);
-  add_bulb (scene, Pos (0, 0, -5), 30);
-  add_bulb (scene, Pos (-5, 10, 0), 40 * Color (0, 0, 1));
-  add_bulb (scene, Pos (-40, 15, -40), 300);
-  add_bulb (scene, Pos (-40, 15,  40), 300);
-  add_bulb (scene, Pos ( 40, 15, -40), 300);
-  add_bulb (scene, Pos ( 40, 15,  40), 300);
+  add_bulb (scene, Pos (0, 15, 0), 0.06, 30);
+  add_bulb (scene, Pos (0, 0, -5), 0.06, 30);
+  add_bulb (scene, Pos (-5, 10, 0), 0.06, 40 * Color (0, 0, 1));
+  add_bulb (scene, Pos (-40, 15, -40), 0.06, 300);
+  add_bulb (scene, Pos (-40, 15,  40), 0.06, 300);
+  add_bulb (scene, Pos ( 40, 15, -40), 0.06, 300);
+  add_bulb (scene, Pos ( 40, 15,  40), 0.06, 300);
 
 //   // xxx
 //   scene.add (new Sphere (mat1, Pos (-2, -2, -8), 0.5));
@@ -194,9 +195,9 @@ def_scene_pretty_bunny (const string &name, unsigned num,
 			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
 			   Pos (10, -0.65, 10)));
   
-  add_bulb (scene, Pos (0, 10, 0), 100);
-  add_bulb (scene, Pos (15, 2, 0), 100);
-  add_bulb (scene, Pos (0, 1, 15), 100);
+  add_bulb (scene, Pos (0, 10, 0), 0.06, 100);
+  add_bulb (scene, Pos (15, 2, 0), 0.06, 100);
+  add_bulb (scene, Pos (0, 1, 15), 0.06, 100);
 }
 
 static void
@@ -241,8 +242,10 @@ def_scene_teapot (const string &name, unsigned num,
     {
     case 1: /* night-time teapot */
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
-      scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
+      //scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
       scene.set_background (Color (0.01, 0.01, 0.02));
+      add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
       break;
 
     default: /* day-time teapot */
