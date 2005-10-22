@@ -37,14 +37,15 @@ Glow::shadow_type () const
 // shadowing surfaces.
 //
 Color
-Glow::shadow (const Surface *surface, const Ray &light_ray, const Color &light_color,
-	      TraceState &tstate)
+Glow::shadow (const Surface *surface,
+	      const Ray &light_ray, const Color &light_color,
+	      const Light &light, TraceState &tstate)
   const
 {
   // Just pass straight through
   //
   TraceState &sub_tstate = tstate.subtrace_state (TraceState::SHADOW, surface);
-  return sub_tstate.shadow (light_ray, light_color);
+  return sub_tstate.shadow (light_ray, light_color, light);
 }
 
 // arch-tag: af19d9b6-7b4a-49ec-aee4-529be6aba253

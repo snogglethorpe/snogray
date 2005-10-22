@@ -86,7 +86,7 @@ public:
   // opaque shadows (the most common kind) don't use it!
   //
   Color shadow (const Ray &light_ray, const Color &light_color,
-		TraceState &tstate)
+		const Light &light, TraceState &tstate)
     const
   {
     if (tstate.depth > max_depth * 2)
@@ -107,7 +107,7 @@ public:
 	//
 	Color result
 	  = closest->material()->shadow (closest, continued_light_ray,
-					 light_color, tstate);
+					 light_color, light, tstate);
 
 	// If we are looking through something other than air, attentuate
 	// the surface appearance due to transmission through the current
@@ -247,9 +247,10 @@ TraceState::illum (const Intersect &isec, const Color &color,
 }
 
 inline Color
-TraceState::shadow (const Ray &light_ray, const Color &light_color)
+TraceState::shadow (const Ray &light_ray, const Color &light_color,
+		    const Light &light)
 {
-  return scene.shadow (light_ray, light_color, *this);
+  return scene.shadow (light_ray, light_color, light, *this);
 }
 
 inline const Surface *

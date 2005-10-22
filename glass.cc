@@ -83,8 +83,9 @@ Glass::shadow_type () const
 // shadowing surfaces.
 //
 Color
-Glass::shadow (const Surface *surface, const Ray &light_ray, const Color &light_color,
-	       TraceState &tstate)
+Glass::shadow (const Surface *surface,
+	       const Ray &light_ray, const Color &light_color,
+	       const Light &light, TraceState &tstate)
   const
 {
   // We don't do real refraction because that would invalidate the light
@@ -93,7 +94,7 @@ Glass::shadow (const Surface *surface, const Ray &light_ray, const Color &light_
   TraceState &sub_tstate
     = tstate.subtrace_state (TraceState::SHADOW, &medium, surface);
 
-  return sub_tstate.shadow (light_ray, light_color * (1 - reflectance));
+  return sub_tstate.shadow (light_ray, light_color * (1 - reflectance), light);
 }
 
 // arch-tag: a8209bc5-a88c-4f6c-b598-ee89c9587a6f

@@ -145,20 +145,16 @@ SceneShadowCallback::operator () (Surface *surface)
 	{
 	  shadower = surface;
 
+	  // Remember which surface we found, so we can try it first
+	  // next time.
+	  //
+	  tstate.shadow_hints[light.num] = surface;
+
 	  if (shadow_type == Material::SHADOW_OPAQUE)
 	    //
 	    // A simple opaque surface blocks everything; we can
-	    // immediately return it.
-	    {
-	      // Remember which surface cast a shadow from this light, so we
-	      // can try it first next time.
-	      //
-	      tstate.shadow_hints[light.num] = surface;
-
-	      // Stop looking any further.
-	      //
-	      stop_iteration ();
-	    }
+	    // immediately return it; stop looking any further.
+	    stop_iteration ();
 	}
     }
 }
@@ -184,10 +180,13 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
   // chance of hitting than usual (because nearby points are often obscured
   // from a given light by the same surface).
   //
-  // Note that we only store hints for opaque surfaces, because only when we
-  // find an opaque shadow caster can we immediately return (for non-opaque
-  // shadow casters, we must keep looking in case there is also an opaque
-  // shadow caster, or a closer non-opaque caster).
+  // Note that in the case where the hint refers to non-opaque surface,
+  // we will return it immediately, just like an opaque surface.  This
+  // will not cause errors, because the shadow-tracing "slow path"
+  // (which will get used if a non-opaque surface is returned) still
+  // does the right thing in this case, simply more slowly; in the case
+  // where a new opaque surface is found, the hint will be updated
+  // elsewhere (in Material::shadow actually).
   //
   const Surface *hint = tstate.shadow_hints[light.num];
   if (hint && hint != tstate.origin)

@@ -35,7 +35,7 @@ public:
   //
   virtual Color shadow (const Surface *surface,
 			const Ray &light_ray, const Color &light_color,
-			TraceState &tstate)
+			const Light &light, TraceState &tstate)
     const;
 };
 

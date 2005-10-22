@@ -68,10 +68,21 @@ Material::shadow_type () const
 // shadowing surfaces.
 //
 Color
-Material::shadow (const Surface *surface, const Ray &light_ray, const Color &light_color,
-		  TraceState &tstate)
+Material::shadow (const Surface *surface,
+		  const Ray &light_ray, const Color &light_color,
+		  const Light &light, TraceState &tstate)
   const
 {
+  // This method only gets called if we encounter an opaque surface,
+  // casting a "real" shadow.  We can just immediately return black.
+
+  // Set TSTATE's shadow-hint so the next time SURFACE will be
+  // immediately tried first when calculating shadows.
+  //
+  tstate.shadow_hints[light.num] = surface;
+
+  // Return black.
+  //
   return Color (0, 0, 0);
 }
 

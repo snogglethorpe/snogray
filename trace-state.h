@@ -93,7 +93,8 @@ public:
   Color render (const Ray &ray);
   Color illum (const Intersect &isec, const Color &surface_color,
 	       const LightModel &light_model);
-  Color shadow (const Ray &light_ray, const Color &light_color);
+  Color shadow (const Ray &light_ray, const Color &light_color,
+		const Light &light);
   const Surface *shadow_caster (const Ray &light_ray, const Light &light);
 
   // Searches back through the trace history to find the enclosing medium.

@@ -50,7 +50,7 @@ Light::ray_illum (const Ray &light_ray, const Color &light_color,
       //
       if (shadower)
 	{
-	  illum_color = tstate.shadow (light_ray, illum_color);
+	  illum_color = tstate.shadow (light_ray, illum_color, *this);
 	  tstate.scene.stats.scene_slow_shadow_traces++;
 	}
 
