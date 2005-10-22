@@ -91,7 +91,7 @@ public:
   // method in the scene.
   //
   Color render (const Ray &ray);
-  Color illum (const Intersect &isec, const Color &color,
+  Color illum (const Intersect &isec, const Color &surface_color,
 	       const LightModel &light_model);
   Color shadow (const Ray &light_ray, const Color &light_color);
   const Surface *shadow_caster (const Ray &light_ray, const Light &light);

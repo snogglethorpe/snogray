@@ -20,6 +20,7 @@ class Intersect;
 class Color;
 class LightModel;
 class TraceState;
+class Ray;
 
 class Light
 {
@@ -39,6 +40,15 @@ public:
   // Adjust this light's intensity by a factor of SCALE.
   //
   virtual void scale_intensity (float scale) = 0;
+
+  // Calculate the illumination by a single light ray LIGHT_RAY with
+  // color LIGHT_COLOR, adjusting for any shdowing etc. that may  affect
+  // it.  LIGHT_RAY points from the surface to the light.
+  //
+  Color ray_illum (const Ray &light_ray, const Color &light_color,
+		   const Intersect &isec, const Color &surface_color,
+		   const LightModel &light_model, TraceState &tstate)
+    const;
 
   Pos pos;
 
