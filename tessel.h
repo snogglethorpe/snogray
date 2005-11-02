@@ -130,6 +130,11 @@ public:
     //
     virtual Pos surface_pos (const Pos &pos) const = 0;
 
+    // Returns the desired sample resolution needed, given a certain error
+    // limit.
+    //
+    virtual dist_t sample_resolution (err_t max_err) const = 0;
+
     //
     // The following methods export private Tessel methods for the use of
     // Function subclasses.
@@ -307,10 +312,8 @@ private:
   void remove_subdiv (Subdiv *subdiv);
 
   // Build a subdivision tree to full resolution between VERT1 and VERT2.
-  // SEP is roughly the separation between VERT1 and VERT2, and is used to
-  // judge the current "sampling resolution", so we know when to stop.
   //
-  Subdiv *sample (const Vertex *vert1, const Vertex *vert2, dist_t sep);
+  Subdiv *sample (const Vertex *vert1, const Vertex *vert2);
 
   // Prune the subdivision tree rooted at TREE, removing any levels that
   // are beneath the error threshold.

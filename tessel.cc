@@ -35,10 +35,9 @@ Tessel::Tessel (const Function &_fun, const MaxErrCalc &_max_err_calc)
   structure ();			// Refine the basis
 
   std::cout << "* tessellation: " << vertices.size() << " vertices"
-	    << " (" << (vertices.size() + free_vertices.size()) << " max)"
+	    << ", " << subdivs.size() << " subdivs"
 	    << ", " << edges.size() << " edges"
-	    << " (" << (edges.size() + free_edges.size()) << " max)"
-	    << ", " << cells.size() << " triangles" << std::endl;
+	    << ", " << cells.size() << " cells" << std::endl;
 
   // Assign each vertex's index
   //
@@ -98,16 +97,17 @@ Tessel::remove_subdiv (Subdiv *subdiv)
 }
 
 // Build a subdivision tree to full resolution between VERT1 and VERT2.
-// SEP is roughly the separation between VERT1 and VERT2, and is used to
-// judge the current "sampling resolution", so we know when to stop.
 //
 Tessel::Subdiv *
-Tessel::sample (const Vertex *vert1, const Vertex *vert2, dist_t sep)
+Tessel::sample (const Vertex *vert1, const Vertex *vert2)
 {
   const Pos &pos1 = vert1->pos;
   const Pos &pos2 = vert2->pos;
 
-  if (sep > max_err (pos1) * 2)
+  dist_t samp_res = fun.sample_resolution (max_err (pos1));
+  dist_t sep_sq = (pos2 - pos1).length_squared ();
+
+  if (sep_sq > samp_res * samp_res)
     {
       const Pos edge_mid = (pos1 + pos2) / 2;
       const Pos surf_mid = fun.surface_pos (edge_mid);
@@ -115,9 +115,8 @@ Tessel::sample (const Vertex *vert1, const Vertex *vert2, dist_t sep)
 
       Vertex *mid = add_vertex (surf_mid);
 
-      dist_t sub_sep = sep / 2;
-      Subdiv *bef_mid = sample (vert1, mid, sub_sep);
-      Subdiv *aft_mid = sample (mid, vert2, sub_sep);
+      Subdiv *bef_mid = sample (vert1, mid);
+      Subdiv *aft_mid = sample (mid, vert2);
 
       err_t err = corr;
       if (bef_mid && err < bef_mid->err)
@@ -236,7 +235,7 @@ Tessel::add_root_edge (const Vertex *vert1, const Vertex *vert2)
 {
   // Make a full-resolution subdiv tree
   //
-  Subdiv *subdiv = sample (vert1, vert2, (vert1->pos - vert2->pos).length());
+  Subdiv *subdiv = sample (vert1, vert2);
 
   err_t err = subdiv ? subdiv->err : 0;
 

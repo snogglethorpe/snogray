@@ -63,6 +63,12 @@ SphereTesselFun::surface_pos (const Pos &pos) const
   return origin + (pos - origin).unit() * r;
 }
 
+dist_t
+SphereTesselFun::sample_resolution (Tessel::err_t max_err) const
+{
+  return sqrt (2 * radius * max_err - max_err * max_err);
+}
+
 // If the subclass can compute vertex normals too, it may use these
 // methods to communicate them.
 
@@ -113,6 +119,12 @@ SincTesselFun::define_basis (Tessel &tessel) const
   add_cell (tessel, c2, mid, c3);
   add_cell (tessel, c3, mid, c4);
   add_cell (tessel, c4, mid, c1);
+}
+
+dist_t
+SincTesselFun::sample_resolution (Tessel::err_t max_err) const
+{
+  return max_err * 16;
 }
 
 // arch-tag: e33bedf6-51a0-4e6b-a25b-7238ee36da1a

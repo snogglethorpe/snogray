@@ -35,6 +35,11 @@ protected:
   //
   Pos surface_pos (const Pos &pos) const;
 
+  // Returns the desired sample resolution needed, given a certain error
+  // limit.
+  //
+  dist_t sample_resolution (Tessel::err_t max_err) const;
+
   // If the subclass can compute vertex normals too, it may use these
   // methods to communicate them.
   //
@@ -66,6 +71,11 @@ protected:
   // operation used during tessellation.
   //
   Pos surface_pos (const Pos &pos) const;
+
+  // Returns the desired sample resolution needed, given a certain error
+  // limit.
+  //
+  dist_t sample_resolution (Tessel::err_t max_err) const;
 
 private:
 

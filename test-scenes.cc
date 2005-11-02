@@ -230,6 +230,8 @@ def_scene_tessel (const string &name, unsigned num,
 
   switch (num)
     {
+      dist_t perturb;
+
     default:
     case 0:
       scene.add (new Mesh (mat, SincTesselFun (Pos (0, 0, 0), 1.5),
@@ -238,9 +240,17 @@ def_scene_tessel (const string &name, unsigned num,
 
     case 1:
     case 2:
-      scene.add (new Mesh (mat,
-			   SphereTesselFun (Pos (0, 0, 0), 1,
-					    num == 1 ? 0 : 0.001),
+    case 3:
+    case 4:
+      switch (num)
+	{
+	case 1: perturb = 0;     break;
+	case 2: perturb = 0.001; break;
+	case 3: perturb = 0.002; break;
+	case 4: perturb = 0.01;  break;
+	}
+
+      scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 0), 1, perturb),
 			   Tessel::ConstMaxErr (tessel_accur)));
       break;
     }
@@ -258,7 +268,11 @@ add_scene_descs_tessel (vector<TestSceneDesc> &descs)
   descs.push_back (TestSceneDesc ("tessel2", "Tessellation test: green ball"));
   descs.push_back (TestSceneDesc ("tessel3", "Tessellation test: silver ball"));
   descs.push_back (TestSceneDesc ("tessel4", "Tessellation test: rough green ball"));
-  descs.push_back (TestSceneDesc ("tessel5", "Tessellation test: roub silver ball"));
+  descs.push_back (TestSceneDesc ("tessel5", "Tessellation test: rough silver ball"));
+  descs.push_back (TestSceneDesc ("tessel6", "Tessellation test: rougher green ball"));
+  descs.push_back (TestSceneDesc ("tessel7", "Tessellation test: rougher silver ball"));
+  descs.push_back (TestSceneDesc ("tessel8", "Tessellation test: roughest green ball"));
+  descs.push_back (TestSceneDesc ("tessel9", "Tessellation test: roughest silver ball"));
 }
 
 
