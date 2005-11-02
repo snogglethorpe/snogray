@@ -211,6 +211,9 @@ s "  -I, --scene-format=FMT     Scene is in format FMT (one of: test, aff, nff)"
 s "  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA"
 s "  -L, --light-scale=SCALE    Scale all scene lighting by SCALE"
 n
+s "  -T, --tessel-accur=ERR     Set tessellation accuracy for test:tessel scenes"
+s "                             (default 0.01; prepend `@' to ERR for smoothing)"
+n
 s IMAGE_OUTPUT_OPTIONS_HELP
 n
 s "      --list-test-scenes     Ouput a list of builtin test-scenes to stdout"
@@ -236,6 +239,10 @@ n
 }
 
 
+float tessel_accur = 0.01;
+bool tessel_smooth = false;
+
+
 int main (int argc, char *const *argv)
 {
   // Command-line option specs
@@ -252,6 +259,7 @@ int main (int argc, char *const *argv)
     { "scene-format", 	required_argument, 0, 'I' },
     { "assumed-gamma", 	required_argument, 0, 'G' },
     { "light-scale", 	required_argument, 0, 'L' },
+    { "tessel-accur",   required_argument, 0, 'T' },
     { "list-test-scenes", no_argument,     0, OPT_LIST_TEST_SCENES },
 
     IMAGE_OUTPUT_LONG_OPTIONS,
@@ -261,7 +269,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:m:w:h:l:qpPI:G:L:"
+    "s:m:w:h:l:qpPI:G:L:T:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -286,6 +294,18 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
+      case 'T':
+	{ const char *arg = clp.opt_arg();
+	  if (*arg == '@')
+	    {
+	      tessel_smooth = true;
+	      arg++;
+	    }
+	  if (*arg)
+	    tessel_accur = atof (arg);
+	}
+	break;
+
 	// Scene options
 	//
       case 'I':

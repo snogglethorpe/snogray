@@ -45,6 +45,13 @@ public:
     x -= v2.x; y -= v2.y; z -= v2.z;
   }
 
+  // Useful for calculating averages
+  //
+  Pos operator/ (const float denom) const
+  {
+    return Pos (x / denom, y / denom, z / denom);
+  }
+
   Pos operator* (const Transform &xform) const
   {
     return Pos (Tuple3::operator* (xform));

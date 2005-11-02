@@ -9,10 +9,12 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iostream>
 #include <fstream>
 
 #include "excepts.h"
 #include "mesh.h"
+#include "tessel.h"
 
 using namespace Snogray;
 using namespace std;
@@ -115,6 +117,56 @@ void
 Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2)
 {
   add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2));
+}
+
+
+// Tessellation support
+
+// Add the results of tessellating TESSEL_FUN with MAX_ERR.
+//
+void
+Mesh::add (const Tessel::Function &tessel_fun,
+	   const Tessel::MaxErrCalc &max_err)
+{
+  // Do the tessellation
+  //
+  Tessel tessel (tessel_fun, max_err);
+
+  unsigned base_vert = vertices.size ();
+
+  extern bool tessel_smooth;
+  bool has_normals = tessel_fun.has_vertex_normals ();
+  unsigned tessel_num_verts = tessel.num_vertices ();
+
+  if (! tessel_smooth)
+    has_normals = false;
+
+  // Try to increase efficiency by pre-allocating space
+  //
+  triangles.reserve (triangles.size() + tessel.num_triangles ());
+  vertices.reserve (base_vert + tessel_num_verts);
+  if (has_normals)
+    vertex_normals.reserve (base_vert + tessel_num_verts);
+
+  // Add vertices
+  //
+  for (LinkedList<Tessel::Vertex>::iterator vi = tessel.vertices_begin ();
+       vi != tessel.vertices_end(); vi++)
+    if (has_normals)
+      add_vertex (vi->pos, tessel_fun.vertex_normal (*vi));
+    else
+      add_vertex (vi->pos);
+
+  // Add triangles
+  //
+  for (Tessel::TriangleIter ti = tessel.triangles_begin();
+       ti != tessel.triangles_end(); ti++)
+    add_triangle (base_vert + ti.vert1().index,
+		  base_vert + ti.vert2().index,
+		  base_vert + ti.vert3().index);
+
+  if (tessel_smooth && !has_normals)
+    compute_vertex_normals ();
 }
 
 
@@ -398,6 +450,9 @@ Mesh::compute_vertex_normals ()
 void
 Mesh::add_to_space (Voxtree &space)
 {
+  std::cout << "* adding mesh: " << vertices.size() << " vertices"
+	    << ", " << triangles.size() << " triangles" << std::endl;
+
   for (unsigned i = 0; i < triangles.size(); i++)
     triangles[i].add_to_space (space);
 }

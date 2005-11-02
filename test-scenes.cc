@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+extern float tessel_accur;
+
 #include <sstream>
 
 #include "test-scenes.h"
@@ -24,6 +26,7 @@
 #include "mirror.h"
 #include "glass.h"
 #include "mesh.h"
+#include "tessel-funs.h"
 #include "string-funs.h"
 
 using namespace Snogray;
@@ -205,6 +208,57 @@ add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
 {
   descs.push_back (TestSceneDesc ("pretty-bunny", "Crystal Stanford bunny with some spheres"));
   descs.push_back (TestSceneDesc ("goldbunny", "Gold Stanford bunny with some spheres"));
+}
+
+
+
+static void
+def_scene_tessel (const string &name, unsigned num,
+		  Scene &scene, Camera &camera)
+{
+  camera.move (Pos (2, 3, -4));
+  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+
+  const Material *silver
+    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
+  const Material *green
+    = scene.add (new Material (Color (0.1,1,0.1), Material::phong (250)));
+
+  const Material *mat = ((num & 1) == 0) ? green : silver;
+
+  num >>= 1;			// remove lowest bit
+
+  switch (num)
+    {
+    default:
+    case 0:
+      scene.add (new Mesh (mat, SincTesselFun (Pos (0, 0, 0), 1.5),
+			   Tessel::ConstMaxErr (tessel_accur)));
+      break;
+
+    case 1:
+    case 2:
+      scene.add (new Mesh (mat,
+			   SphereTesselFun (Pos (0, 0, 0), 1,
+					    num == 1 ? 0 : 0.001),
+			   Tessel::ConstMaxErr (tessel_accur)));
+      break;
+    }
+
+  scene.add (new PointLight (Pos (0, 5, 5), 50));
+  scene.add (new PointLight (Pos (-5, 5, -5), 15));
+  scene.add (new PointLight (Pos (10, -5, -15), 100));
+}
+
+static void
+add_scene_descs_tessel (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("tessel0", "Tessellation test: green sinc function"));
+  descs.push_back (TestSceneDesc ("tessel1", "Tessellation test: silver sinc function"));
+  descs.push_back (TestSceneDesc ("tessel2", "Tessellation test: green ball"));
+  descs.push_back (TestSceneDesc ("tessel3", "Tessellation test: silver ball"));
+  descs.push_back (TestSceneDesc ("tessel4", "Tessellation test: rough green ball"));
+  descs.push_back (TestSceneDesc ("tessel5", "Tessellation test: roub silver ball"));
 }
 
 
@@ -711,23 +765,26 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
       name = name.substr (0, base_end + 1);
     }
 
-if (name == "miles")
-  def_scene_miles (name, num, scene, camera);
+  if (name == "miles")
+    def_scene_miles (name, num, scene, camera);
 
- else if (name == "teapot")
-   def_scene_teapot (name, num, scene, camera);
+  else if (name == "tessel")
+    def_scene_tessel (name, num, scene, camera);
 
- else if (ends_in (name, "bunny"))
-   def_scene_pretty_bunny (name, num, scene, camera);
+  else if (name == "teapot")
+    def_scene_teapot (name, num, scene, camera);
 
- else if (name == "cornell-box" || name == "cbox")
-   def_scene_cornell_box (name, num, scene, camera);
+  else if (ends_in (name, "bunny"))
+    def_scene_pretty_bunny (name, num, scene, camera);
 
- else if (name == "cs465")
-   def_scene_cs465 (name, num, scene, camera);
+  else if (name == "cornell-box" || name == "cbox")
+    def_scene_cornell_box (name, num, scene, camera);
 
- else
-   throw (runtime_error ("Unknown test scene"));
+  else if (name == "cs465")
+    def_scene_cs465 (name, num, scene, camera);
+
+  else
+    throw (runtime_error ("Unknown test scene"));
 }
 
 vector<TestSceneDesc>
@@ -736,6 +793,7 @@ Snogray::list_test_scenes ()
   vector<TestSceneDesc> descs;
 
   add_scene_descs_miles (descs);
+  add_scene_descs_tessel (descs);
   add_scene_descs_teapot (descs);
   add_scene_descs_pretty_bunny (descs);
   add_scene_descs_cornell_box (descs);

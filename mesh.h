@@ -20,9 +20,12 @@
 #include <utility>		// for std::pair
 
 #include "primary-surface.h"
+#include "tessel.h"
 #include "pos.h"
 
 namespace Snogray {
+
+class Tessel;
 
 class Mesh : public PrimarySurface
 {
@@ -37,6 +40,10 @@ public:
   Mesh (const Material *mat, const char *file_name)
     : PrimarySurface (mat), triangles (0, *this)
   { load (file_name); }
+  Mesh (const Material *mat, const Tessel::Function &tessel_fun,
+	const Tessel::MaxErrCalc &max_err)
+    : PrimarySurface (mat), triangles (0, *this)
+  { add (tessel_fun, max_err); }
 
   // Add a triangle to the mesh
   //
@@ -55,6 +62,11 @@ public:
   unsigned add_vertex (const Pos &pos, const Vec &normal);
   unsigned add_vertex (const Pos &pos, const Vec &normal,
 		       VertexNormalGroup &vgroup);
+
+  // Add the results of tessellating TESSEL_FUN with MAX_ERR.
+  //
+  void add (const Tessel::Function &tessel_fun,
+	    const Tessel::MaxErrCalc &max_err);
 
   // For loading mesh from any file-type (automatically determined)
   //

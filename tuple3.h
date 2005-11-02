@@ -31,6 +31,14 @@ public:
   {
     return x < t.x || (x == t.x && (y < t.y || (y == t.y && z < t.z)));
   }
+  bool operator== (const Tuple3 &t) const
+  {
+    return x == t.x && y == t.y && z == t.z;
+  }
+  bool operator!= (const Tuple3 &t) const
+  {
+    return ! operator== (t);
+  }
 
   Tuple3 operator* (const Transform &xform) const
   {

@@ -9,22 +9,32 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iomanip>
+
 #include "vec.h"
 #include "pos.h"
 
 using namespace Snogray;
 
+inline coord_t lim (coord_t v) { return (v < Eps && v > -Eps) ? 0 : v; }
+
 std::ostream&
 Snogray::operator<< (std::ostream &os, const Vec &vec)
 {
-  os << "vec<" << vec.x << ", " << vec.y << ", " << vec.z << ">";
+  os << "vec<" << std::setprecision (5) << lim (vec.x)
+     << ", " << std::setprecision (5) << lim (vec.y)
+     << ", " << std::setprecision (5) << lim (vec.z)
+     << ">";
   return os;
 }
 
 std::ostream&
 Snogray::operator<< (std::ostream &os, const Pos &pos)
 {
-  os << "pos<" << pos.x << ", " << pos.y << ", " << pos.z << ">";
+  os << "pos<" << std::setprecision (5) << lim (pos.x)
+     << ", " << std::setprecision (5) << lim (pos.y)
+     << ", " << std::setprecision (5) << lim (pos.z)
+     << ">";
   return os;
 }
 

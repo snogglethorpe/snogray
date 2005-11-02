@@ -215,10 +215,6 @@ MeshState::finish ()
 {
   if (mesh)
     {
-      cout << "Adding mesh... nverts = " << mesh->vertices.size()
-	   << ", ntriangles = " << mesh->triangles.size()
-	   << endl;
-
       // mesh->compute_vertex_normals ();
 
       scene.add (mesh);
