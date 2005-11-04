@@ -958,5 +958,47 @@ After adding trace-state tree, horizon hints:
      rendering cpu:      3:34.837
      total elapsed:      4:35.977
 
+   [home]   
+   cmd: snogray -s1280x1024 -a3 test:teapot2 /tmp/or2-s1280x1024-a3.exr
+   * adding mesh: 29509 vertices, 57360 triangles
+   * adding mesh: 79 vertices, 64 triangles
+   * adding mesh: 79 vertices, 64 triangles
+   * tessellation: 427603 vertices, 855194 subdivs, 1783698 edges, 558220 cells
+   * adding mesh: 427603 vertices, 558220 triangles
+   Scene:
+      scene:       test:teapot2
+      top-level surfaces:     6
+      lights:                 3
+      materials:              7
+      voxtree surfaces:1,530,868
+      voxtree nodes:    198,694
+      voxtree avg depth:      7
+      voxtree max depth:     19
+   Image:
+      size:         1280 x 1024
+      aa_factor:              3
+      aa_kernel_size:         3
+      aa_filter:          gauss
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	scene calls:           19,821,964
+	horizon hint hits:      8,351,460 (42%)
+	horizon hint misses:    1,574,498 ( 7%)
+	voxtree node calls:   948,884,745 ( 0%)
+	surface calls:        879,906,543 ( 0%)
+     shadow:
+	scene tests:           21,876,097
+	shadow hint hits:       6,528,185 (29%)
+	shadow hint misses:     1,924,231 ( 8%)
+	voxtree node tests:   730,174,278 ( 0%)
+	surface tests:        682,548,881 ( 0%)
+   Time:
+     scene def cpu:        15.877
+     rendering cpu:     29:24.030
+     total elapsed:     34:30.845
+
 
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90

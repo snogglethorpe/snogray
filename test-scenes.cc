@@ -244,7 +244,7 @@ def_scene_tessel (const string &name, unsigned num,
     case 4:
       switch (num)
 	{
-	case 1: perturb = 0;     break;
+	default: case 1: perturb = 0;     break;
 	case 2: perturb = 0.001; break;
 	case 3: perturb = 0.002; break;
 	case 4: perturb = 0.01;  break;
@@ -263,16 +263,12 @@ def_scene_tessel (const string &name, unsigned num,
 static void
 add_scene_descs_tessel (vector<TestSceneDesc> &descs)
 {
-  descs.push_back (TestSceneDesc ("tessel0", "Tessellation test: green sinc function"));
+  descs.push_back (TestSceneDesc ("tessel", "Tessellation test: green sinc function"));
   descs.push_back (TestSceneDesc ("tessel1", "Tessellation test: silver sinc function"));
   descs.push_back (TestSceneDesc ("tessel2", "Tessellation test: green ball"));
   descs.push_back (TestSceneDesc ("tessel3", "Tessellation test: silver ball"));
-  descs.push_back (TestSceneDesc ("tessel4", "Tessellation test: rough green ball"));
-  descs.push_back (TestSceneDesc ("tessel5", "Tessellation test: rough silver ball"));
-  descs.push_back (TestSceneDesc ("tessel6", "Tessellation test: rougher green ball"));
-  descs.push_back (TestSceneDesc ("tessel7", "Tessellation test: rougher silver ball"));
-  descs.push_back (TestSceneDesc ("tessel8", "Tessellation test: roughest green ball"));
-  descs.push_back (TestSceneDesc ("tessel9", "Tessellation test: roughest silver ball"));
+  descs.push_back (TestSceneDesc ("tessel4,6,8", "Tessellation test: rough green balls"));
+  descs.push_back (TestSceneDesc ("tessel5,7,9", "Tessellation test: rough silver balls"));
 }
 
 
@@ -285,6 +281,9 @@ def_scene_teapot (const string &name, unsigned num,
   //
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
+  // Note that the coordinates in this scene are weird -- it uses Z as
+  // "height" rather than depth.
+
   const Material *silver
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
   const Material *gloss_black
@@ -292,34 +291,44 @@ def_scene_teapot (const string &name, unsigned num,
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
 
-  Mesh *teapot_mesh = new Mesh (silver);
+  scene.add (new Mesh (silver, name + ".msh", true));
+  scene.add (new Mesh (gloss_black, "board1.msh"));
+  scene.add (new Mesh (ivory, "board2.msh"));
 
-  teapot_mesh->load (name + ".msh");
-  teapot_mesh->compute_vertex_normals ();
-  scene.add (teapot_mesh);
-
-  Mesh *board1_mesh = new Mesh (gloss_black);
-  board1_mesh->load ("board1.msh");
-  scene.add (board1_mesh);
-
-  Mesh *board2_mesh = new Mesh (ivory);
-  board2_mesh->load ("board2.msh");
-  scene.add (board2_mesh);
-
-  switch (num)
+  if ((num & 1) == 0)
+    /* night-time teapot */
     {
-    case 1: /* night-time teapot */
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
       //scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
-      scene.set_background (Color (0.01, 0.01, 0.02));
       add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
-      break;
-
-    default: /* day-time teapot */
+      scene.set_background (Color (0.01, 0.01, 0.02));
+    }
+  else
+    /* day-time teapot */
+    {
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 90));
       scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
       scene.set_background (Color (0.078, 0.361, 0.753));
+    }
+
+  if (num >= 2)
+    {
+      num -= 2;
+
+      bool is_glass = (num & 2);
+
+      const Material *orange
+	= scene.add (new Material (Color (0.6,0.5,0.05),
+				   Material::phong (250)));
+      const Material *glass
+	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
+				Material::phong (2000, 1.5)));
+
+      scene.add (new Mesh (is_glass ? glass : orange,
+			   SphereTesselFun (Pos (3, 2, 1), 1, 0.002),
+			   Tessel::ConstMaxErr (is_glass ? 0.001 : 0.0002),
+			   is_glass));
     }
 
   camera.set_vert_fov (M_PI_4 * 0.9);
@@ -330,8 +339,12 @@ def_scene_teapot (const string &name, unsigned num,
 static void
 add_scene_descs_teapot (vector<TestSceneDesc> &descs)
 {
-  descs.push_back (TestSceneDesc ("teapot", "Classic teapot on checkerboard"));
-  descs.push_back (TestSceneDesc ("teapot1", "Classic teapot at night"));
+  descs.push_back (TestSceneDesc ("teapot", "Classic teapot at night"));
+  descs.push_back (TestSceneDesc ("teapot1", "Classic teapot in day"));
+  descs.push_back (TestSceneDesc ("teapot2", "Teapot at night with orange"));
+  descs.push_back (TestSceneDesc ("teapot3", "Teapot in day with orange"));
+  descs.push_back (TestSceneDesc ("teapot4", "Teapot at night with glass ball"));
+  descs.push_back (TestSceneDesc ("teapot5", "Teapot in day with glass ball"));
 }
 
 

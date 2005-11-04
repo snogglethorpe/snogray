@@ -37,13 +37,34 @@ public:
   typedef std::map<std::pair<Pos, Vec>, unsigned> VertexNormalGroup;
 
   Mesh (const Material *mat) : PrimarySurface (mat), triangles (0, *this) { }
-  Mesh (const Material *mat, const char *file_name)
+
+  // All-in-one constructor for loading a mesh from a file.
+  //
+  Mesh (const Material *mat, const char *file_name, bool smooth = false)
     : PrimarySurface (mat), triangles (0, *this)
-  { load (file_name); }
+  {
+    load (file_name);
+    if (smooth)
+      compute_vertex_normals ();
+  }
+  Mesh (const Material *mat, const std::string file_name, bool smooth = false)
+    : PrimarySurface (mat), triangles (0, *this)
+  {
+    load (file_name);
+    if (smooth)
+      compute_vertex_normals ();
+  }
+
+  // All-in-one constructor for a tessellated mesh.
+  //
   Mesh (const Material *mat, const Tessel::Function &tessel_fun,
-	const Tessel::MaxErrCalc &max_err)
+	const Tessel::MaxErrCalc &max_err, bool smooth = false)
     : PrimarySurface (mat), triangles (0, *this)
-  { add (tessel_fun, max_err); }
+  {
+    add (tessel_fun, max_err);
+    if (smooth)
+      compute_vertex_normals ();
+  }
 
   // Add a triangle to the mesh
   //
