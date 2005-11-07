@@ -388,7 +388,7 @@ int main (int argc, char *const *argv)
   Rusage scene_beg_ru;		// start timing scene definition
 
   const char *scene_file_name = clp.get_arg ();
-  if (strcmp (scene_file_name, "-") == 0)
+  if (scene_file_name && strcmp (scene_file_name, "-") == 0)
     scene_file_name = 0;
 
   // Read in scene file (or built-in test scene)
