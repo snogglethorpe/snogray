@@ -332,7 +332,7 @@ def_scene_orange (const string &name, unsigned num,
   num /= 2;
 
   dist_t max_err = 0.0002;
-  bool smooth = false;
+  bool smooth = true;
 
   const Material *mat;
   switch (num)
@@ -340,7 +340,7 @@ def_scene_orange (const string &name, unsigned num,
     default:
     case 0: mat = orange; break;
     case 1: mat = silver; break;
-    case 2: mat = glass; max_err = 0.001; smooth = true; break;
+    case 2: mat = glass; max_err = 0.001; break;
     }
 
   scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 3), 3, 0.002),
