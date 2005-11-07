@@ -213,67 +213,6 @@ add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_tessel (const string &name, unsigned num,
-		  Scene &scene, Camera &camera)
-{
-  camera.move (Pos (2, 3, -4));
-  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
-
-  const Material *silver
-    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
-  const Material *green
-    = scene.add (new Material (Color (0.1,1,0.1), Material::phong (250)));
-
-  const Material *mat = ((num & 1) == 0) ? green : silver;
-
-  num >>= 1;			// remove lowest bit
-
-  switch (num)
-    {
-      dist_t perturb;
-
-    default:
-    case 0:
-      scene.add (new Mesh (mat, SincTesselFun (Pos (0, 0, 0), 1.5),
-			   Tessel::ConstMaxErr (tessel_accur)));
-      break;
-
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-      switch (num)
-	{
-	default: case 1: perturb = 0;     break;
-	case 2: perturb = 0.001; break;
-	case 3: perturb = 0.002; break;
-	case 4: perturb = 0.01;  break;
-	}
-
-      scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 0), 1, perturb),
-			   Tessel::ConstMaxErr (tessel_accur)));
-      break;
-    }
-
-  scene.add (new PointLight (Pos (0, 5, 5), 50));
-  scene.add (new PointLight (Pos (-5, 5, -5), 15));
-  scene.add (new PointLight (Pos (10, -5, -15), 100));
-}
-
-static void
-add_scene_descs_tessel (vector<TestSceneDesc> &descs)
-{
-  descs.push_back (TestSceneDesc ("tessel", "Tessellation test: green sinc function"));
-  descs.push_back (TestSceneDesc ("tessel1", "Tessellation test: silver sinc function"));
-  descs.push_back (TestSceneDesc ("tessel2", "Tessellation test: green ball"));
-  descs.push_back (TestSceneDesc ("tessel3", "Tessellation test: silver ball"));
-  descs.push_back (TestSceneDesc ("tessel4,6,8", "Tessellation test: rough green balls"));
-  descs.push_back (TestSceneDesc ("tessel5,7,9", "Tessellation test: rough silver balls"));
-}
-
-
-
-static void
 def_scene_teapot (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
 {
@@ -345,6 +284,79 @@ add_scene_descs_teapot (vector<TestSceneDesc> &descs)
   descs.push_back (TestSceneDesc ("teapot3", "Teapot in day with orange"));
   descs.push_back (TestSceneDesc ("teapot4", "Teapot at night with glass ball"));
   descs.push_back (TestSceneDesc ("teapot5", "Teapot in day with glass ball"));
+}
+
+
+
+static void
+def_scene_orange (const string &name, unsigned num,
+		  Scene &scene, Camera &camera)
+{
+  // Orange mesh and coords come from .nff file
+  //
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+
+  // Note that the coordinates in this scene are weird -- it uses Z as
+  // "height" rather than depth.
+
+  const Material *silver
+    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
+  const Material *orange
+    = scene.add (new Material (Color (0.6,0.5,0.05), Material::phong (250)));
+  const Material *glass
+    = scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
+			    Material::phong (2000, 1.5)));
+  const Material *gloss_black
+    = scene.add (new Mirror (0.3, 0.02, 10));
+  const Material *ivory
+    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+
+  scene.add (new Mesh (gloss_black, "board1.msh"));
+  scene.add (new Mesh (ivory, "board2.msh"));
+
+  if ((num & 1) == 0)
+    /* night-time orange */
+    {
+      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
+      add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
+      scene.set_background (Color (0.01, 0.01, 0.02));
+    }
+  else
+    /* day-time orange */
+    {
+      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 90));
+      scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
+      scene.set_background (Color (0.078, 0.361, 0.753));
+    }
+  num /= 2;
+
+  dist_t max_err = 0.0002;
+  bool smooth = false;
+
+  const Material *mat;
+  switch (num)
+    {
+    default:
+    case 0: mat = orange; break;
+    case 1: mat = silver; break;
+    case 2: mat = glass; max_err = 0.001; smooth = true; break;
+    }
+
+  scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 3), 3, 0.002),
+		       Tessel::ConstMaxErr (max_err), smooth));
+
+  camera.set_vert_fov (M_PI_4 * 0.9);
+  camera.move (Pos (4.86, 7.2, 5.4));
+  camera.point (Pos (0, -0.2, 0), Vec (0, 0, 1));
+}
+
+static void
+add_scene_descs_orange (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("orange", "Giant orange on a chessboard"));
+  descs.push_back (TestSceneDesc ("orange1", "Big rough silver ball on a chessboard"));
+  descs.push_back (TestSceneDesc ("orange2", "Big rough glass ball on a chessboard"));
 }
 
 
@@ -773,6 +785,67 @@ add_scene_descs_cs465 (vector<TestSceneDesc> &descs)
 
 
 
+static void
+def_scene_tessel (const string &name, unsigned num,
+		  Scene &scene, Camera &camera)
+{
+  camera.move (Pos (2, 3, -4));
+  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+
+  const Material *silver
+    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
+  const Material *green
+    = scene.add (new Material (Color (0.1,1,0.1), Material::phong (250)));
+
+  const Material *mat = ((num & 1) == 0) ? green : silver;
+
+  num >>= 1;			// remove lowest bit
+
+  switch (num)
+    {
+      dist_t perturb;
+
+    default:
+    case 0:
+      scene.add (new Mesh (mat, SincTesselFun (Pos (0, 0, 0), 1.5),
+			   Tessel::ConstMaxErr (tessel_accur)));
+      break;
+
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      switch (num)
+	{
+	default: case 1: perturb = 0;     break;
+	case 2: perturb = 0.001; break;
+	case 3: perturb = 0.002; break;
+	case 4: perturb = 0.01;  break;
+	}
+
+      scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 0), 1, perturb),
+			   Tessel::ConstMaxErr (tessel_accur)));
+      break;
+    }
+
+  scene.add (new PointLight (Pos (0, 5, 5), 50));
+  scene.add (new PointLight (Pos (-5, 5, -5), 15));
+  scene.add (new PointLight (Pos (10, -5, -15), 100));
+}
+
+static void
+add_scene_descs_tessel (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("tessel", "Tessellation test: green sinc function"));
+  descs.push_back (TestSceneDesc ("tessel1", "Tessellation test: silver sinc function"));
+  descs.push_back (TestSceneDesc ("tessel2", "Tessellation test: green ball"));
+  descs.push_back (TestSceneDesc ("tessel3", "Tessellation test: silver ball"));
+  descs.push_back (TestSceneDesc ("tessel4,6,8", "Tessellation test: rough green balls"));
+  descs.push_back (TestSceneDesc ("tessel5,7,9", "Tessellation test: rough silver balls"));
+}
+
+
+
 void
 Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
@@ -794,22 +867,18 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 
   if (name == "miles")
     def_scene_miles (name, num, scene, camera);
-
-  else if (name == "tessel")
-    def_scene_tessel (name, num, scene, camera);
-
   else if (name == "teapot")
     def_scene_teapot (name, num, scene, camera);
-
+  else if (name == "orange")
+    def_scene_orange (name, num, scene, camera);
   else if (ends_in (name, "bunny"))
     def_scene_pretty_bunny (name, num, scene, camera);
-
   else if (name == "cornell-box" || name == "cbox")
     def_scene_cornell_box (name, num, scene, camera);
-
   else if (name == "cs465")
     def_scene_cs465 (name, num, scene, camera);
-
+  else if (name == "tessel")
+    def_scene_tessel (name, num, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }
@@ -820,11 +889,12 @@ Snogray::list_test_scenes ()
   vector<TestSceneDesc> descs;
 
   add_scene_descs_miles (descs);
-  add_scene_descs_tessel (descs);
   add_scene_descs_teapot (descs);
+  add_scene_descs_orange (descs);
   add_scene_descs_pretty_bunny (descs);
   add_scene_descs_cornell_box (descs);
   add_scene_descs_cs465 (descs);
+  add_scene_descs_tessel (descs);
 
   return descs;
 }
