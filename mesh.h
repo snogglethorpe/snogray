@@ -40,13 +40,6 @@ public:
 
   // All-in-one constructor for loading a mesh from a file.
   //
-  Mesh (const Material *mat, const char *file_name, bool smooth = false)
-    : PrimarySurface (mat), triangles (0, *this)
-  {
-    load (file_name);
-    if (smooth)
-      compute_vertex_normals ();
-  }
   Mesh (const Material *mat, const std::string file_name, bool smooth = false)
     : PrimarySurface (mat), triangles (0, *this)
   {
