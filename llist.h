@@ -12,6 +12,8 @@
 #ifndef __LLIST_H__
 #define __LLIST_H__
 
+namespace Snogray {
+
 // This simple linked list class implements "direct linked" objects,
 // where the objects in the list each have their own prev/next pointers
 // (and thus can only be in one linked-list at a time).  In some
@@ -29,7 +31,6 @@ class LinkedList
 public:
 
   LinkedList () : head (0), tail (0), num_entries (0) { }
-  ~LinkedList () { clear (); }
 
   // The superclass from which T should inherit
   //
@@ -144,16 +145,6 @@ public:
       return 0;
   }
 
-  void clear ()
-  {
-    while (head)
-      {
-	T *n = head;
-	head = head->next;
-	delete n;
-      }
-  }
-
   bool empty () const { return !head; }
   operator bool () const { return head; }
 
@@ -169,6 +160,8 @@ private:
   T *head, *tail;
   unsigned num_entries;
 };
+
+}
 
 #endif /* __LLIST_H__ */
 

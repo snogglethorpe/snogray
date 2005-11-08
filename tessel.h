@@ -18,6 +18,7 @@
 #include "pos.h"
 #include "vec.h"
 #include "llist.h"
+#include "freelist.h"
 
 namespace Snogray {
 
@@ -254,11 +255,7 @@ private:
   //
   Vertex *add_vertex (const Pos &pos)
   {
-    Vertex *v;
-    if (free_vertices)
-      v = new (free_vertices.pop()) Vertex (pos);
-    else
-      v = new Vertex (pos);
+    Vertex *v = new (free_vertices) Vertex (pos);
     return vertices.append (v);
   }
   Vertex *add_vertex (coord_t x, coord_t y, coord_t z)
@@ -268,7 +265,7 @@ private:
   void remove_vertex (Vertex *v)
   {
     vertices.remove (v);
-    free_vertices.push (v);
+    free_vertices.put (v);
   }
 
 
@@ -465,15 +462,13 @@ private:
   // Active components of this tessellation.
   //
   LinkedList<Cell> cells;
-  LinkedList<Edge> edges;
-  LinkedList<Subdiv> subdivs;
   LinkedList<Vertex> vertices;
 
   // Freelists
   //
-  LinkedList<Edge> free_edges;
-  LinkedList<Subdiv> free_subdivs;
-  LinkedList<Vertex> free_vertices;
+  Freelist<Edge> free_edges;
+  Freelist<Subdiv> free_subdivs;
+  Freelist<Vertex> free_vertices;
 
   // This refers to an object supplied by the user, which is used to
   // calculate the permissible error at a given location.

@@ -35,9 +35,11 @@ Tessel::Tessel (const Function &_fun, const MaxErrCalc &_max_err_calc)
   structure ();			// Refine the basis
 
   std::cout << "* tessellation: " << vertices.size() << " vertices"
-	    << ", " << subdivs.size() << " subdivs"
-	    << ", " << edges.size() << " edges"
 	    << ", " << cells.size() << " cells" << std::endl;
+
+  // We're now finished with all subdivs, so free the memory they used.
+  //
+  free_subdivs.clear ();
 
   // Assign each vertex's index
   //
@@ -81,19 +83,13 @@ Tessel::Subdiv *
 Tessel::add_subdiv (Vertex *mid, dist_t corr, Subdiv *bef, Subdiv *aft,
 		    err_t err)
 {
-  Subdiv *subdiv;
-  if (free_subdivs)
-    subdiv = new (free_subdivs.pop ()) Subdiv (mid, corr, bef, aft, err);
-  else
-    subdiv = new Subdiv (mid, corr, bef, aft, err);
-  return subdivs.append (subdiv);
+  return new (free_subdivs) Subdiv (mid, corr, bef, aft, err);
 }
 
 void
 Tessel::remove_subdiv (Subdiv *subdiv)
 {
-  subdivs.remove (subdiv);
-  free_subdivs.push (subdiv);
+  free_subdivs.put (subdiv);
 }
 
 // Build a subdivision tree to full resolution between VERT1 and VERT2.
@@ -199,12 +195,7 @@ Tessel::Edge *
 Tessel::add_edge (const Vertex *vert1, const Vertex *vert2,
 		  Subdiv *subdiv, Subdiv *rev_subdiv, err_t err)
 {
-  Edge *edge;
-  if (free_edges)
-    edge = new (free_edges.pop()) Edge (vert1, vert2, subdiv, rev_subdiv, err);
-  else
-    edge = new Edge (vert1, vert2, subdiv, rev_subdiv, err);
-  return edges.append (edge);
+  return new (free_edges) Edge (vert1, vert2, subdiv, rev_subdiv, err);
 }
 
 // Remove an edge.
@@ -212,8 +203,7 @@ Tessel::add_edge (const Vertex *vert1, const Vertex *vert2,
 void
 Tessel::remove_edge (Edge *edge)
 {
-  edges.remove (edge);
-  free_edges.push (edge);
+  free_edges.put (edge);
 }
 
 // Returns the midpoint of this edge; the edge must be non-simple.
