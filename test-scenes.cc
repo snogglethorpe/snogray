@@ -229,10 +229,13 @@ def_scene_teapot (const string &name, unsigned num,
     = scene.add (new Mirror (0.3, 0.02, 10));
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+  const Material *brown
+    = scene.add (new Material (Color (0.3, 0.2, 0.05)));
 
   scene.add (new Mesh (silver, name + ".msh", true));
   scene.add (new Mesh (gloss_black, "board1.msh"));
   scene.add (new Mesh (ivory, "board2.msh"));
+  scene.add (new Mesh (brown, "board3.msh"));
 
   if ((num & 1) == 0)
     /* night-time teapot */
@@ -267,7 +270,7 @@ def_scene_teapot (const string &name, unsigned num,
       scene.add (new Mesh (is_glass ? glass : orange,
 			   SphereTesselFun (Pos (3, 2, 1), 1, 0.002),
 			   Tessel::ConstMaxErr (is_glass ? 0.001 : 0.0002),
-			   is_glass));
+			   true));
     }
 
   camera.set_vert_fov (M_PI_4 * 0.9);
@@ -310,9 +313,12 @@ def_scene_orange (const string &name, unsigned num,
     = scene.add (new Mirror (0.3, 0.02, 10));
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+  const Material *brown
+    = scene.add (new Material (Color (0.3, 0.2, 0.05)));
 
   scene.add (new Mesh (gloss_black, "board1.msh"));
   scene.add (new Mesh (ivory, "board2.msh"));
+  scene.add (new Mesh (brown, "board3.msh"));
 
   if ((num & 1) == 0)
     /* night-time orange */
