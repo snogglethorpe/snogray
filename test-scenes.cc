@@ -212,6 +212,15 @@ add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
 
 
 
+static Surface *
+mottle_ball (const Material *mat, const Pos &pos, dist_t radius, dist_t max_err)
+{
+  return
+    new Mesh (mat,
+	      SphereTesselFun (pos, radius, radius * 0.002),
+	      Tessel::ConstMaxErr (max_err), true);
+}
+
 static void
 def_scene_teapot (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
@@ -257,8 +266,7 @@ def_scene_teapot (const string &name, unsigned num,
   if (num >= 2)
     {
       num -= 2;
-
-      bool is_glass = (num & 2);
+      num /= 2;
 
       const Material *orange
 	= scene.add (new Material (Color (0.6,0.5,0.05),
@@ -266,11 +274,37 @@ def_scene_teapot (const string &name, unsigned num,
       const Material *glass
 	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
 				Material::phong (2000, 1.5)));
+      const Material *gold
+	= scene.add (new Mirror (Color (0.852, 0.756, 0.12), 0, 
+				 Material::phong (800, Color (1, 1, 0.3))));
 
-      scene.add (new Mesh (is_glass ? glass : orange,
-			   SphereTesselFun (Pos (3, 2, 1), 1, 0.002),
-			   Tessel::ConstMaxErr (is_glass ? 0.001 : 0.0002),
-			   true));
+      const Material *ball_mat = orange;
+      dist_t max_err = 0.0002;
+      dist_t radius = 1;
+
+      switch (num % 3)
+	{
+	case 0: ball_mat = orange; break;
+	case 1: ball_mat = glass;  radius = 0.5; break;
+	case 2: ball_mat = gold;   radius = 0.6; break;
+	}
+
+      scene.add (mottle_ball (ball_mat, Pos (3, 2, radius), radius, max_err));
+
+      const Material *red
+	= scene.add (new Material (Color (1, 0, 0), Material::phong (500)));
+      const Material *yellow
+	= scene.add (new Material (Color (1.5, 1.5, 0.1), Material::phong (500)));
+      const Material *green
+	= scene.add (new Material (Color (0, 1, 0), Material::phong (500)));
+      const Material *blue
+	= scene.add (new Material (Color (0.3, 0.3, 1.2), Material::phong (500)));
+
+      dist_t r1 = 0.65, r2 = 0.40;
+      scene.add (mottle_ball (blue,   Pos ( 1.5,  3.3, r2), r2, max_err));
+      scene.add (mottle_ball (green,  Pos (-3,    1.2, r2), r2, max_err));
+      scene.add (mottle_ball (yellow, Pos (-2.2,  3.1, r1), r1, max_err));
+      scene.add (mottle_ball (red,    Pos ( 2.3, -1.7, r1), r1, max_err));
     }
 
   camera.set_vert_fov (M_PI_4 * 0.9);
@@ -287,6 +321,8 @@ add_scene_descs_teapot (vector<TestSceneDesc> &descs)
   descs.push_back (TestSceneDesc ("teapot3", "Teapot in day with orange"));
   descs.push_back (TestSceneDesc ("teapot4", "Teapot at night with glass ball"));
   descs.push_back (TestSceneDesc ("teapot5", "Teapot in day with glass ball"));
+  descs.push_back (TestSceneDesc ("teapot6", "Teapot at night with gold ball"));
+  descs.push_back (TestSceneDesc ("teapot7", "Teapot in day with gold ball"));
 }
 
 
