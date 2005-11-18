@@ -86,7 +86,15 @@ private:
 
   // Individual blocks ready for allocation via `get'.
   //
-  Block *blocks;
+  // The "may_alias" attribute is to protect against re-ordering of code
+  // when an allocation is inlined into a constructor that uses it --
+  // without this attribute, gcc assumes that because the manifest types
+  // (`Block' and the type of the allocated object) are different,
+  // stores into the new object done by the constructor can be
+  // re-ordered _before_ the read of the free-list entry's `next'
+  // pointer to update the freelist head.... whoops.
+  //
+  Block *blocks __attribute__ ((may_alias));
 
   // The actual (large) chunks of memory we allocated from the OS.
   //
