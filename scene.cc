@@ -33,7 +33,7 @@ Scene::~Scene ()
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
   SceneClosestIntersectCallback (Ray &_ray, TraceState &_tstate, 
-				 Voxtree::Stats *stats = 0)
+				 Voxtree::IsecStats *stats = 0)
     : IntersectCallback (stats), ray (_ray),
       closest (0), tstate (_tstate), num_calls (0)
   { }
@@ -112,7 +112,7 @@ Scene::intersect (Ray &ray, TraceState &tstate)
 struct SceneShadowCallback : Voxtree::IntersectCallback
 {
   SceneShadowCallback (const Light &_light, const Ray &_light_ray,
-		       TraceState &_tstate, Voxtree::Stats *stats = 0)
+		       TraceState &_tstate, Voxtree::IsecStats *stats = 0)
     : IntersectCallback (stats), 
       light (_light), light_ray (_light_ray),
       shadower (0), tstate (_tstate), num_tests (0)

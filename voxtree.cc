@@ -279,6 +279,8 @@ Voxtree::Node::for_each_possible_intersector (const Ray &ray,
 void
 Voxtree::add (Surface *surface, const BBox &surface_bbox)
 {
+  num_real_surfaces++;
+
   if (root)
     // We've already got some nodes.
     {
@@ -596,110 +598,69 @@ Voxtree::Node::~Node ()
     delete x_hi_y_hi_z_hi;
 }
 
-unsigned
-Voxtree::Node::num_nodes () const
-{
-  unsigned num = 1;
-  if (x_lo_y_lo_z_lo)
-    num += x_lo_y_lo_z_lo->num_nodes ();
-  if (x_lo_y_lo_z_hi)
-    num += x_lo_y_lo_z_hi->num_nodes ();
-  if (x_lo_y_hi_z_lo)
-    num += x_lo_y_hi_z_lo->num_nodes ();
-  if (x_lo_y_hi_z_hi)
-    num += x_lo_y_hi_z_hi->num_nodes ();
-  if (x_hi_y_lo_z_lo)
-    num += x_hi_y_lo_z_lo->num_nodes ();
-  if (x_hi_y_lo_z_hi)
-    num += x_hi_y_lo_z_hi->num_nodes ();
-  if (x_hi_y_hi_z_lo)
-    num += x_hi_y_hi_z_lo->num_nodes ();
-  if (x_hi_y_hi_z_hi)
-    num += x_hi_y_hi_z_hi->num_nodes ();
+
+// Statistics gathering
 
-  return num;
-}
-
-unsigned
-Voxtree::Node::max_depth (unsigned cur_sibling_max) const
-{
-  unsigned sub_max = 0;
-
-  if (x_lo_y_lo_z_lo)
-    sub_max = x_lo_y_lo_z_lo->max_depth (sub_max);
-  if (x_lo_y_lo_z_hi)
-    sub_max = x_lo_y_lo_z_hi->max_depth (sub_max);
-  if (x_lo_y_hi_z_lo)
-    sub_max = x_lo_y_hi_z_lo->max_depth (sub_max);
-  if (x_lo_y_hi_z_hi)
-    sub_max = x_lo_y_hi_z_hi->max_depth (sub_max);
-  if (x_hi_y_lo_z_lo)
-    sub_max = x_hi_y_lo_z_lo->max_depth (sub_max);
-  if (x_hi_y_lo_z_hi)
-    sub_max = x_hi_y_lo_z_hi->max_depth (sub_max);
-  if (x_hi_y_hi_z_lo)
-    sub_max = x_hi_y_hi_z_lo->max_depth (sub_max);
-  if (x_hi_y_hi_z_hi)
-    sub_max = x_hi_y_hi_z_hi->max_depth (sub_max);
-
-  if (sub_max + 1> cur_sibling_max)
-    return sub_max + 1;
-  else
-    return cur_sibling_max;
-}
-
-float
-Voxtree::Node::avg_depth () const
+// Update STATS to reflect this node.
+//
+void
+Voxtree::Node::upd_stats (Stats &stats) const
 {
   unsigned num_subnodes = 0;
-  float subnode_sum = 0;
+
+  // Some fields in STATS are only visible between siblings.  For these, we
+  // save the value we get (which reflects our previous siblilngs), and
+  // temporarily initialize the field in STATS to be zero for our siblings.
+  // We'll then combine the two values at the end of this function.
+  //
+  unsigned sibling_max_depth = stats.max_depth;
+  stats.max_depth = 0;		// will be restored at end of fun
+  float sibling_avg_depth = stats.avg_depth;
+  stats.avg_depth = 0;		// will be restored at end of fun
+
+  // Get sibling values
 
   if (x_lo_y_lo_z_lo)
-    num_subnodes++, subnode_sum += x_lo_y_lo_z_lo->avg_depth ();
+    num_subnodes++, x_lo_y_lo_z_lo->upd_stats (stats);
   if (x_lo_y_lo_z_hi)
-    num_subnodes++, subnode_sum += x_lo_y_lo_z_hi->avg_depth ();
+    num_subnodes++, x_lo_y_lo_z_hi->upd_stats (stats);
   if (x_lo_y_hi_z_lo)
-    num_subnodes++, subnode_sum += x_lo_y_hi_z_lo->avg_depth ();
+    num_subnodes++, x_lo_y_hi_z_lo->upd_stats (stats);
   if (x_lo_y_hi_z_hi)
-    num_subnodes++, subnode_sum += x_lo_y_hi_z_hi->avg_depth ();
+    num_subnodes++, x_lo_y_hi_z_hi->upd_stats (stats);
   if (x_hi_y_lo_z_lo)
-    num_subnodes++, subnode_sum += x_hi_y_lo_z_lo->avg_depth ();
+    num_subnodes++, x_hi_y_lo_z_lo->upd_stats (stats);
   if (x_hi_y_lo_z_hi)
-    num_subnodes++, subnode_sum += x_hi_y_lo_z_hi->avg_depth ();
+    num_subnodes++, x_hi_y_lo_z_hi->upd_stats (stats);
   if (x_hi_y_hi_z_lo)
-    num_subnodes++, subnode_sum += x_hi_y_hi_z_lo->avg_depth ();
+    num_subnodes++, x_hi_y_hi_z_lo->upd_stats (stats);
   if (x_hi_y_hi_z_hi)
-    num_subnodes++, subnode_sum += x_hi_y_hi_z_hi->avg_depth ();
+    num_subnodes++, x_hi_y_hi_z_hi->upd_stats (stats);
 
+  // Now update STATS
+
+  // Num nodes
+  //
+  stats.num_nodes++;
   if (num_subnodes == 0)
-    return 1;
+    stats.num_leaf_nodes++;
+
+  // Num surfaces
+  //
+  stats.num_surfaces += surfaces.size ();
+
+  // Update `max_depth' field.
+  //
+  if (stats.max_depth + 1 > sibling_max_depth)
+    stats.max_depth++;
   else
-    return (subnode_sum / num_subnodes) + 1;
-}
-
-unsigned
-Voxtree::Node::num_surfaces () const
-{
-  unsigned num = surfaces.size ();
-
-  if (x_lo_y_lo_z_lo)
-    num += x_lo_y_lo_z_lo->num_surfaces ();
-  if (x_lo_y_lo_z_hi)
-    num += x_lo_y_lo_z_hi->num_surfaces ();
-  if (x_lo_y_hi_z_lo)
-    num += x_lo_y_hi_z_lo->num_surfaces ();
-  if (x_lo_y_hi_z_hi)
-    num += x_lo_y_hi_z_hi->num_surfaces ();
-  if (x_hi_y_lo_z_lo)
-    num += x_hi_y_lo_z_lo->num_surfaces ();
-  if (x_hi_y_lo_z_hi)
-    num += x_hi_y_lo_z_hi->num_surfaces ();
-  if (x_hi_y_hi_z_lo)
-    num += x_hi_y_hi_z_lo->num_surfaces ();
-  if (x_hi_y_hi_z_hi)
-    num += x_hi_y_hi_z_hi->num_surfaces ();
+    stats.max_depth = sibling_max_depth;
   
-  return num;
+  // Update `avg_depth' field.
+  //
+  if (num_subnodes != 0)
+    stats.avg_depth /= num_subnodes;
+  stats.avg_depth += 1 + sibling_avg_depth;
 }
 
 // arch-tag: ec7b70cc-3cf6-40f3-9ec6-0ce71dbd20c5

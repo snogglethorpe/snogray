@@ -210,8 +210,8 @@ public:
     unsigned long long horizon_hint_hits;
     unsigned long long horizon_hint_misses;
     unsigned long long surface_intersects_tests;
-    Voxtree::Stats voxtree_intersect;
-    Voxtree::Stats voxtree_shadow;
+    Voxtree::IsecStats voxtree_intersect;
+    Voxtree::IsecStats voxtree_shadow;
   } stats;
 
   std::list<Surface *> surfaces;

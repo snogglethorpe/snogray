@@ -464,6 +464,11 @@ int main (int argc, char *const *argv)
   image_sink_params.height = limit_height * multiple;
   ImageOutput image (image_sink_params);
 
+  // Only used if !quiet, but it's more convenient to calculate here so we
+  // can use inside different if blocks below.
+  //
+  Voxtree::Stats vstats = scene.surface_voxtree.stats ();
+
   // Maybe print lots of useful information
   //
   if (! quiet)
@@ -472,42 +477,46 @@ int main (int argc, char *const *argv)
 
       cout << "Scene:" << endl;
 
-      cout << "   scene: "
+      cout << "   scene:   "
 	   << setw (20)
 	   << (scene_file_name ? scene_file_name : "<standard input>") << endl;
-      cout << "   top-level surfaces:"
+      cout << "   top-level surfaces:  "
 	   << setw (8) << commify (scene.surfaces.size ()) << endl;
-      cout << "   lights:        "
+      cout << "   lights:          "
 	   << setw (12) << commify (scene.lights.size ()) << endl;
       if (scene.assumed_gamma != 1)
-	cout << "   assumed gamma: "
+	cout << "   assumed gamma:   "
 	     << setw (12) << scene.assumed_gamma << endl;
       if (scene_light_scale != 1)
-	cout << "   light scale:   "
+	cout << "   light scale:     "
 	     << setw (12) << scene_light_scale << endl;
-      cout << "   materials:     "
+      cout << "   materials:       "
 	   << setw (12) << commify (scene.materials.size ()) << endl;
-      cout << "   voxtree surfaces:"
-	   << setw (10) << commify (scene.surface_voxtree.num_surfaces ()) << endl;
-      cout << "   voxtree nodes: "
-	   << setw (12) << commify (scene.surface_voxtree.num_nodes ()) << endl;
-      float vt_avg_depth = scene.surface_voxtree.avg_depth ();
-      cout << "   voxtree avg depth: "
-	   << setw (8) << int (vt_avg_depth) << endl;
-      cout << "   voxtree max depth:"
-	   << setw (9) << commify (scene.surface_voxtree.max_depth ()) << endl;
+
+      cout << "   voxtree surfaces:  "
+	   << setw (10) << commify (vstats.num_surfaces)
+	   << " (" << (vstats.num_dup_surfaces * 100 / vstats.num_surfaces)
+	   << "% duplicates)" << endl;
+      cout << "   voxtree nodes:   "
+	   << setw (12) << commify (vstats.num_nodes)
+	   << " (" << (vstats.num_leaf_nodes * 100 / vstats.num_nodes)
+	   << "% leaves)" << endl;
+      cout << "   voxtree avg depth:   "
+	   << setw (8) << int (vstats.avg_depth) << endl;
+      cout << "   voxtree max depth:  "
+	   << setw (9) << vstats.max_depth << endl;
 
       // Print image info
 
       cout << "Image:" << endl;
 
       if (multiple == 1)
-	cout << "   size:  "
+	cout << "   size:    "
 	     << setw (20) << (stringify (width)
 			      + " x " + stringify (height))
 	     << endl;
       else
-	cout << "   size:  "
+	cout << "   size:    "
 	     << setw (20) << (stringify (width) + " x " + stringify (height)
 			      + " x " + stringify (multiple))
 	     <<" (" << (width * multiple) << " x " << (height * multiple) << ")"
@@ -515,7 +524,7 @@ int main (int argc, char *const *argv)
 
       if (limit_x != 0 || limit_y != 0
 	  || limit_width != width || limit_height != height)
-	cout << "   limit:"
+	cout << "   limit:  "
 	     << setw (20) << (stringify (limit_x) + "," + stringify (limit_y)
 			      + " - " + stringify (limit_x + limit_width)
 			      + "," + stringify (limit_y + limit_height))
@@ -523,7 +532,7 @@ int main (int argc, char *const *argv)
 	     << endl;
 
       if (image_sink_params.target_gamma != 0)
-        cout << "   target_gamma:         "
+        cout << "   target_gamma:           "
 	     << setw (5) << image_sink_params.target_gamma << endl;
 
       // Anti-aliasing info
@@ -532,20 +541,20 @@ int main (int argc, char *const *argv)
       if ((image.aa_factor + image_sink_params.aa_overlap) > 1)
 	{
 	  if (image.aa_factor > 1)
-	    cout << "   aa_factor:             "
+	    cout << "   aa_factor:               "
 		 << setw (4) << image.aa_factor << endl;
 
 	  if (image_sink_params.aa_overlap > 0)
-	    cout << "   aa_kernel_size:        "
+	    cout << "   aa_kernel_size:          "
 		 << setw (4)
 		 << (image.aa_factor + image_sink_params.aa_overlap*2)
 		 << " (overlap = " << image_sink_params.aa_overlap << ")"
 		 << endl;
 	  else
-	    cout << "   aa_kernel_size:        "
+	    cout << "   aa_kernel_size:          "
 		 << setw (4) << image.aa_factor << endl;
 
-	  cout << "   aa_filter:         " << setw (8);
+	  cout << "   aa_filter:           " << setw (8);
 	  if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
 	    cout << "box";
 	  else if (image_sink_params.aa_filter == ImageOutput::aa_triang_filter)
@@ -651,17 +660,14 @@ int main (int argc, char *const *argv)
   if (! quiet)
     {
       Scene::Stats &sstats = scene.stats;
-      Voxtree::Stats &vstats1 = sstats.voxtree_intersect;
-      Voxtree::Stats &vstats2 = sstats.voxtree_shadow;
+      Voxtree::IsecStats &vistats1 = sstats.voxtree_intersect;
+      Voxtree::IsecStats &vistats2 = sstats.voxtree_shadow;
 
       long long sc  = sstats.scene_intersect_calls;
-      long long vnc = vstats1.node_intersect_calls;
+      long long vnc = vistats1.node_intersect_calls;
       long long ocic = sstats.surface_intersect_calls;
       long long hhh = sstats.horizon_hint_hits;
       long long hhm = sstats.horizon_hint_misses;
-
-      unsigned vnn = scene.surface_voxtree.num_nodes ();
-      unsigned vno  = scene.surface_voxtree.num_surfaces ();
 
       cout << endl;
       cout << "Rendering stats:" << endl;
@@ -671,12 +677,12 @@ int main (int argc, char *const *argv)
 	   << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
       cout << "     horizon hint misses:" << setw (13) << commify (hhm)
 	   << " (" << setw(2) << (100 * hhm / sc) << "%)" << endl;
-      if (vnn != 0)
+      if (vstats.num_nodes != 0)
 	cout << "     voxtree node calls:" << setw (14) << commify (vnc)
-	     << " (" << setw(2) << (100 * vnc / (sc * vnn)) << "%)" << endl;
-      if (vno != 0)
+	     << " (" << setw(2) << (100 * vnc / (sc * vstats.num_nodes)) << "%)" << endl;
+      if (vstats.num_surfaces != 0)
 	cout << "     surface calls:     " << setw (14) << commify (ocic)
-	     << " (" << setw(2) << (100 * ocic / (sc * vno)) << "%)" << endl;
+	     << " (" << setw(2) << (100 * ocic / (sc * vstats.num_surfaces)) << "%)" << endl;
 
       long long sst = sstats.scene_shadow_tests;
 
@@ -686,7 +692,7 @@ int main (int argc, char *const *argv)
 	  long long shm = sstats.shadow_hint_misses;
 	  long long sss = sstats.scene_slow_shadow_traces;
 	  long long oss = sstats.surface_slow_shadow_traces;
-	  long long vnt = vstats2.node_intersect_calls;
+	  long long vnt = vistats2.node_intersect_calls;
 	  long long ot  = sstats.surface_intersects_tests;
 
 	  cout << "  shadow:" << endl;
@@ -701,24 +707,24 @@ int main (int argc, char *const *argv)
 		 << " (" << setw(2) << (100 * sss / sst) << "%"
 		 << "; average depth = " << (float (oss) / float (sss)) << ")"
 		 << endl;
-	  if (vnn != 0)
+	  if (vstats.num_nodes != 0)
 	    cout << "     voxtree node tests:" << setw (14) << commify (vnt)
-		 << " (" <<setw(2) << (100 * vnt / (vnn * (sst - shh))) << "%)"
+		 << " (" <<setw(2) << (100 * vnt / (vstats.num_nodes * (sst - shh))) << "%)"
 		 << endl;
-	  if (vno != 0)
+	  if (vstats.num_surfaces != 0)
 	    cout << "     surface tests:     " << setw (14) << commify (ot)
-		 << " (" <<setw(2) << (100 * ot / (vno * (sst - shh))) << "%)"
+		 << " (" <<setw(2) << (100 * ot / (vstats.num_surfaces * (sst - shh))) << "%)"
 		 << endl;
 	}
 
-      // a field width of 13 is enough for over a year of time...
+      // a field width of 14 is enough for over a year of time...
       cout << "Time:" << endl;
       Timeval scene_def_time = scene_end_ru.utime() - scene_beg_ru.utime();
-      cout << "  scene def cpu: " << setw (13) << scene_def_time.fmt() << endl;
+      cout << "  scene def cpu:" << setw (14) << scene_def_time.fmt() << endl;
       Timeval render_time = render_end_ru.utime() - render_beg_ru.utime();
-      cout << "  rendering cpu: " << setw (13) << render_time.fmt() << endl;
+      cout << "  rendering cpu:" << setw (14) << render_time.fmt() << endl;
       Timeval elapsed_time = end_time - beg_time;
-      cout << "  total elapsed: " << setw (13) << elapsed_time.fmt() << endl;
+      cout << "  total elapsed:" << setw (14) << elapsed_time.fmt() << endl;
     }
 }
 

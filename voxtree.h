@@ -23,16 +23,37 @@ class Voxtree
 {
 public:
 
-  Voxtree () : root (0) { }
+  Voxtree () : root (0), num_real_surfaces (0) { }
 
   // Add SURFACE to the voxtree
   //
   void add (Surface *surface, const BBox &surface_bbox);
   void add (Surface *surface) { add (surface, surface->bbox ()); }
-
-  struct Stats {
-    Stats () : node_intersect_calls (0)
+    
+  // Statistics for a voxtree
+  //
+  struct Stats
+  {
+    Stats ()
+      : num_nodes (0), num_leaf_nodes (0),
+	num_surfaces (0), num_dup_surfaces (0),
+	max_depth (0), avg_depth (0)
     { }
+
+    unsigned long num_nodes;
+    unsigned long num_leaf_nodes;
+    unsigned long num_surfaces;
+    unsigned long num_dup_surfaces;
+    unsigned max_depth;
+    float avg_depth;
+  };
+
+  // Statistics for runtime intersections
+  //
+  struct IsecStats
+  {
+    IsecStats () : node_intersect_calls (0) { }
+
     unsigned long long node_intersect_calls;
   };
 
@@ -42,7 +63,10 @@ public:
   //
   struct IntersectCallback
   {
-    IntersectCallback (Stats *_stats) : stop (false), stats (_stats) { }
+    IntersectCallback (IsecStats *_stats)
+      : stop (false), stats (_stats)
+    { }
+
     virtual ~IntersectCallback (); // stop gcc bitching
 
     virtual void operator() (Surface *) = 0;
@@ -53,7 +77,7 @@ public:
     bool stop;
 
     // This is used for stats gathering
-    Stats *stats;
+    IsecStats *stats;
   };
 
   // Call CALLBACK for each surface in the voxel tree that _might_
@@ -64,15 +88,23 @@ public:
 				      IntersectCallback &callback)
     const;
 
-  unsigned num_nodes () const { return root ? root->num_nodes() : 0; }
-  unsigned max_depth () const { return root ? root->max_depth() : 0; }
-  float avg_depth () const { return root ? root->avg_depth() : 0; }
-  unsigned num_surfaces () const { return root ? root->num_surfaces() : 0; }
+  // Return various statistics about this voxtree
+  //
+  Stats stats () const
+  {
+    Stats stats;
+    if (root)
+      root->upd_stats (stats);
+    stats.num_dup_surfaces = stats.num_surfaces - num_real_surfaces;
+    return stats;
+  }
 
   // One corner of the voxtree
+  //
   Pos origin;
 
   // The size of the voxtree (in all dimensions)
+  //
   dist_t size;
 
 private:  
@@ -136,11 +168,10 @@ private:
 
       node->add (surface, surface_bbox, x, y, z, size);
     }
-    
-    unsigned num_nodes () const;
-    unsigned max_depth (unsigned cur_sibling_max = 0) const;
-    float avg_depth () const;
-    unsigned num_surfaces () const;
+
+    // Update STATS to reflect this node.
+    //
+    void upd_stats (Stats &stats) const;
 
     // Surfaces at this level of the tree.  All surfaces listed in a node
     // must fit entirely within it.  Any given surface is only present in
@@ -155,11 +186,17 @@ private:
     Node *x_hi_y_lo_z_lo, *x_hi_y_lo_z_hi, *x_hi_y_hi_z_lo, *x_hi_y_hi_z_hi;
 
     // True if any of the above subnodes is non-null.
+    //
     bool has_subnodes;
   };
 
   // The root of the tree
+  //
   Node *root;
+
+  // The number of "real" surfaces added to the voxtree.
+  //
+  unsigned long num_real_surfaces;
 };
 
 }
