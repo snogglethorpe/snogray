@@ -15,6 +15,7 @@
 #include "excepts.h"
 #include "mesh.h"
 #include "tessel.h"
+#include "string-funs.h"
 
 using namespace Snogray;
 using namespace std;
@@ -450,8 +451,9 @@ Mesh::compute_vertex_normals ()
 void
 Mesh::add_to_space (Voxtree &space)
 {
-  std::cout << "* adding mesh: " << vertices.size() << " vertices"
-	    << ", " << triangles.size() << " triangles" << std::endl;
+  std::cout << "* adding mesh: " << commify (vertices.size ()) << " vertices"
+	    << ", " << commify (triangles.size ()) << " triangles"
+	    << std::endl;
 
   for (unsigned i = 0; i < triangles.size(); i++)
     triangles[i].add_to_space (space);

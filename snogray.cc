@@ -473,42 +473,42 @@ int main (int argc, char *const *argv)
       cout << "Scene:" << endl;
 
       cout << "   scene: "
-	   << setw (18)
+	   << setw (20)
 	   << (scene_file_name ? scene_file_name : "<standard input>") << endl;
       cout << "   top-level surfaces:"
-	   << setw (6) << commify (scene.surfaces.size ()) << endl;
+	   << setw (8) << commify (scene.surfaces.size ()) << endl;
       cout << "   lights:        "
-	   << setw (10) << commify (scene.lights.size ()) << endl;
+	   << setw (12) << commify (scene.lights.size ()) << endl;
       if (scene.assumed_gamma != 1)
 	cout << "   assumed gamma: "
-	     << setw (10) << scene.assumed_gamma << endl;
+	     << setw (12) << scene.assumed_gamma << endl;
       if (scene_light_scale != 1)
 	cout << "   light scale:   "
-	     << setw (10) << scene_light_scale << endl;
+	     << setw (12) << scene_light_scale << endl;
       cout << "   materials:     "
-	   << setw (10) << commify (scene.materials.size ()) << endl;
+	   << setw (12) << commify (scene.materials.size ()) << endl;
       cout << "   voxtree surfaces:"
-	   << setw (8) << commify (scene.surface_voxtree.num_surfaces ()) << endl;
+	   << setw (10) << commify (scene.surface_voxtree.num_surfaces ()) << endl;
       cout << "   voxtree nodes: "
-	   << setw (10) << commify (scene.surface_voxtree.num_nodes ()) << endl;
+	   << setw (12) << commify (scene.surface_voxtree.num_nodes ()) << endl;
       float vt_avg_depth = scene.surface_voxtree.avg_depth ();
       cout << "   voxtree avg depth: "
-	   << setw (6) << int (vt_avg_depth) << endl;
+	   << setw (8) << int (vt_avg_depth) << endl;
       cout << "   voxtree max depth:"
-	   << setw (7) << commify (scene.surface_voxtree.max_depth ()) << endl;
+	   << setw (9) << commify (scene.surface_voxtree.max_depth ()) << endl;
 
       // Print image info
 
       cout << "Image:" << endl;
 
       if (multiple == 1)
-	cout << "   size:     "
-	     << setw (15) << (stringify (width)
+	cout << "   size:  "
+	     << setw (20) << (stringify (width)
 			      + " x " + stringify (height))
 	     << endl;
       else
-	cout << "   size:     "
-	     << setw (15) << (stringify (width) + " x " + stringify (height)
+	cout << "   size:  "
+	     << setw (20) << (stringify (width) + " x " + stringify (height)
 			      + " x " + stringify (multiple))
 	     <<" (" << (width * multiple) << " x " << (height * multiple) << ")"
 	     << endl;
@@ -516,15 +516,15 @@ int main (int argc, char *const *argv)
       if (limit_x != 0 || limit_y != 0
 	  || limit_width != width || limit_height != height)
 	cout << "   limit:"
-	     << setw (19) << (stringify (limit_x) + "," + stringify (limit_y)
+	     << setw (20) << (stringify (limit_x) + "," + stringify (limit_y)
 			      + " - " + stringify (limit_x + limit_width)
 			      + "," + stringify (limit_y + limit_height))
 	     << " (" << limit_width << " x "  << limit_height << ")"
 	     << endl;
 
       if (image_sink_params.target_gamma != 0)
-        cout << "   target_gamma:        "
-	     << setw (4) << image_sink_params.target_gamma << endl;
+        cout << "   target_gamma:         "
+	     << setw (5) << image_sink_params.target_gamma << endl;
 
       // Anti-aliasing info
       //
@@ -532,20 +532,20 @@ int main (int argc, char *const *argv)
       if ((image.aa_factor + image_sink_params.aa_overlap) > 1)
 	{
 	  if (image.aa_factor > 1)
-	    cout << "   aa_factor:           "
+	    cout << "   aa_factor:             "
 		 << setw (4) << image.aa_factor << endl;
 
 	  if (image_sink_params.aa_overlap > 0)
-	    cout << "   aa_kernel_size:      "
+	    cout << "   aa_kernel_size:        "
 		 << setw (4)
 		 << (image.aa_factor + image_sink_params.aa_overlap*2)
 		 << " (overlap = " << image_sink_params.aa_overlap << ")"
 		 << endl;
 	  else
-	    cout << "   aa_kernel_size:      "
+	    cout << "   aa_kernel_size:        "
 		 << setw (4) << image.aa_factor << endl;
 
-	  cout << "   aa_filter:       " << setw (8);
+	  cout << "   aa_filter:         " << setw (8);
 	  if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
 	    cout << "box";
 	  else if (image_sink_params.aa_filter == ImageOutput::aa_triang_filter)

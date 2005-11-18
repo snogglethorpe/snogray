@@ -18,8 +18,6 @@
 //   DOI=http://doi.acm.org/10.1145/337680.337717
 //
 
-#include <iostream>
-
 #include "tessel.h"
 
 using namespace Snogray;
@@ -33,9 +31,6 @@ Tessel::Tessel (const Function &_fun, const MaxErrCalc &_max_err_calc)
   fun.define_basis (*this);	// Define the rough basis of the shape
 
   structure ();			// Refine the basis
-
-  std::cout << "* tessellation: " << vertices.size() << " vertices"
-	    << ", " << cells.size() << " cells" << std::endl;
 
   // We're now finished with all subdivs, so free the memory they used.
   //
@@ -342,30 +337,16 @@ Tessel::add_cell (Edge *e1, Edge *e2, Edge *e3)
 {
   Cell *cell = new Cell (e1, e2, e3);
 
-  if (e1 == e2)
-    std::cerr << "BOGUS!!!!!! e1 == e2!!!!" << std::endl;
-  if (e2 == e3)
-    std::cerr << "BOGUS!!!!!! e2 == e3!!!!" << std::endl;
-  if (e1 == e3)
-    std::cerr << "BOGUS!!!!!! e1 == e3!!!!" << std::endl;
-  if (e1->beg->pos == e2->beg->pos)
-    std::cerr << "BOGUS!!!!!! e1->beg->pos == e2->beg->pos!!!!" << std::endl;
-  if (e2->beg->pos == e3->beg->pos)
-    std::cerr << "BOGUS!!!!!! e2->beg->pos == e3->beg->pos!!!!" << std::endl;
-  if (e1->beg->pos == e3->beg->pos)
-    std::cerr << "BOGUS!!!!!! e1->beg->pos == e3->beg->pos!!!!" << std::endl;
-  if (e1->end->pos == e2->end->pos)
-    std::cerr << "BOGUS!!!!!! e1->end->pos == e2->end->pos!!!!" << std::endl;
-  if (e2->end->pos == e3->end->pos)
-    std::cerr << "BOGUS!!!!!! e2->end->pos == e3->end->pos!!!!" << std::endl;
-  if (e1->end->pos == e3->end->pos)
-    std::cerr << "BOGUS!!!!!! e1->end->pos == e3->end->pos!!!!" << std::endl;
-  if (e1->end->pos != e2->beg->pos)
-    std::cerr << "BOGUS!!!!!! e1->end->pos != e2->beg->pos!!!!" << std::endl;
-  if (e2->end->pos != e3->beg->pos)
-    std::cerr << "BOGUS!!!!!! e2->end->pos != e3->beg->pos!!!!" << std::endl;
-  if (e3->end->pos != e1->beg->pos)
-    std::cerr << "BOGUS!!!!!! e3->end->pos != e1->beg->pos!!!!" << std::endl;
+  if (e1->beg->pos == e2->beg->pos
+      || e2->beg->pos == e3->beg->pos
+      || e1->beg->pos == e3->beg->pos
+      || e1->end->pos == e2->end->pos
+      || e2->end->pos == e3->end->pos
+      || e1->end->pos == e3->end->pos
+      || e1->end->pos != e2->beg->pos
+      || e2->end->pos != e3->beg->pos
+      || e3->end->pos != e1->beg->pos)
+    abort ();
 
   cells.append (cell);
 }
