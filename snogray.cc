@@ -288,6 +288,10 @@ int main (int argc, char *const *argv)
   float scene_assumed_gamma = 1, scene_light_scale = 1;
   ImageCmdlineSinkParams image_sink_params (clp);
 
+  // This speeds up I/O on cin/cout by not syncing with C stdio.
+  //
+  ios::sync_with_stdio (false);
+
   // Parse command-line options
   //
   int opt;
