@@ -26,6 +26,7 @@ class ImageRow
 {
 public:
   ImageRow (unsigned _width) : width (_width), pixels (new Color[_width]) { }
+  ~ImageRow () { delete[] pixels; }
 
   Color& operator[] (unsigned index) { return pixels[index]; }
   const Color& operator[] (unsigned index) const { return pixels[index]; }

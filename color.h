@@ -87,6 +87,10 @@ inline bool operator== (const Color &col1, const Color &col2)
       && col1.green == col2.green
       && col1.blue  == col2.blue;
 }
+inline bool operator!= (const Color &col1, const Color &col2)
+{
+  return ! operator== (col1, col2);
+}
 
 inline Color operator+ (const Color &col1, const Color &col2)
 {

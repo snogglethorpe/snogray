@@ -24,6 +24,7 @@
 #include "light.h"
 #include "image.h"
 #include "image-cmdline.h"
+#include "wire-frame.h"
 #include "test-scenes.h"
 
 using namespace Snogray;
@@ -206,6 +207,13 @@ s "  -q, --quiet                Do not output informational or progress messages
 s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
 n
+s "  -w, --wire-frame[=PARAMS]  Output in \"wire-frame\" mode; PARAMS has the form"
+s "                             [TINT][/COLOR][:FILL][%BG] (default: 0.7/1:0%0)"
+s "                             TINT is how much object color affects wires"
+s "                             COLOR is the base color of wires"
+s "                             FILL is the intensity of the scene between wires"
+s "                             BG is the background color"
+n
 s " Scene options:"
 s "  -I, --scene-format=FMT     Scene is in format FMT (one of: test, aff, nff)"
 s "  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA"
@@ -260,6 +268,7 @@ int main (int argc, char *const *argv)
     { "assumed-gamma", 	required_argument, 0, 'G' },
     { "light-scale", 	required_argument, 0, 'L' },
     { "tessel-accur",   required_argument, 0, 'T' },
+    { "wire-frame",     optional_argument, 0, 'w' },
     { "list-test-scenes", no_argument,     0, OPT_LIST_TEST_SCENES },
 
     IMAGE_OUTPUT_LONG_OPTIONS,
@@ -269,7 +278,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:m:w:h:l:qpPI:G:L:T:"
+    "w::s:m:l:qpPI:G:L:T:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -284,6 +293,8 @@ int main (int argc, char *const *argv)
   bool quiet = false, progress = true; // quiet mode, progress indicator
   bool progress_set = false;
   const char *scene_fmt = 0;
+  bool wire_frame = false;
+  WireFrameParams wire_frame_params;
   unsigned multiple = 1;
   float scene_assumed_gamma = 1, scene_light_scale = 1;
   ImageCmdlineSinkParams image_sink_params (clp);
@@ -308,6 +319,12 @@ int main (int argc, char *const *argv)
 	  if (*arg)
 	    tessel_accur = atof (arg);
 	}
+	break;
+
+      case 'w':
+	wire_frame = true;
+	if (clp.opt_arg ())
+	  wire_frame_params.parse (clp);
 	break;
 
 	// Scene options
@@ -593,13 +610,23 @@ int main (int argc, char *const *argv)
       cout.flush ();
     }
 
+  // We create this object regardless of whether we're doing wire-frame
+  // output or not; in the latter case it simply isn't used.
+  //
+  WireFrameRendering
+    wire_frame_rendering (scene, camera, hr_width, hr_height,
+			  hr_limit_x, hr_limit_y,
+			  hr_limit_max_x, hr_limit_max_y,
+			  wire_frame_params);
+
+  if (wire_frame)
+    scene.set_background (wire_frame_params.bg);
+
   // Main ray-tracing loop
   //
   Rusage render_beg_ru;
   for (unsigned y = hr_limit_y; y < hr_limit_max_y; y++)
     {
-      ImageRow &output_row = image.next_row ();
-
       // Progress indicator
       if (progress)
 	{
@@ -622,30 +649,55 @@ int main (int argc, char *const *argv)
       //
       TraceState tstate (scene);
 
-      // Process one image row
+      // Process and (maybe) output one image row.  In wire-frame mode,
+      // we actually output one row behind the row being calculated, so
+      // we supress output the first time.
       //
-      for (unsigned x = hr_limit_x; x < hr_limit_max_x; x++)
+      if (wire_frame)
 	{
-	  // Translate the image position X, Y into a ray radiating from
-	  // the camera.
-	  //
-	  float u = (float)x / (float)hr_width;
-	  float v = (float)(hr_height - y) / (float)hr_height;
-	  Ray camera_ray = camera.get_ray (u, v);
+	  // Wire-frame rendering mode
 
-	  // Cast the camera ray and calculate the image color at that point.
-	  //
-	  Color pix = scene.render (camera_ray, tstate);
+	  wire_frame_rendering.render_row (tstate);
 
-	  // If necessary undo any bogus gamma-correction embedded in
-	  // the scene lighting.  We'll do proper gamma correct later.
-	  //
-	  if (scene.assumed_gamma != 1)
-	    pix = pix.pow (scene.assumed_gamma);
+	  if (y > hr_limit_y)
+	    wire_frame_rendering.get_prev_row (image.next_row ());
 
-	  output_row[x - hr_limit_x] = pix;
+	  wire_frame_rendering.advance_row ();
+	}
+      else
+	{
+	  // Normal rendering mode
+
+	  ImageRow &output_row = image.next_row ();
+
+	  for (unsigned x = hr_limit_x; x < hr_limit_max_x; x++)
+	    {
+	      // Translate the image position X, Y into a ray radiating from
+	      // the camera.
+	      //
+	      Ray camera_ray = camera.get_ray (x, y, hr_width, hr_height);
+
+	      // Cast the camera ray and calculate image color at that point.
+	      //
+	      Color pix = scene.render (camera_ray, tstate);
+
+	      // If necessary undo any bogus gamma-correction embedded in
+	      // the scene lighting.  We'll do proper gamma correct later.
+	      //
+	      if (scene.assumed_gamma != 1)
+		pix = pix.pow (scene.assumed_gamma);
+
+	      output_row[x - hr_limit_x] = pix;
+	    }
 	}
     }
+
+  // In wire-frame mode we output one row behind the calcuation, so in
+  // that case output the final row.
+  //
+  if (wire_frame)
+    wire_frame_rendering.get_prev_row (image.next_row ());
+
   Rusage render_end_ru;
 
   Timeval end_time (Timeval::TIME_OF_DAY);

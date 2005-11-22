@@ -105,6 +105,12 @@ public:
 
     return Ray (pos, targ);
   }
+  Ray get_ray (unsigned x, unsigned y, unsigned width, unsigned height) const
+  {
+    float u = (float)x / (float)width;
+    float v = (float)(height - y) / (float)height;
+    return get_ray (u, v);
+  }
 
   // Set whether the Z axis increases into the image or decreases
   //
