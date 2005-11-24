@@ -619,9 +619,6 @@ int main (int argc, char *const *argv)
 			  hr_limit_max_x, hr_limit_max_y,
 			  wire_frame_params);
 
-  if (wire_frame)
-    scene.set_background (wire_frame_params.bg);
-
   // Main ray-tracing loop
   //
   Rusage render_beg_ru;
