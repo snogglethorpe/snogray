@@ -26,7 +26,9 @@ using namespace Snogray;
 // permissible error at a given location.
 //
 Tessel::Tessel (const Function &_fun, const MaxErrCalc &_max_err_calc)
-  : fun (_fun), max_err_calc (_max_err_calc)
+  : fun (_fun),
+    free_vertices (_fun.vertex_size ()),
+    max_err_calc (_max_err_calc)
 {
   fun.define_basis (*this);	// Define the rough basis of the shape
 
@@ -100,11 +102,10 @@ Tessel::sample (const Vertex *vert1, const Vertex *vert2)
 
   if (sep_sq > samp_res * samp_res)
     {
-      const Pos edge_mid = (pos1 + pos2) / 2;
-      const Pos surf_mid = fun.surface_pos (edge_mid);
-      dist_t corr = (surf_mid - edge_mid).length ();
+      Vertex *mid = fun.midpoint (*this, vert1, vert2);
 
-      Vertex *mid = add_vertex (surf_mid);
+      const Pos edge_mid = (pos1 + pos2) / 2;
+      dist_t corr = (mid->pos - edge_mid).length ();
 
       Subdiv *bef_mid = sample (vert1, mid);
       Subdiv *aft_mid = sample (mid, vert2);

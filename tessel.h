@@ -75,9 +75,6 @@ public:
   {
   public:
 
-    Vertex (const Pos &_pos) : pos (_pos) { }
-    Vertex (coord_t x, coord_t y, coord_t z) : pos (Pos (x, y, z)) { }
-
     // Mainly so we can use Vertex as a map key
     //
     bool operator< (const Vertex &v2) const { return pos < v2.pos; }
@@ -95,13 +92,13 @@ public:
 
   protected:
 
-//     // Only subclasses of Vertex can be constructed!  We guarantee
-//     // to subclasses of Tessel that all vertices will be those it
-//     // supplies, which allows the Tessel subclass to freely subclass
-//     // Vertex, and use static_cast<VertexSubClass &>(vert) to convert
-//     // any vertex it sees to that type.
-//     //
-//     Vertex (const Pos &_pos) : pos (_pos) { }
+    // Only subclasses of Vertex can be constructed!  We guarantee
+    // to subclasses of Tessel that all vertices will be those it
+    // supplies, which allows the Tessel subclass to freely subclass
+    // Vertex, and use static_cast<VertexSubClass &>(vert) to convert
+    // any vertex it sees to that type.
+    //
+    Vertex (const Pos &_pos) : pos (_pos) { }
   };
 
   // A Function is a class that defines a surface for tessellation
@@ -122,35 +119,59 @@ public:
 
     friend class Tessel;
 
+    // Add the vertex VERT to TESSEL (and return it).
+    //
+    const Vertex *add_vertex (Tessel &tessel, Vertex *vert) const
+    {
+      return tessel.vertices.append (vert);
+    }
+
+    // Add a triangular cell with the given vertices to TESSEL.
+    //
+    void add_cell (Tessel &tessel,
+		   const Vertex *v1, const Vertex *v2, const Vertex *v3)
+    {
+      tessel.add_cell (v1, v2, v3);
+    }
+
+    // Subclasses can call this to allocate a vertex from TESSEL's vertex
+    // freelist.
+    //
+    void *alloc_vertex (Tessel &tessel) const
+    {
+      return tessel.free_vertices.get ();
+    }
+
     // Define the initial basis edges in TESSEL.
     //
     virtual void define_basis (Tessel &tessel) const = 0;
 
-    // Return a position on the surface close to POS.  This is the basic
-    // operation used during tessellation.
+    // Add to TESSEL and return a new vertex which is on this function's
+    // surface midway between VERT1 and VERT2 (for some definition of
+    // "midway").  This is the basic operation used during tessellation.
+    // VERT1 and VERT2 are guaranteed to have come from either the original
+    // basis defined by `define_basis', or from a previous call to
+    // `midpoint'; thus it is safe for subclasses to down-cast them to
+    // whatever Vertex subclass they use.
     //
-    virtual Pos surface_pos (const Pos &pos) const = 0;
+    virtual Vertex *midpoint (Tessel &tessel,
+			      const Vertex *vert1, const Vertex *vert2)
+      const = 0;
 
     // Returns the desired sample resolution needed, given a certain error
     // limit.
     //
     virtual dist_t sample_resolution (err_t max_err) const = 0;
 
+    // The size of vertex objects used by this Function (which should be a
+    // subclass of Tessel::Vertex).
+    //
+    virtual size_t vertex_size () const = 0;
+
     //
     // The following methods export private Tessel methods for the use of
     // Function subclasses.
     //
-
-    // For subclasses to use to add new vertices they've constructed.
-    //
-    Vertex *add_vertex (Tessel &tessel, const Pos &pos) const
-    {
-      return tessel.add_vertex (pos);
-    }
-    Vertex *add_vertex (Tessel &tessel, coord_t x, coord_t y, coord_t z) const
-    {
-      return tessel.add_vertex (x, y, z);
-    }
 
     // Add a triangular cell with the given vertices
     //
@@ -253,15 +274,6 @@ private:
 
   // Add and return a new vertex.
   //
-  Vertex *add_vertex (const Pos &pos)
-  {
-    Vertex *v = new (free_vertices) Vertex (pos);
-    return vertices.append (v);
-  }
-  Vertex *add_vertex (coord_t x, coord_t y, coord_t z)
-  {
-    return add_vertex (Pos (x, y, z));
-  }
   void remove_vertex (Vertex *v)
   {
     vertices.remove (v);
@@ -321,10 +333,10 @@ private:
   //
   Subdiv *reverse (const Subdiv *subdiv);
 
-  // Delete the subdiv tree TREE; if FREE_VERTICES is true, also free any
+  // Delete the subdiv tree TREE; if PRUNE_VERTICES is true, also free any
   // vertices it references.
   //
-  void prune (Subdiv *tree, bool free_vertices);
+  void prune (Subdiv *tree, bool prune_vertices);
 
 
   //
@@ -468,7 +480,13 @@ private:
   //
   Freelist<Edge> free_edges;
   Freelist<Subdiv> free_subdivs;
-  Freelist<Vertex> free_vertices;
+
+  // Freelist for vertices.  As the actual vertex type is defined by
+  // subclasses of Function, we use a generic freelist here; the subclass
+  // should define a "vertex_size" method which returns the appropriate
+  // size to initialize this freelist with.
+  //
+  BlockFreelist free_vertices;
 
   // This refers to an object supplied by the user, which is used to
   // calculate the permissible error at a given location.

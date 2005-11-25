@@ -26,7 +26,7 @@ extern float tessel_accur;
 #include "mirror.h"
 #include "glass.h"
 #include "mesh.h"
-#include "tessel-funs.h"
+#include "tessel-param.h"
 #include "string-funs.h"
 
 using namespace Snogray;
@@ -831,8 +831,18 @@ static void
 def_scene_tessel (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
 {
-  camera.move (Pos (2, 3, -4));
+  switch (num / 10)
+    {
+    case 0:
+      camera.move (Pos (2, 3, -4)); break;
+    case 1:
+      camera.move (Pos (4, 0.5, 0.001)); break;
+    case 2:
+      camera.move (Pos (4, 2, 0.001)); break;
+    }
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+
+  num %= 10;
 
   const Material *silver
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
@@ -842,6 +852,21 @@ def_scene_tessel (const string &name, unsigned num,
   const Material *mat = ((num & 1) == 0) ? green : silver;
 
   num >>= 1;			// remove lowest bit
+
+  const Material *orange
+    = scene.add (new Material (Color (0.6,0.5,0.05), Material::phong (250)));
+  const Material *ivory
+    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+
+  coord_t base_rad = (num == 0) ? 1.5 : 1;
+  coord_t base_height = (num == 0) ? -0.22 * base_rad : 0;
+
+  scene.add (new Triangle (orange, Pos (base_rad, base_height, base_rad),
+			   Pos (base_rad, base_height, -base_rad),
+			   Pos (-base_rad, base_height, -base_rad)));
+  scene.add (new Triangle (ivory, Pos (-base_rad, base_height, base_rad),
+			   Pos (base_rad, base_height, base_rad),
+			   Pos (-base_rad, base_height, -base_rad)));
 
   switch (num)
     {
