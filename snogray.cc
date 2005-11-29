@@ -220,7 +220,7 @@ s "  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA"
 s "  -L, --light-scale=SCALE    Scale all scene lighting by SCALE"
 n
 s "  -T, --tessel-accur=ERR     Set tessellation accuracy for test:tessel scenes"
-s "                             (default 0.01; prepend `@' to ERR for smoothing)"
+s "                             (default 0.001; prepend `@' to toggle smoothing)"
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
 n
@@ -247,8 +247,8 @@ n
 }
 
 
-float tessel_accur = 0.01;
-bool tessel_smooth = false;
+float tessel_accur = 0.001;
+bool tessel_smooth = true;
 
 
 int main (int argc, char *const *argv)
@@ -310,10 +310,11 @@ int main (int argc, char *const *argv)
     switch (opt)
       {
       case 'T':
-	{ const char *arg = clp.opt_arg();
+	{
+	  const char *arg = clp.opt_arg();
 	  if (*arg == '@')
 	    {
-	      tessel_smooth = true;
+	      tessel_smooth = !tessel_smooth;
 	      arg++;
 	    }
 	  if (*arg)
@@ -348,7 +349,12 @@ int main (int argc, char *const *argv)
 
 	  for (vector<TestSceneDesc>::const_iterator di = descs.begin();
 	       di != descs.end(); di++)
-	    cout << "   " << setw(15) << di->name << di->desc << endl;
+	    {
+	      unsigned nlen = 15;
+	      while (di->name.length() > nlen)
+		nlen += 10;
+	      cout << "   " << setw(nlen) << di->name << di->desc << endl;
+	    }
 	}
 	exit (0);
 

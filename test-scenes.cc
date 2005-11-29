@@ -9,8 +9,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-extern float tessel_accur;
-
 #include <sstream>
 
 #include "test-scenes.h"
@@ -831,14 +829,21 @@ static void
 def_scene_tessel (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
 {
+  // Defined in "snogray.cc".
+  //
+  extern float tessel_accur;
+  extern bool tessel_smooth;
+
   switch (num / 10)
     {
     case 0:
-      camera.move (Pos (2, 3, -4)); break;
+      camera.move (Pos (1.5, 2.25, -3)); break;
     case 1:
-      camera.move (Pos (4, 0.5, 0.001)); break;
+      camera.move (Pos (3, 0.375, 0.001)); break;
     case 2:
-      camera.move (Pos (4, 2, 0.001)); break;
+      camera.move (Pos (3, 1.5, 0.001)); break;
+    case 3:
+      camera.move (Pos (1, 4, 0.001)); break;
     }
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
 
@@ -851,51 +856,45 @@ def_scene_tessel (const string &name, unsigned num,
 
   const Material *mat = ((num & 1) == 0) ? green : silver;
 
+  float light_intens = ((num & 1) == 0) ? 50 : 25;
+
   num >>= 1;			// remove lowest bit
+
+  Tessel::ConstMaxErr max_err (tessel_accur);
+
+  // Sphere and torus accept a "perburb" factor
+  dist_t perturb = 0;
+  switch (num)
+    {
+    case 1: perturb = 0.001; break;
+    case 2: perturb = 0.002; break;
+    case 3: perturb = 0.01;  break;
+    }
+
+  if (ends_in (name, "sphere"))
+    scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 0), 1, perturb),
+			 max_err, tessel_smooth));
+  else if (ends_in (name, "sinc"))
+    scene.add (new Mesh (mat, SincTesselFun (Pos (0, 0.22, 0), 1),
+			 max_err, tessel_smooth));
+  else if (ends_in (name, "torus"))
+    scene.add (new Mesh (mat,
+			 TorusTesselFun (Pos (0, 0.35, 0), 1, 0.3, perturb),
+			 max_err, tessel_smooth));
+  else
+    throw (runtime_error ("Unknown tessellation test scene"));
 
   const Material *orange
     = scene.add (new Material (Color (0.6,0.5,0.05), Material::phong (250)));
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
 
-  coord_t base_rad = (num == 0) ? 1.5 : 1;
-  coord_t base_height = (num == 0) ? -0.22 * base_rad : 0;
+  scene.add (new Triangle (orange,
+			   Pos (1, 0, 1), Pos (1, 0, -1), Pos (-1, 0, -1)));
+  scene.add (new Triangle (ivory,
+			   Pos (-1, 0, 1), Pos (1, 0, 1), Pos (-1, 0, -1)));
 
-  scene.add (new Triangle (orange, Pos (base_rad, base_height, base_rad),
-			   Pos (base_rad, base_height, -base_rad),
-			   Pos (-base_rad, base_height, -base_rad)));
-  scene.add (new Triangle (ivory, Pos (-base_rad, base_height, base_rad),
-			   Pos (base_rad, base_height, base_rad),
-			   Pos (-base_rad, base_height, -base_rad)));
-
-  switch (num)
-    {
-      dist_t perturb;
-
-    default:
-    case 0:
-      scene.add (new Mesh (mat, SincTesselFun (Pos (0, 0, 0), 1.5),
-			   Tessel::ConstMaxErr (tessel_accur)));
-      break;
-
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-      switch (num)
-	{
-	default: case 1: perturb = 0;     break;
-	case 2: perturb = 0.001; break;
-	case 3: perturb = 0.002; break;
-	case 4: perturb = 0.01;  break;
-	}
-
-      scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 0), 1, perturb),
-			   Tessel::ConstMaxErr (tessel_accur)));
-      break;
-    }
-
-  scene.add (new PointLight (Pos (0, 5, 5), 50));
+  scene.add (new PointLight (Pos (0, 5, 5), light_intens));
   scene.add (new PointLight (Pos (-5, 5, -5), 15));
   scene.add (new PointLight (Pos (10, -5, -15), 100));
 }
@@ -903,12 +902,9 @@ def_scene_tessel (const string &name, unsigned num,
 static void
 add_scene_descs_tessel (vector<TestSceneDesc> &descs)
 {
-  descs.push_back (TestSceneDesc ("tessel", "Tessellation test: green sinc function"));
-  descs.push_back (TestSceneDesc ("tessel1", "Tessellation test: silver sinc function"));
-  descs.push_back (TestSceneDesc ("tessel2", "Tessellation test: green ball"));
-  descs.push_back (TestSceneDesc ("tessel3", "Tessellation test: silver ball"));
-  descs.push_back (TestSceneDesc ("tessel4,6,8", "Tessellation test: rough green balls"));
-  descs.push_back (TestSceneDesc ("tessel5,7,9", "Tessellation test: rough silver balls"));
+  descs.push_back (TestSceneDesc ("tessel-sinc-[0-3][01]", "Sinc function"));
+  descs.push_back (TestSceneDesc ("tessel-sphere-[0-3][0-7]", "Tessellated sphere"));
+  descs.push_back (TestSceneDesc ("tessel-torus-[0-3][0-7]", "Tessellated torus"));
 }
 
 
@@ -944,7 +940,7 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_cornell_box (name, num, scene, camera);
   else if (name == "cs465")
     def_scene_cs465 (name, num, scene, camera);
-  else if (name == "tessel")
+  else if (begins_with (name, "tessel-"))
     def_scene_tessel (name, num, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));

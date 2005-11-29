@@ -14,6 +14,7 @@
 
 #include <map>
 #include <utility>		// for std::pair
+#include <vector>
 
 #include "pos.h"
 #include "vec.h"
@@ -58,6 +59,30 @@ public:
     err_t err;
   };
 
+  //
+  // The following methods are for retrieving the results of
+  // tessellation.
+  //
+
+  // Add all vertices to VERTICES.
+  //
+  void get_vertices (std::vector<Pos> &vertices) const;
+
+  // Add triangle vertices to TRI_VERTS as groups of three vertex indices
+  // (T0_V0_INDEX, T0_V1_INDEX, T0_V2_INDEX, T1_V0_INDEX, ...).
+  //
+  void get_triangle_vertex_indices (std::vector<unsigned> &tri_verts) const;
+
+  // Add normal vectors for all vertices to NORMALS; if they are none
+  // known, NORMALS will be unchanged.
+  //
+  void get_vertex_normals (std::vector<Vec> &normals) const
+  {
+    // We know nothing about normals, so the function must deal with them.
+    fun.get_vertex_normals (vertices.begin(), vertices.end(), normals);
+  }
+
+
   // A vertex is a point that's actually on the curve, and can be used
   // as a vertex in the final tessellation.
   //
@@ -101,6 +126,7 @@ public:
     Vertex (const Pos &_pos) : pos (_pos) { }
   };
 
+
   // A Function is a class that defines a surface for tessellation
   //
   class Function
@@ -109,11 +135,13 @@ public:
 
     virtual ~Function ();	// make gcc shut up
 
-    // If the function can compute vertex normals too, it may use these
-    // methods to communicate them.
+    // Add normal vectors for the vertices in the list from VERTICES_BEG
+    // to VERTICES_END, to NORMALS.
     //
-    virtual bool has_vertex_normals () const;
-    virtual Vec vertex_normal (const Vertex &vert) const;
+    virtual void get_vertex_normals (LinkedList<Vertex>::iterator vertices_beg,
+				     LinkedList<Vertex>::iterator vertices_end,
+				     std::vector<Vec> &normals)
+      const = 0;
 
   protected:
 
@@ -146,6 +174,11 @@ public:
     //
     virtual void define_basis (Tessel &tessel) const = 0;
 
+    // Returns the desired sample resolution needed, given a certain error
+    // limit.
+    //
+    virtual dist_t sample_resolution (err_t max_err) const = 0;
+
     // Add to TESSEL and return a new vertex which is on this function's
     // surface midway between VERT1 and VERT2 (for some definition of
     // "midway").  This is the basic operation used during tessellation.
@@ -157,11 +190,6 @@ public:
     virtual Vertex *midpoint (Tessel &tessel,
 			      const Vertex *vert1, const Vertex *vert2)
       const = 0;
-
-    // Returns the desired sample resolution needed, given a certain error
-    // limit.
-    //
-    virtual dist_t sample_resolution (err_t max_err) const = 0;
 
     // The size of vertex objects used by this Function (which should be a
     // subclass of Tessel::Vertex).
@@ -184,62 +212,6 @@ public:
   };
   friend class Function;
 
-  //
-  // The following methods define iterators for retrieving the results
-  // of tessellation.
-  //
-
-  // Return the total number of vertices in the tessellation; vertex
-  // `index' fields will be in the range 0 - (NUM_VERTICES - 1).
-  //
-  unsigned num_vertices () const { return vertices.size (); }
-
-  // Return the total number of triangles in the tessellation.
-  //
-  unsigned num_triangles () const { return cells.size (); }
-
-  // Iterators for retrieving vertices
-  //
-  LinkedList<Vertex>::iterator vertices_begin () const { return vertices.begin (); }
-  LinkedList<Vertex>::iterator vertices_end () const { return vertices.end (); }
-
-private: // forward decl for Cell must have same access as real decl
-  class Cell;
-public:
-
-  // An iterator for iterating over every triangle
-  //
-  class TriangleIter
-  {
-  public:
-
-    TriangleIter (const LinkedList<Cell>::iterator &_cell_iter)
-      : cell_iter (_cell_iter)
-    { }
-
-    bool operator== (const TriangleIter &ti) const
-    { return cell_iter == ti.cell_iter; }
-    bool operator!= (const TriangleIter &ti) const
-    { return cell_iter != ti.cell_iter; }
-
-    TriangleIter &operator++ () { ++cell_iter; return *this; }
-    TriangleIter &operator++ (int) { cell_iter++; return *this; }
-
-    const Vertex &vert1 () { return *cell_iter->e1->beg; }
-    const Vertex &vert2 () { return *cell_iter->e2->beg; }
-    const Vertex &vert3 () { return *cell_iter->e3->beg; }
-
-  private:
-
-    LinkedList<Cell>::iterator cell_iter;
-  };
-  friend class TriangleIter;
-
-  TriangleIter triangles_begin () const { return cells.begin(); }
-  TriangleIter triangles_end () const { return cells.end(); }
-
-
-private:
 
   //
   // For the convenience of Functions in defining the basis, we don't
@@ -258,6 +230,9 @@ private:
 
     add_cell (e1, e2, e3);
   }
+
+
+private:
 
   // Return the maximum permissible error at VERT (the error may be
   // position dependent).

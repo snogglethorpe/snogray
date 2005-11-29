@@ -54,9 +54,7 @@ public:
 	const Tessel::MaxErrCalc &max_err, bool smooth = false)
     : PrimarySurface (mat), triangles (0, *this)
   {
-    add (tessel_fun, max_err);
-    if (smooth)
-      compute_vertex_normals ();
+    add (tessel_fun, max_err, smooth);
   }
 
   // Add a triangle to the mesh
@@ -80,7 +78,8 @@ public:
   // Add the results of tessellating TESSEL_FUN with MAX_ERR.
   //
   void add (const Tessel::Function &tessel_fun,
-	    const Tessel::MaxErrCalc &max_err);
+	    const Tessel::MaxErrCalc &max_err,
+	    bool smooth = true);
 
   // For loading mesh from any file-type (automatically determined)
   //

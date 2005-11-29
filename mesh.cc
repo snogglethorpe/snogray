@@ -127,7 +127,8 @@ Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2)
 //
 void
 Mesh::add (const Tessel::Function &tessel_fun,
-	   const Tessel::MaxErrCalc &max_err)
+	   const Tessel::MaxErrCalc &max_err,
+	   bool smooth)
 {
   // Do the tessellation
   //
@@ -135,39 +136,30 @@ Mesh::add (const Tessel::Function &tessel_fun,
 
   unsigned base_vert = vertices.size ();
 
-  extern bool tessel_smooth;
-  bool has_normals = tessel_fun.has_vertex_normals ();
-  unsigned tessel_num_verts = tessel.num_vertices ();
+  tessel.get_vertices (vertices);
 
-  if (! tessel_smooth)
-    has_normals = false;
+  std::vector<unsigned> tri_vert_indices;
+  tessel.get_triangle_vertex_indices (tri_vert_indices);
 
-  // Try to increase efficiency by pre-allocating space
-  //
-  triangles.reserve (triangles.size() + tessel.num_triangles ());
-  vertices.reserve (base_vert + tessel_num_verts);
-  if (has_normals)
-    vertex_normals.reserve (base_vert + tessel_num_verts);
+  unsigned num_tris = tri_vert_indices.size () / 3;
 
-  // Add vertices
-  //
-  for (LinkedList<Tessel::Vertex>::iterator vi = tessel.vertices_begin ();
-       vi != tessel.vertices_end(); vi++)
-    if (has_normals)
-      add_vertex (vi->pos, tessel_fun.vertex_normal (*vi));
-    else
-      add_vertex (vi->pos);
+  triangles.reserve (triangles.size() + num_tris);
 
-  // Add triangles
-  //
-  for (Tessel::TriangleIter ti = tessel.triangles_begin();
-       ti != tessel.triangles_end(); ti++)
-    add_triangle (base_vert + ti.vert1().index,
-		  base_vert + ti.vert2().index,
-		  base_vert + ti.vert3().index);
+  unsigned tvi_num = 0;
+  for (unsigned t = 0; t < num_tris; t++)
+    {
+      add_triangle (base_vert + tri_vert_indices[tvi_num + 0],
+		    base_vert + tri_vert_indices[tvi_num + 1],
+		    base_vert + tri_vert_indices[tvi_num + 2]);
+      tvi_num += 3;
+    }
 
-  if (tessel_smooth && !has_normals)
-    compute_vertex_normals ();
+  if (smooth)
+    {
+      tessel.get_vertex_normals (vertex_normals);
+      if (vertex_normals.size() <= base_vert)
+	compute_vertex_normals ();
+    }
 }
 
 

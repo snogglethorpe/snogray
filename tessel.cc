@@ -51,9 +51,6 @@ Tessel::Tessel (const Function &_fun, const MaxErrCalc &_max_err_calc)
 
 Tessel::Function::~Function () { }
 
-bool Tessel::Function::has_vertex_normals () const { return false; }
-Vec Tessel::Function::vertex_normal (const Vertex &vert) const { return 0; }
-
 
 // MaxErr stuff
 
@@ -63,6 +60,37 @@ Tessel::err_t
 Tessel::ConstMaxErr::max_err (const Pos &pos) const
 {
   return err;
+}
+
+
+// Retrieving results of tessellation
+
+// Add all vertices to VERTICES.
+//
+void
+Tessel::get_vertices (std::vector<Pos> &_vertices) const
+{
+  _vertices.reserve (_vertices.size() + vertices.size());
+
+  for (LinkedList<Vertex>::iterator vi = vertices.begin();
+       vi != vertices.end(); vi++)
+    _vertices.push_back (vi->pos);
+}
+
+// Add triangle vertices to TRI_VERTS as groups of three vertex indices
+// (T0_V0_INDEX, T0_V1_INDEX, T0_V2_INDEX, T1_V0_INDEX, ...).
+//
+void
+Tessel::get_triangle_vertex_indices (std::vector<unsigned> &tri_verts) const
+{
+  tri_verts.reserve (tri_verts.size() + cells.size() * 3);
+
+  for (LinkedList<Cell>::iterator ci = cells.begin(); ci != cells.end(); ci++)
+    {
+      tri_verts.push_back (ci->e1->beg->index);
+      tri_verts.push_back (ci->e2->beg->index);
+      tri_verts.push_back (ci->e3->beg->index);
+    }
 }
 
 

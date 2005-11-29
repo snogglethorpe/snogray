@@ -80,10 +80,35 @@ protected:
   //
   virtual size_t vertex_size () const;
 
+  // Add normal vectors for the vertices in the list from VERTICES_BEG
+  // to VERTICES_END, to NORMALS.
+  //
+  virtual void get_vertex_normals (
+		 LinkedList<Tessel::Vertex>::iterator vertices_beg,
+		 LinkedList<Tessel::Vertex>::iterator vertices_end,
+		 std::vector<Vec> &normals)
+    const;
+
+  //
+  // Methods to be overridden by subclasses
+  //
+
   // Return the surface position corresponding to the parameters U, V.
   // Subclass should override this method.
   //
   virtual Pos surface_pos (param_t u, param_t v) const = 0;
+
+  // Return true if this function can calculate vertex normals.
+  // If so, the `vertex_normal' method will be called to get each vertex's
+  // normal.  Note that the default is true, so this method need only be
+  // overridden for subclasses which _can't_ calculate vertex normals.
+  //
+  virtual bool can_calc_vertex_normals () const;
+
+  // Return the surface normal corresponding for VERTEX.
+  // Subclass should override this method.
+  //
+  virtual Vec vertex_normal (const Vertex &vertex) const = 0;
 };
 
 
@@ -100,7 +125,12 @@ protected:
 
   // Define the initial basis edges in TESSEL.
   //
-  void define_basis (Tessel &tessel) const;
+  virtual void define_basis (Tessel &tessel) const;
+
+  // Returns the desired sample resolution needed, given a certain error
+  // limit.
+  //
+  virtual dist_t sample_resolution (Tessel::err_t max_err) const;
 
   // Add to TESSEL and return a new vertex which is on this function's
   // surface midway between VERT1 and VERT2 (for some definition of
@@ -119,16 +149,17 @@ protected:
   //
   virtual Pos surface_pos (param_t u, param_t v) const;
 
-  // Returns the desired sample resolution needed, given a certain error
-  // limit.
+  // Return true if this function can calculate vertex normals.
+  // If so, the `vertex_normal' method will be called to get each vertex's
+  // normal.  Note that the default is true, so this method need only be
+  // overridden for subclasses which _can't_ calculate vertex normals.
   //
-  dist_t sample_resolution (Tessel::err_t max_err) const;
+  virtual bool can_calc_vertex_normals () const;
 
-  // If the subclass can compute vertex normals too, it may use these
-  // methods to communicate them.
+  // Return the surface normal corresponding for VERTEX.
+  // Subclass should override this method.
   //
-  virtual bool has_vertex_normals () const;
-  virtual Vec vertex_normal (const Tessel::Vertex &vert) const;
+  virtual Vec vertex_normal (const Vertex &vertex) const;
 
 private:
 
@@ -153,6 +184,11 @@ protected:
   //
   virtual void define_basis (Tessel &tessel) const;
 
+  // Returns the desired sample resolution needed, given a certain error
+  // limit.
+  //
+  virtual dist_t sample_resolution (Tessel::err_t max_err) const;
+
   // Add to TESSEL and return a new vertex which is on this function's
   // surface midway between VERT1 and VERT2 (for some definition of
   // "midway").  This is the basic operation used during tessellation.
@@ -168,17 +204,76 @@ protected:
 
   // Return the surface position corresponding to the parameters U, V.
   //
-  Pos surface_pos (param_t u, param_t v) const;
+  virtual Pos surface_pos (param_t u, param_t v) const;
 
-  // Returns the desired sample resolution needed, given a certain error
-  // limit.
+  // Return the surface normal corresponding for VERTEX.
+  // Subclass should override this method.
   //
-  dist_t sample_resolution (Tessel::err_t max_err) const;
+  virtual Vec vertex_normal (const Vertex &vertex) const;
 
 private:
 
   Pos origin;
   dist_t radius;
+};
+
+
+
+class TorusTesselFun : public ParamTesselFun
+{
+public:
+
+  TorusTesselFun (Pos _origin, dist_t _radius, dist_t _hole_radius,
+		  dist_t perturb = 0)
+    : origin (_origin), radius (_radius), hole_radius (_hole_radius),
+      radius_perturb (perturb)
+  { }
+
+protected:
+
+  // Define the initial basis edges in TESSEL.
+  //
+  virtual void define_basis (Tessel &tessel) const;
+
+  // Returns the desired sample resolution needed, given a certain error
+  // limit.
+  //
+  virtual dist_t sample_resolution (Tessel::err_t max_err) const;
+
+  // Add to TESSEL and return a new vertex which is on this function's
+  // surface midway between VERT1 and VERT2 (for some definition of
+  // "midway").  This is the basic operation used during tessellation.
+  // VERT1 and VERT2 are guaranteed to have come from either the original
+  // basis defined by `define_basis', or from a previous call to
+  // `midpoint'; thus it is safe for subclasses to down-cast them to
+  // whatever Vertex subclass they use.
+  //
+  virtual Tessel::Vertex *midpoint (Tessel &tessel,
+				    const Tessel::Vertex *vert1,
+				    const Tessel::Vertex *vert2)
+    const;
+
+  // Return the surface position corresponding to the parameters U, V.
+  //
+  virtual Pos surface_pos (param_t u, param_t v) const;
+
+  // Return true if this function can calculate vertex normals.
+  // If so, the `vertex_normal' method will be called to get each vertex's
+  // normal.  Note that the default is true, so this method need only be
+  // overridden for subclasses which _can't_ calculate vertex normals.
+  //
+  virtual bool can_calc_vertex_normals () const;
+
+  // Return the surface normal corresponding for VERTEX.
+  // Subclass should override this method.
+  //
+  virtual Vec vertex_normal (const Vertex &vertex) const;
+
+private:
+
+  Pos origin;
+  dist_t radius, hole_radius;
+  dist_t radius_perturb;
 };
 
 }

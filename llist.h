@@ -41,6 +41,7 @@ public:
     Node () : prev (0), next (0) { }
 
   private:
+
     friend class LinkedList<T>;
     friend class LinkedList<T>::iterator;
 
@@ -68,6 +69,7 @@ public:
     }
 
   private:
+
     friend class LinkedList;
 
     iterator (T *_node) : node (_node) { }

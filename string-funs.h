@@ -32,6 +32,14 @@ ends_in (const std::string &str, const std::string &sfx)
   return str_len >= sfx_len && str.substr (str_len - sfx_len) == sfx;
 }
 
+static inline bool
+begins_with (const std::string &str, const std::string &pfx)
+{
+  size_t str_len = str.length ();
+  size_t pfx_len = pfx.length ();
+  return str_len >= pfx_len && str.substr (0, pfx_len) == pfx;
+}
+
 }
 
 #endif /* __STRING_FUNS__ */
