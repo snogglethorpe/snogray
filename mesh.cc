@@ -344,6 +344,19 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
       norm =  vnorm(0) * (1 - isec_params.u - isec_params.v);
       norm += vnorm(1) * isec_params.u;
       norm += vnorm(2) * isec_params.v;
+
+      // If the interpolated normal is pointing in (roughly) the same
+      // direction as RAY, it means the interpolation has interpolated past
+      // a virtual tangent point on the surface.  In this case there's not
+      // much we can do -- it will look ugly no matter what -- but try to
+      // keep things as sane as possible by clamping the normal at the
+      // point where it's perpendicular to RAY.
+      //
+      if (!back && norm.dot (ray.dir) > 0)
+	{
+	  Vec cx = norm.cross (ray.dir);
+	  norm = ray.dir.cross (cx);
+	}
     }
 
   return Intersect (ray, this, point, norm.unit(), back);
