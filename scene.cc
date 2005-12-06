@@ -243,12 +243,12 @@ Scene::illum (const Intersect &isec, const Color &color,
     {
       const Light *light = *li;
 
-      // If the dot-product of the impinging light-ray with the surface
-      // normal is positive, that means the light is behind the surface,
-      // so cannot light it ("self-shadowing"); otherwise, see if some
-      // other surface casts a shadow.
+      // If the dot-product of the surface normal with a ray from the
+      // intersection point to the light is negative, that means the light
+      // is behind the surface, so cannot light it ("self-shadowing");
+      // otherwise, see if some other surface casts a shadow.
 
-      if (isec.normal.dot (light->pos - isec.point) >= -Eps)
+      if (isec.normal.dot (light->pos - isec.point) > 0)
 	total_color += light->illum (isec, color, light_model, sub_tstate);
     }
 
