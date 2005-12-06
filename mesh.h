@@ -97,6 +97,9 @@ public:
   //
   void compute_vertex_normals ();
 
+  Pos vertex (unsigned index) { return vertices[index]; }
+  Pos vertex_normal (unsigned index) { return vertex_normals[index]; }
+
   //private:
 
   class Triangle : public Surface
