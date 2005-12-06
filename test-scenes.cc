@@ -772,20 +772,35 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
 }
 
 void 
-def_scene_cs465_test4 (Scene &scene, Camera &camera)
+def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
 {
   // Low resolution Stanford Bunny Mesh.
 
-  camera.move (Pos (0, 0, 3));
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+
+  if (variant == 2)
+    camera.move (Pos (0, 3, .7));
+  else if (variant == 3)
+    camera.move (Pos (-.1, 1.8, 1.2));
+  else 
+    camera.move (Pos (0, 0, 3)); // original scene#4 camera pos
+
   camera.point (Pos (-0.25, -0.07, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
 
-  const Material *red = scene.add (new Material (Color (1, 0, 0)));
+  const Material *red;
+
+  if (variant == 0)
+    red = scene.add (new Material (Color (1, 0, 0))); // original, flat red
+  else
+    red = scene.add (new Mirror (0.1, Color (.5, 0, 0), 500)); // glossy red
+
   const Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
 
-  Mesh *bunny = new Mesh (red);
-  bunny->load ("bunny500.msh");
-  scene.add (bunny);
+  // Add bunny.  For variant 0, we use the original unsmoothed appearance;
+  // for everythign else we do smoothing.
+  //
+  scene.add (new Mesh (red, "bunny500.msh", (variant > 0)));
   
   // ground
   scene.add (new Triangle (gray,
@@ -795,9 +810,9 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera)
 			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
 			   Pos (10, -0.65, 10)));
   
-  scene.add (new PointLight (Pos (0, 10, 0), 100));
-  scene.add (new PointLight (Pos (15, 2, 0), 100));
-  scene.add (new PointLight (Pos (0, 1, 15), 100));
+  add_bulb (scene, Pos (0, 10, 0), .5, 100);
+  add_bulb (scene, Pos (15, 2, 0), .5, 100);
+  add_bulb (scene, Pos (0, 1, 15), .5, 100);
 }
 
 static void
@@ -808,7 +823,11 @@ def_scene_cs465 (const string &name, unsigned num, Scene &scene, Camera &camera)
     case 1: def_scene_cs465_test1 (scene, camera); break;
     case 2: def_scene_cs465_test2 (scene, camera); break;
     case 3: def_scene_cs465_test3 (scene, camera); break;
-    case 4: def_scene_cs465_test4 (scene, camera); break;
+    case 4: def_scene_cs465_test4 (scene, camera, 0); break;
+      // scenes 5 and 6 are variations on scene 4
+    case 5: def_scene_cs465_test4 (scene, camera, 1); break;
+    case 6: def_scene_cs465_test4 (scene, camera, 2); break;
+    case 7: def_scene_cs465_test4 (scene, camera, 3); break;
     default:
       throw runtime_error ("unknown cs465 test scene");
     }
@@ -820,7 +839,7 @@ add_scene_descs_cs465 (vector<TestSceneDesc> &descs)
   descs.push_back (TestSceneDesc ("cs465-1", "Cornell CS465 test-scene 1"));
   descs.push_back (TestSceneDesc ("cs465-2", "Cornell CS465 test-scene 2"));
   descs.push_back (TestSceneDesc ("cs465-3", "Cornell CS465 test-scene 3"));
-  descs.push_back (TestSceneDesc ("cs465-4", "Cornell CS465 test-scene 4"));
+  descs.push_back (TestSceneDesc ("cs465-[4-7]", "Cornell CS465 test-scene 4 and variations"));
 }
 
 
