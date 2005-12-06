@@ -149,7 +149,7 @@ SceneShadowCallback::operator () (Surface *surface)
     {
       num_tests++;
 
-      if (surface->intersects (light_ray))
+      if (surface->shadows (light_ray, isec.smoothing_group, isec.back))
 	{
 	  shadower = surface;
 
@@ -201,7 +201,7 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
   const Surface *hint = tstate.shadow_hints[light.num];
   if (hint && hint != tstate.origin)
     {
-      if (hint->intersects (light_ray))
+      if (hint->shadows (light_ray, isec.smoothing_group, isec.back))
 	{
 	  stats.shadow_hint_hits++;
 	  return hint;

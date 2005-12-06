@@ -81,6 +81,31 @@ public:
     return dist > 0 && dist < ray.len;
   }
 
+  // Like `intersects', but rejects an intersection if this object is in
+  // the smoothing-group SMOOTH_GROUP, and RAY is hitting the back-face of
+  // the object; FROM_REVERSE inverts the sense of the smoothing-group face test
+  // (if true, shadows from the _front_ of an object in the same
+  // smoothing-group are rejected).
+  //
+  bool shadows (const Ray &ray,
+		const void *smooth_group = 0, bool from_back = false,
+		unsigned num = 0)
+    const
+  {
+    IsecParams isec_params;	// not used
+    dist_t dist = intersection_distance (ray, isec_params, num);
+
+    if (dist > 0 && dist < ray.len)
+      {
+	if (smooth_group && smoothing_group() == smooth_group)
+	  return from_back == back (ray);
+
+	return true;
+      }
+
+    return false;
+  }
+
   // Return the distance from RAY's origin to the closest intersection
   // of this surface with RAY, or 0 if there is none.  RAY is considered
   // to be unbounded.
