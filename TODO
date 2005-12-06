@@ -2,7 +2,8 @@ Todo list for snogray
 
 
 
- + Optimize triangle intersection calcuation.
+ [DONE]
+ + Optimize triangle intersection calculation.
 
      (Accounts for a huge proportion of tracing time)
 

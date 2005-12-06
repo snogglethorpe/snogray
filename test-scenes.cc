@@ -57,9 +57,8 @@ def_scene_miles (const string &name, unsigned num,
     = scene.add (new Glass (Medium (0.99, 1.8), 0.1, 0.01,
 			    Material::phong (2000, 1.5)));
   const Material *gold
-    = scene.add (new Mirror (0.9 * Color (0.71, 0.63, 0.1),
-			     0.1 * Color (0.80, 0.80, 0.05),
-			     Material::phong (500, Color (1, 1, 0.2))));
+    = scene.add (new Mirror (Color (0.852, 0.756, 0.12), 0, 
+			     Material::phong (800, Color (1, 1, 0.3))));
   const Material *mat1 = crystal, *mat2 = gold;
 //   const Material *mat1
 //     = scene.add (new Glass (Medium (1, 1.1), 0.1, 0, 300));
@@ -171,11 +170,10 @@ def_scene_pretty_bunny (const string &name, unsigned num,
     = scene.add (new Glass (Medium (0.9, 1.8), 0.2, 0.01,
 			    Material::phong (2000, 1.5)));
   const Material *gold
-    = scene.add (new Mirror (0.9 * Color (0.71, 0.63, 0.1),
-			     0.05 * Color (0.80, 0.80, 0.05),
-			     Material::phong (500, Color (1, 1, 0.2))));
+    = scene.add (new Mirror (Color (0.852, 0.756, 0.12), 0, 
+			     Material::phong (800, Color (1, 1, 0.3))));
 
-  bool goldbunny = ends_in (name, "gold");
+  bool goldbunny = begins_with (name, "gold");
 
   Mesh *bunny = new Mesh (goldbunny ? gold : crystal);
   bunny->load ("bunny500.msh");
