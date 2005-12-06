@@ -349,6 +349,14 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
   return Intersect (ray, this, point, norm.unit(), back);
 }
 
+// Return true if RAY would hit the back of this surface.
+//
+bool
+Mesh::Triangle::back (const Ray &ray) const
+{
+  return raw_normal_unscaled().dot (ray.dir) > 0;
+}
+
 // Return a bounding box for this surface.
 BBox
 Mesh::Triangle::bbox () const

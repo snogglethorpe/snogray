@@ -48,6 +48,10 @@ public:
 				    const IsecParams &isec_params)
     const;
 
+  // Return true if RAY would hit the back of this surface.
+  //
+  virtual bool back (const Ray &ray) const;
+
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;

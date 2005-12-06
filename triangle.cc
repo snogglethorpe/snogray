@@ -99,6 +99,14 @@ Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
   return Intersect (ray, this, ray.end (), ((v1 - v0).cross (v1 - v2)).unit ());
 }
 
+// Return true if RAY would hit the back of this surface.
+//
+bool
+Triangle::back (const Ray &ray) const
+{
+  return ((v1 - v0).cross (v1 - v2)).dot (ray.dir) > 0;
+}
+
 // Return a bounding box for this surface.
 BBox
 Triangle::bbox () const

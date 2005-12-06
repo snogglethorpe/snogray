@@ -76,6 +76,14 @@ Sphere::intersect_info (const Ray &ray, const IsecParams &isec_params)
   return Intersect (ray, this, point, (point - center).unit ());
 }
 
+// Return true if RAY would hit the back of this surface.
+//
+bool
+Sphere::back (const Ray &ray) const
+{
+  return (ray.end() - center).dot (ray.dir) > 0;
+}
+
 // Return a bounding box for this surface.
 BBox
 Sphere::bbox () const
