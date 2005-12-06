@@ -115,9 +115,10 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, TraceState &tstate)
 struct SceneShadowCallback : Voxtree::IntersectCallback
 {
   SceneShadowCallback (const Light &_light, const Ray &_light_ray,
+		       const Intersect &_isec,
 		       TraceState &_tstate, Voxtree::IsecStats *stats = 0)
     : IntersectCallback (stats), 
-      light (_light), light_ray (_light_ray),
+      light (_light), light_ray (_light_ray), isec (_isec),
       shadower (0), tstate (_tstate), num_tests (0)
   { }
 
@@ -125,6 +126,10 @@ struct SceneShadowCallback : Voxtree::IntersectCallback
 
   const Light &light;
   const Ray &light_ray;
+
+  // Intersection which is possibly shadowed.
+  //
+  const Intersect &isec;
 
   // Shadowing surface discovered.
   //
@@ -167,13 +172,15 @@ SceneShadowCallback::operator () (Surface *surface)
 // "opaque" surface (shadow-type Material::SHADOW_OPAQUE), then it is
 // guaranteed there are no opaque surfaces casting a shadow.
 //
+// ISEC is the intersection for which we are searching for shadow-casters.
+//
 // This is similar, but not identical to the behavior of the `intersect'
 // method -- `intersect' always returns the closest surface and makes no
 // guarantees about the properties of further intersections.
 //
 const Surface *
 Scene::shadow_caster (const Ray &light_ray, const Light &light,
-		      TraceState &tstate)
+		      const Intersect &isec, TraceState &tstate)
   const
 {
   stats.scene_shadow_tests++;
@@ -208,7 +215,7 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
     }
 
   SceneShadowCallback
-    shadow_cb (light, light_ray, tstate, &stats.voxtree_shadow);
+    shadow_cb (light, light_ray, isec, tstate, &stats.voxtree_shadow);
 
   surface_voxtree.for_each_possible_intersector (light_ray, shadow_cb);
 

@@ -30,7 +30,7 @@ Light::ray_illum (const Ray &light_ray, const Color &light_color,
 {
   // Find any surface that's shadowing LIGHT_RAY.
   //
-  const Surface *shadower = tstate.shadow_caster (light_ray, *this);
+  const Surface *shadower = tstate.shadow_caster (light_ray, *this, isec);
 
   // If there's a shadowing surface, and it it is opaque, then we
   // need do nothing more...

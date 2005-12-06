@@ -144,7 +144,7 @@ public:
   // and makes no guarantees about the properties of further intersections.
   //
   const Surface *shadow_caster (const Ray &light_ray, const Light &light,
-				TraceState &tstate)
+				const Intersect &isec, TraceState &tstate)
     const;
 
   // Iterate over every light, calculating its contribution the color of
@@ -260,9 +260,10 @@ TraceState::shadow (const Ray &light_ray, const Color &light_color,
 }
 
 inline const Surface *
-TraceState::shadow_caster (const Ray &light_ray, const Light &light)
+TraceState::shadow_caster (const Ray &light_ray, const Light &light,
+			   const Intersect &isec)
 {
-  return scene.shadow_caster (light_ray, light, *this);
+  return scene.shadow_caster (light_ray, light, isec, *this);
 }
 
 }

@@ -95,7 +95,8 @@ public:
 	       const LightModel &light_model);
   Color shadow (const Ray &light_ray, const Color &light_color,
 		const Light &light);
-  const Surface *shadow_caster (const Ray &light_ray, const Light &light);
+  const Surface *shadow_caster (const Ray &light_ray, const Light &light,
+				const Intersect &isec);
 
   // Searches back through the trace history to find the enclosing medium.
   //
