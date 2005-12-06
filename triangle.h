@@ -48,12 +48,6 @@ public:
 				    const IsecParams &isec_params)
     const;
 
-  // Return true if RAY extended to length ISEC_DIST would hit the
-  // back of this surface.  Note that ISEC_DIST may be different than
-  // RAY's length!
-  //
-  virtual bool back (const Ray &ray, dist_t isec_dist) const;
-
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;
