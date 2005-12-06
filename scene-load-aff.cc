@@ -44,16 +44,16 @@ using namespace std;
 //
 #define AFF_ASSUMED_GAMMA		2.2
 
-// We scale phong highlights this much (over the Ks parametr) -- .nff
+// We scale phong highlights this much (over the Ks parameter) -- .nff
 // files don't have a separate "phong intensity" parameter in material
 // descriptions, whereas other SPD output formats do (and SPD actually
 // uses it), so we just pick something arbitrary.
 //
-#define AFF_PHONG_ADJ			3
+#define AFF_PHONG_ADJ			1
 
 // Filtering effect of transparent surfaces
 //
-#define AFF_MEDIUM_TRANSMITTANCE	0.85
+#define AFF_MEDIUM_TRANSMITTANCE	1
 
 
 // Low-level input functions
@@ -126,10 +126,8 @@ struct MeshState
   MeshState (Scene &_scene) : scene (_scene), mesh (0) { }
   ~MeshState () { finish (); }
 
-  void read_polygon (istream &stream, unsigned num_vertices,
-		     const Material *material);
-  void read_polygon_with_normals (istream &stream, unsigned num_vertices,
-				  const Material *material);
+  void read_polygon (istream &stream, const Material *material,
+		     unsigned num_vertices, bool read_normals = false);
 
   unsigned read_vertex (istream &stream)
   {
@@ -155,8 +153,8 @@ struct MeshState
 };
 
 void
-MeshState::read_polygon (istream &stream, unsigned num_vertices,
-			 const Material *mat)
+MeshState::read_polygon (istream &stream, const Material *mat,
+			 unsigned num_vertices, bool read_normals)
 {
   if (mesh && mat != mesh->material ())
     finish ();
@@ -164,47 +162,35 @@ MeshState::read_polygon (istream &stream, unsigned num_vertices,
   if (! mesh)
     mesh = new Mesh (mat);
 
-  unsigned v0i = read_vertex (stream);
-  unsigned v1i = read_vertex (stream);
+  vector<unsigned> verts;
 
-  num_vertices -= 2;
+  for (unsigned i = 0; i < num_vertices; i++)
+    if (read_normals)
+      verts.push_back (read_vertex_and_normal (stream));
+    else
+      verts.push_back (read_vertex (stream));
 
-  while (num_vertices > 0)
+  if (num_vertices == 3)
+    mesh->add_triangle (verts[0], verts[1], verts[2]);
+  else if (num_vertices == 4)
     {
-      unsigned v2i = read_vertex (stream);
-
-      mesh->add_triangle (v0i, v1i, v2i);
-
-      v1i = v2i;
-
-      num_vertices--;
+      mesh->add_triangle (verts[0], verts[1], verts[2]);
+      mesh->add_triangle (verts[2], verts[3], verts[0]);
     }
-}
-
-void
-MeshState::read_polygon_with_normals (istream &stream, unsigned num_vertices,
-				      const Material *mat)
-{
-  if (mesh && mat != mesh->material ())
-    finish ();
-
-  if (! mesh)
-    mesh = new Mesh (mat);
-
-  unsigned v0i = read_vertex_and_normal (stream);
-  unsigned v1i = read_vertex_and_normal (stream);
-
-  num_vertices -= 2;
-
-  while (num_vertices > 0)
+  else
     {
-      unsigned v2i = read_vertex_and_normal (stream);
+      Pos center;
 
-      mesh->add_triangle (v0i, v1i, v2i);
+      for (unsigned i = 0; i < num_vertices; i++)
+	center += mesh->vertex (verts[i]);
 
-      v1i = v2i;
+      unsigned center_vert
+	= mesh->add_vertex (center / num_vertices, vertex_group);
 
-      num_vertices--;
+      for (unsigned i = 0; i < num_vertices; i++)
+	mesh->add_triangle (center_vert,
+			    verts[i], verts[(i + 1) % num_vertices]);
+
     }
 }
 
@@ -360,7 +346,8 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 
 	  if (transmittance > Eps)
 	    cur_material
-	      = new Glass (Medium (transmittance, ior),
+	      = new Glass (Medium (transmittance * AFF_MEDIUM_TRANSMITTANCE,
+				   ior),
 			   specular, diffuse, *lmodel);
 	  else if (specular.intensity() > Eps)
 	    cur_material = new Mirror (specular, diffuse, *lmodel);
@@ -415,7 +402,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	//
 	{
 	  barf_if_no_material (cur_material, cmd_buf);
-	  cur_mesh.read_polygon (stream, read_unsigned (stream), cur_material);
+	  cur_mesh.read_polygon (stream, cur_material, read_unsigned (stream));
 	}
 
       else if (strcmp (cmd_buf, "pp") == 0)
@@ -438,8 +425,8 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	//
 	{
 	  barf_if_no_material (cur_material, cmd_buf);
-	  cur_mesh.read_polygon_with_normals (stream, read_unsigned (stream),
-					      cur_material);
+	  cur_mesh.read_polygon (stream, cur_material, read_unsigned (stream),
+				 true);
 	}
 
       else
