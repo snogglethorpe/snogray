@@ -209,7 +209,8 @@ private:
 
     // Surface we found
     //
-    const Surface *surf = scene.intersect (intersected_ray, tstate);
+    IsecParams isec_params;
+    const Surface *surf = scene.intersect (intersected_ray, isec_params, tstate);
 
     // Set to true if we need to draw this point as part of a wire.
     //

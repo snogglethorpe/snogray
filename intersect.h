@@ -14,9 +14,10 @@
 
 #include "ray.h"
 #include "color.h"
-#include "surface.h"
 
 namespace Snogray {
+
+class Surface;
 
 // This just packages up the result of a scene intersection search and
 // some handy values calculated from it.  It is passed to rendering
@@ -26,11 +27,21 @@ class Intersect
 {
 public:
 
-  Intersect (const Ray &_ray, const Surface *_surface)
+  Intersect (const Ray &_ray, const Surface *_surface,
+	     const Pos &_point, const Vec &_normal, bool _back)
     : ray (_ray), surface (_surface),
-      point (_ray.end()),
-      normal (_surface->normal (point, _ray.dir)),
-      reverse (normal.dot (_ray.dir) > Eps)
+      point (_point), normal (_back ? -_normal : _normal),
+      reverse (_back)
+  { }
+
+  // For surfaces with non-interpolated normals, we can calculate
+  // whether it's a backface or not using the normal; they typically
+  // also have a zero smoothing group, so we omit that parameter.
+  //
+  Intersect (const Ray &_ray, const Surface *_surface,
+	     const Pos _point, const Vec _normal)
+    : ray (_ray), surface (_surface),
+      point (_point), normal (_normal), reverse (normal.dot (_ray.dir) > 0)
   {
     // We want to flip the sign on `normal' if `reverse' is true, but we've
     // declared `normal' const to avoid anybody mucking with it...

@@ -32,15 +32,18 @@ Scene::~Scene ()
 
 struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
 {
-  SceneClosestIntersectCallback (Ray &_ray, TraceState &_tstate, 
+  SceneClosestIntersectCallback (Ray &_ray, IsecParams &_isec_params,
+				 TraceState &_tstate, 
 				 Voxtree::IsecStats *stats = 0)
-    : IntersectCallback (stats), ray (_ray),
+    : IntersectCallback (stats), ray (_ray), isec_params (_isec_params),
       closest (0), tstate (_tstate), num_calls (0)
   { }
 
   virtual void operator() (Surface *);
 
   Ray &ray;
+
+  IsecParams &isec_params;
 
   // The the closest intersecting surface we've found
   //
@@ -56,7 +59,7 @@ SceneClosestIntersectCallback::operator () (Surface *surface)
 {
   if (surface != tstate.horizon_hint)
     {
-      if (surface->intersect (ray, tstate.origin_count (surface)))
+      if (surface->intersect (ray, isec_params, tstate.origin_count (surface)))
 	closest = surface;
 
       num_calls++;
@@ -68,7 +71,7 @@ SceneClosestIntersectCallback::operator () (Surface *surface)
 // to reflect the point of intersection.
 //
 const Surface *
-Scene::intersect (Ray &ray, TraceState &tstate)
+Scene::intersect (Ray &ray, IsecParams &isec_params, TraceState &tstate)
   const
 {
   stats.scene_intersect_calls++;
@@ -77,7 +80,7 @@ Scene::intersect (Ray &ray, TraceState &tstate)
   // intersect the ray.
 
   SceneClosestIntersectCallback
-    closest_isec_cb (ray, tstate, &stats.voxtree_intersect);
+    closest_isec_cb (ray, isec_params, tstate, &stats.voxtree_intersect);
 
   // If there's a horizon hint, try to use it to reduce the horizon before
   // searching -- voxtree searching can dramatically improve given a
@@ -86,7 +89,7 @@ Scene::intersect (Ray &ray, TraceState &tstate)
   const Surface *hint = tstate.horizon_hint;
   if (hint)
     {
-      if (hint->intersect (ray, tstate.origin_count (hint)))
+      if (hint->intersect (ray, isec_params, tstate.origin_count (hint)))
 	{
 	  closest_isec_cb.closest = hint;
 	  stats.horizon_hint_hits++;

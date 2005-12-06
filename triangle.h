@@ -28,18 +28,31 @@ public:
   // of this surface with RAY, or 0 if there is none.  RAY is considered
   // to be unbounded.
   //
+  // If intersection succeeds, then ISEC_PARAMS is updated with other
+  // (surface-specific) intersection parameters calculated.
+  //
   // NUM is which intersection to return, for non-flat surfaces that may
   // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
   // (flat surfaces will return failure for anything except 0).
   //
-  virtual dist_t intersection_distance (const Ray &ray, unsigned num) const;
+  virtual dist_t intersection_distance (const Ray &ray, IsecParams &isec_params,
+					unsigned num)
+    const;
 
-  // Returns the normal vector for this surface at POINT.
-  // INCOMING is the direction of the incoming ray that has hit POINT;
-  // this can be used by dual-sided surfaces to decide which side's
-  // normal to return.
+  // Return more information about the intersection of RAY with this
+  // surface; it is assumed that RAY does actually hit the surface, and
+  // RAY's length gives the exact point of intersection (the `intersect'
+  // method modifies RAY so that this is true).
   //
-  virtual Vec normal (const Pos &point, const Vec &incoming) const;
+  virtual Intersect intersect_info (const Ray &ray,
+				    const IsecParams &isec_params)
+    const;
+
+  // Return true if RAY extended to length ISEC_DIST would hit the
+  // back of this surface.  Note that ISEC_DIST may be different than
+  // RAY's length!
+  //
+  virtual bool back (const Ray &ray, dist_t isec_dist) const;
 
   // Return a bounding box for this surface.
   //

@@ -54,11 +54,12 @@ public:
 
     Ray intersected_ray (ray, DEFAULT_HORIZON);
 
-    const Surface *closest = intersect (intersected_ray, tstate);
+    IsecParams isec_params;
+    const Surface *closest = intersect (intersected_ray, isec_params, tstate);
 
     if (closest)
       {
-	Intersect isec (intersected_ray, closest);
+	Intersect isec = closest->intersect_info (intersected_ray, isec_params);
 
 	// Calculate the appearance of the point on the surface we hit
 	//
@@ -94,7 +95,8 @@ public:
 
     Ray intersected_ray = light_ray;
 
-    const Surface *closest = intersect (intersected_ray, tstate);
+    IsecParams isec_params;
+    const Surface *closest = intersect (intersected_ray, isec_params, tstate);
 
     stats.surface_slow_shadow_traces++;
 
@@ -126,16 +128,20 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface *intersect (Ray &ray, TraceState &tstate) const;
+  const Surface *intersect (Ray &ray, IsecParams &isec_params,
+			    TraceState &tstate)
+    const;
 
   // Return some surface shadowing LIGHT_RAY from LIGHT, or 0 if there is
   // no shadowing surface.  If an surface it is returned, and it is _not_ an 
   // "opaque" surface (shadow-type Material::SHADOW_OPAQUE), then it is
   // guaranteed there are no opaque surfaces casting a shadow.
   //
-  // This is similar, but not identical to the behavior of the `intersect'
-  // method -- `intersect' always returns the closest surface and makes no
-  // guarantees about the properties of further intersections.
+  // ISEC is the intersection for which we are searching for shadow-casters.
+  //
+  // This is similar, but not identical to the behavior of the
+  // `intersect' method -- `intersect' always returns the closest surface
+  // and makes no guarantees about the properties of further intersections.
   //
   const Surface *shadow_caster (const Ray &light_ray, const Light &light,
 				TraceState &tstate)

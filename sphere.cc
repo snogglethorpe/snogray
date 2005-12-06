@@ -19,12 +19,18 @@ using namespace Snogray;
 // of this surface with RAY, or 0 if there is none.  RAY is considered
 // to be unbounded.
 //
+// If intersection succeeds, then ISEC_PARAMS is updated with other
+// (surface-specific) intersection parameters calculated.
+//
 // NUM is which intersection to return, for non-flat surfaces that may
 // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
 // (flat surfaces will return failure for anything except 0).
 //
 dist_t
-Sphere::intersection_distance (const Ray &ray, unsigned num) const
+Sphere::intersection_distance (const Ray &ray,
+			       IsecParams &isec_params,
+			       unsigned num)
+  const
 {
   if (num > 1)
     return 0;
@@ -62,10 +68,12 @@ Sphere::intersection_distance (const Ray &ray, unsigned num) const
   return 0;
 }
 
-Vec
-Sphere::normal (const Pos &point, const Vec &incoming) const
+Intersect
+Sphere::intersect_info (const Ray &ray, const IsecParams &isec_params)
+  const
 {
-  return (point - center).unit ();
+  Pos point = ray.end ();
+  return Intersect (ray, this, point, (point - center).unit ());
 }
 
 // Return a bounding box for this surface.

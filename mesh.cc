@@ -1,4 +1,4 @@
-// mesh.cc -- Mesh surface
+// mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -243,148 +243,110 @@ Mesh::load_msh_file (istream &stream)
 }
 
 
-
-//
-// Computing Barycentric coordinates (u, v, w) of the point p on the
-// triangle with vertices v0, v1, v2:
-//
-//     λu = (B * (F + I) - C * (E + H)) / (A * (E + H) - B * (D + G))
-//
-// and
-//
-//     λv = (A * (F + I) - C * (D + G)) / (B * (D + G) - A * (E + H))
-//
-// and
-//
-//     λw = 1 - u - v
-//
-// where
-//
-//     A = v0.x - v2.x
-//     B = v1.x - v2.x 
-//     C = v2.x - p.x
-//     D = v0.y - v2.y 
-//     E = v1.y - v2.y 
-//     F = v2.y - p.y
-//     G = v0.z - v2.z 
-//     H = v1.z - v2.z 
-//     I = v2.z - p.z
-//
-// Note that:
-//
-//   p = v0 -> (u,v,w) = (1,0,0)
-//   p = v1 -> (u,v,w) = (0,1,0)
-//   p = v2 -> (u,v,w) = (0,0,1)
-//
-static void
-compute_barycentric_coords (const Pos &p,
-			    const Pos &v0, const Pos &v1, const Pos &v2,
-			    double &u, double &v)
-{
-  double a = v0.x - v2.x;
-  double b = v1.x - v2.x;
-  double c = v2.x - p.x;
-  double d = v0.y - v2.y;
-  double e = v1.y - v2.y;
-  double f = v2.y - p.y;
-  double g = v0.z - v2.z;
-  double h = v1.z - v2.z;
-  double i = v2.z - p.z;
-
-  u = (b * (f + i) - c * (e + h)) / (a * (e + h) - b * (d + g));
-  v = (a * (f + i) - c * (d + g)) / (b * (d + g) - a * (e + h));
-}
-
-// Same, but compute w too.
-//
-static void
-compute_barycentric_coords (const Pos &p,
-			    const Pos &v0, const Pos &v1, const Pos &v2,
-			    double &u, double &v, double &w)
-{
-  compute_barycentric_coords (p, v0, v1, v2, u, v);
-  w = 1 - u - v;
-}
-
-
+// Mesh triangles
 
 // Return the distance from RAY's origin to the closest intersection
 // of this surface with RAY, or 0 if there is none.  RAY is considered
 // to be unbounded.
+//
+// If intersection succeeds, then ISEC_PARAMS is updated with other
+// (surface-specific) intersection parameters calculated.
 //
 // NUM is which intersection to return, for non-flat surfaces that may
 // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
 // (flat surfaces will return failure for anything except 0).
 //
 dist_t
-Mesh::Triangle::intersection_distance (const Ray &ray, unsigned num) const
+Mesh::Triangle::intersection_distance (const Ray &ray, IsecParams &isec_params,
+				       unsigned num)
+  const
 {
   if (num != 0)
     return 0;
 
-  const Pos &_v0 = v (0), &_v1 = v (1), &_v2 = v (2);
+  /*
+    This algorithm from:
 
-  double a = _v0.x - _v1.x; 
-  double b = _v0.y - _v1.y; 
-  double c = _v0.z - _v1.z; 
-  double d = _v0.x - _v2.x; 
-  double e = _v0.y - _v2.y; 
-  double f = _v0.z - _v2.z; 
-  double g = ray.dir.x;
-  double h = ray.dir.y; 
-  double i = ray.dir.z; 
-  double j = _v0.x - ray.origin.x; 
-  double k = _v0.y - ray.origin.y; 
-  double l = _v0.z - ray.origin.z; 
-	
-  double one = a*k - j*b; 
-  double two = j*c - a*l; 
-  double three = b*l - k*c; 
+       Fast, Minimum Storage Ray-Triangle Intersection
 
-  double four = (e*i - h*f); 
-  double five = (g*f - d*i); 
-  double six = (d*h - e*g); 
+       Tomas Möller
+       Prosolvia Clarus AB
+       Sweden
+       tompa@clarus.se
 
-  double M = a*four + b*five + c*six;
-	
-  //	 compute t 
-  double t = -(f*one + e*two + d*three) / M; 
-  if (t < -Eps)
+       Ben Trumbore
+       Cornell University
+       Ithaca, New York
+       wbt@graphics.cornell.edu
+  */
+
+  /* find vectors for two edges sharing vert0 */
+  Vec edge1 = v(1) - v(0);
+  Vec edge2 = v(2) - v(0);
+
+  /* begin calculating determinant - also used to calculate U parameter */
+  Vec pvec = ray.dir.cross (edge2);
+
+  /* if determinant is near zero, ray lies in plane of triangle */
+  double det = edge1.dot (pvec);
+
+  if (det > -Eps && det < Eps)
     return 0;
-		
-  //	 compute R
-  double R = (i*one + h*two + g*three) / M; 
-  if (R < Eps || R > 1 + Eps)
+
+  double inv_det = 1.0 / det;
+
+  /* calculate distance from vert0 to ray origin */
+  Vec tvec = ray.origin - v(0);
+
+  /* calculate U parameter and test bounds */
+  double u = tvec.dot (pvec) * inv_det;
+  if (u < 0.0 || u > 1.0)
     return 0;
-	
-  // 	compute B
-  double B = (j*four + k*five + l*six) / M; 
-  if(B < Eps || B > (1 - R - Eps))
+
+  /* prepare to test V parameter */
+  Vec qvec = tvec.cross (edge1);
+
+  /* calculate V parameter and test bounds */
+  double v = ray.dir.dot (qvec) * inv_det;
+  if (v < 0.0 || u + v > 1.0)
     return 0;
+
+  /* calculate t, ray intersects triangle */
+  dist_t t = edge2.dot (qvec) * inv_det;
+
+  isec_params.u = u;
+  isec_params.v = v;
 
   return t;
 }
 
-Vec
-Mesh::Triangle::normal (const Pos &point, const Vec &incoming) const
+Intersect
+Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
+  const
 {
-  Vec norm;
+  // We first use the real "raw" normal to determine if this is a back
+  // face or not (for back-face determination the normal doesn't need
+  // to be a unit vector, so it is only made a unit vector later,
+  // perhaps after replacing it w ith the interpolated normal).
+  //
+  Vec norm = raw_normal_unscaled ();
+  bool back = norm.dot (ray.dir) > 0;
 
+  // Point of intersection.
+  //
+  Pos point = ray.end ();
+
+  // Now if we're using normal interpolation, calculate the
+  // interpolated normal.
+  //
   if (! mesh.vertex_normals.empty ())
     {
-      double w0, w1, w2;
-      compute_barycentric_coords (point, v(0), v(1), v(2), w0, w1, w2);
-
-      norm = vnorm(0) * w0;
-      norm += vnorm(1) * w1;
-      norm += vnorm(2) * w2;
-
-      norm = norm.unit ();
+      norm =  vnorm(0) * (1 - isec_params.u - isec_params.v);
+      norm += vnorm(1) * isec_params.u;
+      norm += vnorm(2) * isec_params.v;
     }
-  else
-    norm = raw_normal ();
 
-  return norm;
+  return Intersect (ray, this, point, norm.unit(), back);
 }
 
 // Return a bounding box for this surface.

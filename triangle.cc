@@ -1,4 +1,4 @@
-// triangle.cc -- Triangle surface
+// triangle.cc -- Triangle surface		-*- coding: utf-8 -*-
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -21,61 +21,92 @@ using namespace Snogray;
 // of this surface with RAY, or 0 if there is none.  RAY is considered
 // to be unbounded.
 //
+// If intersection succeeds, then ISEC_PARAMS is updated with other
+// (surface-specific) intersection parameters calculated.
+//
 // NUM is which intersection to return, for non-flat surfaces that may
 // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
 // (flat surfaces will return failure for anything except 0).
 //
 dist_t
-Triangle::intersection_distance (const Ray &ray, unsigned num) const
+Triangle::intersection_distance (const Ray &ray, IsecParams &isec_params,
+				 unsigned num)
+  const
 {
   if (num != 0)
     return 0;
 
-  double a = v0.x - v1.x; 
-  double b = v0.y - v1.y; 
-  double c = v0.z - v1.z; 
-  double d = v0.x - v2.x; 
-  double e = v0.y - v2.y; 
-  double f = v0.z - v2.z; 
-  double g = ray.dir.x;
-  double h = ray.dir.y; 
-  double i = ray.dir.z; 
-  double j = v0.x - ray.origin.x; 
-  double k = v0.y - ray.origin.y; 
-  double l = v0.z - ray.origin.z; 
-	
-  double one = a*k - j*b; 
-  double two = j*c - a*l; 
-  double three = b*l - k*c; 
+  /*
+    This algorithm from:
 
-  double four = (e*i - h*f); 
-  double five = (g*f - d*i); 
-  double six = (d*h - e*g); 
+       Fast, Minimum Storage Ray-Triangle Intersection
 
-  double M = a*four + b*five + c*six;
-	
-  //	 compute t 
-  double t = -(f*one + e*two + d*three) / M; 
-  if (t < -Eps)
+       Tomas Möller
+       Prosolvia Clarus AB
+       Sweden
+       tompa@clarus.se
+
+       Ben Trumbore
+       Cornell University
+       Ithaca, New York
+       wbt@graphics.cornell.edu
+  */
+
+  /* find vectors for two edges sharing vert0 */
+  Vec edge1 = v1 - v0;
+  Vec edge2 = v2 - v0;
+
+  /* begin calculating determinant - also used to calculate U parameter */
+  Vec pvec = ray.dir.cross (edge2);
+
+  /* if determinant is near zero, ray lies in plane of triangle */
+  double det = edge1.dot (pvec);
+
+  if (det > -Eps && det < Eps)
     return 0;
-		
-  //	 compute R
-  double R = (i*one + h*two + g*three) / M; 
-  if (R < -Eps || R > 1 + Eps)
+
+  double inv_det = 1.0 / det;
+
+  /* calculate distance from vert0 to ray origin */
+  Vec tvec = ray.origin - v0;
+
+  /* calculate U parameter and test bounds */
+  double u = tvec.dot (pvec) * inv_det;
+  if (u < 0.0 || u > 1.0)
     return 0;
-	
-  // 	compute B
-  double B = (j*four + k*five + l*six) / M; 
-  if(B < -Eps || B > (1 - R - Eps))
+
+  /* prepare to test V parameter */
+  Vec qvec = tvec.cross (edge1);
+
+  /* calculate V parameter and test bounds */
+  double v = ray.dir.dot (qvec) * inv_det;
+  if (v < 0.0 || u + v > 1.0)
     return 0;
+
+  /* calculate t, ray intersects triangle */
+  dist_t t = edge2.dot (qvec) * inv_det;
+
+  isec_params.u = u;
+  isec_params.v = v;
 
   return t;
 }
 
-Vec
-Triangle::normal (const Pos &point, const Vec &incoming) const
+Intersect
+Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
+  const
 {
-  return ((v1 - v0).cross (v1 - v2)).unit ();
+  return Intersect (ray, this, ray.end (), ((v1 - v0).cross (v1 - v2)).unit ());
+}
+
+// Return true if RAY extended to length ISEC_DIST would hit the
+// back of this surface.  Note that ISEC_DIST may be different than
+// RAY's length!
+//
+bool
+Triangle::back (const Ray &ray, dist_t isec_dist) const
+{
+  return ((v1 - v0).cross (v1 - v2)).dot (ray.dir) > 0;
 }
 
 // Return a bounding box for this surface.
