@@ -31,7 +31,7 @@ public:
 	     const Pos &_point, const Vec &_normal, bool _back)
     : ray (_ray), surface (_surface),
       point (_point), normal (_back ? -_normal : _normal),
-      reverse (_back)
+      back (_back)
   { }
 
   // For surfaces with non-interpolated normals, we can calculate
@@ -41,12 +41,12 @@ public:
   Intersect (const Ray &_ray, const Surface *_surface,
 	     const Pos _point, const Vec _normal)
     : ray (_ray), surface (_surface),
-      point (_point), normal (_normal), reverse (normal.dot (_ray.dir) > 0)
+      point (_point), normal (_normal), back (normal.dot (_ray.dir) > 0)
   {
-    // We want to flip the sign on `normal' if `reverse' is true, but we've
+    // We want to flip the sign on `normal' if `back' is true, but we've
     // declared `normal' const to avoid anybody mucking with it...
     //
-    if (reverse)
+    if (back)
       const_cast<Vec&> (normal) = -normal;
   }
 
@@ -62,7 +62,7 @@ public:
   //
   const Pos point;		// Point where RAY intersects SURFACE
   const Vec normal;		// Surface normal at POINT
-  const bool reverse;		// True if NORMAL points away from RAY
+  const bool back;		// True if RAY hit the back of SURFACE
 };
 
 }

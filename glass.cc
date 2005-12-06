@@ -26,7 +26,7 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
   TraceState::TraceType subtrace_type;
   const Medium *old_medium, *new_medium;
 
-  if (isec.reverse)
+  if (isec.back)
     {
       // Exiting this surface
 
