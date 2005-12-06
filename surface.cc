@@ -26,6 +26,18 @@ Surface::add_to_space (Voxtree &space)
   space.add (this);
 }
 
+// The "smoothing group" this surface belongs to, or zero if it belongs
+// to none.  The smoothing group affects shadow-casting: if two objects
+// are in the same smoothing group, they will not be shadowed by
+// back-surface shadows from each other; typically all triangles in a
+// mesh are in the same smoothing group.
+//
+const void *
+Surface::smoothing_group () const
+{
+  throw std::runtime_error ("tried to render abstract surface");
+}
+
 // Stubs -- these should be abstract methods, but C++ doesn't allow a
 // class with abstract methods to be used in a list/vector, so we just
 // signal a runtime error if they're ever called.

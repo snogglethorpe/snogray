@@ -359,7 +359,8 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
 	}
     }
 
-  return Intersect (ray, this, point, norm.unit(), back);
+  return Intersect (ray, this, point, norm.unit(), back,
+		    static_cast<const void *>(&mesh));
 }
 
 // Return true if RAY would hit the back of this surface.
@@ -386,6 +387,18 @@ const Material *
 Mesh::Triangle::material () const
 {
   return mesh.material ();
+}
+
+// The "smoothing group" this surface belongs to, or zero if it belongs
+// to none.  The smoothing group affects shadow-casting: if two objects
+// are in the same smoothing group, they will not be shadowed by
+// back-surface shadows from each other; typically all triangles in a
+// mesh are in the same smoothing group.
+//
+const void *
+Mesh::Triangle::smoothing_group () const
+{
+  return static_cast<const void *>(&mesh);
 }
 
 

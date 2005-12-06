@@ -161,6 +161,14 @@ public:
     //
     virtual const Material *material () const;
 
+    // The "smoothing group" this surface belongs to, or zero if it belongs
+    // to none.  The smoothing group affects shadow-casting: if two objects
+    // are in the same smoothing group, they will not be shadowed by
+    // back-surface shadows from each other; typically all triangles in a
+    // mesh are in the same smoothing group.
+    //
+    virtual const void *smoothing_group () const;
+
     // Vertex NUM of this triangle
     //
     const Pos &v (unsigned num) const { return mesh.vertices[vi[num]]; }

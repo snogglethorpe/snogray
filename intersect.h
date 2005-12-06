@@ -28,10 +28,11 @@ class Intersect
 public:
 
   Intersect (const Ray &_ray, const Surface *_surface,
-	     const Pos &_point, const Vec &_normal, bool _back)
+	     const Pos _point, const Vec _normal, bool _back,
+	     const void *_smoothing_group = 0)
     : ray (_ray), surface (_surface),
-      point (_point), normal (_back ? -_normal : _normal),
-      back (_back)
+      point (_point), normal (_back ? -_normal : _normal), back (_back),
+      smoothing_group (_smoothing_group)
   { }
 
   // For surfaces with non-interpolated normals, we can calculate
@@ -41,7 +42,8 @@ public:
   Intersect (const Ray &_ray, const Surface *_surface,
 	     const Pos _point, const Vec _normal)
     : ray (_ray), surface (_surface),
-      point (_point), normal (_normal), back (normal.dot (_ray.dir) > 0)
+      point (_point), normal (_normal), back (normal.dot (_ray.dir) > 0),
+      smoothing_group (0)
   {
     // We want to flip the sign on `normal' if `back' is true, but we've
     // declared `normal' const to avoid anybody mucking with it...
@@ -63,6 +65,10 @@ public:
   const Pos point;		// Point where RAY intersects SURFACE
   const Vec normal;		// Surface normal at POINT
   const bool back;		// True if RAY hit the back of SURFACE
+
+  // Cached value of SURFACE's smoothing group.
+  //
+  const void *smoothing_group;
 };
 
 }

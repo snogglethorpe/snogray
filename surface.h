@@ -123,6 +123,14 @@ public:
   // Add this (or some other ...) surfaces to SPACE
   //
   virtual void add_to_space (Voxtree &space);
+ 
+  // The "smoothing group" this surface belongs to, or zero if it belongs
+  // to none.  The smoothing group affects shadow-casting: if two objects
+  // are in the same smoothing group, they will not be shadowed by
+  // back-surface shadows from each other; typically all triangles in a
+  // mesh are in the same smoothing group.
+  //
+  virtual const void *smoothing_group () const;
 
   // What special handling this surface needs when it casts a shadow.
   // This is initialized by calling the surface's material's
