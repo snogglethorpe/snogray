@@ -35,7 +35,7 @@ Surface::add_to_space (Voxtree &space)
 const void *
 Surface::smoothing_group () const
 {
-  throw std::runtime_error ("tried to render abstract surface");
+  return 0;
 }
 
 // Stubs -- these should be abstract methods, but C++ doesn't allow a
