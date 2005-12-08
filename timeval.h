@@ -41,6 +41,19 @@ struct Timeval : timeval
 
     return Timeval (sec, usec);
   }
+  Timeval operator+ (const Timeval &tv2) const
+  {
+    time_t sec = tv_sec + tv2.tv_sec;
+    long usec = tv_usec + tv2.tv_usec;
+
+    if (usec > 1000000)
+      {
+	sec += 1;
+	usec -= 1000000;
+      }
+
+    return Timeval (sec, usec);
+  }
 
   std::string fmt () const;
 };

@@ -774,7 +774,9 @@ int main (int argc, char *const *argv)
 
       // a field width of 14 is enough for over a year of time...
       cout << "Time:" << endl;
-      Timeval scene_def_time = scene_end_ru.utime() - scene_beg_ru.utime();
+      Timeval scene_def_time
+	= ((scene_end_ru.utime() - scene_beg_ru.utime())
+	   + (scene_end_ru.stime() - scene_beg_ru.stime()));
       cout << "  scene def cpu:" << setw (14) << scene_def_time.fmt() << endl;
       Timeval render_time = render_end_ru.utime() - render_beg_ru.utime();
       cout << "  rendering cpu:" << setw (14) << render_time.fmt() << endl;
