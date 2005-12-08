@@ -26,6 +26,8 @@
 
 namespace Snogray {
 
+class Cubetex;
+
 class Scene
 {
 public:
@@ -39,7 +41,9 @@ public:
   static const int DEFAULT_ASSUMED_GAMMA = 1;
 
   Scene ()
-    : max_depth (DEFAULT_MAX_DEPTH), assumed_gamma (DEFAULT_ASSUMED_GAMMA)
+    : bg_cube (0),
+      max_depth (DEFAULT_MAX_DEPTH),
+      assumed_gamma (DEFAULT_ASSUMED_GAMMA)
   { }
   ~Scene ();
 
@@ -50,7 +54,7 @@ public:
     const
   {
     if (tstate.depth > max_depth)
-      return background;
+      return background (ray);
 
     Ray intersected_ray (ray, DEFAULT_HORIZON);
 
@@ -75,7 +79,7 @@ public:
 	return result;
       }
     else
-      return background;
+      return background (ray);
   }
 
   // Shadow LIGHT_RAY, which points to a light with (apparent) color
@@ -91,7 +95,7 @@ public:
     const
   {
     if (tstate.depth > max_depth * 2)
-      return background;
+      return background (light_ray);
 
     Ray intersected_ray = light_ray;
 
@@ -123,6 +127,10 @@ public:
     else
       return light_color;
   }
+
+  // Returns the background color in the direction pointed to by RAY
+  //
+  Color background (const Ray &ray) const;
 
   // Return the closest surface in this scene which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
@@ -193,7 +201,8 @@ public:
 
   unsigned num_lights () { return lights.size (); }
 
-  void set_background (const Color &col) { background = col; }
+  void set_background (const Color &col);
+  void set_background (const Cubetex *cube);
 
   void set_assumed_gamma (float g) { assumed_gamma = g; }
 
@@ -227,7 +236,8 @@ public:
   std::list<const Material *> materials;
 
   // Background color
-  Color background;
+  Color bg_color;
+  const Cubetex *bg_cube;
 
   Voxtree surface_voxtree;
 

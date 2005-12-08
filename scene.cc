@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "cubetex.h"
+
 #include "scene.h"
 
 using namespace Snogray;
@@ -24,6 +26,8 @@ Scene::~Scene ()
     delete *li;
   for (material_iterator_t mi = materials.begin(); mi != materials.end(); mi++)
     delete *mi;
+
+  delete bg_cube;
 }
 
 
@@ -253,6 +257,39 @@ Scene::illum (const Intersect &isec, const Color &color,
     }
 
   return total_color;
+}
+
+
+
+// Returns the background color in the direction pointed to by RAY
+//
+Color
+Scene::background (const Ray &ray) const
+{
+  if (bg_cube)
+    return bg_cube->map (ray.dir);
+  else
+    return bg_color;
+}
+
+void
+Scene::set_background (const Color &col)
+{
+  if (bg_cube)
+    {
+      delete bg_cube;
+      bg_cube = 0;
+    }
+
+  bg_color = col;
+}
+
+void
+Scene::set_background (const Cubetex *cube)
+{
+  delete bg_cube;
+
+  bg_cube = cube;
 }
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558

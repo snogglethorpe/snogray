@@ -26,6 +26,7 @@
 #include "image-cmdline.h"
 #include "wire-frame.h"
 #include "test-scenes.h"
+#include "cubetex.h"
 
 using namespace Snogray;
 using namespace std;
@@ -208,13 +209,15 @@ s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
 n
 s "  -w, --wire-frame[=PARAMS]  Output in \"wire-frame\" mode; PARAMS has the form"
-s "                             [TINT][/COLOR][:FILL][%BG] (default: 0.7/1:0%0)"
-s "                             TINT is how much object color affects wires"
-s "                             COLOR is the base color of wires"
-s "                             FILL is the intensity of the scene between wires"
-s "                             BG is the background color"
+s "                               [TINT][/COLOR][:FILL][%BG] (default: 0.7/1:0%0)"
+s "                               TINT is how much object color affects wires"
+s "                               COLOR is the base color of wires"
+s "                               FILL is the intensity of the scene between wires"
+s "                               BG is the background color"
 n
 s " Scene options:"
+s "  -b, --background=BG        Use BG as a background; BG may be a color or a"
+s "                               cube-map specification"
 s "  -I, --scene-format=FMT     Scene is in format FMT (one of: test, aff, nff)"
 s "  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA"
 s "  -L, --light-scale=SCALE    Scale all scene lighting by SCALE"
@@ -258,6 +261,7 @@ int main (int argc, char *const *argv)
 #define OPT_LIST_TEST_SCENES	10
   //
   static struct option long_options[] = {
+    { "background",     required_argument, 0, 'b' },
     { "size",		required_argument, 0, 's' },
     { "multiple",	required_argument, 0, 'm' },
     { "limit",		required_argument, 0, 'l' },
@@ -278,7 +282,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "w::s:m:l:qpPI:G:L:T:"
+    "b:w::s:m:l:qpPI:G:L:T:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -297,6 +301,7 @@ int main (int argc, char *const *argv)
   WireFrameParams wire_frame_params;
   unsigned multiple = 1;
   float scene_assumed_gamma = 1, scene_light_scale = 1;
+  const char *bg_cube_spec = 0;
   ImageCmdlineSinkParams image_sink_params (clp);
 
   // This speeds up I/O on cin/cout by not syncing with C stdio.
@@ -328,8 +333,21 @@ int main (int argc, char *const *argv)
 	  wire_frame_params.parse (clp);
 	break;
 
+	//
 	// Scene options
 	//
+
+      case 'b':
+	{
+	  const char *bg_spec = clp.opt_arg ();
+	  size_t len = strlen (bg_spec);
+	  if (len > 5 && strncmp (bg_spec, "cube:", 5) == 0)
+	    bg_cube_spec = bg_spec + 5;
+	  else if (len > 4 && strcmp (bg_spec + len - 4, ".cbt") == 0)
+	    bg_cube_spec = bg_spec;
+	}
+	break;
+
       case 'I':
 	scene_fmt = clp.opt_arg ();
 	break;
@@ -457,6 +475,18 @@ int main (int argc, char *const *argv)
       {
 	Light *light = *li;
 	light->scale_intensity (scene_light_scale);
+      }
+
+  // Override scene parameters specified on command-line
+  //
+  if (bg_cube_spec)
+    try
+      {
+	scene.set_background (new Cubetex (bg_cube_spec));
+      }
+    catch (runtime_error &err)
+      {
+	clp.err (err.what ());
       }
 
   Rusage scene_end_ru;		// stop timing scene definition
