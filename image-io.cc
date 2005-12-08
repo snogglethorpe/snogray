@@ -23,6 +23,32 @@ const float ImageSinkParams::DEFAULT_QUALITY;
 
 const ImageOutput::aa_filter_t DEFAULT_AA_FILTER = ImageOutput::aa_gauss_filter;
 
+
+
+// Get rid of the class later when we convert image-io to use
+// exceptions. XXX
+//
+struct ImageGrrrSourceParams : ImageSourceParams
+{
+  // This is called when something wrong is detect with some parameter
+  virtual void error (const std::string &msg) const;
+};
+void
+ImageGrrrSourceParams::error (const std::string &msg) const
+{
+  throw std::runtime_error (msg);
+}
+
+ImageSource *
+ImageSource::make (const std::string &filename, const char *format)
+{
+  ImageGrrrSourceParams params;
+  params.file_name = filename.c_str ();
+  params.format = format;
+  return params.make_source ();
+}
+
+
 
 // Calls error with current errno message appended
 void

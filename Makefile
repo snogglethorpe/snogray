@@ -83,7 +83,7 @@ _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 ## Common sources between snogray and snogcvt/snogdiff
 ##
 
-IMAGE_SRCS = image-aa.cc image-byte-vec.cc image-cmdline.cc		\
+IMAGE_SRCS = image.cc image-aa.cc image-byte-vec.cc image-cmdline.cc	\
 	  image-dispatch.cc image-exr.cc image-io.cc image-jpeg.cc	\
 	  image-ppm.cc image-png.cc
 

@@ -192,6 +192,7 @@ struct ImageFmtSourceParams : ImageSourceParams
 class ImageSource
 {
 public:
+  static ImageSource *make (const std::string &filename, const char *format);
   virtual ~ImageSource ();
   virtual void read_size (unsigned &width, unsigned &height) = 0;
   virtual void read_row (ImageRow &row) = 0;
@@ -202,6 +203,11 @@ class ImageInput
 public:
   ImageInput (const ImageSourceParams &params)
     : source (params.make_source ())
+  {
+    source->read_size (width, height);
+  }
+  ImageInput (const std::string &filename, const char *format)
+    : source (ImageSource::make (filename, format))
   {
     source->read_size (width, height);
   }
