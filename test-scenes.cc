@@ -851,18 +851,38 @@ def_scene_tessel (const string &name, unsigned num,
   extern float tessel_accur;
   extern bool tessel_smooth;
 
+  unsigned lighting = num / 100;
+  num %= 100;
+
+  coord_t height = -1.2;
+  coord_t cheight = 0;
+  dist_t  cradius = 4;
+  dist_t  cradius_2 = sqrt (cradius * cradius / 2);
+
   switch (num / 10)
     {
     case 0:
-      camera.move (Pos (1.5, 2.25, -3)); break;
+      camera.move (Pos (1.5, cheight + 0.25, -3)); break;
     case 1:
-      camera.move (Pos (3, 0.375, 0.001)); break;
+      camera.move (Pos (3, cheight + 0.375, Eps)); break;
     case 2:
-      camera.move (Pos (3, 1.5, 0.001)); break;
+      camera.move (Pos (3, cheight + 1.5, Eps)); break;
     case 3:
-      camera.move (Pos (1, 4, 0.001)); break;
+      camera.move (Pos (1, cheight + 4, Eps)); break;
+    case 4:
+      camera.move (Pos (cradius, cheight, Eps)); break;
+    case 5:
+      camera.move (Pos (cradius_2, cheight, -cradius_2 + Eps)); break;
+    case 6:
+      camera.move (Pos (0, cheight, -cradius + Eps)); break;
+    case 7:
+      camera.move (Pos (-cradius_2, cheight, -cradius_2 + Eps)); break;
+    case 8:
+      camera.move (Pos (-cradius, cheight, Eps)); break;
+    case 9:
+      camera.move (Pos (-cradius_2, cheight, cradius_2 + Eps)); break;
     }
-  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+  camera.point (Pos (0, -0.5, 0), Vec (0, 1, 0));
 
   num %= 10;
 
@@ -889,14 +909,14 @@ def_scene_tessel (const string &name, unsigned num,
     }
 
   if (ends_in (name, "sphere"))
-    scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 0), 1, perturb),
+    scene.add (new Mesh (mat, SphereTesselFun (Pos (0, height, 0), 1, perturb),
 			 max_err, tessel_smooth));
   else if (ends_in (name, "sinc"))
-    scene.add (new Mesh (mat, SincTesselFun (Pos (0, 0.22, 0), 1),
+    scene.add (new Mesh (mat, SincTesselFun (Pos (0, height + 0.22, 0), 1.5),
 			 max_err, tessel_smooth));
   else if (ends_in (name, "torus"))
     scene.add (new Mesh (mat,
-			 TorusTesselFun (Pos (0, 0.35, 0), 1, 0.3, perturb),
+			 TorusTesselFun (Pos (0, height + 0.35, 0), 1, 0.3, perturb),
 			 max_err, tessel_smooth));
   else
     throw (runtime_error ("Unknown tessellation test scene"));
@@ -907,13 +927,30 @@ def_scene_tessel (const string &name, unsigned num,
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
 
   scene.add (new Triangle (orange,
-			   Pos (1, 0, 1), Pos (1, 0, -1), Pos (-1, 0, -1)));
+			   Pos (1, height, 1), Pos (1, height, -1), Pos (-1, height, -1)));
   scene.add (new Triangle (ivory,
-			   Pos (-1, 0, 1), Pos (1, 0, 1), Pos (-1, 0, -1)));
+			   Pos (-1, height, 1), Pos (1, height, 1), Pos (-1, height, -1)));
 
-  scene.add (new PointLight (Pos (0, 5, 5), light_intens));
-  scene.add (new PointLight (Pos (-5, 5, -5), 15));
-  scene.add (new PointLight (Pos (10, -5, -15), 100));
+  switch (lighting)
+    {
+    case 0:
+      scene.add (new PointLight (Pos (0, height + 5, 5), light_intens));
+      scene.add (new PointLight (Pos (-5, height + 5, -5), 15));
+      scene.add (new PointLight (Pos (10, height + -5, -15), 100));
+      break;
+    case 2: case 3:
+      if (lighting == 2)
+	scene.add (new PointLight (Pos (100, height + 25, 0), light_intens * 200));
+      else
+	scene.add (new PointLight (Pos (-25, height + 100, 0), light_intens * 200));
+      /* fall through */
+    case 1:
+      scene.add (new PointLight (Pos (  0, height + 30,   0), 20));
+      scene.add (new PointLight (Pos (-20, height + 20,   0), 20));
+      scene.add (new PointLight (Pos (  0, height + 20, -20), 20));
+      scene.add (new PointLight (Pos (  0, height + 20,  20), 20));
+      break;
+    }
 }
 
 static void
