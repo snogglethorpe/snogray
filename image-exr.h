@@ -12,7 +12,7 @@
 #ifndef __IMAGE_EXR_H__
 #define __IMAGE_EXR_H__
 
-#include "image.h"
+#include "image-io.h"
 
 namespace Snogray {
 

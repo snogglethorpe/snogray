@@ -12,7 +12,7 @@
 #ifndef __IMAGE_CMDLINE_H__
 #define __IMAGE_CMDLINE_H__
 
-#include "image.h"
+#include "image-io.h"
 #include "cmdlineparser.h"
 
 // The following macros can be used in defining option parsers.

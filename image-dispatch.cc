@@ -11,7 +11,7 @@
 
 #include <cstring>
 
-#include "image.h"
+#include "image-io.h"
 
 #include "image-exr.h"
 #include "image-png.h"

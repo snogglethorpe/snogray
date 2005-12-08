@@ -1,4 +1,4 @@
-// image.cc -- Image datatype
+// image-io.cc -- Image input and output
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -12,8 +12,9 @@
 #include <string>
 #include <cstring>
 #include <cerrno>
+#include <stdexcept>
 
-#include "image.h"
+#include "image-io.h"
 
 using namespace Snogray;
 

@@ -13,7 +13,7 @@
 #include <cmath>
 
 #include "cmdlineparser.h"
-#include "image.h"
+#include "image-io.h"
 #include "image-cmdline.h"
 
 using namespace Snogray;

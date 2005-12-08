@@ -1,4 +1,4 @@
-// image.cc -- Image datatype
+// image-io.h -- Image input and output
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,8 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
+#ifndef __IMAGE_IO_H__
+#define __IMAGE_IO_H__
 
 #include <string>
 #include <cmath>
@@ -220,6 +220,6 @@ private:
 
 }
 
-#endif /* __IMAGE_H__ */
+#endif /* __IMAGE_IO_H__ */
 
 // arch-tag: 43784b62-1eae-4938-a451-f4fdfb7db5bc

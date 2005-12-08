@@ -22,7 +22,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
-#include "image.h"
+#include "image-io.h"
 #include "image-cmdline.h"
 #include "wire-frame.h"
 #include "test-scenes.h"

@@ -18,7 +18,7 @@
 #include "surface.h"
 #include "scene.h"
 #include "camera.h"
-#include "image.h"
+#include "image-io.h"
 #include "cmdlineparser.h"
 
 namespace Snogray {

@@ -12,7 +12,7 @@
 #ifndef __IMAGE_PPM_H__
 #define __IMAGE_PPM_H__
 
-#include "image.h"
+#include "image-io.h"
 
 
 // PPM has fixed gamma correction:  each sample is "...  proportional to

@@ -11,7 +11,7 @@
 
 #include <cmath>
 
-#include "image.h"
+#include "image-io.h"
 
 using namespace Snogray;
 
