@@ -931,25 +931,38 @@ def_scene_tessel (const string &name, unsigned num,
   scene.add (new Triangle (ivory,
 			   Pos (-1, height, 1), Pos (1, height, 1), Pos (-1, height, -1)));
 
-  switch (lighting)
+  if (lighting == 0)
     {
-    case 0:
       scene.add (new PointLight (Pos (0, height + 5, 5), light_intens));
       scene.add (new PointLight (Pos (-5, height + 5, -5), 15));
       scene.add (new PointLight (Pos (10, height + -5, -15), 100));
-      break;
-    case 2: case 3:
-      if (lighting == 2)
-	scene.add (new PointLight (Pos (100, height + 25, 0), light_intens * 200));
-      else
-	scene.add (new PointLight (Pos (-25, height + 100, 0), light_intens * 200));
-      /* fall through */
-    case 1:
+    }
+  else
+    {      
+      if (lighting != 1)
+	{
+	  Pos sun_pos;
+	  switch (lighting)
+	    {
+	    case 2:
+	      sun_pos = Pos (-100, height + 25, 0); break;
+	    case 3:
+	      sun_pos = Pos (0, height + 25, 100); break;
+	    case 4:
+	      sun_pos = Pos (100, height + 25, 0); break;
+	    case 5:
+	      sun_pos = Pos (0, height + 25, -100); break;
+
+	    case 6:
+	      sun_pos = Pos (-25, height + 100, 0); break;
+	    }
+	  scene.add (new PointLight (sun_pos, light_intens * 200));
+	}
+
       scene.add (new PointLight (Pos (  0, height + 30,   0), 20));
       scene.add (new PointLight (Pos (-20, height + 20,   0), 20));
       scene.add (new PointLight (Pos (  0, height + 20, -20), 20));
       scene.add (new PointLight (Pos (  0, height + 20,  20), 20));
-      break;
     }
 }
 
