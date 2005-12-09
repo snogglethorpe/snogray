@@ -343,7 +343,7 @@ int main (int argc, char *const *argv)
 	  size_t len = strlen (bg_spec);
 	  if (len > 5 && strncmp (bg_spec, "cube:", 5) == 0)
 	    bg_cube_spec = bg_spec + 5;
-	  else if (len > 4 && strcmp (bg_spec + len - 4, ".cbt") == 0)
+	  else if (len > 4 && strcmp (bg_spec + len - 4, ".ctx") == 0)
 	    bg_cube_spec = bg_spec;
 	}
 	break;
