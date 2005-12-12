@@ -80,4 +80,19 @@ ImageSourceParams::make_source () const
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
 }
 
+// Returns true if FILENAME is a recogized image format we can read.
+//
+bool
+ImageInput::recognized_filename (const std::string &filename)
+{
+  unsigned dot = filename.find_last_of (".");
+  if (dot == filename.length ())
+    return false;
+
+  std::string ext = filename.substr (dot + 1);
+
+  return ext == "exr" || ext == "png" || ext == "jpeg" || ext == "jpg"
+    || ext == "ppm";
+}
+
 // arch-tag: df36e3bf-7e23-4f22-91a3-03a954777784
