@@ -17,13 +17,16 @@
 
 using namespace Snogray;
 
+
+// Output
+
 class JpegImageSink : public ByteVecImageSink
 {  
 public:
   JpegImageSink (const JpegImageSinkParams &params);
   ~JpegImageSink ();
 
-  virtual void write_row (const unsigned char *rgb_bytes);
+  virtual void write_row (const byte *rgb_bytes);
 
 private:
   FILE *stream;
@@ -80,7 +83,7 @@ JpegImageSink::~JpegImageSink ()
 }
 
 void
-JpegImageSink::write_row (const unsigned char *byte_vec)
+JpegImageSink::write_row (const byte *byte_vec)
 {
   const JSAMPLE *rows[1] = { byte_vec };
   jpeg_write_scanlines (&jpeg_info, const_cast<JSAMPLE **>(rows), 1);
@@ -91,5 +94,73 @@ JpegImageSinkParams::make_sink () const
 {
   return new JpegImageSink (*this);
 }
+
+
+// Input
+
+class JpegImageSource : public ByteVecImageSource
+{  
+public:
+  JpegImageSource (const JpegImageSourceParams &params);
+  ~JpegImageSource ();
+
+  virtual void read_row (byte *rgb_bytes);
+
+private:
+  FILE *stream;
+
+  struct jpeg_decompress_struct jpeg_info;
+  struct jpeg_error_mgr jpeg_err;
+};
+
+JpegImageSource::JpegImageSource (const JpegImageSourceParams &params)
+  : ByteVecImageSource (params)
+{
+  // Open input file
+
+  stream = fopen (params.file_name, "rb");
+  if (! stream)
+    params.sys_error ("Could not open input file");
+
+  // Create libjpeg data structures
+
+  jpeg_info.err = jpeg_std_error (&jpeg_err);
+
+  jpeg_create_decompress (&jpeg_info);
+
+  jpeg_stdio_src (&jpeg_info, stream);
+
+  // Read image header
+
+  jpeg_read_header (&jpeg_info, true);
+
+  // Start decompressor
+
+  jpeg_start_decompress (&jpeg_info);
+
+  set_specs (jpeg_info.output_width, jpeg_info.output_height,
+	     jpeg_info.output_components, 8);
+}
+
+JpegImageSource::~JpegImageSource ()
+{
+  jpeg_finish_decompress (&jpeg_info);
+  jpeg_destroy_decompress (&jpeg_info);
+  fclose (stream);
+}
+
+void
+JpegImageSource::read_row (byte *byte_vec)
+{
+  const JSAMPLE *rows[1] = { byte_vec };
+  jpeg_read_scanlines (&jpeg_info, const_cast<JSAMPLE **>(rows), 1);
+}
+
+ImageSource *
+JpegImageSourceParams::make_source () const
+{
+  return new JpegImageSource (*this);
+}
+
 
 // arch-tag: 4abc6a5f-8aeb-4b58-a253-36553d2b109f

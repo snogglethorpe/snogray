@@ -21,7 +21,8 @@
 //
 #define IMAGE_INPUT_OPTIONS_HELP "\
  Input options:\n\
-  -I, --input-format=FMT     Input image format FMT (one of: exr, png, ppm)"
+  -I, --input-format=FMT     Input image format FMT\n\
+                               (one of: exr, png, ppm, jpeg)"
 //
 #define IMAGE_INPUT_SHORT_OPTIONS "I:"
 //

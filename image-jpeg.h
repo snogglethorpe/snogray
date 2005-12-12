@@ -25,6 +25,15 @@ struct JpegImageSinkParams : public ByteVecImageSinkParams
   virtual ImageSink *make_sink () const;
 };
 
+struct JpegImageSourceParams : public ByteVecImageSourceParams
+{
+  JpegImageSourceParams (const ImageSourceParams &params)
+    : ByteVecImageSourceParams (params)
+  { }
+
+  virtual ImageSource *make_source () const;
+};
+
 }
 
 #endif /* __IMAGE_JPEG_H__ */
