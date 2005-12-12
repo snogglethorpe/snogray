@@ -15,6 +15,7 @@
 #include <sstream>
 
 #include "excepts.h"
+#include "image-io.h"
 
 #include "cubetex.h"
 
@@ -76,65 +77,61 @@ Cubetex::map (const Vec &dir) const
 }
 
 
-// Cubetex loading
+// Cubetex general loading interface
 
 void
 Cubetex::load (const string &filename)
 {
-  ifstream stream (filename.c_str ());
-
-  if (stream)
-    try
-      { 
-	load (stream, filename);
-      }
-    catch (runtime_error &err)
-      {
-	throw file_error (filename + ": Error loading cubetex file: "
-			  + err.what ());
-      }
-  else
-    throw file_error (filename + ": Cannot open cubetex file");
-}
-
-Vec
-Cubetex::parse_axis_dir (const string &str)
-{
-  dist_t val = 1;
-  bool bad = false;
-  unsigned offs = 0;
-
-  if (str[0] == '+')
-    offs++;
-  else if (str[0] == '-')
+  if (ImageInput::recognized_filename (filename))
+    //
+    // Load from a single image file
     {
-      offs++;
-      val = -val;
+      Image image (filename);
+
+      try
+	{
+	  load (image);
+	}
+      catch (runtime_error &err)
+	{
+	  throw file_error (filename + ": Error loading cubetex image: "
+			    + err.what ());
+	}
     }
+
   else
-    bad = true;
+    // Load from a "descriptor" file
+    {
+      ifstream stream (filename.c_str ());
 
-  Vec vec;
-  if (str[offs] == 'x')
-    vec = Vec (val, 0, 0);
-  else if (str[offs] == 'y')
-    vec = Vec (0, val, 0);
-  else if (str[offs] == 'z')
-    vec = Vec (0, 0, val);
-  else
-    bad = true;
+      if (stream)
+	try
+	  { 
+	    // Compute filename prefix used for individual image files from
+	    // the path used to open the cubetex file.
+	    //
+	    string filename_pfx;
+	    unsigned pfx_end = filename.find_last_of ("/");
+	    if (pfx_end > 0)
+	      filename_pfx = filename.substr (0, pfx_end + 1);
 
-  if (str.length() - offs > 1)
-    bad = true;
-
-  if (bad)
-    throw runtime_error (str + ": Illegal axis spec");
-
-  return vec;
+	    load (stream, filename_pfx);
+	  }
+	catch (runtime_error &err)
+	  {
+	    throw file_error (filename + ": Error loading cubetex file: "
+			      + err.what ());
+	  }
+      else
+	throw file_error (filename + ": Cannot open cubetex file");
+    }
 }
+
+
+// Loading of a .ctx "descriptor" file
 
 void
-Cubetex::load (istream &stream, const string &filename)
+Cubetex::load (istream &stream, const string &filename_pfx)
 {
   unsigned num_faces_loaded = 0;
 
@@ -192,15 +189,8 @@ Cubetex::load (istream &stream, const string &filename)
       stream >> ws;
       getline (stream, tex_filename);
 
-      if (tex_filename[0] != '/' && filename.length() > 0)
-	{
-	  // prepend the path used to open the cubetex file
-
-	  unsigned pfx_end = filename.find_last_of ("/");
-
-	  if (pfx_end > 0)
-	    tex_filename.insert (0, filename.substr (0, pfx_end + 1));
-	}
+      if (tex_filename[0] != '/' && filename_pfx.length() > 0)
+	tex_filename.insert (0, filename_pfx);
 
       try
 	{ 
@@ -208,10 +198,103 @@ Cubetex::load (istream &stream, const string &filename)
 	}
       catch (runtime_error &err)
 	{
-	  throw file_error (filename + ": Error loading texture: "
-			    + err.what ());
+	  throw file_error (string ("Error loading texture: ") + err.what ());
 	}
     }
+}
+
+Vec
+Cubetex::parse_axis_dir (const string &str)
+{
+  dist_t val = 1;
+  bool bad = false;
+  unsigned offs = 0;
+
+  if (str[0] == '+')
+    offs++;
+  else if (str[0] == '-')
+    {
+      offs++;
+      val = -val;
+    }
+  else
+    bad = true;
+
+  Vec vec;
+  if (str[offs] == 'x')
+    vec = Vec (val, 0, 0);
+  else if (str[offs] == 'y')
+    vec = Vec (0, val, 0);
+  else if (str[offs] == 'z')
+    vec = Vec (0, 0, val);
+  else
+    bad = true;
+
+  if (str.length() - offs > 1)
+    bad = true;
+
+  if (bad)
+    throw runtime_error (str + ": Illegal axis spec");
+
+  return vec;
+}
+
+
+// Loading of a single background image
+
+void
+Cubetex::load (const Image &image)
+{
+  unsigned size;
+  unsigned w = image.width, h = image.height;
+
+  if ((size = w / 3) * 3 == w && size * 4 == h)
+    //
+    // "vertical cross" format
+    {
+      // Back
+      faces[5].tex = new Texture2 (image, size, size * 3, size, size);
+      faces[5].u_dir = Vec (-1, 0, 0);
+      faces[5].v_dir = Vec (0, 1, 0);
+    }
+  else if ((size = w / 4) * 4 == w && size * 3 == h)
+    //
+    // "horizontal cross" format
+    {
+      // Back
+      faces[5].tex = new Texture2 (image, size * 3, size, size, size);
+      faces[5].u_dir = Vec (1, 0, 0);
+      faces[5].v_dir = Vec (0, -1, 0);
+    }
+  else
+    throw bad_format ("unrecognized cube-texture image size");
+
+  // Common parts of the two "cross" formats
+
+  // Right
+  faces[0].tex = new Texture2 (image, size * 2, size, size, size);
+  faces[0].u_dir = Vec (0, 0, -1);
+  faces[0].v_dir = Vec (0, 1, 0);
+
+  // Left
+  faces[1].tex = new Texture2 (image, 0, size, size, size);
+  faces[1].u_dir = Vec (0, 0, -1);
+  faces[1].v_dir = Vec (0, -1, 0);
+
+  // Top
+  faces[2].tex = new Texture2 (image, size, 0, size, size);
+  faces[2].u_dir = Vec (1, 0, 0);
+  faces[2].v_dir = Vec (0, 0, -1);
+
+  // Bottom
+  faces[3].tex = new Texture2 (image, size, size * 2, size, size);
+  faces[3].u_dir = Vec (-1, 0, 0);
+  faces[3].v_dir = Vec (0, 0, -1);
+
+  // Bottom
+  faces[4].tex = new Texture2 (image, size, size, size, size);
+  faces[4].u_dir = Vec (1, 0, 0);
+  faces[4].v_dir = Vec (0, 1, 0);
 }
 
 // arch-tag: 6f62ca7f-6a3e-47d7-a558-3f321b11fd70
