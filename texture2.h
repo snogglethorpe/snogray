@@ -29,6 +29,11 @@ public:
     : image (filename),
       u_scale (image.width - 1), v_scale (image.height - 1)
   { }
+  Texture2 (const Image &base, unsigned offs_x, unsigned offs_y,
+	    unsigned w, unsigned h)
+    : image (base, offs_x, offs_y, w, h),
+      u_scale (image.width - 1), v_scale (image.height - 1)
+  { }
 
   Color map (param_t u, param_t v);
 

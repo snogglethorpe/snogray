@@ -23,10 +23,19 @@ class Image
 {
 public:
 
+  // Basic image constructors
+  //
   Image (const std::string &filename, const char *format = 0);
   Image (const std::string &filename, unsigned border);
   Image (const std::string &filename, const char *format, unsigned border);
   ~Image ();
+
+  // Constructor for extracting a sub-image of BASE.  If W or H are 0, the
+  // maximum available width or height is used.  Note that because of the
+  // defaults, this is used as the copy-constructor.
+  //
+  Image (const Image &base, unsigned offs_x = 0, unsigned offs_y = 0,
+	 unsigned w = 0, unsigned h = 0);
 
   Color operator() (unsigned x, unsigned y) { return pixel (x, y); }
 

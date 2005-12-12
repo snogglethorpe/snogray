@@ -10,6 +10,7 @@
 //
 
 #include "image-io.h"
+#include "excepts.h"
 
 #include "image.h"
 
@@ -43,7 +44,7 @@ Image::load (const std::string &filename, const char *format, unsigned border)
 {
   ImageInput src (filename, format);
 
-  width = src.height + border * 2;
+  width = src.width + border * 2;
   height = src.height + border * 2;
 
   pixels = new Color[width * height];
@@ -64,5 +65,31 @@ Image::load (const std::string &filename, const char *format, unsigned border)
 	}
     }
 }
+
+
+
+// Constructor for extracting a sub-image of BASE
+//
+Image::Image (const Image &base, unsigned offs_x, unsigned offs_y,
+	      unsigned w, unsigned h)
+{
+  if (offs_x + w > base.width || offs_y + h > base.height)
+    throw std::runtime_error ("sub-image out of bounds");
+
+  if (w == 0)
+    w = base.width - offs_x;
+  if (h == 0)
+    h = base.height - offs_y;
+
+  width = w;
+  height = h;
+
+  pixels = new Color[w * h];
+
+  for (unsigned y = 0; y < h; y++)
+    for (unsigned x = 0; x < w; x++)
+      pixel (x, y) = base.pixel (x + offs_x, y + offs_y);
+}
+
 
 // arch-tag: da22c1bc-101a-4b6e-a7e6-1db2676ea923
