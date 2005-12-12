@@ -17,6 +17,7 @@
 #include "image-png.h"
 #include "image-jpeg.h"
 #include "image-ppm.h"
+#include "image-pfm.h"
 
 using namespace Snogray;
 
@@ -56,6 +57,8 @@ ImageSinkParams::make_sink () const
     return JpegImageSinkParams (*this).make_sink ();
   else if (strcasecmp (fmt, "ppm") == 0)
     return PpmImageSinkParams (*this).make_sink ();
+  else if (strcasecmp (fmt, "pfm") == 0)
+    return PfmImageSinkParams (*this).make_sink ();
   else
     error ("Unknown or unsupported output image type");
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
@@ -75,6 +78,8 @@ ImageSourceParams::make_source () const
     return JpegImageSourceParams (*this).make_source ();
   else if (strcasecmp (fmt, "ppm") == 0)
     return PpmImageSourceParams (*this).make_source ();
+  else if (strcasecmp (fmt, "pfm") == 0)
+    return PfmImageSourceParams (*this).make_source ();
   else
     error ("Unknown or unsupported input image type");
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
@@ -92,7 +97,7 @@ ImageInput::recognized_filename (const std::string &filename)
   std::string ext = filename.substr (dot + 1);
 
   return ext == "exr" || ext == "png" || ext == "jpeg" || ext == "jpg"
-    || ext == "ppm";
+    || ext == "ppm" || ext == "pfm";
 }
 
 // arch-tag: df36e3bf-7e23-4f22-91a3-03a954777784
