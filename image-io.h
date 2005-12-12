@@ -201,6 +201,11 @@ public:
 class ImageInput
 {
 public:
+
+  // Returns true if FILENAME is a recogized image format we can read.
+  //
+  static bool recognized_filename (const std::string &filename);
+
   ImageInput (const ImageSourceParams &params)
     : source (params.make_source ())
   {
