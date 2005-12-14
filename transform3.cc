@@ -9,14 +9,15 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "transform.h"
+#include "transform3.h"
 
 using namespace Snogray;
 
-Transform
-Transform::operator* (const Transform &xform)
+template<typename T>
+Transform3<T>
+Transform3<T>::operator* (const Transform3<T> &xform)
 {
-  Transform result;
+  Transform3<T> result;
   for (unsigned i = 0; i < 4; i++)
     for (unsigned j = 0; j < 4; j++)
       result(i, j)

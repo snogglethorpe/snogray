@@ -16,65 +16,101 @@
 
 namespace Snogray {
 
-class Pos : public Tuple3 
+template<typename T>
+class TPos : public Tuple3<T>
 {
 public:
 
-  Pos (coord_t _x = 0, coord_t _y = 0, coord_t _z = 0) : Tuple3 (_x, _y, _z) { }
-  Pos (const Pos &pos) : Tuple3 (pos.x, pos.y, pos.z) { }
+  using Tuple3<T>::x;
+  using Tuple3<T>::y;
+  using Tuple3<T>::z;
+
+  TPos (T _x = 0, T _y = 0, T _z = 0)
+    : Tuple3<T> (_x, _y, _z)
+  { }
+  TPos (const TPos &pos)
+    : Tuple3<T> (pos.x, pos.y, pos.z)
+  { }
 
   // Allow easy down-casting for sharing code
   //
-  Pos (const Tuple3 &tuple) : Tuple3 (tuple) { }
+  template<typename T2>
+  TPos (const Tuple3<T2> &tuple)
+    : Tuple3<T> (tuple)
+  { }
 
-  Pos operator+ (const Vec &v) const
+  using Tuple3<T>::operator*=;
+  using Tuple3<T>::operator/=;
+
+  TPos operator+ (const TVec<T> &v) const
   {
-    return Pos(x + v.x, y + v.y, z + v.z);
+    return TPos(x + v.x, y + v.y, z + v.z);
   }
-  Vec operator- (const Pos &p2) const
+  Vec operator- (const TPos &p2) const
   {
     return Vec(x - p2.x, y - p2.y, z - p2.z);
   }
 
-  void operator+= (const Vec &v2)
+  TPos operator* (T scale) const
   {
-    x += v2.x; y += v2.y; z += v2.z;
+    return TPos (x * scale, y * scale, z * scale);
   }
-  void operator-= (const Vec &v2)
+  TPos operator/ (T denom) const
   {
-    x -= v2.x; y -= v2.y; z -= v2.z;
-  }
-
-  // Useful for calculating averages
-  //
-  Pos operator/ (const float denom) const
-  {
-    return Pos (x / denom, y / denom, z / denom);
+    return TPos (x / denom, y / denom, z / denom);
   }
 
-  Pos operator* (const Transform &xform) const
+  void operator+= (const TVec<T> &p2)
   {
-    return Pos (Tuple3::operator* (xform));
+    x += p2.x; y += p2.y; z += p2.z;
   }
-  const Pos &operator*= (const Transform &xform)
+  void operator-= (const TVec<T> &p2)
   {
-    Pos temp = *this * xform;
+    x -= p2.x; y -= p2.y; z -= p2.z;
+  }
+
+  TPos operator* (const Transform3<T> &xform) const
+  {
+    return TPos (Tuple3<T>::operator* (xform));
+  }
+  const TPos &operator*= (const Transform3<T> &xform)
+  {
+    TPos temp = *this * xform;
     *this = temp;
     return *this;
   }
 
-  dist_t dist (const Pos &p2) const
+  dist_t dist (const TPos &p2) const
   {
     return (*this - p2).length ();
   }
 
-  Pos midpoint (const Pos &p2) const
+  TPos midpoint (const TPos &p2) const
   {
-    return Pos((x + p2.x) / 2, (y + p2.y) / 2, (z + p2.z) / 2);
+    return TPos ((x + p2.x) / 2, (y + p2.y) / 2, (z + p2.z) / 2);
   }
 };
 
-extern std::ostream& operator<< (std::ostream &os, const Snogray::Pos &pos);
+template<typename T>
+static inline TPos<T>
+operator* (T scale, const TPos<T> &pos)
+{
+  return pos * scale;
+}
+
+template<typename T>
+static std::ostream&
+operator<< (std::ostream &os, const TPos<T> &pos)
+{
+  os << "pos<" << std::setprecision (5) << lim (pos.x)
+     << ", " << std::setprecision (5) << lim (pos.y)
+     << ", " << std::setprecision (5) << lim (pos.z)
+     << ">";
+  return os;
+}
+
+typedef TPos<coord_t>  Pos;
+typedef TPos<scoord_t> SPos;
 
 }
 

@@ -16,8 +16,18 @@ namespace Snogray {
 
 #define Eps	0.000001
 
+// Normal (high precision) coordinates
+//
 typedef double coord_t;
 typedef coord_t dist_t;
+
+// "short" coordinates for use where space is critical
+//
+typedef float scoord_t;
+typedef scoord_t sdist_t;
+
+template<typename T>
+inline coord_t lim (T v) { return (v < Eps && v > -Eps) ? 0 : v; }
 
 }
 
