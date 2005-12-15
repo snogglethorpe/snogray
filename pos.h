@@ -28,16 +28,11 @@ public:
   TPos (T _x = 0, T _y = 0, T _z = 0)
     : Tuple3<T> (_x, _y, _z)
   { }
-  TPos (const TPos &pos)
-    : Tuple3<T> (pos.x, pos.y, pos.z)
-  { }
 
   // Allow easy down-casting for sharing code
   //
   template<typename T2>
-  TPos (const Tuple3<T2> &tuple)
-    : Tuple3<T> (tuple)
-  { }
+  TPos (const Tuple3<T2> &t) : Tuple3<T> (t) { }
 
   using Tuple3<T>::operator*=;
   using Tuple3<T>::operator/=;

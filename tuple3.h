@@ -22,9 +22,12 @@ class Tuple3
 {
 public:
 
-  Tuple3 (T _x = 0, T _y = 0, T _z = 0)
-    : x (_x), y (_y), z (_z)
-  { }
+  Tuple3 (T _x = 0, T _y = 0, T _z = 0) : x (_x), y (_y), z (_z) { }
+
+  // Allow easy "tuple-casting"
+  //
+  template<typename T2>
+  Tuple3 (const Tuple3<T2> &t) : x (t.x), y (t.y), z (t.z) { }
 
   // Mainly so we can use Tuple3<T> as a map key
   //
