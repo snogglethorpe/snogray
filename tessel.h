@@ -66,7 +66,7 @@ public:
 
   // Add all vertices to VERTICES.
   //
-  void get_vertices (std::vector<Pos> &vertices) const;
+  void get_vertices (std::vector<SPos> &vertices) const;
 
   // Add triangle vertices to TRI_VERTS as groups of three vertex indices
   // (T0_V0_INDEX, T0_V1_INDEX, T0_V2_INDEX, T1_V0_INDEX, ...).
@@ -76,7 +76,7 @@ public:
   // Add normal vectors for all vertices to NORMALS; if they are none
   // known, NORMALS will be unchanged.
   //
-  void get_vertex_normals (std::vector<Vec> &normals) const
+  void get_vertex_normals (std::vector<SVec> &normals) const
   {
     // We know nothing about normals, so the function must deal with them.
     fun.get_vertex_normals (vertices.begin(), vertices.end(), normals);
@@ -140,7 +140,7 @@ public:
     //
     virtual void get_vertex_normals (LinkedList<Vertex>::iterator vertices_beg,
 				     LinkedList<Vertex>::iterator vertices_end,
-				     std::vector<Vec> &normals)
+				     std::vector<SVec> &normals)
       const = 0;
 
   protected:

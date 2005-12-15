@@ -53,7 +53,7 @@ ParamTesselFun::midpoint (Tessel &tessel,
 void ParamTesselFun::get_vertex_normals (
 		       LinkedList<Tessel::Vertex>::iterator vertices_beg,
 		       LinkedList<Tessel::Vertex>::iterator vertices_end,
-		       std::vector<Vec> &normals)
+		       std::vector<SVec> &normals)
   const
 {
   if (can_calc_vertex_normals ())
@@ -61,7 +61,7 @@ void ParamTesselFun::get_vertex_normals (
 	 vi != vertices_end; vi++)
       {
 	const Vertex &vert = static_cast<const Vertex &>(*vi);
-	Vec normal = vertex_normal (vert);
+	SVec normal = vertex_normal (vert);
 	normals.push_back (normal);
       }
 }

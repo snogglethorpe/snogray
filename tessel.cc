@@ -68,7 +68,7 @@ Tessel::ConstMaxErr::max_err (const Pos &pos) const
 // Add all vertices to VERTICES.
 //
 void
-Tessel::get_vertices (std::vector<Pos> &_vertices) const
+Tessel::get_vertices (std::vector<SPos> &_vertices) const
 {
   _vertices.reserve (_vertices.size() + vertices.size());
 

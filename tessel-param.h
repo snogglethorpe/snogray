@@ -86,7 +86,7 @@ protected:
   virtual void get_vertex_normals (
 		 LinkedList<Tessel::Vertex>::iterator vertices_beg,
 		 LinkedList<Tessel::Vertex>::iterator vertices_end,
-		 std::vector<Vec> &normals)
+		 std::vector<SVec> &normals)
     const;
 
   //
