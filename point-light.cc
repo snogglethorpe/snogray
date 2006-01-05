@@ -24,8 +24,23 @@ PointLight::illum (const Intersect &isec, const Color &surface_color,
 		   const LightModel &light_model, TraceState &tstate)
   const
 {
-  return ray_illum (Ray (isec.point, pos), color,
-		    isec, surface_color, light_model, tstate);
+  // If the dot-product of the impinging light-ray with the surface
+  // normal is positive, that means the light is behind the surface,
+  // so cannot light it ("self-shadowing"); otherwise, see if some
+  // other surface casts a shadow.
+
+  Vec light_vec = pos - isec.point;
+
+  if (isec.normal.dot (light_vec) >= -Eps)
+    {
+      const Ray light_ray (isec.point, light_vec);
+
+      return ray_illum (light_ray,
+			color / (light_ray.len * light_ray.len),
+			isec, surface_color, light_model, tstate);
+    }
+  else
+    return Color (0, 0, 0);
 }
 
 // Adjust this light's intensity by a factor of SCALE.

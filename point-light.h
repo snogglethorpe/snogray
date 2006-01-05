@@ -14,6 +14,7 @@
 
 #include "light.h"
 #include "color.h"
+#include "pos.h"
 
 namespace Snogray {
 
@@ -21,9 +22,7 @@ class PointLight : public Light
 {
 public:
 
-  PointLight (const Pos &_pos, const Color &col)
-    : Light (_pos), color (col)
-  { }
+  PointLight (const Pos &_pos, const Color &col) : pos (_pos), color (col) { }
 
   // Return the color of the surface at ISEC, with nominal color
   // SURFACE_COLOR, as lit by this light with lighting-model
@@ -37,6 +36,7 @@ public:
   //
   virtual void scale_intensity (float scale);
 
+  Pos pos;
   Color color;
 };
 

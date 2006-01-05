@@ -12,8 +12,6 @@
 #ifndef __LIGHT_H__
 #define __LIGHT_H__
 
-#include "pos.h"
-
 namespace Snogray {
 
 class Intersect;
@@ -26,7 +24,7 @@ class Light
 {
 public:
 
-  Light (const Pos &_pos) : pos (_pos), num (0) { }
+  Light () : num (0) { }
   virtual ~Light (); // stop gcc bitching
 
   // Return the color of the surface at ISEC, with nominal color
@@ -49,8 +47,6 @@ public:
 		   const Intersect &isec, const Color &surface_color,
 		   const LightModel &light_model, TraceState &tstate)
     const;
-
-  Pos pos;
 
   // Each light has a number, which we use as a index to access various
   // data structures referring to lights.
