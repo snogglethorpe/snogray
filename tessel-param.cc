@@ -11,6 +11,8 @@
 
 #include <cstdlib>
 
+#include "rand.h"
+
 #include "tessel-param.h"
 
 using namespace Snogray;
@@ -153,10 +155,7 @@ SphereTesselFun::surface_pos (param_t u, param_t v) const
   dist_t r = radius;
 
   if (radius_perturb != 0)
-    {
-      double rnd = (double (rand()) / double (RAND_MAX));
-      r *= (1 + radius_perturb - (rnd * radius_perturb * 2));
-    }
+    r *= random (1 - radius_perturb, 1 + radius_perturb);
 
   double sin_u = sin (u), cos_u = cos (u);
   double sin_v = sin (v), cos_v = cos (v);
@@ -344,10 +343,7 @@ TorusTesselFun::surface_pos (param_t u, param_t v) const
   dist_t ring_radius = (radius - hole_radius) / 2;
 
   if (radius_perturb != 0)
-    {
-      double rnd = (double (rand()) / double (RAND_MAX));
-      ring_radius *= (1 + radius_perturb - (rnd * radius_perturb * 2));
-    }
+    ring_radius *= random (1 - radius_perturb, 1 + radius_perturb);
 
   dist_t x_offs = ring_radius * cos (v) + hole_radius + ring_radius;
   dist_t y_offs = ring_radius * sin (v);
