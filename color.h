@@ -28,6 +28,8 @@ public:
     : red (_red), green (_green), blue (_blue)
   { }
   Color (component_t grey = 0) : red (grey), green (grey), blue (grey) { }
+  Color (double grey) : red (grey), green (grey), blue (grey) { }
+  Color (int grey) : red (grey), green (grey), blue (grey) { }
 
   friend bool operator== (const Color &col1, const Color &col2);
   friend Color operator+ (const Color &col1, const Color &col2);
