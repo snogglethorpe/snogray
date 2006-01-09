@@ -1,6 +1,6 @@
 // test-scenes.cc -- Test scenes for snogray ray tracer
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -16,6 +16,8 @@
 #include "scene.h"
 #include "camera.h"
 #include "point-light.h"
+#include "far-light.h"
+#include "rect-light.h"
 #include "sphere.h"
 #include "triangle.h"
 #include "lambert.h"
@@ -31,7 +33,53 @@ using namespace Snogray;
 using namespace std;
 
 
-// Define the scene, since can't read any kind of scene file yet
+// Helper functions
+
+const void
+add_rect (Scene &scene, const Material *mat,
+	  const Pos &corner_0, const Pos &mid_corner_0, const Pos &corner_1)
+{
+  Triangle *t0
+    = new Triangle (mat, corner_0, mid_corner_0, corner_1);
+  Triangle *t1
+    = new Triangle (mat,
+		    corner_1, corner_1 + (corner_0 - mid_corner_0), corner_0);
+
+  scene.add (t0);
+  scene.add (t1);
+}
+
+const void
+add_rect (Scene &scene, const Material *mat,
+	  const Pos &corner, const Vec &side1, const Vec &side2)
+{
+  Triangle *t0
+    = new Triangle (mat, corner, corner + side1, corner + side1 + side2);
+  Triangle *t1
+    = new Triangle (mat, corner, corner + side1 + side2, corner + side2);
+
+  scene.add (t0);
+  scene.add (t1);
+}
+
+const void
+add_cube (Scene &scene, const Material *mat,
+	  const Pos &corner, const Vec &up, const Vec &right, const Vec &fwd)
+{
+  add_rect (scene, mat, corner, corner + up, corner + right + up);
+  add_rect (scene, mat, corner, corner + fwd, corner + fwd + up);
+  add_rect (scene, mat, corner + up, corner + up + fwd, corner + up + fwd + right);
+}
+
+const void
+add_rect_bulb (Scene &scene,
+	       const Pos &corner, const Vec &side1, const Vec &side2,
+	       const Color &col = Color::white)
+{
+  const Material *bulb_mat = scene.add (new Glow (col));
+  scene.add (new RectLight (corner, side1, side2, col));
+  add_rect (scene, bulb_mat, corner, side1, side2);
+}
 
 static void
 add_bulb (Scene &scene, const Pos &pos, float radius,
@@ -41,6 +89,8 @@ add_bulb (Scene &scene, const Pos &pos, float radius,
   scene.add (new PointLight (pos, col));
   scene.add (new Sphere (bulb_mat, pos, radius));
 }
+
+
 
 static void
 def_scene_miles (const string &name, unsigned num,
@@ -242,28 +292,48 @@ def_scene_teapot (const string &name, unsigned num,
   scene.add (new Mesh (ivory, "board2.msh"));
   scene.add (new Mesh (brown, "board3.msh"));
 
-  if ((num & 1) == 0)
-    /* night-time teapot */
+  switch (num / 10)
     {
+    case 0:
+      /* night-time teapot, point lights */
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
       //scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
       add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
       scene.set_background (Color (0.01, 0.01, 0.02));
-    }
-  else
-    /* day-time teapot */
-    {
+      break;
+
+    case 1:
+      /* day-time teapot, point lights */
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 90));
       scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
       scene.set_background (Color (0.078, 0.361, 0.753));
+      break;
+      
+    case 2:
+      /* night-time teapot, area lights */
+      add_rect_bulb (scene, Pos (-3.1, 9.8, 12.1), Vec (5, 0, 0), Vec (0, 0, 5),
+		     100),
+      add_rect_bulb (scene, Pos (5, 2, 0), Vec (0, -2, 0), Vec (0, 0, 2),
+		     10 * Color (1, 1, 0.3));
+      break;
+
+    case 3:
+      /* day-time teapot, area lights */
+      scene.add (new FarLight (Vec (-1, 0.5, 1), 0.05, 1));
+      scene.set_background (Color (0.078, 0.361, 0.753));
+      break;
+      
+    case 4:
+      /* night-time teapot, area lights, strong overhead */
+      add_rect_bulb (scene, Pos (-3, 3, 6), Vec (6, 0, 0), Vec (0, -6, 0), 20);
+      add_rect_bulb (scene, Pos (5, 2, 0), Vec (0, -2, 0), Vec (0, 0, 2),
+		     5 * Color (1, 1, 0.3));
+      break;
     }
 
-  if (num >= 2)
+  if (num % 10 > 0)
     {
-      num -= 2;
-      num /= 2;
-
       const Material *orange
 	= scene.add (new Material (Color (0.6,0.5,0.05),
 				   Material::phong (250)));
@@ -274,18 +344,20 @@ def_scene_teapot (const string &name, unsigned num,
 	= scene.add (new Mirror (Color (0.852, 0.756, 0.12), 0, 
 				 Material::phong (800, Color (1, 1, 0.3))));
 
-      const Material *ball_mat = orange;
       dist_t max_err = 0.0002;
-      dist_t radius = 1;
 
-      switch (num % 3)
+      switch (num % 10)
 	{
-	case 0: ball_mat = orange; break;
-	case 1: ball_mat = glass;  radius = 0.5; break;
-	case 2: ball_mat = gold;   radius = 0.6; break;
+	case 1:
+	  scene.add (mottle_ball (orange, Pos (3, 2, 1), 1, max_err));
+	  break;
+	case 2:
+	  scene.add (new Sphere (glass, Pos (3, 2, 0.5), 0.5));
+	  break;
+	case 3:
+	  scene.add (mottle_ball (gold, Pos (3, 2, 0.6), 0.6, max_err));
+	  break;
 	}
-
-      scene.add (mottle_ball (ball_mat, Pos (3, 2, radius), radius, max_err));
 
       const Material *red
 	= scene.add (new Material (Color (1, 0, 0), Material::phong (500)));
@@ -311,14 +383,16 @@ def_scene_teapot (const string &name, unsigned num,
 static void
 add_scene_descs_teapot (vector<TestSceneDesc> &descs)
 {
-  descs.push_back (TestSceneDesc ("teapot", "Classic teapot at night"));
-  descs.push_back (TestSceneDesc ("teapot1", "Classic teapot in day"));
-  descs.push_back (TestSceneDesc ("teapot2", "Teapot at night with orange"));
-  descs.push_back (TestSceneDesc ("teapot3", "Teapot in day with orange"));
-  descs.push_back (TestSceneDesc ("teapot4", "Teapot at night with glass ball"));
-  descs.push_back (TestSceneDesc ("teapot5", "Teapot in day with glass ball"));
-  descs.push_back (TestSceneDesc ("teapot6", "Teapot at night with gold ball"));
-  descs.push_back (TestSceneDesc ("teapot7", "Teapot in day with gold ball"));
+  descs.push_back (TestSceneDesc ("teapot[0-4]0", "Classic teapot"));
+  descs.push_back (TestSceneDesc ("teapot[0-4]1", "Classic teapot with orange"));
+  descs.push_back (TestSceneDesc ("teapot[0-4]2", "Classic teapot with glass ball"));
+  descs.push_back (TestSceneDesc ("teapot[0-4]3", "Classic teapot with gold ball"));
+  descs.push_back (TestSceneDesc ("teapot0[0-9]", "Night lighting (point lights)"));
+  descs.push_back (TestSceneDesc ("teapot1[0-9]", "Daytime lighting (point lights)"));
+  descs.push_back (TestSceneDesc ("teapot2[0-9]", "Night lighting (area lights)"));
+  descs.push_back (TestSceneDesc ("teapot3[0-9]", "Daytime lighting (area lights)"));
+  descs.push_back (TestSceneDesc ("teapot4[0-9]", "Night lighting (overhead light)"));
+
 }
 
 
@@ -399,36 +473,11 @@ add_scene_descs_orange (vector<TestSceneDesc> &descs)
 
 
 
-const void
-add_rect (Scene &scene, const Material *mat,
-	  const Pos &corner_0, const Pos &mid_corner_0, const Pos &corner_1)
-{
-  Triangle *t0
-    = new Triangle (mat, corner_0, mid_corner_0, corner_1);
-  Triangle *t1
-    = new Triangle (mat,
-		    corner_1, corner_1 + (corner_0 - mid_corner_0), corner_0);
-
-  scene.add (t0);
-  scene.add (t1);
-}
-
-const void
-add_cube (Scene &scene, const Material *mat,
-	  const Pos &corner, const Vec &up, const Vec &right, const Vec &fwd)
-{
-  add_rect (scene, mat, corner, corner + up, corner + right + up);
-  add_rect (scene, mat, corner, corner + fwd, corner + fwd + up);
-  add_rect (scene, mat, corner + up, corner + up + fwd, corner + up + fwd + right);
-}
-
 static void
 def_scene_cornell_box (const string &name, unsigned num,
 		       Scene &scene, Camera &camera)
 {
-  unsigned soft_shadow_count = 1; //5;
-  float light_intens = 2.5;
-  unsigned glow_mag = 1;
+  float light_intens = 5;
   bool fill_light = true;
   float scale = 1;
 
@@ -465,7 +514,6 @@ def_scene_cornell_box (const string &name, unsigned num,
 
   if (num == 1)
     {
-      light_intens = 1.5;
       fill_light = false;
       light_z += scale * 0.2;
 
@@ -485,16 +533,11 @@ def_scene_cornell_box (const string &name, unsigned num,
     }
   else // default
     {
-      soft_shadow_count = 5;
-
-      // The reflected light doesn't look bright enough otherwise... XXX
-      glow_mag = 4;
-
       Color light_blue (0.6, 0.6, 1);
 //       const Material *gloss_blue
 // 	= scene.add (new Material (light_blue, Material::phong (700, 5)));
       const Material *gloss_blue
-	= scene.add (new Mirror (0.1, light_blue, Material::lambert));
+	= scene.add (new Mirror (0.05, light_blue, 700));
       const Material *white
 	= scene.add (new Material (1, Material::phong (50)));
 
@@ -521,39 +564,9 @@ def_scene_cornell_box (const string &name, unsigned num,
   const coord_t light_front = light_z - light_width / 2;
   const coord_t light_back  = light_z + light_width / 2;
 
-  add_rect (scene, scene.add (new Glow (light_intens * glow_mag)),
-	    Pos (light_left, top, light_front),
-	    Pos (light_left, top, light_back),
-	    Pos (light_right, top, light_back));
-
-  if (soft_shadow_count > 1)
-    {
-      unsigned num_sublights_per_dimen = soft_shadow_count;
-      dist_t sub_light_edge_offs = light_width / 12;
-      dist_t sub_light_spacing
-	= ((light_width - sub_light_edge_offs * 2)
-	   / (num_sublights_per_dimen - 1));
-      float sub_light_intens
-	= light_intens / (num_sublights_per_dimen * num_sublights_per_dimen);
-  
-      coord_t x = light_left + sub_light_edge_offs;
-      for (unsigned i = 0; i < num_sublights_per_dimen; i++)
-	{
-	  coord_t z = light_front + sub_light_edge_offs;
-	  for (unsigned j = 0; j < num_sublights_per_dimen; j++)
-	    {
-	      scene.add (new PointLight (Pos (x, top + light_inset, z),
-					 sub_light_intens));
-	      z += sub_light_spacing;
-	    }
-	  x += sub_light_spacing;
-	}
-    }
-  else
-    {
-      scene.add (new PointLight (Pos (light_x, top + light_inset, light_z),
-				 light_intens));
-    }
+  add_rect_bulb (scene, Pos (light_left, top + light_inset, light_front),
+		 Vec (light_width, 0, 0), Vec (0, 0, light_width),
+		 light_intens);
 
   // Back wall
   add_rect (scene, wall_mat, LBR, LTR, RTR);
@@ -578,7 +591,7 @@ def_scene_cornell_box (const string &name, unsigned num,
   // for debugging
   if (fill_light)
     scene.add (new PointLight (Pos (left + 0.1, bottom + 0.1, front + 0.1),
-			       light_intens / 4));
+			       light_intens / 10));
 
   camera.move (Pos  (mid_x, 0.525 * height + bottom, -6.6 * scale));
   camera.point (Pos (mid_x, 0.475 * height + bottom, 0), Vec (0, 1, 0));
