@@ -933,7 +933,13 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
-  add_rect (scene, ivory, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10));
+  const Material *gloss_black
+    = scene.add (new Mirror (0.3, 0.02, 10));
+  const Material *stage_mat = (num / 10) == 1 ? ivory : gloss_black;
+
+  add_rect (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10));
+
+  num %= 10;
 
   if (num == 0)
     scene.add (new PointLight (Pos (6, 8, 10), 100));
