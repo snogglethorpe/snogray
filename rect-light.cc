@@ -26,10 +26,12 @@ RectLight::illum (const Intersect &isec, const Color &surface_color,
   const
 {
   // First detect cases where the light isn't visible at all, by
-  // examining the dot product of the surface normal with rays to two
-  // opposite corners of the lights.
+  // examining the dot product of the surface normal with rays to the
+  // four corners of the light.
   //
   if (isec.normal.dot (pos - isec.point) < 0
+      && isec.normal.dot (pos + side1 - isec.point) < 0
+      && isec.normal.dot (pos + side2 - isec.point) < 0
       && isec.normal.dot (pos + side1 + side2 - isec.point) < 0)
     return Color (0, 0, 0);    
     
