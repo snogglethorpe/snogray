@@ -1,6 +1,6 @@
 // mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -166,7 +166,7 @@ Mesh::add (const Tessel::Function &tessel_fun,
 // Generic mesh-file loading
 
 void
-Mesh::load (const char *file_name)
+Mesh::load (const char *file_name, const string &mat_name)
 {
   ifstream stream (file_name);
 
@@ -181,8 +181,8 @@ Mesh::load (const char *file_name)
 	else
 	  file_ext++;
 
-	if (strcmp (file_ext, "msh") == 0)
-	  load_msh_file (stream);
+	if (strcmp (file_ext, "msh") == 0 || strcmp (file_ext, "mesh") == 0)
+	  load_msh_file (stream, mat_name);
       }
     catch (std::runtime_error &err)
       {
@@ -198,48 +198,99 @@ Mesh::load (const char *file_name)
 // .msh mesh-file format
 
 void
-Mesh::load_msh_file (istream &stream)
+Mesh::load_msh_file (istream &stream, const string &mat_name)
 {
-  unsigned num_vertices, num_triangles;
-  stream >> num_vertices;
-  stream >> num_triangles;
+  char kw[50];
+  bool skip = false;
 
-  vertices.reserve (num_vertices);
-  triangles.reserve (num_triangles);
+  if (mat_name.length() > 0)
+    stream >> kw;
 
-  char kw[10];
-
-  stream >> kw;
-  if (strcmp (kw, "vertices") != 0)
-    throw bad_format ();
-
-  unsigned base_vert = vertices.size ();
-
-  for (unsigned i = 0; i < num_vertices; i++)
+  do
     {
-      coord_t x, y, z;
+      if (mat_name.length() > 0)
+	skip = (mat_name != kw);
 
-      stream >> x;
-      stream >> y;
-      stream >> z;
+      unsigned base_vert = vertices.size ();
 
-      add_vertex (SPos (x, y, z));
+      unsigned num_vertices, num_triangles;
+      stream >> num_vertices;
+      stream >> num_triangles;
+
+      if (! skip)
+	{
+	  vertices.reserve (base_vert + num_vertices);
+	  triangles.reserve (vertices.size() + num_triangles);
+	}
+
+      stream >> kw;
+      if (strcmp (kw, "vertices") != 0)
+	throw bad_format ();
+
+      for (unsigned i = 0; i < num_vertices; i++)
+	{
+	  coord_t x, y, z;
+
+	  stream >> x;
+	  stream >> y;
+	  stream >> z;
+
+	  if (! skip)
+	    add_vertex (SPos (x, y, z));
+	}
+
+      stream >> kw;
+      if (strcmp (kw, "triangles") != 0)
+	throw bad_format ();
+
+      for (unsigned i = 0; i < num_triangles; i++)
+	{
+	  unsigned v0i, v1i, v2i;
+
+	  stream >> v0i;
+	  stream >> v1i;
+	  stream >> v2i;
+
+	  if (! skip)
+	    add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i);
+	}
+
+      stream >> kw;
+
+      if (strcmp (kw, "texcoords") == 0)
+	{
+	  for (unsigned i = 0; i < num_vertices; i++)
+	    {
+	      float u, v;
+
+	      stream >> u;
+	      stream >> v;
+	    }
+
+	  stream >> kw;
+	}
+
+      if (strcmp (kw, "normals") == 0)
+	{
+	  if (! skip)
+	    vertex_normals.reserve (base_vert + num_vertices);
+
+	  for (unsigned i = 0; i < num_vertices; i++)
+	    {
+	      dist_t x, y, z;
+
+	      stream >> x;
+	      stream >> y;
+	      stream >> z;
+
+	      if (! skip)
+		vertex_normals.push_back (SVec (x, y, z));
+	    }
+
+	  stream >> kw;
+	}
     }
-
-  stream >> kw;
-  if (strcmp (kw, "triangles") != 0)
-    throw bad_format ();
-
-  for (unsigned i = 0; i < num_triangles; i++)
-    {
-      unsigned v0i, v1i, v2i;
-
-      stream >> v0i;
-      stream >> v1i;
-      stream >> v2i;
-
-      add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i);
-    }
+  while (! stream.eof ());
 }
 
 

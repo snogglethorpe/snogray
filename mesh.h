@@ -1,6 +1,6 @@
 // mesh.h -- Mesh surface
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -40,12 +40,24 @@ public:
 
   // All-in-one constructor for loading a mesh from a file.
   //
-  Mesh (const Material *mat, const std::string file_name, bool smooth = false)
+  Mesh (const Material *mat, const std::string &file_name, bool smooth = false)
     : PrimarySurface (mat), triangles (0, *this)
   {
     load (file_name);
     if (smooth)
       compute_vertex_normals ();
+  }
+  Mesh (const Material *mat, const std::string &file_name,
+	const std::string &mat_name)
+    : PrimarySurface (mat), triangles (0, *this)
+  {
+    load (file_name, mat_name);
+  }
+  Mesh (const Material *mat, const std::string &file_name,
+	const char *mat_name)
+    : PrimarySurface (mat), triangles (0, *this)
+  {
+    load (file_name, mat_name);
   }
 
   // All-in-one constructor for a tessellated mesh.
@@ -83,12 +95,15 @@ public:
 
   // For loading mesh from any file-type (automatically determined)
   //
-  void load (const char *file_name);
-  void load (const std::string &file_name) { load (file_name.c_str ()); }
+  void load (const char *file_name, const std::string &mat_name = "");
+  void load (const std::string &file_name, const std::string &mat_name = "")
+  {
+    load (file_name.c_str (), mat_name);
+  }
 
   // For loading mesh from .msh file
   //
-  void load_msh_file (std::istream &stream);
+  void load_msh_file (std::istream &stream, const std::string &mat_name = "");
 
   // Add this (or some other ...) surfaces to SPACE
   //
