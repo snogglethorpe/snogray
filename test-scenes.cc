@@ -855,6 +855,119 @@ add_scene_descs_cs465 (vector<TestSceneDesc> &descs)
 
 
 
+#if 0
+static void
+def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &camera)
+{
+  const Material *red
+    = scene.add (new Mirror (0.1, Color (.5, 0, 0), 500)); // glossy red
+
+//       const Material *red
+// 	= scene.add (new Material (Color (1, 0, 0), Material::phong (500)));
+  const Material *yellow
+    = scene.add (new Material (Color (1.5, 1.5, 0.1), Material::phong (500)));
+  const Material *green
+    = scene.add (new Material (Color (0, 1, 0), Material::phong (500)));
+  const Material *blue
+    = scene.add (new Material (Color (0.3, 0.3, 1.2), Material::phong (500)));
+
+  const string msh_file = "/tmp/eli-images1/kdtree4.xml.mesh";
+  scene.add (new Mesh (red, msh_file, "Material0"));
+  scene.add (new Mesh (yellow, msh_file, "Material1"));
+  scene.add (new Mesh (green, msh_file, "Material2"));
+  scene.add (new Mesh (blue, msh_file, "Material3"));
+  scene.add (new Mesh (red, msh_file, "Material4"));
+  scene.add (new Mesh (yellow, msh_file, "Material5"));
+  scene.add (new Mesh (green, msh_file, "Material6"));
+  scene.add (new Mesh (blue, msh_file, "Material7"));
+  
+  //scene.add (new PointLight (Pos (6, 8, 10), 100));
+  add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
+  add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
+  add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 150);
+
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  //camera.move (Pos (9.7, 9.7, 5.8));
+  camera.move (Pos (0, 7, 25));
+  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+  camera.set_vert_fov (M_PI_4);
+}
+#endif
+
+static void
+def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera &camera)
+{
+  struct MatInit { char *name; Color diff; Color spec; float phong_exp; };
+  static MatInit materials[] = {
+    { "Material0",  Color (1.0, 0.8, 0.8), 0, 			    40 },
+    { "Material1",  Color (1.0, 0.7, 0.7), 0, 			    40 },
+    { "Material2",  Color (0.8, 0.2, 0.2), Color (0.8,  0.5,  0.3), 60 },
+    { "Material3",  Color (1.0, 1.0, 0.0), Color (0.9,  0.5,  0.0), 40 },
+    { "Material4",  Color (1.0, 0.6, 0.6), 0, 			    40 },
+    { "Material5",  Color (0.8, 0.2, 0.2), 0, 			    40 },
+    { "Material6",  Color (0.0, 0.0, 1.0), Color (0.3,  0.5,  0.6), 60 },
+    { "Material7",  Color (1.0, 0.2, 0.2), Color (0.6,  0.8,  0.0), 40 },
+    { "Material8",  Color (1.0, 1.0, 0.2), Color (0.0, 10.0,  0.0), 40 },
+    { "Material9",  Color (0.0, 1.0, 1.0), Color (0.0,  1.0,  0.0), 40 },
+    { "Material10", Color (0.8, 0.6, 0.2), Color (0.0,  0.6,  0.5), 10 },
+    { "Material11", Color (0.9, 0.0, 0.9), Color (0.0,  0.0, 10.0), 10 },
+    { "Material12", Color (0.2, 0.7, 0.8), Color (0.0,  1.0,  1.0), 10 },
+    { "Material13", Color (0.7, 0.5, 0.5), Color (0.0, 20.0,  0.0), 40 },
+    { "Material14", Color (0.0, 1.0, 0.2), Color (0.0,  0.7, 10.0), 10 },
+    { 0 }
+  };
+
+  const string msh_file = "+pretty-dancer.msh";
+
+  for (MatInit *mi = materials; mi->name; mi++)
+    {
+      const LightModel &lmodel
+	= ((mi->spec.intensity() > Eps)
+	   ? (const LightModel &)Material::phong (mi->phong_exp, mi->spec)
+	   : (const LightModel &)Material::lambert);
+
+      const Material *mat = scene.add (new Material (mi->diff, lmodel));
+
+      scene.add (new Mesh (mat, msh_file, mi->name));
+    }
+  
+  const Material *ivory
+    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+  add_rect (scene, ivory, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10));
+
+  if (num == 0)
+    scene.add (new PointLight (Pos (6, 8, 10), 100));
+  else
+    {
+      scene.add (new RectLight (Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150));
+      scene.add (new RectLight (Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150));
+      scene.add (new RectLight (Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 150));
+    }
+
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+
+  switch (num)
+    {
+    default: camera.move (Pos (1.5, 1.7, 10));   break;
+    case 2:  camera.move (Pos (3.13, 1.7, 5.2)); break;
+    case 3:  camera.move (Pos (6, 1.7, 1));      break;
+    }
+
+  camera.point (Pos (0.37, 0.37, 0.32), Vec (0, 1, 0));
+
+  camera.set_vert_fov (M_PI_4);
+}
+
+static void
+add_scene_descs_pretty_dancer (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("pretty-dancer", "Eli's pretty-dancer scene"));
+  descs.push_back (TestSceneDesc ("pretty-dancer-1", "Pretty-dancer with area lights"));
+  descs.push_back (TestSceneDesc ("pretty-dancer-2", "Pretty-dancer closeup with area lights"));
+}
+
+
+
 static void
 def_scene_tessel (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
@@ -1020,6 +1133,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_cornell_box (name, num, scene, camera);
   else if (name == "cs465")
     def_scene_cs465 (name, num, scene, camera);
+  else if (ends_in (name, "dancer"))
+    def_scene_pretty_dancer (name, num, scene, camera);
   else if (begins_with (name, "tessel-"))
     def_scene_tessel (name, num, scene, camera);
   else
@@ -1037,6 +1152,7 @@ Snogray::list_test_scenes ()
   add_scene_descs_pretty_bunny (descs);
   add_scene_descs_cornell_box (descs);
   add_scene_descs_cs465 (descs);
+  add_scene_descs_pretty_dancer (descs);
   add_scene_descs_tessel (descs);
 
   return descs;
