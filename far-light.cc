@@ -1,6 +1,6 @@
 // far-light.cc -- Light at infinite distance
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,6 +12,7 @@
 #include "ray.h"
 #include "intersect.h"
 #include "rand.h"
+#include "scene.h"
 
 #include "far-light.h"
 
@@ -21,7 +22,15 @@ void
 FarLight::init ()
 {
   Vec up (0, 1, 0);
+
   Vec u0 = dir.cross (up);
+
+  // If DIR was the same as UP, U0 ends up zero-length, so retry with
+  // another UP.
+  //
+  if (u0.length () < Eps)
+    u0 = dir.cross (Vec (1, 0, 0));
+
   u = dir.cross (u0).unit () * radius;
   v = dir.cross (u).unit ()  * radius;
 
@@ -66,7 +75,11 @@ FarLight::illum (const Intersect &isec, const Color &surface_color,
 		 const LightModel &light_model, TraceState &tstate)
   const
 {
-  if (isec.normal.dot (dir) > 0)
+  if (isec.normal.dot (dir) > 0
+      || isec.normal.dot (dir + u) > 0
+      || isec.normal.dot (dir - u) > 0
+      || isec.normal.dot (dir + v) > 0
+      || isec.normal.dot (dir - v) > 0)
     {
       Color illum;
       dist_t r_sq = steps_radius * steps_radius;
@@ -85,7 +98,8 @@ FarLight::illum (const Intersect &isec, const Color &surface_color,
 		  = u_inc * (u_offs + random (0, 1))
 		  + v_inc * (v_offs + random (0, 1));
 
-		const Ray light_ray (isec.point, dir + jitter);
+		const Ray light_ray (isec.point, (dir + jitter).unit(),
+				     Scene::DEFAULT_HORIZON);
 
 		illum += ray_illum (light_ray, color, isec,
 				    surface_color, light_model, tstate);
