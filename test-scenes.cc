@@ -115,7 +115,7 @@ def_scene_miles (const string &name, unsigned num,
 //   const Material *mat2
 //     = scene.add (new Mirror (0.8, 0.2, 100));
   const Material *mat3
-    = scene.add (new Material (Color (0.8, 0, 0), Material::phong (400)));
+    = scene.add (new Material (Color (0.8, 0, 0), 400));
   const Material *mat4
     = scene.add (new Material (Color (0.2, 0.5, 0.1)));
 
@@ -178,8 +178,7 @@ def_scene_miles (const string &name, unsigned num,
 		     (float)i / (float)gsize);
 	color *= 0.3;
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
-	const Material *mat
-	  = scene.add (new Material (color, Material::phong (500)));
+	const Material *mat = scene.add (new Material (color, 500));
 	scene.add (new Sphere (mat, pos, 0.5));
 	scene.add (new Triangle (mat,
 				 pos + Vec(1.5,-0.2,0),
@@ -211,11 +210,11 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   const Material *gray
     = scene.add (new Material (0.6));
   const Material *red
-    = scene.add (new Material (Color (1, 0, 0), Material::phong (500)));
+    = scene.add (new Material (Color (1, 0, 0), 500));
   const Material *yellow
-    = scene.add (new Material (Color (1, 1, 0), Material::phong (500)));
+    = scene.add (new Material (Color (1, 1, 0), 500));
   const Material *green
-    = scene.add (new Material (Color (0, 1, 0), Material::phong (500)));
+    = scene.add (new Material (Color (0, 1, 0), 500));
   const Material *crystal
     = scene.add (new Glass (Medium (0.9, 1.8), 0.2, 0.01,
 			    Material::phong (2000, 1.5)));
@@ -335,8 +334,7 @@ def_scene_teapot (const string &name, unsigned num,
   if (num % 10 > 0)
     {
       const Material *orange
-	= scene.add (new Material (Color (0.6,0.5,0.05),
-				   Material::phong (250)));
+	= scene.add (new Material (Color (0.6,0.5,0.05), 250));
       const Material *glass
 	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
 				Material::phong (2000, 1.5)));
@@ -360,13 +358,13 @@ def_scene_teapot (const string &name, unsigned num,
 	}
 
       const Material *red
-	= scene.add (new Material (Color (1, 0, 0), Material::phong (500)));
+	= scene.add (new Material (Color (1, 0, 0), 500));
       const Material *yellow
-	= scene.add (new Material (Color (1.5, 1.5, 0.1), Material::phong (500)));
+	= scene.add (new Material (Color (1.5, 1.5, 0.1), 500));
       const Material *green
-	= scene.add (new Material (Color (0, 1, 0), Material::phong (500)));
+	= scene.add (new Material (Color (0, 1, 0), 500));
       const Material *blue
-	= scene.add (new Material (Color (0.3, 0.3, 1.2), Material::phong (500)));
+	= scene.add (new Material (Color (0.3, 0.3, 1.2), 500));
 
       dist_t r1 = 0.65, r2 = 0.40;
       scene.add (mottle_ball (blue,   Pos ( 1.5,  3.3, r2), r2, max_err));
@@ -411,7 +409,7 @@ def_scene_orange (const string &name, unsigned num,
   const Material *silver
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
   const Material *orange
-    = scene.add (new Material (Color (0.6,0.5,0.05), Material::phong (250)));
+    = scene.add (new Material (Color (0.6,0.5,0.05), 250));
   const Material *glass
     = scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
 			    Material::phong (2000, 1.5)));
@@ -535,11 +533,11 @@ def_scene_cornell_box (const string &name, unsigned num,
     {
       Color light_blue (0.6, 0.6, 1);
 //       const Material *gloss_blue
-// 	= scene.add (new Material (light_blue, Material::phong (700, 5)));
+// 	= scene.add (new Material (light_blue, 700, 5));
       const Material *gloss_blue
 	= scene.add (new Mirror (0.05, light_blue, 700));
       const Material *white
-	= scene.add (new Material (1, Material::phong (50)));
+	= scene.add (new Material (1, 50));
 
       // blue sphere
       scene.add (new Sphere (gloss_blue, RBR + Vec (-rad*1.7, rad, -rad*4), rad));
@@ -865,11 +863,11 @@ def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &
 //       const Material *red
 // 	= scene.add (new Material (Color (1, 0, 0), Material::phong (500)));
   const Material *yellow
-    = scene.add (new Material (Color (1.5, 1.5, 0.1), Material::phong (500)));
+    = scene.add (new Material (Color (1.5, 1.5, 0.1), 500));
   const Material *green
-    = scene.add (new Material (Color (0, 1, 0), Material::phong (500)));
+    = scene.add (new Material (Color (0, 1, 0), 500));
   const Material *blue
-    = scene.add (new Material (Color (0.3, 0.3, 1.2), Material::phong (500)));
+    = scene.add (new Material (Color (0.3, 0.3, 1.2), 500));
 
   const string msh_file = "/tmp/eli-images1/kdtree4.xml.mesh";
   scene.add (new Mesh (red, msh_file, "Material0"));
@@ -1070,7 +1068,7 @@ def_scene_tessel (const string &name, unsigned num,
   const Material *silver
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
   const Material *green
-    = scene.add (new Material (Color (0.1,1,0.1), Material::phong (250)));
+    = scene.add (new Material (Color (0.1,1,0.1), 250));
 
   const Material *mat = ((num & 1) == 0) ? green : silver;
 
@@ -1103,7 +1101,7 @@ def_scene_tessel (const string &name, unsigned num,
     throw (runtime_error ("Unknown tessellation test scene"));
 
   const Material *orange
-    = scene.add (new Material (Color (0.6,0.5,0.05), Material::phong (250)));
+    = scene.add (new Material (Color (0.6,0.5,0.05), 250));
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
 

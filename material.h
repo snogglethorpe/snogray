@@ -39,6 +39,10 @@ public:
   Material (const Color &col, const LightModel &lmodel = lambert)
     : color (col), light_model (lmodel)
   { }
+  Material (const Color &col, float phong_exp,
+	    const Color &spec_col = Color::white)
+    : color (col), light_model (phong (phong_exp, spec_col))
+  { }
   virtual ~Material ();
 
   virtual Color render (const Intersect &isec, TraceState &tstate) const;
