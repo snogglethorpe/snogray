@@ -897,8 +897,10 @@ def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &
 static void
 def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera &camera)
 {
-  struct MatInit { char *name; Color diff; Color spec; float phong_exp; };
-  static MatInit materials[] = {
+  // Simple colored materials
+  //
+  struct SimpleNamedMat { char *name; Color diff; Color spec; float phong_exp;};
+  static const SimpleNamedMat materials[] = {
     { "Material0",  Color (1.0, 0.8, 0.8), 0, 			    40 },
     { "Material1",  Color (1.0, 0.7, 0.7), 0, 			    40 },
     { "Material2",  Color (0.8, 0.2, 0.2), Color (0.8,  0.5,  0.3), 60 },
@@ -907,7 +909,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
     { "Material5",  Color (0.8, 0.2, 0.2), 0, 			    40 },
     { "Material6",  Color (0.0, 0.0, 1.0), Color (0.3,  0.5,  0.6), 60 },
     { "Material7",  Color (1.0, 0.2, 0.2), Color (0.6,  0.8,  0.0), 40 },
-    { "Material8",  Color (1.0, 1.0, 0.2), Color (0.0, 10.0,  0.0), 40 },
+    //{ "Material8",  Color (1.0, 1.0, 0.2), Color (0.0, 10.0,  0.0), 40 },
     { "Material9",  Color (0.0, 1.0, 1.0), Color (0.0,  1.0,  0.0), 40 },
     { "Material10", Color (0.8, 0.6, 0.2), Color (0.0,  0.6,  0.5), 10 },
     { "Material11", Color (0.9, 0.0, 0.9), Color (0.0,  0.0, 10.0), 10 },
@@ -916,21 +918,36 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
     { "Material14", Color (0.0, 1.0, 0.2), Color (0.0,  0.7, 10.0), 10 },
     { 0 }
   };
+  
+  // More complex materials
+  //
+  struct NamedMat { char *name; const Material *mat; };
+  const NamedMat material_refs[] = {
+    { "Material8",		// gold
+      new Mirror (Color (0.852, 0.756, 0.12), 0, 
+		  Material::phong (800, Color (1, 1, 0.3))) },
+    { 0 }
+  };
 
   const string msh_file = "+pretty-dancer.msh";
 
-  for (MatInit *mi = materials; mi->name; mi++)
+  for (const SimpleNamedMat *sm = materials; sm->name; sm++)
     {
       const LightModel &lmodel
-	= ((mi->spec.intensity() > Eps)
-	   ? (const LightModel &)Material::phong (mi->phong_exp, mi->spec)
+	= ((sm->spec.intensity() > Eps)
+	   ? (const LightModel &)Material::phong (sm->phong_exp, sm->spec)
 	   : (const LightModel &)Material::lambert);
 
-      const Material *mat = scene.add (new Material (mi->diff, lmodel));
+      const Material *mat = scene.add (new Material (sm->diff, lmodel));
 
-      scene.add (new Mesh (mat, msh_file, mi->name));
+      scene.add (new Mesh (mat, msh_file, sm->name));
     }
-  
+  for (const NamedMat *nm = material_refs; nm->name; nm++)
+    {
+      scene.add (nm->mat);
+      scene.add (new Mesh (nm->mat, msh_file, nm->name));
+    }
+
   unsigned stage     = (num / 100) % 10;
   unsigned lighting  = (num / 10)  % 10;
   num %= 10;
