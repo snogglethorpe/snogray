@@ -387,11 +387,11 @@ add_scene_descs_teapot (vector<TestSceneDesc> &descs)
   descs.push_back (TestSceneDesc ("teapot[0-4]1", "Classic teapot with orange"));
   descs.push_back (TestSceneDesc ("teapot[0-4]2", "Classic teapot with glass ball"));
   descs.push_back (TestSceneDesc ("teapot[0-4]3", "Classic teapot with gold ball"));
-  descs.push_back (TestSceneDesc ("teapot0[0-9]", "Night lighting (point lights)"));
-  descs.push_back (TestSceneDesc ("teapot1[0-9]", "Daytime lighting (point lights)"));
-  descs.push_back (TestSceneDesc ("teapot2[0-9]", "Night lighting (area lights)"));
-  descs.push_back (TestSceneDesc ("teapot3[0-9]", "Daytime lighting (area lights)"));
-  descs.push_back (TestSceneDesc ("teapot4[0-9]", "Night lighting (overhead light)"));
+  descs.push_back (TestSceneDesc ("teapot0[0-9]", "Teapot Night lighting (point lights)"));
+  descs.push_back (TestSceneDesc ("teapot1[0-9]", "Teapot Daytime lighting (point lights)"));
+  descs.push_back (TestSceneDesc ("teapot2[0-9]", "Teapot Night lighting (area lights)"));
+  descs.push_back (TestSceneDesc ("teapot3[0-9]", "Teapot Daytime lighting (area lights)"));
+  descs.push_back (TestSceneDesc ("teapot4[0-9]", "Teapot Night lighting (overhead light)"));
 
 }
 
@@ -931,32 +931,62 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
       scene.add (new Mesh (mat, msh_file, mi->name));
     }
   
+  unsigned stage     = (num / 100) % 10;
+  unsigned lighting  = (num / 10)  % 10;
+  num %= 10;
+
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
   const Material *gloss_black
     = scene.add (new Mirror (0.3, 0.02, 10));
-  const Material *stage_mat = (num / 10) == 1 ? ivory : gloss_black;
+  const Material *stage_mat = (stage == 1) ? ivory : gloss_black;
 
   add_rect (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10));
 
-  num %= 10;
-
   if (num == 0)
     scene.add (new PointLight (Pos (6, 8, 10), 100));
+  else if (lighting == 0)
+    {
+      // outdoor lighting
+      // This roughly matches Paul Debevec's "RNL" environment map
+
+      // sun
+      scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, 1));
+
+      // sky overhead
+      scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  Color(0.1, 0.1, 0.2)));
+
+      // sky other directions
+      scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  Color(0.3, 0.3, 0.4)));
+      scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  Color(0.2, 0.2, 0.3)));
+      scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  Color(0.2, 0.2, 0.3)));
+      scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  Color(0.05, 0.05, 0.1)));
+    }
   else
     {
-      scene.add (new RectLight (Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150));
-      scene.add (new RectLight (Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150));
-      scene.add (new RectLight (Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 150));
+      // indoor lighting -- big lights on sides and in back
+
+      scene.add (new RectLight (Pos (-15, -5, -5),
+				Vec (0, 10, 0), Vec (0, 0, 10), 150));
+      scene.add (new RectLight (Pos (15, -5, -5),
+				Vec (0, 10, 0), Vec (0, 0, 10), 150));
+      scene.add (new RectLight (Pos (-5, -5, -20),
+				Vec (10, 0, 0), Vec (0, 10, 0), 150));
     }
 
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
   switch (num)
     {
-    default: camera.move (Pos (1.5, 1.7, 10));   break;
-    case 2:  camera.move (Pos (3.13, 1.7, 5.2)); break;
-    case 3:  camera.move (Pos (6, 1.7, 1));      break;
+    default: camera.move (Pos ( 1.5,  1.7, 10));	break;
+    case 2:  camera.move (Pos ( 3.13, 1.7,  5.2));	break;
+    case 3:  camera.move (Pos ( 0,    1.7,  6));	break;
+    case 4:  camera.move (Pos (-3.13, 1.7,  5.2));	break;
+    case 5:  camera.move (Pos (-6,    1.7,  0));	break;
+    case 6:  camera.move (Pos (-3.13, 1.7, -5.2));	break;
+    case 7:  camera.move (Pos ( 0,    1.7, -6));	break;
+    case 8:  camera.move (Pos ( 3.13, 1.7, -5.2));	break;
+    case 9:  camera.move (Pos ( 6,    1.7,  0));	break;
     }
 
   camera.point (Pos (0.37, 0.37, 0.32), Vec (0, 1, 0));
@@ -968,8 +998,10 @@ static void
 add_scene_descs_pretty_dancer (vector<TestSceneDesc> &descs)
 {
   descs.push_back (TestSceneDesc ("pretty-dancer", "Eli's pretty-dancer scene"));
-  descs.push_back (TestSceneDesc ("pretty-dancer-1", "Pretty-dancer with area lights"));
-  descs.push_back (TestSceneDesc ("pretty-dancer-2", "Pretty-dancer closeup with area lights"));
+  descs.push_back (TestSceneDesc ("pretty-dancer-1", "Pretty-dancer with outdoor lighting"));
+  descs.push_back (TestSceneDesc ("pretty-dancer-[2-9]", "Pretty-dancer closeups with outdoor lighting"));
+  descs.push_back (TestSceneDesc ("pretty-dancer-1[1-9]", "Pretty-dancer closeups with indoor lighting"));
+  descs.push_back (TestSceneDesc ("pretty-dancer-1[01][1-9]", "Pretty-dancer with white stage"));
 }
 
 
