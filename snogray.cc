@@ -656,6 +656,8 @@ int main (int argc, char *const *argv)
 			  hr_limit_max_x, hr_limit_max_y,
 			  wire_frame_params);
 
+  long long num_eye_rays = 0;
+
   // Main ray-tracing loop
   //
   Rusage render_beg_ru;
@@ -724,6 +726,8 @@ int main (int argc, char *const *argv)
 	      output_row[x - hr_limit_x] = pix;
 	    }
 	}
+
+      num_eye_rays += (hr_limit_max_x - hr_limit_x);
     }
 
   // In wire-frame mode we output one row behind the calcuation, so in
@@ -758,7 +762,7 @@ int main (int argc, char *const *argv)
       cout << endl;
       cout << "Rendering stats:" << endl;
       cout << "  intersect:" << endl;
-      cout << "     scene calls:       " << setw (14) << commify (sc) << endl;
+      cout << "     rays:              " << setw (14) << commify (sc) << endl;
       cout << "     horizon hint hits: " << setw (14) << commify (hhh)
 	   << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
       cout << "     horizon hint misses:" << setw (13) << commify (hhm)
@@ -782,7 +786,7 @@ int main (int argc, char *const *argv)
 	  long long ot  = sstats.surface_intersects_tests;
 
 	  cout << "  shadow:" << endl;
-	  cout << "     scene tests:       " << setw (14) << commify (sst)
+	  cout << "     rays       :       " << setw (14) << commify (sst)
 	       << endl;
 	  cout << "     shadow hint hits:  " << setw (14) << commify (shh)
 	       << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
@@ -813,8 +817,11 @@ int main (int argc, char *const *argv)
       cout << "  rendering cpu:" << setw (14) << render_time.fmt() << endl;
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time.fmt() << endl;
-      cout << "  rays per second:"
-	   << setw (12) << commify ((sc + sst) / render_time.tv_sec)
+      cout << "  rays per second:    "
+	   << setw (8) << commify ((sc + sst) / render_time.tv_sec)
+	   << endl;
+      cout << "  eye-rays per second:"
+	   << setw (8) << commify (num_eye_rays / render_time.tv_sec)
 	   << endl;
     }
 }
