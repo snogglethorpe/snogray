@@ -813,6 +813,9 @@ int main (int argc, char *const *argv)
       cout << "  rendering cpu:" << setw (14) << render_time.fmt() << endl;
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time.fmt() << endl;
+      cout << "  rays per second:"
+	   << setw (12) << commify ((sc + sst) / render_time.tv_sec)
+	   << endl;
     }
 }
 
