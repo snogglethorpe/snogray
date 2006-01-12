@@ -277,19 +277,35 @@ def_scene_teapot (const string &name, unsigned num,
   // Note that the coordinates in this scene are weird -- it uses Z as
   // "height" rather than depth.
 
+  // Pot
+
   const Material *silver
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
+
+  scene.add (new Mesh (silver, name + ".msh", true));
+
+  // Chessboard
+
   const Material *gloss_black
     = scene.add (new Mirror (0.3, 0.02, 10));
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
   const Material *brown
-    = scene.add (new Material (Color (0.3, 0.2, 0.05)));
+    = scene.add (new Material (Color (0.3, 0.2, 0.05), 25, 0.2));
 
-  scene.add (new Mesh (silver, name + ".msh", true));
   scene.add (new Mesh (gloss_black, "board1.msh"));
   scene.add (new Mesh (ivory, "board2.msh"));
   scene.add (new Mesh (brown, "board3.msh"));
+
+  // Table/ground
+
+  const Material *grey
+    = scene.add (new Material (Color (0.3, 0.2, 0.2), 200, 2));
+  const Material *green
+    = scene.add (new Material (Color (0.1, 0.5, 0.1)));
+
+  add_rect (scene, grey, Pos (14, 14, -1), Vec (-38, 0, 0), Vec (0, -38, 0));
+  add_rect (scene, green, Pos (100, 100, -3), Vec (-200, 0, 0), Vec (0, -200, 0));
 
   switch (num / 10)
     {
@@ -299,7 +315,6 @@ def_scene_teapot (const string &name, unsigned num,
       //scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
       add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
-      scene.set_background (Color (0.01, 0.01, 0.02));
       break;
 
     case 1:
@@ -313,8 +328,8 @@ def_scene_teapot (const string &name, unsigned num,
       /* night-time teapot, area lights */
       add_rect_bulb (scene, Pos (-3.1, 9.8, 12.1), Vec (5, 0, 0), Vec (0, 0, 5),
 		     100),
-      add_rect_bulb (scene, Pos (5, 2, 0), Vec (0, -2, 0), Vec (0, 0, 2),
-		     10 * Color (1, 1, 0.3));
+      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
+		     15 * Color (1, 1, 0.3));
       break;
 
     case 3:
@@ -326,8 +341,8 @@ def_scene_teapot (const string &name, unsigned num,
     case 4:
       /* night-time teapot, area lights, strong overhead */
       add_rect_bulb (scene, Pos (-3, 3, 6), Vec (6, 0, 0), Vec (0, -6, 0), 20);
-      add_rect_bulb (scene, Pos (5, 2, 0), Vec (0, -2, 0), Vec (0, 0, 2),
-		     5 * Color (1, 1, 0.3));
+      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
+		     15 * Color (1, 1, 0.3));
       break;
     }
 
