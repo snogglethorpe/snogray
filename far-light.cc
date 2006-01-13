@@ -75,8 +75,7 @@ FarLight::illum (const Intersect &isec, const Color &surface_color,
 		 const LightModel &light_model, TraceState &tstate)
   const
 {
-  if (isec.normal.dot (dir) > 0
-      || isec.normal.dot (dir + u) > 0
+  if (isec.normal.dot (dir + u) > 0
       || isec.normal.dot (dir - u) > 0
       || isec.normal.dot (dir + v) > 0
       || isec.normal.dot (dir - v) > 0)
