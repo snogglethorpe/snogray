@@ -310,7 +310,8 @@ def_scene_teapot (const string &name, unsigned num,
   switch (num / 10)
     {
     case 0:
-      /* night-time teapot, point lights */
+      // night-time teapot, point lights
+      //
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
       //scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
       add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
@@ -318,14 +319,16 @@ def_scene_teapot (const string &name, unsigned num,
       break;
 
     case 1:
-      /* day-time teapot, point lights */
+      // day-time teapot, point lights
+      //
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 90));
       scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
     case 2:
-      /* night-time teapot, area lights */
+      // night-time teapot, area lights
+      //
       add_rect_bulb (scene, Pos (-3.1, 9.8, 12.1), Vec (5, 0, 0), Vec (0, 0, 5),
 		     100),
       add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
@@ -333,17 +336,26 @@ def_scene_teapot (const string &name, unsigned num,
       break;
 
     case 3:
-      /* day-time teapot, area lights */
+      // day-time teapot, area lights
+      //
       scene.add (new FarLight (Vec (-1, 0.5, 1), 0.05, 1));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
     case 4:
-      /* night-time teapot, area lights, strong overhead */
+      // night-time teapot, area lights, strong overhead
+      //
       add_rect_bulb (scene, Pos (-3, 3, 6), Vec (6, 0, 0), Vec (0, -6, 0), 20);
-      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
-		     15 * Color (1, 1, 0.3));
+      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -1, 0), Vec (0, 0, 1),
+		     5 * Color (1, 1, 0.3));
       break;
+
+    case 5:
+      // surrounding area lights
+      //
+      add_rect_bulb (scene, Pos ( 8,  4, 0), Vec (0, -8, 0), Vec (0, 0, 6), 10);
+      add_rect_bulb (scene, Pos (-8,  4, 0), Vec (0, -8, 0), Vec (0, 0, 6), 10);
+      add_rect_bulb (scene, Pos ( 4, -8, 0), Vec (-8, 0, 0), Vec (0, 0, 6), 10);
     }
 
   if (num % 10 > 0)
