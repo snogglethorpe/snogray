@@ -62,7 +62,7 @@ FarLight::init ()
       v_offs += 1;
     }
 
-  color *= 1 / num_lights;
+  color /= num_lights;
 }
 
 

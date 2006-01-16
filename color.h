@@ -1,6 +1,6 @@
 // color.h -- Color datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -58,6 +58,12 @@ public:
     red *= scale;
     green *= scale;
     blue *= scale;
+  }
+  void operator/= (float denom)
+  {
+    red /= denom;
+    green /= denom;
+    blue /= denom;
   }
 
   float intensity () const { return (red + green + blue) / 3; }
