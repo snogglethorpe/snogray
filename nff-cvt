@@ -19,10 +19,12 @@ BEGIN {
   }
 
   num_vertices = 0
+  num_vertex_normals = 0
   num_materials = 0
   num_triangles = 0
   num_spheres = 0
   p_remaining_verts = 0
+  p_read_normals = 0
 
   bg_col = "0,0,0"
 }
@@ -45,12 +47,28 @@ reading_v { reading_v = 0 }
 p_remaining_verts > 0 {
   if (! msh_file || output_mesh_num == cur_material_index) {
      vert_pos = args3(1)
-     if (vert_pos in vertex_indices)
-       vert_index = vertex_indices[vert_pos]
-     else {
-       vert_index = num_vertices+0
-       vertex_indices[vert_pos] = vert_index
-       vertices[num_vertices++] = vert_pos
+
+     if (p_read_normals) {
+       vert_norm = args3(4)
+       if ((vert_pos in vertex_indices) && vertex_normals[vertex_indices[vert_pos]] == vert_norm)
+         vert_index = vertex_indices[vert_pos]
+       else {
+         vert_index = num_vertices+0
+         vertex_indices[vert_pos] = vert_index
+         vertex_normals[vert_index] = vert_norm
+         vertices[vert_index] = vert_pos
+	 num_vertices++
+	 num_vertex_normals++
+       }
+     } else {
+       if (vert_pos in vertex_indices)
+	 vert_index = vertex_indices[vert_pos]
+       else {
+	 vert_index = num_vertices+0
+	 vertex_indices[vert_pos] = vert_index
+	 vertices[vert_index] = vert_pos
+	 num_vertices++
+       }
      }
 
      p_vert_indices[p_cur_vert++] = vert_index
@@ -141,6 +159,7 @@ $1 == "s" {
 #     [etc. for total_vert_indexices vertices]
 $1 == "p" {
   p_remaining_verts = $2
+  p_read_normals = 0
   p_cur_vert = 0
   next
 }
@@ -161,8 +180,8 @@ $1 == "p" {
 #     pp %d
 #     [ %g %g %g %g %g %g ] <-- for total_vert_indexices vertices
 $1 == "pp" {
-  # just treat as "p" for now
   p_remaining_verts = $2
+  p_read_normals = 1
   p_cur_vert = 0
   next
 }
@@ -181,10 +200,13 @@ function print_test_array_init(kind, param_type, array, len)
   }
 }
 
-function print_split_array(array, len)
+function print_split_array(array, len, default_val)
 {
   for (i = 0; i < len; i++) {
-    val = array[i]
+    if (i in array)
+      val = array[i]
+    else
+      val = default_val
     nvals = split (val, vals, /, */)
     for (j = 1; j <= nvals; j++)
       print vals[j]
@@ -199,10 +221,15 @@ END {
     print num_triangles
 
     print "vertices"
-    print_split_array(vertices, num_vertices)
+    print_split_array(vertices, num_vertices, "0,0,0")
 
     print "triangles"
-    print_split_array(triangles, num_triangles)
+    print_split_array(triangles, num_triangles, "0,0,0")
+
+    if (num_vertex_normals > 0) {
+      print "normals"
+      print_split_array(vertex_normals, num_vertices, "0,0,0")
+    }
 
   } else {
     # output c++ source
