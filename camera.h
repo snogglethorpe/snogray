@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -14,6 +14,7 @@
 
 #include <cmath>
 
+#include "rand.h"
 #include "space.h"
 #include "ray.h"
 
@@ -105,10 +106,21 @@ public:
 
     return Ray (pos, targ);
   }
-  Ray get_ray (unsigned x, unsigned y, unsigned width, unsigned height) const
+  Ray get_ray (unsigned x, unsigned y, unsigned width, unsigned height,
+	       bool jitter = false)
+    const
   {
-    float u = (float)x / (float)width;
-    float v = (float)(height - y) / (float)height;
+    float fx = float (x), fy = float (height - y);
+    
+    if (jitter)
+      {
+	fx += random (1);
+	fy += random (1);
+      }
+
+    float u = fx / (float)width;
+    float v = fy / (float)height;
+
     return get_ray (u, v);
   }
 

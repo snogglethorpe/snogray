@@ -215,6 +215,9 @@ s "                               COLOR is the base color of wires"
 s "                               FILL is the intensity of the scene between wires"
 s "                               BG is the background color"
 n
+s "  -j, --jitter[=REPEAT]      Randomly jitter eye-rays; if REPEAT is specified,"
+s "                               each eye-ray is repeated that many times"
+n
 s " Scene options:"
 s "  -b, --background=BG        Use BG as a background; BG may be a color or a"
 s "                               cube-map specification"
@@ -262,6 +265,7 @@ int main (int argc, char *const *argv)
   //
   static struct option long_options[] = {
     { "background",     required_argument, 0, 'b' },
+    { "jitter",		optional_argument, 0, 'j' },
     { "size",		required_argument, 0, 's' },
     { "multiple",	required_argument, 0, 'm' },
     { "limit",		required_argument, 0, 'l' },
@@ -282,7 +286,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "b:w::s:m:l:qpPI:G:L:T:"
+    "b:j::w::s:m:l:qpPI:G:L:T:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -301,6 +305,7 @@ int main (int argc, char *const *argv)
   WireFrameParams wire_frame_params;
   unsigned multiple = 1;
   float scene_assumed_gamma = 1, scene_light_scale = 1;
+  unsigned jitter = 0;
   const char *bg_cube_spec = 0;
   ImageCmdlineSinkParams image_sink_params (clp);
 
@@ -331,6 +336,13 @@ int main (int argc, char *const *argv)
 	wire_frame = true;
 	if (clp.opt_arg ())
 	  wire_frame_params.parse (clp);
+	break;
+
+      case 'j':
+	if (clp.opt_arg ())
+	  jitter = clp.unsigned_opt_arg ();
+	else
+	  jitter = 1;
 	break;
 
 	//
@@ -711,11 +723,27 @@ int main (int argc, char *const *argv)
 	      // Translate the image position X, Y into a ray radiating from
 	      // the camera.
 	      //
-	      Ray camera_ray = camera.get_ray (x, y, hr_width, hr_height);
+	      Ray camera_ray
+		= camera.get_ray (x, y, hr_width, hr_height, jitter);
 
 	      // Cast the camera ray and calculate image color at that point.
 	      //
 	      Color pix = scene.render (camera_ray, tstate);
+
+	      // If oversampling, send out more rays for this pixel, and
+	      // average the result.
+	      //
+	      if (jitter > 1)
+		{
+		  for (unsigned j = 1; j < jitter; j++)
+		    {
+		      camera_ray
+			= camera.get_ray (x, y, hr_width, hr_height, true);
+		      pix += scene.render (camera_ray, tstate);
+		    }
+
+		  pix /= jitter;
+		}
 
 	      // If necessary undo any bogus gamma-correction embedded in
 	      // the scene lighting.  We'll do proper gamma correct later.
@@ -786,7 +814,7 @@ int main (int argc, char *const *argv)
 	  long long ot  = sstats.surface_intersects_tests;
 
 	  cout << "  shadow:" << endl;
-	  cout << "     rays       :       " << setw (14) << commify (sst)
+	  cout << "     rays:              " << setw (14) << commify (sst)
 	       << endl;
 	  cout << "     shadow hint hits:  " << setw (14) << commify (shh)
 	       << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
