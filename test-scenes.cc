@@ -1007,10 +1007,13 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
     { 0 }
   };
 
-  const string msh_file = "+pretty-dancer.msh";
+  const string msh_file_base = "+pretty-dancer";
+  const string msh_file_ext = ".msh";
 
   for (const SimpleNamedMat *sm = materials; sm->name; sm++)
     {
+      const string msh_file = msh_file_base + "-" + sm->name + msh_file_ext;
+
       const LightModel &lmodel
 	= ((sm->spec.intensity() > Eps)
 	   ? (const LightModel &)Material::phong (sm->phong_exp, sm->spec)
@@ -1022,58 +1025,109 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
     }
   for (const NamedMat *nm = material_refs; nm->name; nm++)
     {
+      const string msh_file = msh_file_base + "-" + nm->name + msh_file_ext;
       scene.add (nm->mat);
       scene.add (new Mesh (nm->mat, msh_file, nm->name));
     }
 
+  bool birthday_card = (num / 1000) > 0;
   unsigned stage     = (num / 100) % 10;
   unsigned lighting  = (num / 10)  % 10;
   num %= 10;
 
   const Material *ivory
-    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+    = scene.add (new Mirror (0.2, Color (1.1, 1, 0.8), 5, 2));
   const Material *gloss_black
     = scene.add (new Mirror (0.3, 0.02, 10));
   const Material *stage_mat = (stage == 1) ? ivory : gloss_black;
 
   add_rect (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10));
+  add_rect (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, -2, 0));
+
+  if (birthday_card)
+    {
+      const Material *text_mat
+	= scene.add (new Mirror (0.2, Color (1.2, 1.2, 0.8), 500, 5));
+      //   const Material *text_mat
+      //     = scene.add (new Mirror (0.3, Color (0.5, 0.6, 0.5), 100, 5));
+      //   //  = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
+
+      scene.add (new Mesh (text_mat, "+eli-birthday.msh"));
+    }
 
   if (num == 0)
     scene.add (new PointLight (Pos (6, 8, 10), 100));
-  else if (lighting == 0)
-    {
-      // outdoor lighting
-      // This roughly matches Paul Debevec's "RNL" environment map
-
-      // sun
-      scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, 1));
-
-      // sky overhead
-      scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  Color(0.1, 0.1, 0.2)));
-
-      // sky other directions
-      scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  Color(0.3, 0.3, 0.4)));
-      scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  Color(0.2, 0.2, 0.3)));
-      scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  Color(0.2, 0.2, 0.3)));
-      scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  Color(0.05, 0.05, 0.1)));
-    }
   else
-    {
-      // indoor lighting -- big lights on sides and in back
+    switch (lighting)
+      {
+      case 0:
+	// outdoor lighting
+	// This roughly matches Paul Debevec's "RNL" environment map
 
-      scene.add (new RectLight (Pos (-15, -5, -5),
-				Vec (0, 10, 0), Vec (0, 0, 10), 150));
-      scene.add (new RectLight (Pos (15, -5, -5),
-				Vec (0, 10, 0), Vec (0, 0, 10), 150));
-      scene.add (new RectLight (Pos (-5, -5, -20),
-				Vec (10, 0, 0), Vec (0, 10, 0), 150));
+	// sun
+	scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, 2));
+
+	// sky overhead
+	scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  Color(0.1, 0.1, 0.2)));
+
+	// sky other directions
+	scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  Color(0.3, 0.3, 0.4)));
+	scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  Color(0.2, 0.2, 0.3)));
+	scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  Color(0.2, 0.2, 0.3)));
+	scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  Color(0.05, 0.05, 0.1)));
+	break;
+
+      case 1:
+	// indoor lighting -- big lights on sides and in back
+
+	add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
+	add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
+	add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 150);
+	break;
+
+      case 2:
+	// like case 2, but with no explicitly visible light objects
+
+	scene.add (new RectLight (Pos (-15, -5, -5),
+				  Vec (0, 10, 0), Vec (0, 0, 10), 150));
+	scene.add (new RectLight (Pos (15, -5, -5),
+				  Vec (0, 10, 0), Vec (0, 0, 10), 150));
+	scene.add (new RectLight (Pos (-5, -5, -20),
+				  Vec (10, 0, 0), Vec (0, 10, 0), 150));
+	break;
+      }
+
+  if (birthday_card)
+    {
+      const Material *shiny_red
+	= scene.add (new Mirror (Color (0.2, 0.05, 0.05),
+				 Color (0.1, 0, 0), 100, 5));
+      const Material *shiny_green
+	= scene.add (new Mirror (Color (0.05, 0.2, 0.05),
+				 Color (0, 0.1, 0), 100, 5));
+      const Material *glass
+	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
+				Material::phong (2000, 1.5)));
+
+      scene.add (new Sphere (shiny_red, Pos (3.2, -2.2 + 0.3, 4.2), 0.3));
+      scene.add (new Sphere (shiny_green, Pos (3.6, -2.2 + 0.1, 4.5), 0.1));
+      scene.add (new Sphere (glass, Pos (4, -2.2 + 0.2, 3), 0.2));
+      scene.add (new Sphere (shiny_green, Pos (-2, -2.2 + 0.3, 3), 0.3));
+      scene.add (new Sphere (glass, Pos (-3.5, -2.2 + 0.2, 2), 0.2));
     }
 
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
   switch (num)
     {
-    default: camera.move (Pos ( 1.5,  1.7, 10));	break;
+    case 0:
+      if (birthday_card)
+	camera.move (Pos (4.51, 2.365, 7.64));
+      else
+	camera.move (Pos ( 1.5,  1.7, 10));
+      break;
+
+    case 1:  camera.move (Pos ( 1.5,  1.7, 10));	break;
     case 2:  camera.move (Pos ( 3.13, 1.7,  5.2));	break;
     case 3:  camera.move (Pos ( 0,    1.7,  6));	break;
     case 4:  camera.move (Pos (-3.13, 1.7,  5.2));	break;
@@ -1086,7 +1140,13 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
 
   camera.point (Pos (0.37, 0.37, 0.32), Vec (0, 1, 0));
 
-  camera.set_vert_fov (M_PI_4);
+  if (birthday_card && num == 0)
+    {
+      camera.move (Vec (0, -2, 0));
+      camera.set_horiz_fov (55 * M_PI_2 / 90);
+    }
+  else
+    camera.set_vert_fov (M_PI_4);
 }
 
 static void
