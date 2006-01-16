@@ -76,7 +76,8 @@ add_rect_bulb (Scene &scene,
 	       const Pos &corner, const Vec &side1, const Vec &side2,
 	       const Color &col = Color::white)
 {
-  const Material *bulb_mat = scene.add (new Glow (col));
+  dist_t area = side1.cross (side2).length ();
+  const Material *bulb_mat = scene.add (new Glow (col / area));
   scene.add (new RectLight (corner, side1, side2, col));
   add_rect (scene, bulb_mat, corner, side1, side2);
 }
@@ -85,7 +86,8 @@ static void
 add_bulb (Scene &scene, const Pos &pos, float radius,
 	  const Color &col = Color::white)
 {
-  const Material *bulb_mat = scene.add (new Glow (col));
+  dist_t area = 4 * M_PI * radius * radius;
+  const Material *bulb_mat = scene.add (new Glow (col / area));
   scene.add (new PointLight (pos, col));
   scene.add (new Sphere (bulb_mat, pos, radius));
 }
@@ -330,7 +332,9 @@ def_scene_teapot (const string &name, unsigned num,
       // night-time teapot, area lights
       //
       add_rect_bulb (scene, Pos (-3.1, 9.8, 12.1), Vec (5, 0, 0), Vec (0, 0, 5),
-		     100),
+		     100);
+      // fall through
+    case 5:
       add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
 		     15 * Color (1, 1, 0.3));
       break;
@@ -349,13 +353,38 @@ def_scene_teapot (const string &name, unsigned num,
       add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -1, 0), Vec (0, 0, 1),
 		     5 * Color (1, 1, 0.3));
       break;
+      
+    case 6:
+      // night-time teapot, area lights, strong front light
+      //
+      add_rect_bulb (scene, Pos (3, 8, 0), Vec (-6, 0, 0), Vec (0, 0, 3), 20);
+      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
+		     15 * Color (1, 1, 0.3));
+      break;
 
-    case 5:
+    case 7:
       // surrounding area lights
       //
-      add_rect_bulb (scene, Pos ( 8,  4, 0), Vec (0, -8, 0), Vec (0, 0, 6), 10);
-      add_rect_bulb (scene, Pos (-8,  4, 0), Vec (0, -8, 0), Vec (0, 0, 6), 10);
-      add_rect_bulb (scene, Pos ( 4, -8, 0), Vec (-8, 0, 0), Vec (0, 0, 6), 10);
+      {
+	// Lights
+
+	float b = 60;
+	dist_t ld = 12, lh = 6, lw = 8;
+	Vec lhv (0, 0, lh);
+
+	add_rect_bulb (scene, Pos( ld,  lw / 2, 0), Vec( 0, -lw, 0), lhv, b);
+	add_rect_bulb (scene, Pos(-ld,  lw / 2, 0), Vec( 0, -lw, 0), lhv, b);
+	add_rect_bulb (scene, Pos( lw / 2, -ld, 0), Vec(-lw,  0, 0), lhv, b);
+
+	// Light bezels
+
+	dist_t bd = ld + 0.1, bh = 1 + lh + 1, bw = lw + 2;;
+	Vec bhv (0, 0, bh);
+
+	add_rect (scene, grey, Pos( bd,  bw / 2, -1), Vec( 0, -bw, 0), bhv);
+	add_rect (scene, grey, Pos(-bd,  bw / 2, -1), Vec( 0, -bw, 0), bhv);
+	add_rect (scene, grey, Pos( bw / 2, -bd, -1), Vec(-bw,  0, 0), bhv);
+      }
     }
 
   if (num % 10 > 0)
@@ -814,12 +843,21 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
 
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
-  if (variant == 2)
-    camera.move (Pos (0, 3, .7));
-  else if (variant == 3)
-    camera.move (Pos (-.1, 1.8, 1.2));
-  else 
-    camera.move (Pos (0, 0, 3)); // original scene#4 camera pos
+  switch (variant % 10)
+    {
+    case 0:
+      // original scene#4 camera pos
+      camera.move (Pos (0, 0, 3));
+      break;
+
+    case 1:
+      camera.move (Pos (0, 3, .7));
+      break;
+
+    case 2:
+      camera.move (Pos (-.1, 1.8, 1.2));
+      break;
+    }
 
   camera.point (Pos (-0.25, -0.07, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
@@ -829,7 +867,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   if (variant == 0)
     red = scene.add (new Material (Color (1, 0, 0))); // original, flat red
   else
-    red = scene.add (new Mirror (0.1, Color (.5, 0, 0), 500)); // glossy red
+    red = scene.add (new Mirror (0.1, Color (.5, 0, 0), 500, 10)); // glossy red
 
   const Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
 
@@ -846,9 +884,23 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
 			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
 			   Pos (10, -0.65, 10)));
   
-  add_bulb (scene, Pos (0, 10, 0), .5, 100);
-  add_bulb (scene, Pos (15, 2, 0), .5, 100);
-  add_bulb (scene, Pos (0, 1, 15), .5, 100);
+  switch ((variant / 10) % 10)
+    {
+    case 0:
+    case 1:
+      add_bulb (scene, Pos (0, 10, 0), .5, 100);
+      add_bulb (scene, Pos (15, 2, 0), .5, 100);
+      add_bulb (scene, Pos (0, 1, 15), .5, 100);
+      break;
+
+    case 2:
+      add_rect_bulb (scene, Pos (-5, 10, -5), Vec(10, 0,0), Vec(0,0, 10), 200);
+      break;
+
+    case 3:
+      add_rect_bulb (scene, Pos (-10, 0, -5), Vec(0, 10,0), Vec(0, 0, 10), 400);
+      break;
+    }
 }
 
 static void
@@ -860,12 +912,13 @@ def_scene_cs465 (const string &name, unsigned num, Scene &scene, Camera &camera)
     case 2: def_scene_cs465_test2 (scene, camera); break;
     case 3: def_scene_cs465_test3 (scene, camera); break;
     case 4: def_scene_cs465_test4 (scene, camera, 0); break;
-      // scenes 5 and 6 are variations on scene 4
-    case 5: def_scene_cs465_test4 (scene, camera, 1); break;
-    case 6: def_scene_cs465_test4 (scene, camera, 2); break;
-    case 7: def_scene_cs465_test4 (scene, camera, 3); break;
+
     default:
-      throw runtime_error ("unknown cs465 test scene");
+      // others are variations on scene 4
+      if (num >= 10)
+	def_scene_cs465_test4 (scene, camera, num);
+      else
+	throw runtime_error ("unknown cs465 test scene");
     }
 }
 
