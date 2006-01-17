@@ -855,7 +855,11 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
       break;
 
     case 2:
-      camera.move (Pos (-.1, 1.8, 1.2));
+      camera.move (Pos (-0.1, 1.8, 1.2));
+      break;
+
+    case 4:
+      camera.move (Pos (10, 3, 10));
       break;
     }
 
