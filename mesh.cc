@@ -414,14 +414,6 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
 		    static_cast<const void *>(&mesh));
 }
 
-// Return true if RAY would hit the back of this surface.
-//
-bool
-Mesh::Triangle::back (const Ray &ray) const
-{
-  return raw_normal_unscaled().dot (ray.dir) > 0;
-}
-
 // Return a bounding box for this surface.
 BBox
 Mesh::Triangle::bbox () const
@@ -449,7 +441,67 @@ Mesh::Triangle::material () const
 const void *
 Mesh::Triangle::smoothing_group () const
 {
-  return static_cast<const void *>(&mesh);
+  // We only need a smoothing group if the mesh uses interpolated normals.
+
+  if (! mesh.vertex_normals.empty ())
+    return static_cast<const void *>(&mesh);
+  else
+    return 0;
+}
+
+// Confirm that this surfaces blocks RAY, which emanates from the
+// intersection ISEC.  DIST is the distance between ISEC and the position
+// where RAY intersects this surface.
+//
+bool
+Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t dist,
+				const Intersect &isec)
+  const
+{
+  if (isec.smoothing_group == static_cast<const void *>(&mesh))
+    {    
+      bool real_back = raw_normal_unscaled().dot (ray.dir) > 0;
+
+      // We only get suspicious about the validity of the shadow if RAY is
+      // coming from a difference surface when we compare the virtual
+      // smoothed normal with the real surface normal.
+      //
+      if (real_back != isec.back)
+	{
+	  const Triangle *other_tri
+	    = static_cast<const Triangle *>(isec.surface);
+	  bool other_back
+	    = other_tri->raw_normal_unscaled().dot (ray.dir) > 0;
+
+	  return real_back == other_back;
+
+#if 0
+	  // Vertex indices of this and the other triangle
+	  //
+	  unsigned v0i = vi[0];
+	  unsigned v1i = vi[1];
+	  unsigned v2i = vi[2];
+	  unsigned ov0i = other_tri->vi[0];
+	  unsigned ov1i = other_tri->vi[1];
+	  unsigned ov2i = other_tri->vi[2];
+
+	  // We check to see if this triangle shares any vertices with the
+	  // other triangle; if so, then if the source intersection was on the
+	  // front/back of OTHER_TRI, we reject shadows if RAY hit the same
+	  // surface (front/back) of this triangle.  Doing this eliminates the
+	  // most common false shadowing cases in smooth meshes.
+
+	  if (v0i == ov0i || v0i == ov1i || v0i == ov2i
+	      || v1i == ov0i || v1i == ov1i || v1i == ov2i
+	      || v2i == ov0i || v2i == ov1i || v2i == ov2i)
+	    return isec.back == other_back;
+#endif
+	}
+    }
+
+  // By default, say the shadow's OK
+  //
+  return true;
 }
 
 

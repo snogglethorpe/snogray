@@ -1,6 +1,6 @@
 // triangle.h -- Triangle surface
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -47,10 +47,6 @@ public:
   virtual Intersect intersect_info (const Ray &ray,
 				    const IsecParams &isec_params)
     const;
-
-  // Return true if RAY would hit the back of this surface.
-  //
-  virtual bool back (const Ray &ray) const;
 
   // Return a bounding box for this surface.
   //

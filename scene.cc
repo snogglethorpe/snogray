@@ -1,6 +1,6 @@
 // scene.cc -- Scene description datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -153,7 +153,7 @@ SceneShadowCallback::operator () (Surface *surface)
     {
       num_tests++;
 
-      if (surface->shadows (light_ray, isec.smoothing_group, isec.back))
+      if (surface->shadows (light_ray, isec))
 	{
 	  shadower = surface;
 
@@ -205,7 +205,7 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
   const Surface *hint = tstate.shadow_hints[light.num];
   if (hint && hint != tstate.origin)
     {
-      if (hint->shadows (light_ray, isec.smoothing_group, isec.back))
+      if (hint->shadows (light_ray, isec))
 	{
 	  stats.shadow_hint_hits++;
 	  return hint;

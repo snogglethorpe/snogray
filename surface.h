@@ -1,6 +1,6 @@
 // surface.h -- Physical surface
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -87,9 +87,7 @@ public:
   // (if true, shadows from the _front_ of an object in the same
   // smoothing-group are rejected).
   //
-  bool shadows (const Ray &ray,
-		const void *smooth_group = 0, bool from_back = false,
-		unsigned num = 0)
+  bool shadows (const Ray &ray, const Intersect &isec, unsigned num = 0)
     const
   {
     IsecParams isec_params;	// not used
@@ -97,14 +95,22 @@ public:
 
     if (dist > 0 && dist < ray.len)
       {
-	if (smooth_group && smoothing_group() == smooth_group)
-	  return from_back == back (ray);
+	if (isec.smoothing_group)
+	  return confirm_shadow (ray, dist, isec);
 
 	return true;
       }
 
     return false;
   }
+
+  // Confirm that this surfaces blocks RAY, which emanates from the
+  // intersection ISEC.  DIST is the distance between ISEC and the position
+  // where RAY intersects this surface.
+  //
+  virtual bool confirm_shadow (const Ray &ray, dist_t dist,
+			       const Intersect &isec)
+  const;
 
   // Return the distance from RAY's origin to the closest intersection
   // of this surface with RAY, or 0 if there is none.  RAY is considered
@@ -132,10 +138,6 @@ public:
   virtual Intersect intersect_info (const Ray &ray,
 				    const IsecParams &isec_params)
     const;
-
-  // Return true if RAY would hit the back of this surface.
-  //
-  virtual bool back (const Ray &ray) const;
 
   // Return a bounding box for this surface.
   //

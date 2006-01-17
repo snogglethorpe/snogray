@@ -1,6 +1,6 @@
 // surface.cc -- Physical surface
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -38,6 +38,17 @@ Surface::smoothing_group () const
   return 0;
 }
 
+// Confirm that this surfaces blocks RAY, which emanates from the
+// intersection ISEC.  DIST is the distance between ISEC and the position
+// where RAY intersects this surface.
+//
+bool
+Surface::confirm_shadow (const Ray &ray, dist_t dist, const Intersect &isec)
+  const
+{
+  return true;
+}
+
 // Stubs -- these should be abstract methods, but C++ doesn't allow a
 // class with abstract methods to be used in a list/vector, so we just
 // signal a runtime error if they're ever called.
@@ -52,7 +63,7 @@ barf ()
 dist_t
 Surface::intersection_distance (const Ray &ray, IsecParams &isec_params, unsigned num) const { barf (); }
 Intersect Surface::intersect_info (const Ray &ray, const IsecParams &isec_params) const { barf (); }
-bool Surface::back (const Ray &ray) const { barf (); }
+
 BBox Surface::bbox () const { barf (); }
 const Material *Surface::material () const { barf (); }
 

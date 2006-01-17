@@ -139,6 +139,14 @@ public:
       vi[2] = triang.vi[2];
     }
 
+    // Confirm that this surfaces blocks RAY, which emanates from the
+    // intersection ISEC.  DIST is the distance between ISEC and the
+    // position where RAY intersects this surface.
+    //
+    virtual bool confirm_shadow (const Ray &ray, dist_t dist,
+				 const Intersect &isec)
+      const;
+
     // Return the distance from RAY's origin to the closest intersection
     // of this surface with RAY, or 0 if there is none.  RAY is considered
     // to be unbounded.
@@ -163,10 +171,6 @@ public:
     virtual Intersect intersect_info (const Ray &ray,
 				      const IsecParams &isec_params)
       const;
-
-    // Return true if RAY would hit the back of this surface.
-    //
-    virtual bool back (const Ray &ray) const;
 
     // Return a bounding box for this surface.
     //
