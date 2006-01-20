@@ -1001,4 +1001,51 @@ After adding trace-state tree, horizon hints:
      total elapsed:     34:30.845
 
 
+   2006-01-18
+   rev: miles@gnu.org--gnu-2005/snogray--devo--0--patch-172
+   cmd: snogray -j -m10 -s1280x1024 test:teapot73 ../images/jitter26.exr
+   * adding mesh: 30,057 vertices, 57,360 triangles
+   * adding mesh: 79 vertices, 64 triangles
+   * adding mesh: 79 vertices, 64 triangles
+   * adding mesh: 8 vertices, 8 triangles
+   * adding mesh: 105,998 vertices, 133,052 triangles
+   * adding mesh: 46,519 vertices, 58,128 triangles
+   * adding mesh: 45,988 vertices, 57,724 triangles
+   * adding mesh: 122,881 vertices, 156,296 triangles
+   * adding mesh: 129,137 vertices, 166,518 triangles
+   Scene:
+      scene:          test:teapot73
+      top-level surfaces:        25
+      lights:                     3
+      materials:                 16
+      voxtree surfaces:   1,560,733 (59% duplicates)
+      voxtree nodes:        403,759 (51% leaves)
+      voxtree avg depth:          7
+      voxtree max depth:         22
+   Image:
+      size:        1280 x 1024 x 10 (12800 x 10240)
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:                 239,014,459
+	horizon hint hits:    178,931,499 (74%)
+	horizon hint misses:   13,119,914 ( 5%)
+	voxtree node calls:12,337,357,013 ( 0%)
+	surface calls:     12,396,014,129 ( 0%)
+     shadow:
+	rays:              10,840,826,850
+	shadow hint hits:     904,839,153 ( 8%)
+	shadow hint misses: 3,697,198,249 (34%)
+	voxtree node tests:489,860,263,845 ( 0%)
+	surface tests:     577,457,831,977 ( 0%)
+   Time:
+     scene def cpu:         4.559
+     rendering cpu:  52:51:17.873
+     total elapsed:  56:27:42.507
+     rays per second:      58,230
+     eye-rays per second:     688
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
