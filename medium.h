@@ -12,7 +12,7 @@
 #ifndef __MEDIUM_H__
 #define __MEDIUM_H__
 
-#include "space.h"
+#include "coords.h"
 #include "color.h"
 
 namespace Snogray {

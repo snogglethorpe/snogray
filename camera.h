@@ -15,7 +15,7 @@
 #include <cmath>
 
 #include "rand.h"
-#include "space.h"
+#include "coords.h"
 #include "ray.h"
 
 namespace Snogray {

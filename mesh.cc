@@ -540,7 +540,7 @@ Mesh::compute_vertex_normals ()
 // Add this (or some other ...) surfaces to SPACE
 //
 void
-Mesh::add_to_space (Voxtree &space)
+Mesh::add_to_space (Space &space)
 {
   std::cout << "* adding mesh: " << commify (vertices.size ()) << " vertices"
 	    << ", " << commify (triangles.size ()) << " triangles"

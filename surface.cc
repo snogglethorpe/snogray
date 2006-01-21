@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 #include "surface.h"
-#include "voxtree.h"
+#include "space.h"
 
 using namespace Snogray;
 
@@ -21,7 +21,7 @@ Surface::~Surface () { } // stop gcc bitching
 // Add this (or some other ...) surfaces to SPACE
 //
 void
-Surface::add_to_space (Voxtree &space)
+Surface::add_to_space (Space &space)
 {
   space.add (this);
 }

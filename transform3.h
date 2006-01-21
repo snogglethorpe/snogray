@@ -15,7 +15,7 @@
 #include <cmath>
 #include <memory>
 
-#include "space.h"
+#include "coords.h"
 
 namespace Snogray {
 

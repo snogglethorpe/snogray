@@ -1,4 +1,4 @@
-// voxtree.cc -- Voxel tree datatype (hierarchically arranges 3D space)
+// octree.cc -- Voxel tree datatype (hierarchically arranges 3D space)
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,13 +9,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "voxtree.h"
+#include "octree.h"
 
 using namespace Snogray;
 using namespace std;
-
-
-Voxtree::IntersectCallback::~IntersectCallback () { } // stop gcc bitching
 
 
 // Ray intersection testing
@@ -25,7 +22,7 @@ Voxtree::IntersectCallback::~IntersectCallback () { } // stop gcc bitching
 // directly on the resulting surfaces).
 //
 void
-Voxtree::for_each_possible_intersector (const Ray &ray,
+Octree::for_each_possible_intersector (const Ray &ray,
 					IntersectCallback &callback)
   const
 {
@@ -98,7 +95,7 @@ Voxtree::for_each_possible_intersector (const Ray &ray,
 // calculation at all.
 //
 void
-Voxtree::Node::for_each_possible_intersector (const Ray &ray,
+Octree::Node::for_each_possible_intersector (const Ray &ray,
 					      IntersectCallback &callback,
 					      const Pos &x_min_isec,
 					      const Pos &x_max_isec,
@@ -272,12 +269,12 @@ Voxtree::Node::for_each_possible_intersector (const Ray &ray,
 }
 
 
-// Voxtree construction
+// Octree construction
 
-// Add SURFACE to the voxtree
+// Add SURFACE to the octree
 //
 void
-Voxtree::add (Surface *surface, const BBox &surface_bbox)
+Octree::add (Surface *surface, const BBox &surface_bbox)
 {
   num_real_surfaces++;
 
@@ -310,7 +307,7 @@ Voxtree::add (Surface *surface, const BBox &surface_bbox)
       size = surface_bbox.max_size ();
 
 #if 0
-      cout << "made initial voxtree root at " << origin
+      cout << "made initial octree root at " << origin
 	   << ", size = " << size << endl;
 #endif
 
@@ -322,12 +319,12 @@ Voxtree::add (Surface *surface, const BBox &surface_bbox)
     }
 }
 
-// The current root of this voxtree is too small to encompass SURFACE;
+// The current root of this octree is too small to encompass SURFACE;
 // add surrounding levels of nodes until one can hold SURFACE, and make that
 // the new root node.
 //
 void
-Voxtree::grow_to_include (Surface *surface, const BBox &surface_bbox)
+Octree::grow_to_include (Surface *surface, const BBox &surface_bbox)
 {
   // New root node
   //
@@ -396,7 +393,7 @@ Voxtree::grow_to_include (Surface *surface, const BBox &surface_bbox)
   size *= 2;
 
 #if 0
-  cout << "grew voxtree root to size: " << size << endl;
+  cout << "grew octree root to size: " << size << endl;
   cout << "   new origin is: " << origin << endl;
 #endif
 
@@ -419,14 +416,14 @@ Voxtree::grow_to_include (Surface *surface, const BBox &surface_bbox)
 // This function is "eager": it splits empty nodes to find the smallest
 // possible node for each new surface.  Not only does this simplify the
 // algorithm, but it should also be more efficient for intersection
-// testing -- testing whether a ray intersects a voxtree node for is a
+// testing -- testing whether a ray intersects a octree node for is a
 // lot more efficient testing even simple surfaces, so the increased
 // possibility of rejecting a ray without calling an surface's
 // intersection routine is worth a fair number of levels of sparsely
-// populated voxtree levels.
+// populated octree levels.
 // 
 void
-Voxtree::Node::add (Surface *surface, const BBox &surface_bbox,
+Octree::Node::add (Surface *surface, const BBox &surface_bbox,
 		    coord_t x, coord_t y, coord_t z, dist_t size)
 {
   dist_t sub_size = size / 2;
@@ -446,7 +443,7 @@ Voxtree::Node::add (Surface *surface, const BBox &surface_bbox,
   // taking a gamble that the risk of multiple calls to their
   // intersection method (because such forced surfaces will be present in
   // multiple subnodes) is outweighed by a much closer fit with the
-  // descendent node they eventually end up in, allowing the voxtree to
+  // descendent node they eventually end up in, allowing the octree to
   // reject more rays before reaching them.
   //
   bool force_into_subnodes = surface_bbox.avg_size() < size / 4;
@@ -578,7 +575,7 @@ Voxtree::Node::add (Surface *surface, const BBox &surface_bbox,
 
 
 
-Voxtree::Node::~Node ()
+Octree::Node::~Node ()
 {
   if (x_lo_y_lo_z_lo)
     delete x_lo_y_lo_z_lo;
@@ -600,11 +597,20 @@ Voxtree::Node::~Node ()
 
 
 // Statistics gathering
+Space::Stats
+Octree::stats () const
+{
+  Stats stats;
+  if (root)
+    root->upd_stats (stats);
+  stats.num_dup_surfaces = stats.num_surfaces - num_real_surfaces;
+  return stats;
+}
 
 // Update STATS to reflect this node.
 //
 void
-Voxtree::Node::upd_stats (Stats &stats) const
+Octree::Node::upd_stats (Stats &stats) const
 {
   unsigned num_subnodes = 0;
 

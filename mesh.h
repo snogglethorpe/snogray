@@ -107,7 +107,7 @@ public:
 
   // Add this (or some other ...) surfaces to SPACE
   //
-  virtual void add_to_space (Voxtree &space);
+  virtual void add_to_space (Space &space);
 
   //
   void compute_vertex_normals ();

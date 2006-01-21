@@ -1,4 +1,4 @@
-// voxtree.h -- Voxel tree datatype (hierarchically arranges 3D space)
+// octree.h -- Voxel tree datatype (hierarchically arranges 3D space)
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,113 +9,56 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __VOXTREE_H__
-#define __VOXTREE_H__
+#ifndef __OCTREE_H__
+#define __OCTREE_H__
 
 #include <list>
 
 #include "pos.h"
-#include "surface.h"
+#include "space.h"
 
 namespace Snogray {
 
-class Voxtree
+class Octree : public Space
 {
 public:
 
-  Voxtree () : root (0), num_real_surfaces (0) { }
+  Octree () : root (0), num_real_surfaces (0) { }
 
-  // Add SURFACE to the voxtree
+  // Add SURFACE to the octree
   //
-  void add (Surface *surface, const BBox &surface_bbox);
-  void add (Surface *surface) { add (surface, surface->bbox ()); }
-    
-  // Statistics for a voxtree
-  //
-  struct Stats
-  {
-    Stats ()
-      : num_nodes (0), num_leaf_nodes (0),
-	num_surfaces (0), num_dup_surfaces (0),
-	max_depth (0), avg_depth (0)
-    { }
-
-    unsigned long num_nodes;
-    unsigned long num_leaf_nodes;
-    unsigned long num_surfaces;
-    unsigned long num_dup_surfaces;
-    unsigned max_depth;
-    float avg_depth;
-  };
-
-  // Statistics for runtime intersections
-  //
-  struct IsecStats
-  {
-    IsecStats () : node_intersect_calls (0) { }
-
-    unsigned long long node_intersect_calls;
-  };
-
-  // A callback for `for_each_possible_intersector'.  Users of
-  // `for_each_possible_intersector' must subclass this, providing their
-  // own operator() method, and adding any extra data fields they need.
-  //
-  struct IntersectCallback
-  {
-    IntersectCallback (IsecStats *_stats)
-      : stop (false), stats (_stats)
-    { }
-
-    virtual ~IntersectCallback (); // stop gcc bitching
-
-    virtual void operator() (Surface *) = 0;
-
-    void stop_iteration () { stop = true; }
-
-    // If set to true, return from iterator immediately
-    bool stop;
-
-    // This is used for stats gathering
-    IsecStats *stats;
-  };
+  virtual void add (Surface *surface, const BBox &surface_bbox);
 
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
   // directly on the resulting surfaces).
   //
-  void for_each_possible_intersector (const Ray &ray,
-				      IntersectCallback &callback)
+  virtual void for_each_possible_intersector (const Ray &ray,
+					      IntersectCallback &callback)
     const;
 
-  // Return various statistics about this voxtree
+  // Return various statistics about this octree
   //
-  Stats stats () const
-  {
-    Stats stats;
-    if (root)
-      root->upd_stats (stats);
-    stats.num_dup_surfaces = stats.num_surfaces - num_real_surfaces;
-    return stats;
-  }
+  virtual Stats stats () const;
 
-  // One corner of the voxtree
+  // One corner of the octree
   //
   Pos origin;
 
-  // The size of the voxtree (in all dimensions)
+  // The size of the octree (in all dimensions)
   //
   dist_t size;
 
+
 private:  
 
-  // The current root of this voxtree is too small to encompass SURFACE;
+  // The current root of this octree is too small to encompass SURFACE;
   // add surrounding levels of nodes until one can hold SURFACE, and make that
   // the new root node.
   //
   void grow_to_include (Surface *surface, const BBox &surface_bbox);
 
-  // A voxtree node is one level of the tree, containing a cubic volume
+  // A octree node is one level of the tree, containing a cubic volume
   // (the size is not explicitly stored in the node).  It is divided
   // into 8 equally-sized sub-nodes by splitting the node equally along
   // each axis.
@@ -194,13 +137,13 @@ private:
   //
   Node *root;
 
-  // The number of "real" surfaces added to the voxtree.
+  // The number of "real" surfaces added to the octree.
   //
   unsigned long num_real_surfaces;
 };
 
 }
 
-#endif /* __VOXTREE_H__ */
+#endif /* __OCTREE_H__ */
 
 // arch-tag: 0b44a400-1a03-4967-ac84-a8984a4f2752

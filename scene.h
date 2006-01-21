@@ -20,7 +20,7 @@
 #include "light.h"
 #include "intersect.h"
 #include "material.h"
-#include "voxtree.h"
+#include "octree.h"
 #include "trace-state.h"
 #include "camera.h"
 
@@ -171,7 +171,7 @@ public:
   Surface *add (Surface *surface)
   {
     surfaces.push_back (surface);
-    surface->add_to_space (surface_voxtree);
+    surface->add_to_space (space);
     return surface;
   }
 
@@ -225,8 +225,8 @@ public:
     unsigned long long horizon_hint_hits;
     unsigned long long horizon_hint_misses;
     unsigned long long surface_intersects_tests;
-    Voxtree::IsecStats voxtree_intersect;
-    Voxtree::IsecStats voxtree_shadow;
+    Space::IsecStats space_intersect;
+    Space::IsecStats space_shadow;
   } stats;
 
   std::list<Surface *> surfaces;
@@ -239,7 +239,7 @@ public:
   Color bg_color;
   const Cubetex *bg_cube;
 
-  Voxtree surface_voxtree;
+  Octree space;
 
   unsigned max_depth;
 

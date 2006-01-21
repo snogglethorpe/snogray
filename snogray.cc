@@ -539,7 +539,7 @@ int main (int argc, char *const *argv)
   // Only used if !quiet, but it's more convenient to calculate here so we
   // can use inside different if blocks below.
   //
-  Voxtree::Stats vstats = scene.surface_voxtree.stats ();
+  Space::Stats tstats = scene.space.stats ();
 
   // Maybe print lots of useful information
   //
@@ -565,18 +565,18 @@ int main (int argc, char *const *argv)
       cout << "   materials:       "
 	   << setw (12) << commify (scene.materials.size ()) << endl;
 
-      cout << "   voxtree surfaces:  "
-	   << setw (10) << commify (vstats.num_surfaces)
-	   << " (" << (vstats.num_dup_surfaces * 100 / vstats.num_surfaces)
+      cout << "   tree surfaces:     "
+	   << setw (10) << commify (tstats.num_surfaces)
+	   << " (" << (tstats.num_dup_surfaces * 100 / tstats.num_surfaces)
 	   << "% duplicates)" << endl;
-      cout << "   voxtree nodes:   "
-	   << setw (12) << commify (vstats.num_nodes)
-	   << " (" << (vstats.num_leaf_nodes * 100 / vstats.num_nodes)
+      cout << "   tree nodes:      "
+	   << setw (12) << commify (tstats.num_nodes)
+	   << " (" << (tstats.num_leaf_nodes * 100 / tstats.num_nodes)
 	   << "% leaves)" << endl;
-      cout << "   voxtree avg depth:   "
-	   << setw (8) << int (vstats.avg_depth) << endl;
-      cout << "   voxtree max depth:  "
-	   << setw (9) << vstats.max_depth << endl;
+      cout << "   tree avg depth:      "
+	   << setw (8) << int (tstats.avg_depth) << endl;
+      cout << "   tree max depth:     "
+	   << setw (9) << tstats.max_depth << endl;
 
       // Print image info
 
@@ -784,11 +784,11 @@ int main (int argc, char *const *argv)
   if (! quiet)
     {
       Scene::Stats &sstats = scene.stats;
-      Voxtree::IsecStats &vistats1 = sstats.voxtree_intersect;
-      Voxtree::IsecStats &vistats2 = sstats.voxtree_shadow;
+      Space::IsecStats &tistats1 = sstats.space_intersect;
+      Space::IsecStats &tistats2 = sstats.space_shadow;
 
       long long sc  = sstats.scene_intersect_calls;
-      long long vnc = vistats1.node_intersect_calls;
+      long long tnc = tistats1.node_intersect_calls;
       long long ocic = sstats.surface_intersect_calls;
       long long hhh = sstats.horizon_hint_hits;
       long long hhm = sstats.horizon_hint_misses;
@@ -796,17 +796,17 @@ int main (int argc, char *const *argv)
       cout << endl;
       cout << "Rendering stats:" << endl;
       cout << "  intersect:" << endl;
-      cout << "     rays:              " << setw (14) << commify (sc) << endl;
-      cout << "     horizon hint hits: " << setw (14) << commify (hhh)
+      cout << "     rays:            " << setw (16) << commify (sc) << endl;
+      cout << "     horizon hint hits:" << setw (15) << commify (hhh)
 	   << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
       cout << "     horizon hint misses:" << setw (13) << commify (hhm)
 	   << " (" << setw(2) << (100 * hhm / sc) << "%)" << endl;
-      if (vstats.num_nodes != 0)
-	cout << "     voxtree node calls:" << setw (14) << commify (vnc)
-	     << " (" << setw(2) << (100 * vnc / (sc * vstats.num_nodes)) << "%)" << endl;
-      if (vstats.num_surfaces != 0)
-	cout << "     surface calls:     " << setw (14) << commify (ocic)
-	     << " (" << setw(2) << (100 * ocic / (sc * vstats.num_surfaces)) << "%)" << endl;
+      if (tstats.num_nodes != 0)
+	cout << "     tree node tests: " << setw (16) << commify (tnc)
+	     << " (" << setw(2) << (100 * tnc / (sc * tstats.num_nodes)) << "%)" << endl;
+      if (tstats.num_surfaces != 0)
+	cout << "     surface tests:   " << setw (16) << commify (ocic)
+	     << " (" << setw(2) << (100 * ocic / (sc * tstats.num_surfaces)) << "%)" << endl;
 
       long long sst = sstats.scene_shadow_tests;
 
@@ -816,13 +816,13 @@ int main (int argc, char *const *argv)
 	  long long shm = sstats.shadow_hint_misses;
 	  long long sss = sstats.scene_slow_shadow_traces;
 	  long long oss = sstats.surface_slow_shadow_traces;
-	  long long vnt = vistats2.node_intersect_calls;
+	  long long tnt = tistats2.node_intersect_calls;
 	  long long ot  = sstats.surface_intersects_tests;
 
 	  cout << "  shadow:" << endl;
-	  cout << "     rays:              " << setw (14) << commify (sst)
+	  cout << "     rays:            " << setw (16) << commify (sst)
 	       << endl;
-	  cout << "     shadow hint hits:  " << setw (14) << commify (shh)
+	  cout << "     shadow hint hits:" << setw (16) << commify (shh)
 	       << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
 	  cout << "     shadow hint misses:" << setw (14) << commify (shm)
 	       << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
@@ -831,13 +831,13 @@ int main (int argc, char *const *argv)
 		 << " (" << setw(2) << (100 * sss / sst) << "%"
 		 << "; average depth = " << (float (oss) / float (sss)) << ")"
 		 << endl;
-	  if (vstats.num_nodes != 0)
-	    cout << "     voxtree node tests:" << setw (14) << commify (vnt)
-		 << " (" <<setw(2) << (100 * vnt / (vstats.num_nodes * (sst - shh))) << "%)"
+	  if (tstats.num_nodes != 0)
+	    cout << "     tree node tests: " << setw (16) << commify (tnt)
+		 << " (" <<setw(2) << (100 * tnt / (tstats.num_nodes * (sst - shh))) << "%)"
 		 << endl;
-	  if (vstats.num_surfaces != 0)
-	    cout << "     surface tests:     " << setw (14) << commify (ot)
-		 << " (" <<setw(2) << (100 * ot / (vstats.num_surfaces * (sst - shh))) << "%)"
+	  if (tstats.num_surfaces != 0)
+	    cout << "     surface tests:   " << setw (16) << commify (ot)
+		 << " (" <<setw(2) << (100 * ot / (tstats.num_surfaces * (sst - shh))) << "%)"
 		 << endl;
 	}
 

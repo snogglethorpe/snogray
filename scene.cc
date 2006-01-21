@@ -34,11 +34,11 @@ Scene::~Scene ()
 // "Closest" intersection testing (tests all surfaces for intersection
 // with a ray, returns the distance to the closest intersection)
 
-struct SceneClosestIntersectCallback : Voxtree::IntersectCallback
+struct SceneClosestIntersectCallback : Space::IntersectCallback
 {
   SceneClosestIntersectCallback (Ray &_ray, IsecParams &_isec_params,
 				 TraceState &_tstate, 
-				 Voxtree::IsecStats *stats = 0)
+				 Space::IsecStats *stats = 0)
     : IntersectCallback (stats), ray (_ray), isec_params (_isec_params),
       closest (0), tstate (_tstate), num_calls (0)
   { }
@@ -80,15 +80,15 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, TraceState &tstate)
 {
   stats.scene_intersect_calls++;
 
-  // Make a callback, and call it for each surface in the voxtree that may
-  // intersect the ray.
+  // Make a callback, and call it for each surface that may intersect
+  // the ray.
 
   SceneClosestIntersectCallback
-    closest_isec_cb (ray, isec_params, tstate, &stats.voxtree_intersect);
+    closest_isec_cb (ray, isec_params, tstate, &stats.space_intersect);
 
-  // If there's a horizon hint, try to use it to reduce the horizon before
-  // searching -- voxtree searching can dramatically improve given a
-  // limited search space.
+  // If there's a horizon hint, try to use it to reduce the horizon
+  // before searching -- space searching can dramatically improve given
+  // a limited search space.
   //
   const Surface *hint = tstate.horizon_hint;
   if (hint)
@@ -102,7 +102,7 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, TraceState &tstate)
 	stats.horizon_hint_misses++;
     }
 
-  surface_voxtree.for_each_possible_intersector (ray, closest_isec_cb);
+  space.for_each_possible_intersector (ray, closest_isec_cb);
 
   stats.surface_intersect_calls += closest_isec_cb.num_calls;
 
@@ -116,11 +116,11 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, TraceState &tstate)
 
 // Shadow intersection testing
 
-struct SceneShadowCallback : Voxtree::IntersectCallback
+struct SceneShadowCallback : Space::IntersectCallback
 {
   SceneShadowCallback (const Light &_light, const Ray &_light_ray,
 		       const Intersect &_isec,
-		       TraceState &_tstate, Voxtree::IsecStats *stats = 0)
+		       TraceState &_tstate, Space::IsecStats *stats = 0)
     : IntersectCallback (stats), 
       light (_light), light_ray (_light_ray), isec (_isec),
       shadower (0), tstate (_tstate), num_tests (0)
@@ -219,9 +219,9 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
     }
 
   SceneShadowCallback
-    shadow_cb (light, light_ray, isec, tstate, &stats.voxtree_shadow);
+    shadow_cb (light, light_ray, isec, tstate, &stats.space_shadow);
 
-  surface_voxtree.for_each_possible_intersector (light_ray, shadow_cb);
+  space.for_each_possible_intersector (light_ray, shadow_cb);
 
   stats.surface_intersects_tests += shadow_cb.num_tests;
 

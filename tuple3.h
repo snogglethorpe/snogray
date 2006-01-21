@@ -12,7 +12,7 @@
 #ifndef __TUPLE3_H__
 #define __TUPLE3_H__
 
-#include "space.h"
+#include "coords.h"
 #include "transform3.h"
 
 namespace Snogray {
