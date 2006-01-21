@@ -480,22 +480,31 @@ def_scene_orange (const string &name, unsigned num,
   scene.add (new Mesh (ivory, "board2.msh"));
   scene.add (new Mesh (brown, "board3.msh"));
 
-  if ((num & 1) == 0)
-    /* night-time orange */
+  unsigned lighting  = (num / 10) % 10;
+  num = (num % 10);
+
+  switch (lighting)
     {
+    case 0:
+      // night-time orange
       scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
       add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
-      scene.set_background (Color (0.01, 0.01, 0.02));
-    }
-  else
-    /* day-time orange */
-    {
-      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 90));
-      scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
+      break;
+
+    case 1:
+      // day-time orange
+      scene.add (new FarLight (Vec (-1, 0.5, 1), 0.05, 1));
+      scene.add (new FarLight (Vec (0, 1, 0), 1, 1));
       scene.set_background (Color (0.078, 0.361, 0.753));
+      break;
+
+    case 2:
+      // night-time orange 2
+      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
+		     15 * Color (1, 1, 0.3));
+      break;
     }
-  num /= 2;
 
   dist_t max_err = 0.0002;
   bool smooth = true;
