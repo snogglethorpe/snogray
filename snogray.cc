@@ -502,6 +502,12 @@ int main (int argc, char *const *argv)
 	clp.err (err.what ());
       }
 
+  // To avoid annoying artifacts in cases where the camera is looking
+  // exactly along an axis, always perturb the camera position just a
+  // litttle bit.
+  //
+  camera.move (Vec (Eps, Eps, Eps));
+
   Rusage scene_end_ru;		// stop timing scene definition
 
 
