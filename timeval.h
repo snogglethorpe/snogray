@@ -1,6 +1,6 @@
 // timeval.h -- Time measurement
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -27,6 +27,8 @@ struct Timeval : timeval
 
   Timeval (const timeval &tv) : timeval (tv) { }
   Timeval (time_t sec, unsigned long usec) { tv_sec = sec; tv_usec = usec; }
+
+  operator double () const { return tv_sec + (double)tv_usec / 1000000.0; }
 
   Timeval operator- (const Timeval &tv2) const
   {
