@@ -1,6 +1,6 @@
 // pos.h -- Position datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -64,11 +64,11 @@ public:
     x -= p2.x; y -= p2.y; z -= p2.z;
   }
 
-  TPos operator* (const Transform3<T> &xform) const
+  TPos operator* (const Matrix4<T> &xform) const
   {
     return TPos (Tuple3<T>::operator* (xform));
   }
-  const TPos &operator*= (const Transform3<T> &xform)
+  const TPos &operator*= (const Matrix4<T> &xform)
   {
     TPos temp = *this * xform;
     *this = temp;

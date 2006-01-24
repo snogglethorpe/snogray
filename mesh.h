@@ -22,6 +22,7 @@
 #include "primary-surface.h"
 #include "tessel.h"
 #include "pos.h"
+#include "xform.h"
 
 namespace Snogray {
 
@@ -40,24 +41,25 @@ public:
 
   // All-in-one constructor for loading a mesh from a file.
   //
-  Mesh (const Material *mat, const std::string &file_name, bool smooth = false)
+  Mesh (const Material *mat, const std::string &file_name,
+	const Xform &xform = Xform::identity, bool smooth = false)
     : PrimarySurface (mat), triangles (0, *this)
   {
-    load (file_name);
+    load (file_name, xform);
     if (smooth)
       compute_vertex_normals ();
   }
-  Mesh (const Material *mat, const std::string &file_name,
+  Mesh (const Material *mat, const std::string &file_name, const Xform &xform,
 	const std::string &mat_name)
     : PrimarySurface (mat), triangles (0, *this)
   {
-    load (file_name, mat_name);
+    load (file_name, xform, mat_name);
   }
   Mesh (const Material *mat, const std::string &file_name,
-	const char *mat_name)
+	const Xform &xform, const char *mat_name)
     : PrimarySurface (mat), triangles (0, *this)
   {
-    load (file_name, mat_name);
+    load (file_name, xform, mat_name);
   }
 
   // All-in-one constructor for a tessellated mesh.
@@ -95,15 +97,18 @@ public:
 
   // For loading mesh from any file-type (automatically determined)
   //
-  void load (const char *file_name, const std::string &mat_name = "");
-  void load (const std::string &file_name, const std::string &mat_name = "")
+  void load (const char *file_name, const Xform &xform = Xform::identity,
+	     const std::string &mat_name = "");
+  void load (const std::string &file_name, const Xform &xform = Xform::identity,
+	     const std::string &mat_name = "")
   {
-    load (file_name.c_str (), mat_name);
+    load (file_name.c_str (), xform, mat_name);
   }
 
   // For loading mesh from .msh file
   //
-  void load_msh_file (std::istream &stream, const std::string &mat_name = "");
+  void load_msh_file (std::istream &stream, const Xform &xform,
+		      const std::string &mat_name = "");
 
   // Add this (or some other ...) surfaces to SPACE
   //

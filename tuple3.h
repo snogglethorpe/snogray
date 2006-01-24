@@ -1,6 +1,6 @@
 // tuple3.h -- Base class for positions and vectors
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -13,7 +13,7 @@
 #define __TUPLE3_H__
 
 #include "coords.h"
-#include "transform3.h"
+#include "matrix4.h"
 
 namespace Snogray {
 
@@ -53,7 +53,7 @@ public:
     x /= denom; y /= denom; z /= denom;
   }
 
-  Tuple3<T> operator* (const Transform3<T> &xform) const
+  Tuple3<T> operator* (const Matrix4<T> &xform) const
   {
     return
       Tuple3<T> (
@@ -72,7 +72,7 @@ public:
 	);
   }
 
-  const Tuple3<T> &operator*= (const Transform3<T> &xform)
+  const Tuple3<T> &operator*= (const Matrix4<T> &xform)
   {
     Tuple3<T> temp = *this * xform;
     *this = temp;

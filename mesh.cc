@@ -166,7 +166,8 @@ Mesh::add (const Tessel::Function &tessel_fun,
 // Generic mesh-file loading
 
 void
-Mesh::load (const char *file_name, const string &mat_name)
+Mesh::load (const char *file_name, const Xform &xform,
+	    const string &mat_name)
 {
   ifstream stream (file_name);
 
@@ -182,7 +183,7 @@ Mesh::load (const char *file_name, const string &mat_name)
 	  file_ext++;
 
 	if (strcmp (file_ext, "msh") == 0 || strcmp (file_ext, "mesh") == 0)
-	  load_msh_file (stream, mat_name);
+	  load_msh_file (stream, xform, mat_name);
       }
     catch (std::runtime_error &err)
       {
@@ -198,7 +199,8 @@ Mesh::load (const char *file_name, const string &mat_name)
 // .msh mesh-file format
 
 void
-Mesh::load_msh_file (istream &stream, const string &mat_name)
+Mesh::load_msh_file (istream &stream, const Xform &xform,
+		     const string &mat_name)
 {
   char kw[50];
   bool skip = false;
@@ -229,14 +231,14 @@ Mesh::load_msh_file (istream &stream, const string &mat_name)
 
       for (unsigned i = 0; i < num_vertices; i++)
 	{
-	  coord_t x, y, z;
+	  Pos pos;
 
-	  stream >> x;
-	  stream >> y;
-	  stream >> z;
+	  stream >> pos.x;
+	  stream >> pos.y;
+	  stream >> pos.z;
 
 	  if (! skip)
-	    add_vertex (SPos (x, y, z));
+	    add_vertex (pos * xform);
 	}
 
       stream >> kw;
@@ -275,16 +277,18 @@ Mesh::load_msh_file (istream &stream, const string &mat_name)
 	  if (! skip)
 	    vertex_normals.reserve (base_vert + num_vertices);
 
+	  Xform norm_xform = xform.inverse().transpose();
+
 	  for (unsigned i = 0; i < num_vertices; i++)
 	    {
-	      dist_t x, y, z;
+	      Vec norm;
 
-	      stream >> x;
-	      stream >> y;
-	      stream >> z;
+	      stream >> norm.x;
+	      stream >> norm.y;
+	      stream >> norm.z;
 
 	      if (! skip)
-		vertex_normals.push_back (SVec (x, y, z));
+		vertex_normals.push_back (norm * norm_xform);
 	    }
 
 	  stream >> kw;

@@ -1032,13 +1032,13 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
 
       const Material *mat = scene.add (new Material (sm->diff, lmodel));
 
-      scene.add (new Mesh (mat, msh_file, sm->name));
+      scene.add (new Mesh (mat, msh_file, Xform::identity, sm->name));
     }
   for (const NamedMat *nm = material_refs; nm->name; nm++)
     {
       const string msh_file = msh_file_base + "-" + nm->name + msh_file_ext;
       scene.add (nm->mat);
-      scene.add (new Mesh (nm->mat, msh_file, nm->name));
+      scene.add (new Mesh (nm->mat, msh_file, Xform::identity, nm->name));
     }
 
   bool birthday_card = (num / 1000) > 0;
@@ -1305,11 +1305,10 @@ add_scene_descs_tessel (vector<TestSceneDesc> &descs)
 }
 
 
-// Test scene for looking at blender objects -- Z axis vertical, range
-// roughly -1 - 1 on each axis
+// Test scene for looking at meshes
 
 static void
-def_scene_blend (const string &name, unsigned num,
+def_scene_mesh (const string &name, unsigned num,
 		 Scene &scene, Camera &camera)
 {
   unsigned lighting  = (num / 100) % 10;
@@ -1320,23 +1319,23 @@ def_scene_blend (const string &name, unsigned num,
     {
     case 0:
     default:
-      camera.move (Pos (1, 0.5, 1.5));
+      camera.move (Pos (1, 1, 0.5));
       break;
 
     case 1:
-      camera.move (Pos (1, 0.5, 1));
+      camera.move (Pos (1, 0.5, 0.5));
       break;
 
     case 2:
-      camera.move (Pos (5, 3, 5));
+      camera.move (Pos (5, 3, 3));
       break;
     }
 
-  camera.point (Pos (0, 0, 0.5), Vec (0, 0, 1));
+  camera.point (Pos (0, 0.3, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
 
   const Material *gloss_green
-    = scene.add (new Mirror (0.1, Color (0, .5, 0), 500, 10)); // glossy green
+    = scene.add (new Mirror (0.1, Color (0, .5, 0), 500)); // glossy green
   const Material *glass
     = scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
 			    Material::phong (2000, 1.5)));
@@ -1356,34 +1355,40 @@ def_scene_blend (const string &name, unsigned num,
       break;
     }
 
-  scene.add (new Mesh (obj_mat, "+blend.msh", true));
+  Xform xform;
+  xform.scale (1, 1, -1); // flip z-axis
+  xform.scale (4);
+  xform.rotate_y (-M_PI_2);
+  xform.translate (0, -0.15, 0);
+
+  scene.add (new Mesh (obj_mat, "+test.msh", xform, true));
   
-  add_rect (scene, floor_mat, Pos (-10, -10, 0), Vec(20, 0, 0), Vec(0, 20, 0));
+  add_rect (scene, floor_mat, Pos (-10, 0, -10), Vec(20, 0, 0), Vec(0, 0, 20));
 
   switch (lighting)
     {
     case 0:
-      scene.add (new PointLight (Pos (  10, 0,  10), 500));
+      scene.add (new PointLight (Pos (  10, 10,  0), 500));
       break;
 
     case 1:
-      add_rect_bulb (scene, Pos (-3, -3, 5), Vec (6, 0, 0), Vec (0, 6, 0), 150);
+      add_rect_bulb (scene, Pos (-3, 5, -3), Vec (6, 0, 0), Vec (0, 0, 6), 150);
       break;
 
     case 2:
-      add_rect_bulb (scene, Pos (-7, -7, 6), Vec (14, 0, 0), Vec (0, 14, 0), 800);
+      add_rect_bulb (scene, Pos (-7, 6, -7), Vec (14, 0, 0), Vec (0, 0, 14), 800);
       break;
 
     case 3:
-      add_rect_bulb (scene, Pos (-8, -5, 0), Vec (0, 10, 0), Vec (0, 0, 4), 250);
+      add_rect_bulb (scene, Pos (-8, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 250);
       break;
     }
 }
 
 static void
-add_scene_descs_blend (vector<TestSceneDesc> &descs)
+add_scene_descs_mesh (vector<TestSceneDesc> &descs)
 {
-  descs.push_back (TestSceneDesc ("blend[0-3][0-3][0-1]", "Blender mesh test"));
+  descs.push_back (TestSceneDesc ("mesh[0-3][0-3][0-1]", "Mesher mesh test"));
 }
 
 
@@ -1409,8 +1414,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 
   if (name == "miles")
     def_scene_miles (name, num, scene, camera);
-  else if (name == "blend")
-    def_scene_blend (name, num, scene, camera);
+  else if (name == "mesh")
+    def_scene_mesh (name, num, scene, camera);
   else if (name == "teapot")
     def_scene_teapot (name, num, scene, camera);
   else if (name == "orange")
@@ -1442,7 +1447,7 @@ Snogray::list_test_scenes ()
   add_scene_descs_cs465 (descs);
   add_scene_descs_pretty_dancer (descs);
   add_scene_descs_tessel (descs);
-  add_scene_descs_blend (descs);
+  add_scene_descs_mesh (descs);
 
   return descs;
 }
