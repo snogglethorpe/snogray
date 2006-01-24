@@ -851,11 +851,11 @@ int main (int argc, char *const *argv)
       cout << "  rendering cpu:" << setw (14) << render_time.fmt() << endl;
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time.fmt() << endl;
-      cout << "  rays per second:    "
-	   << setw (8) << commify ((sc + sst) / render_time.tv_sec)
+      double rps = (double)(sc + sst) / render_time;
+      double erps = (double)num_eye_rays / render_time;
+      cout << "  rays per second:    " << setw (8) << commify ((long long)rps)
 	   << endl;
-      cout << "  eye-rays per second:"
-	   << setw (8) << commify (num_eye_rays / render_time.tv_sec)
+      cout << "  eye-rays per second:" << setw (8) << commify ((long long)erps)
 	   << endl;
     }
 }
