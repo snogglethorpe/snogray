@@ -25,7 +25,7 @@ public:
 
   // Default is identity transformation
   //
-  TXform () { }
+  TXform (T scale = 1) : Matrix4<T> (scale) { }
 
   // A vector/position yields a translation
   //
@@ -40,27 +40,6 @@ public:
     el (3, 0) = vec.x;
     el (3, 1) = vec.y;
     el (3, 2) = vec.z;
-  }
-
-  // A scalar scales by that much
-  //
-  TXform (float scale)
-  {
-    el (0, 0) = scale;
-    el (1, 1) = scale;
-    el (2, 2) = scale;
-  }
-  TXform (double scale)
-  {
-    el (0, 0) = scale;
-    el (1, 1) = scale;
-    el (2, 2) = scale;
-  }
-  TXform (int scale)
-  {
-    el (0, 0) = scale;
-    el (1, 1) = scale;
-    el (2, 2) = scale;
   }
 
   // Allow easy down-casting from a raw matrix
@@ -136,7 +115,7 @@ public:
 
   TXform &scale (T scale)
   {
-    *this *= scaling (scale);
+    *this *= scale;
     return *this;
   }
   TXform &scale (T s_x, T s_y, T s_z)
