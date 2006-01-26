@@ -82,13 +82,13 @@ public:
   {
     Matrix4 result;
     result (0, 0) = el (0, 0); result (0, 1) = el (1, 0);
-    result (0, 3) = el (3, 0); result (0, 3) = el (3, 0);
+    result (0, 2) = el (2, 0); result (0, 3) = el (3, 0);
     result (1, 0) = el (0, 1); result (1, 1) = el (1, 1);
-    result (1, 3) = el (3, 1); result (1, 3) = el (3, 1);
+    result (1, 2) = el (2, 1); result (1, 3) = el (3, 1);
     result (2, 0) = el (0, 2); result (2, 1) = el (1, 2);
-    result (2, 3) = el (3, 2); result (2, 3) = el (3, 2);
+    result (2, 2) = el (2, 2); result (2, 3) = el (3, 2);
     result (3, 0) = el (0, 3); result (3, 1) = el (1, 3);
-    result (3, 3) = el (3, 3); result (3, 3) = el (3, 3);
+    result (3, 2) = el (2, 3); result (3, 3) = el (3, 3);
     return result;
   }
 
