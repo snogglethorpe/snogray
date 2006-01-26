@@ -272,19 +272,18 @@ static void
 def_scene_teapot (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
 {
-  // Teapot mesh and coords come from .nff file
+  // The teapot and board meshes were originally produced as a .nff file by
+  // the SPD package, which uses Z as the vertical axis.  This transform
+  // mutates them into our preferred coordinate system.
   //
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
-
-  // Note that the coordinates in this scene are weird -- it uses Z as
-  // "height" rather than depth.
+  Xform mesh_xform = Xform::x_rotation (-M_PI_2).scale (-1, 1, 1);
 
   // Pot
 
   const Material *silver
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
 
-  scene.add (new Mesh (silver, name + ".msh", true));
+  scene.add (new Mesh (silver, name + ".msh", mesh_xform, true));
 
   // Chessboard
 
@@ -295,9 +294,9 @@ def_scene_teapot (const string &name, unsigned num,
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05), 25, 0.2));
 
-  scene.add (new Mesh (gloss_black, "board1.msh"));
-  scene.add (new Mesh (ivory, "board2.msh"));
-  scene.add (new Mesh (brown, "board3.msh"));
+  scene.add (new Mesh (gloss_black, "board1.msh", mesh_xform));
+  scene.add (new Mesh (ivory, "board2.msh", mesh_xform));
+  scene.add (new Mesh (brown, "board3.msh", mesh_xform));
 
   // Table/ground
 
@@ -306,59 +305,59 @@ def_scene_teapot (const string &name, unsigned num,
   const Material *green
     = scene.add (new Material (Color (0.1, 0.5, 0.1)));
 
-  add_rect (scene, grey, Pos (14, 14, -1), Vec (-38, 0, 0), Vec (0, -38, 0));
-  add_rect (scene, green, Pos (100, 100, -3), Vec (-200, 0, 0), Vec (0, -200, 0));
+  add_rect (scene, grey, Pos (-14, -1, -14), Vec (38, 0, 0), Vec (0, 0, 38));
+  add_rect (scene, green, Pos (-100, -3, -100), Vec (200, 0, 0), Vec (0, 0, 200));
 
   switch (num / 10)
     {
     case 0:
       // night-time teapot, point lights
       //
-      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
-      //scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 5));
-      add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
-      add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
+      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 100));
+      //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
+      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 4 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (1, 4, 2), 0.2, 4 * Color (1, 1, 0.3));
       break;
 
     case 1:
       // day-time teapot, point lights
       //
-      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 90));
-      scene.add (new PointLight (Pos (11.3, 5.1, 8.8), 50));
+      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 90));
+      scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 50));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
     case 2:
       // night-time teapot, area lights
       //
-      add_rect_bulb (scene, Pos (-3.1, 9.8, 12.1), Vec (5, 0, 0), Vec (0, 0, 5),
+      add_rect_bulb (scene, Pos (3.1, 12.1, -9.8), Vec (-5, 0, 0), Vec (0, 5, 0),
 		     100);
       // fall through
     case 5:
-      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
+      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
 		     15 * Color (1, 1, 0.3));
       break;
 
     case 3:
       // day-time teapot, area lights
       //
-      scene.add (new FarLight (Vec (-1, 0.5, 1), 0.05, 1));
+      scene.add (new FarLight (Vec (1, 1, -0.5), 0.05, 1));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
     case 4:
       // night-time teapot, area lights, strong overhead
       //
-      add_rect_bulb (scene, Pos (-3, 3, 6), Vec (6, 0, 0), Vec (0, -6, 0), 20);
-      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -1, 0), Vec (0, 0, 1),
+      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 20);
+      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 1), Vec (0, 1, 0),
 		     5 * Color (1, 1, 0.3));
       break;
       
     case 6:
       // night-time teapot, area lights, strong front light
       //
-      add_rect_bulb (scene, Pos (3, 8, 0), Vec (-6, 0, 0), Vec (0, 0, 3), 20);
-      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
+      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 20);
+      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
 		     15 * Color (1, 1, 0.3));
       break;
 
@@ -368,22 +367,22 @@ def_scene_teapot (const string &name, unsigned num,
       {
 	// Lights
 
-	float b = 60;
-	dist_t ld = 12, lh = 6, lw = 8;
-	Vec lhv (0, 0, lh);
+	float b = 60;			// brightness
+	dist_t ld = 12, lh = 6, lw = 8; // distance (from origin), height, width
+	Vec lhv (0, lh, 0);		// height vector
 
-	add_rect_bulb (scene, Pos( ld,  lw / 2, 0), Vec( 0, -lw, 0), lhv, b);
-	add_rect_bulb (scene, Pos(-ld,  lw / 2, 0), Vec( 0, -lw, 0), lhv, b);
-	add_rect_bulb (scene, Pos( lw / 2, -ld, 0), Vec(-lw,  0, 0), lhv, b);
+	add_rect_bulb (scene, Pos(-ld,     0, -lw / 2), Vec(0,  0, lw), lhv, b);
+	add_rect_bulb (scene, Pos( ld,     0, -lw / 2), Vec(0,  0, lw), lhv, b);
+	add_rect_bulb (scene, Pos(-lw / 2, 0,      ld), Vec(lw, 0,  0), lhv, b);
 
 	// Light bezels
 
 	dist_t bd = ld + 0.1, bh = 1 + lh + 1, bw = lw + 2;;
-	Vec bhv (0, 0, bh);
+	Vec bhv (0, bh, 0);
 
-	add_rect (scene, grey, Pos( bd,  bw / 2, -1), Vec( 0, -bw, 0), bhv);
-	add_rect (scene, grey, Pos(-bd,  bw / 2, -1), Vec( 0, -bw, 0), bhv);
-	add_rect (scene, grey, Pos( bw / 2, -bd, -1), Vec(-bw,  0, 0), bhv);
+	add_rect (scene, grey, Pos(-bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
+	add_rect (scene, grey, Pos( bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
+	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
       }
     }
 
@@ -403,13 +402,13 @@ def_scene_teapot (const string &name, unsigned num,
       switch (num % 10)
 	{
 	case 1:
-	  scene.add (mottle_ball (orange, Pos (3, 2, 1), 1, max_err));
+	  scene.add (mottle_ball (orange, Pos (-3, 1, -2), 1, max_err));
 	  break;
 	case 2:
-	  scene.add (new Sphere (glass, Pos (3, 2, 0.5), 0.5));
+	  scene.add (new Sphere (glass, Pos (-3, 0.5, -2), 0.5));
 	  break;
 	case 3:
-	  scene.add (mottle_ball (gold, Pos (3, 2, 0.6), 0.6, max_err));
+	  scene.add (mottle_ball (gold, Pos (-3, 0.6, -2), 0.6, max_err));
 	  break;
 	}
 
@@ -423,15 +422,15 @@ def_scene_teapot (const string &name, unsigned num,
 	= scene.add (new Material (Color (0.3, 0.3, 1.2), 500));
 
       dist_t r1 = 0.65, r2 = 0.40;
-      scene.add (mottle_ball (blue,   Pos ( 1.5,  3.3, r2), r2, max_err));
-      scene.add (mottle_ball (green,  Pos (-3,    1.2, r2), r2, max_err));
-      scene.add (mottle_ball (yellow, Pos (-2.2,  3.1, r1), r1, max_err));
-      scene.add (mottle_ball (red,    Pos ( 2.3, -1.7, r1), r1, max_err));
+      scene.add (mottle_ball (blue,   Pos (- 1.5, r2, -3.3), r2, max_err));
+      scene.add (mottle_ball (green,  Pos (3, r2, -1.2), r2, max_err));
+      scene.add (mottle_ball (yellow, Pos (2.2, r1, -3.1), r1, max_err));
+      scene.add (mottle_ball (red,    Pos (- 2.3, r1, 1.7), r1, max_err));
     }
 
   camera.set_vert_fov (M_PI_4 * 0.9);
-  camera.move (Pos (4.86, 7.2, 5.4));
-  camera.point (Pos (0, -0.2, 0), Vec (0, 0, 1));
+  camera.move (Pos (-4.86, 5.4, -7.2));
+  camera.point (Pos (0, 0, 0.2), Vec (0, 1, 0));
 }
 
 static void
