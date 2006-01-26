@@ -121,7 +121,7 @@ public:
       + el(0,0) * el(1,1) * el(2,2) * el(3,3);
   }
 
-  Matrix4 inverse () const
+  Matrix4 adjoint () const
   {
     Matrix4<T> result;
 
@@ -190,7 +190,12 @@ public:
       + el(0,2)*el(1,0)*el(2,1) - el(0,0)*el(1,2)*el(2,1)
       - el(0,1)*el(1,0)*el(2,2) + el(0,0)*el(1,1)*el(2,2);
 
-    return result * (1 / det ());
+    return result;
+  }
+
+  Matrix4 inverse () const
+  {
+    return adjoint () * (1 / det ());
   }
 
 private:
