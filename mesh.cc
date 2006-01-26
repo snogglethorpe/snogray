@@ -277,7 +277,26 @@ Mesh::load_msh_file (istream &stream, const Xform &xform,
 	  if (! skip)
 	    vertex_normals.reserve (base_vert + num_vertices);
 
-	  Xform norm_xform = xform.inverse().transpose();
+	  // Calculate a variant of XFORM suitable for transforming
+	  // normals.
+	  //
+	  // Generally the transform used to scale normals is the transpose
+	  // of the inverse of the geometry transform.  We use the matrix
+	  // adjoint instead of the inverse, for two reasons:
+	  //
+	  //  (1) As we must re-normalize the normals anyway (in case the
+	  //      transform included a non-uniform scale factor), the
+	  //      adjoint (which is just the inverse scaled by the matrix
+	  //      determinant) is good enough
+	  //
+	  //  (2) More subtly, if the transform includes an odd number of
+	  //      mirroring operations, it will change the handedness of
+	  //      the polygons, and we want to flip the normal in response;
+	  //      as the determinant of the transform will be negative in
+	  //      such cases, using the adjoint does exactly the right
+	  //      thing, flipping the normal when we want it to be flipped.
+	  //
+	  Xform norm_xform = xform.adjoint().transpose();
 
 	  for (unsigned i = 0; i < num_vertices; i++)
 	    {
@@ -288,7 +307,7 @@ Mesh::load_msh_file (istream &stream, const Xform &xform,
 	      stream >> norm.z;
 
 	      if (! skip)
-		vertex_normals.push_back (norm * norm_xform);
+		vertex_normals.push_back ((norm * norm_xform).unit ());
 	    }
 
 	  stream >> kw;
