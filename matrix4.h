@@ -52,7 +52,7 @@ public:
     return result;
   }
 
-  template<typename T2> Matrix4 operator* (const T2 scale) const
+  Matrix4 operator* (T scale) const
   {
     Matrix4<T> result;
     for (unsigned i = 0; i < 4; i++)
@@ -69,6 +69,12 @@ public:
   const Matrix4 &operator*= (T scale)
   {
     *this = *this * scale;
+    return *this;
+  }
+
+  Matrix4 &invert ()
+  {
+    *this = this->inverse ();
     return *this;
   }
 

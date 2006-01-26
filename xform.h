@@ -14,6 +14,7 @@
 
 #include "matrix4.h"
 #include "coords.h"
+#include "pos.h"
 #include "vec.h"
 
 namespace Snogray {
