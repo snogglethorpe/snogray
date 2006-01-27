@@ -305,10 +305,31 @@ def_scene_teapot (const string &name, unsigned num,
   const Material *green
     = scene.add (new Material (Color (0.1, 0.5, 0.1)));
 
-  add_rect (scene, grey, Pos (-14, -1, -14), Vec (38, 0, 0), Vec (0, 0, 38));
-  add_rect (scene, green, Pos (-100, -3, -100), Vec (200, 0, 0), Vec (0, 0, 200));
+  switch ((num / 100) % 10)
+    {
+    case 0:
+      // green ground plane, wide grey "table"
+      //
+      add_rect (scene, grey, Pos (-14, -1, -14), Vec (38, 0, 0), Vec (0, 0, 38));
+      add_rect (scene, green, Pos (-100, -3, -100), Vec (200, 0, 0), Vec (0, 0, 200));
+      break;
 
-  switch (num / 10)
+    case 1:
+      // Narrow grey "plinth"
+      //
+      {
+	dist_t tw = 16;
+	Pos t_near (-tw / 2, -1, -tw / 2), t_far (tw / 2, -1, tw / 2);
+	add_rect (scene, grey, t_near, Vec (tw, 0, 0), Vec (0, 0, tw));
+	add_rect (scene, grey, t_near, Vec (tw, 0, 0), Vec (0, -tw, 0));
+	add_rect (scene, grey, t_near, Vec (0, 0, tw), Vec (0, -tw, 0));
+	add_rect (scene, grey, t_far, Vec (-tw, 0, 0), Vec (0, -tw, 0));
+	add_rect (scene, grey, t_far, Vec (0, 0, -tw), Vec (0, -tw, 0));
+      }
+      break;
+    }
+
+  switch ((num / 10) % 10)
     {
     case 0:
       // night-time teapot, point lights
@@ -384,6 +405,18 @@ def_scene_teapot (const string &name, unsigned num,
 	add_rect (scene, grey, Pos( bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
 	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
       }
+      break;
+
+    case 8:
+      // Far-lights on top and two sides.  This roughly matches Paul
+      // Debevec's "grace cathedral" environment map.
+      //
+      scene.add (new FarLight (Vec ( 0, 1,  0), 0.2, 0.2));
+      scene.add (new FarLight (Vec ( 0, 1, -1), 2,   0.075));
+      scene.add (new FarLight (Vec ( 0, 1,  1), 2,   0.075));
+      scene.add (new FarLight (Vec (-1, 0.05,  0), 0.2, Color (.9, .7, .3)));
+      scene.add (new FarLight (Vec ( 1, 0.05,  0), 0.05, 0.4));
+      break;
     }
 
   if (num % 10 > 0)
