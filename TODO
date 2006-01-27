@@ -26,12 +26,6 @@ Todo list for snogray
      http://scienceworld.wolfram.com/physics/FresnelEquations.html
 
 
- [XXX]
- + Make mirror reflections use light-model
-
-     [Is this correct?] [Probably not]
-
-
  + Get rid of seams at corners of cube-maps.  This is caused by the fact
    that the face textures run from edge to edge, and there is no
    interpolation at the edge of two adjoining faces.
@@ -62,7 +56,7 @@ Todo list for snogray
      initialized just like a color, resulting in a 0 Texture pointer).
 
      Pigment has a "color(...)" method, which takes an a texture-map and
-     a location, and returns a color by using the texure-map to map the
+     a location, and returns a color by using the texture-map to map the
      location into texture coordinates, and looking them in the texture
      (if the pigment's texture is 0 of course, return its color).
 
@@ -84,7 +78,8 @@ Todo list for snogray
      superclass with textures?
 
 
- + Abstract voxtree into a more generic "space division" datatype
+ [DONE]
+ + Abstract voxtree into a more generic "space division" data-type
 
      Allow experimenting with different implementations, e.g., KD-trees.
      [This might fit well with the voxtree generalization below.]
@@ -102,7 +97,7 @@ Todo list for snogray
 
        * Bounding-box-sub-nodes nodes:  instead of a simple octree,
 	 children nodes can have an arbitrary bounding box -- this is
-	 good for the case where the child(ren) has a dramtically
+	 good for the case where the child(ren) has a dramatically
 	 different scale, as degenerate long single chains of octree
 	 nodes can be avoided (the "teapot in a stadium" problem)
 
@@ -117,42 +112,47 @@ Todo list for snogray
      z-hi/lo respectively.  Then when starting the search at the
      top-level, we compute a quick "first check" index according to the
      rough direction of the ray we're searching for.  When iterating
-     over subnodes in the octree, we can simply do:
+     over sub-nodes in the octree, we can simply do:
 
 	for (index_mask = 0; index_mask < 8; index_mask)
 	  search_subnode (subnodes[ray_start_index ^ index_mask]);
 
 
+ [DONE]
  + Soft shadows
 
-     Lights can have an associated object.  When calculating lighting
-     from a given light, send out a sampling of rays to its object's
-     bounding box (vary number of samples based on "importance" -- goes
-     down for increased tracing depths; maybe also based on distance
-     from cameras).
+     RectLight, FarLight.
+
+
+ + Importance sampling
+
+     Add method to Material class to supply a jittered set of rays
+     (given a desired number of rays as input) corresponding to the
+     Material's BRDF.  The output should be efficient for large number
+     of rays (e.g. ~1000) so it can be re-sampled to combine it with
+     another importance function, so each element in the set should just
+     be something like <reflectance, direction> (the origin is implied). 
+
+
+ + Make mirror reflections use light-model
+
+     Use importance sampling.
+
+
+ + Lighting from environment map
+
+     Use importance resampling to combine the BRDF importance function
+     with an importance function for the whole environment map (one
+     hemisphere?).
+
+     See "Bidirectional Importance Sampling for Direct Illumination",
+     http://www.cs.ubc.ca/~dburke/downloads/EGSR05-Bidir_Importance.pdf
 
 
  + Global Illumination.
 
      Probably use "photon mapping", as described by Henrik Wann Jensen.
      See http://graphics.ucsd.edu/~henrik/papers/ewr7/
-
-     ["Metropolitan transport"?]
-
-
- + A "cubelight" which treats an environment map as a real light source
-
-     Maybe this can be done as part of photon mapping?
-     Also, "structured importance sampling";
-     See http://graphics.ucsd.edu/papers/structured/
-
-     Ideas:  Scan environment map constructing other maps with useful
-     info like: + the "hemisphere brightness" at every point; + a
-     "brightness gradient" to somehow perturb random sampling towards
-     bright light sources...
-
-     As an easier alternative, maybe simply scan environment for bright
-     areas and add them as normal light sources.
 
 
  + Better light management to handle huge numbers of lights.
