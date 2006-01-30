@@ -17,6 +17,7 @@
 #include "rand.h"
 #include "coords.h"
 #include "ray.h"
+#include "xform.h"
 
 namespace Snogray {
 
@@ -37,22 +38,45 @@ public:
 
   Camera (const Pos &_pos = DEFAULT_POS,
 	  float aspect = DEFAULT_ASPECT_RATIO,
-	  float horiz_fov = DEFAULT_HORIZ_FOV)
-    : pos (_pos), user_up (Vec (0, 1, 0)),
-      forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
-      z_mode (Z_INCREASES_FORWARD), fov_x (horiz_fov)
+	  float horiz_fov = DEFAULT_HORIZ_FOV);
+
+  // Move the camera to absolution position POS
+  //
+  void move (const Pos &_pos) { pos = _pos; }
+  void move (const Vec &offs) { pos += offs; }
+
+  // Point at TARG, using the old "up" direction if not specified.
+  //
+  void point (const Pos &targ, const Vec &_user_up)
   {
-    set_aspect_ratio (aspect);
+    point (targ - pos, _user_up);
+  }
+  void point (const Pos &targ)
+  {
+    point (targ, user_up);
   }
 
-  void move (const Pos &_pos) { pos = _pos; }
-  void move (const Vec &vec) { pos += vec; }
-
+  // Point at the target with offset VEC from the camera location, using
+  // the old "up" direction if not specified.
+  //
   void point (const Vec &vec, const Vec &_user_up)
+  {
+    target_dist = vec.length ();
+    _point (vec.unit(), _user_up);
+  }
+  void point (const Vec &vec)
+  {
+    point (vec, user_up);
+  }
+
+  // Point the camera in direction DIR.  DIR is assumed to be a unit
+  // vector; the target distance is left unchanged.
+  //
+  void _point (const Vec &dir, const Vec &_user_up)
   {
     user_up = _user_up;
 
-    forward = vec.unit ();
+    forward = dir.unit ();
 
     right = _user_up.cross (forward).unit ();
     up = forward.cross (right).unit ();
@@ -60,40 +84,50 @@ public:
     if (z_mode == Z_DECREASES_FORWARD)
       right = -right;
   }
-  void point (const Pos &targ, const Vec &_user_up)
-  {
-    point (targ - pos, _user_up);
-  }
-  void point (const Vec &vec)
-  {
-    point (vec, user_up);
-  }
-  void point (const Pos &targ)
-  {
-    point (targ, user_up);
-  }
+
+  // Change the current camera direction according to the rotational
+  // transform ROT_XFORM (ROT_XFORM is assume to be a pure rotational
+  // transform -- no scaling, no translation).
+  //
+  void rotate (const Xform &rot_xform);
+
+  // Apply XFORM with the target at the origin, then move target back to
+  // original location.
+  //
+  void orbit (const Xform &xform);
+
+  // This moves the camera such that if the rest of the scene is
+  // transformed with the same matrix XFORM, the apparent view will not
+  // change.
+  //
+  void transform (const Xform &xform);
 
   void set_aspect_ratio (float ratio)
-  {
+   {
     aspect_ratio = ratio;
-    fov_y = fov_x / ratio;
-    tan_half_fov_x = tan (fov_x / 2);
-    tan_half_fov_y = tan (fov_y / 2);
+    set_horiz_fov (fov_x);	// x fov remains constant, while y fov changes
   }
 
   void set_horiz_fov (float fov)
   {
     fov_x = fov;
-    fov_y = fov_x / aspect_ratio;
     tan_half_fov_x = tan (fov_x / 2);
-    tan_half_fov_y = tan (fov_y / 2);
+    tan_half_fov_y = tan_half_fov_x / aspect_ratio;
+    fov_y = atan (tan_half_fov_y) * 2;
   }
   void set_vert_fov (float fov)
   {
     fov_y = fov;
-    fov_x = fov * aspect_ratio;
-    tan_half_fov_x = tan (fov_x / 2);
     tan_half_fov_y = tan (fov_y / 2);
+    tan_half_fov_x = tan_half_fov_y * aspect_ratio;
+    fov_x = atan (tan_half_fov_x) * 2;
+  }
+  void zoom (float magnification)
+  {
+    tan_half_fov_x /= magnification;
+    tan_half_fov_y /= magnification;
+    fov_x = atan (tan_half_fov_x) * 2;
+    fov_y = atan (tan_half_fov_y) * 2;
   }
 
   Ray get_ray (float u, float v) const
@@ -140,11 +174,15 @@ public:
 
   Vec forward, up, right;
 
+  // How far it is to the "target".  Mainly used for the "orbit" methods.
+  //
+  dist_t target_dist;
+
   // How the Z axis behaves with respect to the camera
   //
   enum z_mode z_mode;
 
-  float aspect_ratio; /* horiz / vert */
+  float aspect_ratio;		// horiz / vert
 
   float fov_x, fov_y;
   float tan_half_fov_x, tan_half_fov_y;
