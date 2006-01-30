@@ -48,13 +48,13 @@ public:
   template<typename T2>
   TXform (const Matrix4<T2> &m) : Matrix4<T> (m) { }
 
-  static TXform translation (const Vec &offs)
+  static TXform translation (const TVec<T> &offs)
   {
     return TXform (offs);
   }
   static TXform translation (dist_t x, dist_t y, dist_t z)
   {
-    return TXform (Vec (x, y, z));
+    return TXform (TVec<T> (x, y, z));
   }
 
   static TXform scaling (T scale)
@@ -111,6 +111,11 @@ public:
   TXform &translate (dist_t x, dist_t y, dist_t z)
   {
     *this *= translation (x, y, z);
+    return *this;
+  }
+  TXform &translate (const TVec<T> &offs)
+  {
+    *this *= translation (offs);
     return *this;
   }
 
