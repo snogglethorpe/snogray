@@ -1,6 +1,6 @@
 // wire-frame.h -- Wire-frame output support
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -60,8 +60,8 @@ public:
 
   WireFrameRendering (const Scene &_scene, const Camera &_camera,
 		      unsigned _width, unsigned _height,
-		      unsigned _min_x = 0, unsigned _min_y = 0,
-		      unsigned _lim_x = 0, unsigned _lim_y = 0,
+		      unsigned _min_x, unsigned _min_y,
+		      unsigned _lim_x, unsigned _lim_y,
 		      const WireFrameParams &_params)
     : scene (_scene), camera (_camera), width (_width), height (_height),
       min_x (_min_x), min_y (_min_y), lim_x (_lim_x), lim_y (_lim_y),

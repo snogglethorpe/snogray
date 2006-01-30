@@ -1,6 +1,6 @@
 // glass.h -- Glass (transmissive, reflective) material
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -25,7 +25,7 @@ public:
     : Mirror (reflectance, col, lmodel), medium (_medium)
   { }
   Glass (Medium _medium, Color reflectance,
-	 const Color &col = Color::white, float phong_exp)
+	 const Color &col = Color::white, float phong_exp = 1)
     : Mirror (reflectance, col, phong_exp), medium (_medium)
   { }
 
