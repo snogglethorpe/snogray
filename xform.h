@@ -103,9 +103,24 @@ public:
     return xform;
   }
 
-  static TXform rotation (T x_angle, T y_angle, T z_angle)
+  static TXform rotation (TVec<T> axis, T angle)
   {
-    return x_rotation (x_angle) * y_rotation (y_angle) * z_rotation (z_angle);
+    TXform xform;
+
+    T dx = axis.x, dy = axis.y, dz = axis.z;
+
+    T roll  = -atan2 (dx, sqrt (dy * dy + dz * dz));
+    T pitch =  atan2 (dz, dy);
+
+    xform.rotate_x (-pitch);
+    xform.rotate_z (-roll);
+
+    xform.rotate_y (angle);
+
+    xform.rotate_z (roll);
+    xform.rotate_x (pitch);
+
+    return xform;
   }
 
   TXform &translate (dist_t x, dist_t y, dist_t z)
@@ -145,9 +160,9 @@ public:
     *this *= z_rotation (angle);
     return *this;
   }
-  TXform &rotate (T x_angle, T y_angle, T z_angle)
+  TXform &rotate (TVec<T> axis, T angle)
   {
-    *this *= rotation (x_angle, y_angle, z_angle);
+    *this *= rotation (axis, angle);
     return *this;
   }
 
