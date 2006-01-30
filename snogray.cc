@@ -414,11 +414,10 @@ s "                               r[xyz] A    Rotate A degrees around [xyz]-axis
 s "                               o[xyz] A    Orbit A degrees around [xyz]-axis"
 n
 s "  -w, --wire-frame[=PARAMS]  Output in \"wire-frame\" mode; PARAMS has the form"
-s "                               [TINT][/COLOR][:FILL][%BG] (default: 0.7/1:0%0)"
+s "                               [TINT][/COLOR][:FILL] (default: 0.7/1:0)"
 s "                               TINT is how much object color affects wires"
 s "                               COLOR is the base color of wires"
 s "                               FILL is the intensity of the scene between wires"
-s "                               BG is the background color"
 n
 s "  -j, --jitter[=REPEAT]      Randomly jitter eye-rays; if REPEAT is specified,"
 s "                               each eye-ray is repeated that many times"

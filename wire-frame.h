@@ -27,12 +27,11 @@ class WireFrameParams
 {
 public:
 
-  WireFrameParams () : wire_color (1), tint (0.7), fill (0), bg (0) { }
+  WireFrameParams () : wire_color (1), tint (0.7), fill (0) { }
 
   Color wire_color;		// base color of wires
   float tint;			// amount of object color used
   float fill;			// intensity of inter-wire fill
-  Color bg;			// background color
 
   // Parse a wire-frame option argument
   //
@@ -41,7 +40,6 @@ public:
     const char *arg = clp.opt_arg ();
     const char *_color = strchr (arg, '/');
     const char *_fill = strchr (arg, ':');
-    const char *_bg = strchr (arg, '%');
 
     if (*arg == '.' || (*arg >= '0' && *arg <= '9'))
       tint = atof (arg);
@@ -49,8 +47,6 @@ public:
       fill = atof (_fill + 1);
     if (_color)
       wire_color = atof (_color + 1);
-    if (_bg)
-      bg = atof (_bg + 1);
   }
 };
 
@@ -234,10 +230,12 @@ private:
 
     if (draw)
       cur_row[x_offs] = wire_color (surf, camera_ray, tstate);
-    else if (params.fill > 0)
+    else if (params.fill > 0 && surf)
       cur_row[x_offs] = scene.render (camera_ray, tstate) * params.fill;
+    else if (surf)
+      cur_row[x_offs] = 0;
     else
-      cur_row[x_offs] = params.bg;
+      cur_row[x_offs] = scene.background (camera_ray);
 
     cur_surfaces[x_offs] = surf;
   }
