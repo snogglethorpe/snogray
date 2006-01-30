@@ -10,6 +10,7 @@
 //
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <string>
 #include <cstring>
@@ -31,6 +32,199 @@
 using namespace Snogray;
 using namespace std;
 
+
+
+
+static char
+eat (istream &stream, const char *choices, char *req_desc = 0)
+{
+  stream >> ws;
+
+  char ch = stream.eof() ? 0 : stream.peek();
+
+  for (const char *p = choices; *p; p++)
+    if (ch == *p)
+      {
+	stream.get ();		// eat it
+	return ch;
+      }
+
+  if (req_desc)
+    {
+      string msg;
+
+      if (ch)
+	msg += "Invalid ";
+      else
+	msg += "Missing ";
+
+      msg += req_desc;
+
+      if (ch)
+	{
+	  msg += " `";
+	  msg += ch;
+	  msg += "'";
+	}
+
+      msg += "; expected one of ";
+
+      for (const char *p = choices; *p; p++)
+	{
+	  msg += "`";
+	  msg += *p;
+	  msg += "'";
+	  if (p[1])
+	    {
+	      if (p > choices || p[2])
+		msg += ",";
+	      if (! p[2])
+		msg += " or";
+	      msg += " ";
+	    }
+	}
+      
+      throw (runtime_error (msg));
+    }
+
+  return 0;  
+}
+
+static void
+eat_close (istream &stream, char open)
+{
+  if (open)
+    {
+      char close_delims[2] = { open, 0 };
+      switch (open)
+	{
+	case '(': close_delims[0] = ')'; break;
+	case '[': close_delims[0] = ']'; break;
+	case '{': close_delims[0] = '}'; break;
+	case '<': close_delims[0] = '>'; break;
+	}
+      eat (stream, close_delims, "close bracket");
+    }
+}
+
+static double
+read_float (istream &stream, const char *desc)
+{
+  double val;
+  if (stream >> val)
+    return val;
+  else
+    throw runtime_error (string ("Missing/invalid ") + desc);
+}
+
+static double
+read_angle (istream &stream, const char *desc)
+{
+  return read_float (stream, desc) * M_PI / 180;
+}
+
+static dist_t
+read_dist (istream &stream, const char *desc)
+{
+  return read_float (stream, desc);
+}
+
+static Pos
+read_pos (istream &stream)
+{
+  Pos pos;
+  char open = eat (stream, "(<[{");
+  pos.x = read_float (stream, "x coord");
+  eat (stream, ",", "comma");
+  pos.y = read_float (stream, "y coord");
+  eat (stream, ",", "comma");
+  pos.z = read_float (stream, "z coord");
+  eat_close (stream, open);
+  return pos;
+}
+
+static Xform
+read_rot_xform (istream &stream, const Camera &camera)
+{
+  char dir = eat (stream, "udlraxyz", "direction/axis");
+  float angle = read_angle (stream, "angle");
+  Xform xform;
+
+  if (dir == 'u')
+    xform.rotate (camera.right, -angle);
+  else if (dir == 'd')
+    xform.rotate (camera.right, angle);
+  else if (dir == 'l')
+    xform.rotate (camera.up, -angle);
+  else if (dir == 'r')
+    xform.rotate (camera.up, angle);
+  else if (dir == 'a')
+    xform.rotate (camera.forward, angle);
+  else if (dir == 'x')
+    xform.rotate_x (angle);
+  else if (dir == 'y')
+    xform.rotate_y (angle);
+  else if (dir == 'x')
+    xform.rotate_z (angle);
+
+  return xform;
+}
+
+static void
+interpret_camera_cmds (Camera &camera, const string &cmds)
+{
+  istringstream stream (cmds);
+
+  try
+    { 
+      while (! stream.eof ())
+	{
+	  char cmd = eat (stream, "gtzmro", "command");
+
+	  if (cmd == 'g')
+	    camera.move (read_pos (stream));
+	  else if (cmd == 't')
+	    camera.point (read_pos (stream));
+	  else if (cmd == 'z')
+	    camera.zoom (read_float (stream, "zoom factor"));
+	  else if (cmd == 'm')
+	    {
+	      char dir = eat (stream, "udlrfbxyz", "movement direction/axis");
+	      dist_t dist = read_dist (stream, "movement distance");
+
+	      if (dir == 'r')
+		camera.move (camera.right * dist);
+	      else if (dir == 'l')
+		camera.move (-camera.right * dist);
+	      else if (dir == 'u')
+		camera.move (camera.up * dist);
+	      else if (dir == 'd')
+		camera.move (-camera.up * dist);
+	      else if (dir == 'f')
+		camera.move (camera.forward * dist);
+	      else if (dir == 'b')
+		camera.move (-camera.forward * dist);
+	      else if (dir == 'x')
+		camera.move (Vec (dist, 0, 0));
+	      else if (dir == 'y')
+		camera.move (Vec (0, dist, 0));
+	      else if (dir == 'z')
+		camera.move (Vec (0, 0, dist));
+	    }
+	  else if (cmd == 'r')
+	    camera.rotate (read_rot_xform (stream, camera));
+	  else if (cmd == 'o')
+	    camera.orbit (read_rot_xform (stream, camera).inverse ());
+
+	  eat (stream, ",;/");	// eat delimiter
+	}
+    }
+  catch (runtime_error &err)
+    {
+      throw runtime_error (cmds + ": Error interpreting camera commands: "
+			   + err.what ());
+    }
+}
 
 
 // LimitSpec datatype
@@ -208,6 +402,17 @@ s "  -q, --quiet                Do not output informational or progress messages
 s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
 n
+s "  -c, --camera=COMMANDS      Move/point the camera according to COMMANDS:"
+s "                               g X,Y,Z     Goto absolute location X, Y, Z"
+s "                               t X,Y,Z     Point at target X, Y, Z"
+s "                               m[rludfb] D Move distance D in the given dir"
+s "                                           (right, left, up, down, fwd, back)"
+s "                               m[xyz] D    Move distance D on the given axis"
+s "                               r[rlud] A   Rotate A deg in the given dir"
+s "                               ra A        Rotate A deg around center axis"
+s "                               r[xyz] A    Rotate A degrees around [xyz]-axis"
+s "                               o[xyz] A    Orbit A degrees around [xyz]-axis"
+n
 s "  -w, --wire-frame[=PARAMS]  Output in \"wire-frame\" mode; PARAMS has the form"
 s "                               [TINT][/COLOR][:FILL][%BG] (default: 0.7/1:0%0)"
 s "                               TINT is how much object color affects wires"
@@ -278,6 +483,7 @@ int main (int argc, char *const *argv)
     { "tessel-accur",   required_argument, 0, 'T' },
     { "wire-frame",     optional_argument, 0, 'w' },
     { "list-test-scenes", no_argument,     0, OPT_LIST_TEST_SCENES },
+    { "camera",		required_argument, 0, 'c' },
 
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
@@ -286,7 +492,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "b:j::w::s:m:l:qpPI:G:L:T:"
+    "b:j::w::s:m:l:qpPI:G:L:T:c:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -307,6 +513,7 @@ int main (int argc, char *const *argv)
   float scene_assumed_gamma = 1, scene_light_scale = 1;
   unsigned jitter = 0;
   const char *bg_cube_spec = 0;
+  string camera_cmds;
   ImageCmdlineSinkParams image_sink_params (clp);
 
   // This speeds up I/O on cin/cout by not syncing with C stdio.
@@ -359,6 +566,10 @@ int main (int argc, char *const *argv)
 		   || ImageInput::recognized_filename (bg_spec))
 	    bg_cube_spec = bg_spec;
 	}
+	break;
+
+      case 'c':
+	camera_cmds += clp.opt_arg ();
 	break;
 
       case 'I':
@@ -501,6 +712,17 @@ int main (int argc, char *const *argv)
       {
 	clp.err (err.what ());
       }
+
+  if (camera_cmds.length () > 0)
+    try
+      {
+	interpret_camera_cmds (camera, camera_cmds);
+      }
+    catch (runtime_error &err)
+      {
+	clp.err (err.what ());
+      }
+
 
   // To avoid annoying artifacts in cases where the camera is looking
   // exactly along an axis, always perturb the camera position just a
