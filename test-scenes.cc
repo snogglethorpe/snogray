@@ -1098,7 +1098,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
       scene.add (new Mesh (text_mat, "+eli-birthday.msh"));
     }
 
-  if (num == 0)
+  if (num == 0 && !birthday_card)
     scene.add (new PointLight (Pos (6, 8, 10), 100));
   else
     switch (lighting)
