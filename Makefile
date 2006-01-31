@@ -85,7 +85,7 @@ _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
 IMAGE_SRCS = image.cc image-aa.cc image-byte-vec.cc image-cmdline.cc	\
 	  image-dispatch.cc image-exr.cc image-io.cc image-jpeg.cc	\
-	  image-pfm.cc image-ppm.cc image-png.cc
+	  image-pfm.cc image-ppm.cc image-png.cc image-rgbe.cc
 
 COMMON_SRCS = cmdlineparser.cc color.cc string-funs.cc $(IMAGE_SRCS)
 

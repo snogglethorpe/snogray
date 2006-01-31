@@ -22,7 +22,7 @@
 #define IMAGE_INPUT_OPTIONS_HELP "\
  Input options:\n\
   -I, --input-format=FMT     Input image format FMT\n\
-                               (one of: exr, png, ppm, pfm, jpeg)"
+                               (one of: exr, png, ppm, pfm, jpeg, hdr, pic)"
 //
 #define IMAGE_INPUT_SHORT_OPTIONS "I:"
 //
@@ -39,7 +39,7 @@
 #define IMAGE_OUTPUT_OPTIONS_HELP "\
  Output options:\n\
   -O, --output-format=FMT    Output image format FMT\n\
-                               (one of: exr, png, ppm, pfm, jpeg)\n\
+                               (one of: exr, png, ppm, pfm, jpeg, hdr, pic)\n\
   -g, --gamma=GAMMA          Do gamma correction for a target display\n\
                                gamma of GAMMA (default: 2.2, for output\n\
                                formats that need gamma-correction)\n\

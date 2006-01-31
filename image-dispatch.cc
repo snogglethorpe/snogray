@@ -20,6 +20,7 @@
 #include "image-jpeg.h"
 #include "image-ppm.h"
 #include "image-pfm.h"
+#include "image-rgbe.h"
 
 using namespace Snogray;
 
@@ -61,6 +62,8 @@ ImageSinkParams::make_sink () const
     return PpmImageSinkParams (*this).make_sink ();
   else if (strcasecmp (fmt, "pfm") == 0)
     return PfmImageSinkParams (*this).make_sink ();
+  else if (strcasecmp (fmt, "hdr") == 0 || strcasecmp (fmt, "pic") == 0)
+    return RgbeImageSinkParams (*this).make_sink ();
   else
     error ("Unknown or unsupported output image type");
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
@@ -82,6 +85,8 @@ ImageSourceParams::make_source () const
     return PpmImageSourceParams (*this).make_source ();
   else if (strcasecmp (fmt, "pfm") == 0)
     return PfmImageSourceParams (*this).make_source ();
+  else if (strcasecmp (fmt, "hdr") == 0 || strcasecmp (fmt, "pic") == 0)
+    return RgbeImageSourceParams (*this).make_source ();
   else
     error ("Unknown or unsupported input image type");
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
@@ -101,7 +106,7 @@ ImageInput::recognized_filename (const std::string &filename)
   transform (ext.begin(),ext.end(), ext.begin(), tolower);
 
   return ext == "exr" || ext == "png" || ext == "jpeg" || ext == "jpg"
-    || ext == "ppm" || ext == "pfm";
+    || ext == "ppm" || ext == "pfm" || ext == "hdr" || ext == "pic";
 }
 
 // arch-tag: df36e3bf-7e23-4f22-91a3-03a954777784
