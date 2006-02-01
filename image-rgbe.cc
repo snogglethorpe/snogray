@@ -1,6 +1,6 @@
 // image-rgbe.cc -- Radiance RGBE / .hdr (aka .pic) format image handling
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -20,15 +20,14 @@
 // where "height" and "width" are integers.
 //
 // Each scanline consists of two constant bytes with a value 2, a 16-bit
-// big-endian line-length, and four run-length-encoded sections,
-// containing all the red bytes for the scanline, then all the blue
-// bytes, all the green bytes, then all the exponent bytes.
+// big-endian line-length, and four run-length-encoded sections, containing
+// all the red bytes for the scanline, then all the blue bytes, all the
+// green bytes, then all the exponent bytes.
 //
-// The run-length-encoding consists of a series of runs, each run
-// containing a length byte and either a single data byte (if the length
-// is greater than 128, in which case the data byte should be repeated
-// that many times), or a series of data bytes (as many as the length
-// indicates).
+// The run-length-encoding consists of a series of runs, each run containing
+// a length byte, LEN, and either a single data byte (if LEN is greater than
+// 128, in which case the data byte should be repeated LEN - 128 times), or
+// a series of LEN data bytes.
 //
 
 
