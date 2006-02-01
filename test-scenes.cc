@@ -281,16 +281,17 @@ def_scene_teapot (const string &name, unsigned num,
   // Pot
 
   const Material *silver
-    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
+    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10));
 
-  scene.add (new Mesh (silver, name + ".msh", mesh_xform, true));
+  Xform teapot_xform = mesh_xform * Xform::translation (Vec (0, -0.1, 0));
+  scene.add (new Mesh (silver, name + ".msh", teapot_xform, true));
 
   // Chessboard
 
   const Material *gloss_black
     = scene.add (new Mirror (0.3, 0.02, 10));
   const Material *ivory
-    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
+    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5));
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05), 25, 0.2));
 
@@ -301,7 +302,7 @@ def_scene_teapot (const string &name, unsigned num,
   // Table/ground
 
   const Material *grey
-    = scene.add (new Material (Color (0.3, 0.2, 0.2), 200, 2));
+    = scene.add (new Material (Color (0.3, 0.2, 0.2), 200));
   const Material *green
     = scene.add (new Material (Color (0.1, 0.5, 0.1)));
 
@@ -411,11 +412,11 @@ def_scene_teapot (const string &name, unsigned num,
       // Far-lights on top and two sides.  This roughly matches Paul
       // Debevec's "grace cathedral" environment map.
       //
-      scene.add (new FarLight (Vec ( 0, 1,  0), 0.2, 0.2));
-      scene.add (new FarLight (Vec ( 0, 1, -1), 2,   0.075));
-      scene.add (new FarLight (Vec ( 0, 1,  1), 2,   0.075));
-      scene.add (new FarLight (Vec (-1, 0.05,  0), 0.2, Color (.9, .7, .3)));
-      scene.add (new FarLight (Vec ( 1, 0.05,  0), 0.05, 0.4));
+      scene.add (new FarLight (Vec ( 0, 1,  0),     0.2, 0.2));
+      scene.add (new FarLight (Vec ( 0, 1, -1),     2,   0.075));
+      scene.add (new FarLight (Vec ( 0, 1,  1),     2,   0.075));
+      scene.add (new FarLight (Vec (-1, 0.2, -0.5), 0.4, Color (1, 0.9, .5)));
+      scene.add (new FarLight (Vec ( 1, 0.1,  0.1), 0.2, 0.5));
       break;
     }
 
@@ -628,9 +629,7 @@ def_scene_cornell_box (const string &name, unsigned num,
     }
   else // default
     {
-      Color light_blue (0.6, 0.6, 1);
-//       const Material *gloss_blue
-// 	= scene.add (new Material (light_blue, 700, 5));
+      Color light_blue (0.3, 0.5, 1);
       const Material *gloss_blue
 	= scene.add (new Mirror (0.05, light_blue, 700));
       const Material *white
