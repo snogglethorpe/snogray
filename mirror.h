@@ -1,6 +1,6 @@
 // mirror.h -- Mirror (reflective) material
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -25,8 +25,8 @@ public:
       reflectance (_reflectance)
   { }
   Mirror (const Color &_reflectance, const Color &col,
-	  float phong_exp, float phong_scale = 1)
-    : Material (col, phong (phong_exp, _reflectance * phong_scale)),
+	  float phong_exp, const Color &phong_specular_color = Color::white)
+    : Material (col, phong (phong_exp, phong_specular_color)),
       reflectance (_reflectance)
   { }
 
