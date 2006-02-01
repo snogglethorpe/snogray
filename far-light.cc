@@ -67,12 +67,12 @@ FarLight::init ()
 
 
 
-// Return the color of the surface at ISEC, with nominal color
-// SURFACE_COLOR, as lit by this light with lighting-model LIGHT_MODEL.
+// Return the color as lit by this light of the surface at ISEC, with
+// nominal color SURFACE_COLOR and reflectance function BRDF.
 //
 Color
 FarLight::illum (const Intersect &isec, const Color &surface_color,
-		 const LightModel &light_model, TraceState &tstate)
+		 const Brdf &brdf, TraceState &tstate)
   const
 {
   if (isec.normal.dot (dir + u) > 0
@@ -101,7 +101,7 @@ FarLight::illum (const Intersect &isec, const Color &surface_color,
 				     Scene::DEFAULT_HORIZON);
 
 		illum += ray_illum (light_ray, color, isec,
-				    surface_color, light_model, tstate);
+				    surface_color, brdf, tstate);
 
 		u_offs += 1;
 	      }

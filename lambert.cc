@@ -1,4 +1,4 @@
-// lambert.cc -- Lambertian lighting model
+// lambert.cc -- Lambertian reflectance function
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //

@@ -231,11 +231,11 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
 
 
 // Iterate over every light, calculating its contribution the color of ISEC.
-// LIGHT_MODEL is used to calculate the actual effect; COLOR is the "base color"
+// BRDF is used to calculate the actual effect; COLOR is the "base color"
 //
 Color
-Scene::illum (const Intersect &isec, const Color &color,
-	      const LightModel &light_model, TraceState &tstate)
+Scene::illum (const Intersect &isec, const Color &color, const Brdf &brdf,
+	      TraceState &tstate)
   const
 {
   Color total_color;	// Accumulated colors from all light sources
@@ -246,7 +246,7 @@ Scene::illum (const Intersect &isec, const Color &color,
   for (light_iterator_t li = lights.begin(); li != lights.end(); li++)
     {
       const Light *light = *li;
-      total_color += light->illum (isec, color, light_model, sub_tstate);
+      total_color += light->illum (isec, color, brdf, sub_tstate);
     }
 
   return total_color;

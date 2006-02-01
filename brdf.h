@@ -1,4 +1,4 @@
-// light-model.h -- Lighting-model abstraction
+// brdf.h -- Bi-directional reflectance distribution functions
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,8 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LIGHT_MODEL_H__
-#define __LIGHT_MODEL_H__
+#ifndef __BRDF_H__
+#define __BRDF_H__
 
 #include "pos.h"
 #include "vec.h"
@@ -20,10 +20,11 @@ namespace Snogray {
 
 class Intersect;
 
-class LightModel
+class Brdf
 {
 public:
-  virtual ~LightModel (); // stop gcc bitching
+
+  virtual ~Brdf (); // stop gcc bitching
 
   virtual Color illum (const Intersect &isec, const Color &color,
 		       const Vec &light_dir, const Color &light_color)
@@ -32,6 +33,6 @@ public:
 
 }
 
-#endif /* __LIGHT_MODEL_H__ */
+#endif /* __BRDF_H__ */
 
 // arch-tag: 8360ddd7-dc17-40b8-8319-8f6d61fe62bf

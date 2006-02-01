@@ -15,7 +15,7 @@
 #include "pos.h"
 #include "vec.h"
 #include "color.h"
-#include "light-model.h"
+#include "brdf.h"
 #include "phong.h"
 #include "lambert.h"
 #include "trace-state.h"
@@ -31,17 +31,17 @@ public:
 
   enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
 
-  // As a convenience, provide a global lookup service for common lighting
-  // models.
+  // As a convenience, provide a global lookup service for common brdfs.
+  //
   static const Lambert lambert;
   static const Phong &phong (float exp, const Color &spec_col = Color::white);
 
-  Material (const Color &col, const LightModel &lmodel = lambert)
-    : color (col), light_model (lmodel)
+  Material (const Color &col, const Brdf &brdf = lambert)
+    : color (col), brdf (brdf)
   { }
   Material (const Color &col, float phong_exp,
 	    const Color &spec_col = Color::white)
-    : color (col), light_model (phong (phong_exp, spec_col))
+    : color (col), brdf (phong (phong_exp, spec_col))
   { }
   virtual ~Material ();
 
@@ -63,7 +63,7 @@ public:
     const;
 
   Color color;
-  const LightModel &light_model;
+  const Brdf &brdf;
 };
 
 }

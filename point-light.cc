@@ -16,12 +16,12 @@
 
 using namespace Snogray;
 
-// Return the color of the surface at ISEC, with nominal color
-// SURFACE_COLOR, as lit by this light with lighting-model LIGHT_MODEL.
+// Return the color as lit by this light of the surface at ISEC, with
+// nominal color SURFACE_COLOR and reflectance function BRDF.
 //
 Color
 PointLight::illum (const Intersect &isec, const Color &surface_color,
-		   const LightModel &light_model, TraceState &tstate)
+		   const Brdf &brdf, TraceState &tstate)
   const
 {
   // If the dot-product of the impinging light-ray with the surface
@@ -37,7 +37,7 @@ PointLight::illum (const Intersect &isec, const Color &surface_color,
 
       return ray_illum (light_ray,
 			color / (light_ray.len * light_ray.len),
-			isec, surface_color, light_model, tstate);
+			isec, surface_color, brdf, tstate);
     }
   else
     return Color (0, 0, 0);

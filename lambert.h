@@ -1,4 +1,4 @@
-// lambert.h -- Lambertian lighting model
+// lambert.h -- Lambertian reflectance function
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -12,13 +12,14 @@
 #ifndef __LAMBERT_H__
 #define __LAMBERT_H__
 
-#include "light-model.h"
+#include "brdf.h"
 
 namespace Snogray {
 
-class Lambert : public LightModel
+class Lambert : public Brdf
 {
 public:
+
   virtual Color illum (const Intersect &isec, const Color &color,
 		       const Vec &light_dir, const Color &light_color)
     const;

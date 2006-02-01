@@ -1,4 +1,4 @@
-// glow.cc -- Constant-color lighting model
+// glow.cc -- Constant-color reflectance function
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //

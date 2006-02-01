@@ -156,11 +156,11 @@ public:
     const;
 
   // Iterate over every light, calculating its contribution the color of
-  // ISEC.  LIGHT_MODEL is used to calculate the actual effect; COLOR is
+  // ISEC.  BRDF is used to calculate the actual effect; COLOR is
   // the "base color"
   //
   Color illum (const Intersect &isec, const Color &color,
-	       const LightModel &light_model, TraceState &tstate)
+	       const Brdf &brdf, TraceState &tstate)
     const;
 
   // Add various items to a scene.  All of the following "give" the
@@ -256,10 +256,9 @@ TraceState::render (const Ray &ray)
 }
 
 inline Color
-TraceState::illum (const Intersect &isec, const Color &color,
-		   const LightModel &light_model)
+TraceState::illum (const Intersect &isec, const Color &color, const Brdf &brdf)
 {
-  return scene.illum (isec, color, light_model, *this);
+  return scene.illum (isec, color, brdf, *this);
 }
 
 inline Color

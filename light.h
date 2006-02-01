@@ -16,7 +16,7 @@ namespace Snogray {
 
 class Intersect;
 class Color;
-class LightModel;
+class Brdf;
 class TraceState;
 class Ray;
 
@@ -27,12 +27,11 @@ public:
   Light () : num (0) { }
   virtual ~Light (); // stop gcc bitching
 
-  // Return the color of the surface at ISEC, with nominal color
-  // SURFACE_COLOR, as lit by this light with lighting-model
-  // LIGHT_MODEL.
+  // Return the color as lit by this light of the surface at ISEC, with
+  // nominal color SURFACE_COLOR and reflectance function BRDF.
   //
   virtual Color illum (const Intersect &isec, const Color &surface_color,
-		       const LightModel &light_model, TraceState &tstate)
+		       const Brdf &brdf, TraceState &tstate)
     const = 0;
 
   // Adjust this light's intensity by a factor of SCALE.
@@ -45,7 +44,7 @@ public:
   //
   Color ray_illum (const Ray &light_ray, const Color &light_color,
 		   const Intersect &isec, const Color &surface_color,
-		   const LightModel &light_model, TraceState &tstate)
+		   const Brdf &brdf, TraceState &tstate)
     const;
 
   // Each light has a number, which we use as a index to access various

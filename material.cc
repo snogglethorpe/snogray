@@ -23,7 +23,7 @@ using namespace Snogray;
 Material::~Material () { } // stop gcc bitching
 
 
-// As a convenience, provide a global lookup service for common lighting models.
+// As a convenience, provide a global lookup service for common brdfs.
 
 const Lambert Material::lambert;
 
@@ -50,7 +50,7 @@ Material::phong (float exp, const Color &spec_col)
 Color
 Material::render (const Intersect &isec, TraceState &tstate) const
 {
-  return tstate.illum (isec, color, light_model);
+  return tstate.illum (isec, color, brdf);
 }
 
 // The general sort of shadow this material will cast.  This value
@@ -62,9 +62,9 @@ Material::shadow_type () const
   return Material::SHADOW_OPAQUE;
 }
 
-// Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points at
-// the light, not at the surface).  The "non-shadowed" light has color
-// LIGHT_COLOR; it's also this method's job to find any further
+// Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points
+// at the light, not at the surface).  The "non-shadowed" light has
+// color LIGHT_COLOR; it's also this method's job to find any further
 // shadowing surfaces.
 //
 Color

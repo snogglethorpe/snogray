@@ -1056,12 +1056,12 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
     {
       const string msh_file = msh_file_base + "-" + sm->name + msh_file_ext;
 
-      const LightModel &lmodel
+      const Brdf &brdf
 	= ((sm->spec.intensity() > Eps)
-	   ? (const LightModel &)Material::phong (sm->phong_exp, sm->spec)
-	   : (const LightModel &)Material::lambert);
+	   ? (const Brdf &)Material::phong (sm->phong_exp, sm->spec)
+	   : (const Brdf &)Material::lambert);
 
-      const Material *mat = scene.add (new Material (sm->diff, lmodel));
+      const Material *mat = scene.add (new Material (sm->diff, brdf));
 
       scene.add (new Mesh (mat, msh_file, Xform::identity, sm->name));
     }

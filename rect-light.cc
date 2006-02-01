@@ -17,12 +17,12 @@
 
 using namespace Snogray;
 
-// Return the color of the surface at ISEC, with nominal color
-// SURFACE_COLOR, as lit by this light with lighting-model LIGHT_MODEL.
+// Return the color as lit by this light of the surface at ISEC, with
+// nominal color SURFACE_COLOR and reflectance function BRDF.
 //
 Color
 RectLight::illum (const Intersect &isec, const Color &surface_color,
-		 const LightModel &light_model, TraceState &tstate)
+		  const Brdf &brdf, TraceState &tstate)
   const
 {
   // First detect cases where the light isn't visible at all, by
@@ -86,7 +86,7 @@ RectLight::illum (const Intersect &isec, const Color &surface_color,
 	  // sublight.
 	  //
 	  illum += ray_illum (sublight_ray, color * sublight_scale, isec,
-			      surface_color, light_model, tstate);
+			      surface_color, brdf, tstate);
 
 	  u_offs += u_step;    // step to next grid point in u direction
 	}

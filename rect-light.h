@@ -30,12 +30,11 @@ public:
       color (col), normal (_side1.cross (_side2).unit ())
   { }
 
-  // Return the color of the surface at ISEC, with nominal color
-  // SURFACE_COLOR, as lit by this light with lighting-model
-  // LIGHT_MODEL.
+  // Return the color as lit by this light of the surface at ISEC, with
+  // nominal color SURFACE_COLOR and reflectance function BRDF.
   //
   virtual Color illum (const Intersect &isec, const Color &surface_color,
-		       const LightModel &light_model, TraceState &tstate)
+		       const Brdf &brdf, TraceState &tstate)
     const;
 
   // Adjust this light's intensity by a factor of SCALE.

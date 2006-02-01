@@ -12,7 +12,7 @@
 #include "color.h"
 #include "ray.h"
 #include "intersect.h"
-#include "light-model.h"
+#include "brdf.h"
 #include "trace-state.h"
 #include "scene.h"
 
@@ -25,7 +25,7 @@ Light::~Light () { } // stop gcc bitching
 Color
 Light::ray_illum (const Ray &light_ray, const Color &light_color,
 		  const Intersect &isec, const Color &surface_color,
-		  const LightModel &light_model, TraceState &tstate)
+		  const Brdf &brdf, TraceState &tstate)
   const
 {
   // Find any surface that's shadowing LIGHT_RAY.
@@ -45,14 +45,14 @@ Light::ray_illum (const Ray &light_ray, const Color &light_color,
 
       tstate.scene.stats.scene_slow_shadow_traces++;
 
-      return light_model.illum (isec, surface_color, light_ray.dir,
-				tstate.shadow (light_ray, light_color, *this));
+      return brdf.illum (isec, surface_color, light_ray.dir,
+			 tstate.shadow (light_ray, light_color, *this));
     }
   else
-    // Use the lighting model to calculate the resulting color
-    // of the light-ray when viewed from our perspective.
+    // Use the reflectance function to calculate the resulting color of
+    // the light-ray when viewed from our perspective.
     //
-    return light_model.illum (isec, surface_color, light_ray.dir, light_color);
+    return brdf.illum (isec, surface_color, light_ray.dir, light_color);
 }
 
 // arch-tag: 3915e032-063a-4bbf-aa37-c4bbaba9f8b1

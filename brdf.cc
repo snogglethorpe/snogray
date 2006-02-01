@@ -1,4 +1,4 @@
-// light-model.cc -- Lighting-model abstraction
+// brdf.cc -- Bi-directional reflectance distribution functions
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -9,10 +9,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "light-model.h"
+#include "brdf.h"
 
 using namespace Snogray;
 
-LightModel::~LightModel () { } // stop gcc bitching
+Brdf::~Brdf () { } // stop gcc bitching
 
 // arch-tag: 033d3c2b-212c-4036-881b-ec8574b3aa30

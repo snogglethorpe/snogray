@@ -1,4 +1,4 @@
-// phog.cc -- Phong lighting model
+// phog.cc -- Phong reflectance function
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //

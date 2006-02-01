@@ -1,4 +1,4 @@
-// phog.h -- Phong lighting model
+// phog.h -- Phong reflectance function
 //
 //  Copyright (C) 2005  Miles Bader <miles@gnu.org>
 //
@@ -12,13 +12,14 @@
 #ifndef __PHONG_H__
 #define __PHONG_H__
 
-#include "light-model.h"
+#include "brdf.h"
 
 namespace Snogray {
 
-class Phong : public LightModel
+class Phong : public Brdf
 {
 public:
+
   Phong (float _exponent, const Color &_specular_color = Color::white)
     : specular_color (_specular_color), exponent (_exponent)
   { }
