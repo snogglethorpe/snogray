@@ -259,13 +259,30 @@ add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
 
 
 
+enum tobj_type { TOBJ_SPHERE, TOBJ_TORUS, TOBJ_SINC };
+
 static Surface *
-mottle_ball (const Material *mat, const Pos &pos, dist_t radius, dist_t max_err)
+tobj (tobj_type type, const Material *mat, const Pos &pos, dist_t radius,
+     dist_t max_err)
 {
-  return
-    new Mesh (mat,
-	      SphereTesselFun (pos, radius, radius * 0.002),
-	      Tessel::ConstMaxErr (max_err), true);
+  switch (type)
+    {
+    case TOBJ_SPHERE:
+      return new Mesh (mat, SphereTesselFun (pos + Vec (0, radius, 0),
+					     radius, radius * 0.002),
+			  Tessel::ConstMaxErr (max_err), true);
+    case TOBJ_TORUS:
+      return new Mesh (mat, TorusTesselFun (pos + Vec (0, radius / 3, 0),
+					    radius, radius / 3,
+					    radius * 0.002),
+		       Tessel::ConstMaxErr (max_err), true);
+    case TOBJ_SINC:
+      return new Mesh (mat, SincTesselFun (pos + Vec (0, radius * 0.25, 0),
+					   radius * 1.5),
+		       Tessel::ConstMaxErr (max_err), true);
+    default:
+      throw runtime_error ("unknown tobj type");
+    }
 }
 
 static void
@@ -436,13 +453,19 @@ def_scene_teapot (const string &name, unsigned num,
       switch (num % 10)
 	{
 	case 1:
-	  scene.add (mottle_ball (orange, Pos (-3, 1, -2), 1, max_err));
+	  scene.add (tobj (TOBJ_SPHERE, gold, Pos (-3, 0, -2), 0.6, max_err));
 	  break;
 	case 2:
-	  scene.add (new Sphere (glass, Pos (-3, 0.5, -2), 0.5));
+	  scene.add (new Sphere (glass, Pos (-3, 0, -2), 0.5));
 	  break;
 	case 3:
-	  scene.add (mottle_ball (gold, Pos (-3, 0.6, -2), 0.6, max_err));
+	  scene.add (tobj (TOBJ_SINC, gold, Pos (-3, 0, -2), 0.6, max_err));
+	  break;
+	case 4:
+	  scene.add (tobj (TOBJ_TORUS, gold, Pos (-3, 0, -2), 1, max_err));
+	  break;
+	case 5:
+	  scene.add (tobj (TOBJ_SPHERE, orange, Pos (-3, 0, -2), 1, max_err));
 	  break;
 	}
 
@@ -455,11 +478,10 @@ def_scene_teapot (const string &name, unsigned num,
       const Material *blue
 	= scene.add (new Material (Color (0.3, 0.3, 1.2), 500));
 
-      dist_t r1 = 0.65, r2 = 0.40;
-      scene.add (mottle_ball (blue,   Pos (- 1.5, r2, -3.3), r2, max_err));
-      scene.add (mottle_ball (green,  Pos (3, r2, -1.2), r2, max_err));
-      scene.add (mottle_ball (yellow, Pos (2.2, r1, -3.1), r1, max_err));
-      scene.add (mottle_ball (red,    Pos (- 2.3, r1, 1.7), r1, max_err));
+      scene.add (tobj (TOBJ_SINC,   blue,   Pos (-1.5, 0, -3.3), 0.4, max_err));
+      scene.add (tobj (TOBJ_SPHERE, green,  Pos (3, 0, -1.2), 0.4, max_err));
+      scene.add (tobj (TOBJ_SINC,   yellow, Pos (2.2, 0, -3.1), 0.7, max_err));
+      scene.add (tobj (TOBJ_SPHERE, red,    Pos (-2.3, 0, 1.7), 0.7, max_err));
     }
 
   camera.set_vert_fov (M_PI_4 * 0.9);
