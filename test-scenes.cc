@@ -1100,7 +1100,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   num %= 10;
 
   const Material *ivory
-    = scene.add (new Mirror (0.2, Color (1.1, 1, 0.8), 5, 2));
+    = scene.add (new Mirror (0.2, Color (1.1, 1, 0.8), 5));
   const Material *gloss_black
     = scene.add (new Mirror (0.3, 0.02, 10));
   const Material *stage_mat = (stage == 1) ? ivory : gloss_black;
@@ -1111,10 +1111,9 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   if (birthday_card)
     {
       const Material *text_mat
-	= scene.add (new Mirror (0.2, Color (1.2, 1.2, 0.8), 500, 5));
-      //   const Material *text_mat
-      //     = scene.add (new Mirror (0.3, Color (0.5, 0.6, 0.5), 100, 5));
-      //   //  = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10, 5));
+// 	= scene.add (new Mirror (0.2, Color (1.2, 1.2, 0.8), 500));
+	= scene.add (new Mirror (0.3, Color (0.5, 0.6, 0.5), 100));
+// 	= scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), 10 ));
 
       scene.add (new Mesh (text_mat, "+eli-birthday.msh"));
     }
@@ -1165,13 +1164,12 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
     {
       const Material *shiny_red
 	= scene.add (new Mirror (Color (0.2, 0.05, 0.05),
-				 Color (0.1, 0, 0), 100, 5));
+				 Color (0.1, 0, 0), 1000));
       const Material *shiny_green
 	= scene.add (new Mirror (Color (0.05, 0.2, 0.05),
-				 Color (0, 0.1, 0), 100, 5));
+				 Color (0, 0.1, 0), 1000));
       const Material *glass
-	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01,
-				Material::phong (2000, 1.5)));
+	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01, 2000));
 
       scene.add (new Sphere (shiny_red, Pos (3.2, -2.2 + 0.3, 4.2), 0.3));
       scene.add (new Sphere (shiny_green, Pos (3.6, -2.2 + 0.1, 4.5), 0.1));
