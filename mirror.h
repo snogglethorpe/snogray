@@ -29,6 +29,9 @@ public:
     : Material (col, phong (phong_exp, phong_specular_color)),
       reflectance (_reflectance)
   { }
+  Mirror (const Color &_reflectance, const Color &col = Color::black)
+    : Material (col), reflectance (_reflectance)
+  { }
 
   virtual Color render (const Intersect &isec, TraceState &tstate) const;
 
