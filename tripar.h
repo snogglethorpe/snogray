@@ -1,4 +1,4 @@
-// triangle.h -- Triangle surface
+// tripar.h -- Triangle/parallelogram surface
 //
 //  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
@@ -9,19 +9,21 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRIANGLE_H__
-#define __TRIANGLE_H__
+#ifndef __TRIPAR_H__
+#define __TRIPAR_H__
 
 #include "primary-surface.h"
 
 namespace Snogray {
 
-class Triangle : public PrimarySurface
+class Tripar : public PrimarySurface
 {
 public:
 
-  Triangle (const Material *mat, const Pos &_v0, const Pos &_v1, const Pos &_v2)
-    : PrimarySurface (mat), v0 (_v0), v1 (_v1), v2 (_v2)
+  Tripar (const Material *mat, const Pos &_v0, const Pos &_e1, const Pos &_e2,
+	  bool _parallelogram = false)
+    : PrimarySurface (mat), v0 (_v0), e1 (_e1), e2 (_e2),
+      parallelogram (_parallelogram)
   { }
 
   // Return the distance from RAY's origin to the closest intersection
@@ -54,11 +56,13 @@ public:
 
 private:
 
-  Pos v0, v1, v2;
+  Pos v0;
+  Vec e1, e2;
+  bool parallelogram;
 };
 
 }
 
-#endif /* __TRIANGLE_H__ */
+#endif /* __TRIPAR_H__ */
 
 // arch-tag: cf7f49db-937d-4328-b7c0-3959241a191e

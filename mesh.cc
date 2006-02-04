@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "tripar-isec.h"
 #include "excepts.h"
 #include "mesh.h"
 #include "tessel.h"
@@ -338,60 +339,13 @@ Mesh::Triangle::intersection_distance (const Ray &ray, IsecParams &isec_params,
   if (num != 0)
     return 0;
 
-  /*
-    This algorithm from:
+  // We have to convert the types to match that of RAY first.
+  //
+  Pos corner = v(0);
+  Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
 
-       Fast, Minimum Storage Ray-Triangle Intersection
-
-       Tomas Möller
-       Prosolvia Clarus AB
-       Sweden
-       tompa@clarus.se
-
-       Ben Trumbore
-       Cornell University
-       Ithaca, New York
-       wbt@graphics.cornell.edu
-  */
-
-  /* find vectors for two edges sharing vert0 */
-  Vec edge1 = v(1) - v(0);
-  Vec edge2 = v(2) - v(0);
-
-  /* begin calculating determinant - also used to calculate U parameter */
-  Vec pvec = ray.dir.cross (edge2);
-
-  /* if determinant is near zero, ray lies in plane of triangle */
-  double det = edge1.dot (pvec);
-
-  if (det > -Eps && det < Eps)
-    return 0;
-
-  double inv_det = 1.0 / det;
-
-  /* calculate distance from vert0 to ray origin */
-  Vec tvec = ray.origin - v(0);
-
-  /* calculate U parameter and test bounds */
-  double u = tvec.dot (pvec) * inv_det;
-  if (u < 0.0 || u > 1.0)
-    return 0;
-
-  /* prepare to test V parameter */
-  Vec qvec = tvec.cross (edge1);
-
-  /* calculate V parameter and test bounds */
-  double v = ray.dir.dot (qvec) * inv_det;
-  if (v < 0.0 || u + v > 1.0)
-    return 0;
-
-  /* calculate t, ray intersects triangle */
-  dist_t t = edge2.dot (qvec) * inv_det;
-
-  isec_params.u = u;
-  isec_params.v = v;
-
-  return t;
+  return triangle_intersect (corner, edge1, edge2, ray.origin, ray.dir,
+			     isec_params.u, isec_params.v);
 }
 
 Intersect

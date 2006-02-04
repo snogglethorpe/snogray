@@ -19,7 +19,7 @@
 #include "far-light.h"
 #include "rect-light.h"
 #include "sphere.h"
-#include "triangle.h"
+#include "tripar.h"
 #include "lambert.h"
 #include "phong.h"
 #include "glow.h"
@@ -39,36 +39,28 @@ const void
 add_rect (Scene &scene, const Material *mat,
 	  const Pos &corner_0, const Pos &mid_corner_0, const Pos &corner_1)
 {
-  Triangle *t0
-    = new Triangle (mat, corner_0, mid_corner_0, corner_1);
-  Triangle *t1
-    = new Triangle (mat,
-		    corner_1, corner_1 + (corner_0 - mid_corner_0), corner_0);
-
-  scene.add (t0);
-  scene.add (t1);
+  scene.add (new Tripar (mat, mid_corner_0, corner_0 - mid_corner_0,
+			 corner_1 - mid_corner_0, true));
 }
 
 const void
 add_rect (Scene &scene, const Material *mat,
 	  const Pos &corner, const Vec &side1, const Vec &side2)
 {
-  Triangle *t0
-    = new Triangle (mat, corner, corner + side1, corner + side1 + side2);
-  Triangle *t1
-    = new Triangle (mat, corner, corner + side1 + side2, corner + side2);
-
-  scene.add (t0);
-  scene.add (t1);
+  scene.add (new Tripar (mat, corner, side1, side2, true));
 }
 
 const void
 add_cube (Scene &scene, const Material *mat,
 	  const Pos &corner, const Vec &up, const Vec &right, const Vec &fwd)
 {
-  add_rect (scene, mat, corner, corner + up, corner + right + up);
-  add_rect (scene, mat, corner, corner + fwd, corner + fwd + up);
-  add_rect (scene, mat, corner + up, corner + up + fwd, corner + up + fwd + right);
+  add_rect (scene, mat, corner, up, right);
+  add_rect (scene, mat, corner, fwd, up);
+  add_rect (scene, mat, corner, right, fwd);
+
+  add_rect (scene, mat, corner + up, right, fwd);
+  add_rect (scene, mat, corner + right, fwd, up);
+  add_rect (scene, mat, corner + fwd, up, right);
 }
 
 const void
@@ -138,14 +130,7 @@ def_scene_miles (const string &name, unsigned num,
   scene.add (new Sphere (mat2, Pos (-8, 0, 3), 3));
   scene.add (new Sphere (mat3, Pos (-6, 5, 2), 1));
 
-  scene.add (new Triangle (mat4,
-			   Pos (-100, -3, -100),
-			   Pos (100, -3, -100),
-			   Pos (100, -3, 100)));
-  scene.add (new Triangle (mat4,
-			   Pos (-100, -3, -100),
-			   Pos (100, -3, 100),
-			   Pos (-100, -3, 100)));
+  add_rect (scene, mat4, Pos (-100, -3, -100), Vec(200, 0, 0), Vec(0, 0, 200));
 
   switch (num)
     {
@@ -182,10 +167,8 @@ def_scene_miles (const string &name, unsigned num,
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
 	const Material *mat = scene.add (new Material (color, 500));
 	scene.add (new Sphere (mat, pos, 0.5));
-	scene.add (new Triangle (mat,
-				 pos + Vec(1.5,-0.2,0),
-				 pos + Vec(-0.5,-0.2,-1.1),
-				 pos + Vec(-0.5,-0.2,1.1)));
+	scene.add (new Tripar (mat, pos + Vec (1.5, -0.2, 0),
+			       Vec (-2, 0, -1.1), Vec (-2, 0, 1.1)));
       }
 }
 
@@ -238,12 +221,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   scene.add (new Sphere (yellow, Pos (0.3, 0.40 - 0.65, -2.5), 0.40));
 
   // ground
-  scene.add (new Triangle (gray,
-			   Pos (-10, -0.65, -10), Pos (-10, -0.65, 10),
-			   Pos (10, -0.65, -10)));
-  scene.add (new Triangle (gray,
-			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
-			   Pos (10, -0.65, 10)));
+  add_rect (scene, gray, Pos (-10, -0.65, -10), Vec (0, 0, 20), Vec (20, 0, 0));
   
   add_bulb (scene, Pos (0, 10, 0), 0.06, 100);
   add_bulb (scene, Pos (15, 2, 0), 0.06, 100);
@@ -762,14 +740,7 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
   scene.add (new Sphere (sphereMat, Pos (0, 0, 0), 1));
 
   // ground
-  scene.add (new Triangle (grey,
-			   Pos (-10, -1, -10),
-			   Pos (-10, -1, 10),
-			   Pos (10, -1, -10)));
-  scene.add (new Triangle (grey,
-			   Pos (10, -1, -10),
-			   Pos (-10, -1, 10),
-			   Pos (10, -1, 10)));
+  add_rect (scene, grey, Pos (-10, -1, -10), Vec (20, 0, 0), Vec (0, 0, 20));
 
   // Small Area type light
   scene.add (new PointLight (Pos (5, 5, 0), 8));
@@ -817,75 +788,11 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
     = scene.add (new Material (Color (0.6, 0.6, 0.6)));
 	
   // box
-  // front
-  scene.add (new Triangle (boxMat,
-			   Pos (1, -1, 1),
-			   Pos (1, -1, -1),
-			   Pos (1, 1, -1)));
-  scene.add (new Triangle (boxMat,
-			   Pos (1, 1, 1),
-			   Pos (1, -1, 1),
-			   Pos (1, 1, -1)));
-
-  // back
-  scene.add (new Triangle (boxMat,
-			   Pos (-1, -1, -1),
-			   Pos (-1, -1, 1),
-			   Pos (-1, 1, -1)));
-  scene.add (new Triangle (boxMat,
-			   Pos (-1, 1, 1),
-			   Pos (-1, 1, -1),
-			   Pos (-1, -1, 1)));
-
-  // top
-  scene.add (new Triangle (boxMat,
-			   Pos (-1, 1, 1),
-			   Pos (1, 1, -1),
-			   Pos (-1, 1, -1)));
-  scene.add (new Triangle (boxMat,
-			   Pos (1, 1, 1),
-			   Pos (1, 1, -1),
-			   Pos (-1, 1, 1)));
-
-  // bottom
-  scene.add (new Triangle (boxMat,
-			   Pos (-1, -1, 1),
-			   Pos (-1, -1, -1),
-			   Pos (1, -1, -1)));
-  scene.add (new Triangle (boxMat,
-			   Pos (1, -1, 1),
-			   Pos (-1, -1, 1),
-			   Pos (1, -1, -1)));
-
-  // left
-  scene.add (new Triangle (boxMat,
-			   Pos (1, -1, -1),
-			   Pos (-1, -1, -1),
-			   Pos (-1, 1, -1)));
-  scene.add (new Triangle (boxMat,
-			   Pos (1, -1, -1),
-			   Pos (-1, 1, -1),
-			   Pos (1, 1, -1)));
-
-  // right
-  scene.add (new Triangle (boxMat,
-			   Pos (-1, -1, 1),
-			   Pos (1, -1, 1),
-			   Pos (-1, 1, 1)));
-  scene.add (new Triangle (boxMat,
-			   Pos (1, -1, 1),
-			   Pos (1, 1, 1),
-			   Pos (-1, 1, 1)));
+  add_cube (scene, boxMat, Pos (-1, -1, -1),
+	    Vec (2, 0, 0), Vec (0, 2, 0), Vec (0, 0, 2));
 
   // ground
-  scene.add (new Triangle (gray,
-			   Pos (-10, -1, -10),
-			   Pos (-10, -1, 10),
-			   Pos (10, -1, -10)));
-  scene.add (new Triangle (gray,
-			   Pos (10, -1, -10),
-			   Pos (-10, -1, 10),
-			   Pos (10, -1, 10)));
+  add_rect (scene, gray, Pos (-10, -1, -10), Vec (20, 0, 0), Vec (0, 0, 20));
 
   // spheres	
   scene.add (new Sphere (shinyBlack, Pos (0, 2, 0), 1));
@@ -943,12 +850,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   scene.add (new Mesh (red, "bunny500.msh", (variant > 0)));
   
   // ground
-  scene.add (new Triangle (gray,
-			   Pos (-10, -0.65, -10), Pos (-10, -0.65, 10),
-			   Pos (10, -0.65, -10)));
-  scene.add (new Triangle (gray,
-			   Pos (10, -0.65, -10), Pos (-10, -0.65, 10),
-			   Pos (10, -0.65, 10)));
+  add_rect (scene, gray, Pos (-10, -0.65, -10), Vec (20, 0, 0), Vec (0, 0, 20));
   
   switch ((variant / 10) % 10)
     {
@@ -1307,10 +1209,10 @@ def_scene_tessel (const string &name, unsigned num,
   const Material *ivory
     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), 5, 2));
 
-  scene.add (new Triangle (orange,
-			   Pos (1, height, 1), Pos (1, height, -1), Pos (-1, height, -1)));
-  scene.add (new Triangle (ivory,
-			   Pos (-1, height, 1), Pos (1, height, 1), Pos (-1, height, -1)));
+  scene.add (new Tripar (orange,
+			 Pos (1, height, 1), Vec (0, 0, -2), Vec (-2, 0, -2)));
+  scene.add (new Tripar (ivory,
+			 Pos (-1, height, 1), Vec (2, 0, 0), Vec (0, 0, 2)));
 
   if (lighting == 0)
     {
