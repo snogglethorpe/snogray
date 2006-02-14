@@ -94,7 +94,7 @@ enum deb_light
 };
 
 static void
-add_deb_lights (enum deb_light kind, Scene &scene)
+add_deb_lights (enum deb_light kind, float scale, Scene &scene)
 {
   switch (kind)
     {
@@ -102,27 +102,27 @@ add_deb_lights (enum deb_light kind, Scene &scene)
       // Far-lights on top and two sides.  This roughly matches Paul
       // Debevec's "grace cathedral" environment map.
       //
-      scene.add (new FarLight (Vec ( 0, 1,  0),     0.2, 0.2));
-      scene.add (new FarLight (Vec ( 0, 1, -1),     2,   0.075));
-      scene.add (new FarLight (Vec ( 0, 1,  1),     2,   0.075));
-      scene.add (new FarLight (Vec (-1, 0.2, -0.5), 0.4, Color (1, 0.9, .5)));
-      scene.add (new FarLight (Vec ( 1, 0.1,  0.1), 0.2, 0.5));
+      scene.add (new FarLight (Vec ( 0, 1,  0),     0.2, scale * 0.2));
+      scene.add (new FarLight (Vec ( 0, 1, -1),     2,   scale * 0.075));
+      scene.add (new FarLight (Vec ( 0, 1,  1),     2,   scale * 0.075));
+      scene.add (new FarLight (Vec (-1, 0.2, -0.5), 0.4, scale * Color (1, 0.9, .5)));
+      scene.add (new FarLight (Vec ( 1, 0.1,  0.1), 0.2, scale * 0.5));
       break;
 
     case DEB_RNL:
       // This roughly matches Paul Debevec's "RNL" environment map
 
       // sun
-      scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, 2));
+      scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, scale * 2));
 
       // sky overhead
-      scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  Color(0.1, 0.1, 0.2)));
+      scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  scale * Color(0.1, 0.1, 0.2)));
 
       // sky other directions
-      scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  Color(0.3, 0.3, 0.4)));
-      scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  Color(0.2, 0.2, 0.3)));
-      scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  Color(0.2, 0.2, 0.3)));
-      scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  Color(0.05, 0.05, 0.1)));
+      scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  scale * Color(0.3, 0.3, 0.4)));
+      scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  scale * Color(0.2, 0.2, 0.3)));
+      scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  scale * Color(0.2, 0.2, 0.3)));
+      scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  scale * Color(0.05, 0.05, 0.1)));
       break;
     }
 }
@@ -170,11 +170,11 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
       break;
 
     case 1:
-      add_deb_lights (DEB_GRACE, scene);
+      add_deb_lights (DEB_GRACE, 5, scene);
       break;
 
     case 2:
-      add_deb_lights (DEB_RNL, scene);
+      add_deb_lights (DEB_RNL, 5, scene);
       break;
     }
 
@@ -263,10 +263,13 @@ def_scene_pretty_bunny (const string &name, unsigned num,
     = scene.add (new Mirror (Color (0.852, 0.756, 0.12), 0, 
 			     Material::phong (800, Color (1, 1, 0.3))));
 
-  bool goldbunny = begins_with (name, "gold");
+  bool goldbunny = begins_with (name, "g");
 
   Mesh *bunny = new Mesh (goldbunny ? gold : crystal);
-  bunny->load ("bunny500.msh");
+  if (num / 10 == 1)
+    bunny->load ("+bunny69451.msh", Xform().scale(10).translate(0,-1,0));
+  else
+    bunny->load ("bunny500.msh");
   bunny->compute_vertex_normals ();
   scene.add (bunny);
 
@@ -277,11 +280,32 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   scene.add (new Sphere (yellow, Pos (0.3, 0.40 - 0.65, -2.5), 0.40));
 
   // ground
-  add_rect (scene, gray, Pos (-10, -0.65, -10), Vec (0, 0, 20), Vec (20, 0, 0));
+  add_cube (scene, gray, Pos (-5, -0.65, -8),
+	    Vec (0, 0, 9), Vec (10, 0, 0), Vec (0, -20, 0));
   
-  add_bulb (scene, Pos (0, 10, 0), 0.06, 100);
-  add_bulb (scene, Pos (15, 2, 0), 0.06, 100);
-  add_bulb (scene, Pos (0, 1, 15), 0.06, 100);
+  switch (num % 10)
+    {
+    case 0:
+      add_bulb (scene, Pos (0, 10, 0), 0.06, 100);
+      add_bulb (scene, Pos (15, 2, 0), 0.06, 100);
+      add_bulb (scene, Pos (0, 1, 15), 0.06, 100);
+      break;
+
+    case 1:
+      add_rect_bulb (scene, Pos(-5, 10, -5), Vec(10, 0, 0), Vec(0, 0, 10), 250);
+      break;
+    case 2:
+      add_rect_bulb (scene, Pos(-10, 0, 2), Vec(0, 10, 0), Vec(6, 0, 6), 250);
+      break;
+
+    case 5:
+      add_deb_lights (DEB_GRACE, 2, scene);
+      break;
+
+    case 6:
+      add_deb_lights (DEB_RNL, 1, scene);
+      break;
+    }
 }
 
 static void
@@ -460,11 +484,11 @@ def_scene_teapot (const string &name, unsigned num,
       break;
 
     case 8:
-      add_deb_lights (DEB_GRACE, scene);
+      add_deb_lights (DEB_GRACE, 1, scene);
       break;
 
     case 9:
-      add_deb_lights (DEB_RNL, scene);
+      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
 
@@ -900,7 +924,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   // Add bunny.  For variant 0, we use the original unsmoothed appearance;
   // for everythign else we do smoothing.
   //
-  scene.add (new Mesh (red, "bunny500.msh", (variant > 0)));
+  scene.add (new Mesh (red, "bunny500.msh", Xform::identity, (variant > 0)));
   
   // ground
   add_rect (scene, gray, Pos (-10, -0.65, -10), Vec (20, 0, 0), Vec (0, 0, 20));
@@ -1080,7 +1104,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
       {
       case 0:
 	// outdoor lighting
-	add_deb_lights (DEB_RNL, scene);
+	add_deb_lights (DEB_RNL, 1, scene);
 	break;
 
       case 1:
