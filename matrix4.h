@@ -25,12 +25,19 @@ public:
 
   // Default constructor returns an identity matrix
   //
-  Matrix4 (T diag = 1)
+  Matrix4 ()
   {
-    els[0][0] = diag; els[0][1] = 0; els[0][2] = 0; els[0][3] = 0;
-    els[1][0] = 0; els[1][1] = diag; els[1][2] = 0; els[1][3] = 0;
-    els[2][0] = 0; els[2][1] = 0; els[2][2] = diag; els[2][3] = 0;
-    els[3][0] = 0; els[3][1] = 0; els[3][2] = 0; els[3][3] = diag;
+    els[0][0] = 1; els[0][1] = 0; els[0][2] = 0; els[0][3] = 0;
+    els[1][0] = 0; els[1][1] = 1; els[1][2] = 0; els[1][3] = 0;
+    els[2][0] = 0; els[2][1] = 0; els[2][2] = 1; els[2][3] = 0;
+    els[3][0] = 0; els[3][1] = 0; els[3][2] = 0; els[3][3] = 1;
+  }
+  Matrix4 (T d0, T d1, T d2, T d3)
+  {
+    els[0][0] = d0; els[0][1] = 0; els[0][2] = 0; els[0][3] = 0;
+    els[1][0] = 0; els[1][1] = d1; els[1][2] = 0; els[1][3] = 0;
+    els[2][0] = 0; els[2][1] = 0; els[2][2] = d2; els[2][3] = 0;
+    els[3][0] = 0; els[3][1] = 0; els[3][2] = 0; els[3][3] = d3;
   }
 
   T &operator() (unsigned i, unsigned j) { return els[i][j]; }

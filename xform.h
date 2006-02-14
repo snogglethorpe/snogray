@@ -26,7 +26,7 @@ public:
 
   // Default is identity transformation
   //
-  TXform (T scale = 1) : Matrix4<T> (scale) { }
+  TXform (T scale = 1) : Matrix4<T> (scale, scale, scale, 1) { }
 
   // A vector/position yields a translation
   //
@@ -136,7 +136,7 @@ public:
 
   TXform &scale (T scale)
   {
-    *this *= scale;
+    *this *= scaling (scale);
     return *this;
   }
   TXform &scale (T s_x, T s_y, T s_z)
