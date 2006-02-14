@@ -1,6 +1,6 @@
 // trace-state.h -- State during tracing
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -14,6 +14,7 @@
 
 #include "color.h"
 #include "medium.h"
+#include "lsamples.h"
 
 namespace Snogray {
 
@@ -23,6 +24,16 @@ class Ray;
 class Intersect;
 class Brdf;
 class Light;
+
+class GlobalTraceState
+{
+public:
+
+  // This is only used temporarily by Scene::illum, but we keep it around
+  // permanently to avoid the overhead of memory allocation.
+  //
+  LightSamples light_samples;
+};
 
 class TraceState
 {
@@ -37,7 +48,7 @@ public:
     NUM_TRACE_TYPES
   };
 
-  TraceState (Scene &_scene);
+  TraceState (Scene &_scene, GlobalTraceState &_global);
   TraceState (TraceType _type, TraceState *_parent);
   ~TraceState ();
 
@@ -108,6 +119,10 @@ public:
   // Parent state
   //
   TraceState *parent;
+
+  // Stuff that's only allocated once.
+  //
+  GlobalTraceState &global;
 
   // What kind of trace this is
   //

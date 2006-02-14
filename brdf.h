@@ -1,6 +1,6 @@
 // brdf.h -- Bi-directional reflectance distribution functions
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,9 +12,13 @@
 #ifndef __BRDF_H__
 #define __BRDF_H__
 
+#include <vector>
+
 #include "pos.h"
 #include "vec.h"
 #include "color.h"
+#include "sample-ray.h"
+#include "trace-state.h"
 
 namespace Snogray {
 
@@ -26,8 +30,19 @@ public:
 
   virtual ~Brdf (); // stop gcc bitching
 
-  virtual Color illum (const Intersect &isec, const Color &color,
-		       const Vec &light_dir, const Color &light_color)
+  // Generate samples of this BRDF and add them to SAMPLES.
+  //
+  virtual void gen_samples (const Intersect &isec, const Color &color,
+			    TraceState &tstate, SampleRayVec &samples)
+    const = 0;
+
+  // Modify the value of each of the light-samples in SAMPLES according to
+  // the BRDF's reflectivity in the sample's direction.
+  //
+  virtual void filter_samples (const Intersect &isec, const Color &color,
+			       TraceState &tstate, SampleRayVec &samples,
+			       SampleRayVec::iterator from,
+			       SampleRayVec::iterator to)
     const = 0;
 };
 

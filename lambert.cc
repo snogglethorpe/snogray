@@ -1,6 +1,6 @@
 // lambert.cc -- Lambertian reflectance function
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -9,23 +9,44 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "lambert.h"
-
 #include "intersect.h"
+#include "excepts.h"
+
+#include "lambert.h"
 
 using namespace Snogray;
 
-Color
-Lambert::illum (const Intersect &isec, const Color &color,
-		const Vec &light_dir, const Color &light_color)
+// Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
+// For best results, they should be distributed according to the BRDF's
+// importance function.
+//
+void
+Lambert::gen_samples (const Intersect &isec, const Color &color,
+		      TraceState &tstate, SampleRayVec &samples)
   const
 {
-  float diffuse_component = isec.normal.dot (light_dir);
+  throw std::runtime_error ("Lambert::gen_samples");
+}
 
-  if (diffuse_component > 0)
-    return color * light_color * diffuse_component;
-  else
-    return Color::black;
+// Modify the value of each of the light-samples in SAMPLES according to
+// the BRDF's reflectivity in the sample's direction.
+//
+void
+Lambert::filter_samples (const Intersect &isec, const Color &color,
+			 TraceState &tstate, SampleRayVec &samples,
+			 SampleRayVec::iterator from,
+			 SampleRayVec::iterator to)
+  const
+{
+  for (SampleRayVec::iterator s = from; s != to; s++)
+    {
+      float diffuse_component = isec.normal.dot (s->dir);
+
+      if (diffuse_component > 0)
+	s->set_refl (color * diffuse_component);
+      else
+	s->invalidate ();
+    }
 }
 
 // arch-tag: f61dbf3f-a5eb-4747-9bc5-18e793f35b6e

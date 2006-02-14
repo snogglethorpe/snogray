@@ -1,6 +1,6 @@
 // phog.h -- Phong reflectance function
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -24,8 +24,21 @@ public:
     : specular_color (_specular_color), exponent (_exponent)
   { }
 
-  virtual Color illum (const Intersect &isec, const Color &color,
-		       const Vec &light_dir, const Color &light_color)
+  // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
+  // For best results, they should be distributed according to the BRDF's
+  // importance function.
+  //
+  virtual void gen_samples (const Intersect &isec, const Color &color,
+			    TraceState &tstate, SampleRayVec &samples)
+    const;
+
+  // Modify the value of each of the light-samples in SAMPLES according to
+  // the BRDF's reflectivity in the sample's direction.
+  //
+  virtual void filter_samples (const Intersect &isec, const Color &color,
+			       TraceState &tstate, SampleRayVec &samples,
+			       SampleRayVec::iterator from,
+			       SampleRayVec::iterator to)
     const;
 
   Color specular_color;

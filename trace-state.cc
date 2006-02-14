@@ -1,6 +1,6 @@
 // trace-state.cc -- State during tracing
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -17,9 +17,9 @@ using namespace Snogray;
 
 // Constructor for root TraceState
 //
-TraceState::TraceState (Scene &_scene)
-  : scene (_scene), parent (0), type (SPONTANEOUS), origin (0),
-    horizon_hint (0), depth (0), medium (0)
+TraceState::TraceState (Scene &_scene, GlobalTraceState &_global)
+  : scene (_scene), parent (0), global (_global),
+    type (SPONTANEOUS), origin (0), horizon_hint (0), depth (0), medium (0)
 {
   _init ();
 }
@@ -27,8 +27,9 @@ TraceState::TraceState (Scene &_scene)
 // Constructor for sub-traces
 //
 TraceState::TraceState (TraceType _type, TraceState *_parent)
-  : scene (_parent->scene), parent (_parent), type (_type), origin (0),
-    horizon_hint (0), depth (_parent->depth + 1), medium (parent->medium)
+  : scene (_parent->scene), parent (_parent), global (_parent->global),
+    type (_type), origin (0), horizon_hint (0), depth (_parent->depth + 1),
+    medium (parent->medium)
 {
   _init ();
 }

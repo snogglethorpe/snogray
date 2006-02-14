@@ -1,6 +1,6 @@
 // far-light.h -- Light at infinite distance
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -11,6 +11,8 @@
 
 #ifndef __FAR_LIGHT_H__
 #define __FAR_LIGHT_H__
+
+#include <cmath>
 
 #include "light.h"
 #include "color.h"
@@ -25,15 +27,25 @@ public:
   static const unsigned JITTER_STEPS = 5;
 
   FarLight (const Vec &_dir, dist_t _radius, const Color &col)
-    : dir (_dir), radius (_radius), color (col),
+    : dir (_dir), radius (_radius), color (col), max_cos (cos (atan (_radius))),
       steps_radius (double (JITTER_STEPS) / 2)
   { init (); }
 
-  // Return the color as lit by this light of the surface at ISEC, with
-  // nominal color SURFACE_COLOR and reflectance function BRDF.
+  // Generate (up to) NUM samples of this light and add them to SAMPLES.
+  // For best results, they should be distributed according to the light's
+  // intensity.
   //
-  virtual Color illum (const Intersect &isec, const Color &surface_color,
-		       const Brdf &brdf, TraceState &tstate)
+  virtual void gen_samples (const Intersect &isec, TraceState &tstate,
+			    SampleRayVec &samples)
+    const;
+
+  // Modify the value of the BRDF samples in SAMPLES from FROM to TO,
+  // according to the light's intensity in the sample's direction.
+  //
+  virtual void filter_samples (const Intersect &isec, TraceState &tstate,
+			       SampleRayVec &samples,
+			       SampleRayVec::iterator from,
+			       SampleRayVec::iterator to)
     const;
 
   // Adjust this light's intensity by a factor of SCALE.
@@ -52,7 +64,11 @@ private:
   Vec u, v;
   Vec u_inc, v_inc;
 
+  dist_t max_cos;
+
   double steps_radius;
+
+  Color::component_t num_lights_scale;
 };
 
 }

@@ -1,6 +1,6 @@
 // light.cc -- Light
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -21,38 +21,5 @@
 using namespace Snogray;
 
 Light::~Light () { } // stop gcc bitching
-
-Color
-Light::ray_illum (const Ray &light_ray, const Color &light_color,
-		  const Intersect &isec, const Color &surface_color,
-		  const Brdf &brdf, TraceState &tstate)
-  const
-{
-  // Find any surface that's shadowing LIGHT_RAY.
-  //
-  const Surface *shadower = tstate.shadow_caster (light_ray, *this, isec);
-
-  // If there's a shadowing surface, and it it is opaque, then we
-  // need do nothing more...
-  //
-  if (shadower && shadower->shadow_type == Material::SHADOW_OPAQUE)
-    return Color (0, 0, 0);
-  else if (shadower)
-    {
-      // If there was actually some surface shadowing LIGHT_RAY,
-      // it must be casting a partial shadow, so give it (and any
-      // further surfaces) a chance to attentuate LIGHT_COLOR.
-
-      tstate.scene.stats.scene_slow_shadow_traces++;
-
-      return brdf.illum (isec, surface_color, light_ray.dir,
-			 tstate.shadow (light_ray, light_color, *this));
-    }
-  else
-    // Use the reflectance function to calculate the resulting color of
-    // the light-ray when viewed from our perspective.
-    //
-    return brdf.illum (isec, surface_color, light_ray.dir, light_color);
-}
 
 // arch-tag: 3915e032-063a-4bbf-aa37-c4bbaba9f8b1

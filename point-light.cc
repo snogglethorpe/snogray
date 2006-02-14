@@ -1,6 +1,6 @@
 // point-light.cc -- Point light
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -16,31 +16,54 @@
 
 using namespace Snogray;
 
-// Return the color as lit by this light of the surface at ISEC, with
-// nominal color SURFACE_COLOR and reflectance function BRDF.
+// Generate (up to) NUM samples of this light and add them to SAMPLES.
+// For best results, they should be distributed according to the light's
+// intensity.
 //
-Color
-PointLight::illum (const Intersect &isec, const Color &surface_color,
-		   const Brdf &brdf, TraceState &tstate)
+void
+PointLight::gen_samples (const Intersect &isec, TraceState &tstate,
+			 SampleRayVec &samples)
   const
 {
-  // If the dot-product of the impinging light-ray with the surface
-  // normal is positive, that means the light is behind the surface,
-  // so cannot light it ("self-shadowing"); otherwise, see if some
-  // other surface casts a shadow.
+  Vec lvec = pos - isec.point;
 
-  Vec light_vec = pos - isec.point;
-
-  if (isec.normal.dot (light_vec) >= -Eps)
+  if (isec.normal.dot (lvec) >= -Eps)
     {
-      const Ray light_ray (isec.point, light_vec);
-
-      return ray_illum (light_ray,
-			color / (light_ray.len * light_ray.len),
-			isec, surface_color, brdf, tstate);
+      dist_t dist = lvec.length ();
+      samples.add_light (color / (dist * dist), lvec.unit(), dist, this);
     }
-  else
-    return Color (0, 0, 0);
+}
+
+// Modify the value of the BRDF samples in SAMPLES from FROM to TO,
+// according to the light's intensity in the sample's direction.
+//
+void
+PointLight::filter_samples (const Intersect &isec, TraceState &tstate,
+			    SampleRayVec &samples,
+			    SampleRayVec::iterator from,
+			    SampleRayVec::iterator to)
+  const
+{
+  // Unlikely to be much use (because very few samples will hit a point
+  // light), but try...
+
+  Vec lvec = pos - isec.point;
+  dist_t dist = lvec.length ();
+
+  for (SampleRayVec::iterator s = from; s != to; s++)
+    if (dist < s->dist || s->dist == 0)
+      {
+	Vec samp_targ = s->dir * dist;
+
+	dist_t dx = pos.x - samp_targ.x;
+	dist_t dy = pos.y - samp_targ.y;
+	dist_t dz = pos.z - samp_targ.z;
+
+	if (dx < Eps && dx > -Eps
+	    && dy < Eps && dy > -Eps
+	    && dz < Eps && dz > -Eps)
+	  s->set_light (color / (dist * dist), dist, this);
+      }
 }
 
 // Adjust this light's intensity by a factor of SCALE.

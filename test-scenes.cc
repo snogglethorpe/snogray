@@ -85,10 +85,52 @@ add_bulb (Scene &scene, const Pos &pos, float radius,
 }
 
 
+// Lighting for Paul Debevec environment maps.
+
+enum deb_light
+{
+  DEB_RNL,
+  DEB_GRACE
+};
 
 static void
-def_scene_miles (const string &name, unsigned num,
-		       Scene &scene, Camera &camera)
+add_deb_lights (enum deb_light kind, Scene &scene)
+{
+  switch (kind)
+    {
+    case DEB_GRACE:
+      // Far-lights on top and two sides.  This roughly matches Paul
+      // Debevec's "grace cathedral" environment map.
+      //
+      scene.add (new FarLight (Vec ( 0, 1,  0),     0.2, 0.2));
+      scene.add (new FarLight (Vec ( 0, 1, -1),     2,   0.075));
+      scene.add (new FarLight (Vec ( 0, 1,  1),     2,   0.075));
+      scene.add (new FarLight (Vec (-1, 0.2, -0.5), 0.4, Color (1, 0.9, .5)));
+      scene.add (new FarLight (Vec ( 1, 0.1,  0.1), 0.2, 0.5));
+      break;
+
+    case DEB_RNL:
+      // This roughly matches Paul Debevec's "RNL" environment map
+
+      // sun
+      scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, 2));
+
+      // sky overhead
+      scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  Color(0.1, 0.1, 0.2)));
+
+      // sky other directions
+      scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  Color(0.3, 0.3, 0.4)));
+      scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  Color(0.2, 0.2, 0.3)));
+      scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  Color(0.2, 0.2, 0.3)));
+      scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  Color(0.05, 0.05, 0.1)));
+      break;
+    }
+}
+
+
+
+static void
+def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
 {
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
 //  Material *mat2 = scene.add (new Lambert (Color (0.5, 0.5, 0)));
@@ -114,13 +156,27 @@ def_scene_miles (const string &name, unsigned num,
     = scene.add (new Material (Color (0.2, 0.5, 0.1)));
 
   // First test scene
-  add_bulb (scene, Pos (0, 15, 0), 0.06, 30);
-  add_bulb (scene, Pos (0, 0, -5), 0.06, 30);
-  add_bulb (scene, Pos (-5, 10, 0), 0.06, 40 * Color (0, 0, 1));
-  add_bulb (scene, Pos (-40, 15, -40), 0.06, 300);
-  add_bulb (scene, Pos (-40, 15,  40), 0.06, 300);
-  add_bulb (scene, Pos ( 40, 15, -40), 0.06, 300);
-  add_bulb (scene, Pos ( 40, 15,  40), 0.06, 300);
+
+  switch ((num / 10) % 10)
+    {
+    case 0:
+      add_bulb (scene, Pos (0, 15, 0), 0.06, 30);
+      add_bulb (scene, Pos (0, 0, -5), 0.06, 30);
+      add_bulb (scene, Pos (-5, 10, 0), 0.06, 40 * Color (0, 0, 1));
+      add_bulb (scene, Pos (-40, 15, -40), 0.06, 300);
+      add_bulb (scene, Pos (-40, 15,  40), 0.06, 300);
+      add_bulb (scene, Pos ( 40, 15, -40), 0.06, 300);
+      add_bulb (scene, Pos ( 40, 15,  40), 0.06, 300);
+      break;
+
+    case 1:
+      add_deb_lights (DEB_GRACE, scene);
+      break;
+
+    case 2:
+      add_deb_lights (DEB_RNL, scene);
+      break;
+    }
 
 //   // xxx
 //   scene.add (new Sphere (mat1, Pos (-2, -2, -8), 0.5));
@@ -132,7 +188,7 @@ def_scene_miles (const string &name, unsigned num,
 
   add_rect (scene, mat4, Pos (-100, -3, -100), Vec(200, 0, 0), Vec(0, 0, 200));
 
-  switch (num)
+  switch (num % 10)
     {
     case 0:
     default:
@@ -404,14 +460,11 @@ def_scene_teapot (const string &name, unsigned num,
       break;
 
     case 8:
-      // Far-lights on top and two sides.  This roughly matches Paul
-      // Debevec's "grace cathedral" environment map.
-      //
-      scene.add (new FarLight (Vec ( 0, 1,  0),     0.2, 0.2));
-      scene.add (new FarLight (Vec ( 0, 1, -1),     2,   0.075));
-      scene.add (new FarLight (Vec ( 0, 1,  1),     2,   0.075));
-      scene.add (new FarLight (Vec (-1, 0.2, -0.5), 0.4, Color (1, 0.9, .5)));
-      scene.add (new FarLight (Vec ( 1, 0.1,  0.1), 0.2, 0.5));
+      add_deb_lights (DEB_GRACE, scene);
+      break;
+
+    case 9:
+      add_deb_lights (DEB_RNL, scene);
       break;
     }
 
@@ -1027,19 +1080,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
       {
       case 0:
 	// outdoor lighting
-	// This roughly matches Paul Debevec's "RNL" environment map
-
-	// sun
-	scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, 2));
-
-	// sky overhead
-	scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  Color(0.1, 0.1, 0.2)));
-
-	// sky other directions
-	scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  Color(0.3, 0.3, 0.4)));
-	scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  Color(0.2, 0.2, 0.3)));
-	scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  Color(0.2, 0.2, 0.3)));
-	scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  Color(0.05, 0.05, 0.1)));
+	add_deb_lights (DEB_RNL, scene);
 	break;
 
       case 1:

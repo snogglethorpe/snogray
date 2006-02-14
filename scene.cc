@@ -238,18 +238,89 @@ Scene::illum (const Intersect &isec, const Color &color, const Brdf &brdf,
 	      TraceState &tstate)
   const
 {
-  Color total_color;	// Accumulated colors from all light sources
+  LightSamples &lsamples = tstate.global.light_samples;
+
+  lsamples.generate (isec, color, brdf, lights, tstate);
+
+  stats.illum_calls++;
+  stats.illum_samples += lsamples.size ();
+
+  // The maximum _possible_ output radiance (from lights), if all remaining
+  // samples are not shadowed.
+  //
+  Color poss_radiance;
+  for (LightSamples::iterator s = lsamples.begin (); s != lsamples.end (); s++)
+    poss_radiance += s->val;
+
+  // Accumulated output radiance
+  //
+  Color radiance;
+
+  // Now shoot shadow rays to check the visibility of the chosen set of
+  // light samples, accumulating the resulting radiance in RADIANCE.
 
   TraceState &sub_tstate
     = tstate.subtrace_state (TraceState::SHADOW, isec.surface);
 
-  for (light_iterator_t li = lights.begin(); li != lights.end(); li++)
-    {
-      const Light *light = *li;
-      total_color += light->illum (isec, color, brdf, sub_tstate);
-    }
+  for (LightSamples::iterator s = lsamples.begin (); s != lsamples.end (); s++)
+    if (s->val > 0)
+      {
+	// If RADIANCE is beyond some threshold, give up even though we
+	// haven't finished all samples yet.  This means that in cases
+	// where the output radiance is dominated by very bright lights,
+	// we won't waste time calculating the remaining dim ones.
+	//
+	if (radiance > poss_radiance * 0.95 /* XXX make a variable */)
+	  {
+	    // XXX somehow use the unused samples, except without sending out
+	    // shadow rays [perhaps (1) keep track of last-known visibility
+	    // per-light, and (2) update the visibility of some random subset
+	    // of the remaining unused lights]
+	    //
+	    break;
+	  }
 
-  return total_color;
+	const Ray shadow_ray (isec.point, s->dir, s->dist);
+
+	// Find any surface that's shadowing LIGHT_RAY.
+	//
+	const Surface *shadower
+	  = sub_tstate.shadow_caster (shadow_ray, *s->light, isec);
+
+	if (! shadower)
+	  //
+	  // The surface is not shadowed at all, just add the light.
+	  //
+	  radiance += s->val;
+
+	else if (shadower->shadow_type != Material::SHADOW_OPAQUE)
+	  //
+	  // There's a shadower, but it's not opaque, so give it (and
+	  // any further surfaces) a chance to attentuate the color.
+	  {
+	    stats.scene_slow_shadow_traces++;
+
+	    // The reflected radiance from this sample, after being adjusted
+	    // for the filtering of the source irradiance through SHADOWER.
+	    //
+	    Color filtered = sub_tstate.shadow (shadow_ray, s->val, *s->light);
+
+	    // Add the final filtered radiance to RADIANCE, and also
+	    // adjust our estimation of the total possible radiance to
+	    // account for the filtering.
+	    //
+	    radiance += filtered;
+	    poss_radiance -= s->val - filtered;
+	  }
+
+	else
+	  // The surface is shadowed; subtract this light from the
+	  // possible radiance.
+	  //
+	  poss_radiance -= s->val;
+      }
+
+  return radiance;
 }
 
 

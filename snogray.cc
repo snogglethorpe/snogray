@@ -897,6 +897,10 @@ int main (int argc, char *const *argv)
 
   long long num_eye_rays = 0;
 
+  // Global R/W state during tracing.
+  //
+  GlobalTraceState global_tstate;
+
   // Main ray-tracing loop
   //
   Rusage render_beg_ru;
@@ -922,7 +926,7 @@ int main (int argc, char *const *argv)
       // for each row as the state at the end of the previous row is
       // probably not too useful anyway.
       //
-      TraceState tstate (scene);
+      TraceState tstate (scene, global_tstate);
 
       // Process and (maybe) output one image row.  In wire-frame mode,
       // we actually output one row behind the row being calculated, so
@@ -1060,6 +1064,23 @@ int main (int argc, char *const *argv)
 	    cout << "     surface tests:   " << setw (16) << commify (ot)
 		 << " (" <<setw(2) << (100 * ot / (tstats.num_surfaces * (sst - shh))) << "%)"
 		 << endl;
+	}
+
+      long long ic = sstats.illum_calls;
+
+      if (ic != 0)
+	{
+	  long long is = sstats.illum_samples;
+
+	  cout << "  illum:" << endl;
+	  cout << "     illum calls:     " << setw (16)
+	       << commify (ic) << endl;
+	  cout << "     average light samples: " << setw (10)
+	       << setprecision(3) << (float (is) / float (ic)) << endl;
+	  cout << "     average shadow rays:   " << setw (10)
+	       << setprecision(3) << (float (sst) / float (ic))
+	       << " (" << setw(2) << (sst * 100 / is) << "%)"
+	       << endl;
 	}
 
       // a field width of 14 is enough for over a year of time...

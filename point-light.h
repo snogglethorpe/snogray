@@ -1,6 +1,6 @@
 // point-light.h -- Point light
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -24,11 +24,21 @@ public:
 
   PointLight (const Pos &_pos, const Color &col) : pos (_pos), color (col) { }
 
-  // Return the color as lit by this light of the surface at ISEC, with
-  // nominal color SURFACE_COLOR and reflectance function BRDF.
+  // Generate (up to) NUM samples of this light and add them to SAMPLES.
+  // For best results, they should be distributed according to the light's
+  // intensity.
   //
-  virtual Color illum (const Intersect &isec, const Color &surface_color,
-		       const Brdf &brdf, TraceState &tstate)
+  virtual void gen_samples (const Intersect &isec, TraceState &tstate,
+			    SampleRayVec &samples)
+    const;
+
+  // Modify the value of the BRDF samples in SAMPLES from FROM to TO,
+  // according to the light's intensity in the sample's direction.
+  //
+  virtual void filter_samples (const Intersect &isec, TraceState &tstate,
+			       SampleRayVec &samples,
+			       SampleRayVec::iterator from,
+			       SampleRayVec::iterator to)
     const;
 
   // Adjust this light's intensity by a factor of SCALE.

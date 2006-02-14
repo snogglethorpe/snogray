@@ -62,25 +62,28 @@ FarLight::init ()
       v_offs += 1;
     }
 
-  color /= num_lights;
+  num_lights_scale = 1.0 / num_lights;
 }
 
-
-
-// Return the color as lit by this light of the surface at ISEC, with
-// nominal color SURFACE_COLOR and reflectance function BRDF.
+// Generate (up to) NUM samples of this light and add them to SAMPLES.
+// For best results, they should be distributed according to the light's
+// intensity.
 //
-Color
-FarLight::illum (const Intersect &isec, const Color &surface_color,
-		 const Brdf &brdf, TraceState &tstate)
+void
+FarLight::gen_samples (const Intersect &isec, TraceState &tstate,
+		       SampleRayVec &samples)
   const
 {
+  // First detect cases where the light isn't visible at all, by
+  // examining the dot product of the surface normal with rays to the
+  // four corners of the light.
+  //
   if (isec.normal.dot (dir + u) > 0
       || isec.normal.dot (dir - u) > 0
       || isec.normal.dot (dir + v) > 0
       || isec.normal.dot (dir - v) > 0)
     {
-      Color illum;
+      Color samp_color = color * num_lights_scale;
       dist_t r_sq = steps_radius * steps_radius;
       double v_offs = -steps_radius;
 
@@ -97,22 +100,30 @@ FarLight::illum (const Intersect &isec, const Color &surface_color,
 		  = u_inc * (u_offs + random (0, 1))
 		  + v_inc * (v_offs + random (0, 1));
 
-		const Ray light_ray (isec.point, (dir + jitter).unit(),
-				     Scene::DEFAULT_HORIZON);
-
-		illum += ray_illum (light_ray, color, isec,
-				    surface_color, brdf, tstate);
+		samples.add_light (samp_color, (dir + jitter).unit(),
+				   Scene::DEFAULT_HORIZON, this);
 
 		u_offs += 1;
 	      }
 
 	  v_offs += 1;
 	}
-
-      return illum;
     }
-  else
-    return Color (0, 0, 0);
+}
+
+// Modify the value of the BRDF samples in SAMPLES from FROM to TO,
+// according to the light's intensity in the sample's difarion.
+//
+void
+FarLight::filter_samples (const Intersect &isec, TraceState &tstate,
+			  SampleRayVec &samples,
+			  SampleRayVec::iterator from,
+			  SampleRayVec::iterator to)
+  const
+{
+  for (SampleRayVec::iterator s = from; s != to; s++)
+    if (s->dist == 0 && dir.dot (s->dir) <= max_cos)
+      s->set_light (color, Scene::DEFAULT_HORIZON, this);
 }
 
 // Adjust this light's intensity by a factor of SCALE.

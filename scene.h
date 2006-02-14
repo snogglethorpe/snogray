@@ -213,7 +213,8 @@ public:
 	       shadow_hint_hits (0), shadow_hint_misses (0),
 	       scene_slow_shadow_traces (0), surface_slow_shadow_traces (0),
 	       horizon_hint_hits (0), horizon_hint_misses (0),
-	       surface_intersects_tests (0)
+	       surface_intersects_tests (0),
+	       illum_calls (0), illum_samples (0)
     { }
     unsigned long long scene_intersect_calls;
     unsigned long long surface_intersect_calls;
@@ -225,6 +226,8 @@ public:
     unsigned long long horizon_hint_hits;
     unsigned long long horizon_hint_misses;
     unsigned long long surface_intersects_tests;
+    unsigned long long illum_calls;
+    unsigned long long illum_samples;
     Space::IsecStats space_intersect;
     Space::IsecStats space_shadow;
   } stats;
