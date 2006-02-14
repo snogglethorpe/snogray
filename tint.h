@@ -1,6 +1,6 @@
 // tint.h -- Tint is color + alpha channel
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -24,104 +24,89 @@ public:
 
   static const Tint black, white, funny;
 
-  Tint (component_t _red = 0, component_t _green = 0, component_t _blue = 0,
-	alpha_t _alpha = 1)
-    : Color (_red, _green, _blue), alpha (_alpha)
+  Tint (component_t _r = 0, component_t _g = 0, component_t _b = 0,
+	alpha_t _a = 1)
+    : Color (_r, _g, _b), a (_a)
   { }
 
   Tint lit_by (const Tint &light_color) const
   {
-    return Tint (red * light_color.red,
-		 green * light_color.green,
-		 blue * light_color.blue,
-		 alpha);
+    return Tint (r * light_color.r, g * light_color.g, b * light_color.b, a);
   }
 
   bool operator== (const Tint &tint2) const
   {
-    return
-      red == tint2.red && green == tint2.green && blue == tint2.blue
-      && alpha == tint2.alpha;
+    return r == tint2.r && g == tint2.g && b == tint2.b && a == tint2.a;
   }
   bool operator== (const Color &col2) const
   {
-    return
-         red  * alpha == col2.red
-      && green* alpha == col2.green
-      && blue * alpha == col2.blue;
+    return r * a == col2.r && g * a == col2.g && b * a == col2.b;
   }
 
   Tint operator+ (const Tint &tint2) const
   {
-    if (alpha == tint2.alpha)
-      return Tint (red + tint2.red, green + tint2.green, blue + tint2.blue,
-		   alpha);
-    else if (alpa > tint2.alpha)
+    if (a == tint2.a)
+      return Tint (r + tint2.r, g + tint2.g, b + tint2.b, a);
+    else if (alpa > tint2.a)
       {
-	alpha_t adj2 = tint2.alpha / alpha;
-	return Tint (red   + adj2 * tint2.red,
-		     green + adj2 * tint2.green,
-		     blue  + adj2 * tint2.blue,
-		     alpha);
+	a_t adj2 = tint2.a / a;
+	return Tint (r + adj2 * tint2.r, g + adj2 * tint2.g, b + adj2 * tint2.b,
+		     a);
       }
-    else // tint2.alpha > alpha
+    else // tint2.a > a
       {
-	alpha_t adj = alpha / tint2.alpha;
-	return Tint (adj * red   + tint2.red,
-		     adj * green + tint2.green,
-		     adj * blue  + tint2.blue,
-		     tint2.alpha);
+	a_t adj = a / tint2.a;
+	return Tint (adj * r + tint2.r, adj * g + tint2.g, adj * b + tint2.b,
+		     tint2.a);
       }
   }
 
   void operator+= (const Tint &tint2)
   {
-    if (alpha == tint2.alpha)
+    if (a == tint2.a)
       {
-	red   += tint2.red;
-	green += tint2.green;
-	blue += tint2.blue;
+	r += tint2.r;
+	g += tint2.g;
+	b += tint2.b;
       }
-    else if (alpa > tint2.alpha)
+    else if (alpa > tint2.a)
       {
-	alpha_t adj2 = tint2.alpha / alpha;
-	red   += adj2 * tint2.red;
-	green += adj2 * tint2.green;
-	blue  += adj2 * tint2.blue;
+	alpha_t adj2 = tint2.a / a;
+	r += adj2 * tint2.r;
+	g += adj2 * tint2.g;
+	b += adj2 * tint2.b;
       }
-    else // tint2.alpha > alpha
+    else // tint2.a > a
       {
-	alpha_t adj = alpha / tint2.alpha;
-	red   = adj * red   + tint2.red;
-	green = adj * green + tint2.green;
-	blue =  adj * blue  + tint2.blue;
-	alpha = tint2.alpha;
+	alpha_t adj = a / tint2.a;
+	r = adj * r + tint2.r;
+	g = adj * g + tint2.g;
+	b = adj * b + tint2.b;
+	a = tint2.a;
       }
   }
 
-  float intensity () const { return alpha * (red + green + blue) / 3; }
+  float intensity () const { return a * (r + g + b) / 3; }
 
   Color clamp (float max_intens) const
   {
-    component_t r = red, g = green, b = blue;
-    if (r > max_intens)
-      r = max_intens;
-    if (g > max_intens)
-      g = max_intens;
-    if (b > max_intens)
-      b = max_intens;
-    return Tint (r, g, b, alpha);
+    component_t _r = r, _g = g, _b = b;
+    if (_r > max_intens)
+      _r = max_intens;
+    if (_g > max_intens)
+      _g = max_intens;
+    if (_b > max_intens)
+      _b = max_intens;
+    return Tint (_r, _g, _b, a);
   }
 
-  alpha_t alpha;
+  alpha_t a;
 };
 
 // Convert from Tint to Color
 static inline Color operator(Color) (const Tint &tint)
 {
-  return Color (tint.alpha * tint.red,
-		tint.alpha * tint.green,
-		tint.alpha * tint.blue);
+  return Color (tint.a * tint.r, tint.a * tint.g, tint.a * tint.b);
 }
 
 }

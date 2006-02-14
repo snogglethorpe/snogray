@@ -1,6 +1,6 @@
 // image-byte-vec.cc -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -36,9 +36,9 @@ ByteVecImageSink::write_row (const ImageRow &row)
   for (unsigned x = 0; x < width; x++)
     {
       const Color &col = row[x];
-      *p++ = color_component_to_byte (col.red);
-      *p++ = color_component_to_byte (col.green);
-      *p++ = color_component_to_byte (col.blue);
+      *p++ = color_component_to_byte (col.r);
+      *p++ = color_component_to_byte (col.g);
+      *p++ = color_component_to_byte (col.b);
     }
 
   write_row (output_row);

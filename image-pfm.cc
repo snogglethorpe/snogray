@@ -1,6 +1,6 @@
 // image-pfm.cc -- PFM ("Portable Float Map") format image handling
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -100,9 +100,9 @@ PfmImageSink::write_row (const ImageRow &row)
     {
       const Color &col = row[x];
 
-      *p++ = col.red;
-      *p++ = col.green;
-      *p++ = col.blue;
+      *p++ = col.r;
+      *p++ = col.g;
+      *p++ = col.b;
     }
 
   next_y++;
@@ -204,9 +204,9 @@ PfmImageSource::read_row (ImageRow &row)
     {
       Color &col = row[x];
 
-      col.red = maybe_byte_swap (*p++);
-      col.green = maybe_byte_swap (*p++);
-      col.blue = maybe_byte_swap (*p++);
+      col.r = maybe_byte_swap (*p++);
+      col.g = maybe_byte_swap (*p++);
+      col.b = maybe_byte_swap (*p++);
     }
 
   next_y++;

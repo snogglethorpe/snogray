@@ -24,12 +24,12 @@ public:
 
   static const Color black, white, funny;
 
-  Color (component_t _red, component_t _green, component_t _blue)
-    : red (_red), green (_green), blue (_blue)
+  Color (component_t _r, component_t _g, component_t _b)
+    : r (_r), g (_g), b (_b)
   { }
-  Color (component_t grey = 0) : red (grey), green (grey), blue (grey) { }
-  Color (double grey) : red (grey), green (grey), blue (grey) { }
-  Color (int grey) : red (grey), green (grey), blue (grey) { }
+  Color (component_t grey = 0) : r (grey), g (grey), b (grey) { }
+  Color (double grey) : r (grey), g (grey), b (grey) { }
+  Color (int grey) : r (grey), g (grey), b (grey) { }
 
   friend bool operator== (const Color &col1, const Color &col2);
   friend Color operator+ (const Color &col1, const Color &col2);
@@ -38,46 +38,46 @@ public:
 
   Color operator/ (float denom) const
   {
-    return Color (red / denom, green / denom, blue / denom);
+    return Color (r / denom, g / denom, b / denom);
   }
 
   void operator+= (const Color &col2)
   {
-    red += col2.red;
-    green += col2.green;
-    blue += col2.blue;
+    r += col2.r;
+    g += col2.g;
+    b += col2.b;
   }
   void operator-= (const Color &col2)
   {
-    red -= col2.red;
-    green -= col2.green;
-    blue -= col2.blue;
+    r -= col2.r;
+    g -= col2.g;
+    b -= col2.b;
   }
   void operator*= (float scale)
   {
-    red *= scale;
-    green *= scale;
-    blue *= scale;
+    r *= scale;
+    g *= scale;
+    b *= scale;
   }
   void operator/= (float denom)
   {
-    red /= denom;
-    green /= denom;
-    blue /= denom;
+    r /= denom;
+    g /= denom;
+    b /= denom;
   }
 
   void operator*= (const Color &filter)
   {
-    red *= filter.red;
-    green *= filter.green;
-    blue *= filter.blue;
+    r *= filter.r;
+    g *= filter.g;
+    b *= filter.b;
   }
 
-  float intensity () const { return (red + green + blue) / 3; }
+  float intensity () const { return (r + g + b) / 3; }
 
   Color clamp (float max_intens) const
   {
-    component_t r = red, g = green, b = blue;
+    component_t r = r, g = g, b = b;
     if (r > max_intens)
       r = max_intens;
     if (g > max_intens)
@@ -88,19 +88,15 @@ public:
   }
   Color pow (float exp) const
   {
-    return Color (powf (red, exp),
-		  powf (green, exp),
-		  powf (blue, exp));
+    return Color (powf (r, exp), powf (g, exp), powf (b, exp));
   }
 
-  component_t red, green, blue;
+  component_t r, g, b;
 };
 
 inline bool operator== (const Color &col1, const Color &col2)
 {
-  return col1.red   == col2.red
-      && col1.green == col2.green
-      && col1.blue  == col2.blue;
+  return col1.r == col2.r && col1.g == col2.g && col1.b == col2.b;
 }
 inline bool operator!= (const Color &col1, const Color &col2)
 {
@@ -109,9 +105,7 @@ inline bool operator!= (const Color &col1, const Color &col2)
 
 inline bool operator> (const Color &col1, const Color &col2)
 {
-  return
-    (col1.red + col1.green + col1.blue)
-    > (col2.red + col2.green + col2.blue);
+  return (col1.r + col1.g + col1.b) > (col2.r + col2.g + col2.b);
 }
 inline bool operator<= (const Color &col1, const Color &col2)
 {
@@ -120,9 +114,7 @@ inline bool operator<= (const Color &col1, const Color &col2)
 
 inline bool operator< (const Color &col1, const Color &col2)
 {
-  return
-    (col1.red + col1.green + col1.blue)
-    < (col2.red + col2.green + col2.blue);
+  return (col1.r + col1.g + col1.b) < (col2.r + col2.g + col2.b);
 }
 inline bool operator>= (const Color &col1, const Color &col2)
 {
@@ -132,21 +124,15 @@ inline bool operator>= (const Color &col1, const Color &col2)
 
 inline Color operator+ (const Color &col1, const Color &col2)
 {
-  return Color (col1.red   + col2.red,
-		col1.green + col2.green,
-		col1.blue  + col2.blue);
+  return Color (col1.r + col2.r, col1.g + col2.g, col1.b + col2.b);
 }
 inline Color operator- (const Color &col1, const Color &col2)
 {
-  return Color (col1.red   - col2.red,
-		col1.green - col2.green,
-		col1.blue  - col2.blue);
+  return Color (col1.r - col2.r, col1.g - col2.g, col1.b - col2.b);
 }
 inline Color operator* (const Color &col1, const Color &filter)
 {
-  return Color (col1.red   * filter.red,
-		col1.green * filter.green,
-		col1.blue  * filter.blue);
+  return Color (col1.r * filter.r, col1.g * filter.g, col1.b * filter.b);
 }
 
 extern std::ostream& operator<< (std::ostream &os, const Snogray::Color &col);

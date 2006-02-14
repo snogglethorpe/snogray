@@ -1,6 +1,6 @@
 // color.h -- Color datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -20,7 +20,7 @@ const Color Color::funny (0,10,0);
 std::ostream&
 Snogray::operator<< (std::ostream &os, const Color &col)
 {
-  os << "rgb<" << col.red << ", " << col.green << ", " << col.blue << ">";
+  os << "rgb<" << col.r << ", " << col.g << ", " << col.b << ">";
   return os;
 }
 

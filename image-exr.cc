@@ -1,6 +1,6 @@
 // image-exr.cc -- EXR format image handling
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -46,7 +46,7 @@ ExrImageSink::write_row (const ImageRow &row)
   for (unsigned x = 0; x < row.width; x++)
     {
       const Color &col = row[x];
-      Imf::Rgba rgba (col.red, col.green, col.blue, 1);
+      Imf::Rgba rgba (col.r, col.g, col.b, 1);
       row_buf[x] = rgba;
     }
 
@@ -115,9 +115,9 @@ ExrImageSource::read_row (ImageRow &row)
     {
       Color &col = row[x];
       const Imf::Rgba &rgba = row_buf[x];
-      col.red = rgba.r;
-      col.green = rgba.g;
-      col.blue = rgba.b;
+      col.r = rgba.r;
+      col.g = rgba.g;
+      col.b = rgba.b;
     }
 
   cur_y++;

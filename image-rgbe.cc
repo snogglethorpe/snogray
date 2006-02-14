@@ -52,21 +52,21 @@ struct RgbeColor
   RgbeColor (const Color &col)
     : r (0), g (0), b (0), exp (0)
   {
-    double max_comp = col.red;
+    double max_comp = col.r;
 
-    if (col.green > max_comp)
-      max_comp = col.green;
-    if (col.blue > max_comp)
-      max_comp = col.blue;
+    if (col.g > max_comp)
+      max_comp = col.g;
+    if (col.b > max_comp)
+      max_comp = col.b;
 
     if (max_comp > 1e-32)
       {
 	int iexp;
 	float adj = frexp (max_comp, &iexp) * 255.9999 / max_comp;
 
-	r = byte (adj * col.red);
-	g = byte (adj * col.green);
-	b = byte (adj * col.blue);
+	r = byte (adj * col.r);
+	g = byte (adj * col.g);
+	b = byte (adj * col.b);
 	exp = iexp + exp_offs;
       }
   }

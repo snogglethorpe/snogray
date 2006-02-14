@@ -1,6 +1,6 @@
 // image-ppm.cc -- PPM/PGM/PBM format image handling
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -94,9 +94,9 @@ PpmImageSink::write_row (const ImageRow &row)
     {
       const Color &col = row[x];
       PPM_ASSIGN (output_row[x],
-		  color_component_to_pixval (col.red),
-		  color_component_to_pixval (col.green),
-		  color_component_to_pixval (col.blue));
+		  color_component_to_pixval (col.r),
+		  color_component_to_pixval (col.g),
+		  color_component_to_pixval (col.b));
     }
 
   ppm_writeppmrow (stream, output_row, width, max_pixval, force_plain);
@@ -195,9 +195,9 @@ PpmImageSource::read_row (ImageRow &row)
   for (unsigned x = 0; x < width; x++)
     {
       Color &col = row[x];
-      col.red =   pixval_to_color_component (PPM_GETR (input_row[x]));
-      col.green = pixval_to_color_component (PPM_GETG (input_row[x]));
-      col.blue =  pixval_to_color_component (PPM_GETB (input_row[x]));
+      col.r = pixval_to_color_component (PPM_GETR (input_row[x]));
+      col.g = pixval_to_color_component (PPM_GETG (input_row[x]));
+      col.b = pixval_to_color_component (PPM_GETB (input_row[x]));
     }
 }
 
