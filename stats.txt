@@ -1048,4 +1048,55 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:     688
 
 
+   2006-02-14 [work]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-19
+   cmd: snogray test:teapot184 -s1280x1024 -m3 -b ../cubetexs/grace_cross.exr -coy-60,z0.6,mf5.5 ../images/grt7.exr
+   * adding mesh: 30,057 vertices, 57,360 triangles
+   * adding mesh: 79 vertices, 64 triangles
+   * adding mesh: 79 vertices, 64 triangles
+   * adding mesh: 8 vertices, 8 triangles
+   * adding mesh: 457,354 vertices, 582,494 triangles
+   * adding mesh: 33,076 vertices, 38,880 triangles
+   * adding mesh: 46,066 vertices, 57,548 triangles
+   * adding mesh: 51,316 vertices, 60,132 triangles
+   * adding mesh: 156,657 vertices, 191,196 triangles
+   Scene:
+      scene:         test:teapot184
+      top-level surfaces:        14
+      lights:                     5
+      materials:                 13
+      tree surfaces:      2,473,362 (60% duplicates)
+      tree nodes:           641,305 (50% leaves)
+      tree avg depth:             5
+      tree max depth:            21
+   Image:
+      size:         1280 x 1024 x 3 (3840 x 3072)
+
+   rendering: done              
+
+   Rendering stats:
+     intersect:
+	rays:                  27,492,234
+	horizon hint hits:     15,443,420 (56%)
+	horizon hint misses:    3,313,925 (12%)
+	tree node tests:    1,808,800,103 ( 0%)
+	surface tests:      2,167,855,732 ( 0%)
+     shadow:
+	rays:                 644,087,794
+	shadow hint hits:      11,916,349 ( 1%)
+	shadow hint misses:   232,206,167 (36%)
+	tree node tests:   28,539,371,860 ( 0%)
+	surface tests:     33,524,679,159 ( 0%)
+     illum:
+	illum calls:           18,765,972
+	average light samples:       61.6
+	average shadow rays:         34.3 (55%)
+   Time:
+     scene def cpu:         8.911
+     rendering cpu:   3:17:29.702
+     total elapsed:   3:33:49.088
+     rays per second:      56,674
+     eye-rays per second:     995
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
