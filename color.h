@@ -77,14 +77,14 @@ public:
 
   Color clamp (float max_intens) const
   {
-    component_t r = r, g = g, b = b;
-    if (r > max_intens)
-      r = max_intens;
-    if (g > max_intens)
-      g = max_intens;
-    if (b > max_intens)
-      b = max_intens;
-    return Color (r, g, b);
+    component_t _r = r, _g = g, _b = b;
+    if (_r > max_intens)
+      _r = max_intens;
+    if (_g > max_intens)
+      _g = max_intens;
+    if (_b > max_intens)
+      _b = max_intens;
+    return Color (_r, _g, _b);
   }
   Color pow (float exp) const
   {
