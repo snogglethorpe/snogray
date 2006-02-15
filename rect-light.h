@@ -25,9 +25,10 @@ public:
   static const unsigned JITTER_STEPS = 5;
 
   RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
-	     const Color &col)
+	     const Color &emittance)
     : pos (_pos), side1 (_side1), side2 (_side2),
-      color (col), normal (_side1.cross (_side2).unit ())
+      power (emittance * _side1.cross (_side2).length ()),
+      normal (_side1.cross (_side2).unit ())
   { }
 
   // Generate (up to) NUM samples of this light and add them to SAMPLES.
@@ -51,10 +52,14 @@ public:
   //
   virtual void scale_intensity (float scale);
 
+  // Location and size of the light.
+  //
   Pos pos;
   Vec side1, side2;
 
-  Color color;
+  // Total emitted power for the entire light.
+  //
+  Color power;
 
 private:
 

@@ -77,7 +77,7 @@ RectLight::gen_samples (const Intersect &isec, TraceState &tstate,
 	      Color::component_t scale =
 		fabs (normal.dot (dir)) * num_samples_scale / (dist * dist);
 
-	      samples.add_light (color * scale, dir, dist, this);
+	      samples.add_light (power * scale, dir, dist, this);
 
 	      u_offs += u_step;    // step to next grid point in u direction
 	    }
@@ -113,7 +113,7 @@ RectLight::filter_samples (const Intersect &isec, TraceState &tstate,
 	  //
 	  Color::component_t scale = fabs (normal.dot (s->dir)) / (dist * dist);
 
-	  s->set_light (color * scale, dist, this);
+	  s->set_light (power * scale, dist, this);
 	}
     }
 }
@@ -123,7 +123,7 @@ RectLight::filter_samples (const Intersect &isec, TraceState &tstate,
 void
 RectLight::scale_intensity (float scale)
 {
-  color *= scale;
+  power *= scale;
 }
 
 // arch-tag: 60165b73-d34e-4f49-9a90-958daefdeb78

@@ -68,8 +68,7 @@ add_rect_bulb (Scene &scene,
 	       const Pos &corner, const Vec &side1, const Vec &side2,
 	       const Color &col = Color::white)
 {
-  dist_t area = side1.cross (side2).length ();
-  const Material *bulb_mat = scene.add (new Glow (col / area));
+  const Material *bulb_mat = scene.add (new Glow (col));
   scene.add (new RectLight (corner, side1, side2, col));
   add_rect (scene, bulb_mat, corner, side1, side2);
 }
@@ -170,11 +169,25 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
       break;
 
     case 1:
-      add_deb_lights (DEB_GRACE, 5, scene);
+      add_rect_bulb (scene, Pos(-80, 0, -80), Vec(0, 80, 0), Vec(0, 0, 160), 3);
       break;
 
     case 2:
-      add_deb_lights (DEB_RNL, 5, scene);
+      add_rect_bulb (scene, Pos(-40, 0, 0), Vec(40, 0, 40), Vec(0, 5, 0), 5);
+      add_rect_bulb (scene, Pos(0, 0, -40), Vec(40, 0, 40), Vec(0, 5, 0), 5);
+      break;
+
+    case 3:
+      add_rect_bulb (scene, Pos(-20, -3, 0), Vec(20, 0, 20), Vec(0, 1, 0), 50);
+      add_rect_bulb (scene, Pos(0, -3, -20), Vec(20, 0, 20), Vec(0, 1, 0), 50);
+      break;
+
+    case 5:
+      add_deb_lights (DEB_GRACE, 5, scene);
+      break;
+
+    case 6:
+      add_deb_lights (DEB_RNL, 3, scene);
       break;
     }
 
@@ -292,10 +305,10 @@ def_scene_pretty_bunny (const string &name, unsigned num,
       break;
 
     case 1:
-      add_rect_bulb (scene, Pos(-5, 10, -5), Vec(10, 0, 0), Vec(0, 0, 10), 250);
+      add_rect_bulb (scene, Pos(-5, 10, -5), Vec(10, 0, 0), Vec(0, 0, 10), 2);
       break;
     case 2:
-      add_rect_bulb (scene, Pos(-10, 0, 2), Vec(0, 10, 0), Vec(6, 0, 6), 250);
+      add_rect_bulb (scene, Pos(-10, 0, 2), Vec(0, 10, 0), Vec(6, 0, 6), 2);
       break;
 
     case 5:
@@ -427,12 +440,12 @@ def_scene_teapot (const string &name, unsigned num,
     case 2:
       // night-time teapot, area lights
       //
-      add_rect_bulb (scene, Pos (3.1, 12.1, -9.8), Vec (-5, 0, 0), Vec (0, 5, 0),
-		     100);
+      add_rect_bulb (scene, Pos(3.1, 12.1, -9.8), Vec(-5, 0, 0), Vec(0, 5, 0),
+		     8);
       // fall through
     case 5:
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
-		     15 * Color (1, 1, 0.3));
+		     2 * Color (1, 1, 0.3));
       break;
 
     case 3:
@@ -445,17 +458,17 @@ def_scene_teapot (const string &name, unsigned num,
     case 4:
       // night-time teapot, area lights, strong overhead
       //
-      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 20);
+      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 1.3);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 1), Vec (0, 1, 0),
-		     5 * Color (1, 1, 0.3));
+		     10 * Color (1, 1, 0.3));
       break;
       
     case 6:
       // night-time teapot, area lights, strong front light
       //
-      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 20);
+      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 1);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
-		     15 * Color (1, 1, 0.3));
+		     1.5 * Color (1, 1, 0.3));
       break;
 
     case 7:
@@ -464,7 +477,7 @@ def_scene_teapot (const string &name, unsigned num,
       {
 	// Lights
 
-	float b = 60;			// brightness
+	float b = 2;			// brightness
 	dist_t ld = 12, lh = 6, lw = 8; // distance (from origin), height, width
 	Vec lhv (0, lh, 0);		// height vector
 
@@ -612,7 +625,7 @@ def_scene_orange (const string &name, unsigned num,
     case 2:
       // night-time orange 2
       add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
-		     15 * Color (1, 1, 0.3));
+		     2 * Color (1, 1, 0.3));
       break;
     }
 
@@ -650,7 +663,7 @@ static void
 def_scene_cornell_box (const string &name, unsigned num,
 		       Scene &scene, Camera &camera)
 {
-  float light_intens = 5;
+  float light_intens = 8;
   bool fill_light = true;
   float scale = 1;
 
@@ -939,11 +952,11 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
       break;
 
     case 2:
-      add_rect_bulb (scene, Pos (-5, 10, -5), Vec(10, 0,0), Vec(0,0, 10), 200);
+      add_rect_bulb (scene, Pos (-5, 10, -5), Vec(10, 0,0), Vec(0,0, 10), 2);
       break;
 
     case 3:
-      add_rect_bulb (scene, Pos (-10, 0, -5), Vec(0, 10,0), Vec(0, 0, 10), 400);
+      add_rect_bulb (scene, Pos (-10, 0, -5), Vec(0, 10,0), Vec(0, 0, 10), 4);
       break;
     }
 }
@@ -1003,9 +1016,9 @@ def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &
   scene.add (new Mesh (blue, msh_file, "Material7"));
   
   //scene.add (new PointLight (Pos (6, 8, 10), 100));
-  add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
-  add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
-  add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 150);
+  add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
+  add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
+  add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 1.5);
 
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
   //camera.move (Pos (9.7, 9.7, 5.8));
@@ -1110,9 +1123,9 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
       case 1:
 	// indoor lighting -- big lights on sides and in back
 
-	add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
-	add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 150);
-	add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 150);
+	add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
+	add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
+	add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 1.5);
 	break;
 
       case 2:
@@ -1390,15 +1403,15 @@ def_scene_mesh (const string &name, unsigned num,
       break;
 
     case 1:
-      add_rect_bulb (scene, Pos (-3, 5, -3), Vec (6, 0, 0), Vec (0, 0, 6), 150);
+      add_rect_bulb (scene, Pos (-3, 5, -3), Vec (6, 0, 0), Vec (0, 0, 6), 5);
       break;
 
     case 2:
-      add_rect_bulb (scene, Pos (-7, 6, -7), Vec (14, 0, 0), Vec (0, 0, 14), 800);
+      add_rect_bulb (scene, Pos (-7, 6, -7), Vec (14, 0, 0), Vec (0, 0, 14), 5);
       break;
 
     case 3:
-      add_rect_bulb (scene, Pos (-8, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 250);
+      add_rect_bulb (scene, Pos (-8, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 5);
       break;
     }
 }
