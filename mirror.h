@@ -20,13 +20,13 @@ class Mirror : public Material
 {
 public:
 
-  Mirror (const Color &_reflectance, const Color &col, const Brdf &brdf)
+  Mirror (const Color &_reflectance, const Color &col, const Brdf *brdf)
     : Material (col, brdf),
       reflectance (_reflectance)
   { }
   Mirror (const Color &_reflectance, const Color &col,
-	  float phong_exp, const Color &phong_specular_color = Color::white)
-    : Material (col, phong (phong_exp, phong_specular_color)),
+	  const Color &phong_specular_color, float phong_exp)
+    : Material (col, phong (phong_specular_color, phong_exp)),
       reflectance (_reflectance)
   { }
   Mirror (const Color &_reflectance, const Color &col = Color::black)

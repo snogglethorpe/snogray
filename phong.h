@@ -20,7 +20,7 @@ class Phong : public Brdf
 {
 public:
 
-  Phong (float _exponent, const Color &_specular_color = Color::white)
+  Phong (const Color &_specular_color, float _exponent)
     : specular_color (_specular_color), exponent (_exponent)
   { }
 

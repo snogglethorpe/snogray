@@ -33,15 +33,14 @@ public:
 
   // As a convenience, provide a global lookup service for common brdfs.
   //
-  static const Lambert lambert;
-  static const Phong &phong (float exp, const Color &spec_col = Color::white);
+  static const Lambert *lambert;
+  static const Phong *phong (const Color &spec_col, float exp);
 
-  Material (const Color &col, const Brdf &brdf = lambert)
-    : color (col), brdf (brdf)
+  Material (const Color &col, const Brdf *brdf = lambert)
+    : color (col), brdf (brdf ? brdf : lambert)
   { }
-  Material (const Color &col, float phong_exp,
-	    const Color &spec_col = Color::white)
-    : color (col), brdf (phong (phong_exp, spec_col))
+  Material (const Color &col, const Color &phong_spec_col, float phong_exp)
+    : color (col), brdf (phong (phong_spec_col, phong_exp))
   { }
   virtual ~Material ();
 
@@ -63,7 +62,7 @@ public:
     const;
 
   Color color;
-  const Brdf &brdf;
+  const Brdf *brdf;
 };
 
 }

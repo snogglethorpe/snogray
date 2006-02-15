@@ -25,10 +25,10 @@ Material::~Material () { } // stop gcc bitching
 
 // As a convenience, provide a global lookup service for common brdfs.
 
-const Lambert Material::lambert;
+const Lambert *Material::lambert = new Lambert;
 
-const Phong &
-Material::phong (float exp, const Color &spec_col)
+const Phong *
+Material::phong (const Color &spec_col, float exp)
 {
   static std::list<const Phong *> global_phongs;
 
@@ -37,20 +37,20 @@ Material::phong (float exp, const Color &spec_col)
     {
       const Phong *phong = *pi;
       if (phong->exponent == exp && phong->specular_color == spec_col)
-	return *phong;
+	return phong;
     }
 
-  Phong *phong = new Phong (exp, spec_col);
+  Phong *phong = new Phong (spec_col, exp);
 
   global_phongs.push_front (phong);
 
-  return *phong;
+  return phong;
 }
 
 Color
 Material::render (const Intersect &isec, TraceState &tstate) const
 {
-  return tstate.illum (isec, color, brdf);
+  return tstate.illum (isec, color, *brdf);
 }
 
 // The general sort of shadow this material will cast.  This value
