@@ -141,10 +141,9 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
   const Material *crystal
     = scene.add (new Glass (Medium (0.99, 1.8), 0.1, 0.01,
 			    Material::phong (2000, 1.5)));
-  const Material *gold
-    = scene.add (new Mirror (Color (0.852, 0.756, 0.12), 0, 
-			     Material::phong (800, Color (1, 1, 0.3))));
-  const Material *mat1 = crystal, *mat2 = gold;
+  const Material *silver
+    = scene.add (new Mirror (0.7, 0.05, Material::lambert));
+  const Material *mat1 = crystal, *mat2 = silver;
 //   const Material *mat1
 //     = scene.add (new Glass (Medium (1, 1.1), 0.1, 0, 300));
 //   const Material *mat2
