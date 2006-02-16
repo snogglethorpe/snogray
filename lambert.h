@@ -38,6 +38,10 @@ public:
     const;
 };
 
+// There's only one possible lambert object so create it here.
+//
+extern const Lambert *lambert;
+
 }
 
 #endif /* __LAMBERT_H__ */

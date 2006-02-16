@@ -16,6 +16,10 @@
 
 using namespace Snogray;
 
+// There's only one possible lambert object so create it here.
+//
+const Lambert *Snogray::lambert = new Lambert;
+
 // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
 // For best results, they should be distributed according to the BRDF's
 // importance function.

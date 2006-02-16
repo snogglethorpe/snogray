@@ -24,10 +24,6 @@ public:
 	 const Color &col = Color::white, const Brdf *brdf = lambert)
     : Mirror (reflectance, col, brdf), medium (_medium)
   { }
-  Glass (Medium _medium, Color reflectance,
-	 const Color &col, const Color &spec_col, float phong_exp = 1)
-    : Mirror (reflectance, col, spec_col, phong_exp), medium (_medium)
-  { }
 
   virtual Color render (const Intersect &isec, TraceState &tstate) const;
 

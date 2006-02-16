@@ -1,6 +1,6 @@
 // scene-load-aff.cc -- Load AFF or NFF scene file
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -30,6 +30,7 @@
 #include "glass.h"
 #include "sphere.h"
 #include "mesh.h"
+#include "phong.h"
 #include "point-light.h"
 
 using namespace Snogray;
@@ -338,9 +339,9 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  float transmittance = read_float (stream);
 	  float ior = read_float (stream);
 
-	  const Brdf *brdf = Material::lambert;
+	  const Brdf *brdf = lambert;
 	  if (phong_exp > Eps && phong_exp < 10000)
-	    brdf = Material::phong (specular * AFF_PHONG_ADJ, phong_exp);
+	    brdf = phong (specular * AFF_PHONG_ADJ, phong_exp);
 
 	  if (transmittance > Eps)
 	    cur_material

@@ -1,6 +1,6 @@
 // material.h -- Surface material datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,18 +12,17 @@
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 
-#include "pos.h"
-#include "vec.h"
 #include "color.h"
 #include "brdf.h"
-#include "phong.h"
 #include "lambert.h"
-#include "trace-state.h"
 
 namespace Snogray {
 
+class Ray;
+class Light;
+class Surface;
 class Intersect;
-class Scene;
+class TraceState;
 
 class Material
 {
@@ -31,16 +30,8 @@ public:
 
   enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
 
-  // As a convenience, provide a global lookup service for common brdfs.
-  //
-  static const Lambert *lambert;
-  static const Phong *phong (const Color &spec_col, float exp);
-
   Material (const Color &col, const Brdf *brdf = lambert)
     : color (col), brdf (brdf ? brdf : lambert)
-  { }
-  Material (const Color &col, const Color &phong_spec_col, float phong_exp)
-    : color (col), brdf (phong (phong_spec_col, phong_exp))
   { }
   virtual ~Material ();
 

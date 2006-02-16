@@ -1,6 +1,6 @@
 // material.cc -- Surface material datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -23,29 +23,6 @@ using namespace Snogray;
 Material::~Material () { } // stop gcc bitching
 
 
-// As a convenience, provide a global lookup service for common brdfs.
-
-const Lambert *Material::lambert = new Lambert;
-
-const Phong *
-Material::phong (const Color &spec_col, float exp)
-{
-  static std::list<const Phong *> global_phongs;
-
-  for (std::list<const Phong *>::const_iterator pi = global_phongs.begin ();
-       pi != global_phongs.end (); pi++)
-    {
-      const Phong *phong = *pi;
-      if (phong->exponent == exp && phong->specular_color == spec_col)
-	return phong;
-    }
-
-  Phong *phong = new Phong (spec_col, exp);
-
-  global_phongs.push_front (phong);
-
-  return phong;
-}
 
 Color
 Material::render (const Intersect &isec, TraceState &tstate) const

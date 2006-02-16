@@ -20,8 +20,8 @@ class Phong : public Brdf
 {
 public:
 
-  Phong (const Color &_specular_color, float _exponent)
-    : specular_color (_specular_color), exponent (_exponent)
+  Phong (const Color &_spec_col, float _exponent)
+    : specular_color (_spec_col), exponent (_exponent)
   { }
 
   // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
@@ -42,8 +42,13 @@ public:
     const;
 
   Color specular_color;
+
   float exponent;
 };
+
+// Source of "constant" (not-to-be-freed) Phong BRDFs
+//
+extern const Phong *phong (const Color &spec_col, float exp);
 
 }
 

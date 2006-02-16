@@ -10,6 +10,7 @@
 //
 
 #include <cmath>
+#include <list>
 
 #include "intersect.h"
 #include "excepts.h"
@@ -17,6 +18,22 @@
 #include "phong.h"
 
 using namespace Snogray;
+
+// Source of "constant" (not-to-be-freed) Phong BRDFs
+//
+const Phong *
+Snogray::phong (const Color &spec_col, float exp)
+{
+  static std::list<Phong> phongs;
+
+  for (std::list<Phong>::iterator p = phongs.begin (); p != phongs.end (); p++)
+    if (p->exponent == exp && p->specular_color == spec_col)
+      return &(*p);
+
+  phongs.push_front (Phong (spec_col, exp));
+
+  return &phongs.front ();
+}
 
 // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
 // For best results, they should be distributed according to the BRDF's
@@ -42,18 +59,14 @@ Phong::filter_samples (const Intersect &isec, const Color &color,
 {
   for (SampleRayVec::iterator s = from; s != to; s++)
     {
-      float diffuse_component = isec.normal.dot (s->dir);
+      float diffuse = isec.normal.dot (s->dir);
 
-      if (diffuse_component > 0)
+      if (diffuse > 0)
 	{
-	  float specular_component
+	  float specular
 	    = powf (isec.normal.dot ((s->dir - isec.ray.dir).unit()), exponent);
 
-	  Color total_color = color * diffuse_component;
-
-	  total_color += specular_color * specular_component;
-
-	  s->set_refl (total_color);
+	  s->set_refl (color * diffuse + specular_color * specular);
 	}
       else
 	s->invalidate ();
