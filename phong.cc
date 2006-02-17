@@ -57,19 +57,20 @@ Phong::filter_samples (const Intersect &isec, const Color &color,
 		       SampleRayVec::iterator to)
   const
 {
+  const Vec &N = isec.normal;
+  const Vec V = -isec.ray.dir;
+
   for (SampleRayVec::iterator s = from; s != to; s++)
     {
-      float diffuse = isec.normal.dot (s->dir);
+      const Vec &L = s->dir;
+      float NL = N.dot (L);
+      const Vec H = (V + L).unit ();
+      float NH = N.dot (H);
 
-      if (diffuse > 0)
-	{
-	  float specular
-	    = powf (isec.normal.dot ((s->dir - isec.ray.dir).unit()), exponent);
+      float specular = powf (NH, exponent);
+      float diffuse = NL * M_1_PI; // standard lambertian diffuse term
 
-	  s->set_refl (color * diffuse + specular_color * specular);
-	}
-      else
-	s->invalidate ();
+      s->set_refl (color * diffuse + specular_color * specular);
     }
 }
 

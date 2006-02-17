@@ -96,7 +96,7 @@ enum deb_light
 static void
 add_deb_lights (enum deb_light kind, float scale, Scene &scene)
 {
-  scale *= 2;
+  scale *= 6;
 
   switch (kind)
     {
@@ -160,27 +160,28 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
   switch ((num / 10) % 10)
     {
     case 0:
-      add_bulb (scene, Pos (0, 15, 0), 0.06, 30);
-      add_bulb (scene, Pos (0, 0, -5), 0.06, 30);
-      add_bulb (scene, Pos (-5, 10, 0), 0.06, 40 * Color (0, 0, 1));
-      add_bulb (scene, Pos (-40, 15, -40), 0.06, 1000);
-      add_bulb (scene, Pos (-40, 15,  40), 0.06, 1000);
-      add_bulb (scene, Pos ( 40, 15, -40), 0.06, 1000);
-      add_bulb (scene, Pos ( 40, 15,  40), 0.06, 1000);
+      add_bulb (scene, Pos (0, 15, 0), 0.06, 90);
+      add_bulb (scene, Pos (0, 0, -5), 0.06, 90);
+      add_bulb (scene, Pos (-5, 10, 0), 0.06, 120 * Color (0, 0, 1));
+      add_bulb (scene, Pos (-40, 15, -40), 0.06, 3000);
+      add_bulb (scene, Pos (-40, 15,  40), 0.06, 3000);
+      add_bulb (scene, Pos ( 40, 15, -40), 0.06, 3000);
+      add_bulb (scene, Pos ( 40, 15,  40), 0.06, 3000);
       break;
 
     case 1:
-      add_rect_bulb (scene, Pos(-80, 0, -80), Vec(0, 80, 0), Vec(0, 0, 160), 3);
+      add_rect_bulb (scene, Pos(-80, 0, -80), Vec(0, 80, 0), Vec(0, 0, 160),
+		     10);
       break;
 
     case 2:
-      add_rect_bulb (scene, Pos(-40, 0, 0), Vec(40, 0, 40), Vec(0, 5, 0), 5);
-      add_rect_bulb (scene, Pos(0, 0, -40), Vec(40, 0, 40), Vec(0, 5, 0), 5);
+      add_rect_bulb (scene, Pos(-40, 0, 0), Vec(40, 0, 40), Vec(0, 5, 0), 15);
+      add_rect_bulb (scene, Pos(0, 0, -40), Vec(40, 0, 40), Vec(0, 5, 0), 15);
       break;
 
     case 3:
-      add_rect_bulb (scene, Pos(-20, -3, 0), Vec(20, 0, 20), Vec(0, 1, 0), 50);
-      add_rect_bulb (scene, Pos(0, -3, -20), Vec(20, 0, 20), Vec(0, 1, 0), 50);
+      add_rect_bulb (scene, Pos(-20, -3, 0), Vec(20, 0, 20), Vec(0, 1, 0), 150);
+      add_rect_bulb (scene, Pos(0, -3, -20), Vec(20, 0, 20), Vec(0, 1, 0), 150);
       break;
 
     case 5:
@@ -299,16 +300,16 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   switch (num % 10)
     {
     case 0:
-      add_bulb (scene, Pos (0, 10, 0), 0.06, 100);
-      add_bulb (scene, Pos (15, 2, 0), 0.06, 100);
-      add_bulb (scene, Pos (0, 1, 15), 0.06, 100);
+      add_bulb (scene, Pos (0, 10, 0), 0.06, 300);
+      add_bulb (scene, Pos (15, 2, 0), 0.06, 300);
+      add_bulb (scene, Pos (0, 1, 15), 0.06, 300);
       break;
 
     case 1:
-      add_rect_bulb (scene, Pos(-5, 10, -5), Vec(10, 0, 0), Vec(0, 0, 10), 2);
+      add_rect_bulb (scene, Pos(-5, 10, -5), Vec(10, 0, 0), Vec(0, 0, 10), 6);
       break;
     case 2:
-      add_rect_bulb (scene, Pos(-10, 0, 2), Vec(0, 10, 0), Vec(6, 0, 6), 2);
+      add_rect_bulb (scene, Pos(-10, 0, 2), Vec(0, 10, 0), Vec(6, 0, 6), 10);
       break;
 
     case 5:
@@ -435,17 +436,17 @@ def_scene_teapot (const string &name, unsigned num,
     case 0:
       // night-time teapot, point lights
       //
-      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 200));
+      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 600));
       //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
-      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 10 * Color (1, 1, 0.3));
-      add_bulb (scene, Pos (1, 4, 2), 0.2, 10 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 30 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (1, 4, 2), 0.2, 30 * Color (1, 1, 0.3));
       break;
 
     case 1:
       // day-time teapot, point lights
       //
-      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 150));
-      scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 100));
+      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 500));
+      scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 300));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
@@ -453,34 +454,34 @@ def_scene_teapot (const string &name, unsigned num,
       // night-time teapot, area lights
       //
       add_rect_bulb (scene, Pos(3.1, 12.1, -9.8), Vec(-5, 0, 0), Vec(0, 5, 0),
-		     15);
+		     50);
       // fall through
     case 5:
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
-		     5 * Color (1, 1, 0.3));
+		     15 * Color (1, 1, 0.3));
       break;
 
     case 3:
       // day-time teapot, area lights
       //
-      scene.add (new FarLight (Vec (1, 1, -0.5), 0.05, 2));
+      scene.add (new FarLight (Vec (1, 1, -0.5), 0.05, 6));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
     case 4:
       // night-time teapot, area lights, strong overhead
       //
-      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 2);
+      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 6);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 1), Vec (0, 1, 0),
-		     15 * Color (1, 1, 0.3));
+		     40 * Color (1, 1, 0.3));
       break;
       
     case 6:
       // night-time teapot, area lights, strong front light
       //
-      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 2);
+      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 6);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
-		     3 * Color (1, 1, 0.3));
+		     10 * Color (1, 1, 0.3));
       break;
 
     case 7:
@@ -489,7 +490,7 @@ def_scene_teapot (const string &name, unsigned num,
       {
 	// Lights
 
-	float b = 4;			// brightness
+	float b = 12;			// brightness
 	dist_t ld = 12, lh = 6, lw = 8; // distance (from origin), height, width
 	Vec lhv (0, lh, 0);		// height vector
 
@@ -552,7 +553,7 @@ def_scene_teapot (const string &name, unsigned num,
 	= scene.add (new Material (Color (0.5, 0, 0),
 				   cook_torrance (0.5, 0.1)));
       const Material *yellow
-	= scene.add (new Material (Color (0.5, 0.5, 0.1),
+	= scene.add (new Material (Color (0.5, 0.5, 0),
 				   cook_torrance (0.5, 0.1)));
       const Material *green
 	= scene.add (new Material (Color (0, 0.5, 0),
@@ -679,7 +680,7 @@ static void
 def_scene_cornell_box (const string &name, unsigned num,
 		       Scene &scene, Camera &camera)
 {
-  float light_intens = 8;
+  float light_intens = 15;
   bool fill_light = true;
   float scale = 1;
 
@@ -736,8 +737,7 @@ def_scene_cornell_box (const string &name, unsigned num,
     {
       const Material *gloss_blue
 	= scene.add (new Mirror (0.05, Color (0.3, 0.3, 0.6),
-				 cook_torrance (0.4, 0.3, 2.14, 4)));
-// 	= scene.add (new Mirror (0.05, Color (0.3, 0.3, 0.6), phong (0.4, 100)));
+				 cook_torrance (0.4, 0.3, 4)));
       const Material *white
 	= scene.add (new Material (0.8, cook_torrance (0.2, 0.5, 2)));
 
@@ -790,7 +790,7 @@ def_scene_cornell_box (const string &name, unsigned num,
   // for debugging
   if (fill_light)
     scene.add (new PointLight (Pos (left + 0.1, bottom + 0.1, front + 0.1),
-			       light_intens / 10));
+			       light_intens / 5));
 
   camera.move (Pos  (mid_x, 0.525 * height + bottom, -6.6 * scale));
   camera.point (Pos (mid_x, 0.475 * height + bottom, 0), Vec (0, 1, 0));
@@ -960,17 +960,17 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
     {
     case 0:
     case 1:
-      add_bulb (scene, Pos (0, 10, 0), .5, 100);
-      add_bulb (scene, Pos (15, 2, 0), .5, 100);
-      add_bulb (scene, Pos (0, 1, 15), .5, 100);
+      add_bulb (scene, Pos (0, 10, 0), .5, 250);
+      add_bulb (scene, Pos (15, 2, 0), .5, 250);
+      add_bulb (scene, Pos (0, 1, 15), .5, 250);
       break;
 
     case 2:
-      add_rect_bulb (scene, Pos (-5, 10, -5), Vec(10, 0,0), Vec(0,0, 10), 2);
+      add_rect_bulb (scene, Pos (-5, 10, -5), Vec(10, 0,0), Vec(0,0, 10), 5);
       break;
 
     case 3:
-      add_rect_bulb (scene, Pos (-10, 0, -5), Vec(0, 10,0), Vec(0, 0, 10), 4);
+      add_rect_bulb (scene, Pos (-10, 0, -5), Vec(0, 10,0), Vec(0, 0, 10), 10);
       break;
     }
 }

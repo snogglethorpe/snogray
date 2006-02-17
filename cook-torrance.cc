@@ -89,133 +89,130 @@ CookTorrance::filter_samples (const Intersect &isec, const Color &color,
 
   for (SampleRayVec::iterator s = from; s != to; s++)
     {
+      // The Cook-Torrance specular term is:
+      //
+      //    p_s = (F / PI) * (D * G / (N dot V))
+      //
+      // We calculate each of these sub-terms below
+
       // Light-ray direction vector (normalized)
       //
-      Vec &L = s->dir;
-
-      // Diffuse term; if this is <= 0, the light isn't visible.
-      //
+      const Vec &L = s->dir;
       float NL = N.dot (L);
 
-      if (NL > 0)
+      // Half-way vector between eye-ray and light-ray (normalized)
+      //
+      const Vec H = (V + L).unit ();
+      float NH = N.dot (H);
+
+      // Calculate D (microfacet distribution) term:
+      //
+      //    D = (1 / (4 * m^2 * (cos alpha)^2)) * e^(-((tan alpha) / m)^2)
+      //
+      // where alpha is the angle between N and H.
+
+      float cos_alpha = NH;
+      float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
+      float tan_alpha = tan (acos (cos_alpha));
+      float D_exp = exp (-tan_alpha * tan_alpha * m_2_inv);
+      float D = m_2_inv / (4 * cos_4_alpha) * D_exp;
+
+      // Calculate F (fresnel) term
+      //
+      //    F = (abs(Fs)^2 + abs(Fp)^2) / 2
+      //
+
+      float cos_th = NL;
+      float th = acos (cos_th);
+
+      float Fs, Fp;
+
+      if (ior_imag == 0)
 	{
-	  // The Cook-Torrance specular term is:
+	  // No complex term
 	  //
-	  //    k_s = (F / PI) * (D * G / (N dot V))
+	  //    Fp = (n cos th - cos thT)
+	  //         / (n cos th + cos thT)
 	  //
-	  // We calculate each of these terms below
-
-	  // Half-way vector between eye-ray and light-ray (normalized)
+	  //    Fs = (cos th - n cos thT)
+	  //         / (cos th + n cos thT)
 	  //
-	  const Vec H = (V + L).unit ();
-	  float NH = N.dot (H);
+	  // where nI and n are the indices of refraction, and th and
+	  // thT are the reflection and refraction angles of the light
+	  // ray.
 
-	  // Calculate D (microfacet distribution) term:
-	  //
-	  //    D = (1 / (4 * m^2 * (cos alpha)^2)) * e^(-((tan alpha) / m)^2)
-	  //
-	  // where alpha is the angle between N and H.
+	  float sin_thT = sin (th) / n;
+	  float thT = asin (sin_thT);
+	  float cos_thT = cos (thT);
 
-	  float cos_alpha = NH;
-	  float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
-	  float tan_alpha = tan (acos (cos_alpha));
-	  float D_exp = exp (-tan_alpha * tan_alpha * m_2_inv);
-	  float D = m_2_inv / (4 * cos_4_alpha) * D_exp;
+	  float nc1 = n * cos_th;
+	  float nc2 = n * cos_thT;
 
-	  // Calculate F (fresnel) term
-	  //
-	  //    F = (abs(Fs)^2 + abs(Fp)^2) / 2
-	  //
-
-	  float cos_th = NL;
-	  float th = acos (cos_th);
-
-	  float Fs, Fp;
-
-	  if (ior_imag == 0)
-	    {
-	      // No complex term
-	      //
-	      //    Fp = (n cos th - cos thT)
-	      //         / (n cos th + cos thT)
-	      //
-	      //    Fs = (cos th - n cos thT)
-	      //         / (cos th + n cos thT)
-	      //
-	      // where nI and n are the indices of refraction, and th and
-	      // thT are the reflection and refraction angles of the light
-	      // ray.
-
-	      float sin_thT = sin (th) / n;
-	      float thT = asin (sin_thT);
-	      float cos_thT = cos (thT);
-
-	      float nc1 = n * cos_th;
-	      float nc2 = n * cos_thT;
-
-	      Fs = (nc1 - cos_thT) / (nc1 + cos_thT);
-	      Fp = (cos_th - nc2) / (cos_th + nc2);
-	    }
-	  else
-	    {
-	      // Complex term (k is imaginary part -- ior == n + i * k)
-	      //
-	      //       a^2 + b^2 - 2 a cos th + cos^2 th
-	      //  Fs = ---------------------------------------
-	      //       a^2 + b^2 + 2 a cos th + cos^2 th
-	      //
-	      //          a^2 + b^2 - 2 a sin th tan th + sin^2 th tan^2 th
-	      //  Fp = Fs -------------------------------------------------
-	      //          a^2 + b^2 - 2 a sin th tan th + sin^2 th tan^2 th
-	      //
-	      // Where:
-	      //
-	      //   2 a^2 = sqrt ((n^2 - k^2 - sin^2 th)^2 + 4 n^2 k^2)
-	      //            + (n^2 - k^2 - sin^2 th)
-	      //
-	      //   2 b^2 = sqrt ((n^2 - k^2 - sin^2 th)^2 + 4 n^2 k^2)
-	      //            - (n^2 - k^2 - sin^2 th)
-	      //
-
-	      float sin_th = sin (th);
-	      float n2_m_k2_m_sin2_th = n2_m_k2 - sin_th * sin_th;
-	      float sin_th_tan_th = sin_th * tan (th);
-
-	      float a2_b2_common
-		= sqrt (n2_m_k2_m_sin2_th * n2_m_k2_m_sin2_th + 4 * n2k2);
-	      float a2 = (a2_b2_common + n2_m_k2_m_sin2_th) * 0.5;
-	      float b2 = (a2_b2_common - n2_m_k2_m_sin2_th) * 0.5;
-
-	      float a2_p_b2 = a2 + b2;
-	      float a = sqrt (a2);
-
-	      float Fs_term1 = a2_p_b2 + cos_th * cos_th;
-	      float Fs_term2 = 2 * a * cos_th;
-	      Fs = (Fs_term1 - Fs_term2) / (Fs_term1 + Fs_term2);
-
-	      float Fp_term1 = a2_p_b2 + sin_th_tan_th * sin_th_tan_th;
-	      float Fp_term2 = 2 * a * sin_th_tan_th;
-	      Fp = Fs * ((Fp_term1 - Fp_term2) / (Fp_term1 + Fp_term2));
-	    }
-
-	  float F = (Fs * Fs + Fp * Fp) * 0.5;
-
-	  // Calculate G (microfacet masking/shadowing) term
-	  //
-	  //    G = min (1,
-	  //             2 * (N dot H) * (N dot V) / (V dot H),
-	  //             2 * (N dot H) * (N dot L) / (V dot H))
-	  //
-	  float VH = V.dot (H);
-	  float G = 2 * NH * ((NV > NL) ? NL : NV) / VH;
-	  G = G <= 1 ? G : 1;
-
-	  float specular = F * D * G * NV_inv * M_1_PI;
-
-	  s->set_refl (NL * color + specular * specular_color);
+	  Fs = (nc1 - cos_thT) / (nc1 + cos_thT);
+	  Fp = (cos_th - nc2) / (cos_th + nc2);
 	}
       else
-	s->invalidate ();
+	{
+	  // Complex term (k is imaginary part -- ior == n + i * k)
+	  //
+	  //       a^2 + b^2 - 2 a cos th + cos^2 th
+	  //  Fs = ---------------------------------------
+	  //       a^2 + b^2 + 2 a cos th + cos^2 th
+	  //
+	  //          a^2 + b^2 - 2 a sin th tan th + sin^2 th tan^2 th
+	  //  Fp = Fs -------------------------------------------------
+	  //          a^2 + b^2 - 2 a sin th tan th + sin^2 th tan^2 th
+	  //
+	  // Where:
+	  //
+	  //   2 a^2 = sqrt ((n^2 - k^2 - sin^2 th)^2 + 4 n^2 k^2)
+	  //            + (n^2 - k^2 - sin^2 th)
+	  //
+	  //   2 b^2 = sqrt ((n^2 - k^2 - sin^2 th)^2 + 4 n^2 k^2)
+	  //            - (n^2 - k^2 - sin^2 th)
+	  //
+
+	  float sin_th = sin (th);
+	  float n2_m_k2_m_sin2_th = n2_m_k2 - sin_th * sin_th;
+	  float sin_th_tan_th = sin_th * tan (th);
+
+	  float a2_b2_common
+	    = sqrt (n2_m_k2_m_sin2_th * n2_m_k2_m_sin2_th + 4 * n2k2);
+	  float a2 = (a2_b2_common + n2_m_k2_m_sin2_th) * 0.5;
+	  float b2 = (a2_b2_common - n2_m_k2_m_sin2_th) * 0.5;
+
+	  float a2_p_b2 = a2 + b2;
+	  float a = sqrt (a2);
+
+	  float Fs_term1 = a2_p_b2 + cos_th * cos_th;
+	  float Fs_term2 = 2 * a * cos_th;
+	  Fs = (Fs_term1 - Fs_term2) / (Fs_term1 + Fs_term2);
+
+	  float Fp_term1 = a2_p_b2 + sin_th_tan_th * sin_th_tan_th;
+	  float Fp_term2 = 2 * a * sin_th_tan_th;
+	  Fp = Fs * ((Fp_term1 - Fp_term2) / (Fp_term1 + Fp_term2));
+	}
+
+      float F = (Fs * Fs + Fp * Fp) * 0.5;
+
+      // Calculate G (microfacet masking/shadowing) term
+      //
+      //    G = min (1,
+      //             2 * (N dot H) * (N dot V) / (V dot H),
+      //             2 * (N dot H) * (N dot L) / (V dot H))
+      //
+      float VH = V.dot (H);
+      float G = 2 * NH * ((NV > NL) ? NL : NV) / VH;
+      G = G <= 1 ? G : 1;
+
+      float specular = F * D * G * NV_inv * M_1_PI;
+      float diffuse = NL * M_1_PI; // standard lambertian diffuse term
+
+      // The final reflectance is:
+      //
+      //   p = k_d * p_d + k_s * p_s
+      //
+      s->set_refl (color * diffuse + specular_color * specular);
     }
 }
 
