@@ -74,14 +74,16 @@ FarLight::gen_samples (const Intersect &isec, TraceState &tstate,
 		       SampleRayVec &samples)
   const
 {
+  // Surface normal
+  //
+  const Vec &N = isec.normal;
+
   // First detect cases where the light isn't visible at all, by
   // examining the dot product of the surface normal with rays to the
   // four corners of the light.
   //
-  if (isec.normal.dot (dir + u) > 0
-      || isec.normal.dot (dir - u) > 0
-      || isec.normal.dot (dir + v) > 0
-      || isec.normal.dot (dir - v) > 0)
+  if (N.dot (dir + u) > 0 || N.dot (dir - u) > 0
+      || N.dot (dir + v) > 0 || N.dot (dir - v) > 0)
     {
       Color samp_color = color * num_lights_scale;
       dist_t r_sq = steps_radius * steps_radius;
@@ -100,8 +102,12 @@ FarLight::gen_samples (const Intersect &isec, TraceState &tstate,
 		  = u_inc * (u_offs + random (0, 1))
 		  + v_inc * (v_offs + random (0, 1));
 
-		samples.add_light (samp_color, (dir + jitter).unit(),
-				   Scene::DEFAULT_HORIZON, this);
+		const Vec L = (dir + jitter).unit();
+		float NL = N.dot (L);
+
+		if (NL > 0)
+		  samples.add_light (samp_color, L, Scene::DEFAULT_HORIZON,
+				     this);
 
 		u_offs += 1;
 	      }
