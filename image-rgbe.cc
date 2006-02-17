@@ -29,6 +29,10 @@
 // 128, in which case the data byte should be repeated LEN - 128 times), or
 // a series of LEN data bytes.
 //
+// The pixel values are by default in units of watts/steradian/meter^2.
+// However if the ASCII header defines an EXPOSURE setting, pixels are
+// multiples of that value in watts/steradian/meter^2.
+//
 
 
 #include <cmath>
@@ -117,7 +121,7 @@ RgbeImageSink::RgbeImageSink (const RgbeImageSinkParams &params)
     outf (params.file_name, ios_base::out|ios_base::binary|ios_base::trunc),
     row_buf (new RgbeColor[width])
 {
-  outf << "#?RADIANCE\n";
+  outf << "#?RGBE\n";
   outf << "# Written by snogray\n";
   outf << "\n";
   outf << "-Y " << height << " +X " << width << "\n";
@@ -248,13 +252,11 @@ private:
 RgbeImageSource::RgbeImageSource (const RgbeImageSourceParams &params)
   : inf (params.file_name, ios_base::binary)
 {
-  char magic[12];
-
   // Check magic number
   //
-  inf.read (magic, 11);
-  magic[11] = '\0';
-  if (strcmp (magic, "#?RADIANCE\n") != 0)
+  string magic;
+  getline (inf, magic);
+  if (magic != "#?RGBE" && magic != "#?RADIANCE")
     throw bad_format ("not a Radiance RGBE file");
 
   // Skip lines until we find a blank line

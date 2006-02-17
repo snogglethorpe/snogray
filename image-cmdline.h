@@ -1,6 +1,6 @@
 // image-cmdline.h -- Support for command-line parsing of image parameters
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -22,7 +22,8 @@
 #define IMAGE_INPUT_OPTIONS_HELP "\
  Input options:\n\
   -I, --input-format=FMT     Input image format FMT\n\
-                               (one of: exr, png, ppm, pfm, jpeg, hdr, pic)"
+                               (one of: exr, png, ppm, pfm, jpeg,\n\
+                                hdr, pic, rgbe)"
 //
 #define IMAGE_INPUT_SHORT_OPTIONS "I:"
 //
@@ -39,7 +40,8 @@
 #define IMAGE_OUTPUT_OPTIONS_HELP "\
  Output options:\n\
   -O, --output-format=FMT    Output image format FMT\n\
-                               (one of: exr, png, ppm, pfm, jpeg, hdr, pic)\n\
+                               (one of: exr, png, ppm, pfm, jpeg,\n\
+                                hdr, pic, rgbe)\n\
   -g, --gamma=GAMMA          Do gamma correction for a target display\n\
                                gamma of GAMMA (default: 2.2, for output\n\
                                formats that need gamma-correction)\n\
