@@ -112,6 +112,9 @@ public:
     return TVec (y*vec2.z - z*vec2.y, z*vec2.x - x*vec2.z, x*vec2.y - y*vec2.x);
   }
 
+  T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
+  T longitude () const { return atan2 (x, z); }
+
   // Return this vector reflected around NORMAL
   //
   TVec reflection (const TVec &normal) const
