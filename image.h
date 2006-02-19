@@ -37,10 +37,24 @@ public:
   Image (const Image &base, unsigned offs_x = 0, unsigned offs_y = 0,
 	 unsigned w = 0, unsigned h = 0);
 
-  Color operator() (unsigned x, unsigned y) { return pixel (x, y); }
+  const Color &operator() (unsigned x, unsigned y) const
+  {
+    return pixel (x, y);
+  }
+  Color &operator() (unsigned x, unsigned y)
+  {
+    return pixel (x, y);
+  }
 
-  const Color &pixel (unsigned x, unsigned y) const { return pixels[y * width + x]; }
-  Color &pixel (unsigned x, unsigned y) { return pixels[y * width + x]; }
+  const Color &pixel (unsigned x, unsigned y) const
+  {
+    return pixels[y * width + x];
+  }
+  Color &pixel (unsigned x, unsigned y)
+  {
+    return pixels[y * width + x];
+  }
+
 
   unsigned width, height;
 
