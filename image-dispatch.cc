@@ -107,7 +107,7 @@ ImageInput::recognized_filename (const std::string &filename)
 
   std::string ext = filename.substr (dot + 1);
 
-  transform (ext.begin(),ext.end(), ext.begin(), tolower);
+  transform (ext.begin(), ext.end(), ext.begin(), tolower);
 
   return ext == "exr" || ext == "png" || ext == "jpeg" || ext == "jpg"
     || ext == "ppm" || ext == "pfm"

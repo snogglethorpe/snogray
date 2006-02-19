@@ -1218,15 +1218,15 @@ add_scene_descs_pretty_dancer (vector<TestSceneDesc> &descs)
 
 
 
+// Blerg
+//
+float Snogray::tessel_accur = 0.001;
+bool Snogray::tessel_smooth = true;
+
 static void
 def_scene_tessel (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
 {
-  // Defined in "snogray.cc".
-  //
-  extern float tessel_accur;
-  extern bool tessel_smooth;
-
   unsigned lighting = num / 100;
   num %= 100;
 

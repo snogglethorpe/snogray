@@ -34,6 +34,11 @@ struct TestSceneDesc
 
 extern std::vector<TestSceneDesc> list_test_scenes ();
 
+// Blerg
+//
+extern float tessel_accur;
+extern bool tessel_smooth;
+
 }
 
 #endif /* __TEST_SCENES_H__ */

@@ -26,204 +26,126 @@
 #include "image-io.h"
 #include "image-cmdline.h"
 #include "wire-frame.h"
-#include "test-scenes.h"
-#include "cubetex.h"
+#include "scene-def.h"
+#include "scene-stats.h"
 
 using namespace Snogray;
 using namespace std;
 
+
+
+// Print useful scene info
+//
+void
+print_scene_info (const Scene &scene, const SceneDef &scene_def)
+{
+  Space::Stats tstats = scene.space.stats ();
+
+  cout << "Scene:" << endl;
+
+  string name = scene_def.user_name;
+  if (name.empty ())
+    name = "<standard input>";
+      
+  cout << "   scene:   " << setw (20) << name << endl;
+  cout << "   top-level surfaces:  "
+       << setw (8) << commify (scene.surfaces.size ()) << endl;
+  cout << "   lights:          "
+       << setw (12) << commify (scene.lights.size ()) << endl;
+  if (scene.assumed_gamma != 1)
+    cout << "   assumed gamma:   "
+	 << setw (12) << scene.assumed_gamma << endl;
+  if (scene_def.light_scale != 1)
+    cout << "   light scale:     "
+	 << setw (12) << scene_def.light_scale << endl;
+  cout << "   materials:       "
+       << setw (12) << commify (scene.materials.size ()) << endl;
+
+  cout << "   tree surfaces:     "
+       << setw (10) << commify (tstats.num_surfaces)
+       << " (" << (tstats.num_dup_surfaces * 100 / tstats.num_surfaces)
+       << "% duplicates)" << endl;
+  cout << "   tree nodes:      "
+       << setw (12) << commify (tstats.num_nodes)
+       << " (" << (tstats.num_leaf_nodes * 100 / tstats.num_nodes)
+       << "% leaves)" << endl;
+  cout << "   tree avg depth:      "
+       << setw (8) << int (tstats.avg_depth) << endl;
+  cout << "   tree max depth:     "
+       << setw (9) << tstats.max_depth << endl;
+}
 
 
 
-static char
-eat (istream &stream, const char *choices, char *req_desc = 0)
+// Print image info
+//
+void
+print_image_info (const ImageOutput &image,
+		  const ImageSinkParams &image_sink_params,
+		  unsigned width, unsigned height, unsigned multiple,
+		  unsigned limit_x, unsigned limit_y,
+		  unsigned limit_width, unsigned limit_height)
 {
-  stream >> ws;
+  cout << "Image:" << endl;
 
-  char ch = stream.eof() ? 0 : stream.peek();
-
-  for (const char *p = choices; *p; p++)
-    if (ch == *p)
-      {
-	stream.get ();		// eat it
-	return ch;
-      }
-
-  if (req_desc)
-    {
-      string msg;
-
-      if (ch)
-	msg += "Invalid ";
-      else
-	msg += "Missing ";
-
-      msg += req_desc;
-
-      if (ch)
-	{
-	  msg += " `";
-	  msg += ch;
-	  msg += "'";
-	}
-
-      msg += "; expected one of ";
-
-      for (const char *p = choices; *p; p++)
-	{
-	  msg += "`";
-	  msg += *p;
-	  msg += "'";
-	  if (p[1])
-	    {
-	      if (p > choices || p[2])
-		msg += ",";
-	      if (! p[2])
-		msg += " or";
-	      msg += " ";
-	    }
-	}
-      
-      throw (runtime_error (msg));
-    }
-
-  return 0;  
-}
-
-static void
-eat_close (istream &stream, char open)
-{
-  if (open)
-    {
-      char close_delims[2] = { open, 0 };
-      switch (open)
-	{
-	case '(': close_delims[0] = ')'; break;
-	case '[': close_delims[0] = ']'; break;
-	case '{': close_delims[0] = '}'; break;
-	case '<': close_delims[0] = '>'; break;
-	}
-      eat (stream, close_delims, "close bracket");
-    }
-}
-
-static double
-read_float (istream &stream, const char *desc)
-{
-  double val;
-  if (stream >> val)
-    return val;
+  if (multiple == 1)
+    cout << "   size:    "
+	 << setw (20) << (stringify (width)
+			  + " x " + stringify (height))
+	 << endl;
   else
-    throw runtime_error (string ("Missing/invalid ") + desc);
-}
+    cout << "   size:    "
+	 << setw (20) << (stringify (width) + " x " + stringify (height)
+			  + " x " + stringify (multiple))
+	 <<" (" << (width * multiple) << " x " << (height * multiple) << ")"
+	 << endl;
 
-static double
-read_angle (istream &stream, const char *desc)
-{
-  return read_float (stream, desc) * M_PI / 180;
-}
+  if (limit_x != 0 || limit_y != 0
+      || limit_width != width || limit_height != height)
+    cout << "   limit:  "
+	 << setw (20) << (stringify (limit_x) + "," + stringify (limit_y)
+			  + " - " + stringify (limit_x + limit_width)
+			  + "," + stringify (limit_y + limit_height))
+	 << " (" << limit_width << " x "  << limit_height << ")"
+	 << endl;
 
-static dist_t
-read_dist (istream &stream, const char *desc)
-{
-  return read_float (stream, desc);
-}
+  if (image_sink_params.target_gamma != 0)
+    cout << "   target_gamma:           "
+	 << setw (5) << image_sink_params.target_gamma << endl;
 
-static Pos
-read_pos (istream &stream)
-{
-  Pos pos;
-  char open = eat (stream, "(<[{");
-  pos.x = read_float (stream, "x coord");
-  eat (stream, ",", "comma");
-  pos.y = read_float (stream, "y coord");
-  eat (stream, ",", "comma");
-  pos.z = read_float (stream, "z coord");
-  eat_close (stream, open);
-  return pos;
-}
+  // Anti-aliasing info
+  //
 
-static Xform
-read_rot_xform (istream &stream, const Camera &camera)
-{
-  char dir = eat (stream, "udlraxyz", "direction/axis");
-  float angle = read_angle (stream, "angle");
-  Xform xform;
-
-  if (dir == 'u')
-    xform.rotate (camera.right, -angle);
-  else if (dir == 'd')
-    xform.rotate (camera.right, angle);
-  else if (dir == 'l')
-    xform.rotate (camera.up, -angle);
-  else if (dir == 'r')
-    xform.rotate (camera.up, angle);
-  else if (dir == 'a')
-    xform.rotate (camera.forward, angle);
-  else if (dir == 'x')
-    xform.rotate_x (angle);
-  else if (dir == 'y')
-    xform.rotate_y (angle);
-  else if (dir == 'x')
-    xform.rotate_z (angle);
-
-  return xform;
-}
-
-static void
-interpret_camera_cmds (Camera &camera, const string &cmds)
-{
-  istringstream stream (cmds);
-
-  try
-    { 
-      while (! stream.eof ())
-	{
-	  char cmd = eat (stream, "gtzmro", "command");
-
-	  if (cmd == 'g')
-	    camera.move (read_pos (stream));
-	  else if (cmd == 't')
-	    camera.point (read_pos (stream));
-	  else if (cmd == 'z')
-	    camera.zoom (read_float (stream, "zoom factor"));
-	  else if (cmd == 'm')
-	    {
-	      char dir = eat (stream, "udlrfbxyz", "movement direction/axis");
-	      dist_t dist = read_dist (stream, "movement distance");
-
-	      if (dir == 'r')
-		camera.move (camera.right * dist);
-	      else if (dir == 'l')
-		camera.move (-camera.right * dist);
-	      else if (dir == 'u')
-		camera.move (camera.up * dist);
-	      else if (dir == 'd')
-		camera.move (-camera.up * dist);
-	      else if (dir == 'f')
-		camera.move (camera.forward * dist);
-	      else if (dir == 'b')
-		camera.move (-camera.forward * dist);
-	      else if (dir == 'x')
-		camera.move (Vec (dist, 0, 0));
-	      else if (dir == 'y')
-		camera.move (Vec (0, dist, 0));
-	      else if (dir == 'z')
-		camera.move (Vec (0, 0, dist));
-	    }
-	  else if (cmd == 'r')
-	    camera.rotate (read_rot_xform (stream, camera));
-	  else if (cmd == 'o')
-	    camera.orbit (read_rot_xform (stream, camera).inverse ());
-
-	  eat (stream, ",;/");	// eat delimiter
-	}
-    }
-  catch (runtime_error &err)
+  if ((image.aa_factor + image_sink_params.aa_overlap) > 1)
     {
-      throw runtime_error (cmds + ": Error interpreting camera commands: "
-			   + err.what ());
+      if (image.aa_factor > 1)
+	cout << "   aa_factor:               "
+	     << setw (4) << image.aa_factor << endl;
+
+      if (image_sink_params.aa_overlap > 0)
+	cout << "   aa_kernel_size:          "
+	     << setw (4)
+	     << (image.aa_factor + image_sink_params.aa_overlap*2)
+	     << " (overlap = " << image_sink_params.aa_overlap << ")"
+	     << endl;
+      else
+	cout << "   aa_kernel_size:          "
+	     << setw (4) << image.aa_factor << endl;
+
+      cout << "   aa_filter:           " << setw (8);
+      if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
+	cout << "box";
+      else if (image_sink_params.aa_filter == ImageOutput::aa_triang_filter)
+	cout << "triang";
+      else if (image_sink_params.aa_filter == ImageOutput::aa_gauss_filter
+	       || !image_sink_params.aa_filter)
+	cout << "gauss";
+      else
+	cout << "???";
+      cout << endl;
     }
+
+  cout << endl;
 }
 
 
@@ -402,17 +324,6 @@ s "  -q, --quiet                Do not output informational or progress messages
 s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
 n
-s "  -c, --camera=COMMANDS      Move/point the camera according to COMMANDS:"
-s "                               g X,Y,Z     Goto absolute location X, Y, Z"
-s "                               t X,Y,Z     Point at target X, Y, Z"
-s "                               m[rludfb] D Move distance D in the given dir"
-s "                                           (right, left, up, down, fwd, back)"
-s "                               m[xyz] D    Move distance D on the given axis"
-s "                               r[rlud] A   Rotate A deg in the given dir"
-s "                               ra A        Rotate A deg around center axis"
-s "                               r[xyz] A    Rotate A degrees around [xyz]-axis"
-s "                               o[xyz] A    Orbit A degrees around [xyz]-axis"
-n
 s "  -w, --wire-frame[=PARAMS]  Output in \"wire-frame\" mode; PARAMS has the form"
 s "                               [TINT][/COLOR][:FILL] (default: 0.7/1:0)"
 s "                               TINT is how much object color affects wires"
@@ -422,19 +333,9 @@ n
 s "  -j, --jitter[=REPEAT]      Randomly jitter eye-rays; if REPEAT is specified,"
 s "                               each eye-ray is repeated that many times"
 n
-s " Scene options:"
-s "  -b, --background=BG        Use BG as a background; BG may be a color or a"
-s "                               cube-map specification"
-s "  -I, --scene-format=FMT     Scene is in format FMT (one of: test, aff, nff)"
-s "  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA"
-s "  -L, --light-scale=SCALE    Scale all scene lighting by SCALE"
-n
-s "  -T, --tessel-accur=ERR     Set tessellation accuracy for test:tessel scenes"
-s "                             (default 0.001; prepend `@' to toggle smoothing)"
+s SCENE_DEF_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
-n
-s "      --list-test-scenes     Ouput a list of builtin test-scenes to stdout"
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -443,32 +344,19 @@ s "respectively.  When no explicit scene/image formats are specified, the"
 s "filename extensions are used to guess the format (so an explicit format"
 s "must be specified when standard input/output are used)."
 n
-s "The \"test\" scene type is special, as no scene file is actually read;"
-s "instead, a built in test-scene with the given name is used.  As a shortcut"
-s "a prefix of `test:' maybe be used instead of the `-Itest' option;"
-s "e.g. `test:cbox1' refers to the built-in test-scene `cbox1'." 
-n
-s "For a full list of test-scenes, use the `--list-test-scenes' option."
-n
-    ;
+s SCENE_DEF_EXTRA_HELP
+n;
 
 #undef s
 #undef n
 }
 
 
-float tessel_accur = 0.001;
-bool tessel_smooth = true;
-
-
 int main (int argc, char *const *argv)
 {
   // Command-line option specs
   //
-#define OPT_LIST_TEST_SCENES	10
-  //
   static struct option long_options[] = {
-    { "background",     required_argument, 0, 'b' },
     { "jitter",		optional_argument, 0, 'j' },
     { "size",		required_argument, 0, 's' },
     { "multiple",	required_argument, 0, 'm' },
@@ -476,14 +364,10 @@ int main (int argc, char *const *argv)
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
-    { "scene-format", 	required_argument, 0, 'I' },
-    { "assumed-gamma", 	required_argument, 0, 'G' },
-    { "light-scale", 	required_argument, 0, 'L' },
-    { "tessel-accur",   required_argument, 0, 'T' },
     { "wire-frame",     optional_argument, 0, 'w' },
-    { "list-test-scenes", no_argument,     0, OPT_LIST_TEST_SCENES },
-    { "camera",		required_argument, 0, 'c' },
+    { "dump-samples",	required_argument, 0, 'S' },
 
+    SCENE_DEF_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
 
@@ -491,7 +375,8 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "b:j::w::s:m:l:qpPI:G:L:T:c:"
+    "j::w::s:m:l:qpPS:"
+    SCENE_DEF_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -505,15 +390,12 @@ int main (int argc, char *const *argv)
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   bool quiet = false, progress = true; // quiet mode, progress indicator
   bool progress_set = false;
-  const char *scene_fmt = 0;
   bool wire_frame = false;
   WireFrameParams wire_frame_params;
   unsigned multiple = 1;
-  float scene_assumed_gamma = 1, scene_light_scale = 1;
   unsigned jitter = 0;
-  const char *bg_cube_spec = 0;
-  string camera_cmds;
   ImageCmdlineSinkParams image_sink_params (clp);
+  SceneDef scene_def;
 
   // This speeds up I/O on cin/cout by not syncing with C stdio.
   //
@@ -525,19 +407,6 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-      case 'T':
-	{
-	  const char *arg = clp.opt_arg();
-	  if (*arg == '@')
-	    {
-	      tessel_smooth = !tessel_smooth;
-	      arg++;
-	    }
-	  if (*arg)
-	    tessel_accur = atof (arg);
-	}
-	break;
-
       case 'w':
 	wire_frame = true;
 	if (clp.opt_arg ())
@@ -550,54 +419,6 @@ int main (int argc, char *const *argv)
 	else
 	  jitter = 1;
 	break;
-
-	//
-	// Scene options
-	//
-
-      case 'b':
-	{
-	  const char *bg_spec = clp.opt_arg ();
-	  size_t len = strlen (bg_spec);
-	  if (len > 5 && strncmp (bg_spec, "cube:", 5) == 0)
-	    bg_cube_spec = bg_spec + 5;
-	  else if (len > 4 && strcmp (bg_spec + len - 4, ".ctx") == 0
-		   || ImageInput::recognized_filename (bg_spec))
-	    bg_cube_spec = bg_spec;
-	}
-	break;
-
-      case 'c':
-	camera_cmds += clp.opt_arg ();
-	break;
-
-      case 'I':
-	scene_fmt = clp.opt_arg ();
-	break;
-      case 'G':
-	scene_assumed_gamma = clp.float_opt_arg ();
-	break;
-      case 'L':
-	scene_light_scale = clp.float_opt_arg ();
-	break;
-
-      case OPT_LIST_TEST_SCENES:
-	{
-	  vector<TestSceneDesc> descs = list_test_scenes ();
-
-	  cout << "Built-in test scenes:" << endl << endl;
-	  cout.setf (ios::left);
-
-	  for (vector<TestSceneDesc>::const_iterator di = descs.begin();
-	       di != descs.end(); di++)
-	    {
-	      unsigned nlen = 15;
-	      while (di->name.length() > nlen - 3)
-		nlen += 12;
-	      cout << "   " << setw(nlen) << di->name << di->desc << endl;
-	    }
-	}
-	exit (0);
 
 	// Size options
 	//
@@ -628,6 +449,11 @@ int main (int argc, char *const *argv)
 	progress_set = true;
 	break;
 
+	//
+	// Scene options
+	//
+	SCENE_DEF_OPTION_CASES (clp, scene_def);
+
 	// Image options
 	//
 	IMAGE_OUTPUT_OPTION_CASES (clp, image_sink_params);
@@ -637,14 +463,32 @@ int main (int argc, char *const *argv)
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
+  // Parse scene spec (filename or test-scene name)
+  //
+  try
+    {
+      scene_def.parse (clp);
+    }
+  catch (runtime_error &err)
+    {
+      clp.err (err.what ());
+    }
+
+  // Output filename
+  //
+  image_sink_params.file_name = clp.get_arg();
+
+
   // Start of "overall elapsed" time
   //
   Timeval beg_time (Timeval::TIME_OF_DAY);
 
 
   //
-  // Define our scene!
+  // Define the scene
   //
+
+  Rusage scene_beg_ru;		// start timing scene definition
 
   Scene scene;
   Camera camera;
@@ -653,74 +497,18 @@ int main (int argc, char *const *argv)
   //
   camera.set_aspect_ratio ((float)width / (float)height);
 
-  Rusage scene_beg_ru;		// start timing scene definition
-
-  const char *scene_file_name = clp.get_arg ();
-  if (scene_file_name && strcmp (scene_file_name, "-") == 0)
-    scene_file_name = 0;
-
-  // Read in scene file (or built-in test scene)
+  // Read in the scene/camera definitions
   //
   try
     {
-      if (scene_file_name && scene_fmt && strcmp (scene_fmt, "test") == 0)
-	def_test_scene (scene_file_name, scene, camera);
-      else if (scene_file_name && !scene_fmt
-	       && strncmp (scene_file_name, "test:", 5) == 0)
-	// The input filename "test:..." is the same as specifying -Itest
-	//
-	def_test_scene (scene_file_name + 5, scene, camera);
-      else if (scene_file_name)
-	scene.load (scene_file_name, scene_fmt, camera);
-      else if (! scene_fmt)
-	clp.err ("Scene format must be specified for stream input");
-      else if (strcmp (scene_fmt, "test") == 0)
-	clp.err ("No test scene name specified");
-      else
-	scene.load (cin, scene_fmt, camera);
+      scene_def.load (scene, camera);
     }
   catch (runtime_error &err)
     {
-      clp.err (string (scene_file_name ? scene_file_name : "<standard input>")
-	       + ": Error reading scene: " + err.what ());
+      clp.err (err.what ());
     }
 
-  // Correct for bogus "gamma correction in lighting"
-  //
-  if (scene_assumed_gamma != 1)
-    scene.set_assumed_gamma (scene_assumed_gamma);
-
-  // Correct scene lighting
-  //
-  if (scene_light_scale != 1)
-    for (Scene::light_iterator_t li = scene.lights.begin();
-	 li != scene.lights.end(); li++)
-      {
-	Light *light = *li;
-	light->scale_intensity (scene_light_scale);
-      }
-
-  // Override scene parameters specified on command-line
-  //
-  if (bg_cube_spec)
-    try
-      {
-	scene.set_background (new Cubetex (bg_cube_spec));
-      }
-    catch (runtime_error &err)
-      {
-	clp.err (err.what ());
-      }
-
-  if (camera_cmds.length () > 0)
-    try
-      {
-	interpret_camera_cmds (camera, camera_cmds);
-      }
-    catch (runtime_error &err)
-      {
-	clp.err (err.what ());
-      }
+  Rusage scene_end_ru;		// stop timing scene definition
 
 
   // To avoid annoying artifacts in cases where the camera is looking
@@ -729,12 +517,6 @@ int main (int argc, char *const *argv)
   //
   camera.move (Vec (Eps, Eps, Eps));
 
-  Rusage scene_end_ru;		// stop timing scene definition
-
-
-  //
-  // Init output image
-  //
 
   // Set our drawing limits based on the scene size
   //
@@ -752,115 +534,17 @@ int main (int argc, char *const *argv)
   // with IMAGE_SINK_PARAMS or a problem creating the output image, so
   // we create the image before printing any normal output.
   //
-  image_sink_params.file_name = clp.get_arg();
   image_sink_params.width = limit_width * multiple;
   image_sink_params.height = limit_height * multiple;
   ImageOutput image (image_sink_params);
-
-  // Only used if !quiet, but it's more convenient to calculate here so we
-  // can use inside different if blocks below.
-  //
-  Space::Stats tstats = scene.space.stats ();
 
   // Maybe print lots of useful information
   //
   if (! quiet)
     {
-      // Print scene info
-
-      cout << "Scene:" << endl;
-
-      cout << "   scene:   "
-	   << setw (20)
-	   << (scene_file_name ? scene_file_name : "<standard input>") << endl;
-      cout << "   top-level surfaces:  "
-	   << setw (8) << commify (scene.surfaces.size ()) << endl;
-      cout << "   lights:          "
-	   << setw (12) << commify (scene.lights.size ()) << endl;
-      if (scene.assumed_gamma != 1)
-	cout << "   assumed gamma:   "
-	     << setw (12) << scene.assumed_gamma << endl;
-      if (scene_light_scale != 1)
-	cout << "   light scale:     "
-	     << setw (12) << scene_light_scale << endl;
-      cout << "   materials:       "
-	   << setw (12) << commify (scene.materials.size ()) << endl;
-
-      cout << "   tree surfaces:     "
-	   << setw (10) << commify (tstats.num_surfaces)
-	   << " (" << (tstats.num_dup_surfaces * 100 / tstats.num_surfaces)
-	   << "% duplicates)" << endl;
-      cout << "   tree nodes:      "
-	   << setw (12) << commify (tstats.num_nodes)
-	   << " (" << (tstats.num_leaf_nodes * 100 / tstats.num_nodes)
-	   << "% leaves)" << endl;
-      cout << "   tree avg depth:      "
-	   << setw (8) << int (tstats.avg_depth) << endl;
-      cout << "   tree max depth:     "
-	   << setw (9) << tstats.max_depth << endl;
-
-      // Print image info
-
-      cout << "Image:" << endl;
-
-      if (multiple == 1)
-	cout << "   size:    "
-	     << setw (20) << (stringify (width)
-			      + " x " + stringify (height))
-	     << endl;
-      else
-	cout << "   size:    "
-	     << setw (20) << (stringify (width) + " x " + stringify (height)
-			      + " x " + stringify (multiple))
-	     <<" (" << (width * multiple) << " x " << (height * multiple) << ")"
-	     << endl;
-
-      if (limit_x != 0 || limit_y != 0
-	  || limit_width != width || limit_height != height)
-	cout << "   limit:  "
-	     << setw (20) << (stringify (limit_x) + "," + stringify (limit_y)
-			      + " - " + stringify (limit_x + limit_width)
-			      + "," + stringify (limit_y + limit_height))
-	     << " (" << limit_width << " x "  << limit_height << ")"
-	     << endl;
-
-      if (image_sink_params.target_gamma != 0)
-        cout << "   target_gamma:           "
-	     << setw (5) << image_sink_params.target_gamma << endl;
-
-      // Anti-aliasing info
-      //
-
-      if ((image.aa_factor + image_sink_params.aa_overlap) > 1)
-	{
-	  if (image.aa_factor > 1)
-	    cout << "   aa_factor:               "
-		 << setw (4) << image.aa_factor << endl;
-
-	  if (image_sink_params.aa_overlap > 0)
-	    cout << "   aa_kernel_size:          "
-		 << setw (4)
-		 << (image.aa_factor + image_sink_params.aa_overlap*2)
-		 << " (overlap = " << image_sink_params.aa_overlap << ")"
-		 << endl;
-	  else
-	    cout << "   aa_kernel_size:          "
-		 << setw (4) << image.aa_factor << endl;
-
-	  cout << "   aa_filter:           " << setw (8);
-	  if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
-	    cout << "box";
-	  else if (image_sink_params.aa_filter == ImageOutput::aa_triang_filter)
-	    cout << "triang";
-	  else if (image_sink_params.aa_filter == ImageOutput::aa_gauss_filter
-		   || !image_sink_params.aa_filter)
-	    cout << "gauss";
-	  else
-	    cout << "???";
-	  cout << endl;
-	}
-
-      cout << endl;
+      print_scene_info (scene, scene_def);
+      print_image_info (image, image_sink_params, width, height, multiple,
+			limit_x, limit_y, limit_width, limit_height);
     }
 
   // For convenience, we fold the size increase due to anti-aliasing into
@@ -1008,80 +692,7 @@ int main (int argc, char *const *argv)
   //
   if (! quiet)
     {
-      Scene::Stats &sstats = scene.stats;
-      Space::IsecStats &tistats1 = sstats.space_intersect;
-      Space::IsecStats &tistats2 = sstats.space_shadow;
-
-      long long sc  = sstats.scene_intersect_calls;
-      long long tnc = tistats1.node_intersect_calls;
-      long long ocic = sstats.surface_intersect_calls;
-      long long hhh = sstats.horizon_hint_hits;
-      long long hhm = sstats.horizon_hint_misses;
-
-      cout << endl;
-      cout << "Rendering stats:" << endl;
-      cout << "  intersect:" << endl;
-      cout << "     rays:            " << setw (16) << commify (sc) << endl;
-      cout << "     horizon hint hits:" << setw (15) << commify (hhh)
-	   << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
-      cout << "     horizon hint misses:" << setw (13) << commify (hhm)
-	   << " (" << setw(2) << (100 * hhm / sc) << "%)" << endl;
-      if (tstats.num_nodes != 0)
-	cout << "     tree node tests: " << setw (16) << commify (tnc)
-	     << " (" << setw(2) << (100 * tnc / (sc * tstats.num_nodes)) << "%)" << endl;
-      if (tstats.num_surfaces != 0)
-	cout << "     surface tests:   " << setw (16) << commify (ocic)
-	     << " (" << setw(2) << (100 * ocic / (sc * tstats.num_surfaces)) << "%)" << endl;
-
-      long long sst = sstats.scene_shadow_tests;
-
-      if (sst != 0)
-	{
-	  long long shh = sstats.shadow_hint_hits;
-	  long long shm = sstats.shadow_hint_misses;
-	  long long sss = sstats.scene_slow_shadow_traces;
-	  long long oss = sstats.surface_slow_shadow_traces;
-	  long long tnt = tistats2.node_intersect_calls;
-	  long long ot  = sstats.surface_intersects_tests;
-
-	  cout << "  shadow:" << endl;
-	  cout << "     rays:            " << setw (16) << commify (sst)
-	       << endl;
-	  cout << "     shadow hint hits:" << setw (16) << commify (shh)
-	       << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
-	  cout << "     shadow hint misses:" << setw (14) << commify (shm)
-	       << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
-	  if (sss != 0)
-	    cout << "     non-opaque traces: " << setw (14) << commify (sss)
-		 << " (" << setw(2) << (100 * sss / sst) << "%"
-		 << "; average depth = " << (float (oss) / float (sss)) << ")"
-		 << endl;
-	  if (tstats.num_nodes != 0)
-	    cout << "     tree node tests: " << setw (16) << commify (tnt)
-		 << " (" <<setw(2) << (100 * tnt / (tstats.num_nodes * (sst - shh))) << "%)"
-		 << endl;
-	  if (tstats.num_surfaces != 0)
-	    cout << "     surface tests:   " << setw (16) << commify (ot)
-		 << " (" <<setw(2) << (100 * ot / (tstats.num_surfaces * (sst - shh))) << "%)"
-		 << endl;
-	}
-
-      long long ic = sstats.illum_calls;
-
-      if (ic != 0)
-	{
-	  long long is = sstats.illum_samples;
-
-	  cout << "  illum:" << endl;
-	  cout << "     illum calls:     " << setw (16)
-	       << commify (ic) << endl;
-	  cout << "     average light samples: " << setw (10)
-	       << setprecision(3) << (float (is) / float (ic)) << endl;
-	  cout << "     average shadow rays:   " << setw (10)
-	       << setprecision(3) << (float (sst) / float (ic))
-	       << " (" << setw(2) << (sst * 100 / is) << "%)"
-	       << endl;
-	}
+      print_scene_stats (scene, cout);
 
       // a field width of 14 is enough for over a year of time...
       cout << "Time:" << endl;
@@ -1093,6 +704,9 @@ int main (int argc, char *const *argv)
       cout << "  rendering cpu:" << setw (14) << render_time.fmt() << endl;
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time.fmt() << endl;
+
+      long long sc  = scene.stats.scene_intersect_calls;
+      long long sst = scene.stats.scene_shadow_tests;
       double rps = (double)(sc + sst) / render_time;
       double erps = (double)num_eye_rays / render_time;
       cout << "  rays per second:    " << setw (8) << commify ((long long)rps)
