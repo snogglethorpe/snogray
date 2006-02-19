@@ -39,6 +39,9 @@ Image::~Image ()
   delete[] pixels;
 }
 
+
+// Input loading
+
 void
 Image::load (const std::string &filename, const char *format, unsigned border)
 {
@@ -46,6 +49,9 @@ Image::load (const std::string &filename, const char *format, unsigned border)
 
   width = src.width + border * 2;
   height = src.height + border * 2;
+
+  if (pixels)
+    delete[] pixels;
 
   pixels = new Color[width * height];
 
@@ -63,6 +69,20 @@ Image::load (const std::string &filename, const char *format, unsigned border)
 	  pixel (b, y + border) = 0;
 	  pixel (width - b, y + border) = 0;
 	}
+    }
+}
+
+void
+Image::save (const ImageSinkParams &params)
+{
+  ImageOutput dst (params);
+
+  for (unsigned y = 0; y < params.height; y++)
+    {
+      ImageRow &row = dst.next_row ();
+
+      for (unsigned x = 0; x < params.width; x++)
+	row[x] = pixel (x, y);
     }
 }
 

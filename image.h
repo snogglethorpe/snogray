@@ -16,6 +16,7 @@
 #include <cmath>
 
 #include "color.h"
+#include "image-io.h"
 
 namespace Snogray {
 
@@ -23,12 +24,18 @@ class Image
 {
 public:
 
-  // Basic image constructors
+  // Basic image constructor
+  //
+  Image (unsigned _width, unsigned _height)
+    : width (_width), height (_height), pixels (new Color[_width * _height])
+  { }
+  ~Image ();
+
+  // Constructors for an image loaded from a file
   //
   Image (const std::string &filename, const char *format = 0);
   Image (const std::string &filename, unsigned border);
   Image (const std::string &filename, const char *format, unsigned border);
-  ~Image ();
 
   // Constructor for extracting a sub-image of BASE.  If W or H are 0, the
   // maximum available width or height is used.  Note that because of the
@@ -55,12 +62,13 @@ public:
     return pixels[y * width + x];
   }
 
+  void load (const std::string &filename, const char *format = 0, unsigned border = 0);
+
+  void save (const ImageSinkParams &params);
 
   unsigned width, height;
 
 private:
-
-  void load (const std::string &filename, const char *format = 0, unsigned border = 0);
 
   Color *pixels;
 };
