@@ -27,7 +27,7 @@ typedef float scoord_t;
 typedef scoord_t sdist_t;
 
 template<typename T>
-inline coord_t lim (T v) { return (v < Eps && v > -Eps) ? 0 : v; }
+inline T lim (T v) { return (v < Eps && v > -Eps) ? 0 : v; }
 
 }
 

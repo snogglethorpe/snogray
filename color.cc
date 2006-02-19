@@ -9,7 +9,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iomanip>
+
 #include "color.h"
+#include "coords.h" // for lim()
 
 using namespace Snogray;
 
@@ -20,7 +23,9 @@ const Color Color::funny (0,10,0);
 std::ostream&
 Snogray::operator<< (std::ostream &os, const Color &col)
 {
-  os << "rgb<" << col.r << ", " << col.g << ", " << col.b << ">";
+  os << "rgb<" << std::setprecision (5) << lim (col.r)
+     << ", " << std::setprecision (5) << lim (col.g)
+     << ", " << std::setprecision (5) << lim (col.b) << ">";
   return os;
 }
 
