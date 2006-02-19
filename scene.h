@@ -15,6 +15,7 @@
 #include <fstream>
 #include <list>
 #include <vector>
+#include <string>
 
 #include "surface.h"
 #include "light.h"
@@ -192,8 +193,9 @@ public:
 
   // Scene input
   //
-  void load (const char *scene_file_name, const char *fmt, Camera &camera);
-  void load (std::istream &stream, const char *fmt, Camera &camera);
+  void load (const std::string &file_name, const std::string &fmt,
+	     Camera &camera);
+  void load (std::istream &stream, const std::string &fmt, Camera &camera);
 
   // Specific scene file formats
   //
