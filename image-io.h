@@ -116,6 +116,17 @@ public:
   virtual float max_intens () const;
 };
 
+// Get rid of the class later when we convert image-io to use
+// exceptions. XXX
+//
+struct ImageGrrrSinkParams : public ImageSinkParams
+{
+  ImageGrrrSinkParams (const ImageSinkParams &params)
+    : ImageSinkParams (params)
+  { }
+  virtual void error (const std::string &msg) const;
+};
+
 class ImageOutput
 {
 public:

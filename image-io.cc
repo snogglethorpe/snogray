@@ -50,6 +50,14 @@ ImageSource::make (const std::string &filename, const char *format)
 
 
 
+void
+ImageGrrrSinkParams::error (const std::string &msg) const
+{
+  throw std::runtime_error (msg);
+}
+
+
+
 // Calls error with current errno message appended
 void
 ImageParams::sys_error (const std::string &msg) const
