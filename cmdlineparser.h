@@ -13,6 +13,7 @@
 #define __CMDLINEPARSER_H__
 
 #include <string>
+#include <stdexcept>
 
 #include <getopt.h>
 
@@ -81,6 +82,10 @@ private:
   int long_opt_index;
   int short_opt;
 };
+
+#define CMDLINEPARSER_CATCH(clp, expr) \
+  try { (expr); } catch (std::runtime_error &err) { clp.err (err.what ()); }
+
 
 }
 

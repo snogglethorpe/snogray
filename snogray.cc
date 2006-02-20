@@ -465,14 +465,7 @@ int main (int argc, char *const *argv)
 
   // Parse scene spec (filename or test-scene name)
   //
-  try
-    {
-      scene_def.parse (clp);
-    }
-  catch (runtime_error &err)
-    {
-      clp.err (err.what ());
-    }
+  CMDLINEPARSER_CATCH (clp, scene_def.parse (clp));
 
   // Output filename
   //
@@ -499,14 +492,7 @@ int main (int argc, char *const *argv)
 
   // Read in the scene/camera definitions
   //
-  try
-    {
-      scene_def.load (scene, camera);
-    }
-  catch (runtime_error &err)
-    {
-      clp.err (err.what ());
-    }
+  CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
 
   Rusage scene_end_ru;		// stop timing scene definition
 
