@@ -60,6 +60,12 @@ protected:
   {
   public:
 
+    typedef V value_type;
+    typedef typename I::difference_type difference_type;
+    typedef typename I::iterator_category iterator_category;
+    typedef V *pointer;
+    typedef V &reference;
+
     Iter (LS &_lsamples, I _idx_iter)
       : lsamples (_lsamples), idx_iter (_idx_iter)
     { }
@@ -74,6 +80,8 @@ protected:
     bool operator== (const Iter &i) const { return idx_iter == i.idx_iter; }
 
     bool operator- (const Iter &i) const { return idx_iter - i.idx_iter; }
+
+    void operator += (difference_type d) { idx_iter += d; }
 
     operator unsigned () const { return *idx_iter; }
 
