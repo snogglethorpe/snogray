@@ -73,7 +73,7 @@ Image::load (const std::string &filename, const char *format, unsigned border)
 }
 
 void
-Image::save (const ImageSinkParams &params)
+Image::save (const ImageSinkParams &params) const
 {
   ImageOutput dst (params);
 

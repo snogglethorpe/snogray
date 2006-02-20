@@ -64,7 +64,7 @@ public:
 
   void load (const std::string &filename, const char *format = 0, unsigned border = 0);
 
-  void save (const ImageSinkParams &params);
+  void save (const ImageSinkParams &params) const;
 
   unsigned width, height;
 
