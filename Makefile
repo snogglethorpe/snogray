@@ -9,7 +9,7 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
-TARGETS = snogray snogcvt snogdiff
+TARGETS = snogray snogcvt snogdiff snogsamp
 
 all: $(TARGETS)
 
@@ -80,7 +80,7 @@ _CXXFLAGS = $(_CXXFLAGS_FILT) $(DEP_CFLAGS)
 
 ################################################################
 ##
-## Common sources between snogray and snogcvt/snogdiff
+## Common sources between snogray and utility programs
 ##
 
 IMAGE_SRCS = image.cc image-aa.cc image-byte-vec.cc image-cmdline.cc	\
@@ -89,24 +89,40 @@ IMAGE_SRCS = image.cc image-aa.cc image-byte-vec.cc image-cmdline.cc	\
 
 COMMON_SRCS = cmdlineparser.cc color.cc string-funs.cc $(IMAGE_SRCS)
 
+RENDER_SRCS = brdf.cc camera.cc cook-torrance.cc cubetex.cc far-light.cc \
+	  freelist.cc glass.cc glow.cc intersect.cc lambert.cc light.cc	 \
+	  lsamples.cc material.cc mesh.cc mirror.cc surface.cc phong.cc	 \
+	  point-light.cc primary-surface.cc ray.cc rect-light.cc	 \
+	  texture2.cc scene.cc scene-load.cc scene-load-aff.cc space.cc	 \
+	  sphere.cc tessel.cc tessel-param.cc timeval.cc trace-state.cc	 \
+	  tripar.cc octree.cc
+
+SCENE_DEF_SRCS = scene-def.cc test-scenes.cc
+
 ################################################################
 ##
 ## Snogray
 ##
 
-SNOGRAY_SRCS = brdf.cc camera.cc cook-torrance.cc cubetex.cc		 \
-	  far-light.cc freelist.cc glass.cc glow.cc intersect.cc	 \
-	  lambert.cc light.cc lsamples.cc material.cc mesh.cc mirror.cc	 \
-	  surface.cc phong.cc point-light.cc primary-surface.cc ray.cc	 \
-	  rect-light.cc texture2.cc scene.cc scene-def.cc scene-load.cc	 \
-	  scene-load-aff.cc scene-stats.cc snogray.cc space.cc sphere.cc \
-	  tessel.cc tessel-param.cc test-scenes.cc timeval.cc		 \
-	  trace-state.cc tripar.cc octree.cc $(COMMON_SRCS)
+SNOGRAY_SRCS = snogray.cc scene-stats.cc $(SCENE_DEF_SRCS)	\
+	       $(RENDER_SRCS) $(COMMON_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
 
 snogray: $(SNOGRAY_OBJS)
 	$(CXX) -o $@ $(LDFLAGS) $(SNOGRAY_OBJS) $(LIBS)
+
+################################################################
+##
+## snogsamp (debugging utility)
+##
+
+SNOGSAMP_SRCS = snogsamp.cc sample-map.cc $(SCENE_DEF_SRCS)	\
+		$(RENDER_SRCS) $(COMMON_SRCS)
+SNOGSAMP_OBJS = $(SNOGSAMP_SRCS:.cc=.o)
+
+snogsamp: $(SNOGSAMP_OBJS)
+	$(CXX) -o $@ $(LDFLAGS) $(SNOGSAMP_OBJS) $(LIBS)
 
 ################################################################
 ##
@@ -130,8 +146,10 @@ snogdiff: $(SNOGDIFF_OBJS)
 ## Union of all source/object files, used in cleaning
 ##
 
-ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS) $(SNOGDIFF_SRCS))
-ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS) $(SNOGDIFF_OBJS))
+ALL_SRCS = $(sort $(SNOGRAY_SRCS) $(SNOGCVT_SRCS) $(SNOGDIFF_SRCS)	\
+		  $(SNOGSAMP_SRCS))
+ALL_OBJS = $(sort $(SNOGRAY_OBJS) $(SNOGCVT_OBJS) $(SNOGDIFF_OBJS)	\
+		  $(SNOGSAMP_OBJS))
 
 ################################################################
 ##
