@@ -37,47 +37,21 @@
 
 // Image output options
 //
-#define IMAGE_OUTPUT_OPTIONS_HELP "\
- Output options:\n\
-  -O, --output-format=FMT    Output image format FMT\n\
-                               (one of: exr, png, ppm, pfm, jpeg,\n\
-                                hdr, pic, rgbe)\n\
-  -g, --gamma=GAMMA          Do gamma correction for a target display\n\
-                               gamma of GAMMA (default: 2.2, for output\n\
-                               formats that need gamma-correction)\n\
-  -Q, --quality=PERCENT	     Set output quality, for formats that support it\n\
-                               (range: 0-100; default 98)\n\
-\n\
+#define IMAGE_OUTPUT_AA_OPTIONS_HELP "\
  Anti-aliasing:\n\
   -a, --aa-factor=N          Use NxN input pixels to compute each output pixel\n\
   -A, --aa-overlap=M         Include M adjacent input pixels in anti-aliasing\n\
   -F, --aa-filter=NAME       Use anti-aliasing filter NAME (one of: box,\n\
-                               triang, gauss; default: gauss)\n\
-\n\
- Transforms:\n\
-  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
+                               triang, gauss; default: gauss)"
 //
-#define IMAGE_OUTPUT_SHORT_OPTIONS "a:A:F:O:g:Q:e:"
+#define IMAGE_OUTPUT_AA_SHORT_OPTIONS "a:A:F:"
 //
-#define IMAGE_OUTPUT_LONG_OPTIONS			\
-  { "output-format",	required_argument, 0, 'O' },	\
-  { "gamma",		required_argument, 0, 'g' },	\
-  { "quality",		required_argument, 0, 'Q' },	\
+#define IMAGE_OUTPUT_AA_LONG_OPTIONS			\
   { "aa-factor",	required_argument, 0, 'a' },	\
   { "aa-overlap",	required_argument, 0, 'A' },	\
-  { "aa-filter",	required_argument, 0, 'F' },	\
-  { "exposure",		required_argument, 0, 'e' }
+  { "aa-filter",	required_argument, 0, 'F' }
 //
-#define IMAGE_OUTPUT_OPTION_CASES(clp, params)		\
-  case 'O':						\
-    params.format = clp.opt_arg ();			\
-    break;						\
-  case 'g':						\
-    params.target_gamma = clp.float_opt_arg ();		\
-    break;						\
-  case 'Q':						\
-    params.quality = clp.float_opt_arg ();		\
-    break;						\
+#define IMAGE_OUTPUT_AA_OPTION_CASES(clp, params)	\
   /* Anti-aliasing options */				\
   case 'a':						\
     params.aa_factor = clp.unsigned_opt_arg ();		\
@@ -87,11 +61,71 @@
     break;						\
   case 'F':						\
     params.parse_aa_filter_opt_arg ();			\
-    break;						\
-  /* Transform options */				\
-  case 'e':						\
-    params.exposure = clp.float_opt_arg ();		\
     break;
+
+#define IMAGE_OUTPUT_TRANSFORM_OPTIONS_HELP "\
+ Transforms:\n\
+  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
+//
+#define IMAGE_OUTPUT_TRANSFORM_SHORT_OPTIONS "e:"
+//
+#define IMAGE_OUTPUT_TRANSFORM_LONG_OPTIONS			\
+  { "exposure",		required_argument, 0, 'e' }
+//
+#define IMAGE_OUTPUT_TRANSFORM_OPTION_CASES(clp, params)	\
+  /* Transform options */					\
+  case 'e':							\
+    params.exposure = clp.float_opt_arg ();			\
+    break;
+
+#define IMAGE_OUTPUT_FMT_OPTIONS_HELP "\
+ Output options:\n\
+  -O, --output-format=FMT    Output image format FMT\n\
+                               (one of: exr, png, ppm, pfm, jpeg,\n\
+                                hdr, pic, rgbe)\n\
+  -g, --gamma=GAMMA          Do gamma correction for a target display\n\
+                               gamma of GAMMA (default: 2.2, for output\n\
+                               formats that need gamma-correction)\n\
+  -Q, --quality=PERCENT	     Set output quality, for formats that support it\n\
+                               (range: 0-100; default 98)"
+//
+#define IMAGE_OUTPUT_FMT_SHORT_OPTIONS "O:g:Q:"
+//
+#define IMAGE_OUTPUT_FMT_LONG_OPTIONS			\
+  { "output-format",	required_argument, 0, 'O' },	\
+  { "gamma",		required_argument, 0, 'g' },	\
+  { "quality",		required_argument, 0, 'Q' }
+//
+#define IMAGE_OUTPUT_FMT_OPTION_CASES(clp, params)	\
+  case 'O':						\
+    params.format = clp.opt_arg ();			\
+    break;						\
+  case 'g':						\
+    params.target_gamma = clp.float_opt_arg ();		\
+    break;						\
+  case 'Q':						\
+    params.quality = clp.float_opt_arg ();		\
+    break;
+
+#define IMAGE_OUTPUT_OPTIONS_HELP		\
+  IMAGE_OUTPUT_FMT_OPTIONS_HELP			\
+  "\n\n" IMAGE_OUTPUT_TRANSFORM_OPTIONS_HELP	\
+  "\n\n" IMAGE_OUTPUT_AA_OPTIONS_HELP
+//
+#define IMAGE_OUTPUT_SHORT_OPTIONS		\
+  IMAGE_OUTPUT_FMT_SHORT_OPTIONS		\
+  IMAGE_OUTPUT_TRANSFORM_SHORT_OPTIONS		\
+  IMAGE_OUTPUT_AA_SHORT_OPTIONS
+//
+#define IMAGE_OUTPUT_LONG_OPTIONS		\
+  IMAGE_OUTPUT_FMT_LONG_OPTIONS,		\
+  IMAGE_OUTPUT_TRANSFORM_LONG_OPTIONS,		\
+  IMAGE_OUTPUT_AA_LONG_OPTIONS
+//
+#define IMAGE_OUTPUT_OPTION_CASES(clp, params)		\
+  IMAGE_OUTPUT_FMT_OPTION_CASES (clp, params)		\
+  IMAGE_OUTPUT_TRANSFORM_OPTION_CASES (clp, params)	\
+  IMAGE_OUTPUT_AA_OPTION_CASES (clp, params)
 
 
 
