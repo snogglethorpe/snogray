@@ -24,22 +24,11 @@ public:
 
   static const Color black, white, funny;
 
+  Color () : r (0), g (0), b (0) { }
   Color (component_t _r, component_t _g, component_t _b)
     : r (_r), g (_g), b (_b)
   { }
-  Color (component_t grey = 0) : r (grey), g (grey), b (grey) { }
-  Color (double grey) : r (grey), g (grey), b (grey) { }
-  Color (int grey) : r (grey), g (grey), b (grey) { }
-
-  friend bool operator== (const Color &col1, const Color &col2);
-  friend Color operator+ (const Color &col1, const Color &col2);
-  friend Color operator- (const Color &col1, const Color &col2);
-  friend Color operator* (const Color &col1, const Color &filter);
-
-  Color operator/ (float denom) const
-  {
-    return Color (r / denom, g / denom, b / denom);
-  }
+  template<typename S> Color (S grey) : r (grey), g (grey), b (grey) { }
 
   void operator+= (const Color &col2)
   {
@@ -53,24 +42,17 @@ public:
     g -= col2.g;
     b -= col2.b;
   }
-  void operator*= (float scale)
-  {
-    r *= scale;
-    g *= scale;
-    b *= scale;
-  }
-  void operator/= (float denom)
-  {
-    r /= denom;
-    g /= denom;
-    b /= denom;
-  }
-
   void operator*= (const Color &filter)
   {
     r *= filter.r;
     g *= filter.g;
     b *= filter.b;
+  }
+  void operator/= (const Color &filter)
+  {
+    r /= filter.r;
+    g /= filter.g;
+    b /= filter.b;
   }
 
   float intensity () const { return (r + g + b) / 3; }
@@ -133,6 +115,10 @@ inline Color operator- (const Color &col1, const Color &col2)
 inline Color operator* (const Color &col1, const Color &filter)
 {
   return Color (col1.r * filter.r, col1.g * filter.g, col1.b * filter.b);
+}
+inline Color operator/ (const Color &col1, const Color &filter)
+{
+  return Color (col1.r / filter.r, col1.g / filter.g, col1.b / filter.b);
 }
 
 extern std::ostream& operator<< (std::ostream &os, const Snogray::Color &col);
