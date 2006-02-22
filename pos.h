@@ -52,7 +52,7 @@ public:
   }
   TPos operator/ (T denom) const
   {
-    return TPos (x / denom, y / denom, z / denom);
+    return operator* (1 / denom);
   }
 
   void operator+= (const TVec<T> &p2)

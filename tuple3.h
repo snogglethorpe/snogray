@@ -50,7 +50,7 @@ public:
   }
   void operator/= (T denom)
   {
-    x /= denom; y /= denom; z /= denom;
+    operator*= (1 / denom);
   }
 
   Tuple3<T> operator* (const Matrix4<T> &xform) const

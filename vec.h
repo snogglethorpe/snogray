@@ -62,7 +62,7 @@ public:
   }
   TVec operator/ (T denom) const
   {
-    return TVec (x / denom, y / denom, z / denom);
+    return operator* (1 / denom);
   }
 
   void operator+= (const TVec &v2)
@@ -104,7 +104,7 @@ public:
     if (len == 0)
       return TVec (0, 0, 0);
     else
-      return TVec (x / len, y / len, z / len);
+      return operator* (1 / len);
   }
 
   TVec cross (const TVec &vec2) const
