@@ -13,7 +13,7 @@ TARGETS = snogray snogcvt snogdiff snogsamp
 
 all: $(TARGETS)
 
-OPT = -O5 -fomit-frame-pointer
+OPT = -O5 -fomit-frame-pointer -ffast-math
 DEBUG = -g -Wall
 #PG = -pg
 #MUDFLAP = -fmudflap
