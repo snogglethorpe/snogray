@@ -42,7 +42,7 @@ public:
   Intersect (const Ray &_ray, const Surface *_surface,
 	     const Pos _point, const Vec _normal)
     : ray (_ray), surface (_surface),
-      point (_point), normal (_normal), back (normal.dot (_ray.dir) > 0),
+      point (_point), normal (_normal), back (dot (normal, _ray.dir) > 0),
       smoothing_group (0)
   {
     // We want to flip the sign on `normal' if `back' is true, but we've

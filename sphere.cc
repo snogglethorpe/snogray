@@ -36,12 +36,12 @@ Sphere::intersection_distance (const Ray &ray,
     return 0;
 
   Vec dir = ray.dir;		  // must be a unit vector
-  double dir_dir = dir.dot (dir); // theoretically, exactly 1; in
+  double dir_dir = dot (dir, dir); // theoretically, exactly 1; in
 				  // practice, not _quite_
   Vec diff = ray.origin - center;
-  double dir_diff = dir.dot (diff);
+  double dir_diff = dot (dir, diff);
   double determ
-    = (dir_diff * dir_diff) - dir_dir * (diff.dot(diff) - (radius * radius));
+    = (dir_diff * dir_diff) - dir_dir * (dot (diff, diff) - (radius * radius));
 
   if (determ > -Eps)
     {

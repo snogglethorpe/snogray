@@ -27,8 +27,8 @@ public:
   RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
 	     const Color &emittance)
     : pos (_pos), side1 (_side1), side2 (_side2),
-      power (emittance * _side1.cross (_side2).length ()),
-      normal (_side1.cross (_side2).unit ())
+      power (emittance * cross (_side1, _side2).length ()),
+      normal (cross (_side1, _side2).unit ())
   { }
 
   // Generate (up to) NUM samples of this light and add them to SAMPLES.

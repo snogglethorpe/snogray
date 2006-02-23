@@ -73,7 +73,7 @@ CookTorrance::filter_samples (const Intersect &isec, const Color &color,
 
   // 1 / (N dot V)
   //
-  float NV = N.dot (V);
+  float NV = dot (N, V);
   float NV_inv = 1 / NV;
 
   // Index of refraction of the medium this surface is adjacent to, and
@@ -98,12 +98,12 @@ CookTorrance::filter_samples (const Intersect &isec, const Color &color,
       // Light-ray direction vector (normalized)
       //
       const Vec &L = s->dir;
-      float NL = N.dot (L);
+      float NL = dot (N, L);
 
       // Half-way vector between eye-ray and light-ray (normalized)
       //
       const Vec H = (V + L).unit ();
-      float NH = N.dot (H);
+      float NH = dot (N, H);
 
       // Calculate D (microfacet distribution) term:
       //
@@ -201,7 +201,7 @@ CookTorrance::filter_samples (const Intersect &isec, const Color &color,
       //             2 * (N dot H) * (N dot V) / (V dot H),
       //             2 * (N dot H) * (N dot L) / (V dot H))
       //
-      float VH = V.dot (H);
+      float VH = dot (V, H);
       float G = 2 * NH * ((NV > NL) ? NL : NV) / VH;
       G = G <= 1 ? G : 1;
 

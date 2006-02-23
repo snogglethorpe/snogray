@@ -23,16 +23,16 @@ FarLight::init ()
 {
   Vec up (0, 1, 0);
 
-  Vec u0 = dir.cross (up);
+  Vec u0 = cross (dir, up);
 
   // If DIR was the same as UP, U0 ends up zero-length, so retry with
   // another UP.
   //
   if (u0.length () < Eps)
-    u0 = dir.cross (Vec (1, 0, 0));
+    u0 = cross (dir, Vec (1, 0, 0));
 
-  u = dir.cross (u0).unit () * radius;
-  v = dir.cross (u).unit ()  * radius;
+  u = cross (dir, u0).unit () * radius;
+  v = cross (dir, u).unit ()  * radius;
 
   u_inc = u * 2 / JITTER_STEPS;
   v_inc = v * 2 / JITTER_STEPS;
@@ -82,8 +82,8 @@ FarLight::gen_samples (const Intersect &isec, TraceState &tstate,
   // examining the dot product of the surface normal with rays to the
   // four corners of the light.
   //
-  if (N.dot (dir + u) > 0 || N.dot (dir - u) > 0
-      || N.dot (dir + v) > 0 || N.dot (dir - v) > 0)
+  if (dot (N, dir + u) > 0 || dot (N, dir - u) > 0
+      || dot (N, dir + v) > 0 || dot (N, dir - v) > 0)
     {
       Color samp_color = color * num_lights_scale;
       dist_t r_sq = steps_radius * steps_radius;
@@ -103,7 +103,7 @@ FarLight::gen_samples (const Intersect &isec, TraceState &tstate,
 		  + v_inc * (v_offs + random (0, 1));
 
 		const Vec L = (dir + jitter).unit();
-		float NL = N.dot (L);
+		float NL = dot (N, L);
 
 		if (NL > 0)
 		  samples.add_light (samp_color, L, Scene::DEFAULT_HORIZON,
@@ -128,7 +128,7 @@ FarLight::filter_samples (const Intersect &isec, TraceState &tstate,
   const
 {
   for (SampleRayVec::iterator s = from; s != to; s++)
-    if (s->dist == 0 && dir.dot (s->dir) <= max_cos)
+    if (s->dist == 0 && dot (dir, s->dir) <= max_cos)
       s->set_light (color, Scene::DEFAULT_HORIZON, this);
 }
 

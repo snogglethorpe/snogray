@@ -45,7 +45,7 @@ Intersect
 Tripar::intersect_info (const Ray &ray, const IsecParams &isec_params)
   const
 {
-  return Intersect (ray, this, ray.end (), (e1.cross (e2)).unit ());
+  return Intersect (ray, this, ray.end (), (cross (e1, e2)).unit ());
 }
 
 // Return a bounding box for this surface.

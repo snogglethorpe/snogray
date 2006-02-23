@@ -358,7 +358,7 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
   // perhaps after replacing it w ith the interpolated normal).
   //
   Vec norm = raw_normal_unscaled ();
-  bool back = norm.dot (ray.dir) > 0;
+  bool back = dot (norm, ray.dir) > 0;
 
   // Point of intersection.
   //
@@ -380,10 +380,10 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
       // keep things as sane as possible by clamping the normal at the
       // point where it's perpendicular to RAY.
       //
-      if (!back && norm.dot (ray.dir) > 0)
+      if (!back && dot (norm, ray.dir) > 0)
 	{
-	  Vec cx = norm.cross (ray.dir);
-	  norm = ray.dir.cross (cx);
+	  Vec cx = cross (norm, ray.dir);
+	  norm = cross (ray.dir, cx);
 	}
     }
 
@@ -437,7 +437,7 @@ Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t dist,
 {
   if (isec.smoothing_group == static_cast<const void *>(&mesh))
     {    
-      bool real_back = raw_normal_unscaled().dot (ray.dir) > 0;
+      bool real_back = dot (raw_normal_unscaled(), ray.dir) > 0;
 
       // We only get suspicious about the validity of the shadow if RAY is
       // coming from a difference surface when we compare the virtual
@@ -448,7 +448,7 @@ Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t dist,
 	  const Triangle *other_tri
 	    = static_cast<const Triangle *>(isec.surface);
 	  bool other_back
-	    = other_tri->raw_normal_unscaled().dot (ray.dir) > 0;
+	    = dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
 
 	  return real_back == other_back;
 

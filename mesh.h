@@ -202,13 +202,15 @@ public:
     const SVec &vnorm (unsigned num) const { return mesh.vertex_normals[vi[num]];}
 
     // These both return the "raw" normal of this triangle, not doing
-    // any normal interpolation.
+    // any normal interpolation.  Note that they return ordinary
+    // double-precision vectors, not the single-precision vectors used
+    // in the mesh (because most uses want the former).
     //
-    const SVec raw_normal_unscaled () const
+    const Vec raw_normal_unscaled () const
     {
-      return (v(1) - v(0)).cross (v(2) - v(1));
+      return cross (v(1) - v(0), v(2) - v(1));
     }
-    const SVec raw_normal () const
+    const Vec raw_normal () const
     {
       return raw_normal_unscaled().unit ();
     }

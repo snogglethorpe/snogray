@@ -52,11 +52,11 @@ tripar_intersect (const TPos<T> &corner,
 
   // Begin calculating the determinant (also used to calculate U parameter).
   //
-  TVec<T> pvec = ray_dir.cross (edge2);
+  TVec<T> pvec = cross (ray_dir, edge2);
 
   // If the determinant is near zero, the ray lies in the plane of the triangle.
   //
-  T det = edge1.dot (pvec);
+  T det = dot (edge1, pvec);
 
   if (det > -Eps && det < Eps)
     return 0;
@@ -69,17 +69,17 @@ tripar_intersect (const TPos<T> &corner,
 
   // Calculate U parameter and test bounds.
   //
-  u = tvec.dot (pvec) * inv_det;
+  u = dot (tvec, pvec) * inv_det;
   if (u < 0.0 || u > 1.0)
     return 0;
 
   // Prepare to test V parameter.
   //
-  TVec<T> qvec = tvec.cross (edge1);
+  TVec<T> qvec = cross (tvec, edge1);
 
   // Calculate V parameter.
   //
-  v = ray_dir.dot (qvec) * inv_det;
+  v = dot (ray_dir, qvec) * inv_det;
 
   // Test V parameter bounds.
   //
@@ -100,7 +100,7 @@ tripar_intersect (const TPos<T> &corner,
 
   // The ray intersects the triangle/parallelogram; return the distance.
   //
-  return edge2.dot (qvec) * inv_det;
+  return dot (edge2, qvec) * inv_det;
 }
 
 // If a ray from RAY_ORIGIN in direction RAY_DIR intersects the triangle

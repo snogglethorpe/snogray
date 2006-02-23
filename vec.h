@@ -85,10 +85,6 @@ public:
     return *this;
   }
 
-  T dot (const TVec &v2) const
-  {
-    return x * v2.x + y * v2.y + z * v2.z;
-  }
   T length_squared () const
   {
     return x * x + y * y + z * z;
@@ -107,11 +103,6 @@ public:
       return operator* (1 / len);
   }
 
-  TVec cross (const TVec &vec2) const
-  {
-    return TVec (y*vec2.z - z*vec2.y, z*vec2.x - x*vec2.z, x*vec2.y - y*vec2.x);
-  }
-
   T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
   T longitude () const { return atan2 (x, z); }
 
@@ -121,7 +112,7 @@ public:
   {
     // Rr =  Ri - 2 N (Ri . N)
 
-    return  *this - normal * dot (normal) * 2;
+    return  *this - normal * dot (*this, normal) * 2;
   }
 
   // Return this vector refracted through a medium transition across a
@@ -139,7 +130,7 @@ public:
 
     T ior_ratio = ior_in / ior_out;
 
-    T c1 = -dot (normal);
+    T c1 = -dot (*this, normal);
     T c2_sq = 1 - (ior_ratio * ior_ratio) * (1 - c1 * c1);
 
     if (c2_sq < -Eps)
@@ -151,6 +142,22 @@ public:
     return (*this * ior_ratio) + (normal * (ior_ratio * c1 - sqrt (c2_sq)));
   }
 };
+
+template<typename T>
+static inline T
+dot (const TVec<T> &vec1, const TVec<T> &vec2)
+{
+  return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
+}
+
+template<typename T>
+static inline TVec<T>
+cross (const TVec<T> &vec1, const TVec<T> &vec2)
+{
+  return TVec<T> (vec1.y * vec2.z - vec1.z * vec2.y,
+		  vec1.z * vec2.x - vec1.x * vec2.z,
+		  vec1.x * vec2.y - vec1.y * vec2.x);
+}
 
 template<typename T>
 static inline TVec<T>

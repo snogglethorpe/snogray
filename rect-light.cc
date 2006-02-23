@@ -35,10 +35,10 @@ RectLight::gen_samples (const Intersect &isec, TraceState &tstate,
   // examining the dot product of the surface normal with rays to the
   // four corners of the light.
   //
-  if (N.dot (pos - isec.point) > 0
-      || N.dot (pos + side1 - isec.point) > 0
-      || N.dot (pos + side2 - isec.point) > 0
-      || N.dot (pos + side1 + side2 - isec.point) > 0)
+  if (dot (N, pos - isec.point) > 0
+      || dot (N, pos + side1 - isec.point) > 0
+      || dot (N, pos + side2 - isec.point) > 0
+      || dot (N, pos + side1 + side2 - isec.point) > 0)
     {    
       // The light seems to be visible, so iterate over its surface in a
       // grid pattern, adding a sample for each point
@@ -74,7 +74,7 @@ RectLight::gen_samples (const Intersect &isec, TraceState &tstate,
 	      dist_t dist = lvec.length ();
 
 	      const Vec L = lvec.unit ();
-	      float NL = N.dot (L);
+	      float NL = dot (N, L);
 
 	      if (NL > 0)
 		{
@@ -83,7 +83,7 @@ RectLight::gen_samples (const Intersect &isec, TraceState &tstate,
 		  //   -cos (light_norm, lvec)) / distance^2 / num_samples
 		  //
 		  Color::component_t scale =
-		    fabs (normal.dot (L)) * num_samples_scale / (dist * dist);
+		    fabs (dot (normal, L)) * num_samples_scale / (dist * dist);
 
 		  samples.add_light (power * scale, L, dist, this);
 		}
@@ -120,7 +120,7 @@ RectLight::filter_samples (const Intersect &isec, TraceState &tstate,
 	  //
 	  //   -cos (light_norm, sublight_lvec)) / distance^2
 	  //
-	  Color::component_t scale = fabs (normal.dot (s->dir)) / (dist * dist);
+	  Color::component_t scale = fabs (dot (normal, s->dir)) / (dist * dist);
 
 	  s->set_light (power * scale, dist, this);
 	}

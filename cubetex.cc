@@ -63,8 +63,8 @@ Cubetex::map (const Vec &dir) const
   // Calculate u and v -- basically the non-axis components of DIR
   // divided by the axis component.
   //
-  Texture2::param_t u = dir.dot (face.u_dir) / axis_val;
-  Texture2::param_t v = dir.dot (face.v_dir) / axis_val;
+  Texture2::param_t u = dot (dir, face.u_dir) / axis_val;
+  Texture2::param_t v = dot (dir, face.v_dir) / axis_val;
 
   // Translate [-1, 1] params into [0, 1] for texture lookup
   //
