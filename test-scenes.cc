@@ -369,8 +369,10 @@ def_scene_teapot (const string &name, unsigned num,
 
   // Pot
 
-  const Material *matte_silver
+  const Material *silver
     = scene.add (new Mirror (0.1, 0.1, cook_torrance (0.8, 0.3, 2.14, 4)));
+  const Material *matte_silver
+    = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, 2.14, 4)));
 //     = scene.add (new Material (0.2, 0.8, 50));
 //     = scene.add (new Material (0.2, new Phong (0.8, 50)));
 //     = scene.add (new Mirror (0.1, 0.2, new CookTorrance (0.8, 0.3, 2.14, 4)));
@@ -381,22 +383,44 @@ def_scene_teapot (const string &name, unsigned num,
 // 			       new CookTorrance (0.5, 0.05, 2)));
 //     = scene.add (new Mirror (0.2, Color (0.3, 0.4, 0.3), .5, 10));
 
-  Xform teapot_xform = mesh_xform * Xform::translation (Vec (0, -0.1, 0));
-  scene.add (new Mesh (matte_silver, name + ".msh", teapot_xform, true));
-
-  // Chessboard
-
   const Material *gloss_black
     = scene.add (new Mirror (0.1, 0.02, cook_torrance (0.9, 1)));
-  const Material *ivory
+  const Material *black
+    = scene.add (new Material (0.02, cook_torrance (0.9, 1)));
+  const Material *gloss_ivory
     = scene.add (new Mirror (0.1, 2 * Color (1.1, 1, 0.8),
 			     cook_torrance (0.2, 2)));
+  const Material *ivory
+    = scene.add (new Material (2 * Color (1.1, 1, 0.8),
+			       cook_torrance (0.2, 2)));
+
+  const Material *teapot_mat = 0, *chess_mat1, *chess_mat2;
+  switch ((num / 1000) % 10)
+    {
+    case 0: default:
+      teapot_mat = silver;
+      chess_mat1 = gloss_black;
+      chess_mat2 = gloss_ivory;
+      break;
+
+    case 1:
+      teapot_mat = matte_silver;
+      chess_mat1 = black;
+      chess_mat2 = ivory;
+      break;
+    }
+
+  Xform teapot_xform = mesh_xform * Xform::translation (Vec (0, -0.1, 0));
+  scene.add (new Mesh (teapot_mat, name + ".msh", teapot_xform, true));
+
+  // Chessboard
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05),
 			       cook_torrance (0.5, 3, 2)));
 
-  scene.add (new Mesh (gloss_black, "board1.msh", mesh_xform));
-  scene.add (new Mesh (ivory, "board2.msh", mesh_xform));
+
+  scene.add (new Mesh (chess_mat1, "board1.msh", mesh_xform));
+  scene.add (new Mesh (chess_mat2, "board2.msh", mesh_xform));
   scene.add (new Mesh (brown, "board3.msh", mesh_xform));
 
   // Table/ground
