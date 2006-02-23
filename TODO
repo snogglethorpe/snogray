@@ -2,6 +2,30 @@ Todo list for snogray
 
 
 
+ + Switch to proper filtering for anti-aliasing, taking jitter etc into account:
+
+     Add a Filter class, which takes a simple x,y offset and returns a
+     filter value at that point (relative to origin).  Add a "SampleGen"
+     class will will generate a series of samples (stratified etc) in a
+     unit square.  For each output pixel, generate samples, render them,
+     and then get the filter value for the samples offset from the pixel
+     center, and combine them using the formula
+
+        Sum(filt(samp) light(samp)) / Sum(filt(samp))
+
+     Get rid of wacky scan-line-based filtering I guess.
+
+     For the problem of doing post-processing of HDR images, an idea is:
+
+	When converting from an HDR representation to a limited-gamut
+	representation, use filtering even if the image resolution is
+	the same; make sure the filter support is wide enough so that a
+	high-intensity pixel adjacent to a low-intensity pixel will
+	"bleed" into it via the tail of the filter (but make the tail
+	amplitude small enough so that the bleeding in normal cases is
+	neglible).
+
+
  [DONE]
  + Optimize triangle intersection calculation.
 
@@ -18,7 +42,9 @@ Todo list for snogray
 
  + Implement better light-model
 
-     Ashikhmin?  Cook-Torrance?
+     Ashikhmin
+     Cook-Torrance	[DONE]
+     Ward
 
 
  + Use Fresnel equations to calculate reflectance/transmittance
@@ -156,6 +182,10 @@ Todo list for snogray
 
 
  + Better light management to handle huge numbers of lights.
+
+     [** This is kind of half-way done: we still generate samples from
+     all lights, but then sort the samples before shadow-testing
+     (shadow-testing is the slowest operation by far). **]
 
      * Keep list of lights ordered in terms of "apparent strength";
        this varies per pixel, but is a good candidate for caching as it
