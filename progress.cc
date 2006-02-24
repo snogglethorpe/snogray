@@ -74,6 +74,14 @@ Progress::update (unsigned pos)
 	  // update interval, and make that our next update pos.
 	  //
 	  update_pos = pos + unsigned (cur_lps * update_interval);
+
+	  // Always wait until the next line
+	  //
+	  if (update_pos == pos)
+	    update_pos++;
+
+	  last_pos = pos;
+	  last_update_time = now;
 	}
       else
 	{
@@ -85,9 +93,6 @@ Progress::update (unsigned pos)
 
 	  update_pos = pos + 1;
 	}
-
-      last_pos = pos;
-      last_update_time = now;
     }
 }
 
