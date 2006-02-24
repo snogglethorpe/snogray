@@ -30,10 +30,13 @@ public:
   { }
   template<typename S> Color (S grey) : r (grey), g (grey), b (grey) { }
 
+  friend Color operator* (const Color &col1, const Color &filter);
+  friend Color operator/ (const Color &col1, const Color &filter);
+
   template<typename S>
-  Color operator/ (S denom) { return *this * (1 / denom); }
+  Color operator/ (S denom) { return *this * (1 / component_t (denom)); }
   template<typename S>
-  void operator/= (S denom) { *this *= (1 / denom); }
+  void operator/= (S denom) { *this *= 1 / component_t (denom); }
 
   void operator+= (const Color &col2)
   {
