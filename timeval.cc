@@ -1,6 +1,6 @@
 // timeval.cc -- Time measurement
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -18,12 +18,14 @@ using namespace Snogray;
 using namespace std;
 
 string
-Timeval::fmt () const
+Timeval::fmt (unsigned sub_sec_prec) const
 {
   unsigned sec  = tv_sec % 60;
   unsigned min  = (tv_sec / 60) % 60;
   unsigned hr   = tv_sec / 3600;
-  unsigned msec = (tv_usec + 500) / 1000;
+
+  if (sub_sec_prec == 0 && tv_usec > 500000)
+    sec += 1;
 
 #if 0 /* ostringstream crashes, so fuck it */
   ostringstream ss;
@@ -41,14 +43,32 @@ Timeval::fmt () const
 
   return ss.str ();
 #else
-  char buf[20];
+  char buf[20], *end = buf;
 
   if (hr > 0)
-    snprintf (buf, sizeof buf, "%u:%02u:%02u.%03u", hr, min, sec, msec);
+    end += snprintf (buf, sizeof buf, "%u:%02u:%02u", hr, min, sec);
   else if (min > 0)
-    snprintf (buf, sizeof buf, "%u:%02u.%03u", min, sec, msec);
-  else
-    snprintf (buf, sizeof buf, "%u.%03u", sec, msec);
+    end += snprintf (buf, sizeof buf, "%u:%02u", min, sec);
+  else 
+    end += snprintf (buf, sizeof buf, "%u", sec);
+
+  if (sub_sec_prec > 0)
+    {
+      unsigned div = 1;
+
+      for (unsigned i = 6; i > sub_sec_prec; i--)
+	div *= 10;
+
+      unsigned frac = (tv_usec + (div >> 1)) / div;
+
+      end += snprintf(end, buf + sizeof buf - end, ".%0*u", sub_sec_prec, frac);
+    }
+
+  if (hr == 0 && min == 0 && end < buf + sizeof buf - 1)
+    {
+      *end++ = 's';
+      *end = '\0';
+    }
 
   return string (buf);
 #endif

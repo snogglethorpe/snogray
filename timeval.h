@@ -26,7 +26,18 @@ struct Timeval : timeval
   Timeval (__tod_t x) { gettimeofday (static_cast<timeval *>(this), 0); }
 
   Timeval (const timeval &tv) : timeval (tv) { }
-  Timeval (time_t sec, unsigned long usec) { tv_sec = sec; tv_usec = usec; }
+
+  template<typename T>
+  Timeval (T sec, unsigned long usec = 0)
+  {
+    tv_sec = time_t (sec);
+    if (T (tv_sec) != sec)
+      {
+	sec -= tv_sec;
+	usec += static_cast<unsigned long> (sec * 1000000);
+      }	
+    tv_usec = usec;
+  }
 
   operator double () const { return tv_sec + (double)tv_usec / 1000000.0; }
 
@@ -57,7 +68,7 @@ struct Timeval : timeval
     return Timeval (sec, usec);
   }
 
-  std::string fmt () const;
+  std::string fmt (unsigned sub_sec_prec = 3) const;
 };
 
 }
