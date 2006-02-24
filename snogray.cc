@@ -19,6 +19,7 @@
 #include "cmdlineparser.h"
 #include "rusage.h"
 #include "string-funs.h"
+#include "progress.h"
 
 #include "scene.h"
 #include "camera.h"
@@ -388,7 +389,8 @@ int main (int argc, char *const *argv)
   unsigned width = 640, height = 480;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
-  bool quiet = false, progress = true; // quiet mode, progress indicator
+  bool quiet = false;
+  Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
   bool wire_frame = false;
   WireFrameParams wire_frame_params;
@@ -438,14 +440,14 @@ int main (int argc, char *const *argv)
       case 'q':
 	quiet = true;
 	if (! progress_set)
-	  progress = false;
+	  verbosity = Progress::QUIET;
 	break;
       case 'p':
-	progress = true;
+	verbosity = Progress::CHATTY;
 	progress_set = true;
 	break;
       case 'P':
-	progress = false;
+	verbosity = Progress::QUIET;
 	progress_set = true;
 	break;
 
@@ -550,12 +552,6 @@ int main (int argc, char *const *argv)
   unsigned hr_limit_max_x = hr_limit_x + limit_width * hr_multiple;
   unsigned hr_limit_max_y = hr_limit_y + limit_height * hr_multiple;
 
-  if (!progress && !quiet)
-    {
-      cout << "rendering...";	// if no progress indicator, print _something_
-      cout.flush ();
-    }
-
   // We create this object regardless of whether we're doing wire-frame
   // output or not; in the latter case it simply isn't used.
   //
@@ -571,25 +567,18 @@ int main (int argc, char *const *argv)
   //
   GlobalTraceState global_tstate;
 
+  // Start progress indicator
+  //
+  Progress prog (cout, "line", limit_y, limit_height, verbosity);
+
+  prog.start ();
+
   // Main ray-tracing loop
   //
   Rusage render_beg_ru;
   for (unsigned y = hr_limit_y; y < hr_limit_max_y; y++)
     {
-      // Progress indicator
-      if (progress)
-	{
-	  if (hr_multiple > 1)
-	    cout << "\rrendering: line "
-		 << setw (5) << y / hr_multiple
-		 << "_" << (y - (y / hr_multiple) * hr_multiple);
-	  else
-	    cout << "\rrendering: line "
-		 << setw (5) << y;
-	  cout << " (" << (y - hr_limit_y) * 100 / (hr_limit_max_y - hr_limit_y)
-	       << "%)";
-	  cout.flush ();
-	}
+      prog.update (limit_y + (y - hr_limit_y) / hr_multiple);
 
       // This is basically a cache to speed up tracing by holding hints
       // that take advantage of spatial coherency.  We create a new one
@@ -669,10 +658,7 @@ int main (int argc, char *const *argv)
 
   Timeval end_time (Timeval::TIME_OF_DAY);
 
-  if (progress)
-    cout << "\rrendering: done              " << endl;
-  else if (! quiet)
-    cout << "done" << endl;
+  prog.end ();
 
   // Print stats
   //
@@ -685,11 +671,11 @@ int main (int argc, char *const *argv)
       Timeval scene_def_time
 	= ((scene_end_ru.utime() - scene_beg_ru.utime())
 	   + (scene_end_ru.stime() - scene_beg_ru.stime()));
-      cout << "  scene def cpu:" << setw (14) << scene_def_time.fmt() << endl;
+      cout << "  scene def cpu:" << setw (14) << scene_def_time.fmt(1) << endl;
       Timeval render_time = render_end_ru.utime() - render_beg_ru.utime();
-      cout << "  rendering cpu:" << setw (14) << render_time.fmt() << endl;
+      cout << "  rendering cpu:" << setw (14) << render_time.fmt(1) << endl;
       Timeval elapsed_time = end_time - beg_time;
-      cout << "  total elapsed:" << setw (14) << elapsed_time.fmt() << endl;
+      cout << "  total elapsed:" << setw (14) << elapsed_time.fmt(1) << endl;
 
       long long sc  = scene.stats.scene_intersect_calls;
       long long sst = scene.stats.scene_shadow_tests;
