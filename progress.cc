@@ -57,18 +57,18 @@ Progress::update (unsigned pos)
 
 	  // How fast we seem to be progressing (poss per second)
 	  //
-	  double cur_lps = (pos - last_pos) / last_interval;
-	  double overall_lps = (pos - start_pos) / elapsed;
-
-	  Timeval remaining = (end_pos - pos) / overall_lps;
+	  float cur_lps = (pos - last_pos) / last_interval;
+	  float overall_lps = (pos - start_pos) / elapsed;
+	  float est_lps = (cur_lps + overall_lps) / 2;
+	  
+	  Timeval remaining_est = (end_pos - pos) / est_lps;
 
 	  // Output progress
 	  //
 	  os << "\rrendering: " << unit_name << " " << setw (pos_width) << pos
 	     << "  (" << setw (3) << unsigned (progress * 100) << "%, "
 	     << setw (7) << (now - start_time).fmt(0) << " elapsed, "
-	     << setw (7) << remaining.fmt(0) << " remaining) ...";
-	  os.flush ();
+	     << setw (7) << remaining_est.fmt(0) << " remaining) ...";
 
 	  // Estimate which pos we will have reached after the desired
 	  // update interval, and make that our next update pos.
@@ -89,10 +89,11 @@ Progress::update (unsigned pos)
 	  //
 	  os << "\rrendering: " << unit_name << " " << setw (pos_width) << pos
 	     << "  (" << setw (3) << unsigned (progress * 100) << "%) ...";
-	  os.flush ();
 
 	  update_pos = pos + 1;
 	}
+
+      os.flush ();
     }
 }
 
