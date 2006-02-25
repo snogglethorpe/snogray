@@ -25,24 +25,18 @@ Timeval::fmt (unsigned sub_sec_prec) const
   unsigned hr   = tv_sec / 3600;
 
   if (sub_sec_prec == 0 && tv_usec > 500000)
-    sec += 1;
+    {
+      sec++;
+      if (sec == 60)
+	{
+	  min++;
+	  if (min == 60)
+	    hr++;
+	}
+    }
 
-#if 0 /* ostringstream crashes, so fuck it */
-  ostringstream ss;
+  // (ostringstream crashes so we just use snprintf)
 
-  ss.fill ('0');
-
-  if (hr > 0)
-    ss << hr << ':' << setw (2) << min << ':' << setw (2) << sec;
-  else if (min > 0)
-    ss << min << ':' << setw (2) << sec;
-  else
-    ss << sec;
-
-  ss << '.' << setw (3) << msec;
-
-  return ss.str ();
-#else
   char buf[20], *end = buf;
 
   if (hr > 0)
@@ -71,7 +65,6 @@ Timeval::fmt (unsigned sub_sec_prec) const
     }
 
   return string (buf);
-#endif
 }
 
 // arch-tag: 650b9486-0140-4dba-be6e-639589dbc7df
