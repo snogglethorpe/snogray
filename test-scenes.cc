@@ -373,6 +373,9 @@ def_scene_teapot (const string &name, unsigned num,
     = scene.add (new Mirror (0.1, 0.1, cook_torrance (0.8, 0.3, 2.14, 4)));
   const Material *matte_silver
     = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, 2.14, 4)));
+  const Material *gloss_blue
+    = scene.add (new Mirror (0.05, Color (0.3, 0.3, 0.6),
+			     cook_torrance (0.4, 0.3, 4)));
 //     = scene.add (new Material (0.2, 0.8, 50));
 //     = scene.add (new Material (0.2, new Phong (0.8, 50)));
 //     = scene.add (new Mirror (0.1, 0.2, new CookTorrance (0.8, 0.3, 2.14, 4)));
@@ -407,6 +410,12 @@ def_scene_teapot (const string &name, unsigned num,
       teapot_mat = matte_silver;
       chess_mat1 = black;
       chess_mat2 = ivory;
+      break;
+
+    case 2:
+      teapot_mat = gloss_blue;
+      chess_mat1 = gloss_black;
+      chess_mat2 = gloss_ivory;
       break;
     }
 
@@ -445,12 +454,8 @@ def_scene_teapot (const string &name, unsigned num,
       //
       {
 	dist_t tw = 16;
-	Pos t_near (-tw / 2, -1, -tw / 2), t_far (tw / 2, -1, tw / 2);
-	add_rect (scene, grey, t_near, Vec (tw, 0, 0), Vec (0, 0, tw));
-	add_rect (scene, grey, t_near, Vec (tw, 0, 0), Vec (0, -tw, 0));
-	add_rect (scene, grey, t_near, Vec (0, 0, tw), Vec (0, -tw, 0));
-	add_rect (scene, grey, t_far, Vec (-tw, 0, 0), Vec (0, -tw, 0));
-	add_rect (scene, grey, t_far, Vec (0, 0, -tw), Vec (0, -tw, 0));
+	add_cube (scene, grey, Pos (-tw / 2, -1, -tw / 2),
+		  Vec (tw, 0, 0), Vec (0, -tw, 0), Vec (0, 0, tw));
       }
       break;
     }
@@ -1251,49 +1256,28 @@ static void
 def_scene_tessel (const string &name, unsigned num,
 		  Scene &scene, Camera &camera)
 {
-  unsigned lighting = num / 100;
-  num %= 100;
+  unsigned lighting = num / 10;
+  num %= 10;
 
   coord_t height = -1.2;
   coord_t cheight = 0;
   dist_t  cradius = 4;
   dist_t  cradius_2 = sqrt (cradius * cradius / 2);
 
-  switch (num / 10)
-    {
-    case 0:
-      camera.move (Pos (1.5, cheight + 0.25, -3)); break;
-    case 1:
-      camera.move (Pos (3, cheight + 0.375, Eps)); break;
-    case 2:
-      camera.move (Pos (3, cheight + 1.5, Eps)); break;
-    case 3:
-      camera.move (Pos (1, cheight + 4, Eps)); break;
-    case 4:
-      camera.move (Pos (cradius, cheight, Eps)); break;
-    case 5:
-      camera.move (Pos (cradius_2, cheight, -cradius_2 + Eps)); break;
-    case 6:
-      camera.move (Pos (0, cheight, -cradius + Eps)); break;
-    case 7:
-      camera.move (Pos (-cradius_2, cheight, -cradius_2 + Eps)); break;
-    case 8:
-      camera.move (Pos (-cradius, cheight, Eps)); break;
-    case 9:
-      camera.move (Pos (-cradius_2, cheight, cradius_2 + Eps)); break;
-    }
+  camera.move (Pos (3, cheight + 0.25, -5));
   camera.point (Pos (0, -0.5, 0), Vec (0, 1, 0));
 
   num %= 10;
 
   const Material *silver
     = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), phong (10, 5)));
-  const Material *green
-    = scene.add (new Material (Color (0.1, .8, 0.1), phong (.2, 250)));
+  const Material *gloss_blue
+    = scene.add (new Mirror (0.05, Color (0.3, 0.3, 0.6),
+			     cook_torrance (0.4, 0.3, 4)));
 
-  const Material *mat = ((num & 1) == 0) ? green : silver;
+  const Material *mat = ((num & 1) == 0) ? gloss_blue : silver;
 
-  float light_intens = ((num & 1) == 0) ? 50 : 25;
+  float light_intens = ((num & 1) == 0) ? 100 : 50;
 
   num >>= 1;			// remove lowest bit
 
@@ -1309,7 +1293,7 @@ def_scene_tessel (const string &name, unsigned num,
     }
 
   if (ends_in (name, "sphere"))
-    scene.add (new Mesh (mat, SphereTesselFun (Pos (0, height, 0), 1, perturb),
+    scene.add (new Mesh (mat, SphereTesselFun (Pos (0, height + 1, 0), 1, perturb),
 			 max_err, tessel_smooth));
   else if (ends_in (name, "sinc"))
     scene.add (new Mesh (mat, SincTesselFun (Pos (0, height + 0.22, 0), 1.5),
@@ -1321,48 +1305,38 @@ def_scene_tessel (const string &name, unsigned num,
   else
     throw (runtime_error ("Unknown tessellation test scene"));
 
-  const Material *orange
-    = scene.add (new Material (Color (0.6,0.5,0.05), phong (.4, 250)));
-  const Material *ivory
-    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), phong (5, 2)));
+//   const Material *orange
+//     = scene.add (new Material (Color (0.6,0.5,0.05),
+// 			       cook_torrance (0.7, 0.1, 1)));
+//   const Material *ivory
+//     = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), phong (5, 2)));
+  const Material *grey
+    = scene.add (new Material (Color (0.3, 0.2, 0.2),
+			       cook_torrance (0.7, 0.1, 1)));
 
-  scene.add (new Tripar (orange,
-			 Pos (1, height, 1), Vec (0, 0, -2), Vec (-2, 0, -2)));
-  scene.add (new Tripar (ivory,
-			 Pos (-1, height, 1), Vec (2, 0, 0), Vec (0, 0, 2)));
+  add_cube (scene, grey, Pos (1, height, 1),
+	    Vec (0, 0, -2), Vec (-2, 0, 0), Vec (0, -1, 0));
 
-  if (lighting == 0)
+  switch (lighting)
     {
+    case 0:
       scene.add (new PointLight (Pos (0, height + 5, 5), light_intens));
       scene.add (new PointLight (Pos (-5, height + 5, -5), 15));
       scene.add (new PointLight (Pos (10, height + -5, -15), 100));
-    }
-  else
-    {      
-      if (lighting != 1)
-	{
-	  Pos sun_pos;
-	  switch (lighting)
-	    {
-	    case 2:
-	      sun_pos = Pos (-100, height + 25, 0); break;
-	    case 3:
-	      sun_pos = Pos (0, height + 25, 100); break;
-	    case 4:
-	      sun_pos = Pos (100, height + 25, 0); break;
-	    case 5:
-	      sun_pos = Pos (0, height + 25, -100); break;
+      break;
 
-	    case 6:
-	      sun_pos = Pos (-25, height + 100, 0); break;
-	    }
-	  scene.add (new PointLight (sun_pos, light_intens * 200));
-	}
+    case 1:
+      add_rect_bulb (scene, Pos (-1, 0, -5), Vec (0, 3, 0), Vec (-3, 0, 3), 15);
+      add_rect_bulb (scene, Pos (10, 0, -5), Vec (0, 7, 0), Vec (0, 0, 7), 5);
+      break;
 
-      scene.add (new PointLight (Pos (  0, height + 30,   0), 20));
-      scene.add (new PointLight (Pos (-20, height + 20,   0), 20));
-      scene.add (new PointLight (Pos (  0, height + 20, -20), 20));
-      scene.add (new PointLight (Pos (  0, height + 20,  20), 20));
+    case 8:
+      add_deb_lights (DEB_GRACE, 1, scene);
+      break;
+
+    case 9:
+      add_deb_lights (DEB_RNL, 1, scene);
+      break;
     }
 }
 
