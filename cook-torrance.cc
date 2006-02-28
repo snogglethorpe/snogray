@@ -26,18 +26,16 @@ using namespace std;
 // Source of "constant" (not-to-be-freed) CookTorrance BRDFs
 //
 const CookTorrance *
-Snogray::cook_torrance (const Color &spec_col, float m,
-			float ior, float ior_imag)
+Snogray::cook_torrance (const Color &spec_col, float m, const Ior &ior)
 {
   static std::list<CookTorrance> brdfs;
 
   for (std::list<CookTorrance>::iterator b = brdfs.begin ();
        b != brdfs.end (); b++)
-    if (b->m == m && b->ior == ior && b->ior_imag == ior_imag
-	&& b->specular_color == spec_col)
+    if (b->m == m && b->ior == ior && b->specular_color == spec_col)
       return &(*b);
 
-  brdfs.push_front (CookTorrance (spec_col, m, ior, ior_imag));
+  brdfs.push_front (CookTorrance (spec_col, m, ior));
 
   return &brdfs.front ();
 }
@@ -75,16 +73,9 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &samples,
   float NV = dot (N, V);
   float NV_inv = 1 / NV;
 
-  // Index of refraction of the medium this surface is adjacent to, and
-  // this material.
+  // Info for calculating the Fresnel term.
   //
-  float nI = isec.trace.medium ? isec.trace.medium->ior : 1;
-  float nTr = ior;
-  float nTi = ior_imag;
-  float n = nTr / nI;
-  float k = nTi / nI;
-  float n2k2 = n * n * k * k;
-  float n2_m_k2 = n * n - k * k;
+  const Fresnel fres (isec.trace.medium ? isec.trace.medium->ior : 1, ior);
 
   for (SampleRayVec::iterator s = from; s != to; s++)
     {
@@ -109,7 +100,7 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &samples,
       //    D = (1 / (4 * m^2 * (cos alpha)^2)) * e^(-((tan alpha) / m)^2)
       //
       // where alpha is the angle between N and H.
-
+      //
       float cos_alpha = NH;
       float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
       float tan_alpha = tan (acos (cos_alpha));
@@ -118,81 +109,7 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &samples,
 
       // Calculate F (fresnel) term
       //
-      //    F = (abs(Fs)^2 + abs(Fp)^2) / 2
-      //
-
-      float cos_th = NL;
-      float th = acos (cos_th);
-
-      float Fs, Fp;
-
-      if (ior_imag == 0)
-	{
-	  // No complex term
-	  //
-	  //    Fp = (n cos th - cos thT)
-	  //         / (n cos th + cos thT)
-	  //
-	  //    Fs = (cos th - n cos thT)
-	  //         / (cos th + n cos thT)
-	  //
-	  // where nI and n are the indices of refraction, and th and
-	  // thT are the reflection and refraction angles of the light
-	  // ray.
-
-	  float sin_thT = sin (th) / n;
-	  float thT = asin (sin_thT);
-	  float cos_thT = cos (thT);
-
-	  float nc1 = n * cos_th;
-	  float nc2 = n * cos_thT;
-
-	  Fs = (nc1 - cos_thT) / (nc1 + cos_thT);
-	  Fp = (cos_th - nc2) / (cos_th + nc2);
-	}
-      else
-	{
-	  // Complex term (k is imaginary part -- ior == n + i * k)
-	  //
-	  //       a^2 + b^2 - 2 a cos th + cos^2 th
-	  //  Fs = ---------------------------------------
-	  //       a^2 + b^2 + 2 a cos th + cos^2 th
-	  //
-	  //          a^2 + b^2 - 2 a sin th tan th + sin^2 th tan^2 th
-	  //  Fp = Fs -------------------------------------------------
-	  //          a^2 + b^2 - 2 a sin th tan th + sin^2 th tan^2 th
-	  //
-	  // Where:
-	  //
-	  //   2 a^2 = sqrt ((n^2 - k^2 - sin^2 th)^2 + 4 n^2 k^2)
-	  //            + (n^2 - k^2 - sin^2 th)
-	  //
-	  //   2 b^2 = sqrt ((n^2 - k^2 - sin^2 th)^2 + 4 n^2 k^2)
-	  //            - (n^2 - k^2 - sin^2 th)
-	  //
-
-	  float sin_th = sin (th);
-	  float n2_m_k2_m_sin2_th = n2_m_k2 - sin_th * sin_th;
-	  float sin_th_tan_th = sin_th * tan (th);
-
-	  float a2_b2_common
-	    = sqrt (n2_m_k2_m_sin2_th * n2_m_k2_m_sin2_th + 4 * n2k2);
-	  float a2 = (a2_b2_common + n2_m_k2_m_sin2_th) * 0.5;
-	  float b2 = (a2_b2_common - n2_m_k2_m_sin2_th) * 0.5;
-
-	  float a2_p_b2 = a2 + b2;
-	  float a = sqrt (a2);
-
-	  float Fs_term1 = a2_p_b2 + cos_th * cos_th;
-	  float Fs_term2 = 2 * a * cos_th;
-	  Fs = (Fs_term1 - Fs_term2) / (Fs_term1 + Fs_term2);
-
-	  float Fp_term1 = a2_p_b2 + sin_th_tan_th * sin_th_tan_th;
-	  float Fp_term2 = 2 * a * sin_th_tan_th;
-	  Fp = Fs * ((Fp_term1 - Fp_term2) / (Fp_term1 + Fp_term2));
-	}
-
-      float F = (Fs * Fs + Fp * Fp) * 0.5;
+      float F = fres.reflectance (NL);
 
       // Calculate G (microfacet masking/shadowing) term
       //

@@ -1,6 +1,6 @@
 // mirror.cc -- Mirror (reflective) material
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -34,11 +34,18 @@ Mirror::reflection (const Intersect &isec) const
 Color
 Mirror::render (const Intersect &isec) const
 {
-  Color total_color = reflectance * reflection (isec);
+  float cos_refl_angle = dot (isec.normal, isec.viewer);
+  float medium_ior = isec.trace.medium ? isec.trace.medium->ior : 1;
+  Color fres_refl
+    = reflectance * Fresnel (medium_ior, ior).reflectance (cos_refl_angle);
 
-  // Render contribution from surface.
-  //
-  total_color += (1 - reflectance) * Material::render (isec);
+  Color total_color;
+
+  if (fres_refl > Eps)
+    total_color += fres_refl * reflection (isec);
+
+  if (1 - fres_refl > Eps)
+    total_color += (1 - fres_refl) * Material::render (isec);
 
   return total_color;
 }

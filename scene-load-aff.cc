@@ -56,6 +56,11 @@ using namespace std;
 //
 #define AFF_MEDIUM_TRANSMITTANCE	1
 
+// The index of refraction we use for reflective objects.
+//
+#define AFF_MIRROR_IOR			Ior (0.25, 3)
+
+
 
 // Low-level input functions
 
@@ -349,7 +354,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 				   ior),
 			   specular, diffuse, brdf);
 	  else if (specular.intensity() > Eps)
-	    cur_material = new Mirror (specular, diffuse, brdf);
+	    cur_material = new Mirror (AFF_MIRROR_IOR, specular, diffuse, brdf);
 	  else
 	    cur_material = new Material (diffuse, brdf);
 

@@ -23,7 +23,7 @@ public:
 
   Glass (Medium _medium, Color reflectance,
 	 const Color &col = Color::white, const Brdf *brdf = lambert)
-    : Mirror (reflectance, col, brdf), medium (_medium)
+    : Mirror (_medium.ior, reflectance, col, brdf), medium (_medium)
   { }
 
   virtual Color render (const Intersect &isec) const;

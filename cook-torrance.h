@@ -13,6 +13,7 @@
 #define __COOK_TORRANCE_H__
 
 #include "brdf.h"
+#include "fresnel.h"
 
 namespace Snogray {
 
@@ -20,10 +21,8 @@ class CookTorrance : public Brdf
 {
 public:
 
-  CookTorrance (const Color &_spec_col,
-		float _m, float _ior, float _ior_imag = 0)
-    : specular_color (_spec_col),
-      m (_m), m_2_inv (1 / (m * m)), ior (_ior), ior_imag (_ior_imag)
+  CookTorrance (const Color &_spec_col, float _m, const Ior &_ior)
+    : specular_color (_spec_col), m (_m), m_2_inv (1 / (m * m)), ior (_ior)
   { }
 
   // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
@@ -52,17 +51,15 @@ public:
   float m;
   float m_2_inv;
 
-  // Index of refraction.  Used for calculating fresnel reflection term.
-  // For metals, the IOR also has an imaginary term.
+  // Index of refraction for calculating fresnel reflection term.
   //
-  float ior, ior_imag;
+  Ior ior;
 };
 
 // Source of "constant" (not-to-be-freed) CookTorrance BRDFs
 //
 extern const CookTorrance *
-cook_torrance (const Color &spec_col, float m, float ior = 1.5,
-	       float ior_imag = 0);
+cook_torrance (const Color &spec_col, float m, const Ior &ior = 1.5);
 
 }
 

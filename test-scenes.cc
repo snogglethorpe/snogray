@@ -263,19 +263,25 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   camera.set_vert_fov (M_PI_4);
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
-  const Material *gray
-    = scene.add (new Material (0.6));
+  const Material *grey
+    = scene.add (new Material (Color (0.6, 0.5, 0.5),
+			       cook_torrance (0.5, 0.2, Ior (1, 1))));
   const Material *red
-    = scene.add (new Material (Color (0.5, 0, 0), phong (0.5, 500)));
+    = scene.add (new Material (Color (0.5, 0, 0),
+			       cook_torrance (0.5, 0.1)));
   const Material *yellow
-    = scene.add (new Material (Color (0.5, 0.5, 0), phong (0.5, 500)));
+    = scene.add (new Material (Color (0.5, 0.5, 0),
+			       cook_torrance (0.5, 0.1)));
   const Material *green
-    = scene.add (new Material (Color (0, 0.5, 0), phong (0.5, 500)));
+    = scene.add (new Material (Color (0, 0.5, 0),
+			       cook_torrance (0.5, 0.1)));
   const Material *crystal
-    = scene.add (new Glass (Medium (0.9, 1.8), 0.2, 0.01, phong (1.5, 2000)));
+    = scene.add (new Glass (Medium (0.9, 1.8), 0.95, 0.01,
+			    cook_torrance (1.5, 0, 1.8)));
   const Material *gold
-    = scene.add (new Mirror (Color (0.852, 0.756, 0.12),
-			     0, phong (Color (1, 1, 0.3), 800)));
+    = scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
+			     cook_torrance (Color (1, 1, 0.3), 0,
+					    Ior (0.25, 3))));
 
   bool goldbunny = begins_with (name, "g");
 
@@ -294,7 +300,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   scene.add (new Sphere (yellow, Pos (0.3, 0.40 - 0.65, -2.5), 0.40));
 
   // ground
-  add_cube (scene, gray, Pos (-5, -0.65, -8),
+  add_cube (scene, grey, Pos (-5, -0.65, -8),
 	    Vec (0, 0, 9), Vec (10, 0, 0), Vec (0, -20, 0));
   
   switch (num % 10)
@@ -370,11 +376,12 @@ def_scene_teapot (const string &name, unsigned num,
   // Pot
 
   const Material *silver
-    = scene.add (new Mirror (0.1, 0.1, cook_torrance (0.8, 0.3, 2.14, 4)));
+    = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
+			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *matte_silver
-    = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, 2.14, 4)));
+    = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *gloss_blue
-    = scene.add (new Mirror (0.05, Color (0.3, 0.3, 0.6),
+    = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
 //     = scene.add (new Material (0.2, 0.8, 50));
 //     = scene.add (new Material (0.2, new Phong (0.8, 50)));
@@ -387,11 +394,11 @@ def_scene_teapot (const string &name, unsigned num,
 //     = scene.add (new Mirror (0.2, Color (0.3, 0.4, 0.3), .5, 10));
 
   const Material *gloss_black
-    = scene.add (new Mirror (0.1, 0.02, cook_torrance (0.9, 1)));
+    = scene.add (new Mirror (1.5, 0.1, 0.02, cook_torrance (0.9, 1)));
   const Material *black
     = scene.add (new Material (0.02, cook_torrance (0.9, 1)));
   const Material *gloss_ivory
-    = scene.add (new Mirror (0.1, 2 * Color (1.1, 1, 0.8),
+    = scene.add (new Mirror (1.5, 0.1, 2 * Color (1.1, 1, 0.8),
 			     cook_torrance (0.2, 2)));
   const Material *ivory
     = scene.add (new Material (2 * Color (1.1, 1, 0.8),
@@ -436,7 +443,7 @@ def_scene_teapot (const string &name, unsigned num,
 
   const Material *grey
     = scene.add (new Material (Color (0.3, 0.2, 0.2),
-			       cook_torrance (0.5, 0.2, 1, 1)));
+			       cook_torrance (0.5, 0.2, Ior (1, 1))));
   const Material *green
     = scene.add (new Material (Color (0.1, 0.5, 0.1)));
 
@@ -554,8 +561,9 @@ def_scene_teapot (const string &name, unsigned num,
       const Material *glass
 	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01, cook_torrance (1.5, 0)));
       const Material *gold
-	= scene.add (new Mirror (Color (0.852, 0.756, 0.12),
-				 0, cook_torrance (Color (1, 1, 0.3), 0)));
+	= scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
+				 cook_torrance (Color (1, 1, 0.3), 0,
+						Ior (0.25, 3))));
 
       dist_t max_err = 0.0002;
 
@@ -631,15 +639,15 @@ def_scene_orange (const string &name, unsigned num,
   // "height" rather than depth.
 
   const Material *silver
-    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), phong (1, 5)));
+    = scene.add (new Mirror (2, 0.3, Color (0.7, 0.8, 0.7), phong (1, 5)));
   const Material *orange
     = scene.add (new Material (Color (0.6, 0.5, 0.05), phong (0.4, 250)));
   const Material *glass
     = scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01, phong (1.5, 2000)));
   const Material *gloss_black
-    = scene.add (new Mirror (0.3, 0.02, phong (0.9, 10)));
+    = scene.add (new Mirror (2, 0.3, 0.02, phong (0.9, 10)));
   const Material *ivory
-    = scene.add (new Mirror (0.2, 2 * Color (1.1, 1, 0.8), phong (0.3, 5)));
+    = scene.add (new Mirror (2, 0.2, 2 * Color (1.1, 1, 0.8), phong (0.3, 5)));
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05)));
 
@@ -750,9 +758,9 @@ def_scene_cornell_box (const string &name, unsigned num,
       light_z += scale * 0.2;
 
       const Material *crystal
-	= scene.add (new Glass (Medium (Color (0.8, 0.8, 0.4), 1.35), 0.25, 0.1));
+	= scene.add (new Glass (Medium (Color (0.8, 0.8, 0.4), 1.35), 0.9, 0.1));
       const Material *silver
-	= scene.add (new Mirror (0.9, 0.05));
+	= scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
 
       // silver sphere
       scene.add (new Sphere (silver, LBR + Vec (rad*1.55, rad, -rad*3), rad));
@@ -765,7 +773,7 @@ def_scene_cornell_box (const string &name, unsigned num,
   else // default
     {
       const Material *gloss_blue
-	= scene.add (new Mirror (0.05, Color (0.3, 0.3, 0.6),
+	= scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 				 cook_torrance (0.4, 0.3, 4)));
       const Material *white
 	= scene.add (new Material (0.8, cook_torrance (0.2, 0.5, 2)));
@@ -972,7 +980,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   if (variant == 0)
     red = scene.add (new Material (Color (1, 0, 0))); // original, flat red
   else
-    red = scene.add (new Mirror (0.1, Color (.5, 0, 0),
+    red = scene.add (new Mirror (1.5, 0.1, Color (.5, 0, 0),
 				 cook_torrance (0.5, 0.1, 1.5))); // glossy red
 
   const Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
@@ -1037,7 +1045,7 @@ static void
 def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &camera)
 {
   const Material *red
-    = scene.add (new Mirror (0.1, Color (.5, 0, 0), 500)); // glossy red
+    = scene.add (new Mirror (5, 0.1, Color (.5, 0, 0), 500)); // glossy red
 
 //       const Material *red
 // 	= scene.add (new Material (Color (1, 0, 0), 1, 500));
@@ -1101,7 +1109,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   struct NamedMat { char *name; const Material *mat; };
   const NamedMat material_refs[] = {
     { "Material8",		// gold
-      new Mirror (Color (0.852, 0.756, 0.12), 0,
+      new Mirror (5, Color (0.852, 0.756, 0.12), 0,
 		  phong (Color (1, 1, 0.3), 800)) },
     { 0 }
   };
@@ -1135,9 +1143,9 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   num %= 10;
 
   const Material *ivory
-    = scene.add (new Mirror (0.2, Color (1.1, 1, 0.8), phong (0.3, 5)));
+    = scene.add (new Mirror (2, 0.2, Color (1.1, 1, 0.8), phong (0.3, 5)));
   const Material *gloss_black
-    = scene.add (new Mirror (0.3, 0.02, phong (0.9, 10)));
+    = scene.add (new Mirror (2, 0.3, 0.02, phong (0.9, 10)));
   const Material *stage_mat = (stage == 1) ? ivory : gloss_black;
 
   add_rect (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10));
@@ -1146,9 +1154,9 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   if (birthday_card)
     {
       const Material *text_mat
-// 	= scene.add (new Mirror (0.2, Color (1.2, 1.2, 0.8), phong (.1, 500)));
-	= scene.add (new Mirror (0.3, Color (0.5, 0.6, 0.5), phong (.3, 100)));
-// 	= scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), phong (.2, 10 )));
+// 	= scene.add (new Mirror (10, 0.2, Color (1.2, 1.2, 0.8), phong (.1, 500)));
+	= scene.add (new Mirror (10, 0.3, Color (0.5, 0.6, 0.5), phong (.3, 100)));
+// 	= scene.add (new Mirror (10, 0.3, Color (0.7, 0.8, 0.7), phong (.2, 10 )));
 
       scene.add (new Mesh (text_mat, "+eli-birthday.msh"));
     }
@@ -1186,10 +1194,10 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   if (birthday_card)
     {
       const Material *shiny_red
-	= scene.add (new Mirror (Color (0.2, 0.05, 0.05),
+	= scene.add (new Mirror (5, Color (0.2, 0.05, 0.05),
 				 Color (0.1, 0, 0), phong (0.9, 1000)));
       const Material *shiny_green
-	= scene.add (new Mirror (Color (0.05, 0.2, 0.05),
+	= scene.add (new Mirror (5, Color (0.05, 0.2, 0.05),
 				 Color (0, 0.1, 0), phong (0.9, 1000)));
       const Material *glass
 	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0,
@@ -1268,9 +1276,9 @@ def_scene_tessel (const string &name, unsigned num,
   num %= 10;
 
   const Material *silver
-    = scene.add (new Mirror (0.3, Color (0.7, 0.8, 0.7), phong (10, 5)));
+    = scene.add (new Mirror (10, 0.3, Color (0.7, 0.8, 0.7), phong (10, 5)));
   const Material *gloss_blue
-    = scene.add (new Mirror (0.05, Color (0.3, 0.3, 0.6),
+    = scene.add (new Mirror (2, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
 
   const Material *mat = ((num & 1) == 0) ? gloss_blue : silver;
@@ -1377,7 +1385,7 @@ def_scene_mesh (const string &name, unsigned num,
   camera.set_vert_fov (M_PI_4);
 
   const Material *gloss_green
-    = scene.add (new Mirror (0.1, Color (0, .5, 0), phong (.5, 500)));
+    = scene.add (new Mirror (2, 0.1, Color (0, .5, 0), phong (.5, 500)));
   const Material *glass
     = scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01, phong (1.5, 2000)));
   const Material *floor_mat
