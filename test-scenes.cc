@@ -142,14 +142,11 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
 //   const Material *mat1
 //     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
   const Material *crystal
-    = scene.add (new Glass (Medium (0.99, 1.8), 0.1, 0.01, phong (1.5, 2000)));
+    = scene.add (new Glass (Medium (0.97, 1.8), 0.95, 0.01,
+			    cook_torrance (1.5, 0, 1.8)));
   const Material *silver
-    = scene.add (new Mirror (0.7, 0.05));
+    = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
   const Material *mat1 = crystal, *mat2 = silver;
-//   const Material *mat1
-//     = scene.add (new Glass (Medium (1, 1.1), 0.1, 0, 300));
-//   const Material *mat2
-//     = scene.add (new Mirror (0.8, 0.2, 100));
   const Material *mat3
     = scene.add (new Material (Color (0.8, 0, 0), phong (0.2, 400)));
   const Material *mat4
@@ -185,17 +182,13 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
       break;
 
     case 5:
-      add_deb_lights (DEB_GRACE, 5, scene);
+      add_deb_lights (DEB_GRACE, 1, scene);
       break;
 
     case 6:
-      add_deb_lights (DEB_RNL, 3, scene);
+      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
-
-//   // xxx
-//   scene.add (new Sphere (mat1, Pos (-2, -2, -8), 0.5));
-//   scene.add (new Sphere (mat3, Pos (1, -2, -8), 0.5));
 
   scene.add (new Sphere (mat1, Pos (0, 2, 7), 5));
   scene.add (new Sphere (mat2, Pos (-8, 0, 3), 3));
