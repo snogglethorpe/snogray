@@ -349,7 +349,8 @@ Mesh::Triangle::intersection_distance (const Ray &ray, IsecParams &isec_params,
 }
 
 Intersect
-Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
+Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params,
+				Trace &trace)
   const
 {
   // We first use the real "raw" normal to determine if this is a back
@@ -387,7 +388,7 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params)
 	}
     }
 
-  return Intersect (ray, this, point, norm.unit(), back,
+  return Intersect (ray, this, point, norm.unit(), back, trace,
 		    static_cast<const void *>(&mesh));
 }
 

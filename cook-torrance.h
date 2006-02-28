@@ -30,15 +30,13 @@ public:
   // For best results, they should be distributed according to the BRDF's
   // importance function.
   //
-  virtual void gen_samples (const Intersect &isec, const Color &color,
-			    TraceState &tstate, SampleRayVec &samples)
+  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
     const;
 
   // Modify the value of each of the light-samples in SAMPLES according to
   // the BRDF's reflectivity in the sample's direction.
   //
-  virtual void filter_samples (const Intersect &isec, const Color &color,
-			       TraceState &tstate, SampleRayVec &samples,
+  virtual void filter_samples (const Intersect &isec, SampleRayVec &samples,
 			       SampleRayVec::iterator from,
 			       SampleRayVec::iterator to)
     const;

@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <functional>
 
+#include "intersect.h"
 #include "brdf.h"
 
 #include "lsamples.h"
@@ -35,9 +36,7 @@ struct indexed_sample_val_gtr
 
 void
 LightSamples::generate (const Intersect &isec,
-			const Color &color, const Brdf &brdf,
-			const std::vector<Light *> lights,
-			TraceState &tstate)
+			const std::vector<Light *> lights)
 {
   // Fill the sample vector
   //
@@ -51,10 +50,9 @@ LightSamples::generate (const Intersect &isec,
 
   for (std::vector<Light *>::const_iterator li = lights.begin();
        li != lights.end(); li++)
-    (*li)->gen_samples (isec, tstate, samples);
+    (*li)->gen_samples (isec, samples);
  
-  brdf.filter_samples (isec, color, tstate, samples,
-		       samples.begin(), samples.end());
+  isec.brdf.filter_samples (isec, samples, samples.begin(), samples.end());
 
   // Generate indices into the sample vector, and sort them.
 

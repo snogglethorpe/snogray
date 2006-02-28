@@ -12,12 +12,12 @@
 #include <iostream>
 
 #include "glow.h"
-#include "scene.h"		// for inlined TraceState::shadow method
+#include "scene.h"		// for inlined Trace::shadow method
 
 using namespace Snogray;
 
 Color
-Glow::render (const Intersect &isec, TraceState &tstate) const
+Glow::render (const Intersect &isec) const
 {
   return color;
 }
@@ -39,13 +39,13 @@ Glow::shadow_type () const
 Color
 Glow::shadow (const Surface *surface,
 	      const Ray &light_ray, const Color &light_color,
-	      const Light &light, TraceState &tstate)
+	      const Light &light, Trace &trace)
   const
 {
   // Just pass straight through
   //
-  TraceState &sub_tstate = tstate.subtrace_state (TraceState::SHADOW, surface);
-  return sub_tstate.shadow (light_ray, light_color, light);
+  Trace &sub_trace = trace.subtrace (Trace::SHADOW, surface);
+  return sub_trace.shadow (light_ray, light_color, light);
 }
 
 // arch-tag: af19d9b6-7b4a-49ec-aee4-529be6aba253

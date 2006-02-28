@@ -37,10 +37,10 @@ Scene::~Scene ()
 struct SceneClosestIntersectCallback : Space::IntersectCallback
 {
   SceneClosestIntersectCallback (Ray &_ray, IsecParams &_isec_params,
-				 TraceState &_tstate, 
-				 Space::IsecStats *stats = 0)
-    : IntersectCallback (stats), ray (_ray), isec_params (_isec_params),
-      closest (0), tstate (_tstate), num_calls (0)
+				 Trace &_trace)
+    : IntersectCallback (&_trace.global.stats.space_intersect),
+      ray (_ray), isec_params (_isec_params),
+      closest (0), trace (_trace), num_calls (0)
   { }
 
   virtual void operator() (Surface *);
@@ -53,7 +53,7 @@ struct SceneClosestIntersectCallback : Space::IntersectCallback
   //
   const Surface *closest;
 
-  TraceState &tstate;
+  Trace &trace;
 
   unsigned num_calls;
 };
@@ -61,9 +61,9 @@ struct SceneClosestIntersectCallback : Space::IntersectCallback
 void
 SceneClosestIntersectCallback::operator () (Surface *surface)
 {
-  if (surface != tstate.horizon_hint)
+  if (surface != trace.horizon_hint)
     {
-      if (surface->intersect (ray, isec_params, tstate.origin_count (surface)))
+      if (surface->intersect (ray, isec_params, trace.origin_count (surface)))
 	closest = surface;
 
       num_calls++;
@@ -75,40 +75,39 @@ SceneClosestIntersectCallback::operator () (Surface *surface)
 // to reflect the point of intersection.
 //
 const Surface *
-Scene::intersect (Ray &ray, IsecParams &isec_params, TraceState &tstate)
+Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
   const
 {
-  stats.scene_intersect_calls++;
+  trace.global.stats.scene_intersect_calls++;
 
   // Make a callback, and call it for each surface that may intersect
   // the ray.
 
-  SceneClosestIntersectCallback
-    closest_isec_cb (ray, isec_params, tstate, &stats.space_intersect);
+  SceneClosestIntersectCallback closest_isec_cb (ray, isec_params, trace);
 
   // If there's a horizon hint, try to use it to reduce the horizon
   // before searching -- space searching can dramatically improve given
   // a limited search space.
   //
-  const Surface *hint = tstate.horizon_hint;
+  const Surface *hint = trace.horizon_hint;
   if (hint)
     {
-      if (hint->intersect (ray, isec_params, tstate.origin_count (hint)))
+      if (hint->intersect (ray, isec_params, trace.origin_count (hint)))
 	{
 	  closest_isec_cb.closest = hint;
-	  stats.horizon_hint_hits++;
+	  trace.global.stats.horizon_hint_hits++;
 	}
       else
-	stats.horizon_hint_misses++;
+	trace.global.stats.horizon_hint_misses++;
     }
 
   space.for_each_possible_intersector (ray, closest_isec_cb);
 
-  stats.surface_intersect_calls += closest_isec_cb.num_calls;
+  trace.global.stats.surface_intersect_calls += closest_isec_cb.num_calls;
 
   // Update the horizon hint to reflect what we found (0 if nothing).
   //
-  tstate.horizon_hint = closest_isec_cb.closest;
+  trace.horizon_hint = closest_isec_cb.closest;
 
   return closest_isec_cb.closest;
 }
@@ -119,11 +118,10 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, TraceState &tstate)
 struct SceneShadowCallback : Space::IntersectCallback
 {
   SceneShadowCallback (const Light &_light, const Ray &_light_ray,
-		       const Intersect &_isec,
-		       TraceState &_tstate, Space::IsecStats *stats = 0)
-    : IntersectCallback (stats), 
+		       const Intersect &_isec, Trace &_trace)
+    : IntersectCallback (&_trace.global.stats.space_shadow), 
       light (_light), light_ray (_light_ray), isec (_isec),
-      shadower (0), tstate (_tstate), num_tests (0)
+      shadower (0), trace (_trace), num_tests (0)
   { }
 
   virtual void operator() (Surface *);
@@ -139,7 +137,7 @@ struct SceneShadowCallback : Space::IntersectCallback
   //
   const Surface *shadower;
 
-  TraceState &tstate;
+  Trace &trace;
 
   unsigned num_tests;
 };
@@ -149,7 +147,7 @@ SceneShadowCallback::operator () (Surface *surface)
 {
   Material::ShadowType shadow_type = surface->shadow_type;
 
-  if (surface != tstate.origin && shadow_type != Material::SHADOW_NONE)
+  if (surface != isec.surface && shadow_type != Material::SHADOW_NONE)
     {
       num_tests++;
 
@@ -160,7 +158,7 @@ SceneShadowCallback::operator () (Surface *surface)
 	  // Remember which surface we found, so we can try it first
 	  // next time.
 	  //
-	  tstate.shadow_hints[light.num] = surface;
+	  trace.shadow_hints[light.num] = surface;
 
 	  if (shadow_type == Material::SHADOW_OPAQUE)
 	    //
@@ -184,10 +182,10 @@ SceneShadowCallback::operator () (Surface *surface)
 //
 const Surface *
 Scene::shadow_caster (const Ray &light_ray, const Light &light,
-		      const Intersect &isec, TraceState &tstate)
+		      const Intersect &isec, Trace &trace)
   const
 {
-  stats.scene_shadow_tests++;
+  trace.global.stats.scene_shadow_tests++;
 
   // See if this light has a shadow hint (the last surface that cast a shadow
   // from it); if it does, then try that surface first, as it stands a better
@@ -202,125 +200,29 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
   // where a new opaque surface is found, the hint will be updated
   // elsewhere (in Material::shadow actually).
   //
-  const Surface *hint = tstate.shadow_hints[light.num];
-  if (hint && hint != tstate.origin)
+  const Surface *hint = trace.shadow_hints[light.num];
+  if (hint && hint != trace.origin)
     {
       if (hint->shadows (light_ray, isec))
 	{
-	  stats.shadow_hint_hits++;
+	  trace.global.stats.shadow_hint_hits++;
 	  return hint;
 	}
       else
 	// It didn't work; clear this hint out.
 	{
-	  stats.shadow_hint_misses++;
-	  tstate.shadow_hints[light.num] = 0;
+	  trace.global.stats.shadow_hint_misses++;
+	  trace.shadow_hints[light.num] = 0;
 	}
     }
 
-  SceneShadowCallback
-    shadow_cb (light, light_ray, isec, tstate, &stats.space_shadow);
+  SceneShadowCallback shadow_cb (light, light_ray, isec, trace);
 
   space.for_each_possible_intersector (light_ray, shadow_cb);
 
-  stats.surface_intersects_tests += shadow_cb.num_tests;
+  trace.global.stats.surface_intersects_tests += shadow_cb.num_tests;
 
   return shadow_cb.shadower;
-}
-
-
-
-// Iterate over every light, calculating its contribution the color of ISEC.
-// BRDF is used to calculate the actual effect; COLOR is the "base color"
-//
-Color
-Scene::illum (const Intersect &isec, const Color &color, const Brdf &brdf,
-	      TraceState &tstate)
-  const
-{
-  LightSamples &lsamples = tstate.global.light_samples;
-
-  lsamples.generate (isec, color, brdf, lights, tstate);
-
-  stats.illum_calls++;
-  stats.illum_samples += lsamples.size ();
-
-  // The maximum _possible_ output radiance (from lights), if all remaining
-  // samples are not shadowed.
-  //
-  Color poss_radiance;
-  for (LightSamples::iterator s = lsamples.begin (); s != lsamples.end (); s++)
-    poss_radiance += s->val;
-
-  // Accumulated output radiance
-  //
-  Color radiance;
-
-  // Now shoot shadow rays to check the visibility of the chosen set of
-  // light samples, accumulating the resulting radiance in RADIANCE.
-
-  TraceState &sub_tstate
-    = tstate.subtrace_state (TraceState::SHADOW, isec.surface);
-
-  for (LightSamples::iterator s = lsamples.begin (); s != lsamples.end (); s++)
-    if (s->val > 0)
-      {
-	// If RADIANCE is beyond some threshold, give up even though we
-	// haven't finished all samples yet.  This means that in cases
-	// where the output radiance is dominated by very bright lights,
-	// we won't waste time calculating the remaining dim ones.
-	//
-	if (radiance > poss_radiance * 0.95 /* XXX make a variable */)
-	  {
-	    // XXX somehow use the unused samples, except without sending out
-	    // shadow rays [perhaps (1) keep track of last-known visibility
-	    // per-light, and (2) update the visibility of some random subset
-	    // of the remaining unused lights]
-	    //
-	    break;
-	  }
-
-	const Ray shadow_ray (isec.point, s->dir, s->dist);
-
-	// Find any surface that's shadowing LIGHT_RAY.
-	//
-	const Surface *shadower
-	  = sub_tstate.shadow_caster (shadow_ray, *s->light, isec);
-
-	if (! shadower)
-	  //
-	  // The surface is not shadowed at all, just add the light.
-	  //
-	  radiance += s->val;
-
-	else if (shadower->shadow_type != Material::SHADOW_OPAQUE)
-	  //
-	  // There's a shadower, but it's not opaque, so give it (and
-	  // any further surfaces) a chance to attentuate the color.
-	  {
-	    stats.scene_slow_shadow_traces++;
-
-	    // The reflected radiance from this sample, after being adjusted
-	    // for the filtering of the source irradiance through SHADOWER.
-	    //
-	    Color filtered = sub_tstate.shadow (shadow_ray, s->val, *s->light);
-
-	    // Add the final filtered radiance to RADIANCE, and also
-	    // adjust our estimation of the total possible radiance to
-	    // account for the filtering.
-	    //
-	    radiance += filtered;
-	    poss_radiance -= s->val - filtered;
-	  }
-
-	else
-	  // The surface is shadowed; subtract this light from the
-	  // possible radiance.
-	  //
-	  poss_radiance -= s->val;
-      }
-
-  return radiance;
 }
 
 

@@ -1,4 +1,4 @@
-// trace-state.h -- State during tracing
+// trace.h -- State during tracing
 //
 //  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
@@ -9,12 +9,12 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRACE_STATE_H__
-#define __TRACE_STATE_H__
+#ifndef __TRACE_H__
+#define __TRACE_H__
 
 #include "color.h"
 #include "medium.h"
-#include "lsamples.h"
+#include "global-tstate.h"
 
 namespace Snogray {
 
@@ -25,17 +25,7 @@ class Intersect;
 class Brdf;
 class Light;
 
-class GlobalTraceState
-{
-public:
-
-  // This is only used temporarily by Scene::illum, but we keep it around
-  // permanently to avoid the overhead of memory allocation.
-  //
-  LightSamples light_samples;
-};
-
-class TraceState
+class Trace
 {
 public:
 
@@ -48,23 +38,23 @@ public:
     NUM_TRACE_TYPES
   };
 
-  TraceState (Scene &_scene, GlobalTraceState &_global);
-  TraceState (TraceType _type, TraceState *_parent);
-  ~TraceState ();
+  Trace (Scene &_scene, GlobalTraceState &_global);
+  Trace (TraceType _type, Trace *_parent);
+  ~Trace ();
 
-  // Returns a pointer to the trace-state for a subtrace of the given
+  // Returns a pointer to the trace for a subtrace of the given
   // type (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  TraceState &subtrace_state (TraceType type, const Medium *_medium,
+  Trace &subtrace (TraceType type, const Medium *_medium,
 			      const Surface *_origin)
   {
-    TraceState *sub = subtrace_states[type];
+    Trace *sub = subtraces[type];
 
     if (! sub)
       {
-	sub = new TraceState (type, this);
-	subtrace_states[type] = sub;
+	sub = new Trace (type, this);
+	subtraces[type] = sub;
       }
 
     // make sure fields are up-to-date
@@ -77,10 +67,26 @@ public:
 
   // For sub-traces with no specified medium, propagate the current one.
   //
-  TraceState &subtrace_state (TraceType type, const Surface *_origin)
+  Trace &subtrace (TraceType type, const Surface *_origin)
   {
-    return subtrace_state (type, medium, _origin);
+    return subtrace (type, medium, _origin);
   }
+
+  // Calculate the color perceived by looking along RAY.  This is the
+  // basic ray-tracing method.
+  //
+  Color render (const Ray &ray);
+
+  // Shadow LIGHT_RAY, which points to a light with (apparent) color
+  // LIGHT_COLOR. and return the shadow color.  This is basically like
+  // the `render' method, but calls the material's `shadow' method
+  // instead of its `render' method.
+  //
+  // Note that this method is only used for `non-opaque' shadows --
+  // opaque shadows (the most common kind) don't use it!
+  //
+  Color shadow (const Ray &light_ray, const Color &light_color,
+		const Light &light);
 
   // Return the "origin count" of SURFACE:  this is 0 if SURFACE is not the
   // origin of this trace, 1 if this trace originated from SURFACE, but
@@ -101,11 +107,6 @@ public:
   // The following are convenience methods that just call the equivalent
   // method in the scene.
   //
-  Color render (const Ray &ray);
-  Color illum (const Intersect &isec, const Color &surface_color,
-	       const Brdf &brdf);
-  Color shadow (const Ray &light_ray, const Color &light_color,
-		const Light &light);
   const Surface *shadow_caster (const Ray &light_ray, const Light &light,
 				const Intersect &isec);
 
@@ -118,7 +119,7 @@ public:
 
   // Parent state
   //
-  TraceState *parent;
+  Trace *parent;
 
   // Stuff that's only allocated once.
   //
@@ -147,14 +148,14 @@ public:
   //
   const Surface **shadow_hints;
 
-  // Trace-states for various possible sub-traces of this trace (or zero
+  // traces for various possible sub-traces of this trace (or zero
   // when a given subtrace-type hasn't yet been encountered at this
-  // level).  Trace-states form a tree with the primary trace as the
+  // level).  traces form a tree with the primary trace as the
   // root, and various possible recursive traces as children.
   //
-  TraceState *subtrace_states[NUM_TRACE_TYPES];
+  Trace *subtraces[NUM_TRACE_TYPES];
 
-  // Depth of tracing at this trace-state.  1 == the main (camera/eye) ray.
+  // Depth of tracing at this trace.  1 == the main (camera/eye) ray.
   //
   unsigned depth;
 
@@ -169,6 +170,6 @@ private:
 
 }
 
-#endif /* __TRACE_STATE_H__ */
+#endif /* __TRACE_H__ */
 
 // arch-tag: 7ae04357-d63f-4119-9e79-a63d0e5a5e7f

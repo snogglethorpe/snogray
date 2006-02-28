@@ -28,7 +28,7 @@
 #include "image-cmdline.h"
 #include "wire-frame.h"
 #include "scene-def.h"
-#include "scene-stats.h"
+#include "trace-stats.h"
 
 using namespace Snogray;
 using namespace std;
@@ -585,7 +585,7 @@ int main (int argc, char *const *argv)
       // for each row as the state at the end of the previous row is
       // probably not too useful anyway.
       //
-      TraceState tstate (scene, global_tstate);
+      Trace trace (scene, global_tstate);
 
       // Process and (maybe) output one image row.  In wire-frame mode,
       // we actually output one row behind the row being calculated, so
@@ -595,7 +595,7 @@ int main (int argc, char *const *argv)
 	{
 	  // Wire-frame rendering mode
 
-	  wire_frame_rendering.render_row (tstate);
+	  wire_frame_rendering.render_row (trace);
 
 	  if (y > hr_limit_y)
 	    wire_frame_rendering.get_prev_row (image.next_row ());
@@ -618,7 +618,7 @@ int main (int argc, char *const *argv)
 
 	      // Cast the camera ray and calculate image color at that point.
 	      //
-	      Color pix = scene.render (camera_ray, tstate);
+	      Color pix = trace.render (camera_ray);
 
 	      // If oversampling, send out more rays for this pixel, and
 	      // average the result.
@@ -629,7 +629,7 @@ int main (int argc, char *const *argv)
 		    {
 		      camera_ray
 			= camera.get_ray (x, y, hr_width, hr_height, true);
-		      pix += scene.render (camera_ray, tstate);
+		      pix += trace.render (camera_ray);
 		    }
 
 		  pix /= jitter;
@@ -664,7 +664,7 @@ int main (int argc, char *const *argv)
   //
   if (! quiet)
     {
-      print_scene_stats (scene, cout);
+      print_trace_stats (global_tstate, scene, cout);
 
       // a field width of 14 is enough for over a year of time...
       cout << "Time:" << endl;
@@ -677,8 +677,8 @@ int main (int argc, char *const *argv)
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time.fmt(1) << endl;
 
-      long long sc  = scene.stats.scene_intersect_calls;
-      long long sst = scene.stats.scene_shadow_tests;
+      long long sc  = global_tstate.stats.scene_intersect_calls;
+      long long sst = global_tstate.stats.scene_shadow_tests;
       double rps = (double)(sc + sst) / render_time;
       double erps = (double)num_eye_rays / render_time;
       cout << "  rays per second:    " << setw (8) << commify ((long long)rps)

@@ -12,7 +12,7 @@
 #include "ray.h"
 #include "scene.h"
 #include "camera.h"
-#include "trace-state.h"
+#include "trace.h"
 
 #include "sample-map.h"
 
@@ -28,29 +28,28 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene)
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
   GlobalTraceState global_tstate;
-  TraceState tstate (scene, global_tstate);
+  Trace trace (scene, global_tstate);
 
   IsecParams isec_params;
-  const Surface *surf = scene.intersect (intersected_ray, isec_params, tstate);
+  const Surface *surf = scene.intersect (intersected_ray, isec_params, trace);
 
   if (surf)
     {
-      Intersect isec = surf->intersect_info (intersected_ray, isec_params);
-      const Material *mat = surf->material ();
-      const Color &color = mat->color;
-      const Brdf &brdf = *mat->brdf;
+      Intersect isec
+	= surf->intersect_info (intersected_ray, isec_params, trace);
       std::vector<Light *> &lights = scene.lights;
 
       if (map_type == BRDF)
-	brdf.gen_samples (isec, color, tstate, samples);
+	isec.brdf.gen_samples (isec, samples);
       else if (map_type == LIGHTS)
 	for (std::vector<Light *>::const_iterator li = lights.begin();
 	     li != lights.end(); li++)
-	  (*li)->gen_samples (isec, tstate, samples);
+	  (*li)->gen_samples (isec, samples);
       else
 	{
 	  LightSamples &lsamples = global_tstate.light_samples;
-	  lsamples.generate (isec, color, brdf, lights, tstate);
+
+	  lsamples.generate (isec, lights);
 
 	  // This loop should be the same as the following two methods, but
 	  // they run into memory allocation botches...

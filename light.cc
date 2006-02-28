@@ -13,7 +13,7 @@
 #include "ray.h"
 #include "intersect.h"
 #include "brdf.h"
-#include "trace-state.h"
+#include "trace.h"
 #include "scene.h"
 
 #include "light.h"

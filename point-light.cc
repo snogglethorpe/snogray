@@ -21,8 +21,7 @@ using namespace Snogray;
 // intensity.
 //
 void
-PointLight::gen_samples (const Intersect &isec, TraceState &tstate,
-			 SampleRayVec &samples)
+PointLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
   Vec lvec = pos - isec.point;
@@ -38,8 +37,7 @@ PointLight::gen_samples (const Intersect &isec, TraceState &tstate,
 // according to the light's intensity in the sample's direction.
 //
 void
-PointLight::filter_samples (const Intersect &isec, TraceState &tstate,
-			    SampleRayVec &samples,
+PointLight::filter_samples (const Intersect &isec, SampleRayVec &samples,
 			    SampleRayVec::iterator from,
 			    SampleRayVec::iterator to)
   const

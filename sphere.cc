@@ -69,11 +69,12 @@ Sphere::intersection_distance (const Ray &ray,
 }
 
 Intersect
-Sphere::intersect_info (const Ray &ray, const IsecParams &isec_params)
+Sphere::intersect_info (const Ray &ray, const IsecParams &isec_params,
+			Trace &trace)
   const
 {
   Pos point = ray.end ();
-  return Intersect (ray, this, point, (point - center).unit ());
+  return Intersect (ray, this, point, (point - center).unit (), trace);
 }
 
 // Return a bounding box for this surface.

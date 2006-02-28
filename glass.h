@@ -13,6 +13,7 @@
 #define __GLASS_H__
 
 #include "mirror.h"
+#include "medium.h"
 
 namespace Snogray {
 
@@ -25,7 +26,7 @@ public:
     : Mirror (reflectance, col, brdf), medium (_medium)
   { }
 
-  virtual Color render (const Intersect &isec, TraceState &tstate) const;
+  virtual Color render (const Intersect &isec) const;
 
   // The general sort of shadow this material will cast.  This value
   // should never change for a given material, so can be cached.
@@ -39,7 +40,7 @@ public:
   //
   virtual Color shadow (const Surface *surface,
 			const Ray &light_ray, const Color &light_color,
-			const Light &light, TraceState &tstate)
+			const Light &light, Trace &trace)
     const;
 
   Medium medium;

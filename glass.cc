@@ -19,28 +19,28 @@
 using namespace Snogray;
 
 Color
-Glass::render (const Intersect &isec, TraceState &tstate) const
+Glass::render (const Intersect &isec) const
 {
   // Render transmission
 
-  TraceState::TraceType subtrace_type;
+  Trace::TraceType subtrace_type;
   const Medium *old_medium, *new_medium;
 
   if (isec.back)
     {
       // Exiting this surface
 
-      new_medium = tstate.enclosing_medium ();
+      new_medium = isec.trace.enclosing_medium ();
       old_medium = &medium;
-      subtrace_type = TraceState::REFRACTION_OUT;
+      subtrace_type = Trace::REFRACTION_OUT;
     }
   else
     {
       // Entering this surface
 
       new_medium = &medium;
-      old_medium = tstate.medium;
-      subtrace_type = TraceState::REFRACTION_IN;
+      old_medium = isec.trace.medium;
+      subtrace_type = Trace::REFRACTION_IN;
     }
 
   Vec xmit_dir
@@ -52,20 +52,20 @@ Glass::render (const Intersect &isec, TraceState &tstate) const
     {
       Ray xmit_ray (isec.point, xmit_dir);
 
-      TraceState &sub_tstate
-	= tstate.subtrace_state (subtrace_type, new_medium, isec.surface);
+      Trace &sub_trace
+	= isec.trace.subtrace (subtrace_type, new_medium, isec.surface);
 
       // Render the refracted ray, and combine it with any contribution
       // from reflections and surface lighting.
       //
       return
-	(1 - reflectance) * sub_tstate.render (xmit_ray)
-	+ Mirror::render (isec, tstate);
+	(1 - reflectance) * sub_trace.render (xmit_ray)
+	+ Mirror::render (isec);
     }
   else
     // "Total internal reflection"
     //
-    return reflection (isec, tstate);
+    return reflection (isec);
 }
 
 // The general sort of shadow this material will cast.  This value
@@ -85,16 +85,16 @@ Glass::shadow_type () const
 Color
 Glass::shadow (const Surface *surface,
 	       const Ray &light_ray, const Color &light_color,
-	       const Light &light, TraceState &tstate)
+	       const Light &light, Trace &trace)
   const
 {
   // We don't do real refraction because that would invalidate the light
   // direction!  Just do straight "transparency".
 
-  TraceState &sub_tstate
-    = tstate.subtrace_state (TraceState::SHADOW, &medium, surface);
+  Trace &sub_trace
+    = trace.subtrace (Trace::SHADOW, &medium, surface);
 
-  return sub_tstate.shadow (light_ray, light_color * (1 - reflectance), light);
+  return sub_trace.shadow (light_ray, light_color * (1 - reflectance), light);
 }
 
 // arch-tag: a8209bc5-a88c-4f6c-b598-ee89c9587a6f

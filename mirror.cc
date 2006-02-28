@@ -19,27 +19,26 @@
 using namespace Snogray;
 
 Color
-Mirror::reflection (const Intersect &isec, TraceState &tstate) const
+Mirror::reflection (const Intersect &isec) const
 {
   // Render reflection
 
   Vec mirror_dir = isec.ray.dir.reflection (isec.normal);
   Ray mirror_ray (isec.point, mirror_dir);
 
-  TraceState &sub_tstate
-    = tstate.subtrace_state (TraceState::REFLECTION, isec.surface);
+  Trace &sub_trace = isec.trace.subtrace (Trace::REFLECTION, isec.surface);
 
-  return sub_tstate.render (mirror_ray);
+  return sub_trace.render (mirror_ray);
 }
 
 Color
-Mirror::render (const Intersect &isec, TraceState &tstate) const
+Mirror::render (const Intersect &isec) const
 {
-  Color total_color = reflectance * reflection (isec, tstate);
+  Color total_color = reflectance * reflection (isec);
 
   // Render contribution from surface.
   //
-  total_color += (1 - reflectance) * Material::render (isec, tstate);
+  total_color += (1 - reflectance) * Material::render (isec);
 
   return total_color;
 }

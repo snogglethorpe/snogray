@@ -128,15 +128,16 @@ public:
 					unsigned num = 0)
     const;
 
-  // Return more information about the intersection of RAY with this
-  // surface; it is assumed that RAY does actually hit the surface, and
-  // RAY's length gives the exact point of intersection (the `intersect'
-  // method modifies RAY so that this is true).  ISEC_PARAMS contains other
-  // surface-specific parameters calculated by the intersection_distance
-  // method.
+  // Return an Intersect object containing details of the intersection of
+  // RAY with this surface; it is assumed that RAY does actually hit the
+  // surface, and RAY's length gives the exact point of intersection (the
+  // `intersect' method modifies RAY so that this is true).  ISEC_PARAMS
+  // contains other surface-specific parameters calculated by the
+  // intersection_distance method.
   //
   virtual Intersect intersect_info (const Ray &ray,
-				    const IsecParams &isec_params)
+				    const IsecParams &isec_params,
+				    Trace &trace)
     const;
 
   // Return a bounding box for this surface.

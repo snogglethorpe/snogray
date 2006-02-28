@@ -14,8 +14,9 @@
 #include <list>
 
 #include "vec.h"
-#include "intersect.h"
 #include "excepts.h"
+#include "trace.h"
+#include "intersect.h"
 
 #include "cook-torrance.h"
 
@@ -46,8 +47,7 @@ Snogray::cook_torrance (const Color &spec_col, float m,
 // importance function.
 //
 void
-CookTorrance::gen_samples (const Intersect &isec, const Color &color,
-			   TraceState &tstate, SampleRayVec &samples)
+CookTorrance::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
   throw std::runtime_error ("CookTorrance::gen_samples");
@@ -57,8 +57,7 @@ CookTorrance::gen_samples (const Intersect &isec, const Color &color,
 // the BRDF's reflectivity in the sample's direction.
 //
 void
-CookTorrance::filter_samples (const Intersect &isec, const Color &color,
-			      TraceState &tstate, SampleRayVec &samples,
+CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &samples,
 			      SampleRayVec::iterator from,
 			      SampleRayVec::iterator to)
   const
@@ -79,7 +78,7 @@ CookTorrance::filter_samples (const Intersect &isec, const Color &color,
   // Index of refraction of the medium this surface is adjacent to, and
   // this material.
   //
-  float nI = tstate.medium ? tstate.medium->ior : 1;
+  float nI = isec.trace.medium ? isec.trace.medium->ior : 1;
   float nTr = ior;
   float nTi = ior_imag;
   float n = nTr / nI;
@@ -212,7 +211,7 @@ CookTorrance::filter_samples (const Intersect &isec, const Color &color,
       //
       //   p = k_d * p_d + k_s * p_s
       //
-      s->set_refl (color * diffuse + specular_color * specular);
+      s->set_refl (isec.color * diffuse + specular_color * specular);
     }
 }
 

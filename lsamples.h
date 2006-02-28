@@ -21,14 +21,13 @@ namespace Snogray {
 class Brdf;
 class Color;
 class Intersect;
-class TraceState;
+class Trace;
 
 class LightSamples
 {
 public:
 
-  void generate (const Intersect &isec, const Color &color, const Brdf &brdf,
-		 const std::vector<Light *> lights, TraceState &tstate);
+  void generate (const Intersect &isec, const std::vector<Light *> lights);
 
   // Accessors for the final result.
   //

@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording scene-ray intersection result
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -14,10 +14,14 @@
 
 #include "ray.h"
 #include "color.h"
+#include "material.h"
 
 namespace Snogray {
 
 class Surface;
+class Trace;
+class Brdf;
+class Material;
 
 // This just packages up the result of a scene intersection search and
 // some handy values calculated from it.  It is passed to rendering
@@ -29,30 +33,30 @@ public:
 
   Intersect (const Ray &_ray, const Surface *_surface,
 	     const Pos _point, const Vec _normal, bool _back,
-	     const void *_smoothing_group = 0)
-    : ray (_ray), surface (_surface),
-      point (_point), normal (_back ? -_normal : _normal), back (_back),
-      smoothing_group (_smoothing_group)
-  { }
+	     Trace &_trace, const void *_smoothing_group = 0);
 
   // For surfaces with non-interpolated normals, we can calculate
   // whether it's a backface or not using the normal; they typically
   // also have a zero smoothing group, so we omit that parameter.
   //
   Intersect (const Ray &_ray, const Surface *_surface,
-	     const Pos _point, const Vec _normal)
-    : ray (_ray), surface (_surface),
-      point (_point), normal (_normal), back (dot (normal, _ray.dir) > 0),
-      smoothing_group (0)
+	     const Pos _point, const Vec _normal, Trace &_trace);
+
+  // Calculate the outgoing radiance from this intersection.
+  //
+  Color render () const
   {
-    // We want to flip the sign on `normal' if `back' is true, but we've
-    // declared `normal' const to avoid anybody mucking with it...
-    //
-    if (back)
-      const_cast<Vec&> (normal) = -normal;
+    return material.render (*this);
   }
 
+  // Iterate over every light, calculating its contribution the color of
+  // ISEC.  BRDF is used to calculate the actual effect; COLOR is
+  // the "base color"
+  //
+  Color illum () const;
+
   // Ray which intersected something; its endpoint is the point of intersection.
+  //
   const Ray ray;
 
   // The surface which RAY intersected.  This should always be non-zero
@@ -66,9 +70,27 @@ public:
   const Vec normal;		// Surface normal at POINT
   const bool back;		// True if RAY hit the back of SURFACE
 
-  // Cached value of SURFACE's smoothing group.
+  // A vector pointing towards the viewer; this is just -RAY.dir; many
+  // algorithms use the outgoing formulation, so we provide it
+  // explicitly.
   //
+  const Vec viewer;
+
+  // (NORMAL dot VIEWER), aka cos(theta) where theta is the angle
+  // between NORMAL and VIEWER.
+  //
+  float nv;
+
+  // Oft-used properties of SURFACE.
+  //
+  const Material &material;
+  const Brdf &brdf;
+  const Color &color;
   const void *smoothing_group;
+
+  // Trace this intersection came from.
+  //
+  Trace &trace;
 };
 
 }

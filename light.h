@@ -19,7 +19,7 @@ namespace Snogray {
 class Intersect;
 class Color;
 class Brdf;
-class TraceState;
+class Trace;
 class Ray;
 
 class Light
@@ -31,15 +31,13 @@ public:
 
   // Generate some samples of this light and add them to SAMPLES.
   //
-  virtual void gen_samples (const Intersect &isec, TraceState &tstate,
-			    SampleRayVec &samples)
+  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
     const = 0;
 
   // Modify the value of the BRDF samples in SAMPLES from FROM to TO,
   // according to the light's intensity in the sample's direction.
   //
-  virtual void filter_samples (const Intersect &isec, TraceState &tstate,
-			       SampleRayVec &samples,
+  virtual void filter_samples (const Intersect &isec, SampleRayVec &samples,
 			       SampleRayVec::iterator from,
 			       SampleRayVec::iterator to)
     const = 0;

@@ -70,8 +70,7 @@ FarLight::init ()
 // intensity.
 //
 void
-FarLight::gen_samples (const Intersect &isec, TraceState &tstate,
-		       SampleRayVec &samples)
+FarLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
   // Surface normal
@@ -121,8 +120,7 @@ FarLight::gen_samples (const Intersect &isec, TraceState &tstate,
 // according to the light's intensity in the sample's difarion.
 //
 void
-FarLight::filter_samples (const Intersect &isec, TraceState &tstate,
-			  SampleRayVec &samples,
+FarLight::filter_samples (const Intersect &isec, SampleRayVec &samples,
 			  SampleRayVec::iterator from,
 			  SampleRayVec::iterator to)
   const

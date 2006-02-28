@@ -22,7 +22,7 @@ class Ray;
 class Light;
 class Surface;
 class Intersect;
-class TraceState;
+class Trace;
 
 class Material
 {
@@ -31,11 +31,11 @@ public:
   enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
 
   Material (const Color &col, const Brdf *brdf = lambert)
-    : color (col), brdf (brdf ? brdf : lambert)
+    : color (col), brdf (* (brdf ? brdf : lambert))
   { }
   virtual ~Material ();
 
-  virtual Color render (const Intersect &isec, TraceState &tstate) const;
+  virtual Color render (const Intersect &isec) const;
 
   // The general sort of shadow this material will cast.  This value
   // should never change for a given material, so can be cached.
@@ -49,11 +49,11 @@ public:
   //
   virtual Color shadow (const Surface *surface,
 			const Ray &light_ray, const Color &light_color,
-			const Light &light, TraceState &tstate)
+			const Light &light, Trace &trace)
     const;
 
   Color color;
-  const Brdf *brdf;
+  const Brdf &brdf;
 };
 
 }

@@ -18,7 +18,6 @@
 #include "vec.h"
 #include "color.h"
 #include "sample-ray.h"
-#include "trace-state.h"
 
 namespace Snogray {
 
@@ -32,15 +31,13 @@ public:
 
   // Generate samples of this BRDF and add them to SAMPLES.
   //
-  virtual void gen_samples (const Intersect &isec, const Color &color,
-			    TraceState &tstate, SampleRayVec &samples)
+  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
     const = 0;
 
   // Modify the value of each of the light-samples in SAMPLES according to
   // the BRDF's reflectivity in the sample's direction.
   //
-  virtual void filter_samples (const Intersect &isec, const Color &color,
-			       TraceState &tstate, SampleRayVec &samples,
+  virtual void filter_samples (const Intersect &isec, SampleRayVec &samples,
 			       SampleRayVec::iterator from,
 			       SampleRayVec::iterator to)
     const = 0;

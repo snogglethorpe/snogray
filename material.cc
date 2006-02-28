@@ -25,9 +25,9 @@ Material::~Material () { } // stop gcc bitching
 
 
 Color
-Material::render (const Intersect &isec, TraceState &tstate) const
+Material::render (const Intersect &isec) const
 {
-  return tstate.illum (isec, color, *brdf);
+  return isec.illum ();
 }
 
 // The general sort of shadow this material will cast.  This value
@@ -47,16 +47,16 @@ Material::shadow_type () const
 Color
 Material::shadow (const Surface *surface,
 		  const Ray &light_ray, const Color &light_color,
-		  const Light &light, TraceState &tstate)
+		  const Light &light, Trace &trace)
   const
 {
   // This method only gets called if we encounter an opaque surface,
   // casting a "real" shadow.  We can just immediately return black.
 
-  // Set TSTATE's shadow-hint so the next time SURFACE will be
+  // Set TRACE's shadow-hint so the next time SURFACE will be
   // immediately tried first when calculating shadows.
   //
-  tstate.shadow_hints[light.num] = surface;
+  trace.shadow_hints[light.num] = surface;
 
   // Return black.
   //

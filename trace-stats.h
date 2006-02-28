@@ -1,4 +1,4 @@
-// scene-stats.h -- Print post-rendering statistics
+// trace-stats.h -- Print post-rendering statistics
 //
 //  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
@@ -14,13 +14,16 @@
 
 #include <ostream>
 
+#include "global-tstate.h"
 #include "scene.h"
 
 namespace Snogray {
 
 // Print post-rendering scene statistics
 //
-void print_scene_stats (const Scene &scene, std::ostream &os);
+extern void print_trace_stats (const GlobalTraceState &global_tstate,
+			       const Scene &scene,
+			       std::ostream &os);
 
 }
 

@@ -1261,8 +1261,6 @@ def_scene_tessel (const string &name, unsigned num,
 
   coord_t height = -1.2;
   coord_t cheight = 0;
-  dist_t  cradius = 4;
-  dist_t  cradius_2 = sqrt (cradius * cradius / 2);
 
   camera.move (Pos (3, cheight + 0.25, -5));
   camera.point (Pos (0, -0.5, 0), Vec (0, 1, 0));

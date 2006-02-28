@@ -47,7 +47,8 @@ public:
   // method modifies RAY so that this is true).
   //
   virtual Intersect intersect_info (const Ray &ray,
-				    const IsecParams &isec_params)
+				    const IsecParams &isec_params,
+				    Trace &trace)
     const;
 
   // Return a bounding box for this surface.

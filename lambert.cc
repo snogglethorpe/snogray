@@ -25,8 +25,7 @@ const Lambert *Snogray::lambert = new Lambert;
 // importance function.
 //
 void
-Lambert::gen_samples (const Intersect &isec, const Color &color,
-		      TraceState &tstate, SampleRayVec &samples)
+Lambert::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
   throw std::runtime_error ("Lambert::gen_samples");
@@ -36,8 +35,7 @@ Lambert::gen_samples (const Intersect &isec, const Color &color,
 // the BRDF's reflectivity in the sample's direction.
 //
 void
-Lambert::filter_samples (const Intersect &isec, const Color &color,
-			 TraceState &tstate, SampleRayVec &samples,
+Lambert::filter_samples (const Intersect &isec, SampleRayVec &samples,
 			 SampleRayVec::iterator from,
 			 SampleRayVec::iterator to)
   const
@@ -51,7 +49,7 @@ Lambert::filter_samples (const Intersect &isec, const Color &color,
 
       float diffuse = NL * M_1_PI; // standard lambertian diffuse term
 
-      s->set_refl (color * diffuse);
+      s->set_refl (isec.color * diffuse);
     }
 }
 

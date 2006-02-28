@@ -75,7 +75,7 @@ Progress::update (unsigned pos)
 	  //
 	  update_pos = pos + unsigned (cur_lps * update_interval);
 
-	  unsigned update_limit = pos + (end_pos - start_pos) * 0.05;
+	  unsigned update_limit = unsigned (pos + (end_pos - start_pos) * 0.05);
 
 	  // Always wait until the next line, but never too long.
 	  //

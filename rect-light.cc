@@ -23,8 +23,7 @@ using namespace Snogray;
 // intensity.
 //
 void
-RectLight::gen_samples (const Intersect &isec, TraceState &tstate,
-			SampleRayVec &samples)
+RectLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
   // Surface normal (of the surface intersected, not the light)
@@ -100,8 +99,7 @@ RectLight::gen_samples (const Intersect &isec, TraceState &tstate,
 // according to the light's intensity in the sample's direction.
 //
 void
-RectLight::filter_samples (const Intersect &isec, TraceState &tstate,
-			   SampleRayVec &samples,
+RectLight::filter_samples (const Intersect &isec, SampleRayVec &samples,
 			   SampleRayVec::iterator from,
 			   SampleRayVec::iterator to)
   const

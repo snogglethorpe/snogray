@@ -62,7 +62,7 @@ barf ()
 
 dist_t
 Surface::intersection_distance (const Ray &ray, IsecParams &isec_params, unsigned num) const { barf (); }
-Intersect Surface::intersect_info (const Ray &ray, const IsecParams &isec_params) const { barf (); }
+Intersect Surface::intersect_info (const Ray &ray, const IsecParams &isec_params, Trace &trace) const { barf (); }
 
 BBox Surface::bbox () const { barf (); }
 const Material *Surface::material () const { barf (); }

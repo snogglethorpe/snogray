@@ -40,8 +40,7 @@ Snogray::phong (const Color &spec_col, float exp)
 // importance function.
 //
 void
-Phong::gen_samples (const Intersect &isec, const Color &color,
-		    TraceState &tstate, SampleRayVec &samples)
+Phong::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
   throw std::runtime_error ("Phong::gen_samples");
@@ -51,8 +50,7 @@ Phong::gen_samples (const Intersect &isec, const Color &color,
 // the BRDF's reflectivity in the sample's direction.
 //
 void
-Phong::filter_samples (const Intersect &isec, const Color &color,
-		       TraceState &tstate, SampleRayVec &samples,
+Phong::filter_samples (const Intersect &isec, SampleRayVec &samples,
 		       SampleRayVec::iterator from,
 		       SampleRayVec::iterator to)
   const
@@ -70,7 +68,7 @@ Phong::filter_samples (const Intersect &isec, const Color &color,
       float specular = powf (NH, exponent);
       float diffuse = NL * M_1_PI; // standard lambertian diffuse term
 
-      s->set_refl (color * diffuse + specular_color * specular);
+      s->set_refl (isec.color * diffuse + specular_color * specular);
     }
 }
 

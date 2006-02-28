@@ -95,7 +95,7 @@ RENDER_SRCS = brdf.cc camera.cc cook-torrance.cc cubetex.cc far-light.cc \
 	  point-light.cc primary-surface.cc progress.cc ray.cc		 \
 	  rect-light.cc texture2.cc scene.cc scene-load.cc		 \
 	  scene-load-aff.cc space.cc sphere.cc tessel.cc tessel-param.cc \
-	  timeval.cc trace-state.cc tripar.cc octree.cc
+	  timeval.cc trace.cc tripar.cc octree.cc
 
 SCENE_DEF_SRCS = scene-def.cc test-scenes.cc
 
@@ -104,7 +104,7 @@ SCENE_DEF_SRCS = scene-def.cc test-scenes.cc
 ## Snogray
 ##
 
-SNOGRAY_SRCS = snogray.cc scene-stats.cc $(SCENE_DEF_SRCS)	\
+SNOGRAY_SRCS = snogray.cc trace-stats.cc $(SCENE_DEF_SRCS)	\
 	       $(RENDER_SRCS) $(COMMON_SRCS)
 
 SNOGRAY_OBJS = $(SNOGRAY_SRCS:.cc=.o)
