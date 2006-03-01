@@ -45,7 +45,7 @@ public:
   // real IORs given, with no imaginary component.
   //
   Fresnel (float n1, float n2)
-    : ior (n1 / n2), n2k2 (0), n2_m_k2 (ior.n * ior.n)
+    : ior (n2 / n1), n2k2 (0), n2_m_k2 (ior.n * ior.n)
   { }
 
   // Calculate the final IOR for a medium->material interface (where the
