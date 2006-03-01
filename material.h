@@ -42,14 +42,16 @@ public:
   //
   virtual ShadowType shadow_type () const;
 
-  // Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points at
-  // the light, not at the surface).  The "non-shadowed" light has color
-  // LIGHT_COLOR; it's also this method's job to find any further
-  // shadowing surfaces.
+  // Shadow LIGHT_RAY, which points to a light with (apparent) color
+  // LIGHT_COLOR. and return the shadow color.  This is basically like
+  // the `render' method, but calls the material's `shadow' method
+  // instead of its `render' method.
   //
-  virtual Color shadow (const Surface *surface,
-			const Ray &light_ray, const Color &light_color,
-			const Light &light, Trace &trace)
+  // Note that this method is only used for `non-opaque' shadows --
+  // opaque shadows (the most common kind) don't use it!
+  //
+  virtual Color shadow (const Intersect &isec, const Ray &light_ray,
+			const Color &light_color, const Light &light)
     const;
 
   Color color;

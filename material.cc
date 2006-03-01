@@ -39,15 +39,17 @@ Material::shadow_type () const
   return Material::SHADOW_OPAQUE;
 }
 
-// Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points
-// at the light, not at the surface).  The "non-shadowed" light has
-// color LIGHT_COLOR; it's also this method's job to find any further
-// shadowing surfaces.
+// Shadow LIGHT_RAY, which points to a light with (apparent) color
+// LIGHT_COLOR. and return the shadow color.  This is basically like
+// the `render' method, but calls the material's `shadow' method
+// instead of its `render' method.
+//
+// Note that this method is only used for `non-opaque' shadows --
+// opaque shadows (the most common kind) don't use it!
 //
 Color
-Material::shadow (const Surface *surface,
-		  const Ray &light_ray, const Color &light_color,
-		  const Light &light, Trace &trace)
+Material::shadow (const Intersect &isec, const Ray &light_ray,
+		  const Color &light_color, const Light &light)
   const
 {
   // This method only gets called if we encounter an opaque surface,
@@ -56,7 +58,7 @@ Material::shadow (const Surface *surface,
   // Set TRACE's shadow-hint so the next time SURFACE will be
   // immediately tried first when calculating shadows.
   //
-  trace.shadow_hints[light.num] = surface;
+  isec.trace.shadow_hints[light.num] = isec.surface;
 
   // Return black.
   //

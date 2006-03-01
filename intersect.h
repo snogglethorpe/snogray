@@ -49,6 +49,21 @@ public:
     return material.render (*this);
   }
 
+  // Shadow LIGHT_RAY, which points to a light with (apparent) color
+  // LIGHT_COLOR. and return the shadow color.  This is basically like
+  // the `render' method, but calls the material's `shadow' method
+  // instead of its `render' method.
+  //
+  // Note that this method is only used for `non-opaque' shadows --
+  // opaque shadows (the most common kind) don't use it!
+  //
+  Color shadow (const Ray &light_ray, const Color &light_color,
+		const Light &light)
+    const
+  {
+    return material.shadow (*this, light_ray, light_color, light);
+  }
+
   // Iterate over every light, calculating its contribution the color of
   // ISEC.  BRDF is used to calculate the actual effect; COLOR is
   // the "base color"

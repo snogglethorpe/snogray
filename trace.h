@@ -35,6 +35,8 @@ public:
     REFRACTION_IN,		// entering a transparent surface
     REFRACTION_OUT,		// exiting it
     SHADOW,			// only used for non-opaque shadows
+    SHADOW_REFR_IN,
+    SHADOW_REFR_OUT,
     NUM_TRACE_TYPES
   };
 

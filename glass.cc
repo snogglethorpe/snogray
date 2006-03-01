@@ -52,10 +52,13 @@ Glass::render (const Intersect &isec) const
     {
       Ray xmit_ray (isec.point, xmit_dir);
 
-      // Internal reflection
+      // Internal reflection.  Note that the indices of refraction are
+      // reversed compared to the calculation of XMIT_DIR above; this is
+      // because we're calculating the reflection of light _coming_ from
+      // that direction.
       //
       float fres_refl
-	= Fresnel (old_ior, new_ior).reflectance (dot (xmit_dir, -isec.normal));
+	= Fresnel (new_ior, old_ior).reflectance (dot (xmit_dir, -isec.normal));
       float xmit = 1 - fres_refl;
       
       if (xmit > Eps)
@@ -86,64 +89,53 @@ Glass::shadow_type () const
   return Material::SHADOW_MEDIUM;
 }
 
-// Calculate the shadowing effect of SURFACE on LIGHT_RAY (which points at
-// the light, not at the surface).  The "non-shadowed" light has color
-// LIGHT_COLOR; it's also this method's job to find any further
-// shadowing surfaces.
+// Shadow LIGHT_RAY, which points to a light with (apparent) color
+// LIGHT_COLOR. and return the shadow color.  This is basically like
+// the `render' method, but calls the material's `shadow' method
+// instead of its `render' method.
+//
+// Note that this method is only used for `non-opaque' shadows --
+// opaque shadows (the most common kind) don't use it!
 //
 Color
-Glass::shadow (const Surface *surface,
-	       const Ray &light_ray, const Color &light_color,
-	       const Light &light, Trace &trace)
+Glass::shadow (const Intersect &isec, const Ray &light_ray,
+	       const Color &light_color, const Light &light)
   const
 {
   // We don't do real refraction because that would invalidate the light
   // direction!  Just do straight "transparency".
 
-  // ---HACK---HACK---HACK---HACK---HACK---HACK---HACK---HACK---HACK
-  // Gack, our caller doesn't give us enough info!!  Kludge something up.
-  // [We should rework the transparent shadow interface so that the
-  // intersection is passed down just like the normal render method.]
-  // ---HACK---HACK---HACK---HACK---HACK---HACK---HACK---HACK---HACK
-
-  IsecParams fake_isec_params;
-  fake_isec_params.u = fake_isec_params.v = 0;
-
-  Ray fake_incoming_ray (light_ray.origin - light_ray.dir, light_ray.origin,
-			 light_ray.len);
-
-  Intersect fake_isec
-    = surface->intersect_info (fake_incoming_ray, fake_isec_params, trace);
-
-  // Determine whether the ray is entering or exiting this glass (note that
-  // this is the opposite of the calculation in the Glass::render method,
-  // as the light ray is coming the opposit direction).
-  //
+  Trace::TraceType subtrace_type;
   const Medium *old_medium, *new_medium;
-  if (fake_isec.back)
+
+  if (isec.back)
     {
-      // Light-ray _enters_ this glass
-      new_medium = &medium;
-      old_medium = fake_isec.trace.medium;
+      // Exiting this surface
+
+      new_medium = isec.trace.enclosing_medium ();
+      old_medium = &medium;
+      subtrace_type = Trace::SHADOW_REFR_OUT;
     }
   else
     {
-      // Light-ray _exits_ this glass
-      new_medium = fake_isec.trace.enclosing_medium ();
-      old_medium = &medium;
+      // Entering this surface
+
+      new_medium = &medium;
+      old_medium = isec.trace.medium;
+      subtrace_type = Trace::SHADOW_REFR_IN;
     }
 
   float old_ior = old_medium ? old_medium->ior : 1;
   float new_ior = new_medium ? new_medium->ior : 1;
 
   float fres_refl
-    = Fresnel (old_ior, new_ior).reflectance (
-				   dot (light_ray.dir, fake_isec.normal));
+    = Fresnel (new_ior, old_ior).reflectance (dot (light_ray.dir, -isec.normal));
   float xmit = 1 - fres_refl;
       
   if (xmit > Eps)
     {
-      Trace &sub_trace = trace.subtrace (Trace::SHADOW, new_medium, surface);
+      Trace &sub_trace
+	= isec.trace.subtrace (subtrace_type, new_medium, isec.surface);
       return sub_trace.shadow (light_ray, light_color * xmit, light);
     }
   else

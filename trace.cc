@@ -68,9 +68,9 @@ Trace::enclosing_medium ()
 
   while (enclosure_level >= 0 && ts)
     {
-      if (ts->type == REFRACTION_IN)
+      if (ts->type == REFRACTION_IN || ts->type == SHADOW_REFR_IN)
 	enclosure_level--;
-      else if (ts->type == REFRACTION_OUT)
+      else if (ts->type == REFRACTION_OUT || ts->type == SHADOW_REFR_OUT)
 	enclosure_level++;
 
       ts = ts->parent;
@@ -145,14 +145,15 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
 
   if (closest)
     {
+      Intersect isec
+	= closest->intersect_info (intersected_ray, isec_params, *this);
+
       Ray continued_light_ray (intersected_ray.end(), intersected_ray.dir,
 			       light_ray.len - intersected_ray.len);
 
       // Calculate the shadowing effect of the surface we hit
       //
-      Color irradiance
-	= closest->material()->shadow (closest, continued_light_ray,
-				       light_color, light, *this);
+      Color irradiance = isec.shadow (continued_light_ray, light_color, light);
 
       // If we are looking through something other than air, attentuate
       // the surface appearance due to transmission through the current
