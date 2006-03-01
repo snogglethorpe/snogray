@@ -14,16 +14,16 @@
 
 #include "color.h"
 #include "medium.h"
-#include "global-tstate.h"
 
 namespace Snogray {
 
-class Scene;
-class Surface;
 class Ray;
-class Intersect;
+class Surface;
 class Brdf;
 class Light;
+class Scene;
+class Intersect;
+class GlobalTraceState;
 
 class Trace
 {

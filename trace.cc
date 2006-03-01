@@ -9,9 +9,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "trace.h"
-
 #include "scene.h"
+#include "global-tstate.h"
+
+#include "trace.h"
 
 using namespace Snogray;
 

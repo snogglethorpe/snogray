@@ -12,6 +12,7 @@
 #include "cubetex.h"
 
 #include "scene.h"
+#include "global-tstate.h"
 
 using namespace Snogray;
 using namespace std;

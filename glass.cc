@@ -63,8 +63,7 @@ Glass::render (const Intersect &isec) const
       
       if (xmit > Eps)
 	{
-	  Trace &sub_trace
-	    = isec.trace.subtrace (subtrace_type, new_medium, isec.surface);
+	  Trace &sub_trace = isec.subtrace (subtrace_type, new_medium);
 
 	  // Render the refracted ray, and combine it with any contribution
 	  // from reflections and surface lighting.
@@ -129,13 +128,13 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
   float new_ior = new_medium ? new_medium->ior : 1;
 
   float fres_refl
-    = Fresnel (new_ior, old_ior).reflectance (dot (light_ray.dir, -isec.normal));
+    = Fresnel (new_ior, old_ior).reflectance (dot (light_ray.dir,
+						   -isec.normal));
   float xmit = 1 - fres_refl;
       
   if (xmit > Eps)
     {
-      Trace &sub_trace
-	= isec.trace.subtrace (subtrace_type, new_medium, isec.surface);
+      Trace &sub_trace = isec.subtrace (subtrace_type, new_medium);
       return sub_trace.shadow (light_ray, light_color * xmit, light);
     }
   else

@@ -13,6 +13,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "trace.h"
+#include "global-tstate.h"
 
 #include "sample-map.h"
 

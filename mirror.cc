@@ -26,9 +26,7 @@ Mirror::reflection (const Intersect &isec) const
   Vec mirror_dir = isec.ray.dir.reflection (isec.normal);
   Ray mirror_ray (isec.point, mirror_dir);
 
-  Trace &sub_trace = isec.trace.subtrace (Trace::REFLECTION, isec.surface);
-
-  return sub_trace.render (mirror_ray);
+  return isec.subtrace (Trace::REFLECTION).render (mirror_ray);
 }
 
 Color

@@ -46,7 +46,7 @@ Glow::shadow (const Intersect &isec, const Ray &light_ray,
 {
   // Just pass straight through
   //
-  Trace &sub_trace = isec.trace.subtrace (Trace::SHADOW, isec.surface);
+  Trace &sub_trace = isec.subtrace (Trace::SHADOW);
   return sub_trace.shadow (light_ray, light_color, light);
 }
 

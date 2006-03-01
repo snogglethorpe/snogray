@@ -15,6 +15,7 @@
 #include "lsamples.h"
 #include "trace.h"
 #include "scene.h"
+#include "global-tstate.h"
 
 #include "intersect.h"
 
@@ -83,7 +84,7 @@ Intersect::illum () const
   // Now shoot shadow rays to check the visibility of the chosen set of
   // light samples, accumulating the resulting radiance in RADIANCE.
 
-  Trace &sub_trace = trace.subtrace (Trace::SHADOW, surface);
+  Trace &sub_trace = subtrace (Trace::SHADOW);
 
   for (LightSamples::iterator s = lsamples.begin (); s != lsamples.end (); s++)
     if (s->val > 0)

@@ -14,12 +14,12 @@
 
 #include "ray.h"
 #include "color.h"
+#include "trace.h"
 #include "material.h"
 
 namespace Snogray {
 
 class Surface;
-class Trace;
 class Brdf;
 class Material;
 
@@ -62,6 +62,21 @@ public:
     const
   {
     return material.shadow (*this, light_ray, light_color, light);
+  }
+
+  // Returns a pointer to the trace for a subtrace of the given
+  // type (possibly creating a new one, if no such subtrace has yet been
+  // encountered).
+  //
+  Trace &subtrace (Trace::Type type, const Medium *medium) const
+  {
+    return trace.subtrace (type, medium, surface);
+  }
+  // For sub-traces with no specified medium, propagate the current one.
+  //
+  Trace &subtrace (Trace::Type type) const
+  {
+    return trace.subtrace (type, surface);
   }
 
   // Iterate over every light, calculating its contribution the color of
