@@ -23,7 +23,7 @@ Glass::render (const Intersect &isec) const
 {
   // Render transmission
 
-  Trace::TraceType subtrace_type;
+  Trace::Type subtrace_type;
   const Medium *old_medium, *new_medium;
 
   if (isec.back)
@@ -105,7 +105,7 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
   // We don't do real refraction because that would invalidate the light
   // direction!  Just do straight "transparency".
 
-  Trace::TraceType subtrace_type;
+  Trace::Type subtrace_type;
   const Medium *old_medium, *new_medium;
 
   if (isec.back)

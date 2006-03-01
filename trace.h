@@ -29,7 +29,7 @@ class Trace
 {
 public:
 
-  enum TraceType {
+  enum Type {
     SPONTANEOUS,
     REFLECTION,
     REFRACTION_IN,		// entering a transparent surface
@@ -41,15 +41,14 @@ public:
   };
 
   Trace (Scene &_scene, GlobalTraceState &_global);
-  Trace (TraceType _type, Trace *_parent);
+  Trace (Type _type, Trace *_parent);
   ~Trace ();
 
   // Returns a pointer to the trace for a subtrace of the given
   // type (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  Trace &subtrace (TraceType type, const Medium *_medium,
-			      const Surface *_origin)
+  Trace &subtrace (Type type, const Medium *_medium, const Surface *_origin)
   {
     Trace *sub = subtraces[type];
 
@@ -69,7 +68,7 @@ public:
 
   // For sub-traces with no specified medium, propagate the current one.
   //
-  Trace &subtrace (TraceType type, const Surface *_origin)
+  Trace &subtrace (Type type, const Surface *_origin)
   {
     return subtrace (type, medium, _origin);
   }
@@ -129,7 +128,7 @@ public:
 
   // What kind of trace this is
   //
-  TraceType type;
+  Type type;
 
   // The surface this trace originated from (or zero for spontaneous)
   //

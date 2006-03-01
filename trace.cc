@@ -26,7 +26,7 @@ Trace::Trace (Scene &_scene, GlobalTraceState &_global)
 
 // Constructor for sub-traces
 //
-Trace::Trace (TraceType _type, Trace *_parent)
+Trace::Trace (Type _type, Trace *_parent)
   : scene (_parent->scene), parent (_parent), global (_parent->global),
     type (_type), origin (0), horizon_hint (0), depth (_parent->depth + 1),
     medium (parent->medium)
