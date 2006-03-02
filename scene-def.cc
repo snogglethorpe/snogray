@@ -292,8 +292,18 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   // Override scene parameters specified on command-line
   //
-  if (bg_cube_spec)
-    scene.set_background (new Cubetex (bg_cube_spec));
+  if (bg_spec)
+    {
+      size_t len = strlen (bg_spec);
+
+      if (len > 5 && strncmp (bg_spec, "cube:", 5) == 0)
+	scene.set_background (new Cubetex (bg_spec + 5));
+      else if (len > 4 && strcmp (bg_spec + len - 4, ".ctx") == 0
+	       || ImageInput::recognized_filename (bg_spec))
+	scene.set_background (new Cubetex (bg_spec));
+      else
+	scene.set_background (atof (bg_spec));
+    }
 
   if (camera_cmds.length () > 0)
     interpret_camera_cmds (camera, camera_cmds);

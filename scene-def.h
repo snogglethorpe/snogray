@@ -64,63 +64,55 @@ e.g. `test:cbox1' refers to the built-in test-scene `cbox1'.\n\
 \n\
 For a full list of test-scenes, use the `--list-test-scenes' option."
 
-#define SCENE_DEF_OPTION_CASES(clp, scene_def)				\
-  case 'b':								\
-    {									\
-      const char *bg_spec = clp.opt_arg ();				\
-      size_t len = strlen (bg_spec);					\
-      if (len > 5 && strncmp (bg_spec, "cube:", 5) == 0)		\
-	scene_def.bg_cube_spec = bg_spec + 5;				\
-      else if (len > 4 && strcmp (bg_spec + len - 4, ".ctx") == 0	\
-	       || ImageInput::recognized_filename (bg_spec))		\
-	scene_def.bg_cube_spec = bg_spec;				\
-    }									\
-    break;								\
-									\
-  case 'I':								\
-    scene_def.scene_fmt = clp.opt_arg ();				\
-    break;								\
-  case 'G':								\
-    scene_def.assumed_gamma = clp.float_opt_arg ();			\
-    break;								\
-  case 'L':								\
-    scene_def.light_scale = clp.float_opt_arg ();			\
-    break;								\
-									\
-  case 'c':								\
-    scene_def.camera_cmds += clp.opt_arg ();				\
-    break;								\
-									\
-  case 'T':								\
-    {									\
-      const char *arg = clp.opt_arg();					\
-      if (*arg == '@')							\
-	{								\
-	  tessel_smooth = !tessel_smooth;				\
-	  arg++;							\
-	}								\
-      if (*arg)								\
-	tessel_accur = atof (arg);					\
-    }									\
-    break;								\
-									\
-  case SCENE_DEF_OPT_LIST_TEST_SCENES:					\
-    {									\
-      std::vector<TestSceneDesc> descs = list_test_scenes ();		\
-									\
-      std::cout << "Built-in test scenes:" << std::endl << std::endl;	\
-      std::cout.setf (std::ios::left);					\
-									\
-      for (std::vector<TestSceneDesc>::const_iterator di = descs.begin(); \
-	   di != descs.end(); di++)					\
-	{								\
-	  unsigned nlen = 15;						\
-	  while (di->name.length() > nlen - 3)				\
-	    nlen += 12;							\
-	  std::cout << "   " << std::setw(nlen) << di->name << di->desc	\
-		    << std::endl;					\
-	}								\
-    }									\
+#define SCENE_DEF_OPTION_CASES(clp, scene_def)				      \
+  case 'b':								      \
+    scene_def.bg_spec = clp.opt_arg ();					      \
+    break;								      \
+									      \
+  case 'I':								      \
+    scene_def.scene_fmt = clp.opt_arg ();				      \
+    break;								      \
+  case 'G':								      \
+    scene_def.assumed_gamma = clp.float_opt_arg ();			      \
+    break;								      \
+  case 'L':								      \
+    scene_def.light_scale = clp.float_opt_arg ();			      \
+    break;								      \
+									      \
+  case 'c':								      \
+    scene_def.camera_cmds += clp.opt_arg ();				      \
+    break;								      \
+									      \
+  case 'T':								      \
+    {									      \
+      const char *arg = clp.opt_arg();					      \
+      if (*arg == '@')							      \
+	{								      \
+	  tessel_smooth = !tessel_smooth;				      \
+	  arg++;							      \
+	}								      \
+      if (*arg)								      \
+	tessel_accur = atof (arg);					      \
+    }									      \
+    break;								      \
+									      \
+  case SCENE_DEF_OPT_LIST_TEST_SCENES:					      \
+    {									      \
+      std::vector<TestSceneDesc> descs = list_test_scenes ();		      \
+									      \
+      std::cout << "Built-in test scenes:" << std::endl << std::endl;	      \
+      std::cout.setf (std::ios::left);					      \
+									      \
+      for (std::vector<TestSceneDesc>::const_iterator di = descs.begin();     \
+	   di != descs.end(); di++)					      \
+	{								      \
+	  unsigned nlen = 15;						      \
+	  while (di->name.length() > nlen - 3)				      \
+	    nlen += 12;							      \
+	  std::cout << "   " << std::setw(nlen) << di->name << di->desc	      \
+		    << std::endl;					      \
+	}								      \
+    }									      \
     exit (0);
 
 namespace Snogray {
@@ -134,7 +126,7 @@ class SceneDef
 public:
 
   SceneDef ()
-    : assumed_gamma (1), light_scale (1), bg_cube_spec (0)
+    : assumed_gamma (1), light_scale (1), bg_spec (0)
   { }
 
   // Parse any scene-definition arguments necessary from CLP.
@@ -163,7 +155,8 @@ public:
   std::string camera_cmds;
 
   float assumed_gamma, light_scale;
-  const char *bg_cube_spec;
+
+  const char *bg_spec;
 };
 
 }
