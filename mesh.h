@@ -32,10 +32,13 @@ class Mesh : public PrimarySurface
 {
 public:
 
+  typedef SPos MPos;		// position type used in mesh
+  typedef SVec MVec;		// vector type used in mesh
+
   // A vertex group can be used to group vertices together.
   //
-  typedef std::map<SPos, unsigned> VertexGroup;
-  typedef std::map<std::pair<SPos, SVec>, unsigned> VertexNormalGroup;
+  typedef std::map<MPos, unsigned> VertexGroup;
+  typedef std::map<std::pair<MPos, MVec>, unsigned> VertexNormalGroup;
 
   Mesh (const Material *mat) : PrimarySurface (mat), triangles (0, *this) { }
 
@@ -74,19 +77,19 @@ public:
   // Add a triangle to the mesh
   //
   void add_triangle (unsigned v0i, unsigned v1i, unsigned v2i);
-  void add_triangle (const SPos &v0, const SPos &v1, const SPos &v2);
-  void add_triangle (const SPos &v0, const SPos &v1, const SPos &v2,
+  void add_triangle (const MPos &v0, const MPos &v1, const MPos &v2);
+  void add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
 		     VertexGroup &vgroup);
 
   // Add a vertex to the mesh
   //
-  unsigned add_vertex (const SPos &pos);
-  unsigned add_vertex (const SPos &pos, VertexGroup &vgroup);
+  unsigned add_vertex (const MPos &pos);
+  unsigned add_vertex (const MPos &pos, VertexGroup &vgroup);
 
   // Add a vertex with normal to the mesh
   //
-  unsigned add_vertex (const SPos &pos, const SVec &normal);
-  unsigned add_vertex (const SPos &pos, const SVec &normal,
+  unsigned add_vertex (const MPos &pos, const MVec &normal);
+  unsigned add_vertex (const MPos &pos, const MVec &normal,
 		       VertexNormalGroup &vgroup);
 
   // Add the results of tessellating TESSEL_FUN with MAX_ERR.
@@ -117,8 +120,8 @@ public:
   //
   void compute_vertex_normals ();
 
-  SPos vertex (unsigned index) { return vertices[index]; }
-  SPos vertex_normal (unsigned index) { return vertex_normals[index]; }
+  MPos vertex (unsigned index) { return vertices[index]; }
+  MPos vertex_normal (unsigned index) { return vertex_normals[index]; }
 
   //private:
 
@@ -196,11 +199,11 @@ public:
 
     // Vertex NUM of this triangle
     //
-    const SPos &v (unsigned num) const { return mesh.vertices[vi[num]]; }
+    const MPos &v (unsigned num) const { return mesh.vertices[vi[num]]; }
 
     // Normal of vertex NUM (assuming this mesh contains vertex normals!)
     //
-    const SVec &vnorm (unsigned num) const { return mesh.vertex_normals[vi[num]];}
+    const MVec &vnorm (unsigned num) const { return mesh.vertex_normals[vi[num]];}
 
     // These both return the "raw" normal of this triangle, not doing
     // any normal interpolation.  Note that they return ordinary
@@ -224,8 +227,8 @@ public:
   };
 
   // A list of vertices used in this part.
-  std::vector<SPos> vertices;
-  std::vector<SVec> vertex_normals;
+  std::vector<MPos> vertices;
+  std::vector<MVec> vertex_normals;
 
   // A vector of Mesh::Triangle surfaces that use this part.
   std::vector<Triangle> triangles;

@@ -27,7 +27,7 @@ using namespace std;
 // This simple version always adds a new vertex
 //
 unsigned
-Mesh::add_vertex (const SPos &pos)
+Mesh::add_vertex (const MPos &pos)
 {
   unsigned vert_index = vertices.size ();
   vertices.push_back (pos);
@@ -38,7 +38,7 @@ Mesh::add_vertex (const SPos &pos)
 // adds new vertices.
 //
 unsigned
-Mesh::add_vertex (const SPos &pos, VertexGroup &vgroup)
+Mesh::add_vertex (const MPos &pos, VertexGroup &vgroup)
 {
   VertexGroup::iterator prev_entry = vgroup.find (pos);
 
@@ -58,7 +58,7 @@ Mesh::add_vertex (const SPos &pos, VertexGroup &vgroup)
 // This simple version always adds a new vertex+normal
 //
 unsigned
-Mesh::add_vertex (const SPos &pos, const SVec &normal)
+Mesh::add_vertex (const MPos &pos, const MVec &normal)
 {
   unsigned vert_index = vertices.size ();
 
@@ -77,7 +77,7 @@ Mesh::add_vertex (const SPos &pos, const SVec &normal)
 // normal is considered "new").
 //
 unsigned
-Mesh::add_vertex (const SPos &pos, const SVec &normal, VertexNormalGroup &vgroup)
+Mesh::add_vertex (const MPos &pos, const MVec &normal, VertexNormalGroup &vgroup)
 {
   VertexNormalGroup::key_type key (pos, normal);
   VertexNormalGroup::iterator prev_entry = vgroup.find (key);
@@ -105,7 +105,7 @@ Mesh::add_triangle (unsigned v0i, unsigned v1i, unsigned v2i)
 }
 
 void
-Mesh::add_triangle (const SPos &v0, const SPos &v1, const SPos &v2,
+Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
 		    VertexGroup &vgroup)
 {
   unsigned v0i = add_vertex (v0, vgroup);
@@ -116,7 +116,7 @@ Mesh::add_triangle (const SPos &v0, const SPos &v1, const SPos &v2,
 }
 
 void
-Mesh::add_triangle (const SPos &v0, const SPos &v1, const SPos &v2)
+Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2)
 {
   add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2));
 }
@@ -499,7 +499,7 @@ Mesh::compute_vertex_normals ()
       for (unsigned t = 0; t < num_triangs; t++)
 	{
 	  const Triangle &triang = triangles[t];
-	  const SVec norm (triang.raw_normal ());
+	  const MVec norm (triang.raw_normal ());
 
 	  for (unsigned num = 0; num < 3; num++)
 	    {
