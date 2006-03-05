@@ -166,6 +166,11 @@ public:
     return *this;
   }
 
+  // Return true if this transform reverses the "handedness" of a
+  // coordinate system.
+  //
+  bool reverses_handedness () const { return Matrix4<T>::det() < 0; }
+
 private:
 
   using Matrix4<T>::el;
