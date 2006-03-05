@@ -291,7 +291,7 @@ Cubetex::load (const Image &image)
   faces[3].u_dir = Vec (-1, 0, 0);
   faces[3].v_dir = Vec (0, 0, -1);
 
-  // Bottom
+  // Front
   faces[4].tex = new Texture2 (image, size, size, size, size);
   faces[4].u_dir = Vec (1, 0, 0);
   faces[4].v_dir = Vec (0, 1, 0);
