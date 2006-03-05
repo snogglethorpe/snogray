@@ -21,7 +21,7 @@ class GlobalTraceState
 {
 public:
 
-  static const unsigned DEFAULT_MAX_DEPTH = 10;
+  static const unsigned DEFAULT_MAX_DEPTH = 6;
 
   GlobalTraceState () : max_depth (DEFAULT_MAX_DEPTH) { }
 
