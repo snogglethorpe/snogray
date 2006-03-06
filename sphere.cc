@@ -13,6 +13,11 @@
 
 #include "intersect.h"
 
+// Any intersection closer than this will be rejected as spurious
+// (i.e. logically zero, but off due to floating-point imprecision).
+//
+#define MIN_ISEC_DIST (1e-7)
+
 using namespace Snogray;
 
 // Return the distance from RAY's origin to the closest intersection
@@ -43,11 +48,11 @@ Sphere::intersection_distance (const Ray &ray,
   double determ
     = (dir_diff * dir_diff) - dir_dir * (dot (diff, diff) - (radius * radius));
 
-  if (determ > -Eps)
+  if (determ >= 0)
     {
       double common = -dir_diff / dir_dir;
 
-      if (determ < Eps && common > Eps)
+      if (determ <= 0 && common > 0)
 	{
 	  if (num == 0)
 	    return common;
@@ -58,9 +63,9 @@ Sphere::intersection_distance (const Ray &ray,
 	  double t0 = common - determ_factor;
 	  double t1 = common + determ_factor;
 
-	  if (num == 0 && t0 > Eps)
+	  if (num == 0 && t0 > MIN_ISEC_DIST)
 	    return t0;
-	  else if (t1 > Eps)
+	  else if (t1 > MIN_ISEC_DIST)
 	    return t1;
 	}
     }
