@@ -18,57 +18,71 @@
 
 using namespace Snogray;
 
-// Common information used for reflection.
+// Common information used for refraction methods.
 //
 struct Refraction
 {
-  Refraction (const Intersect &isec)
-    : old_medium (isec.trace.medium), new_medium (&medium),
-      subtrace_type (Trace::REFRACTION_IN)
-  {
-    // We initially assumed we're entering the enclosed medium, but if we
-    // struck the back-face of the surface, then we must be exiting
-    // instead.
-    //
-    if (isec.back)
-      {
-	new_medium = isec.trace.enclosing_medium ();
-	old_medium = &medium;
-	subtrace_type = Trace::REFRACTION_OUT;
-      }
+  Refraction (const Glass &glass, const Intersect &isec)
+    : entering (! isec.back),
+      old_medium (entering ? isec.trace.medium : &glass.medium),
+      new_medium (entering ? &glass.medium : isec.trace.enclosing_medium ()),
+      old_ior (old_medium ? old_medium->ior : 1),
+      new_ior (new_medium ? new_medium->ior : 1)
+  { }
 
-    old_ior = old_medium ? old_medium->ior : 1;
-    new_ior = new_medium ? new_medium->ior : 1;
-  }
-
+  // The proportion of light which will be transmitted towards the viewer.
+  // COS_XMIT_ANGLE is the angle between the surface normal and the ray on
+  // the other side of the interface.
+  //
   float transmittance (float cos_xmit_angle)
   {
-    return ((1 - Fresnel (new_ior, old_ior).reflectance (cos_xmit_angle))
-	    * (new_ior * new_ior) / (old_ior * old_ior));
+    // Calculate the amount of transmitted light which would be lost due
+    // to Fresnel reflection from the interface.
+    //
+    float lost = Fresnel (new_ior, old_ior).reflectance (cos_xmit_angle);
+
+    // The amount of transmited light is anything remaining, with its
+    // brightness adjusted to account for the change in solid angle of
+    // the light ray.
+    //
+    return (1 - lost) * (new_ior * new_ior) / (old_ior * old_ior);
   }
 
+  // The proportion of light which will be reflected towards the viewer
+  // from the same side of the interface, due to fresnel reflection .
+  // COS_REFL_ANGLE is the angle between the surface normal and the ray to
+  // be reflected.
+  //
   float reflectance (float cos_refl_angle)
   {
     return Fresnel (old_ior, new_ior).reflectance (cos_refl_angle);
   }
 
+  // Are we entering or exiting the medium enclosed by the glass surface?
+  //
+  bool entering;
+
+  // The old (from which the eye ray is coming) and new media.
+  //
   const Medium *old_medium, *new_medium;
 
+  // The indices of refraction of OLD_MEDIUM and NEW_MEDIUM.
+  //
   float old_ior, new_ior;
-
-  Trace::Type subtrace_type;
 };
 
 Color
 Glass::render (const Intersect &isec) const
 {
-  Refraction refr (isec);
+  Refraction refr (*this, isec);
 
   Color radiance;
 
   // Render transmitted light
 
-  Vec xmit_dir = isec.ray.dir.refraction (isec.normal, refr.old_ior, refr.new_ior);
+  Vec xmit_dir
+    = isec.ray.dir.refraction (isec.normal, refr.old_ior, refr.new_ior);
+
   if (! xmit_dir.null ())
     {
       float xmit = refr.transmittance (dot (xmit_dir, -isec.normal));
@@ -76,7 +90,9 @@ Glass::render (const Intersect &isec) const
       if (xmit > Eps)
 	{
 	  Ray xmit_ray (isec.point, xmit_dir);
-	  Trace &sub_trace = isec.subtrace (subtrace_type, new_medium);
+	  Trace::Type subtrace_type
+	    = refr.entering ? Trace::REFRACTION_IN : Trace::REFRACTION_OUT;
+	  Trace &sub_trace = isec.subtrace (subtrace_type, refr.new_medium);
 	  radiance += xmit * sub_trace.render (xmit_ray);
 	}
     }
@@ -109,16 +125,23 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
 	       const Color &light_color, const Light &light)
   const
 {
+  Refraction refr (*this, isec);
+
   // We don't do real refraction because that would invalidate the light
-  // direction!  Just do straight "transparency".
+  // direction!  Just do straight "transparency", using a straight-through
+  // direction for shadow rays through the glass instead of in the properly
+  // refracted direction.  This gives a fairly decent result, although
+  // there are obviously no caustics.
 
-  Refraction refr (isec);
-
-  float xmit = refr.reflectance (dot (light_ray.dir, -isec.normal));
+  // Use the straight-through angle.
+  //
+  float xmit = refr.transmittance (dot (light_ray.dir, -isec.normal));
       
   if (xmit > Eps)
     {
-      Trace &sub_trace = isec.subtrace (subtrace_type, new_medium);
+      Trace::Type subtrace_type
+	= refr.entering ? Trace::SHADOW_REFR_IN : Trace::SHADOW_REFR_OUT;
+      Trace &sub_trace = isec.subtrace (subtrace_type, refr.new_medium);
       return sub_trace.shadow (light_ray, light_color * xmit, light);
     }
   else
