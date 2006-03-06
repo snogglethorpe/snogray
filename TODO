@@ -23,7 +23,7 @@ Todo list for snogray
 	high-intensity pixel adjacent to a low-intensity pixel will
 	"bleed" into it via the tail of the filter (but make the tail
 	amplitude small enough so that the bleeding in normal cases is
-	neglible).
+	negligible).
 
 
  [DONE]
@@ -45,6 +45,30 @@ Todo list for snogray
      Ashikhmin
      Cook-Torrance	[DONE]
      Ward
+     Schick
+     LaFortune
+     Oren-Nayar
+
+
+ + Implement more elegant material framework
+
+     Pbrt has a nice system:
+
+       * A generalization of the BRDF, the BxDF ("Bidirectional
+       	 reflection/transmission Distribution Function") handles either
+       	 hemisphere (ordinary BRDFs only handle the reflection hemisphere).
+
+       * BxDFs are separable, and a container, the BSDF ("Bidirectional
+         Sphere Distribution Function") can hold a set of them, which are
+         combined to form the entire lighting calculation for a point.
+         [This seems to be done dynamically, at intersection time?!?]
+
+	 For instance, instead of every BRDF calculating its own diffuse
+	 term, one can just add a standard Lambertian BRDF to whatever more
+	 specialized BxDFs are being used for a material.
+
+       * Ideal specular reflection/transmission are defined as BxDFs (in
+         terms of the Dirac delta function), not special materials.
 
 
  [DONE]
@@ -105,18 +129,32 @@ Todo list for snogray
      superclass with textures?
 
 
+ + Encapsulate space/octree abstraction inside a surface interface, so
+   that there can be multiple nested search spaces.  This might help
+   speed (or hurt it...) by consolidating logically related surfaces
+   into their own search spaces, but more importantly, it allows easy
+   object instancing by allowing us to wrap a search-space with a
+   coordinate transform.
+
+
+ + Maybe separate the notion of "Shape" from Surface, so that we can
+   have multiple surfaces with different materials [etc.] sharing a
+   single shape (only really important when the shape consumes a lot of
+   memory, for instance a large mesh).
+
+
  [DONE]
- + Abstract voxtree into a more generic "space division" data-type
+ + Abstract octree into a more generic "space division" data-type
 
      Allow experimenting with different implementations, e.g., KD-trees.
-     [This might fit well with the voxtree generalization below.]
+     [This might fit well with the octree generalization below.]
 
 
- + Make voxtree smarter
+ + Make octree smarter
 
      See "voxtree-hacks-20050928-0.patch"
 
-     Have different types of voxtree node for different situations:
+     Have different types of octree node for different situations:
 
        * Normal octree nodes
 
@@ -129,7 +167,7 @@ Todo list for snogray
 	 nodes can be avoided (the "teapot in a stadium" problem)
 
 
- + Make voxtree searching directional
+ + Make octree searching directional
 
      Currently it will find object in random order; typically it would be
      much better to find closer objects first.
