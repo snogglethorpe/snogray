@@ -351,8 +351,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	  if (transmittance > Eps)
 	    cur_material
 	      = new Glass (Medium (transmittance * AFF_MEDIUM_TRANSMITTANCE,
-				   ior),
-			   specular, diffuse, brdf);
+				   ior));
 	  else if (specular.intensity() > Eps)
 	    cur_material = new Mirror (AFF_MIRROR_IOR, specular, diffuse, brdf);
 	  else

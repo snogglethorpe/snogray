@@ -12,19 +12,16 @@
 #ifndef __GLASS_H__
 #define __GLASS_H__
 
-#include "mirror.h"
+#include "material.h"
 #include "medium.h"
 
 namespace Snogray {
 
-class Glass : public Mirror
+class Glass : public Material
 {
 public:
 
-  Glass (Medium _medium, Color reflectance,
-	 const Color &col = Color::white, const Brdf *brdf = lambert)
-    : Mirror (_medium.ior, reflectance, col, brdf), medium (_medium)
-  { }
+  Glass (Medium _medium) : Material (1), medium (_medium) { }
 
   virtual Color render (const Intersect &isec) const;
 
@@ -32,7 +29,6 @@ public:
   // should never change for a given material, so can be cached.
   //
   virtual ShadowType shadow_type () const;
-
 
   // Shadow LIGHT_RAY, which points to a light with (apparent) color
   // LIGHT_COLOR. and return the shadow color.  This is basically like

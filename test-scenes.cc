@@ -132,6 +132,61 @@ add_deb_lights (enum deb_light kind, float scale, Scene &scene)
 
 
 static void
+add_chessboard (Scene &scene, const Xform &xform = Xform::identity)
+{
+//   const Material *black
+//     = scene.add (new Mirror (1.5, 0.2, 0.02, cook_torrance (0.9, 1)));
+  const Material *black
+    = scene.add (new Material (0.02, cook_torrance (0.9, 1)));
+//   const Material *ivory
+//     = scene.add (new Mirror (1.5, 0.2, Color (1, 0.8, 0.5),
+// 			     cook_torrance (0.2, 2)));
+  const Material *ivory
+    = scene.add (new Material (Color (1, 0.8, 0.5),
+			       cook_torrance (0.2, 2)));
+
+  const Material *brown
+    = scene.add (new Material (Color (0.3, 0.2, 0.05),
+			       cook_torrance (0.5, 3, 2)));
+
+  Xform mesh_xform = Xform::x_rotation (-M_PI_2).scale (-1, 1, 1) * xform;
+
+  scene.add (new Mesh (black, "board1.msh", mesh_xform));
+  scene.add (new Mesh (ivory, "board2.msh", mesh_xform));
+  scene.add (new Mesh (brown, "board3.msh", mesh_xform));
+}
+
+
+
+enum tobj_type { TOBJ_SPHERE, TOBJ_TORUS, TOBJ_SINC };
+
+static Surface *
+tobj (tobj_type type, const Material *mat, const Pos &pos, dist_t radius,
+     dist_t max_err)
+{
+  switch (type)
+    {
+    case TOBJ_SPHERE:
+      return new Mesh (mat, SphereTesselFun (pos + Vec (0, radius, 0),
+					     radius, radius * 0.002),
+			  Tessel::ConstMaxErr (max_err), true);
+    case TOBJ_TORUS:
+      return new Mesh (mat, TorusTesselFun (pos + Vec (0, radius / 3, 0),
+					    radius, radius / 3,
+					    radius * 0.002),
+		       Tessel::ConstMaxErr (max_err), true);
+    case TOBJ_SINC:
+      return new Mesh (mat, SincTesselFun (pos + Vec (0, radius * 0.25, 0),
+					   radius * 1.5),
+		       Tessel::ConstMaxErr (max_err), true);
+    default:
+      throw runtime_error ("unknown tobj type");
+    }
+}
+
+
+
+static void
 def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
 {
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
@@ -142,8 +197,7 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
 //   const Material *mat1
 //     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
   const Material *crystal
-    = scene.add (new Glass (Medium (0.97, 1.8), 0.95, 0.01,
-			    cook_torrance (1.5, 0, 1.8)));
+    = scene.add (new Glass (Medium (0.97, 1.8)));
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
   const Material *mat1 = crystal, *mat2 = silver;
@@ -251,14 +305,11 @@ def_scene_pretty_bunny (const string &name, unsigned num,
 {
   // This is a mutation of test:cs465-4
 
-  camera.move (Pos (-1, 0.7, 2.3)); // y=0.5
-  camera.point (Pos (-0.75, -0.07, 0), Vec (0, 1, 0));
+  camera.move (Pos (-1, 1.35, 2.3)); // y=0.5
+  camera.point (Pos (-0.75, 0.58, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
   camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
 
-  const Material *grey
-    = scene.add (new Material (Color (0.6, 0.5, 0.5),
-			       cook_torrance (0.5, 0.2, Ior (1, 1))));
   const Material *red
     = scene.add (new Material (Color (0.5, 0, 0),
 			       cook_torrance (0.5, 0.1)));
@@ -269,8 +320,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
     = scene.add (new Material (Color (0, 0.5, 0),
 			       cook_torrance (0.5, 0.1)));
   const Material *crystal
-    = scene.add (new Glass (Medium (0.9, 1.8), 0.95, 0.01,
-			    cook_torrance (1.5, 0, 1.8)));
+    = scene.add (new Glass (Medium (0.99, 1.5)));
   const Material *gold
     = scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
 			     cook_torrance (Color (1, 1, 0.3), 0,
@@ -282,19 +332,17 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   if (num / 10 == 1)
     bunny->load ("+bunny69451.msh", Xform().scale(10).translate(0,-1,0));
   else
-    bunny->load ("bunny500.msh");
+    bunny->load ("bunny500.msh", Xform().translate(0, 0.65, 0));
   bunny->compute_vertex_normals ();
   scene.add (bunny);
 
   scene.add (new Sphere (goldbunny ? crystal : gold, Pos (-3, 0, -3), 1.5));
 
-  scene.add (new Sphere (red,    Pos (3.5, 0.65 - 0.65, -5.0), 0.65));
-  scene.add (new Sphere (green,  Pos (2.5, 0.40 - 0.65, -7.0), 0.40));
-  scene.add (new Sphere (yellow, Pos (0.3, 0.40 - 0.65, -2.5), 0.40));
+  scene.add (new Sphere (red,    Pos (3.5, 0.65, -5.0), 0.65));
+  scene.add (new Sphere (green,  Pos (2.5, 0.40, -7.0), 0.40));
+  scene.add (new Sphere (yellow, Pos (0.3, 0.40, -2.5), 0.40));
 
-  // ground
-  add_cube (scene, grey, Pos (-5, -0.65, -8),
-	    Vec (0, 0, 9), Vec (10, 0, 0), Vec (0, -20, 0));
+  add_chessboard (scene);
   
   switch (num % 10)
     {
@@ -311,11 +359,11 @@ def_scene_pretty_bunny (const string &name, unsigned num,
       add_rect_bulb (scene, Pos(-10, 0, 2), Vec(0, 10, 0), Vec(6, 0, 6), 10);
       break;
 
-    case 5:
+    case 8:
       add_deb_lights (DEB_GRACE, 2, scene);
       break;
 
-    case 6:
+    case 9:
       add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
@@ -329,32 +377,6 @@ add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
 }
 
 
-
-enum tobj_type { TOBJ_SPHERE, TOBJ_TORUS, TOBJ_SINC };
-
-static Surface *
-tobj (tobj_type type, const Material *mat, const Pos &pos, dist_t radius,
-     dist_t max_err)
-{
-  switch (type)
-    {
-    case TOBJ_SPHERE:
-      return new Mesh (mat, SphereTesselFun (pos + Vec (0, radius, 0),
-					     radius, radius * 0.002),
-			  Tessel::ConstMaxErr (max_err), true);
-    case TOBJ_TORUS:
-      return new Mesh (mat, TorusTesselFun (pos + Vec (0, radius / 3, 0),
-					    radius, radius / 3,
-					    radius * 0.002),
-		       Tessel::ConstMaxErr (max_err), true);
-    case TOBJ_SINC:
-      return new Mesh (mat, SincTesselFun (pos + Vec (0, radius * 0.25, 0),
-					   radius * 1.5),
-		       Tessel::ConstMaxErr (max_err), true);
-    default:
-      throw runtime_error ("unknown tobj type");
-    }
-}
 
 static void
 def_scene_teapot (const string &name, unsigned num,
@@ -386,36 +408,19 @@ def_scene_teapot (const string &name, unsigned num,
 // 			       new CookTorrance (0.5, 0.05, 2)));
 //     = scene.add (new Mirror (0.2, Color (0.3, 0.4, 0.3), .5, 10));
 
-  const Material *gloss_black
-    = scene.add (new Mirror (1.5, 0.1, 0.02, cook_torrance (0.9, 1)));
-  const Material *black
-    = scene.add (new Material (0.02, cook_torrance (0.9, 1)));
-  const Material *gloss_ivory
-    = scene.add (new Mirror (1.5, 0.1, 2 * Color (1.1, 1, 0.8),
-			     cook_torrance (0.2, 2)));
-  const Material *ivory
-    = scene.add (new Material (2 * Color (1.1, 1, 0.8),
-			       cook_torrance (0.2, 2)));
-
-  const Material *teapot_mat = 0, *chess_mat1, *chess_mat2;
+  const Material *teapot_mat = 0;
   switch ((num / 1000) % 10)
     {
     case 0: default:
       teapot_mat = silver;
-      chess_mat1 = gloss_black;
-      chess_mat2 = gloss_ivory;
       break;
 
     case 1:
       teapot_mat = matte_silver;
-      chess_mat1 = black;
-      chess_mat2 = ivory;
       break;
 
     case 2:
       teapot_mat = gloss_blue;
-      chess_mat1 = gloss_black;
-      chess_mat2 = gloss_ivory;
       break;
     }
 
@@ -423,14 +428,8 @@ def_scene_teapot (const string &name, unsigned num,
   scene.add (new Mesh (teapot_mat, name + ".msh", teapot_xform, true));
 
   // Chessboard
-  const Material *brown
-    = scene.add (new Material (Color (0.3, 0.2, 0.05),
-			       cook_torrance (0.5, 3, 2)));
-
-
-  scene.add (new Mesh (chess_mat1, "board1.msh", mesh_xform));
-  scene.add (new Mesh (chess_mat2, "board2.msh", mesh_xform));
-  scene.add (new Mesh (brown, "board3.msh", mesh_xform));
+  //
+  add_chessboard (scene);
 
   // Table/ground
 
@@ -552,7 +551,7 @@ def_scene_teapot (const string &name, unsigned num,
       const Material *orange
 	= scene.add (new Material (Color (0.6,0.5,0.05), cook_torrance (0.4, 0.1)));
       const Material *glass
-	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01, cook_torrance (1.5, 0)));
+	= scene.add (new Glass (Medium (0.98, 1.3)));
       const Material *gold
 	= scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
 				 cook_torrance (Color (1, 1, 0.3), 0,
@@ -566,7 +565,7 @@ def_scene_teapot (const string &name, unsigned num,
 	  scene.add (tobj (TOBJ_SPHERE, gold, Pos (-3, 0, -2), 0.6, max_err));
 	  break;
 	case 2:
-	  scene.add (new Sphere (glass, Pos (-3, 0, -2), 0.5));
+	  scene.add (new Sphere (glass, Pos (-3, 0.5, -2), 0.5));
 	  break;
 	case 3:
 	  scene.add (tobj (TOBJ_SINC, gold, Pos (-3, 0, -2), 0.6, max_err));
@@ -636,17 +635,9 @@ def_scene_orange (const string &name, unsigned num,
   const Material *orange
     = scene.add (new Material (Color (0.6, 0.5, 0.05), phong (0.4, 250)));
   const Material *glass
-    = scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01, phong (1.5, 2000)));
-  const Material *gloss_black
-    = scene.add (new Mirror (2, 0.3, 0.02, phong (0.9, 10)));
-  const Material *ivory
-    = scene.add (new Mirror (2, 0.2, 2 * Color (1.1, 1, 0.8), phong (0.3, 5)));
-  const Material *brown
-    = scene.add (new Material (Color (0.3, 0.2, 0.05)));
+    = scene.add (new Glass (Medium (0.95, 1.5)));
 
-  scene.add (new Mesh (gloss_black, "board1.msh"));
-  scene.add (new Mesh (ivory, "board2.msh"));
-  scene.add (new Mesh (brown, "board3.msh"));
+  add_chessboard (scene);
 
   unsigned lighting  = (num / 10) % 10;
   num = (num % 10);
@@ -751,7 +742,7 @@ def_scene_cornell_box (const string &name, unsigned num,
       light_z += scale * 0.2;
 
       const Material *crystal
-	= scene.add (new Glass (Medium (Color (0.8, 0.8, 0.4), 1.35), 0.9, 0.1));
+	= scene.add (new Glass (Medium (.9, 1.5)));
       const Material *silver
 	= scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
 
@@ -969,22 +960,18 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   camera.set_vert_fov (M_PI_4);
 
   const Material *red;
-
   if (variant == 0)
     red = scene.add (new Material (Color (1, 0, 0))); // original, flat red
   else
     red = scene.add (new Mirror (1.5, 0.1, Color (.5, 0, 0),
 				 cook_torrance (0.5, 0.1, 1.5))); // glossy red
 
-  const Material *gray = scene.add (new Material (Color (0.6, 0.6, 0.6)));
-
   // Add bunny.  For variant 0, we use the original unsmoothed appearance;
   // for everythign else we do smoothing.
   //
   scene.add (new Mesh (red, "bunny500.msh", Xform::identity, (variant > 0)));
   
-  // ground
-  add_rect (scene, gray, Pos (-10, -0.65, -10), Vec (20, 0, 0), Vec (0, 0, 20));
+  add_chessboard (scene);
   
   switch ((variant / 10) % 10)
     {
@@ -1193,8 +1180,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
 	= scene.add (new Mirror (5, Color (0.05, 0.2, 0.05),
 				 Color (0, 0.1, 0), phong (0.9, 1000)));
       const Material *glass
-	= scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0,
-				phong (0.01, 2000)));
+	= scene.add (new Glass (Medium (0.95, 1.5)));
 
       scene.add (new Sphere (shiny_red, Pos (3.2, -2.2 + 0.3, 4.2), 0.3));
       scene.add (new Sphere (shiny_green, Pos (3.6, -2.2 + 0.1, 4.5), 0.1));
@@ -1354,58 +1340,82 @@ static void
 def_scene_mesh (const string &name, unsigned num,
 		 Scene &scene, Camera &camera)
 {
-  unsigned lighting  = (num / 100) % 10;
-  unsigned angle     = (num / 10)  % 10;
+  unsigned base  = (num / 100) % 10;
+  unsigned lighting  = (num / 10) % 10;
   num %= 10;
 
-  switch (angle)
-    {
-    case 0:
-    default:
-      camera.move (Pos (1, 1, 0.5));
-      break;
-
-    case 1:
-      camera.move (Pos (1, 0.5, 0.5));
-      break;
-
-    case 2:
-      camera.move (Pos (5, 3, 3));
-      break;
-    }
-
+  camera.move (Pos (1, 1, 0.5));
   camera.point (Pos (0, 0.3, 0), Vec (0, 1, 0));
-  camera.set_vert_fov (M_PI_4);
+  camera.set_horiz_fov (M_PI_4);
 
-  const Material *gloss_green
-    = scene.add (new Mirror (2, 0.1, Color (0, .5, 0), phong (.5, 500)));
+  const Material *jade
+    = scene.add (new Material (Color (0.3, 0.6, 0.3),
+			       cook_torrance (0.4, 0.1, 2)));
+  const Material *blue
+    = scene.add (new Material (Color (0.3, 0.3, 0.6),
+			       cook_torrance (0.4, 0.3, 4)));
   const Material *glass
-    = scene.add (new Glass (Medium (0.95, 1.5), 0.1, 0.01, phong (1.5, 2000)));
+    = scene.add (new Glass (Medium (0.99, 1.5)));
+  const Material *silver
+    = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
+			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+  const Material *matte_silver
+    = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *floor_mat
-    = scene.add (new Material (Color (0.3, 0.2, 0.2), phong (200, 2))); // grey
+    = scene.add (new Material (Color (0.3, 0.2, 0.2),
+			       cook_torrance (0.5, 0.2, Ior (1, 1))));
 
   const Material *obj_mat;
   switch (num)
     {
     case 0:
     default:
-      obj_mat = gloss_green;
-      break;
-
+      obj_mat = jade; break;
     case 1:
-      obj_mat = glass;
-      break;
+      obj_mat = glass; break;
+    case 2:
+      obj_mat = silver; break;
+    case 3:
+      obj_mat = matte_silver; break;
+    case 4:
+      obj_mat = blue; break;
     }
 
   Xform xform;
-  xform.scale (1, 1, -1); // flip z-axis
+#if 1
+  xform.scale (1, 1, -1);	// flip z-axis
   xform.scale (4);
   xform.rotate_y (-M_PI_2);
-  xform.translate (0, -0.15, 0);
+  xform.translate (0, -0.212, 0);
+#else
+  xform.rotate_x (-M_PI_2);
+#endif
 
   scene.add (new Mesh (obj_mat, "+test.msh", xform, true));
-  
-  add_rect (scene, floor_mat, Pos (-10, 0, -10), Vec(20, 0, 0), Vec(0, 0, 20));
+
+  switch (base)
+    {
+    case 0:
+    default:
+      add_cube (scene, floor_mat, Pos (-0.5, 0, -0.5),
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
+      add_chessboard (scene, Vec (0, -0.2, 0));
+      break;
+
+    case 1:
+      add_chessboard (scene);
+      break;
+
+    case 2:
+      add_cube (scene, floor_mat, Pos (-0.5, 0, -0.5),
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
+      break;
+
+    case 3:
+      add_cube (scene, floor_mat, Pos (-2, 0, -2),
+		Vec (4, 0, 0), Vec (0, 0, 4), Vec (0, 1, 0));
+      break;
+    }
 
   switch (lighting)
     {
@@ -1418,11 +1428,19 @@ def_scene_mesh (const string &name, unsigned num,
       break;
 
     case 2:
-      add_rect_bulb (scene, Pos (-7, 6, -7), Vec (14, 0, 0), Vec (0, 0, 14), 5);
+      add_rect_bulb (scene, Pos (-7, 5, -7), Vec (14, 0, 0), Vec (0, 0, 14), 2);
       break;
 
     case 3:
-      add_rect_bulb (scene, Pos (-8, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 5);
+      add_rect_bulb (scene, Pos (-7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
+      break;
+
+    case 8:
+      add_deb_lights (DEB_GRACE, 1, scene);
+      break;
+
+    case 9:
+      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
 }
