@@ -40,27 +40,29 @@ public:
   typedef std::map<MPos, unsigned> VertexGroup;
   typedef std::map<std::pair<MPos, MVec>, unsigned> VertexNormalGroup;
 
-  Mesh (const Material *mat) : PrimarySurface (mat), triangles (0, *this) { }
+  Mesh (const Material *mat)
+    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
+  { }
 
-  // All-in-one constructor for loading a mesh from a file.
+  // All-in-one constructor for loading a mesh from FILE_NAME.
   //
   Mesh (const Material *mat, const std::string &file_name,
 	const Xform &xform = Xform::identity, bool smooth = false)
-    : PrimarySurface (mat), triangles (0, *this)
+    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
   {
     load (file_name, xform);
     if (smooth)
       compute_vertex_normals ();
   }
-  Mesh (const Material *mat, const std::string &file_name, const Xform &xform,
-	const std::string &mat_name)
-    : PrimarySurface (mat), triangles (0, *this)
+  Mesh (const Material *mat, const std::string &file_name,
+	const Xform &xform, const std::string &mat_name)
+    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
   {
     load (file_name, xform, mat_name);
   }
   Mesh (const Material *mat, const std::string &file_name,
 	const Xform &xform, const char *mat_name)
-    : PrimarySurface (mat), triangles (0, *this)
+    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
   {
     load (file_name, xform, mat_name);
   }
@@ -69,7 +71,7 @@ public:
   //
   Mesh (const Material *mat, const Tessel::Function &tessel_fun,
 	const Tessel::MaxErrCalc &max_err, bool smooth = false)
-    : PrimarySurface (mat), triangles (0, *this)
+    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
   {
     add (tessel_fun, max_err, smooth);
   }
@@ -100,9 +102,11 @@ public:
 
   // For loading mesh from any file-type (automatically determined)
   //
-  void load (const char *file_name, const Xform &xform = Xform::identity,
+  void load (const char *file_name,
+	     const Xform &xform = Xform::identity,
 	     const std::string &mat_name = "");
-  void load (const std::string &file_name, const Xform &xform = Xform::identity,
+  void load (const std::string &file_name,
+	     const Xform &xform = Xform::identity,
 	     const std::string &mat_name = "")
   {
     load (file_name.c_str (), xform, mat_name);
@@ -212,7 +216,8 @@ public:
     //
     const Vec raw_normal_unscaled () const
     {
-      return cross (v(1) - v(0), v(2) - v(1));
+      const MVec e1 = v(1) - v(0), e2 = v(2) - v(0);
+      return mesh.left_handed ? cross (e2, e1) : cross (e1, e2);
     }
     const Vec raw_normal () const
     {
@@ -227,11 +232,24 @@ public:
   };
 
   // A list of vertices used in this part.
+  //
   std::vector<MPos> vertices;
   std::vector<MVec> vertex_normals;
 
   // A vector of Mesh::Triangle surfaces that use this part.
+  //
   std::vector<Triangle> triangles;
+
+  // Whether this mesh uses left-handed or right-handed conventions by
+  // default -- basically whether the triangle vertices are in a
+  // counter-clockwise or clockwise order, when the normal is coming
+  // towards the viewer.  This affects normal calculations.
+  //
+  // Snogray uses a left-handed coordinate system, but meshes read from
+  // an external file may be from a system with different conventions,
+  // and need to have their normals reversed.
+  //
+  bool left_handed;
 };
 
 }
