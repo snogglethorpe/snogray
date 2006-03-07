@@ -330,7 +330,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
 
   Mesh *bunny = new Mesh (goldbunny ? gold : crystal);
   if (num / 10 == 1)
-    bunny->load ("+bunny69451.msh", Xform().scale(10).translate(0,-1,0));
+    bunny->load ("+bunny69451.msh", Xform().scale(10).translate(0,-0.35,0));
   else
     bunny->load ("bunny500.msh", Xform().translate(0, 0.65, 0));
   bunny->compute_vertex_normals ();
@@ -342,7 +342,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   scene.add (new Sphere (green,  Pos (2.5, 0.40, -7.0), 0.40));
   scene.add (new Sphere (yellow, Pos (0.3, 0.40, -2.5), 0.40));
 
-  add_chessboard (scene);
+  add_chessboard (scene, 2);
   
   switch (num % 10)
     {
@@ -1361,9 +1361,15 @@ def_scene_mesh (const string &name, unsigned num,
 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *matte_silver
     = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, Ior (0.25, 3))));
-  const Material *floor_mat
+  const Material *grey
     = scene.add (new Material (Color (0.3, 0.2, 0.2),
 			       cook_torrance (0.5, 0.2, Ior (1, 1))));
+  const Material *dull_grey
+    = scene.add (new Material (Color (0.2, 0.2, 0.2),
+			       cook_torrance (0.8, 0.5, 5)));
+  const Material *mirror
+    = scene.add (new Mirror (Ior (0.25, 3), 0.95));
+    
 
   const Material *obj_mat;
   switch (num)
@@ -1379,6 +1385,10 @@ def_scene_mesh (const string &name, unsigned num,
       obj_mat = matte_silver; break;
     case 4:
       obj_mat = blue; break;
+    case 5:
+      obj_mat = dull_grey; break;
+    case 6:
+      obj_mat = mirror; break;
     }
 
   Xform xform;
@@ -1397,7 +1407,7 @@ def_scene_mesh (const string &name, unsigned num,
     {
     case 0:
     default:
-      add_cube (scene, floor_mat, Pos (-0.5, 0, -0.5),
+      add_cube (scene, grey, Pos (-0.5, 0, -0.5),
 		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
       add_chessboard (scene, Vec (0, -0.2, 0));
       break;
@@ -1407,13 +1417,13 @@ def_scene_mesh (const string &name, unsigned num,
       break;
 
     case 2:
-      add_cube (scene, floor_mat, Pos (-0.5, 0, -0.5),
+      add_cube (scene, grey, Pos (-0.5, 0, -0.5),
 		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
       break;
 
     case 3:
-      add_cube (scene, floor_mat, Pos (-2, 0, -2),
-		Vec (4, 0, 0), Vec (0, 0, 4), Vec (0, 1, 0));
+      add_cube (scene, grey, Pos (-2, 0, -2),
+		Vec (4, 0, 0), Vec (0, 0, 4), Vec (0, -1, 0));
       break;
     }
 
