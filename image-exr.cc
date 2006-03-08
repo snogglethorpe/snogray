@@ -46,7 +46,7 @@ ExrImageSink::write_row (const ImageRow &row)
   for (unsigned x = 0; x < row.width; x++)
     {
       const Color &col = row[x];
-      Imf::Rgba rgba (col.r, col.g, col.b, 1);
+      Imf::Rgba rgba (col.r(), col.g(), col.b(), 1);
       row_buf[x] = rgba;
     }
 
@@ -113,11 +113,8 @@ ExrImageSource::read_row (ImageRow &row)
 
   for (unsigned x = 0; x < row.width; x++)
     {
-      Color &col = row[x];
       const Imf::Rgba &rgba = row_buf[x];
-      col.r = rgba.r;
-      col.g = rgba.g;
-      col.b = rgba.b;
+      row[x].set_rgb (rgba.r, rgba.g, rgba.b);
     }
 
   cur_y++;

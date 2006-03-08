@@ -36,9 +36,9 @@ ByteVecImageSink::write_row (const ImageRow &row)
   for (unsigned x = 0; x < width; x++)
     {
       const Color &col = row[x];
-      *p++ = color_component_to_byte (col.r);
-      *p++ = color_component_to_byte (col.g);
-      *p++ = color_component_to_byte (col.b);
+      *p++ = color_component_to_byte (col.r ());
+      *p++ = color_component_to_byte (col.g ());
+      *p++ = color_component_to_byte (col.b ());
     }
 
   write_row (output_row);

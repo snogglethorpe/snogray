@@ -17,6 +17,14 @@
 
 namespace Snogray {
 
+// A color.
+//
+// This class is currently defined in terms of R/G/B components, but
+// designed to be used abstractly for the most part (in the future, some
+// other representation might be used).  To this end, many standard math
+// operators work on colors directly (usually treating each component
+// independently).
+//
 class Color
 {
 public:
@@ -24,11 +32,11 @@ public:
 
   static const Color black, white, funny;
 
-  Color () : r (0), g (0), b (0) { }
-  Color (component_t _r, component_t _g, component_t _b)
-    : r (_r), g (_g), b (_b)
+  Color () : _r (0), _g (0), _b (0) { }
+  Color (component_t r, component_t g, component_t b)
+    : _r (r), _g (g), _b (b)
   { }
-  template<typename S> Color (S grey) : r (grey), g (grey), b (grey) { }
+  template<typename S> Color (S grey) : _r (grey), _g (grey), _b (grey) { }
 
   friend Color operator* (const Color &col1, const Color &filter);
   friend Color operator/ (const Color &col1, const Color &filter);
@@ -40,60 +48,69 @@ public:
 
   void operator+= (const Color &col2)
   {
-    r += col2.r;
-    g += col2.g;
-    b += col2.b;
+    _r += col2._r;
+    _g += col2._g;
+    _b += col2._b;
   }
   void operator-= (const Color &col2)
   {
-    r -= col2.r;
-    g -= col2.g;
-    b -= col2.b;
+    _r -= col2._r;
+    _g -= col2._g;
+    _b -= col2._b;
   }
   void operator*= (const Color &filter)
   {
-    r *= filter.r;
-    g *= filter.g;
-    b *= filter.b;
+    _r *= filter._r;
+    _g *= filter._g;
+    _b *= filter._b;
   }
   void operator/= (const Color &filter)
   {
-    r /= filter.r;
-    g /= filter.g;
-    b /= filter.b;
+    _r /= filter._r;
+    _g /= filter._g;
+    _b /= filter._b;
   }
 
   // Doesn't make much sense physically, of course, but useful for some
   // formulas.
   //
-  Color operator- () const { return Color (-r, -g, -b); }
+  Color operator- () const { return Color (-_r, -_g, -_b); }
 
-  float intensity () const { return (r + g + b) / 3; }
+  float intensity () const { return (_r + _g + _b) / 3; }
 
   Color clamp (float max_intens) const
   {
-    return Color (std::min (r, max_intens),
-		  std::min (g, max_intens),
-		  std::min (b, max_intens));
+    return Color (std::min (_r, max_intens),
+		  std::min (_g, max_intens),
+		  std::min (_b, max_intens));
   }
   Color clamp (float min_intens, float max_intens) const
   {
-    return Color (std::min (std::max (r, min_intens), max_intens),
-		  std::min (std::max (g, min_intens), max_intens),
-		  std::min (std::max (b, min_intens), max_intens));
+    return Color (std::min (std::max (_r, min_intens), max_intens),
+		  std::min (std::max (_g, min_intens), max_intens),
+		  std::min (std::max (_b, min_intens), max_intens));
   }
 
   Color pow (float exp) const
   {
-    return Color (powf (r, exp), powf (g, exp), powf (b, exp));
+    return Color (powf (_r, exp), powf (_g, exp), powf (_b, exp));
   }
 
-  component_t r, g, b;
+  component_t r () const { return _r; }
+  component_t g () const { return _g; }
+  component_t b () const { return _b; }
+
+  void set_rgb (component_t r, component_t g, component_t b)
+  {
+    _r = r; _g = g; _b = b;
+  }
+
+  component_t _r, _g, _b;
 };
 
 inline bool operator== (const Color &col1, const Color &col2)
 {
-  return col1.r == col2.r && col1.g == col2.g && col1.b == col2.b;
+  return col1._r == col2._r && col1._g == col2._g && col1._b == col2._b;
 }
 inline bool operator!= (const Color &col1, const Color &col2)
 {
@@ -102,7 +119,7 @@ inline bool operator!= (const Color &col1, const Color &col2)
 
 inline bool operator> (const Color &col1, const Color &col2)
 {
-  return (col1.r + col1.g + col1.b) > (col2.r + col2.g + col2.b);
+  return (col1._r + col1._g + col1._b) > (col2._r + col2._g + col2._b);
 }
 inline bool operator<= (const Color &col1, const Color &col2)
 {
@@ -111,7 +128,7 @@ inline bool operator<= (const Color &col1, const Color &col2)
 
 inline bool operator< (const Color &col1, const Color &col2)
 {
-  return (col1.r + col1.g + col1.b) < (col2.r + col2.g + col2.b);
+  return (col1._r + col1._g + col1._b) < (col2._r + col2._g + col2._b);
 }
 inline bool operator>= (const Color &col1, const Color &col2)
 {
@@ -121,30 +138,30 @@ inline bool operator>= (const Color &col1, const Color &col2)
 
 inline Color operator+ (const Color &col1, const Color &col2)
 {
-  return Color (col1.r + col2.r, col1.g + col2.g, col1.b + col2.b);
+  return Color (col1._r + col2._r, col1._g + col2._g, col1._b + col2._b);
 }
 inline Color operator- (const Color &col1, const Color &col2)
 {
-  return Color (col1.r - col2.r, col1.g - col2.g, col1.b - col2.b);
+  return Color (col1._r - col2._r, col1._g - col2._g, col1._b - col2._b);
 }
 inline Color operator* (const Color &col1, const Color &filter)
 {
-  return Color (col1.r * filter.r, col1.g * filter.g, col1.b * filter.b);
+  return Color (col1._r * filter._r, col1._g * filter._g, col1._b * filter._b);
 }
 inline Color operator/ (const Color &col1, const Color &filter)
 {
-  return Color (col1.r / filter.r, col1.g / filter.g, col1.b / filter.b);
+  return Color (col1._r / filter._r, col1._g / filter._g, col1._b / filter._b);
 }
 
 inline Color pow (const Color &base, const Color &exp)
 {
-  return Color (powf (base.r, exp.r),
-		powf (base.g, exp.g),
-		powf (base.b, exp.b));
+  return Color (powf (base._r, exp._r),
+		powf (base._g, exp._g),
+		powf (base._b, exp._b));
 }
 inline Color log (const Color &col)
 {
-  return Color (logf (col.r), logf (col.g), logf (col.b));
+  return Color (logf (col._r), logf (col._g), logf (col._b));
 }
 
 

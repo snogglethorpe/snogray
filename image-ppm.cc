@@ -94,9 +94,9 @@ PpmImageSink::write_row (const ImageRow &row)
     {
       const Color &col = row[x];
       PPM_ASSIGN (output_row[x],
-		  color_component_to_pixval (col.r),
-		  color_component_to_pixval (col.g),
-		  color_component_to_pixval (col.b));
+		  color_component_to_pixval (col.r()),
+		  color_component_to_pixval (col.g()),
+		  color_component_to_pixval (col.b()));
     }
 
   ppm_writeppmrow (stream, output_row, width, max_pixval, force_plain);
@@ -194,10 +194,14 @@ PpmImageSource::read_row (ImageRow &row)
 
   for (unsigned x = 0; x < width; x++)
     {
-      Color &col = row[x];
-      col.r = pixval_to_color_component (PPM_GETR (input_row[x]));
-      col.g = pixval_to_color_component (PPM_GETG (input_row[x]));
-      col.b = pixval_to_color_component (PPM_GETB (input_row[x]));
+      Color::component_t r
+	= pixval_to_color_component (PPM_GETR (input_row[x]));
+      Color::component_t g
+	= pixval_to_color_component (PPM_GETG (input_row[x]));
+      Color::component_t b
+	= pixval_to_color_component (PPM_GETB (input_row[x]));
+
+      row[x].set_rgb (r, g, b);
     }
 }
 

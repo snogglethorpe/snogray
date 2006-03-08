@@ -100,9 +100,9 @@ PfmImageSink::write_row (const ImageRow &row)
     {
       const Color &col = row[x];
 
-      *p++ = col.r;
-      *p++ = col.g;
-      *p++ = col.b;
+      *p++ = col.r();
+      *p++ = col.g();
+      *p++ = col.b();
     }
 
   next_y++;
@@ -202,11 +202,10 @@ PfmImageSource::read_row (ImageRow &row)
 
   for (unsigned x = 0; x < row.width; x++)
     {
-      Color &col = row[x];
-
-      col.r = maybe_byte_swap (*p++);
-      col.g = maybe_byte_swap (*p++);
-      col.b = maybe_byte_swap (*p++);
+      float r = maybe_byte_swap (*p++);
+      float g = maybe_byte_swap (*p++);
+      float b = maybe_byte_swap (*p++);
+      row[x].set_rgb (r, g, b);
     }
 
   next_y++;
