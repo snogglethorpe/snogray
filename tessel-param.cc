@@ -102,13 +102,13 @@ SphereTesselFun::define_basis (Tessel &tessel) const
   const Vertex *mid2 = add_vertex (tessel, 0, 2 * M_PI / 3);
   const Vertex *mid3 = add_vertex (tessel, 0, 4 * M_PI / 3);
   
-  add_cell (tessel, p1, mid2, mid1);
-  add_cell (tessel, p1, mid3, mid2);
-  add_cell (tessel, p1, mid1, mid3);
+  add_cell (tessel, p1, mid1, mid2);
+  add_cell (tessel, p1, mid2, mid3);
+  add_cell (tessel, p1, mid3, mid1);
   
-  add_cell (tessel, p2, mid1, mid2);
-  add_cell (tessel, p2, mid2, mid3);
-  add_cell (tessel, p2, mid3, mid1);
+  add_cell (tessel, p2, mid2, mid1);
+  add_cell (tessel, p2, mid3, mid2);
+  add_cell (tessel, p2, mid1, mid3);
 }
 
 // Add to TESSEL and return a new vertex which is on this function's
@@ -205,9 +205,9 @@ SincTesselFun::define_basis (Tessel &tessel) const
   const V *c2   = add_vertex (tessel, 1, 2 * M_PI / 3);
   const V *c3   = add_vertex (tessel, 1, 4 * M_PI / 3);
 
-  add_cell (tessel, c1, mid, c2);
-  add_cell (tessel, c2, mid, c3);
-  add_cell (tessel, c3, mid, c1);
+  add_cell (tessel, c2, mid, c1);
+  add_cell (tessel, c3, mid, c2);
+  add_cell (tessel, c1, mid, c3);
 }
 
 // Add to TESSEL and return a new vertex which is on this function's
@@ -304,8 +304,8 @@ TorusTesselFun::define_basis (Tessel &tessel) const
       {
 	unsigned next_r = (r + 1) % 3;
 	unsigned next_v = (v + 1) % 3;
-	add_cell (tessel, verts[r][v], verts[r][next_v], verts[next_r][next_v]);
-	add_cell (tessel, verts[r][v], verts[next_r][next_v], verts[next_r][v]);
+	add_cell (tessel, verts[r][v], verts[next_r][next_v], verts[r][next_v]);
+	add_cell (tessel, verts[r][v], verts[next_r][v], verts[next_r][next_v]);
       }
 }
 
