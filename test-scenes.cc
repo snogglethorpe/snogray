@@ -200,10 +200,8 @@ def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
 //   Material *mat3 = scene.add (Material::phong (Color (0.1, 0.1, 0.1),  400));
 //   const Material *mat1
 //     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
-  const Material *crystal
-    = scene.add (new Glass (Medium (0.97, 1.8)));
-  const Material *silver
-    = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
+  const Material *crystal = scene.add (new Glass (1.8));
+  const Material *silver = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
   const Material *mat1 = crystal, *mat2 = silver;
   const Material *mat3
     = scene.add (new Material (Color (0.8, 0, 0), phong (0.2, 400)));
@@ -323,8 +321,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
   const Material *green
     = scene.add (new Material (Color (0, 0.5, 0),
 			       cook_torrance (0.5, 0.1)));
-  const Material *glass
-    = scene.add (new Glass (Medium (0.99, 1.5)));
+  const Material *glass = scene.add (new Glass (1.5));
   const Material *gold
     = scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
 			     cook_torrance (Color (1, 1, 0.3), 0,
@@ -402,8 +399,7 @@ def_scene_teapot (const string &name, unsigned num,
   const Material *gloss_blue
     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
-  const Material *glass
-    = scene.add (new Glass (Medium (0.99, 1.5)));
+  const Material *glass = scene.add (new Glass (1.5));
 
   const Material *teapot_mat = 0;
   switch ((num / 1000) % 10)
@@ -551,8 +547,7 @@ def_scene_teapot (const string &name, unsigned num,
     {
       const Material *orange
 	= scene.add (new Material (Color (0.6,0.5,0.05), cook_torrance (0.4, 0.1)));
-      const Material *glass
-	= scene.add (new Glass (Medium (0.98, 1.3)));
+      const Material *glass = scene.add (new Glass (1.5));
       const Material *gold
 	= scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
 				 cook_torrance (Color (1, 1, 0.3), 0,
@@ -636,8 +631,7 @@ def_scene_orange (const string &name, unsigned num,
 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *orange
     = scene.add (new Material (Color (0.6, 0.5, 0.05), phong (0.4, 250)));
-  const Material *glass
-    = scene.add (new Glass (Medium (0.99, 1.5)));
+  const Material *glass = scene.add (new Glass (1.5));
 
   add_chessboard (scene);
 
@@ -744,8 +738,7 @@ def_scene_cornell_box (const string &name, unsigned num,
       fill_light = false;
       light_z += scale * 0.2;
 
-      const Material *glass
-	= scene.add (new Glass (Medium (0.99, 1.5)));
+      const Material *glass = scene.add (new Glass (1.5));
       const Material *metal
 	= scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.2,
 				 cook_torrance (0.8, 0.3, Ior (0.25, 3))));
@@ -1196,8 +1189,7 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
 //       const Material *shiny_green
 // 	= scene.add (new Mirror (5, Color (0.05, 0.2, 0.05),
 // 				 Color (0, 0.1, 0), phong (0.9, 1000)));
-      const Material *glass
-	= scene.add (new Glass (Medium (0.95, 1.5)));
+      const Material *glass = scene.add (new Glass (1.5));
 
       scene.add (new Sphere (shiny_red, Pos (3.2, -2.2 + 0.3, 4.2), 0.3));
       scene.add (new Sphere (shiny_green, Pos (3.6, -2.2 + 0.1, 4.5), 0.1));
@@ -1367,8 +1359,7 @@ def_scene_mesh (const string &name, unsigned num,
   const Material *blue
     = scene.add (new Material (Color (0.3, 0.3, 0.6),
 			       cook_torrance (0.4, 0.3, 4)));
-  const Material *glass
-    = scene.add (new Glass (Medium (0.99, 1.5)));
+  const Material *glass = scene.add (new Glass (1.5));
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));

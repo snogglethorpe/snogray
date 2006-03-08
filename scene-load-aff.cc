@@ -21,6 +21,7 @@
 // to load both.
 //
 
+#include <cmath>
 #include <fstream>
 #include <string>
 
@@ -52,9 +53,13 @@ using namespace std;
 //
 #define AFF_PHONG_ADJ			1
 
-// Filtering effect of transparent surfaces
+// Snogray defines the filtering effect of transparent surfaces in terms of
+// absorption of the contained volume, rather than a surface filtering term
+// (as is more typical, and used by NFF files).  This constant defines a
+// scaling factor for the absorption calculated from the NFF transmittance
+// value.
 //
-#define AFF_MEDIUM_TRANSMITTANCE	1
+#define AFF_MEDIUM_ABSORPTION		10
 
 // The index of refraction we use for reflective objects.
 //
@@ -354,8 +359,11 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 
 	  if (transmittance > Eps)
 	    cur_material
-	      = new Glass (Medium (transmittance * AFF_MEDIUM_TRANSMITTANCE,
-				   ior));
+	      = new Glass (
+		      Medium (ior,
+			      AFF_MEDIUM_ABSORPTION
+			      * -log (max (0.00001f,
+					   min (transmittance, 1.f)))));
 	  else if (specular.intensity() > Eps)
 	    cur_material = new Mirror (AFF_MIRROR_IOR, specular, diffuse, brdf);
 	  else
