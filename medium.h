@@ -26,7 +26,7 @@ public:
   // _IOR is this medium's index of refraction, _ABSORB is its absorption
   // coefficient (decrease in intensity per unit length).
   //
-  Medium (float _ior = 1, const Color _absorb = 0)
+  Medium (float _ior = 1, const Color &_absorb = 0)
     : ior (_ior), absorption (_absorb)
   { }
 

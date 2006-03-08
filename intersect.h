@@ -32,7 +32,7 @@ class Intersect
 public:
 
   Intersect (const Ray &_ray, const Surface *_surface,
-	     const Pos _point, const Vec _normal, bool _back,
+	     const Pos &_point, const Vec &_normal, bool _back,
 	     Trace &_trace, const void *_smoothing_group = 0);
 
   // For surfaces with non-interpolated normals, we can calculate
@@ -40,7 +40,7 @@ public:
   // also have a zero smoothing group, so we omit that parameter.
   //
   Intersect (const Ray &_ray, const Surface *_surface,
-	     const Pos _point, const Vec _normal, Trace &_trace);
+	     const Pos &_point, const Vec &_normal, Trace &_trace);
 
   // Calculate the outgoing radiance from this intersection.
   //

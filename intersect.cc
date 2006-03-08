@@ -24,7 +24,7 @@ using namespace Snogray;
 
 
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Pos _point, const Vec _normal, bool _back,
+		      const Pos &_point, const Vec &_normal, bool _back,
 		      Trace &_trace, const void *_smoothing_group)
   : ray (_ray), surface (_surface),
     point (_point), normal (_back ? -_normal : _normal), back (_back),
@@ -39,7 +39,7 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 // also have a zero smoothing group, so we omit that parameter.
 //
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Pos _point, const Vec _normal, Trace &_trace)
+		      const Pos &_point, const Vec &_normal, Trace &_trace)
   : ray (_ray), surface (_surface),
     point (_point), normal (_normal), back (dot (normal, _ray.dir) > 0),
     viewer (-_ray.dir), nv (dot (viewer, normal)),
