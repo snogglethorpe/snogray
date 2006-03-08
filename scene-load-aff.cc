@@ -168,6 +168,10 @@ MeshState::read_polygon (istream &stream, const Material *mat,
   if (! mesh)
     mesh = new Mesh (mat);
 
+  // NFF files use a right-handed coordinate system.
+  //
+  mesh->left_handed = false;
+
   vector<unsigned> verts;
 
   for (unsigned i = 0; i < num_vertices; i++)
