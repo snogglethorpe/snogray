@@ -17,35 +17,85 @@
 
 namespace Snogray {
 
-// Material implementing perfect specular reflectance.
+// This is a BRDF used to eliminate specular reflection before calling a
+// Mirror object's underlying "undercoat" BRDF.
+//
+class MirrorCoating : public Brdf
+{
+public:
+
+  MirrorCoating (const Ior &_ior, const Color &_reflectance,
+		 const Brdf *_underlying_brdf = 0)
+    : ior (_ior), reflectance (_reflectance),
+      underlying_brdf (_underlying_brdf)
+  { }
+
+  // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
+  // For best results, they should be distributed according to the BRDF's
+  // importance function.
+  //
+  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
+    const;
+
+  // Modify the value of each of the light-samples in SAMPLES according to
+  // the BRDF's reflectivity in the sample's direction.
+  //
+  virtual void filter_samples (const Intersect &isec, SampleRayVec &samples,
+			       SampleRayVec::iterator from,
+			       SampleRayVec::iterator to)
+    const;
+
+  // Remove from SAMPLES any light reflected by perfect specular reflection.
+  //
+  void remove_specular_reflection (const Intersect &isec,
+				   SampleRayVec &samples,
+				   SampleRayVec::iterator from,
+				   SampleRayVec::iterator to)
+    const;
+
+  // Index of refraction for calculating fresnel reflection term.
+  //
+  Ior ior;
+
+  // Amount of light reflected (further modulated by a fresnel reflection
+  // term using IOR).
+  //
+  Color reflectance;
+
+  // BRDF underlying the mirror coating, which does the real work.
+  // This may be zero, for perfectly black surfaces.
+  //
+  const Brdf *underlying_brdf;
+};
+
+// A Material implementing perfect specular reflection.  It is structured
+// as a specularly reflecting layer on top of an arbitrary BRDF to handle
+// any light that gets throught the reflecting layer.  The reflecting layer
+// may be a dielectic (like glass) with a non-complex index of refraction,
+// in which case it will only reflect at some angles, or a conductor (whose
+// index of refraction will also have an an extinction coefficient k),
+// which will reflect at all angles.
 //
 class Mirror : public Material
 {
 public:
 
   Mirror (const Ior &_ior, const Color &_reflectance,
-	  const Color &col, const Brdf *brdf)
-    : Material (col, brdf), reflectance (_reflectance), ior (_ior)
+	  const Color &col, const Brdf *underlying_brdf)
+    : Material (col, &mirror_coating),
+      mirror_coating (_ior, _reflectance, underlying_brdf)
   { }
   Mirror (const Ior &_ior, const Color &_reflectance,
 	  const Color &col = Color::black)
-    : Material (col), reflectance (_reflectance), ior (_ior)
+    : Material (col, &mirror_coating),
+      mirror_coating (_ior, _reflectance, col < Eps ? 0 : lambert)
   { }
 
   virtual Color render (const Intersect &isec) const;
 
-  // Renders only the reflection about ISEC, without adding in other components
+  // This is the MirrorCoating BRDF used to filter the underlying BRDF.
   //
-  Color reflection (const Intersect &isec) const;
-
-  // Amount/color of light reflected; anything else will be passed to the
-  // underlying BRDF.
-  //
-  Color reflectance;
-
-  // Index of refraction for calculating Fresnel reflection
-  //
-  Ior ior;
+  MirrorCoating mirror_coating;
 };
 
 }
