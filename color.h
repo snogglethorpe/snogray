@@ -63,19 +63,26 @@ public:
     b /= filter.b;
   }
 
+  // Doesn't make much sense physically, of course, but useful for some
+  // formulas.
+  //
+  Color operator- () const { return Color (-r, -g, -b); }
+
   float intensity () const { return (r + g + b) / 3; }
 
   Color clamp (float max_intens) const
   {
-    component_t _r = r, _g = g, _b = b;
-    if (_r > max_intens)
-      _r = max_intens;
-    if (_g > max_intens)
-      _g = max_intens;
-    if (_b > max_intens)
-      _b = max_intens;
-    return Color (_r, _g, _b);
+    return Color (std::min (r, max_intens),
+		  std::min (g, max_intens),
+		  std::min (b, max_intens));
   }
+  Color clamp (float min_intens, float max_intens) const
+  {
+    return Color (std::min (std::max (r, min_intens), max_intens),
+		  std::min (std::max (g, min_intens), max_intens),
+		  std::min (std::max (b, min_intens), max_intens));
+  }
+
   Color pow (float exp) const
   {
     return Color (powf (r, exp), powf (g, exp), powf (b, exp));
@@ -128,6 +135,18 @@ inline Color operator/ (const Color &col1, const Color &filter)
 {
   return Color (col1.r / filter.r, col1.g / filter.g, col1.b / filter.b);
 }
+
+inline Color pow (const Color &base, const Color &exp)
+{
+  return Color (powf (base.r, exp.r),
+		powf (base.g, exp.g),
+		powf (base.b, exp.b));
+}
+inline Color log (const Color &col)
+{
+  return Color (logf (col.r), logf (col.g), logf (col.b));
+}
+
 
 extern std::ostream& operator<< (std::ostream &os, const Snogray::Color &col);
 
