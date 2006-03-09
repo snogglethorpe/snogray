@@ -222,16 +222,24 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params,
       norm += vnorm(2) * isec_params.v;
 
       // If the interpolated normal is pointing in (roughly) the same
-      // direction as RAY, it means the interpolation has interpolated past
-      // a virtual tangent point on the surface.  In this case there's not
-      // much we can do -- it will look ugly no matter what -- but try to
-      // keep things as sane as possible by clamping the normal at the
-      // point where it's perpendicular to RAY.
+      // direction as RAY, it means normal interpolation has
+      // interpolated past a virtual tangent point on the surface.
       //
-      if (!back && dot (norm, ray.dir) > 0)
+      if (back != dot (norm, ray.dir) > 0)
 	{
+	  // In this case there's not much we can do -- it will look
+	  // ugly no matter what -- but try to keep things as sane as
+	  // possible by clamping the normal at the point where it's
+	  // perpendicular to RAY.
+	  //
 	  Vec cx = cross (norm, ray.dir);
 	  norm = cross (ray.dir, cx);
+
+	  // Now very slightly nudge the resulting "perfectly perpendicular"
+	  // normal back towards the viewer, which will avoid problems
+	  // caused by precision errors pushing it in the other direction.
+	  //
+	  norm -= ray.dir * Eps;
 	}
     }
 
