@@ -272,7 +272,7 @@ SceneDef::load (Scene &scene, Camera &camera)
   catch (runtime_error &err)
     {
       string tag = user_name.empty() ? "<standard input>" : user_name;
-      throw (tag + "Error reading scene: " + err.what ());
+      throw runtime_error (tag + ": Error reading scene: " + err.what ());
     }
 
   // Correct for bogus "gamma correction in lighting"
