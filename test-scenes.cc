@@ -974,7 +974,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   //
   scene.add (new Mesh (red, "bunny500.msh", Xform::identity, (variant > 0)));
   
-  add_chessboard (scene);
+  add_chessboard (scene, Xform::translation (Vec (0, -0.65, 0)));
   
   switch ((variant / 10) % 10)
     {
@@ -1067,24 +1067,24 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
 {
   // Simple colored materials
   //
-  struct SimpleNamedMat { char *name; Color diff; Color spec; float phong_exp;};
+  struct SimpleNamedMat{ char *name; float m; Color diff; Color spec; Ior ior;};
   static const SimpleNamedMat materials[] = {
-    { "Material0",  Color (1.0, 0.8, 0.8), 0, 			    40 },
-    { "Material1",  Color (1.0, 0.7, 0.7), 0, 			    40 },
-    { "Material2",  Color (0.8, 0.2, 0.2), Color (0.8,  0.5,  0.3), 60 },
-    { "Material3",  Color (1.0, 1.0, 0.0), Color (0.9,  0.5,  0.0), 40 },
-    { "Material4",  Color (1.0, 0.6, 0.6), 0, 			    40 },
-    { "Material5",  Color (0.8, 0.2, 0.2), 0, 			    40 },
-    { "Material6",  Color (0.0, 0.0, 1.0), Color (0.3,  0.5,  0.6), 60 },
-    { "Material7",  Color (1.0, 0.2, 0.2), Color (0.6,  0.8,  0.0), 40 },
+    { "Material0",  0,   Color (1.0, 0.8, 0.8), 0, 0 },
+    { "Material1",  0,   Color (1.0, 0.7, 0.7), 0, 0 },
+    { "Material2",  0.2, Color (0.8, 0.2, 0.2), Color (0.2,  0.5,  0.3), 0 },
+    { "Material3",  0.2, Color (0.5, 0.5, 0.0), Color (0.5,  0.2,  0.0), 0 },
+    { "Material4",  0.3, Color (1.0, 0.6, 0.6), 0, 0 },
+    { "Material5",  0.3, Color (0.8, 0.2, 0.2), 0, 0 },
+    { "Material6",  0.2, Color (0.0, 0.0, 0.5), Color (0.2,  0.4,  0.5), 0 },
+    { "Material7",  0.3, Color (0.5, 0.1, 0.1), Color (0.3,  0.4,  0.0), 0 },
     //{ "Material8",  Color (1.0, 1.0, 0.2), Color (0.0, 10.0,  0.0), 40 },
-    { "Material9",  Color (0.0, 1.0, 1.0), Color (0.0,  1.0,  0.0), 40 },
-    { "Material10", Color (0.8, 0.6, 0.2), Color (0.0,  0.6,  0.5), 10 },
-    { "Material11", Color (0.9, 0.0, 0.9), Color (0.0,  0.0, 10.0), 10 },
-    { "Material12", Color (0.2, 0.7, 0.8), Color (0.0,  1.0,  1.0), 10 },
-    { "Material13", Color (0.7, 0.5, 0.5), Color (0.0, 20.0,  0.0), 40 },
-    { "Material14", Color (0.0, 1.0, 0.2), Color (0.0,  0.7, 10.0), 10 },
-    { 0 }
+    { "Material9",  0.3, Color (0.0, 0.5, 0.5), Color (0.0,  0.5,  0.0), 0 },
+    { "Material10", 0.5, Color (0.4, 0.3, 0.1), Color (0.0,  0.5,  0.4), 0 },
+    { "Material11", 0.5, Color (0.5, 0.0, 0.5), Color (0.0,  0.0,  0.5), 0 },
+    { "Material12", 0.5, Color (0.1, 0.35, 0.4), Color (0.0,  0.5, 0.5), 0 },
+    { "Material13", 0.3, Color (0.4, 0.3, 0.3), Color (0.0,  0.5,  0.0), 0 },
+    { "Material14", 0.5, Color (0.0, 0.5, 0.1), Color (0.0,  0.3,  0.5), 0 },
+    { 0, 0, 0, 0, 0 }
   };
   
   // More complex materials
@@ -1092,8 +1092,8 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
   struct NamedMat { char *name; const Material *mat; };
   const NamedMat material_refs[] = {
     { "Material8",		// gold
-      new Mirror (5, Color (0.852, 0.756, 0.12), 0,
-		  phong (Color (1, 1, 0.3), 800)) },
+      new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
+		  cook_torrance (Color (1, 1, 0.3), 0, Ior (0.25, 3))) },
     { 0 }
   };
 
@@ -1105,8 +1105,9 @@ def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera 
       const string msh_file = msh_file_base + "-" + sm->name + msh_file_ext;
 
       const Brdf *brdf
-	= ((sm->spec.intensity() > Eps)
-	   ? (const Brdf *)phong (sm->spec, sm->phong_exp)
+	= (sm->m != 0
+	   ? (const Brdf *)cook_torrance (sm->spec, sm->m,
+					  sm->ior == 0 ? 5 : sm->ior)
 	   : (const Brdf *)lambert);
 
       const Material *mat = scene.add (new Material (sm->diff, brdf));
