@@ -1447,7 +1447,7 @@ def_scene_mesh (const string &name, unsigned num,
       break;
 
     case 3:
-      add_rect_bulb (scene, Pos (-7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
+      add_rect_bulb (scene, Pos (7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
       break;
 
     case 8:
