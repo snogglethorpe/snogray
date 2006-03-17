@@ -1099,4 +1099,51 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:     995
 
 
+   2006-03-15 [work]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-95
+   cmd: snogray test:mesh81 -coy190,od38,mr.28 ../images/sm6.jpg -s1280x1024 -a10 -j -Fbox -b ../cubetexs/grace_cross.exr
+   * adding mesh: 437,645 vertices, 871,414 triangles
+   Scene:
+      scene:            test:mesh81
+      top-level surfaces:        10
+      lights:                     5
+      materials:                 13
+      tree surfaces:      2,259,819 (61% duplicates)
+      tree nodes:         1,289,362 (36% leaves)
+      tree avg depth:             6
+      tree max depth:            59
+   Image:
+      size:             1280 x 1024
+      aa_factor:                 10
+      aa_kernel_size:            10
+      aa_filter:                box
+
+   rendering: done                                                     ..
+
+   Rendering stats:
+     intersect:
+	rays:                 998,266,762
+	horizon hint hits:    136,739,969 (13%)
+	horizon hint misses:  616,999,550 (61%)
+	tree node tests:   95,387,660,437 ( 0%)
+	surface tests:     67,846,457,199 ( 0%)
+     shadow:
+	rays:               2,463,606,261
+	shadow hint hits:      42,022,735 ( 1%)
+	shadow hint misses:   459,671,843 (18%)
+	non-opaque traces:    319,131,091 (12%; average depth = 2.0224)
+	tree node tests:  127,116,892,710 ( 0%)
+	surface tests:     80,071,985,667 ( 0%)
+     illum:
+	illum calls:           72,125,817
+	average light samples:       52.6
+	average shadow rays:         34.2 (64%)
+   Time:
+     scene def cpu:          5.6s
+     rendering cpu:    24:13:29.1
+     total elapsed:    26:41:40.9
+     rays per second:      39,696
+     eye-rays per second:   1,502
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
