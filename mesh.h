@@ -127,6 +127,12 @@ public:
   MPos vertex (unsigned index) { return vertices[index]; }
   MPos vertex_normal (unsigned index) { return vertex_normals[index]; }
 
+  // Return a bounding box for the entire mesh
+  //
+  virtual BBox bbox () const;
+
+  void transform (SXform &xform);
+
   //private:
 
   class Triangle : public Surface

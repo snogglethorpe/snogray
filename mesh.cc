@@ -384,4 +384,35 @@ Mesh::add_to_space (Space &space)
     triangles[i].add_to_space (space);
 }
 
+// Return a bounding box for this surface.
+BBox
+Mesh::bbox () const
+{
+  BBox bbox (vertices[0]);
+
+  for (unsigned v = 1; v < vertices.size (); v++)
+    bbox.include (vertices[v]);
+
+  return bbox;
+}
+
+void
+Mesh::transform (SXform &xform)
+{
+  for (unsigned v = 0; v < vertices.size (); v++)
+    vertices[v] *= xform;
+
+  if (vertex_normals.size() > 0)
+    {
+      // Calculate a variant of XFORM suitable for transforming
+      // normals.
+      //
+      SXform norm_xform = xform.inverse().transpose();
+
+      for (unsigned v = 0; v < vertex_normals.size (); v++)
+	vertex_normals[v] *= norm_xform;
+    }
+}
+
+
 // arch-tag: 3090c323-f2dd-48ef-b8fc-20ce5d687c66
