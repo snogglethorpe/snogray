@@ -30,17 +30,12 @@ public:
 
   // A vector/position yields a translation
   //
-  TXform (const Pos &pos)
+  template<typename T2>
+  TXform (const Tuple3<T2> &tup)
   {
-    el (3, 0) = pos.x;
-    el (3, 1) = pos.y;
-    el (3, 2) = pos.z;
-  }
-  TXform (const Vec &vec)
-  {
-    el (3, 0) = vec.x;
-    el (3, 1) = vec.y;
-    el (3, 2) = vec.z;
+    el (3, 0) = tup.x;
+    el (3, 1) = tup.y;
+    el (3, 2) = tup.z;
   }
 
   // Allow easy down-casting from a raw matrix
