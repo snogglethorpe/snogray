@@ -1343,9 +1343,25 @@ add_scene_descs_tessel (vector<TestSceneDesc> &descs)
 // Test scene for looking at meshes
 
 static void
+normalize (Mesh *mesh, const SXform &xform = SXform::identity)
+{
+  const BBox bbox = mesh->bbox ();
+  const SPos center = (bbox.max + bbox.min) / 2;
+  const SVec size = bbox.max - bbox.min;
+
+  SXform norm;
+  norm.translate (-center.x, size.y / 2 - center.y, -center.z);
+  norm.scale (2 / bbox.max_size ());
+  norm *= xform;
+
+  mesh->transform (norm);
+}
+
+static void
 def_scene_mesh (const string &name, unsigned num,
 		 Scene &scene, Camera &camera)
 {
+  unsigned csys  = (num / 1000) % 10;
   unsigned base  = (num / 100) % 10;
   unsigned lighting  = (num / 10) % 10;
   num %= 10;
@@ -1397,16 +1413,22 @@ def_scene_mesh (const string &name, unsigned num,
     }
 
   Xform xform;
-#if 1
-  xform.scale (1, 1, -1);	// flip z-axis
-  xform.scale (4);
-  xform.rotate_y (-M_PI_2);
-  xform.translate (0, -0.212, 0);
-#else
-  xform.rotate_x (-M_PI_2);
-#endif
+  if (csys == 1)
+    {
+      // Transform vertical Z axis into our preferred vertical Y axis
 
-  scene.add (new Mesh (obj_mat, "+test.msh", xform, true));
+      xform.rotate_x (-M_PI_2);
+      xform.scale (-1, 1, 1);
+    }
+  else
+    {
+      xform.scale (1, 1, -1);	// flip z-axis
+      xform.rotate_y (-M_PI_2);
+    }
+
+  Mesh *mesh = new Mesh (obj_mat, "+test.msh", xform, true);
+  normalize (mesh, 0.4);
+  scene.add (mesh);
 
   switch (base)
     {
