@@ -55,13 +55,13 @@ const void
 add_cube (Scene &scene, const Material *mat,
 	  const Pos &corner, const Vec &up, const Vec &right, const Vec &fwd)
 {
-  add_rect (scene, mat, corner, up, right);
-  add_rect (scene, mat, corner, fwd, up);
-  add_rect (scene, mat, corner, right, fwd);
+  add_rect (scene, mat, corner, right, up);
+  add_rect (scene, mat, corner, up, fwd);
+  add_rect (scene, mat, corner, fwd, right);
 
-  add_rect (scene, mat, corner + up, right, fwd);
-  add_rect (scene, mat, corner + right, fwd, up);
-  add_rect (scene, mat, corner + fwd, up, right);
+  add_rect (scene, mat, corner + up, fwd, right);
+  add_rect (scene, mat, corner + right, up, fwd);
+  add_rect (scene, mat, corner + fwd, right, up);
 }
 
 const void
@@ -1429,6 +1429,12 @@ def_scene_mesh (const string &name, unsigned num,
     case 3:
       add_cube (scene, grey, Pos (-2, 0, -2),
 		Vec (4, 0, 0), Vec (0, 0, 4), Vec (0, -1, 0));
+      break;
+
+    case 4:
+      add_cube (scene, glass, Pos (-0.5, 0, -0.5),
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
+      add_chessboard (scene, Vec (0, -0.2, 0));
       break;
     }
 

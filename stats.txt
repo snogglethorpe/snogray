@@ -1146,4 +1146,52 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:   1,502
 
 
+   2006-03-15 [work]
+      note -- this is the same as the prev entry, but with a glass plinth
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-98
+   cmd: snogray test:mesh481 -coy190,od38,mr.28 ../images/sm7.jpg -s1280x1024 -a10 -j -Fbox -b ../cubetexs/grace_cross.exr
+   * adding mesh: 437,645 vertices, 871,414 triangles
+   Scene:
+      scene:           test:mesh481
+      top-level surfaces:        10
+      lights:                     5
+      materials:                 13
+      tree surfaces:      2,259,819 (61% duplicates)
+      tree nodes:         1,289,362 (36% leaves)
+      tree avg depth:             6
+      tree max depth:            59
+   Image:
+      size:             1280 x 1024
+      aa_factor:                 10
+      aa_kernel_size:            10
+      aa_filter:                box
+
+   rendering: done                                                     .
+
+   Rendering stats:
+     intersect:
+	rays:               8,687,789,051
+	horizon hint hits:  4,512,598,758 (51%)
+	horizon hint misses:1,735,591,727 (19%)
+	tree node tests:  229,413,094,281 ( 0%)
+	surface tests:    199,312,549,698 ( 0%)
+     shadow:
+	rays:               5,267,861,350
+	shadow hint hits:   2,326,722,865 (44%)
+	shadow hint misses:   214,978,133 ( 4%)
+	non-opaque traces:  2,542,280,614 (48%; average depth = 3.15234)
+	tree node tests:   63,840,279,464 ( 0%)
+	surface tests:     49,731,339,949 ( 0%)
+     illum:
+	illum calls:          111,763,735
+	average light samples:       63.2
+	average shadow rays:         47.1 (74%)
+   Time:
+     scene def cpu:         5.10s
+     rendering cpu:    35:58:15.4
+     total elapsed:    37:19:24.6
+     rays per second:     107,769
+     eye-rays per second:   1,012
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
