@@ -736,18 +736,17 @@ def_scene_cornell_box (const string &name, unsigned num,
   if (num % 10 == 1)
     {
       fill_light = false;
+      light_intens *= 1.5;
       light_z += scale * 0.2;
 
-      const Material *glass = scene.add (new Glass (1.5));
+      // This is a yellow-green glass
+      const Material *glass
+	= scene.add (new Glass (Medium (1.5, Color (0.3, 0.3, 0.9))));
       const Material *metal
 	= scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.2,
 				 cook_torrance (0.8, 0.3, Ior (0.25, 3))));
-//       const Material *silver
-// 	= scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
 
-      // metal sphere
       scene.add (new Sphere (metal, LBR + Vec (rad*1.55, rad, -rad*3), rad));
-      // glass sphere
       scene.add (new Sphere (glass, Pos (right - rad*1.5, rad, -rad), rad));
 
       left_wall_mat = scene.add (new Material (Color (0.6, 0.1, 0.1)));
