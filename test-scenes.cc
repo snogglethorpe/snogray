@@ -1387,6 +1387,12 @@ def_scene_mesh (const string &name, unsigned num,
   const Material *dull_grey
     = scene.add (new Material (Color (0.2, 0.2, 0.2),
 			       cook_torrance (0.8, 0.5, 5)));
+  const Material *off_white
+    = scene.add (new Material (Color (0.8, 0.8, 0.8),
+			       cook_torrance (0.8, 0.5, 5)));
+  const Material *gloss_white
+    = scene.add (new Material (Color (0.8, 0.8, 0.8),
+			       cook_torrance (0.4, 0.1, 2)));
   const Material *mirror
     = scene.add (new Mirror (Ior (0.25, 3), 0.95));
     
@@ -1409,6 +1415,10 @@ def_scene_mesh (const string &name, unsigned num,
       obj_mat = dull_grey; break;
     case 6:
       obj_mat = mirror; break;
+    case 7:
+      obj_mat = off_white; break;
+    case 8:
+      obj_mat = gloss_white; break;
     }
 
   Xform xform;
@@ -1456,6 +1466,11 @@ def_scene_mesh (const string &name, unsigned num,
       add_cube (scene, glass, Pos (-0.5, 0, -0.5),
 		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
       add_chessboard (scene, Vec (0, -0.2, 0));
+      break;
+
+    case 5:
+      add_cube (scene, glass, Pos (-0.5, 0, -0.5),
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
       break;
     }
 
