@@ -12,17 +12,17 @@
 #ifndef __TRIPAR_H__
 #define __TRIPAR_H__
 
-#include "primary-surface.h"
+#include "surface.h"
 
 namespace Snogray {
 
-class Tripar : public PrimarySurface
+class Tripar : public Surface
 {
 public:
 
   Tripar (const Material *mat, const Pos &_v0, const Pos &_e1, const Pos &_e2,
 	  bool _parallelogram = false)
-    : PrimarySurface (mat), v0 (_v0), e1 (_e1), e2 (_e2),
+    : Surface (mat), v0 (_v0), e1 (_e1), e2 (_e2),
       parallelogram (_parallelogram)
   { }
 

@@ -1,6 +1,6 @@
 // glow.cc -- Constant-color reflectance function
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -20,15 +20,6 @@ Color
 Glow::render (const Intersect &isec) const
 {
   return color;
-}
-
-// The general sort of shadow this material will cast.  This value
-// should never change for a given material, so can be cached.
-//
-Material::ShadowType
-Glow::shadow_type () const
-{
-  return Material::SHADOW_NONE;
 }
 
 // Shadow LIGHT_RAY, which points to a light with (apparent) color

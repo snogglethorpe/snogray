@@ -146,7 +146,7 @@ struct SceneShadowCallback : Space::IntersectCallback
 void
 SceneShadowCallback::operator () (Surface *surface)
 {
-  Material::ShadowType shadow_type = surface->shadow_type;
+  Material::ShadowType shadow_type = surface->material->shadow_type;
 
   if (surface != isec.surface && shadow_type != Material::SHADOW_NONE)
     {

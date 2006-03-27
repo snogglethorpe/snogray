@@ -148,13 +148,4 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
     return 0;
 }
 
-// The general sort of shadow this material will cast.  This value
-// should never change for a given material, so can be cached.
-//
-Material::ShadowType
-Glass::shadow_type () const
-{
-  return Material::SHADOW_MEDIUM;
-}
-
 // arch-tag: a8209bc5-a88c-4f6c-b598-ee89c9587a6f

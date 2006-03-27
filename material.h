@@ -30,17 +30,16 @@ public:
 
   enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
 
-  Material (const Color &col, const Brdf *brdf = lambert)
-    : color (col), brdf (* (brdf ? brdf : lambert))
+  Material (const Color &col, const Brdf *brdf = lambert,
+	    ShadowType _shadow_type = SHADOW_OPAQUE)
+    : color (col), brdf (* (brdf ? brdf : lambert)), shadow_type (_shadow_type)
+  { }
+  Material (const Color &col, ShadowType _shadow_type)
+    : color (col), brdf (*lambert), shadow_type (_shadow_type)
   { }
   virtual ~Material ();
 
   virtual Color render (const Intersect &isec) const;
-
-  // The general sort of shadow this material will cast.  This value
-  // should never change for a given material, so can be cached.
-  //
-  virtual ShadowType shadow_type () const;
 
   // Shadow LIGHT_RAY, which points to a light with (apparent) color
   // LIGHT_COLOR. and return the shadow color.  This is basically like
@@ -56,6 +55,11 @@ public:
 
   Color color;
   const Brdf &brdf;
+
+  // The general sort of shadow this material will cast.  This value
+  // should never change for a given material, so can be cached.
+  //
+  const ShadowType shadow_type;
 };
 
 }

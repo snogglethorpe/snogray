@@ -92,10 +92,10 @@ COMMON_SRCS = cmdlineparser.cc color.cc string-funs.cc $(IMAGE_SRCS)
 RENDER_SRCS = brdf.cc camera.cc cook-torrance.cc cubetex.cc far-light.cc \
 	  freelist.cc glass.cc glow.cc intersect.cc lambert.cc light.cc	 \
 	  lsamples.cc material.cc mesh.cc mesh-load.cc mirror.cc	 \
-	  surface.cc phong.cc point-light.cc primary-surface.cc		 \
-	  progress.cc ray.cc rect-light.cc texture2.cc scene.cc		 \
-	  scene-load.cc scene-load-aff.cc space.cc sphere.cc tessel.cc	 \
-	  tessel-param.cc timeval.cc trace.cc tripar.cc octree.cc
+	  surface.cc phong.cc point-light.cc progress.cc ray.cc		 \
+	  rect-light.cc texture2.cc scene.cc scene-load.cc		 \
+	  scene-load-aff.cc space.cc sphere.cc tessel.cc tessel-param.cc \
+	  timeval.cc trace.cc tripar.cc octree.cc
 
 SCENE_DEF_SRCS = scene-def.cc test-scenes.cc
 

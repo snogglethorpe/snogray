@@ -65,7 +65,6 @@ Surface::intersection_distance (const Ray &ray, IsecParams &isec_params, unsigne
 Intersect Surface::intersect_info (const Ray &ray, const IsecParams &isec_params, Trace &trace) const { barf (); }
 
 BBox Surface::bbox () const { barf (); }
-const Material *Surface::material () const { barf (); }
 
 
 // arch-tag: a62e1854-d7ca-4cb3-a8dc-9be328c53430

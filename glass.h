@@ -21,14 +21,11 @@ class Glass : public Material
 {
 public:
 
-  Glass (Medium _medium) : Material (1), medium (_medium) { }
+  Glass (Medium _medium)
+    : Material (1, Material::SHADOW_MEDIUM), medium (_medium)
+  { }
 
   virtual Color render (const Intersect &isec) const;
-
-  // The general sort of shadow this material will cast.  This value
-  // should never change for a given material, so can be cached.
-  //
-  virtual ShadowType shadow_type () const;
 
   // Shadow LIGHT_RAY, which points to a light with (apparent) color
   // LIGHT_COLOR. and return the shadow color.  This is basically like

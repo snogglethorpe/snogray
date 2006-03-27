@@ -167,17 +167,14 @@ void
 MeshState::read_polygon (istream &stream, const Material *mat,
 			 unsigned num_vertices, bool read_normals)
 {
-  if (mesh && mat != mesh->material ())
-    finish ();
-
   if (! mesh)
-    mesh = new Mesh (mat);
+    mesh = new Mesh ();
 
   // NFF files use a right-handed coordinate system.
   //
   mesh->left_handed = false;
 
-  vector<unsigned> verts;
+  vector<Mesh::vert_index_t> verts;
 
   for (unsigned i = 0; i < num_vertices; i++)
     if (read_normals)
@@ -186,11 +183,11 @@ MeshState::read_polygon (istream &stream, const Material *mat,
       verts.push_back (read_vertex (stream));
 
   if (num_vertices == 3)
-    mesh->add_triangle (verts[0], verts[1], verts[2]);
+    mesh->add_triangle (verts[0], verts[1], verts[2], mat);
   else if (num_vertices == 4)
     {
-      mesh->add_triangle (verts[0], verts[1], verts[2]);
-      mesh->add_triangle (verts[2], verts[3], verts[0]);
+      mesh->add_triangle (verts[0], verts[1], verts[2], mat);
+      mesh->add_triangle (verts[2], verts[3], verts[0], mat);
     }
   else
     {
@@ -204,7 +201,7 @@ MeshState::read_polygon (istream &stream, const Material *mat,
 
       for (unsigned i = 0; i < num_vertices; i++)
 	mesh->add_triangle (center_vert,
-			    verts[i], verts[(i + 1) % num_vertices]);
+			    verts[i], verts[(i + 1) % num_vertices], mat);
 
     }
 }

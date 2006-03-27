@@ -41,9 +41,7 @@ class Surface
 {
 public:
 
-  Surface (Material::ShadowType _shadow_type = Material::SHADOW_OPAQUE)
-    : shadow_type (_shadow_type)
-  { }
+  Surface (const Material *mat) : material (mat) { }
   virtual ~Surface (); // stop gcc bitching
 
   // If this surface intersects the bounded-ray RAY, change RAY's length to
@@ -144,10 +142,6 @@ public:
   //
   virtual BBox bbox () const;
 
-  // Returns the material this surface is made from
-  //
-  virtual const Material *material () const;
-
   // Add this (or some other ...) surfaces to SPACE
   //
   virtual void add_to_space (Space &space);
@@ -160,13 +154,7 @@ public:
   //
   virtual const void *smoothing_group () const;
 
-  // What special handling this surface needs when it casts a shadow.
-  // This is initialized by calling the surface's material's
-  // `shadow_type' method -- it's too expensive to call that during
-  // tracing.
-  //
-  Material::ShadowType shadow_type;
-
+  const Material *material;
 };
 
 }

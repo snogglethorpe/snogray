@@ -30,15 +30,6 @@ Material::render (const Intersect &isec) const
   return isec.illum ();
 }
 
-// The general sort of shadow this material will cast.  This value
-// should never change for a given material, so can be cached.
-//
-Material::ShadowType
-Material::shadow_type () const
-{
-  return Material::SHADOW_OPAQUE;
-}
-
 // Shadow LIGHT_RAY, which points to a light with (apparent) color
 // LIGHT_COLOR. and return the shadow color.  This is basically like
 // the `render' method, but calls the material's `shadow' method

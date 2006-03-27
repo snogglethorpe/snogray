@@ -29,7 +29,7 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
   : ray (_ray), surface (_surface),
     point (_point), normal (_back ? -_normal : _normal), back (_back),
     viewer (-_ray.dir), nv (dot (viewer, normal)),
-    material (*_surface->material ()),
+    material (*_surface->material),
     brdf (material.brdf), color (material.color),
     smoothing_group (_smoothing_group), trace (_trace)
 { }
@@ -43,7 +43,7 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
   : ray (_ray), surface (_surface),
     point (_point), normal (_normal), back (dot (normal, _ray.dir) > 0),
     viewer (-_ray.dir), nv (dot (viewer, normal)),
-    material (*_surface->material ()),
+    material (*_surface->material),
     brdf (material.brdf), color (material.color),
     smoothing_group (0), trace (_trace)
 {
@@ -117,7 +117,7 @@ Intersect::illum () const
 	  //
 	  radiance += s->val;
 
-	else if (shadower->shadow_type != Material::SHADOW_OPAQUE)
+	else if (shadower->material->shadow_type != Material::SHADOW_OPAQUE)
 	  //
 	  // There's a shadower, but it's not opaque, so give it (and
 	  // any further surfaces) a chance to attentuate the color.

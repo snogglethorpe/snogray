@@ -19,7 +19,7 @@
 #include <map>
 #include <utility>		// for std::pair
 
-#include "primary-surface.h"
+#include "surface.h"
 #include "tessel.h"
 #include "pos.h"
 #include "xform.h"
@@ -28,27 +28,32 @@ namespace Snogray {
 
 class Tessel;
 
-class Mesh : public PrimarySurface
+class Mesh : public Surface
 {
 public:
 
   typedef SPos MPos;		// position type used in mesh
   typedef SVec MVec;		// vector type used in mesh
 
+  // Index of a vertex in the mesh.
+  //
+  typedef unsigned vert_index_t;
+
   // A vertex group can be used to group vertices together.
   //
-  typedef std::map<MPos, unsigned> VertexGroup;
-  typedef std::map<std::pair<MPos, MVec>, unsigned> VertexNormalGroup;
+  typedef std::map<MPos, vert_index_t> VertexGroup;
+  typedef std::map<std::pair<MPos, MVec>, vert_index_t> VertexNormalGroup;
 
-  Mesh (const Material *mat)
-    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
-  { }
+  // Basic constructor.  Actual contents must be defined later.  If no
+  // material is defined, all triangles added must have an explicit material.
+  //
+  Mesh (const Material *mat = 0) : Surface (mat), left_handed (true) { }
 
   // All-in-one constructor for loading a mesh from FILE_NAME.
   //
   Mesh (const Material *mat, const std::string &file_name,
 	const Xform &xform = Xform::identity, bool smooth = false)
-    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
+    : Surface (mat), left_handed (true)
   {
     load (file_name, xform);
     if (smooth)
@@ -56,13 +61,13 @@ public:
   }
   Mesh (const Material *mat, const std::string &file_name,
 	const Xform &xform, const std::string &mat_name)
-    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
+    : Surface (mat), left_handed (true)
   {
     load (file_name, xform, mat_name);
   }
   Mesh (const Material *mat, const std::string &file_name,
 	const Xform &xform, const char *mat_name)
-    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
+    : Surface (mat), left_handed (true)
   {
     load (file_name, xform, mat_name);
   }
@@ -71,28 +76,30 @@ public:
   //
   Mesh (const Material *mat, const Tessel::Function &tessel_fun,
 	const Tessel::MaxErrCalc &max_err, bool smooth = false)
-    : PrimarySurface (mat), triangles (0, *this), left_handed (true)
+    : Surface (mat), left_handed (true)
   {
     add (tessel_fun, max_err, smooth);
   }
 
   // Add a triangle to the mesh
   //
-  void add_triangle (unsigned v0i, unsigned v1i, unsigned v2i);
-  void add_triangle (const MPos &v0, const MPos &v1, const MPos &v2);
+  void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
+		     const Material *mat = 0);
   void add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
-		     VertexGroup &vgroup);
+		     const Material *mat = 0);
+  void add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
+		     VertexGroup &vgroup, const Material *mat = 0);
 
   // Add a vertex to the mesh
   //
-  unsigned add_vertex (const MPos &pos);
-  unsigned add_vertex (const MPos &pos, VertexGroup &vgroup);
+  vert_index_t add_vertex (const MPos &pos);
+  vert_index_t add_vertex (const MPos &pos, VertexGroup &vgroup);
 
   // Add a vertex with normal to the mesh
   //
-  unsigned add_vertex (const MPos &pos, const MVec &normal);
-  unsigned add_vertex (const MPos &pos, const MVec &normal,
-		       VertexNormalGroup &vgroup);
+  vert_index_t add_vertex (const MPos &pos, const MVec &normal);
+  vert_index_t add_vertex (const MPos &pos, const MVec &normal,
+			   VertexNormalGroup &vgroup);
 
   // Add the results of tessellating TESSEL_FUN with MAX_ERR.
   //
@@ -121,11 +128,13 @@ public:
   //
   virtual void add_to_space (Space &space);
 
+  // Compute a normal vector for each vertex that doesn't already have one,
+  // by averaging the normals of all triangles that use the vertex.
   //
   void compute_vertex_normals ();
 
-  MPos vertex (unsigned index) { return vertices[index]; }
-  MPos vertex_normal (unsigned index) { return vertex_normals[index]; }
+  MPos vertex (vert_index_t index) { return vertices[index]; }
+  MPos vertex_normal (vert_index_t index) { return vertex_normals[index]; }
 
   // Return a bounding box for the entire mesh
   //
@@ -140,10 +149,12 @@ public:
   public:
 
     Triangle (const Mesh &_mesh)
-      : Surface (_mesh.material()->shadow_type ()), mesh (_mesh)
+      : Surface (_mesh.material), mesh (_mesh)
     { }
-    Triangle (const Mesh &_mesh, unsigned v0i, unsigned v1i, unsigned v2i)
-      : Surface (_mesh.material()->shadow_type ()), mesh (_mesh)
+    Triangle (const Mesh &_mesh,
+	      vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
+	      const Material *mat = 0)
+      : Surface (mat ? mat : _mesh.material), mesh (_mesh)
     {
       vi[0] = v0i;
       vi[1] = v1i;
@@ -155,6 +166,7 @@ public:
       vi[0] = triang.vi[0];
       vi[1] = triang.vi[1];
       vi[2] = triang.vi[2];
+      material = triang.material;
     }
 
     // Confirm that this surfaces blocks RAY, which emanates from the
@@ -195,10 +207,6 @@ public:
     //
     virtual BBox bbox () const;
 
-    // Returns the material this surface is made from
-    //
-    virtual const Material *material () const;
-
     // The "smoothing group" this surface belongs to, or zero if it belongs
     // to none.  The smoothing group affects shadow-casting: if two objects
     // are in the same smoothing group, they will not be shadowed by
@@ -213,7 +221,10 @@ public:
 
     // Normal of vertex NUM (assuming this mesh contains vertex normals!)
     //
-    const MVec &vnorm (unsigned num) const { return mesh.vertex_normals[vi[num]];}
+    const MVec &vnorm (unsigned num) const
+    {
+      return mesh.vertex_normals[vi[num]];
+    }
 
     // These both return the "raw" normal of this triangle, not doing
     // any normal interpolation.  Note that they return ordinary
@@ -234,7 +245,7 @@ public:
 
     // Indices into mesh vertices array
     //
-    unsigned vi[3];
+    vert_index_t vi[3];
   };
 
   // A list of vertices used in this part.

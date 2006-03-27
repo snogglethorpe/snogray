@@ -12,16 +12,16 @@
 #ifndef __SPHERE_H__
 #define __SPHERE_H__
 
-#include "primary-surface.h"
+#include "surface.h"
 
 namespace Snogray {
 
-class Sphere : public PrimarySurface
+class Sphere : public Surface
 {
 public:
 
   Sphere (const Material *mat, const Pos &_center, dist_t _radius)
-    : PrimarySurface (mat), center (_center), radius (_radius)
+    : Surface (mat), center (_center), radius (_radius)
   { }
 
   // Return the distance from RAY's origin to the closest intersection

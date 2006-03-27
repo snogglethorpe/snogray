@@ -27,10 +27,10 @@ using namespace std;
 
 // This simple version always adds a new vertex
 //
-unsigned
+Mesh::vert_index_t
 Mesh::add_vertex (const MPos &pos)
 {
-  unsigned vert_index = vertices.size ();
+  vert_index_t vert_index = vertices.size ();
   vertices.push_back (pos);
   return vert_index;
 }
@@ -38,7 +38,7 @@ Mesh::add_vertex (const MPos &pos)
 // This version uses VGROUP to keep track of vertex positions, and only
 // adds new vertices.
 //
-unsigned
+Mesh::vert_index_t
 Mesh::add_vertex (const MPos &pos, VertexGroup &vgroup)
 {
   VertexGroup::iterator prev_entry = vgroup.find (pos);
@@ -47,7 +47,7 @@ Mesh::add_vertex (const MPos &pos, VertexGroup &vgroup)
     return prev_entry->second;
   else
     {
-      unsigned vert_index = add_vertex (pos);
+      vert_index_t vert_index = add_vertex (pos);
       vgroup.insert (prev_entry, VertexGroup::value_type (pos, vert_index));
       return vert_index;
     }
@@ -58,17 +58,21 @@ Mesh::add_vertex (const MPos &pos, VertexGroup &vgroup)
 
 // This simple version always adds a new vertex+normal
 //
-unsigned
+Mesh::vert_index_t
 Mesh::add_vertex (const MPos &pos, const MVec &normal)
 {
-  unsigned vert_index = vertices.size ();
+  vert_index_t vert_index = vertices.size ();
+
+  // Make sure the vertex_normals vector contains entries for all previous
+  // vertices (the effect of this is that if a mesh contains vertices with
+  // explicit normals, all triangles will have interpolated normals, even
+  // those using vertices with implicit normals).
+  //
+  if (vertex_normals.size() < vert_index)
+    compute_vertex_normals ();
 
   vertices.push_back (pos);
-
-  if (vertex_normals.size() < vert_index + 1)
-    vertex_normals.resize (vert_index + 1);
-
-  vertex_normals[vert_index] = normal;
+  vertex_normals.push_back (normal);
 
   return vert_index;
 }
@@ -77,7 +81,7 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal)
 // values, and only adds new vertices (but a vertex with a different
 // normal is considered "new").
 //
-unsigned
+Mesh::vert_index_t
 Mesh::add_vertex (const MPos &pos, const MVec &normal, VertexNormalGroup &vgroup)
 {
   VertexNormalGroup::key_type key (pos, normal);
@@ -87,7 +91,7 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal, VertexNormalGroup &vgroup
     return prev_entry->second;
   else
     {
-      unsigned vert_index = add_vertex (pos, normal);
+      vert_index_t vert_index = add_vertex (pos, normal);
       vgroup.insert (prev_entry,
 		     VertexNormalGroup::value_type (key, vert_index));
       return vert_index;
@@ -98,28 +102,33 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal, VertexNormalGroup &vgroup
 // Add a triangle to the mesh
 
 void
-Mesh::add_triangle (unsigned v0i, unsigned v1i, unsigned v2i)
+Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
+		    const Material *mat)
 {
-  Triangle triang (*this, v0i, v1i, v2i);
+  if (!mat && !material)
+    throw std::runtime_error ("Mesh triangle with no material");
+
+  Triangle triang (*this, v0i, v1i, v2i, mat);
 
   triangles.push_back (triang);
 }
 
 void
 Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
-		    VertexGroup &vgroup)
+		    VertexGroup &vgroup, const Material *mat)
 {
-  unsigned v0i = add_vertex (v0, vgroup);
-  unsigned v1i = add_vertex (v1, vgroup);
-  unsigned v2i = add_vertex (v2, vgroup);
+  vert_index_t v0i = add_vertex (v0, vgroup);
+  vert_index_t v1i = add_vertex (v1, vgroup);
+  vert_index_t v2i = add_vertex (v2, vgroup);
 
-  add_triangle (v0i, v1i, v2i);
+  add_triangle (v0i, v1i, v2i, mat);
 }
 
 void
-Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2)
+Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
+		    const Material *mat)
 {
-  add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2));
+  add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2), mat);
 }
 
 
@@ -136,11 +145,11 @@ Mesh::add (const Tessel::Function &tessel_fun,
   //
   Tessel tessel (tessel_fun, max_err);
 
-  unsigned base_vert = vertices.size ();
+  vert_index_t base_vert = vertices.size ();
 
   tessel.get_vertices (vertices);
 
-  std::vector<unsigned> tri_vert_indices;
+  std::vector<vert_index_t> tri_vert_indices;
   tessel.get_triangle_vertex_indices (tri_vert_indices);
 
   unsigned num_tris = tri_vert_indices.size () / 3;
@@ -257,14 +266,6 @@ Mesh::Triangle::bbox () const
   return bbox;
 }
 
-// Returns the material this surface is made from
-//
-const Material *
-Mesh::Triangle::material () const
-{
-  return mesh.material ();
-}
-
 // The "smoothing group" this surface belongs to, or zero if it belongs
 // to none.  The smoothing group affects shadow-casting: if two objects
 // are in the same smoothing group, they will not be shadowed by
@@ -311,12 +312,12 @@ Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t dist,
 #if 0
 	  // Vertex indices of this and the other triangle
 	  //
-	  unsigned v0i = vi[0];
-	  unsigned v1i = vi[1];
-	  unsigned v2i = vi[2];
-	  unsigned ov0i = other_tri->vi[0];
-	  unsigned ov1i = other_tri->vi[1];
-	  unsigned ov2i = other_tri->vi[2];
+	  vert_index_t v0i = vi[0];
+	  vert_index_t v1i = vi[1];
+	  vert_index_t v2i = vi[2];
+	  vert_index_t ov0i = other_tri->vi[0];
+	  vert_index_t ov1i = other_tri->vi[1];
+	  vert_index_t ov2i = other_tri->vi[2];
 
 	  // We check to see if this triangle shares any vertices with the
 	  // other triangle; if so, then if the source intersection was on the
@@ -339,17 +340,22 @@ Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t dist,
 
 
 
+// Compute a normal vector for each vertex that doesn't already have one,
+// by averaging the normals of all triangles that use the vertex.
+//
 void
 Mesh::compute_vertex_normals ()
 {
   unsigned num_verts = vertices.size ();
   unsigned num_triangs = triangles.size ();
+  unsigned num_old_norms = vertex_normals.size();
 
-  if (vertex_normals.size() < num_verts)
+  if (num_old_norms < num_verts)
     {
-      vector<unsigned> face_counts (num_verts, 0);
+      unsigned num_new_norms = num_verts - num_old_norms;
+      vector<unsigned> face_counts (num_new_norms, 0);
 
-      vertex_normals.assign (num_verts, 0);
+      vertex_normals.resize (num_verts, 0);
 
       for (unsigned t = 0; t < num_triangs; t++)
 	{
@@ -359,14 +365,19 @@ Mesh::compute_vertex_normals ()
 	  for (unsigned num = 0; num < 3; num++)
 	    {
 	      unsigned v = triang.vi[num];
-	      vertex_normals[v] += norm;
-	      face_counts[v] ++;
+
+	      if (v >= num_old_norms)
+		{
+		  vertex_normals[v] += norm;
+		  face_counts[v - num_old_norms] ++;
+		}
 	    }
 	}
 	
-      for (unsigned v = 0; v < num_verts; v++)
-	if (face_counts[v] > 1)
-	  vertex_normals[v] /= face_counts[v];
+      for (vert_index_t v = 0; v < num_verts; v++)
+	if (v >= num_old_norms)
+	  if (face_counts[v - num_old_norms] > 1)
+	    vertex_normals[v] /= face_counts[v - num_old_norms];
     }
 }
 
@@ -390,7 +401,7 @@ Mesh::bbox () const
 {
   BBox bbox (vertices[0]);
 
-  for (unsigned v = 1; v < vertices.size (); v++)
+  for (vert_index_t v = 1; v < vertices.size (); v++)
     bbox.include (vertices[v]);
 
   return bbox;
@@ -399,7 +410,7 @@ Mesh::bbox () const
 void
 Mesh::transform (SXform &xform)
 {
-  for (unsigned v = 0; v < vertices.size (); v++)
+  for (vert_index_t v = 0; v < vertices.size (); v++)
     vertices[v] *= xform;
 
   if (vertex_normals.size() > 0)
@@ -409,7 +420,7 @@ Mesh::transform (SXform &xform)
       //
       SXform norm_xform = xform.inverse().transpose();
 
-      for (unsigned v = 0; v < vertex_normals.size (); v++)
+      for (vert_index_t v = 0; v < vertex_normals.size (); v++)
 	vertex_normals[v] *= norm_xform;
     }
 }

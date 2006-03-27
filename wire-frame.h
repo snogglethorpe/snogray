@@ -173,7 +173,7 @@ private:
 	    // (these latter two cases avoid lots of "double-width" wires
 	    // being drawn inside meshes).
 	    //
-	    if (surf && surf->material() != prev_surf->material())
+	    if (surf && surf->material != prev_surf->material)
 	      {
 		Ray prev_ray (prev_camera_ray, Scene::DEFAULT_HORIZON);
 		if (! surf->intersects (prev_ray))
@@ -249,7 +249,7 @@ private:
 	if (params.fill > 0)
 	  surf_color = trace.render (camera_ray);
 	else
-	  surf_color = surf->material()->color;
+	  surf_color = surf->material->color;
 
 	return surf_color * params.tint + params.wire_color * (1 - params.tint);
       }

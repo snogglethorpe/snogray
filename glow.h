@@ -1,6 +1,6 @@
 // glow.h -- Constant-color reflectance function
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -19,14 +19,9 @@ namespace Snogray {
 class Glow : public Material
 {
 public:
-  Glow (const Color &_color) : Material (_color) { }
+  Glow (const Color &_color) : Material (_color, Material::SHADOW_NONE) { }
 
   virtual Color render (const Intersect &isec) const;
-
-  // The general sort of shadow this material will cast.  This value
-  // should never change for a given material, so can be cached.
-  //
-  virtual ShadowType shadow_type () const;
 
   // Shadow LIGHT_RAY, which points to a light with (apparent) color
   // LIGHT_COLOR. and return the shadow color.  This is basically like
