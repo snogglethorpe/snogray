@@ -1269,12 +1269,26 @@ def_scene_tessel (const string &name, unsigned num,
   const Material *gloss_blue
     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
+  const Material *glass = scene.add (new Glass (1.5));
 
-  const Material *mat = ((num & 1) == 0) ? gloss_blue : silver;
+  const Material *mat;
+  float light_intens = 100;
+  switch (num % 4)
+    {
+    case 0:
+    default:
+      mat = gloss_blue;
+      break;
+    case 1:
+      mat = silver;
+      light_intens = 50;
+      break;
+    case 2:
+      mat = glass;
+      break;
+    }
 
-  float light_intens = ((num & 1) == 0) ? 100 : 50;
-
-  num >>= 1;			// remove lowest bit
+  num /= 4;
 
   Tessel::ConstMaxErr max_err (tessel_accur);
 
