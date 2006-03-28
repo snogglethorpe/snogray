@@ -34,6 +34,7 @@ public:
     REFLECTION,
     REFRACTION_IN,		// entering a transparent surface
     REFRACTION_OUT,		// exiting it
+    TRANSMISSION,		// transmission through a thin surface
     SHADOW,			// only used for non-opaque shadows
     SHADOW_REFR_IN,
     SHADOW_REFR_OUT,
