@@ -1524,6 +1524,51 @@ add_scene_descs_mesh (vector<TestSceneDesc> &descs)
 
 
 
+static void
+def_scene_light (const string &name, unsigned num,
+		 Scene &scene, Camera &camera)
+{
+  if (ends_in (name, "reset"))
+    {
+      scene.lights.clear ();
+      return;
+    }
+
+  if (ends_in (name, "grace"))
+    num = 8;
+  else if (ends_in (name, "rnl"))
+    num = 9;
+
+  switch (num)
+    {
+    case 0:
+      scene.add (new PointLight (Pos (  10, 10,  0), 500));
+      break;
+
+    case 1:
+      add_rect_bulb (scene, Pos (-3, 5, -3), Vec (6, 0, 0), Vec (0, 0, 6), 5);
+      break;
+
+    case 2:
+      add_rect_bulb (scene, Pos (-7, 5, -7), Vec (14, 0, 0), Vec (0, 0, 14), 2);
+      break;
+
+    case 3:
+      add_rect_bulb (scene, Pos (7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
+      break;
+
+    case 8:
+      add_deb_lights (DEB_GRACE, 1, scene);
+      break;
+
+    case 9:
+      add_deb_lights (DEB_RNL, 1, scene);
+      break;
+    }
+}
+
+
+
 void
 Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
@@ -1561,6 +1606,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_pretty_dancer (name, num, scene, camera);
   else if (begins_with (name, "tessel-"))
     def_scene_tessel (name, num, scene, camera);
+  else if (name == "light" || begins_with (name, "light-"))
+    def_scene_light (name, num, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }
