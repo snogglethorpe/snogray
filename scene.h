@@ -37,7 +37,7 @@ public:
   typedef std::list<Surface *>::const_iterator surface_iterator_t;
   typedef std::list<const Material *>::const_iterator material_iterator_t;
 
-  static const unsigned DEFAULT_HORIZON = 10000;
+  static const unsigned DEFAULT_HORIZON = 1000000;
   static const int DEFAULT_ASSUMED_GAMMA = 1;
 
   Scene ()
