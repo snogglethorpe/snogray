@@ -43,12 +43,8 @@ print_scene_info (const Scene &scene, const SceneDef &scene_def)
   Space::Stats tstats = scene.space.stats ();
 
   cout << "Scene:" << endl;
-
-  string name = scene_def.user_name;
-  if (name.empty ())
-    name = "<standard input>";
       
-  cout << "   scene:   " << setw (20) << name << endl;
+  cout << "   scene:   " << setw (20) << scene_def.specs_rep() << endl;
   cout << "   top-level surfaces:  "
        << setw (8) << commify (scene.surfaces.size ()) << endl;
   cout << "   lights:          "
@@ -300,7 +296,7 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] [SCENE_FILE [OUTPUT_IMAGE_FILE]]" << endl;
+     << " [OPTION...] [SCENE_FILE... [OUTPUT_IMAGE_FILE]]" << endl;
 }
 
 static void
@@ -467,7 +463,8 @@ int main (int argc, char *const *argv)
 
   // Parse scene spec (filename or test-scene name)
   //
-  CMDLINEPARSER_CATCH (clp, scene_def.parse (clp));
+  CMDLINEPARSER_CATCH
+    (clp, scene_def.parse (clp, clp.num_remaining_args() - 1));
 
   // Output filename
   //

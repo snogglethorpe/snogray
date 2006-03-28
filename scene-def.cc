@@ -156,7 +156,7 @@ read_rot_xform (istream &stream, const Camera &camera)
     xform.rotate_x (angle);
   else if (dir == 'y')
     xform.rotate_y (angle);
-  else if (dir == 'x')
+  else if (dir == 'z')
     xform.rotate_z (angle);
 
   return xform;
@@ -221,33 +221,54 @@ interpret_camera_cmds (Camera &camera, const string &cmds)
 
 // Command-line parsing
 
+SceneDef::Spec
+SceneDef::cin_spec ()
+{
+  if (explicit_fmt == "test")
+    throw runtime_error ("No test-scene name specified");
+  else if (explicit_fmt.empty ())
+    throw runtime_error ("Scene format must be specified for stream input");
+
+  return Spec ("", "", explicit_fmt);
+}
+
 // Parse any scene-definition arguments necessary from CLP.
+// At most MAX_SPECS scene specifications will be consumed from CLP.
 // The exact aguments required may vary depending on previous options.
 //
 void
-SceneDef::parse (CmdLineParser &clp)
+SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
 {
-  if (clp.num_remaining_args() > 0)
-    user_name = clp.get_arg ();
+  unsigned num = clp.num_remaining_args();
 
-  if (user_name == "-")
-    user_name = "";
+  if (num > max_specs)
+    num = max_specs;
 
-  name = user_name;
+  if (num == 0)
+    specs.push_back (cin_spec ());
+  else
+    while (num > 0)
+      {
+	std::string user_name = clp.get_arg ();
 
-  if (!name.empty() && scene_fmt.empty() && name.substr (0, 5) == "test:")
-    {
-      scene_fmt = "test";
-      name = name.substr (5);
-    }
+	if (user_name == "-")
+	  specs.push_back (cin_spec ());
+	else
+	  {
+	    std::string name = user_name;
+	    std::string fmt = explicit_fmt;
 
-  if (name.empty ())
-    {
-      if (scene_fmt == "test")
-	throw runtime_error ("No test-scene name specified");
-      else if (scene_fmt.empty ())
-	throw runtime_error ("Scene format must be specified for stream input");
-    }
+	    if (fmt.empty() && name.substr (0, 5) == "test:")
+	      {
+		fmt = "test";
+		name = name.substr (5);
+	      }
+
+	    specs.push_back (Spec (user_name, name, fmt));
+	  }
+
+	num--;
+      }
 }
 
 
@@ -260,20 +281,24 @@ SceneDef::load (Scene &scene, Camera &camera)
 {
   // Read in scene file (or built-in test scene)
   //
-  try
-    {
-      if (scene_fmt == "test")
-	def_test_scene (name, scene, camera);
-      else if (name.empty ())
-	scene.load (cin, scene_fmt, camera);
-      else
-	scene.load (name, scene_fmt, camera);
-    }
-  catch (runtime_error &err)
-    {
-      string tag = user_name.empty() ? "<standard input>" : user_name;
-      throw runtime_error (tag + ": Error reading scene: " + err.what ());
-    }
+  for (std::vector<Spec>::iterator spec = specs.begin();
+       spec != specs.end(); spec++)
+    try
+      {
+	if (spec->scene_fmt == "test")
+	  def_test_scene (spec->name, scene, camera);
+	else if (spec->name.empty ())
+	  scene.load (cin, spec->scene_fmt, camera);
+	else
+	  scene.load (spec->name, spec->scene_fmt, camera);
+      }
+    catch (runtime_error &err)
+      {
+	string tag = spec->user_name;
+	if (tag.empty ())
+	  tag = "<standard input>";
+	throw runtime_error (tag + ": Error reading scene: " + err.what ());
+      }
 
   // Correct for bogus "gamma correction in lighting"
   //
@@ -307,6 +332,26 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   if (camera_cmds.length () > 0)
     interpret_camera_cmds (camera, camera_cmds);
+}
+
+
+
+// Returns a string containing the parsed scene specs.
+//
+std::string
+SceneDef::specs_rep () const
+{
+  std::string rep;
+
+  for (std::vector<Spec>::const_iterator spec = specs.begin();
+       spec != specs.end(); spec++)
+    {
+      if (spec != specs.begin ())
+	rep += " ";
+      rep += spec->user_name;
+    }
+
+  return rep;
 }
 
 // arch-tag: b48e19f8-8e7b-46bf-9812-03eeb57fef7e

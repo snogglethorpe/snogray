@@ -73,7 +73,7 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] X_POS Y_POS [SCENE_FILE [MAP_IMAGE_FILE]]" << endl;
+     << " [OPTION...] X_POS Y_POS [SCENE_FILE... [MAP_IMAGE_FILE]]" << endl;
 }
 
 static void
@@ -201,7 +201,8 @@ int main (int argc, char *const *argv)
   unsigned x = parse_coord (clp, "x-position", width);
   unsigned y = parse_coord (clp, "y-position", height);
 
-  CMDLINEPARSER_CATCH (clp, scene_def.parse (clp));
+  CMDLINEPARSER_CATCH
+    (clp, scene_def.parse (clp, clp.num_remaining_args() - 1));
 
   image_sink_params.file_name = clp.get_arg();
 

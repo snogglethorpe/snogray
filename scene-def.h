@@ -70,7 +70,7 @@ For a full list of test-scenes, use the `--list-test-scenes' option."
     break;								      \
 									      \
   case 'I':								      \
-    scene_def.scene_fmt = clp.opt_arg ();				      \
+    scene_def.explicit_fmt = clp.opt_arg ();				      \
     break;								      \
   case 'G':								      \
     scene_def.assumed_gamma = clp.float_opt_arg ();			      \
@@ -130,25 +130,53 @@ public:
   { }
 
   // Parse any scene-definition arguments necessary from CLP.
+  // At most MAX_SPECS scene specifications will be consumed from CLP.
   // The exact aguments required may vary depending on previous options.
   //
-  void parse (CmdLineParser &clp);
+  void parse (CmdLineParser &clp, unsigned max_specs = 1);
 
   // Load the scene into SCENE and CAMERA.
   //
   void load (Scene &scene, Camera &camera);
 
-  // The scene name specified by the user; zero-length if none.
+  // Returns a string containing the parsed scene specs.
   //
-  std::string user_name;
+  std::string specs_rep () const;
 
-  // The scene name possibly with the prefix removed.
+  // A single scene specification to load
   //
-  std::string name;
+  struct Spec
+  {
+    Spec (const std::string &_uname, const std::string &_name,
+	  const std::string &_fmt)
+      : user_name (_uname), name (_name), scene_fmt (_fmt)
+    { }
 
-  // The format of the scene; empty means "try to guess"
+    // The scene name specified by the user; zero-length if none.
+    //
+    std::string user_name;
+
+    // The scene name possibly with the prefix removed.
+    //
+    std::string name;
+
+    // The format of the scene; empty means "try to guess"
+    //
+    std::string scene_fmt;
+  };
+
+  // Returns a Spec for standard input.
   //
-  std::string scene_fmt;
+  Spec cin_spec ();
+
+  // A list of scene specs to load.
+  //
+  std::vector<Spec> specs;
+
+  // An explicit scene fmt specified with the -I option.  Overrides
+  // automatic guessing of format.
+  //
+  std::string explicit_fmt;
 
   // User commands for the camera (applied following scene-definition)
   //
