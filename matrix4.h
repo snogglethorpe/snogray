@@ -39,6 +39,18 @@ public:
     els[2][0] = 0; els[2][1] = 0; els[2][2] = d2; els[2][3] = 0;
     els[3][0] = 0; els[3][1] = 0; els[3][2] = 0; els[3][3] = d3;
   }
+  template<typename T2>
+  Matrix4 (const T2 _els[4][4])
+  {
+    els[0][0] = _els[0][0]; els[0][1] = _els[0][1];
+    els[0][2] = _els[0][2]; els[0][3] = _els[0][3];
+    els[1][0] = _els[1][0]; els[1][1] = _els[1][1];
+    els[1][2] = _els[1][2]; els[1][3] = _els[1][3];
+    els[2][0] = _els[2][0]; els[2][1] = _els[2][1];
+    els[2][2] = _els[2][2]; els[2][3] = _els[2][3];
+    els[3][0] = _els[3][0]; els[3][1] = _els[3][1];
+    els[3][2] = _els[3][2]; els[3][3] = _els[3][3];
+  }
 
   T &operator() (unsigned i, unsigned j) { return els[i][j]; }
   const T &operator() (unsigned i, unsigned j) const { return els[i][j]; }
