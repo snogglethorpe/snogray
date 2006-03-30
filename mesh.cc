@@ -359,10 +359,6 @@ public:
   {
     Group () : num_faces (0), next (0) { }
 
-    // Return the computed normal of this whole normal group.
-    //
-    Mesh::MVec normal () { return normal_sum / num_faces; }
-
     // The number of faces in this group.
     //
     unsigned num_faces;
@@ -370,6 +366,10 @@ public:
     // The sum of the normals of the faces in this group.
     //
     Mesh::MVec normal_sum;
+
+    // The average of the normals of the faces in this group.
+    //
+    Mesh::MVec normal;
 
     // The vertex index of the next normal group.
     //
@@ -430,12 +430,13 @@ VertNormGroups::add_face (const Mesh::MVec &face_normal,
   // because it's the first normal added to it, or because the angle
   // between FACE_NORMAL and the group's normal is sufficiently small.
   //
-  if (group.num_faces == 0 || dot (face_normal, group.normal()) >= min_cos)
+  if (group.num_faces == 0 || dot (face_normal, group.normal) >= min_cos)
     //
     // It fits, add FACE_NORMAL to GROUP, and return VERTEX.
     {
       group.num_faces++;
       group.normal_sum += face_normal;
+      group.normal = group.normal_sum.unit ();
       return vertex;
     }
   else
@@ -493,7 +494,7 @@ Mesh::compute_vertex_normals (float max_angle)
       vertex_normals.resize (num_verts, 0);
 
       for (vert_index_t v = num_old_norms; v < num_verts; v++)
-	vertex_normals[v] = norm_groups[v].normal ();
+	vertex_normals[v] = norm_groups[v].normal;
     }
 }
 
