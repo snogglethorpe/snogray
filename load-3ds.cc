@@ -42,7 +42,7 @@ using namespace std;
 
 // The index of refraction we use for reflective objects.
 //
-#define TDS_MIRROR_IOR			Ior (0.25, 3)
+#define TDS_METAL_IOR			Ior (0.25, 3)
 
 
 
@@ -111,12 +111,13 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
       Color specular = color (m->specular);
 
       if (m->shading == LIB3DS_PHONG && m->shininess > 0)
-	brdf = phong (specular, pow (2, 10.0 * m->shininess));
+	brdf = cook_torrance (specular, pow (100, -m->shininess));
       else if (m->shading == LIB3DS_METAL)
-	brdf = cook_torrance (specular, 1 - m->shininess, TDS_MIRROR_IOR);
+	brdf = cook_torrance (specular, pow (100, -m->shininess),
+			      TDS_METAL_IOR);
 
       if (m->shading == LIB3DS_METAL)
-	mat = new Mirror (TDS_MIRROR_IOR, specular, diffuse, brdf);
+	mat = new Mirror (TDS_METAL_IOR, specular, diffuse, brdf);
       else
 	mat = new Material (diffuse, brdf);
     }
