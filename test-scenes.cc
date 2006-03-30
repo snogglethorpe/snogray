@@ -1557,6 +1557,10 @@ def_scene_light (const string &name, unsigned num,
       add_rect_bulb (scene, Pos (7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
       break;
 
+    case 4:
+      scene.add (new FarLight (Vec (1, 1, -0.5), 0.05, 6));
+      break;
+
     case 8:
       add_deb_lights (DEB_GRACE, 1, scene);
       break;

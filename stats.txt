@@ -1193,5 +1193,52 @@ After adding trace-state tree, horizon hints:
      rays per second:     107,769
      eye-rays per second:   1,012
 
+   2006-03-29 [work]
+      note -- Nice view of building corner in palace01.3ds
+      	      Mesh normals still kind of screwed up.
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-111
+   cmd: snogray ../dist/models/3ds/palace01.3ds test:light-reset test:light-rnl /tmp/palace8.png -b ../cubetexs/rnl_cross.exr -cmf500,md100,mr300,rl90,mr200,rz-12,rd15,md30
+   * adding mesh: 6,708 vertices, 13,328 triangles
+   * adding mesh: 6,708 vertices, 13,328 triangles
+   * adding mesh: 6,708 vertices, 13,328 triangles
+   * adding mesh: 6,708 vertices, 13,328 triangles
+   Scene:
+      scene:   ../dist/models/3ds/palace01.3ds test:light-reset test:light-rnl
+      top-level surfaces:        16
+      lights:                     6
+      materials:                  5
+      tree surfaces:        204,836 (56% duplicates)
+      tree nodes:            48,975 (41% leaves)
+      tree avg depth:            10
+      tree max depth:            26
+   Image:
+      size:               640 x 480
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:                     307,200
+	horizon hint hits:        237,981 (77%)
+	horizon hint misses:       15,964 ( 5%)
+	tree node tests:        6,654,313 ( 0%)
+	surface tests:        100,236,714 ( 0%)
+     shadow:
+	rays:                  11,357,157
+	shadow hint hits:       3,732,177 (32%)
+	shadow hint misses:     2,504,828 (22%)
+	tree node tests:      206,845,607 ( 0%)
+	surface tests:      2,241,111,846 ( 0%)
+     illum:
+	illum calls:              254,425
+	average light samples:       50.7
+	average shadow rays:         44.6 (88%)
+   Time:
+     scene def cpu:          0.9s
+     rendering cpu:       48:30.2
+     total elapsed:      53:13.10
+     rays per second:       4,008
+     eye-rays per second:     105
+
 
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
