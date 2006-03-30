@@ -69,7 +69,10 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal)
   // those using vertices with implicit normals).
   //
   if (vertex_normals.size() < vert_index)
-    compute_vertex_normals ();
+    {
+      compute_vertex_normals ();
+      vert_index = vertices.size (); // compute_vertex_normals can add vertices
+    }
 
   vertices.push_back (pos);
   vertex_normals.push_back (normal);
@@ -340,11 +343,127 @@ Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t dist,
 
 
 
+// Object for calculating vertex normals.
+//
+class VertNormGroups
+{
+public:
+
+  VertNormGroups (Mesh &_mesh, float max_angle,
+		  Mesh::vert_index_t _base_vert = 0)
+    : mesh (_mesh), min_cos (cos (max_angle)), base_vert (_base_vert)
+  { }
+
+  // A single vertex "group"
+  struct Group
+  {
+    Group () : num_faces (0), next (0) { }
+
+    // Return the computed normal of this whole normal group.
+    //
+    Mesh::MVec normal () { return normal_sum / num_faces; }
+
+    // The number of faces in this group.
+    //
+    unsigned num_faces;
+
+    // The sum of the normals of the faces in this group.
+    //
+    Mesh::MVec normal_sum;
+
+    // The vertex index of the next normal group.
+    //
+    Mesh::vert_index_t next;
+  };
+
+  Group &operator[] (Mesh::vert_index_t index)
+  { return groups[index - base_vert]; }
+
+  // Add a face with normal FACE_NORMAL to the normal group for VERTEX, or to
+  // some other normal group derived from it, or to a new normal group, such
+  // that the angle between FACE_NORMAL and the normal group's normal is not
+  // greater than the maximum angle specified for this VertNormGroups object.
+  // Returns the index of the vertex to which FACE_NORMAL was added.
+  //
+  Mesh::vert_index_t add_face (const Mesh::MVec &face_normal,
+			       Mesh::vert_index_t vertex);
+
+private:
+
+  // Mesh we're calculating normals for.
+  //
+  Mesh &mesh;
+
+  // The minimum cosine, and thus maximum angle, allowed between normals in
+  // the same group.
+  //
+  float min_cos;
+
+  // The first vertex we're calculating for.
+  //
+  Mesh::vert_index_t base_vert;
+
+  // Normal groups allocated so far.  The first entry is for vertex
+  // BASE_VERT, and all others follow in vertex order.
+  //
+  vector<Group> groups;
+};
+
+// Add a face with normal FACE_NORMAL to the normal group for VERTEX, or to
+// some other normal group derived from it, or to a new normal group, such
+// that the angle between FACE_NORMAL and the normal group's normal is not
+// greater than the maximum angle specified for this VertNormGroups object.
+// Returns the index of the vertex to which FACE_NORMAL was added.
+//
+Mesh::vert_index_t
+VertNormGroups::add_face (const Mesh::MVec &face_normal,
+			  Mesh::vert_index_t vertex)
+{
+  if (vertex - base_vert >= groups.size ())
+    groups.resize (vertex - base_vert + 1);
+
+  // Vertex group for VERTEX.
+  //
+  Group &group = groups[vertex - base_vert];
+
+  // First see if FACE_NORMAL is acceptable to merge with GROUP, either
+  // because it's the first normal added to it, or because the angle
+  // between FACE_NORMAL and the group's normal is sufficiently small.
+  //
+  if (group.num_faces == 0 || dot (face_normal, group.normal()) >= min_cos)
+    //
+    // It fits, add FACE_NORMAL to GROUP, and return VERTEX.
+    {
+      group.num_faces++;
+      group.normal_sum += face_normal;
+      return vertex;
+    }
+  else
+    {
+      // If no other vertices/groups have been split from this one yet,
+      // make a new vertex by copying this one.
+      //
+      if (! group.next)
+	group.next = mesh.add_vertex (mesh.vertex (vertex));
+
+      // Continue our lookup with the next group.
+      //
+      return add_face (face_normal, group.next);
+    }
+}
+
+
+
 // Compute a normal vector for each vertex that doesn't already have one,
-// by averaging the normals of all triangles that use the vertex.
+// by averaging the normals of the triangles that use the vertex.
+// MAX_ANGLE is the maximum angle allowed between two triangles that share
+// a vertex (and thus a vertex normal); in order to maintain this
+// constraint, compute_vertex_normals may split vertices, so the number of
+// vertices may increase (to prevent this, specify a sufficiently large
+// MAX_ANGLE, e.g. 2 * PI).
 //
 void
-Mesh::compute_vertex_normals ()
+Mesh::compute_vertex_normals (float max_angle)
 {
   unsigned num_verts = vertices.size ();
   unsigned num_triangs = triangles.size ();
@@ -352,34 +471,33 @@ Mesh::compute_vertex_normals ()
 
   if (num_old_norms < num_verts)
     {
-      unsigned num_new_norms = num_verts - num_old_norms;
-      vector<unsigned> face_counts (num_new_norms, 0);
-
-      vertex_normals.resize (num_verts, 0);
+      VertNormGroups norm_groups (*this, max_angle, num_old_norms);
 
       for (unsigned t = 0; t < num_triangs; t++)
 	{
-	  const Triangle &triang = triangles[t];
+	  Triangle &triang = triangles[t];
 	  const MVec norm (triang.raw_normal ());
 
+	  // Find a vertex normal group for this triangle's normal.
+	  // We just update each vertex index to refer to the vertex to
+	  // which the normal was added.
+	  //
 	  for (unsigned num = 0; num < 3; num++)
-	    {
-	      unsigned v = triang.vi[num];
-
-	      if (v >= num_old_norms)
-		{
-		  vertex_normals[v] += norm;
-		  face_counts[v - num_old_norms] ++;
-		}
-	    }
+	    triang.vi[num] = norm_groups.add_face (norm, triang.vi[num]);
 	}
 	
-      for (vert_index_t v = 0; v < num_verts; v++)
-	if (v >= num_old_norms)
-	  if (face_counts[v - num_old_norms] > 1)
-	    vertex_normals[v] /= face_counts[v - num_old_norms];
+      // The number of vertices may have increased due to vertex splitting.
+      //
+      num_verts = vertices.size ();
+
+      vertex_normals.resize (num_verts, 0);
+
+      for (vert_index_t v = num_old_norms; v < num_verts; v++)
+	vertex_normals[v] = norm_groups[v].normal ();
     }
 }
+
+
 
 // Add this (or some other ...) surfaces to SPACE
 //

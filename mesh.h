@@ -129,9 +129,14 @@ public:
   virtual void add_to_space (Space &space);
 
   // Compute a normal vector for each vertex that doesn't already have one,
-  // by averaging the normals of all triangles that use the vertex.
+  // by averaging the normals of the triangles that use the vertex.
+  // MAX_ANGLE is the maximum angle allowed between two triangles that share
+  // a vertex (and thus a vertex normal); in order to maintain this
+  // constraint, compute_vertex_normals may split vertices, so the number of
+  // vertices may increase (to prevent this, specify a sufficiently large
+  // MAX_ANGLE, e.g. 2 * PI).
   //
-  void compute_vertex_normals ();
+  void compute_vertex_normals (float max_angle = 45 * M_PI / 180);
 
   MPos vertex (vert_index_t index) { return vertices[index]; }
   MPos vertex_normal (vert_index_t index) { return vertex_normals[index]; }
