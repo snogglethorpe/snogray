@@ -462,9 +462,9 @@ Tessel::structure (Cell &cell)
 // 	// use in our determination of the best split -- closer to 1 is
 // 	// better.
 // 	//
-// 	dist_t height = split[i]->length;
-// 	dist_t base = edge[i]->length;
-// 	double aspect_ratio = height > base ? height / base : base / height;
+// 	dist_t height = split[i]->length ();
+// 	dist_t base = edge[i]->length ();
+// 	double aspect_ratio = height / base;
 
 	// Update our record of which is the best solution so far.
 	//
@@ -475,6 +475,7 @@ Tessel::structure (Cell &cell)
 	// error (even if the difference is small).
 	//
 	if (best < 0
+    // [1]:
 	    || err < best_err)
     // [4]:
 // 	    || aspect_ratio < best_aspect_ratio)

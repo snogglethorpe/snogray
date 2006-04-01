@@ -333,6 +333,8 @@ private:
     //
     const Vertex *midpoint () const;
 
+    dist_t length () const { return (end->pos - beg->pos).length(); }
+
     // Beginning and end points of this edge.
     //
     const Vertex *beg, *end;
