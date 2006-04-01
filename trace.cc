@@ -134,7 +134,16 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
 	       const Light &light)
 {
   if (depth > global.max_depth * 2)
-    return scene.background (light_ray);
+    //
+    // We've exceeded the trace recursion limit, so guess a return value.
+    // By returning LIGHT_COLOR, we're basically acting as if no more
+    // shadowing objects occur between this point and the light.
+    //
+    // The other plausible return value, black, is _less_ likely to be
+    // accurate, because true black shadows usually don't use this code path
+    // (they should instead use the more efficient SHADOW_OPAQUE code).
+    //
+    return light_color;
 
   Ray intersected_ray = light_ray;
 
