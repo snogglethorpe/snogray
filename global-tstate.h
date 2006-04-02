@@ -22,10 +22,29 @@ class GlobalTraceState
 public:
 
   static const unsigned DEFAULT_MAX_DEPTH = 6;
+  static const double DEFAULT_MIN_TRACE = 1e-10;
 
-  GlobalTraceState () : max_depth (DEFAULT_MAX_DEPTH) { }
+  GlobalTraceState ()
+    : max_depth (DEFAULT_MAX_DEPTH), min_trace (DEFAULT_MIN_TRACE)
+  { }
 
+  // Deepest level of recursive tracing allowed.  Non-opaque shadow rays
+  // use twice this depth (they have purely linear complexity though,
+  // unlike the 2^n complexity of many reflections/refractions).
+  //
   unsigned max_depth;
+
+  // Minimum length of a traced ray; any objects closer than this to the
+  // ray origin are ignored.  This doesn't apply to ordinary (opaque)
+  // shadow rays, just recursive traces such as used by reflection or
+  // refraction, and non-opaque shadow rays.  As other mechanisms avoid
+  // hitting the surface of origin when tracing such rays, min_trace
+  // really only helps if the model has multiple surfaces precisely
+  // located on top of each other (which does does happen in practice,
+  // though usually in weird cases like models with multiple "optional"
+  // parts which are all enabled by default).
+  //
+  double min_trace;
 
   // This is only used temporarily by Scene::illum, but we keep it around
   // permanently to avoid the overhead of memory allocation.

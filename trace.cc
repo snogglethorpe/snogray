@@ -91,7 +91,9 @@ Trace::render (const Ray &ray)
   if (depth > global.max_depth)
     return scene.background (ray);
 
-  Ray intersected_ray (ray, scene.horizon);
+  const Vec biased_origin = ray.origin + global.min_trace * ray.dir;
+
+  Ray intersected_ray (biased_origin, ray.dir, scene.horizon);
 
   IsecParams isec_params;
   const Surface *closest
@@ -158,8 +160,13 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
       Intersect isec
 	= closest->intersect_info (intersected_ray, isec_params, *this);
 
-      Ray continued_light_ray (intersected_ray.end(), intersected_ray.dir,
-			       light_ray.len - intersected_ray.len);
+      const Vec &dir = intersected_ray.dir;
+
+      double bias = global.min_trace;
+      const Vec biased_origin = intersected_ray.end() + bias * dir;
+
+      Ray continued_light_ray (biased_origin, dir,
+			       light_ray.len - intersected_ray.len - bias);
 
       // Calculate the shadowing effect of the surface we hit
       //
