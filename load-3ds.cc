@@ -104,7 +104,7 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
     // reflection from the surface; a shininess of 1 means an IOR of 2,
     // which should provide some nice reflections.
     //
-    mat = new Plastic (diffuse * m->transparency, 1 + m->shininess);
+    mat = new Plastic (m->transparency, 1 + m->shininess);
   else
     {
       const Brdf *brdf = lambert;
