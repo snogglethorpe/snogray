@@ -1241,4 +1241,54 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:     105
 
 
+   2006-04-04 [work]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-119
+   cmd: snogray -s1280x1024 -a7 -Fbox -cz0.9375 ../dist/models/supercar/supercar-pruned.3ds test:light-reset test:light-grace -b ../cubetexs/grace_cross.exr -cz2,oy-60,mf200 ../images/supercar24.jpg
+   * adding mesh: 5,963 vertices, 11,792 triangles
+   * adding mesh: 21,323 vertices, 19,227 triangles
+   * adding mesh: 9,224 vertices, 18,021 triangles
+   * adding mesh: 9,124 vertices, 18,021 triangles
+   Scene:
+      scene:   ../dist/models/supercar/supercar-pruned.3ds test:light-reset test:light-grace
+      top-level surfaces:       231
+      lights:                     5
+      materials:                 46
+      tree surfaces:        495,019 (57% duplicates)
+      tree nodes:           110,304 (40% leaves)
+      tree avg depth:            10
+      tree max depth:            25
+   Image:
+      size:             1280 x 1024
+      aa_factor:                  7
+      aa_kernel_size:             7
+      aa_filter:                box
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:               1,175,767,823
+	horizon hint hits:    139,785,262 (11%)
+	horizon hint misses:  470,870,583 (40%)
+	tree node tests:   42,263,352,748 ( 0%)
+	surface tests:    526,328,520,360 ( 0%)
+     shadow:
+	rays:               1,956,018,463
+	shadow hint hits:     152,942,852 ( 7%)
+	shadow hint misses:   817,196,297 (41%)
+	non-opaque traces:    525,529,000 (26%; average depth = 2.02029)
+	tree node tests:   69,399,982,962 ( 0%)
+	surface tests:   1,153,890,042,676 ( 0%)
+     illum:
+	illum calls:           47,976,628
+	average light samples:       54.7
+	average shadow rays:         40.8 (74%)
+   Time:
+     scene def cpu:          1.6s
+     rendering cpu:   104:18:49.4
+     total elapsed:   111:05:05.3
+     rays per second:       8,339
+     eye-rays per second:     171
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
