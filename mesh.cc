@@ -484,7 +484,8 @@ Mesh::compute_vertex_normals (float max_angle)
 	  // which the normal was added.
 	  //
 	  for (unsigned num = 0; num < 3; num++)
-	    triang.vi[num] = norm_groups.add_face (norm, triang.vi[num]);
+	    if (triang.vi[num] >= num_old_norms)
+	      triang.vi[num] = norm_groups.add_face (norm, triang.vi[num]);
 	}
 	
       // The number of vertices may have increased due to vertex splitting.
