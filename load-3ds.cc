@@ -48,36 +48,75 @@ using namespace std;
 
 struct TdsLoader
 {
-  TdsLoader (Scene &_scene) : scene (_scene), file (0) { }
+  TdsLoader (Scene *_scene)
+    : scene (_scene), single_mesh (0), file (0)
+  { }
+  TdsLoader (Mesh *_dest_mesh = 0)
+    : scene (0), single_mesh (_dest_mesh), file (0)
+  { }
   ~TdsLoader () { if (file) lib3ds_file_free (file); }
 
+  // Load 3ds scene file FILENAME into memory.
+  //
   void load (const string &filename);
 
-  void add_to_scene (const Xform &xform = Xform::identity);
-  void add_to_scene (Lib3dsNode *node, const Xform &xform = Xform::identity);
+  // Import all meshes/lights in the 3ds scene, transformed by XFORM,
+  // into the snogray scene or mesh associated with this loader.
+  //
+  void convert (const Xform &xform = Xform::identity);
+
+  // Import 3ds scene objects underneath NODE, transformed by XFORM,
+  // into the snogray scene or mesh associated with this loader.
+  //
+  void convert (Lib3dsNode *node, const Xform &xform = Xform::identity);
 
   void set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform);
 
+  // Return a snogray material corresponding to the 3ds material called NAME.
+  // If this loader has a scene associated with it, the material will be
+  // added to it.
+  //
   const Material *lookup_material (const char *name);
+
+  // Return a snogray material corresponding to the 3ds material M.
+  // If this loader has a scene associated with it, the material will be
+  // added to it.
+  //
   const Material *convert_material (Lib3dsMaterial *m);
 
+  // 3ds to snogray conversion methods for various primitive types.
+  //
   Vec vec (Lib3dsVector &v) { return Vec (v[0], v[1], v[2]); }
   Pos pos (Lib3dsPoint &p) { return Pos (p.pos[0], p.pos[1], p.pos[2]); }
   Pos pos (Lib3dsVector &p) { return Pos (p[0], p[1], p[2]); }
   Color color (Lib3dsRgba &rgba) { return Color (rgba[0], rgba[1], rgba[2]); }
   Color color (Lib3dsRgb &rgb) { return Color (rgb[0], rgb[1], rgb[2]); }
 
-  Scene &scene;
+  // If non-null, scene to add stuff to.
+  //
+  Scene *scene;
 
+  // If non-null, all meshes will be added to this mesh.
+  //
+  Mesh *single_mesh;
+
+  // Handle for lib3ds data structures.
+  //
   Lib3dsFile *file;
 
   typedef map<const string, const Material *> MatMap;
 
+  // A mapping from 3ds material names to snogray materials.
+  //
   MatMap materials;
 };
 
 
 
+// Return a snogray material corresponding to the 3ds material M.
+// If this loader has a scene associated with it, the material will be
+// added to it.
+//
 const Material *
 TdsLoader::convert_material (Lib3dsMaterial *m)
 {
@@ -122,11 +161,16 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
 	mat = new Material (diffuse, brdf);
     }
 
-  scene.add (mat);
+  if (scene)
+    scene->add (mat);
 
   return mat;
 }
 
+// Return a snogray material corresponding to the 3ds material called NAME.
+// If this loader has a scene associated with it, the material will be
+// added to it.
+//
 const Material *
 TdsLoader::lookup_material (const char *name)
 {
@@ -185,11 +229,14 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 
 
 
+// Import 3ds scene objects underneath NODE, transformed by XFORM,
+// into the snogray scene or mesh associated with this loader.
+//
 void
-TdsLoader::add_to_scene (Lib3dsNode *node, const Xform &xform)
+TdsLoader::convert (Lib3dsNode *node, const Xform &xform)
 {
   for (Lib3dsNode *child = node->childs; child; child = child->next)
-    add_to_scene (child, xform);
+    convert (child, xform);
 
   if (node->type == LIB3DS_OBJECT_NODE && strcmp (node->name,"$$$DUMMY") != 0)
     {
@@ -207,10 +254,14 @@ TdsLoader::add_to_scene (Lib3dsNode *node, const Xform &xform)
 
 	  Xform vert_xform = Xform (X) * xform;
 
-	  Mesh *mesh = new Mesh ();
+	  Mesh *mesh = single_mesh;
+
+	  if (! mesh)
+	    mesh = new Mesh ();
 
 	  // Add vertices without normals
 	  //
+	  Mesh::vert_index_t base_vertex = mesh->num_vertices ();
 	  for (unsigned v = 0; v < m->points; v++)
 	    mesh->add_vertex (pos (m->pointL[v]) * vert_xform);
 
@@ -247,7 +298,11 @@ TdsLoader::add_to_scene (Lib3dsNode *node, const Xform &xform)
 
 	      // Vertex indices of this face.
 	      //
-	      unsigned vind[3] = { f->points[0], f->points[1], f->points[2] };
+	      unsigned vind[3] = {
+		base_vertex + f->points[0],
+		base_vertex + f->points[1],
+		base_vertex + f->points[2]
+	      };
 
 	      // If the triangle is non-smoothed but the mesh has some
 	      // smoothed faces, then the triangle must have its own
@@ -255,14 +310,14 @@ TdsLoader::add_to_scene (Lib3dsNode *node, const Xform &xform)
 	      //
 	      if (smoothing && !f->smoothing)
 		for (unsigned i = 0; i < 3; i++)
-		  if (vert_face_counts[vind[i]] > 1)
+		  if (vert_face_counts[vind[i] - base_vertex] > 1)
 		    //
 		    // This vertex is shared, but we need our own, so
 		    // copy it, and use the copy instead.
 		    {
 		      // Remember that we're not sharing the old vertex.
 		      //
-		      vert_face_counts[vind[i]]--;
+		      vert_face_counts[vind[i] - base_vertex]--;
 
 		      // Make the new vertex
 		      //
@@ -283,24 +338,31 @@ TdsLoader::add_to_scene (Lib3dsNode *node, const Xform &xform)
 	      delete vert_face_counts;
 	    }
 
-	  scene.add (mesh);
+	  if (scene && !single_mesh)
+	    scene->add (mesh);
 	}
     }
 }
 
-void 
-TdsLoader::add_to_scene (const Xform &xform)
-{
-  for (Lib3dsNode *node = file->nodes; node; node = node->next)
-    add_to_scene (node, xform);
-
-  for (Lib3dsLight *l = file->lights; l; l = l->next)
-    scene.add (new PointLight (pos (l->position) * xform,
-			       color (l->color) * l->multiplier));
-}
-
 
 
+// Import all meshes/lights in the 3ds scene, transformed by XFORM,
+// into the snogray scene or mesh associated with this loader.
+//
+void 
+TdsLoader::convert (const Xform &xform)
+{
+  for (Lib3dsNode *node = file->nodes; node; node = node->next)
+    convert (node, xform);
+
+  if (scene)
+    for (Lib3dsLight *l = file->lights; l; l = l->next)
+      scene->add (new PointLight (pos (l->position) * xform,
+				  color (l->color) * l->multiplier));
+}
+
+// Load 3ds scene file FILENAME into memory.
+//
 void
 TdsLoader::load (const string &filename)
 {
@@ -319,10 +381,13 @@ TdsLoader::load (const string &filename)
 
 
 
+// Load a 3ds scene file into SCENE and CAMERA; loads all parts of the
+// scene, including lights and the first camera position.
+//
 void
 Snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 {
-  TdsLoader l (scene);
+  TdsLoader l (&scene);
 
   l.load (filename);
 
@@ -335,7 +400,27 @@ Snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
   if (l.file->cameras)
     l.set_camera (camera, l.file->cameras, xform);
 
-  l.add_to_scene (xform);
+  l.convert (xform);
+}
+
+// Load meshes (and any materials they use) from a 3ds scene file into
+// MESH.  Geometry is first transformed by XFORM.
+//
+void
+Snogray::load_3ds_file (const string &filename, Mesh &mesh, const Xform &xform)
+{
+  TdsLoader l (&mesh);
+
+  l.load (filename);
+
+  // Transform vertical Z axis into our preferred vertical Y axis
+  //
+  Xform file_xform;
+  file_xform.rotate_x (-M_PI_2);
+  file_xform.scale (1, 1, -1);
+  file_xform *= xform;
+
+  l.convert (file_xform);
 }
 
 // arch-tag: 4deb9ac0-be20-4853-b232-e6ebb54c5888

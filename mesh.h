@@ -109,15 +109,9 @@ public:
 
   // For loading mesh from any file-type (automatically determined)
   //
-  void load (const char *file_name,
-	     const Xform &xform = Xform::identity,
-	     const std::string &mat_name = "");
   void load (const std::string &file_name,
 	     const Xform &xform = Xform::identity,
-	     const std::string &mat_name = "")
-  {
-    load (file_name.c_str (), xform, mat_name);
-  }
+	     const std::string &mat_name = "");
 
   // For loading mesh from .msh file
   //
@@ -141,13 +135,16 @@ public:
   MPos vertex (vert_index_t index) { return vertices[index]; }
   MPos vertex_normal (vert_index_t index) { return vertex_normals[index]; }
 
+  unsigned num_vertices () const { return vertices.size (); }
+  unsigned num_triangles () const { return triangles.size (); }
+
   // Return a bounding box for the entire mesh
   //
   virtual BBox bbox () const;
 
   void transform (SXform &xform);
 
-  //private:
+private:
 
   class Triangle : public Surface
   {
@@ -261,6 +258,8 @@ public:
   // A vector of Mesh::Triangle surfaces that use this part.
   //
   std::vector<Triangle> triangles;
+
+public:
 
   // Whether this mesh uses left-handed or right-handed conventions by
   // default -- basically whether the triangle vertices are in a

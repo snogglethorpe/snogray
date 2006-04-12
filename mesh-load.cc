@@ -11,9 +11,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <cerrno>
+#include <cctype>
+#include <algorithm>
 
 #include "excepts.h"
 #include "string-funs.h"
+#include "load-3ds.h"
 
 #include "mesh.h"
 
@@ -24,33 +28,38 @@ using namespace std;
 // Generic mesh-file loading
 
 void
-Mesh::load (const char *file_name, const Xform &xform,
-	    const string &mat_name)
+Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
 {
-  ifstream stream (file_name);
+  unsigned ext_pos = file_name.find_last_of (".");
 
-  if (stream)
-    try
-      { 
-	const char *file_ext = rindex (file_name, '.');
+  if (ext_pos + 1 >= file_name.length())
+    throw runtime_error ("No filename extension to determine mesh file format");
 
-	if (! file_ext)
-	  throw
-	    file_error ("No filename extension to determine mesh file format");
-	else
-	  file_ext++;
+  string fmt = file_name.substr (ext_pos + 1);
 
-	if (strcmp (file_ext, "msh") == 0 || strcmp (file_ext, "mesh") == 0)
-	  load_msh_file (stream, xform, mat_name);
-      }
-    catch (std::runtime_error &err)
-      {
-	throw file_error (string (file_name)
-			  + ": Error reading mesh file: "
-			  + err.what ());
-      }
+  // Make FMT lower-case.
+  //
+  std::transform (fmt.begin(), fmt.end(), fmt.begin(), ::tolower);
+
+  // First look for formats that want to open the file themselves.
+  //
+  if (fmt == "3ds")
+    load_3ds_file (file_name, *this, xform);
   else
-    throw file_error (string (file_name) + ": Cannot open mesh file");
+    // Try to open the stream, and then look for formats that want a stream.
+    //
+    {
+      ifstream stream (file_name.c_str());
+
+      if (! stream)
+	throw file_error (string ("Cannot open mesh file: ")
+			  + strerror (errno));
+
+      if (fmt == "msh" || fmt == "mesh")
+	load_msh_file (stream, xform, mat_name);
+      else
+	throw (runtime_error (string ("Unknown mesh file format: ") + fmt));
+    }
 }
 
 
