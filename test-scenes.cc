@@ -191,7 +191,7 @@ tobj (tobj_type type, const Material *mat, const Pos &pos, dist_t radius,
 
 
 static void
-def_scene_miles (const string &name, unsigned num, Scene &scene, Camera &camera)
+def_scene_miles (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
 //  Material *mat2 = scene.add (new Lambert (Color (0.5, 0.5, 0)));
@@ -302,7 +302,7 @@ add_scene_descs_miles (vector<TestSceneDesc> &descs)
 }
 
 static void 
-def_scene_pretty_bunny (const string &name, unsigned num,
+def_scene_pretty_bunny (unsigned num, const string &arg,
 			Scene &scene, Camera &camera)
 {
   // This is a mutation of test:cs465-4
@@ -327,7 +327,7 @@ def_scene_pretty_bunny (const string &name, unsigned num,
 			     cook_torrance (Color (1, 1, 0.3), 0,
 					    Ior (0.25, 3))));
 
-  bool goldbunny = begins_with (name, "g");
+  bool goldbunny = (arg == "gold");
 
   Mesh *bunny = new Mesh (goldbunny ? gold : glass);
   if (num / 10 == 1)
@@ -380,8 +380,7 @@ add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_teapot (const string &name, unsigned num,
-		  Scene &scene, Camera &camera)
+def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
   // The teapot and board meshes were originally produced as a .nff file by
   // the SPD package, which uses Z as the vertical axis.  This transform
@@ -421,8 +420,9 @@ def_scene_teapot (const string &name, unsigned num,
       break;
     }
 
+  string mesh_file = arg.empty() ? "teapot.msh" : arg;
   Xform teapot_xform = mesh_xform * Xform::translation (Vec (0, -0.1, 0));
-  scene.add (new Mesh (teapot_mat, name + ".msh", teapot_xform, true));
+  scene.add (new Mesh (teapot_mat, mesh_file, teapot_xform, true));
 
   // Chessboard
   //
@@ -616,8 +616,7 @@ add_scene_descs_teapot (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_orange (const string &name, unsigned num,
-		  Scene &scene, Camera &camera)
+def_scene_orange (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
   // Orange mesh and coords come from .nff file
   //
@@ -694,7 +693,7 @@ add_scene_descs_orange (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_cornell_box (const string &name, unsigned num,
+def_scene_cornell_box (unsigned num, const string &arg,
 		       Scene &scene, Camera &camera)
 {
   float light_intens = 15;
@@ -995,7 +994,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
 }
 
 static void
-def_scene_cs465 (const string &name, unsigned num, Scene &scene, Camera &camera)
+def_scene_cs465 (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
   switch (num)
     {
@@ -1062,7 +1061,8 @@ def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &
 #endif
 
 static void
-def_scene_pretty_dancer (const string &name, unsigned num, Scene &scene, Camera &camera)
+def_scene_pretty_dancer (unsigned num, const string &arg,
+			 Scene &scene, Camera &camera)
 {
   // Simple colored materials
   //
@@ -1249,8 +1249,7 @@ float Snogray::tessel_accur = 0.001;
 bool Snogray::tessel_smooth = true;
 
 static void
-def_scene_tessel (const string &name, unsigned num,
-		  Scene &scene, Camera &camera)
+def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
   unsigned lighting = num / 10;
   num %= 10;
@@ -1301,13 +1300,13 @@ def_scene_tessel (const string &name, unsigned num,
     case 3: perturb = 0.01;  break;
     }
 
-  if (ends_in (name, "sphere"))
+  if (arg == "sphere")
     scene.add (new Mesh (mat, SphereTesselFun (Pos (0, height + 1, 0), 1, perturb),
 			 max_err, tessel_smooth));
-  else if (ends_in (name, "sinc"))
+  else if (arg == "sinc")
     scene.add (new Mesh (mat, SincTesselFun (Pos (0, height + 0.22, 0), 1.5),
 			 max_err, tessel_smooth));
-  else if (ends_in (name, "torus"))
+  else if (arg == "torus")
     scene.add (new Mesh (mat,
 			 TorusTesselFun (Pos (0, height + 0.35, 0), 1, 0.3, perturb),
 			 max_err, tessel_smooth));
@@ -1371,10 +1370,10 @@ normalize (Mesh *mesh, const SXform &xform = SXform::identity)
 }
 
 static void
-def_scene_mesh (const string &name, unsigned num,
-		 Scene &scene, Camera &camera)
+def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
-  unsigned csys  = (num / 1000) % 10;
+  unsigned csys  = (num / 10000) % 10;
+  unsigned rot  = (num / 1000) % 10;
   unsigned base  = (num / 100) % 10;
   unsigned lighting  = (num / 10) % 10;
   num %= 10;
@@ -1436,20 +1435,33 @@ def_scene_mesh (const string &name, unsigned num,
     }
 
   Xform xform;
+
+  // Mesh correction transforms
+  //
   if (csys == 1)
     {
+      // flip z-axis
+      //
+      xform.scale (1, 1, -1);
+    }
+  else if (csys == 2)
+    {
       // Transform vertical Z axis into our preferred vertical Y axis
-
+      //
       xform.rotate_x (-M_PI_2);
       xform.scale (-1, 1, 1);
     }
-  else
+
+  // Presentation transforms
+  //
+  if (rot >= 1 && rot <= 3)
     {
-      xform.scale (1, 1, -1);	// flip z-axis
-      xform.rotate_y (-M_PI_2);
+      // rotate ROT * 90 deg counter-clockwise around y axis
+      //
+      xform.rotate_y (rot * M_PI_2);
     }
 
-  Mesh *mesh = new Mesh (obj_mat, "+test.msh", xform, true);
+  Mesh *mesh = new Mesh (obj_mat, arg, xform, true);
   normalize (mesh, 0.4);
   scene.add (mesh);
 
@@ -1486,6 +1498,9 @@ def_scene_mesh (const string &name, unsigned num,
       add_cube (scene, glass, Pos (-0.5, 0, -0.5),
 		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
       break;
+
+    case 9:
+      break;
     }
 
   switch (lighting)
@@ -1504,6 +1519,10 @@ def_scene_mesh (const string &name, unsigned num,
 
     case 3:
       add_rect_bulb (scene, Pos (7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
+      break;
+
+    case 4:
+      add_rect_bulb (scene, Pos (-1, 5, -1), Vec (2, 0, 0), Vec (0, 0, 2), 45);
       break;
 
     case 8:
@@ -1525,18 +1544,17 @@ add_scene_descs_mesh (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_light (const string &name, unsigned num,
-		 Scene &scene, Camera &camera)
+def_scene_light (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
-  if (ends_in (name, "reset"))
+  if (arg == "reset")
     {
       scene.lights.clear ();
       return;
     }
 
-  if (ends_in (name, "grace"))
+  if (arg == "grace")
     num = 8;
-  else if (ends_in (name, "rnl"))
+  else if (arg == "rnl")
     num = 9;
 
   switch (num)
@@ -1578,6 +1596,14 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
   string name (_name);		// make a local copy
 
+  string arg;
+  unsigned arg_start = name.find_first_of (":");
+  if (arg_start < name.length ())
+    {
+      arg = name.substr (arg_start + 1);
+      name = name.substr (0, arg_start);
+    }
+
   // Devide the name into a "base name" and "scene number" if possible
   //
   unsigned num = 0;
@@ -1593,25 +1619,25 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     }
 
   if (name == "miles")
-    def_scene_miles (name, num, scene, camera);
+    def_scene_miles (num, arg, scene, camera);
   else if (name == "mesh")
-    def_scene_mesh (name, num, scene, camera);
+    def_scene_mesh (num, arg, scene, camera);
   else if (name == "teapot")
-    def_scene_teapot (name, num, scene, camera);
+    def_scene_teapot (num, arg, scene, camera);
   else if (name == "orange")
-    def_scene_orange (name, num, scene, camera);
+    def_scene_orange (num, arg, scene, camera);
   else if (ends_in (name, "bunny"))
-    def_scene_pretty_bunny (name, num, scene, camera);
+    def_scene_pretty_bunny (num, arg, scene, camera);
   else if (name == "cornell-box" || name == "cbox")
-    def_scene_cornell_box (name, num, scene, camera);
+    def_scene_cornell_box (num, arg, scene, camera);
   else if (name == "cs465")
-    def_scene_cs465 (name, num, scene, camera);
+    def_scene_cs465 (num, arg, scene, camera);
   else if (ends_in (name, "dancer"))
-    def_scene_pretty_dancer (name, num, scene, camera);
-  else if (begins_with (name, "tessel-"))
-    def_scene_tessel (name, num, scene, camera);
-  else if (name == "light" || begins_with (name, "light-"))
-    def_scene_light (name, num, scene, camera);
+    def_scene_pretty_dancer (num, arg, scene, camera);
+  else if (name == "tessel")
+    def_scene_tessel (num, arg, scene, camera);
+  else if (name == "light")
+    def_scene_light (num, arg, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }
