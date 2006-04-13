@@ -1291,4 +1291,51 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:     171
 
 
+   2006-04-11 [work]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-121
+   cmd: snogray -b ../cubetexs/grace_cross.exr test:mesh80:../dist/models/supercar/supercar-pruned.3ds  -cod25,my-.2,mf.8 -s1280x960 -a7 -Fbox ../images/supercar25.jpg
+   * adding mesh: 177,298 vertices, 209,137 triangles
+   Scene:
+      scene:   test:mesh80:../dist/models/supercar/supercar-pruned.3ds
+      top-level surfaces:        10
+      lights:                     5
+      materials:                 15
+      tree surfaces:        495,295 (57% duplicates)
+      tree nodes:           110,598 (40% leaves)
+      tree avg depth:             6
+      tree max depth:            29
+   Image:
+      size:              1280 x 960
+      aa_factor:                  7
+      aa_kernel_size:             7
+      aa_filter:                box
+
+   rendering: done                                                    .
+
+   Rendering stats:
+     intersect:
+	rays:                 345,336,790
+	horizon hint hits:     70,326,753 (20%)
+	horizon hint misses:  123,884,062 (35%)
+	tree node tests:   17,574,189,004 ( 0%)
+	surface tests:    153,251,076,904 ( 0%)
+     shadow:
+	rays:               1,862,164,391
+	shadow hint hits:      79,512,695 ( 4%)
+	shadow hint misses:   432,155,129 (23%)
+	non-opaque traces:    128,603,273 ( 6%; average depth = 2.10092)
+	tree node tests:   63,094,448,779 ( 0%)
+	surface tests:    497,990,152,373 ( 0%)
+     illum:
+	illum calls:           45,180,082
+	average light samples:       57.5
+	average shadow rays:         41.2 (71%)
+   Time:
+     scene def cpu:          4.2s
+     rendering cpu:    45:06:37.8
+     total elapsed:    48:50:11.7
+     rays per second:      13,593
+     eye-rays per second:     370
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
