@@ -32,7 +32,7 @@ Progress::start ()
 
   update_pos = start_pos + 1;
 
-  pos_width = unsigned (log10 (end_pos)) + 1;
+  pos_width = unsigned (log10 (float (end_pos))) + 1;
 }
 
 void

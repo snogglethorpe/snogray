@@ -232,7 +232,7 @@ int main (int argc, char *const *argv)
       // well enough.
 
       image_sink_params.aa_overlap = sample_width;
-      image_sink_params.exposure += log (sample_width) / 2 + 3;
+      image_sink_params.exposure += log (float (sample_width)) / 2 + 3;
     }
 
   map.save (image_sink_params);
