@@ -16,7 +16,10 @@
 
 #include "scene.h"
 #include "excepts.h"
-#include "load-3ds.h"
+
+#ifdef HAVE_LIB3DS
+# include "load-3ds.h"
+#endif
 
 using namespace Snogray;
 using namespace std;
@@ -43,9 +46,11 @@ Scene::load (const string &file_name, const string &fmt, Camera &camera)
 
   // First look for formats that want to open the file themselves.
   //
+#ifdef HAVE_LIB3DS
   if (load_fmt == "3ds")
     load_3ds_file (file_name, *this, camera);
   else
+#endif
     // Try to open the stream, and then look for formats that want a stream.
     //
     {

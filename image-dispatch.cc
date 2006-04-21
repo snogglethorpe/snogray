@@ -13,6 +13,8 @@
 #include <cctype>
 #include <algorithm>
 
+#include "config.h"
+
 #include "image-io.h"
 
 #include "image-exr.h"
@@ -52,22 +54,33 @@ ImageSinkParams::make_sink () const
   const char *fmt = find_format ();
 
   // Make the output-format-specific parameter block
+
+#ifdef HAVE_LIBEXR
   if (strcasecmp (fmt, "exr") == 0)
     return ExrImageSinkParams (*this).make_sink ();
-  else if (strcasecmp (fmt, "png") == 0)
+#endif
+#ifdef HAVE_LIBPNG
+  if (strcasecmp (fmt, "png") == 0)
     return PngImageSinkParams (*this).make_sink ();
-  else if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
+#endif
+#ifdef HAVE_LIBJPEG
+  if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
     return JpegImageSinkParams (*this).make_sink ();
-  else if (strcasecmp (fmt, "ppm") == 0)
+#endif
+#ifdef HAVE_LIBNETPBM
+  if (strcasecmp (fmt, "ppm") == 0)
     return PpmImageSinkParams (*this).make_sink ();
-  else if (strcasecmp (fmt, "pfm") == 0)
+#endif
+
+  if (strcasecmp (fmt, "pfm") == 0)
     return PfmImageSinkParams (*this).make_sink ();
-  else if (strcasecmp (fmt, "rgbe") == 0
-	   || strcasecmp (fmt, "hdr") == 0
-	   || strcasecmp (fmt, "pic") == 0)
+  if (strcasecmp (fmt, "rgbe") == 0
+      || strcasecmp (fmt, "hdr") == 0
+      || strcasecmp (fmt, "pic") == 0)
     return RgbeImageSinkParams (*this).make_sink ();
-  else
-    error ("Unknown or unsupported output image type");
+
+  error ("Unknown or unsupported output image type");
+
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
 }
 
@@ -77,22 +90,33 @@ ImageSourceParams::make_source () const
   const char *fmt = find_format ();
 
   // Make the output-format-specific parameter block
+
+#ifdef HAVE_LIBEXR
   if (strcasecmp (fmt, "exr") == 0)
     return ExrImageSourceParams (*this).make_source ();
-  else if (strcasecmp (fmt, "png") == 0)
+#endif
+#ifdef HAVE_LIBPNG
+  if (strcasecmp (fmt, "png") == 0)
     return PngImageSourceParams (*this).make_source ();
-  else if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
+#endif
+#ifdef HAVE_LIBJPEG
+  if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
     return JpegImageSourceParams (*this).make_source ();
-  else if (strcasecmp (fmt, "ppm") == 0)
+#endif
+#ifdef HAVE_LIBNETPBM
+  if (strcasecmp (fmt, "ppm") == 0)
     return PpmImageSourceParams (*this).make_source ();
-  else if (strcasecmp (fmt, "pfm") == 0)
+#endif
+
+  if (strcasecmp (fmt, "pfm") == 0)
     return PfmImageSourceParams (*this).make_source ();
-  else if (strcasecmp (fmt, "rgbe") == 0
+  if (strcasecmp (fmt, "rgbe") == 0
 	   || strcasecmp (fmt, "hdr") == 0
 	   || strcasecmp (fmt, "pic") == 0)
     return RgbeImageSourceParams (*this).make_source ();
   else
     error ("Unknown or unsupported input image type");
+
   return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
 }
 
@@ -109,9 +133,21 @@ ImageInput::recognized_filename (const std::string &filename)
 
   transform (ext.begin(), ext.end(), ext.begin(), tolower);
 
-  return ext == "exr" || ext == "png" || ext == "jpeg" || ext == "jpg"
-    || ext == "ppm" || ext == "pfm"
-    || ext == "rgbe" || ext == "hdr" || ext == "pic";
+  return
+    ext == "pfm" || ext == "rgbe" || ext == "hdr" || ext == "pic"
+#ifdef HAVE_LIBEXR
+    || ext == "exr"
+#endif
+#ifdef HAVE_LIBPNG
+    || ext == "png"
+#endif
+#ifdef HAVE_LIBJPEG
+    || ext == "jpeg" || ext == "jpg"
+#endif
+#ifdef HAVE_LIBNETPBM
+    || ext == "ppm"
+#endif
+    ;
 }
 
 // arch-tag: df36e3bf-7e23-4f22-91a3-03a954777784

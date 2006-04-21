@@ -17,7 +17,10 @@
 
 #include "excepts.h"
 #include "string-funs.h"
-#include "load-3ds.h"
+
+#ifdef HAVE_LIB3DS
+# include "load-3ds.h"
+#endif
 
 #include "mesh.h"
 
@@ -43,9 +46,11 @@ Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
 
   // First look for formats that want to open the file themselves.
   //
+#ifdef HAVE_LIB3DS
   if (fmt == "3ds")
     load_3ds_file (file_name, *this, xform);
   else
+#endif
     // Try to open the stream, and then look for formats that want a stream.
     //
     {
