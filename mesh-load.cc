@@ -15,6 +15,8 @@
 #include <cctype>
 #include <algorithm>
 
+#include "config.h"
+
 #include "excepts.h"
 #include "string-funs.h"
 
