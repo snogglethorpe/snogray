@@ -14,6 +14,8 @@
 #include <fstream>
 #include <algorithm>
 
+#include "config.h"
+
 #include "scene.h"
 #include "excepts.h"
 
