@@ -41,7 +41,7 @@ public:
     NUM_TRACE_TYPES
   };
 
-  Trace (Scene &_scene, GlobalTraceState &_global);
+  Trace (const Scene &_scene, GlobalTraceState &_global);
   Trace (Type _type, Trace *_parent);
   ~Trace ();
 
@@ -117,7 +117,7 @@ public:
   const Medium *enclosing_medium ();
 
 
-  Scene &scene;
+  const Scene &scene;
 
   // Parent state
   //

@@ -15,18 +15,19 @@
 #include <iostream>
 #include <iomanip>
 
+#include "params.h"
 #include "test-scenes.h"
 
 #define SCENE_DEF_OPTIONS_HELP "\
  Scene options:\n\
   -b, --background=BG        Use BG as a background; BG may be a color or a\n\
                                cube-map specification\n\
-  -I, --scene-format=FMT     Scene is in format FMT (one of: test, aff, nff)\n\
-  -G, --assumed-gamma=GAMMA  Reverse implicit gamma correction of GAMMA\n\
-  -L, --light-scale=SCALE    Scale all scene lighting by SCALE\n\
-\n\
-  -T, --tessel-accur=ERR     Set tessellation accuracy for test:tessel scenes\n\
-                             (default 0.001; prepend `@' to toggle smoothing)\n\
+  -I, --scene-options=OPTS   Set scene options; OPTS has the format\n\
+                               OPT1=VAL1[,...]; current options include:\n\
+                                 \"format\"    -- scene file type\n\
+                                 \"background\"-- scene background\n\
+                                 \"gamma\"     -- implied scene gamma correction\n\
+                                 \"light-adj\" -- adjustment for scene lighting\n\
 \n\
       --list-test-scenes     Ouput a list of builtin test-scenes to stdout\n\
 \n\
@@ -42,14 +43,11 @@
                                r[xyz] A    Rotate A degrees around [xyz]-axis\n\
                                o[xyz] A    Orbit A degrees around [xyz]-axis"
 //
-#define SCENE_DEF_SHORT_OPTIONS		"b:I:G:L:T:c:"
+#define SCENE_DEF_SHORT_OPTIONS		"b:I:T:c:"
 //
 #define SCENE_DEF_LONG_OPTIONS						\
     { "background",     required_argument, 0, 'b' },			\
-    { "scene-format", 	required_argument, 0, 'I' },			\
-    { "assumed-gamma", 	required_argument, 0, 'G' },			\
-    { "light-scale", 	required_argument, 0, 'L' },			\
-    { "tessel-accur",   required_argument, 0, 'T' },			\
+    { "scene-options", 	required_argument, 0, 'I' },			\
     { "camera",		required_argument, 0, 'c' },			\
     { "list-test-scenes", no_argument,     0, SCENE_DEF_OPT_LIST_TEST_SCENES }
 //
@@ -66,34 +64,15 @@ For a full list of test-scenes, use the `--list-test-scenes' option."
 
 #define SCENE_DEF_OPTION_CASES(clp, scene_def)				      \
   case 'b':								      \
-    scene_def.bg_spec = clp.opt_arg ();					      \
+    scene_def.params.set ("background", clp.opt_arg ());		      \
     break;								      \
 									      \
   case 'I':								      \
-    scene_def.explicit_fmt = clp.opt_arg ();				      \
-    break;								      \
-  case 'G':								      \
-    scene_def.assumed_gamma = clp.float_opt_arg ();			      \
-    break;								      \
-  case 'L':								      \
-    scene_def.light_scale = clp.float_opt_arg ();			      \
+    scene_def.params.parse (clp.opt_arg ());				\
     break;								      \
 									      \
   case 'c':								      \
     scene_def.camera_cmds += clp.opt_arg ();				      \
-    break;								      \
-									      \
-  case 'T':								      \
-    {									      \
-      const char *arg = clp.opt_arg();					      \
-      if (*arg == '@')							      \
-	{								      \
-	  tessel_smooth = !tessel_smooth;				      \
-	  arg++;							      \
-	}								      \
-      if (*arg)								      \
-	tessel_accur = atof (arg);					      \
-    }									      \
     break;								      \
 									      \
   case SCENE_DEF_OPT_LIST_TEST_SCENES:					      \
@@ -125,9 +104,7 @@ class SceneDef
 {
 public:
 
-  SceneDef ()
-    : assumed_gamma (1), light_scale (1), bg_spec (0)
-  { }
+  SceneDef () { }
 
   // Parse any scene-definition arguments necessary from CLP.
   // At most MAX_SPECS scene specifications will be consumed from CLP.
@@ -169,22 +146,17 @@ public:
   //
   Spec cin_spec ();
 
+  // General scene parameters.
+  //
+  Params params;
+
   // A list of scene specs to load.
   //
   std::vector<Spec> specs;
 
-  // An explicit scene fmt specified with the -I option.  Overrides
-  // automatic guessing of format.
-  //
-  std::string explicit_fmt;
-
   // User commands for the camera (applied following scene-definition)
   //
   std::string camera_cmds;
-
-  float assumed_gamma, light_scale;
-
-  const char *bg_spec;
 };
 
 }

@@ -110,7 +110,7 @@ public:
   //
   void load_aff_file (std::istream &stream, Camera &camera);
 
-  unsigned num_lights () { return lights.size (); }
+  unsigned num_lights () const { return lights.size (); }
 
   void set_background (const Color &col);
   void set_background (const Cubetex *cube);

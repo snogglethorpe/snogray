@@ -13,6 +13,7 @@
 #include <iomanip>
 
 #include "space.h"
+#include "scene.h"
 #include "string-funs.h"
 
 #include "trace-stats.h"
@@ -23,21 +24,18 @@ using namespace std;
 // Print post-rendering scene statistics
 //
 void
-Snogray::print_trace_stats (const GlobalTraceState &global_tstate,
-			    const Scene &scene,
-			    ostream &os)
+TraceStats::print (ostream &os, const Scene &scene)
 {
-  const GlobalTraceState::Stats &gstats = global_tstate.stats;
-  const Space::IsecStats &tistats1 = gstats.space_intersect;
-  const Space::IsecStats &tistats2 = gstats.space_shadow;
+  const Space::IsecStats &tistats1 = space_intersect;
+  const Space::IsecStats &tistats2 = space_shadow;
 
   const Space::Stats tstats = scene.space.stats ();
 
-  long long sc  = gstats.scene_intersect_calls;
+  long long sc  = scene_intersect_calls;
   long long tnc = tistats1.node_intersect_calls;
-  long long ocic = gstats.surface_intersect_calls;
-  long long hhh = gstats.horizon_hint_hits;
-  long long hhm = gstats.horizon_hint_misses;
+  long long ocic = surface_intersect_calls;
+  long long hhh = horizon_hint_hits;
+  long long hhm = horizon_hint_misses;
 
   os << endl;
   os << "Rendering stats:" << endl;
@@ -54,16 +52,16 @@ Snogray::print_trace_stats (const GlobalTraceState &global_tstate,
     os << "     surface tests:   " << setw (16) << commify (ocic)
        << " (" << setw(2) << (100 * ocic / (sc * tstats.num_surfaces)) << "%)" << endl;
 
-  long long sst = gstats.scene_shadow_tests;
+  long long sst = scene_shadow_tests;
 
   if (sst != 0)
     {
-      long long shh = gstats.shadow_hint_hits;
-      long long shm = gstats.shadow_hint_misses;
-      long long sss = gstats.scene_slow_shadow_traces;
-      long long oss = gstats.surface_slow_shadow_traces;
+      long long shh = shadow_hint_hits;
+      long long shm = shadow_hint_misses;
+      long long sss = scene_slow_shadow_traces;
+      long long oss = surface_slow_shadow_traces;
       long long tnt = tistats2.node_intersect_calls;
-      long long ot  = gstats.surface_intersects_tests;
+      long long ot  = surface_intersects_tests;
 
       os << "  shadow:" << endl;
       os << "     rays:            " << setw (16) << commify (sst)
@@ -87,11 +85,11 @@ Snogray::print_trace_stats (const GlobalTraceState &global_tstate,
 	   << endl;
     }
 
-  long long ic = gstats.illum_calls;
+  long long ic = illum_calls;
 
   if (ic != 0)
     {
-      long long is = gstats.illum_samples;
+      long long is = illum_samples;
 
       os << "  illum:" << endl;
       os << "     illum calls:     " << setw (16)

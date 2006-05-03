@@ -74,21 +74,23 @@ MACHINE_OPT = $(HOST_OPT_$(HOST))
 # Snogray rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = bbox.h brdf.cc brdf.h camera.cc camera.h	\
-	cook-torrance.cc cook-torrance.h coords.h cubetex.cc cubetex.h	\
-	excepts.h far-light.cc far-light.h fresnel.h glass.cc glass.h	\
-	global-tstate.h glow.cc glow.h intersect.cc intersect.h		\
-	lambert.cc lambert.h light.cc light.h lsamples.cc lsamples.h	\
-	material.cc material.h matrix4.h medium.h mesh.cc mesh.h	\
-	mesh-load.cc mirror.cc mirror.h octree.cc octree.h phong.cc	\
-	phong.h plastic.cc plastic.h point-light.cc point-light.h pos.h	\
-	progress.cc progress.h rand.h ray.cc ray.h rect-light.cc	\
-	rect-light.h sample-ray.h scene.cc scene.h scene-def.cc		\
-	scene-def.h scene-load.cc scene-load-aff.cc space.cc space.h	\
-	sphere.cc sphere.h surface.cc surface.h tessel.cc tessel.h	\
-	tessel-param.cc tessel-param.h test-scenes.cc test-scenes.h	\
-	texture2.cc texture2.h timeval.cc timeval.h trace.cc trace.h	\
-	tripar.cc tripar.h tripar-isec.h tuple3.h vec.h wire-frame.h	\
+libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		 \
+	cook-torrance.cc cook-torrance.h coords.h cubetex.cc cubetex.h	 \
+	excepts.h far-light.cc far-light.h fresnel.h glass.cc glass.h	 \
+	global-tstate.h glow.cc glow.h grid.cc grid.h intersect.cc	 \
+	intersect.h lambert.cc lambert.h light.h lsamples.cc lsamples.h	 \
+	material.cc material.h matrix4.h medium.h mesh.cc mesh.h	 \
+	mesh-load.cc mirror.cc mirror.h octree.cc octree.h phong.cc	 \
+	phong.h plastic.cc plastic.h point-light.cc point-light.h pos.h	 \
+	progress.cc progress.h rand.h ray.cc ray.h rect-light.cc	 \
+	rect-light.h render.cc render.h render-cmdline.h renderer.cc	 \
+	renderer.h sample2.h sample2-gen.h sample-ray.h scene.cc scene.h \
+	scene-def.cc scene-def.h scene-load.cc scene-load-aff.cc space.h \
+	sphere.cc sphere.h stub-dtors.cc surface.cc surface.h tessel.cc	 \
+	tessel.h tessel-param.cc tessel-param.h test-scenes.cc		 \
+	test-scenes.h texture2.cc texture2.h timeval.cc timeval.h	 \
+	trace.cc trace.h trace-params.h trace-stats.cc trace-stats.h	 \
+	tripar.cc tripar.h tripar-isec.h tuple3.h vec.h wire-frame.h	 \
 	xform.h
 
 # Library dependencies of libsnogrender.a
@@ -106,10 +108,11 @@ endif
 # Snogray image I/O library, libsnogimage.a
 #
 
-libsnogimage_a_SOURCES = image.cc image.h image-aa.cc image-byte-vec.cc	\
-	image-byte-vec.h image-cmdline.cc image-cmdline.h		\
-	image-dispatch.cc image-io.cc image-io.h image-pfm.cc		\
-	image-pfm.h image-rgbe.cc image-rgbe.h
+libsnogimage_a_SOURCES = box.cc box.h filter.h gauss.cc gauss.h image.cc \
+	image.h image-byte-vec.cc image-byte-vec.h image-cmdline.h	 \
+	image-dispatch.cc image-dtors.cc image-input.h image-io.cc	 \
+	image-io.h image-output.cc image-output.h image-pfm.cc		 \
+	image-pfm.h image-rgbe.cc image-rgbe.h mitchell.cc mitchell.h
 
 # Library dependencies of libsnogimage.a
 #
@@ -141,8 +144,9 @@ endif
 # Snogray utility library, libsnogmisc.a
 #
 
-libsnogmisc_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc color.h \
-	freelist.cc freelist.h llist.h rusage.h string-funs.cc string-funs.h
+libsnogmisc_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
+	color.h freelist.cc freelist.h llist.h params.cc params.h	\
+	rusage.h string-funs.cc string-funs.h
 
 
 ################################################################
@@ -158,7 +162,7 @@ LIBS += $(MUDFLAP:-f%=-l%)
 # Programs
 #
 
-snogray_SOURCES = snogray.cc trace-stats.cc trace-stats.h
+snogray_SOURCES = snogray.cc
 snogray_LDADD = libsnogrender.a libsnogimage.a libsnogmisc.a \
 	$(RENDER_LIBS) $(IMAGE_LIBS) $(LIBS)
 

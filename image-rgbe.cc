@@ -34,98 +34,29 @@
 // multiples of that value in watts/steradian/meter^2.
 //
 
-
-#include <cmath>
-
-#include "excepts.h"
+#include <ostream>
+#include <istream>
 
 #include "image-rgbe.h"
+
 
 using namespace Snogray;
 using namespace std;
 
-
-typedef unsigned char byte;
-
-struct RgbeColor
-{
-  static const int exp_offs = 128;
-
-  RgbeColor () : r (0), g (0), b (0), exp (0) { }
-
-  RgbeColor (const Color &col)
-    : r (0), g (0), b (0), exp (0)
-  {
-    Color::component_t _r = col.r(), _g = col.g(), _b = col.b();
-    Color::component_t max_comp = max (_r, max (_g, _b));
-
-    if (max_comp > 1e-32)
-      {
-	int iexp;
-	float adj = frexp (max_comp, &iexp) * 255.9999 / max_comp;
-
-	r = byte (adj * _r);
-	g = byte (adj * _g);
-	b = byte (adj * _b);
-	exp = iexp + exp_offs;
-      }
-  }
-
-  operator Color () const
-  {
-    if (exp == 0)
-      return 0;
-    else
-      {
-	float scale = ldexp (1.0, int (exp) - (exp_offs + 8));
-	return Color (scale * (r + 0.5), scale * (g + 0.5), scale * (b + 0.5));
-      }
-  }
-
-  byte r, g, b, exp;
-};
-
-
 
 // Output
 
-class RgbeImageSink : public ImageSink
-{  
-public:
-
-  RgbeImageSink (const RgbeImageSinkParams &params);
-  ~RgbeImageSink ();
-
-  virtual void write_row (const ImageRow &row);
-
-private:
-
-  static const unsigned MIN_RUN_LEN = 4;
-
-  void write_rle_component (byte RgbeColor::*component);
-
-  unsigned width, height;
-
-  ofstream outf;
-
-  RgbeColor *row_buf;
-};
-
-RgbeImageSink::RgbeImageSink (const RgbeImageSinkParams &params)
-  : ImageSink (params),
-    width (params.width), height (params.height),
-    outf (params.file_name, ios_base::out|ios_base::binary|ios_base::trunc),
-    row_buf (new RgbeColor[width])
+RgbeImageSink::RgbeImageSink (const std::string &filename,
+			      unsigned width, unsigned height,
+			      const Params &params)
+  : ImageSink (filename, width, height, params),
+    outf (filename.c_str(), ios_base::out|ios_base::binary|ios_base::trunc),
+    row_buf (width)
 {
   outf << "#?RGBE\n";
   outf << "# Written by snogray\n";
   outf << "\n";
   outf << "-Y " << height << " +X " << width << "\n";
-}
-
-RgbeImageSink::~RgbeImageSink ()
-{
-  delete[] row_buf;
 }
 
 void
@@ -215,45 +146,20 @@ RgbeImageSink::write_row (const ImageRow &row)
   write_rle_component (&RgbeColor::exp);
 }
 
-ImageSink *
-RgbeImageSinkParams::make_sink () const
-{
-  return new RgbeImageSink (*this);
-}
-
 
 // Input
 
-class RgbeImageSource : public ImageSource
-{  
-public:
-
-  RgbeImageSource (const RgbeImageSourceParams &params);
-  ~RgbeImageSource ();
-
-  virtual void read_size (unsigned &width, unsigned &height);
-  virtual void read_row (ImageRow &row);
-
-private:
-
-  void read_rle_component (byte RgbeColor::*component);
-
-  unsigned width, height;
-
-  ifstream inf;
-
-  RgbeColor *row_buf;
-};
-
-RgbeImageSource::RgbeImageSource (const RgbeImageSourceParams &params)
-  : inf (params.file_name, ios_base::binary)
+RgbeImageSource::RgbeImageSource (const std::string &filename,
+				  const Params &params)
+  : ImageSource (filename, params),
+    inf (filename.c_str(), ios_base::binary)
 {
   // Check magic number
   //
   string magic;
   getline (inf, magic);
   if (magic != "#?RGBE" && magic != "#?RADIANCE")
-    throw bad_format ("not a Radiance RGBE file");
+    open_err ("not a Radiance RGBE file");
 
   // Skip lines until we find a blank line
   //
@@ -284,21 +190,9 @@ RgbeImageSource::RgbeImageSource (const RgbeImageSourceParams &params)
 	}
     }
   if (! ok)
-    throw bad_format ("malformed dimension line");
+    open_err ("malformed dimension line");
 
-  row_buf = new RgbeColor[width];
-}
-
-RgbeImageSource::~RgbeImageSource ()
-{
-  delete[] row_buf;
-}
-
-void
-RgbeImageSource::read_size (unsigned &_width, unsigned &_height)
-{
-  _width = width;
-  _height = height;
+  row_buf.resize (width);
 }
 
 void
@@ -331,7 +225,7 @@ RgbeImageSource::read_row (ImageRow &row)
   // Each line begins with two constant bytes, which check
   //
   if (inf.get() != 2 || inf.get() != 2)
-    throw bad_format ("invalid line header");
+    err ("invalid line header");
 
   // The next two bytes are the length of the line in pixels encoded as
   // a big-endian 16-bit number.  This should match the width of the
@@ -340,7 +234,7 @@ RgbeImageSource::read_row (ImageRow &row)
   unsigned ll_hi = inf.get ();
   unsigned ll_lo = inf.get ();
   if ((ll_hi << 8) + ll_lo != width)
-    throw bad_format ("line/image width mismatch");
+    err ("line/image width mismatch");
 
   // Read in the various components of the rgbe-encoded colors.
   //
@@ -355,10 +249,8 @@ RgbeImageSource::read_row (ImageRow &row)
     row[i] = row_buf[i];
 }
 
-ImageSource *
-RgbeImageSourceParams::make_source () const
-{
-  return new RgbeImageSource (*this);
-}
+RgbeImageSink::~RgbeImageSink () { } // stop gcc bitching
+RgbeImageSource::~RgbeImageSource () { } // stop gcc bitching
+
 
 // arch-tag: 07aa953d-c887-434a-ad33-405ab1976006

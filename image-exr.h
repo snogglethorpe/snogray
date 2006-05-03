@@ -1,6 +1,6 @@
 // image-exr.h -- EXR format image handling
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,34 +12,71 @@
 #ifndef __IMAGE_EXR_H__
 #define __IMAGE_EXR_H__
 
+#include <ImfRgbaFile.h>
+
 #include "image-io.h"
+
 
 namespace Snogray {
 
-struct ExrImageSinkParams : public ImageFmtSinkParams
-{
-  ExrImageSinkParams (const ImageSinkParams &params)
-    : ImageFmtSinkParams (params)
+class ExrImageSink : public ImageSink
+{  
+public:
+
+  ExrImageSink (const std::string &filename, unsigned width, unsigned height,
+		const Params &params = Params::NONE)
+    : ImageSink (filename, width, height, params),
+      outf (filename.c_str(), width, height),
+      row_buf (width), cur_y (0)
   {
-    if (params.target_gamma && params.target_gamma != 1)
-      params.error ("EXR format does not use gamma correction");
+    if (params.get ("gamma"))
+      open_err ("OpenEXR format does not use gamma correction");
   }
-    
-  virtual ImageSink *make_sink () const;
+  ~ExrImageSink ();
+
+  virtual void write_row (const ImageRow &row);
+
+private:
+
+  Imf::RgbaOutputFile outf;
+
+  std::vector<Imf::Rgba> row_buf;
+
+  unsigned cur_y;
 };
 
-class ExrImageSourceParams : public ImageFmtSourceParams
-{
+class ExrImageSource : public ImageSource
+{  
 public:
-  ExrImageSourceParams (const ImageSourceParams &params)
-    : ImageFmtSourceParams (params)
-  { }
-    
-  virtual ImageSource *make_source () const;
+
+  ExrImageSource (const std::string &filename,
+		  const Params &params = Params::NONE)
+    : ImageSource (filename, params), outf (filename.c_str()), cur_y (0)
+  {
+    const Imf::Header &hdr = outf.header ();
+    const Imath::Box2i &data_window = hdr.dataWindow ();
+
+    width = data_window.max.x - data_window.min.x + 1;
+    height = data_window.max.y - data_window.min.y + 1;
+
+    row_buf.resize (width);
+  }
+  ~ExrImageSource ();
+
+  virtual void read_row (ImageRow &row);
+
+private:
+
+  Imf::RgbaInputFile outf;
+
+  std::vector<Imf::Rgba> row_buf;
+
+  unsigned cur_y;
 };
 
 }
 
 #endif /* __IMAGE_EXR_H__ */
+
 
 // arch-tag: aefc9982-81ff-4087-a25a-85c97c09475d

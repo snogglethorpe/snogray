@@ -49,52 +49,29 @@ little_endian ()
 
 // Output
 
-class PfmImageSink : public ImageSink
-{  
-public:
-
-  PfmImageSink (const PfmImageSinkParams &params);
-  ~PfmImageSink ();
-
-  virtual void write_row (const ImageRow &row);
-
-private:
-
-  unsigned width, height;
-
-  ofstream outf;
-
-  // For whatever stupid reason, PFM files (unlike every other image
-  // format) are store with the _last_ line first.  So for simplicity,
-  // we just read the whole damn thing into memory.
-  //
-  float *raster;
-
-  unsigned next_y;
-};
-
-PfmImageSink::PfmImageSink (const PfmImageSinkParams &params)
-  : ImageSink (params),
-    width (params.width), height (params.height),
-    outf (params.file_name, ios_base::out|ios_base::binary|ios_base::trunc),
-    raster (new float[width * height * 3]),
-    next_y (0)
+PfmImageSink::PfmImageSink (const std::string &filename,
+			    unsigned width, unsigned height,
+			    const Params &params)
+  : ImageSink (filename, width, height, params),
+    outf (filename.c_str(), ios_base::out|ios_base::binary|ios_base::trunc),
+    raster (width * height * 3), next_y (0)
 {
-  outf << "PF\n" << params.width << " " << params.height << "\n";
+  if (params.get ("gamma"))
+    open_err ("PFM format does not use gamma correction");
+
+  outf << "PF\n" << width << " " << height << "\n";
   outf << (little_endian() ? "-1" : "1") << "\n";
 }
 
 PfmImageSink::~PfmImageSink ()
 {
-  outf.write (reinterpret_cast<char *>(raster), width * height * 12);
-
-  delete[] raster;
+  outf.write (reinterpret_cast<char *>(&raster[0]), width * height * 12);
 }
 
 void
 PfmImageSink::write_row (const ImageRow &row)
 {
-  float *p = raster + (width * (height - 1 - next_y) * 3);
+  float *p = &raster[width * (height - 1 - next_y) * 3];
 
   for (unsigned x = 0; x < row.width; x++)
     {
@@ -108,57 +85,13 @@ PfmImageSink::write_row (const ImageRow &row)
   next_y++;
 }
 
-ImageSink *
-PfmImageSinkParams::make_sink () const
-{
-  return new PfmImageSink (*this);
-}
-
 
 // Input
 
-class PfmImageSource : public ImageSource
-{  
-public:
-
-  PfmImageSource (const PfmImageSourceParams &params);
-  ~PfmImageSource ();
-
-  virtual void read_size (unsigned &width, unsigned &height);
-  virtual void read_row (ImageRow &row);
-
-private:
-
-  float maybe_byte_swap (const float &f)
-  {
-    if (byte_swap_floats)
-      {
-	union { float f; char c[4]; } u1, u2;
-	u1.f = f;
-	u2.c[0] = u1.c[3];
-	u2.c[1] = u1.c[2];
-	u2.c[2] = u1.c[1];
-	u2.c[3] = u1.c[0];
-	return u2.f;
-      }
-    else
-      return f;
-  }
-
-  unsigned width, height;
-
-  ifstream inf;
-
-  float *raster;
-
-  bool byte_swap_floats;
-
-  unsigned next_y;
-};
-
-PfmImageSource::PfmImageSource (const PfmImageSourceParams &params)
-  : inf (params.file_name, ios_base::binary),
-    next_y (0)
+PfmImageSource::PfmImageSource (const std::string &filename,
+				const Params &params)
+  : ImageSource (filename, params),
+    inf (filename.c_str(), ios_base::binary), next_y (0)
 {
   char magic[10];
 
@@ -178,27 +111,15 @@ PfmImageSource::PfmImageSource (const PfmImageSourceParams &params)
 
   byte_swap_floats = (file_little_endian != little_endian ());
 
-  raster = new float[width * height * 3];
+  raster.resize (width * height * 3);
 
-  inf.read (reinterpret_cast<char *>(raster), width * height * 12);
-}
-
-PfmImageSource::~PfmImageSource ()
-{
-  delete[] raster;
-}
-
-void
-PfmImageSource::read_size (unsigned &_width, unsigned &_height)
-{
-  _width = width;
-  _height = height;
+  inf.read (reinterpret_cast<char *>(&raster[0]), width * height * 12);
 }
 
 void
 PfmImageSource::read_row (ImageRow &row)
 {
-  float *p = raster + (width * (height - 1 - next_y) * 3);
+  float *p = &raster[width * (height - 1 - next_y) * 3];
 
   for (unsigned x = 0; x < row.width; x++)
     {
@@ -211,10 +132,7 @@ PfmImageSource::read_row (ImageRow &row)
   next_y++;
 }
 
-ImageSource *
-PfmImageSourceParams::make_source () const
-{
-  return new PfmImageSource (*this);
-}
+PfmImageSource::~PfmImageSource () { } // stop gcc bitching
+
 
 // arch-tag: 225e07ef-d906-4866-9120-b7d360506249

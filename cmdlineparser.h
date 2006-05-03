@@ -1,6 +1,6 @@
 // cmdlineparser.h -- Command-line parser
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -61,6 +61,7 @@ public:
   float float_opt_arg () const;
   unsigned unsigned_opt_arg () const;
   void opt_err (const char *phrase) const __attribute__ ((noreturn));
+  void opt_err (const std::string &phrase) const __attribute__ ((noreturn));
 
   void err (const char *phrase) const __attribute__ ((noreturn));
   void err (const std::string &phrase) const __attribute__ ((noreturn));

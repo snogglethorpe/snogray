@@ -18,7 +18,7 @@ using namespace Snogray;
 
 // Constructor for root Trace
 //
-Trace::Trace (Scene &_scene, GlobalTraceState &_global)
+Trace::Trace (const Scene &_scene, GlobalTraceState &_global)
   : scene (_scene), parent (0), global (_global),
     type (SPONTANEOUS), origin (0), horizon_hint (0), depth (0), medium (0)
 {
@@ -88,10 +88,10 @@ Trace::enclosing_medium ()
 Color
 Trace::render (const Ray &ray)
 {
-  if (depth > global.max_depth)
+  if (depth > global.params.max_depth)
     return scene.background (ray);
 
-  const Vec biased_origin = ray.origin + global.min_trace * ray.dir;
+  const Vec biased_origin = ray.origin + global.params.min_trace * ray.dir;
 
   Ray intersected_ray (biased_origin, ray.dir, scene.horizon);
 
@@ -135,7 +135,7 @@ Color
 Trace::shadow (const Ray &light_ray, const Color &light_color,
 	       const Light &light)
 {
-  if (depth > global.max_depth * 2)
+  if (depth > global.params.max_depth * 2)
     //
     // We've exceeded the trace recursion limit, so guess a return value.
     // By returning LIGHT_COLOR, we're basically acting as if no more
@@ -162,7 +162,7 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
 
       const Vec &dir = intersected_ray.dir;
 
-      double bias = global.min_trace;
+      double bias = global.params.min_trace;
       const Vec biased_origin = intersected_ray.end() + bias * dir;
 
       Ray continued_light_ray (biased_origin, dir,

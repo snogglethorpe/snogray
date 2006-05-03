@@ -2,6 +2,7 @@ Todo list for snogray
 
 
 
+ [DONE]
  + Switch to proper filtering for anti-aliasing, taking jitter etc into account:
 
      Add a Filter class, which takes a simple x,y offset and returns a
@@ -220,6 +221,17 @@ Todo list for snogray
      See http://graphics.ucsd.edu/~henrik/papers/ewr7/
 
 
+ + Implement "Lightcuts" algorithm for optimizing (quite dramatically)
+   _huge_ numbers of lights:
+
+     http://www.cs.cornell.edu/~kb/publications/SIG05lightcuts.pdf
+
+ + Implement "Reconstruction cuts" (further optimizes lightcuts algorithm)
+
+     (same paper)
+
+
+ [*** This is old, probably "lightcuts" above is better ***]
  + Better light management to handle huge numbers of lights.
 
      [** This is kind of half-way done: we still generate samples from
@@ -250,9 +262,11 @@ Todo list for snogray
        faraway lights.
 
 
+ [DONE]
  + Get rid of weird error handling in image code and just use exceptions
 
 
+ [DONE]
  + Get rid of "Image{Source,Sink}Params" classes and instead just pass
    user-supplied  "parameter strings" to image backends.
 

@@ -140,23 +140,6 @@ public:
 
     return Ray (pos, targ);
   }
-  Ray get_ray (unsigned x, unsigned y, unsigned width, unsigned height,
-	       bool jitter = false)
-    const
-  {
-    float fx = float (x), fy = float (height - y);
-    
-    if (jitter)
-      {
-	fx += random (1);
-	fy += random (1);
-      }
-
-    float u = fx / (float)width;
-    float v = fy / (float)height;
-
-    return get_ray (u, v);
-  }
 
   // Set whether the Z axis increases into the image or decreases
   //

@@ -22,16 +22,24 @@ using namespace Snogray;
 
 // Output
 
-ByteVecImageSink::~ByteVecImageSink ()
+ByteVecImageSink::ByteVecImageSink (const std::string &filename,
+				    unsigned width, unsigned height,
+				    const Params &params)
+  : ImageSink (filename, width, height, params),
+    gamma_correction (params.get_float ("gamma", 0)),
+    output_row (width * 3)
 {
-  delete[] output_row;
+  if (gamma_correction != 0)
+    gamma_correction = 1 / gamma_correction; // we actually want the inverse
+  else
+    gamma_correction = 1 / DEFAULT_TARGET_GAMMA;
 }
 
 void
 ByteVecImageSink::write_row (const ImageRow &row)
 {
   unsigned width = row.width;
-  byte *p = output_row;
+  ByteVec::iterator p = output_row.begin ();
 
   for (unsigned x = 0; x < width; x++)
     {
@@ -84,19 +92,7 @@ ByteVecImageSource::set_specs (unsigned _width, unsigned _height,
 
   component_scale = 1 / (Color::component_t)((1 << bit_depth) - 1);
 
-  input_row = new byte[_width * _num_channels * bytes_per_component];
-}
-
-ByteVecImageSource::~ByteVecImageSource ()
-{
-  delete[] input_row;
-}
-
-void
-ByteVecImageSource::read_size (unsigned &_width, unsigned &_height)
-{
-  _width = width;
-  _height = height;
+  input_row.resize (_width * _num_channels * bytes_per_component);
 }
 
 void
@@ -105,7 +101,7 @@ ByteVecImageSource::read_row (ImageRow &row)
   read_row (input_row);
 
   unsigned width = row.width;
-  byte *p = input_row;
+  ByteVec::const_iterator p = input_row.begin ();
 
   for (unsigned x = 0; x < width; x++)
     {
@@ -129,5 +125,9 @@ ByteVecImageSource::read_row (ImageRow &row)
       row[x] = Color (r, g, b);	// alpha????
     }
 }
+
+ByteVecImageSink::~ByteVecImageSink () { } // stop gcc bitching
+ByteVecImageSource::~ByteVecImageSource () { } // stop gcc bitching
+
 
 // arch-tag: ee0370d1-7cdb-42d4-96e3-4cf7757cc2cf

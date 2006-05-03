@@ -1,6 +1,6 @@
 // cubetex.cc -- Texture wrapped around a cube
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -82,7 +82,7 @@ Cubetex::map (const Vec &dir) const
 void
 Cubetex::load (const string &filename)
 {
-  if (ImageInput::recognized_filename (filename))
+  if (ImageIo::recognized_filename (filename))
     //
     // Load from a single image file
     {

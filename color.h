@@ -96,6 +96,15 @@ public:
     return Color (powf (_r, exp), powf (_g, exp), powf (_b, exp));
   }
 
+  component_t min_component () const
+  {
+    return std::min (_r, std::min (_g, _b));
+  }
+  component_t max_component () const
+  {
+    return std::min (_r, std::min (_g, _b));
+  }
+
   component_t r () const { return _r; }
   component_t g () const { return _g; }
   component_t b () const { return _b; }

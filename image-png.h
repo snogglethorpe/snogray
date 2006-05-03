@@ -1,6 +1,6 @@
 // image-png.h -- PNG format image handling
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,29 +12,49 @@
 #ifndef __IMAGE_PNG_H__
 #define __IMAGE_PNG_H__
 
+#include <cstdio>
+
+#include <libpng/png.h>
+
 #include "image-byte-vec.h"
 
 namespace Snogray {
 
-struct PngImageSinkParams : public ByteVecImageSinkParams
-{
-  PngImageSinkParams (const ImageSinkParams &params)
-    : ByteVecImageSinkParams (params)
-  {
-    if (params.quality)
-      params.error ("Quality parameter not supported in PNG format");
-  }
+class PngImageSink : public ByteVecImageSink
+{  
+public:
 
-  virtual ImageSink *make_sink () const;
+  PngImageSink (const std::string &filename,
+		unsigned width, unsigned height,
+		const Params &params = Params::NONE);
+  ~PngImageSink ();
+
+  virtual void write_row (const ByteVec &byte_vec);
+
+private:
+
+  FILE *stream;
+
+  png_structp png;
+  png_infop png_info;
 };
 
-struct PngImageSourceParams : public ByteVecImageSourceParams
-{
-  PngImageSourceParams (const ImageSourceParams &params)
-    : ByteVecImageSourceParams (params)
-  { }
+class PngImageSource : public ByteVecImageSource
+{  
+public:
 
-  virtual ImageSource *make_source () const;
+  PngImageSource (const std::string &filename,
+		  const Params &params = Params::NONE);
+  ~PngImageSource ();
+
+  virtual void read_row (ByteVec &byte_vec);
+
+private:
+
+  FILE *stream;
+
+  png_structp png;
+  png_infop png_info;
 };
 
 }

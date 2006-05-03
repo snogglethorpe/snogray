@@ -15,139 +15,165 @@
 
 #include "config.h"
 
-#include "image-io.h"
+#include "excepts.h"
 
-#include "image-exr.h"
-#include "image-png.h"
-#include "image-jpeg.h"
-#include "image-ppm.h"
 #include "image-pfm.h"
 #include "image-rgbe.h"
+#ifdef HAVE_LIBEXR
+# include "image-exr.h"
+#endif
+#ifdef HAVE_LIBPNG
+# include "image-png.h"
+#endif
+#ifdef HAVE_LIBJPEG
+# include "image-jpeg.h"
+#endif
+#ifdef HAVE_LIBNETPBM
+# include "image-ppm.h"
+#endif
+
+#include "image-io.h"
+
 
 using namespace Snogray;
 
-// Return the file format to use; if the FORMAT field is 0, then try
-// to guess it from FILE_NAME.
-const char *
-ImageParams::find_format () const
-{
-  if (format)
-    // Format is user-specified
-    return format;
+
+// Filename format deduction
 
-  // Otherwise guess the output format automatically we can
-
-  if (! file_name)
-    error ("Image file type must be specified for stream I/O");
-      
-  const char *file_ext = rindex (file_name, '.');
-
-  if (! file_ext)
-    error ("No filename extension to determine image type");
-
-  return file_ext + 1;
-}
-
-ImageSink *
-ImageSinkParams::make_sink () const
-{
-  const char *fmt = find_format ();
-
-  // Make the output-format-specific parameter block
-
-#ifdef HAVE_LIBEXR
-  if (strcasecmp (fmt, "exr") == 0)
-    return ExrImageSinkParams (*this).make_sink ();
-#endif
-#ifdef HAVE_LIBPNG
-  if (strcasecmp (fmt, "png") == 0)
-    return PngImageSinkParams (*this).make_sink ();
-#endif
-#ifdef HAVE_LIBJPEG
-  if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
-    return JpegImageSinkParams (*this).make_sink ();
-#endif
-#ifdef HAVE_LIBNETPBM
-  if (strcasecmp (fmt, "ppm") == 0)
-    return PpmImageSinkParams (*this).make_sink ();
-#endif
-
-  if (strcasecmp (fmt, "pfm") == 0)
-    return PfmImageSinkParams (*this).make_sink ();
-  if (strcasecmp (fmt, "rgbe") == 0
-      || strcasecmp (fmt, "hdr") == 0
-      || strcasecmp (fmt, "pic") == 0)
-    return RgbeImageSinkParams (*this).make_sink ();
-
-  error ("Unknown or unsupported output image type");
-
-  return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
-}
-
-ImageSource *
-ImageSourceParams::make_source () const
-{
-  const char *fmt = find_format ();
-
-  // Make the output-format-specific parameter block
-
-#ifdef HAVE_LIBEXR
-  if (strcasecmp (fmt, "exr") == 0)
-    return ExrImageSourceParams (*this).make_source ();
-#endif
-#ifdef HAVE_LIBPNG
-  if (strcasecmp (fmt, "png") == 0)
-    return PngImageSourceParams (*this).make_source ();
-#endif
-#ifdef HAVE_LIBJPEG
-  if (strcasecmp (fmt, "jpeg") == 0 || strcasecmp (fmt, "jpg") == 0)
-    return JpegImageSourceParams (*this).make_source ();
-#endif
-#ifdef HAVE_LIBNETPBM
-  if (strcasecmp (fmt, "ppm") == 0)
-    return PpmImageSourceParams (*this).make_source ();
-#endif
-
-  if (strcasecmp (fmt, "pfm") == 0)
-    return PfmImageSourceParams (*this).make_source ();
-  if (strcasecmp (fmt, "rgbe") == 0
-	   || strcasecmp (fmt, "hdr") == 0
-	   || strcasecmp (fmt, "pic") == 0)
-    return RgbeImageSourceParams (*this).make_source ();
-  else
-    error ("Unknown or unsupported input image type");
-
-  return 0; // gcc fails to notice ((noreturn)) attribute on `error' method
-}
-
-// Returns true if FILENAME is a recogized image format we can read.
+// If FILENAME has a recognized extension from which we can guess its
+// format, return it (converted to lower-case).
 //
-bool
-ImageInput::recognized_filename (const std::string &filename)
+std::string
+ImageIo::filename_format (const std::string &filename)
 {
   unsigned dot = filename.find_last_of (".");
+
   if (dot == filename.length ())
-    return false;
+    return "";
 
   std::string ext = filename.substr (dot + 1);
 
   transform (ext.begin(), ext.end(), ext.begin(), tolower);
 
+  return ext;
+}
+
+// If PARAMS contains an explicit "format" entry, return its value,
+// otherwise if FILENAME has a recognized extension from which we can
+// guess its format, return it (converted to lower-case).
+//
+std::string
+ImageIo::find_format (const Params &params, const std::string &filename)
+{
+  std::string fmt = params.get_string ("format");
+
+  if (fmt.empty ())
+    // No explicitly specified format, try looking at the file name
+    //
+    fmt = filename_format (filename);
+
+  if (fmt.empty ())
+    throw std::runtime_error ("Cannot determine file type");
+
+  return fmt;
+}
+
+// Return true if FILENAME has a recogized image format we can read.
+//
+bool
+ImageIo::recognized_filename (const std::string &filename)
+{
+  std::string fmt = filename_format (filename);
+
   return
-    ext == "pfm" || ext == "rgbe" || ext == "hdr" || ext == "pic"
+    fmt == "pfm" || fmt == "rgbe" || fmt == "hdr" || fmt == "pic"
 #ifdef HAVE_LIBEXR
-    || ext == "exr"
+    || fmt == "exr"
 #endif
 #ifdef HAVE_LIBPNG
-    || ext == "png"
+    || fmt == "png"
 #endif
 #ifdef HAVE_LIBJPEG
-    || ext == "jpeg" || ext == "jpg"
+    || fmt == "jpeg" || fmt == "jpg"
 #endif
 #ifdef HAVE_LIBNETPBM
-    || ext == "ppm"
+    || fmt == "ppm"
 #endif
     ;
 }
+
+
+
+ImageSink *
+ImageSink::open (const std::string &filename, unsigned width, unsigned height,
+		 const Params &params)
+{
+  std::string fmt = find_format (params, filename);
+
+  // Formats we always support
+  //
+  if (fmt == "pfm")
+    return new PfmImageSink (filename, width, height, params);
+  else if (fmt == "rgbe" || fmt == "hdr" || fmt == "pic")
+    return new RgbeImageSink (filename, width, height, params);
+
+  // Formats which are only supported if an appropriate library  is available
+  //
+#ifdef HAVE_LIBEXR
+  if (fmt == "exr")
+    return new ExrImageSink (filename, width, height, params);
+#endif
+#ifdef HAVE_LIBPNG
+  if (fmt == "png")
+    return new PngImageSink (filename, width, height, params);
+#endif
+#ifdef HAVE_LIBJPEG
+  if (fmt == "jpeg" || fmt == "jpg")
+    return new JpegImageSink (filename, width, height, params);
+#endif
+#ifdef HAVE_LIBNETPBM
+  if (fmt == "ppm")
+    return new PpmImageSink (filename, width, height, params);
+#endif
+
+  throw std::runtime_error ("Unknown or unsupported output image type");
+}
+
+
+
+ImageSource *
+ImageSource::open (const std::string &filename, const Params &params)
+{
+  std::string fmt = find_format (params, filename);
+
+  // Formats we always support
+  //
+  if (fmt == "pfm")
+    return new PfmImageSource (filename, params);
+  else if (fmt == "rgbe" || fmt == "hdr" || fmt == "pic")
+    return new RgbeImageSource (filename, params);
+
+  // Formats which are only supported if an appropriate library  is available
+  //
+#ifdef HAVE_LIBEXR
+  if (fmt == "exr")
+    return new ExrImageSource (filename, params);
+#endif
+#ifdef HAVE_LIBPNG
+  if (fmt == "png")
+    return new PngImageSource (filename, params);
+#endif
+#ifdef HAVE_LIBJPEG
+  if (fmt == "jpeg" || fmt == "jpg")
+    return new JpegImageSource (filename, params);
+#endif
+#ifdef HAVE_LIBNETPBM
+  if (fmt == "ppm")
+    return new PpmImageSource (filename, params);
+#endif
+
+  throw std::runtime_error ("Unknown or unsupported output image type");
+}
+
 
 // arch-tag: df36e3bf-7e23-4f22-91a3-03a954777784

@@ -1,6 +1,6 @@
 // cmdlineparser.cc -- Command-line parser
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -85,6 +85,13 @@ CmdLineParser::opt_err_pfx () const
 
 void
 CmdLineParser::opt_err (const char *phrase) const
+{
+  cerr << opt_err_pfx() << " " << phrase << endl;
+  exit (2);
+}
+
+void
+CmdLineParser::opt_err (const string &phrase) const
 {
   cerr << opt_err_pfx() << " " << phrase << endl;
   exit (2);

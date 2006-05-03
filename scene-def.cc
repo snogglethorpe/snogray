@@ -17,6 +17,7 @@
 #include "camera.h"
 #include "cubetex.h"
 #include "excepts.h"
+#include "image-io.h"
 #include "cmdlineparser.h"
 
 #include "scene-def.h"
@@ -224,6 +225,7 @@ interpret_camera_cmds (Camera &camera, const string &cmds)
 SceneDef::Spec
 SceneDef::cin_spec ()
 {
+  std::string explicit_fmt = params.get_string ("format");
   if (explicit_fmt == "test")
     throw runtime_error ("No test-scene name specified");
   else if (explicit_fmt.empty ())
@@ -256,7 +258,7 @@ SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
 	else
 	  {
 	    std::string name = user_name;
-	    std::string fmt = explicit_fmt;
+	    std::string fmt = params.get_string ("format");
 
 	    if (fmt.empty() && name.substr (0, 5) == "test:")
 	      {
@@ -302,11 +304,13 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   // Correct for bogus "gamma correction in lighting"
   //
+  float assumed_gamma = params.get_float ("gamma", 1);
   if (assumed_gamma != 1)
     scene.set_assumed_gamma (assumed_gamma);
 
   // Correct scene lighting
   //
+  float light_scale = params.get_float ("light-adj", 1);
   if (light_scale != 1)
     for (Scene::light_iterator_t li = scene.lights.begin();
 	 li != scene.lights.end(); li++)
@@ -317,17 +321,17 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   // Override scene parameters specified on command-line
   //
-  if (bg_spec)
+  std::string bg_spec = params.get_string ("background");
+  if (! bg_spec.empty ())
     {
-      size_t len = strlen (bg_spec);
-
-      if (len > 5 && strncmp (bg_spec, "cube:", 5) == 0)
-	scene.set_background (new Cubetex (bg_spec + 5));
-      else if (len > 4 && strcmp (bg_spec + len - 4, ".ctx") == 0
-	       || ImageInput::recognized_filename (bg_spec))
+      unsigned len = bg_spec.length ();
+      if (bg_spec.substr (0, 5) == "cube:")
+	scene.set_background (new Cubetex (bg_spec.substr (5)));
+      else if (len > 4 && bg_spec.substr (len - 4) == ".ctx"
+	       || ImageIo::recognized_filename (bg_spec))
 	scene.set_background (new Cubetex (bg_spec));
       else
-	scene.set_background (atof (bg_spec));
+	scene.set_background (atof (bg_spec.c_str()));
     }
 
   if (camera_cmds.length () > 0)

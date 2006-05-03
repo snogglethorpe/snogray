@@ -1,6 +1,6 @@
 // image.cc -- Image datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -9,51 +9,37 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "image-io.h"
 #include "excepts.h"
+#include "image-input.h"
+#include "image-output.h"
 
 #include "image.h"
 
 using namespace Snogray;
 
-Image::Image (const std::string &filename, const char *format)
-  : pixels (0)
-{
-  load (filename, format);
-}
-
 Image::Image (const std::string &filename, unsigned border)
-  : pixels (0)
 {
-  load (filename, 0, border);
+  load (filename, Params::NONE, border);
 }
 
-Image::Image (const std::string &filename, const char *format, unsigned border)
-  : pixels (0)
+Image::Image (const std::string &filename, const Params &params,
+	      unsigned border)
 {
-  load (filename, format, border);
-}
-
-Image::~Image ()
-{
-  delete[] pixels;
+  load (filename, params, border);
 }
 
 
 // Input loading
 
 void
-Image::load (const std::string &filename, const char *format, unsigned border)
+Image::load (const std::string &filename, const Params &params, unsigned border)
 {
-  ImageInput src (filename, format);
+  ImageInput src (filename, params);
 
   width = src.width + border * 2;
   height = src.height + border * 2;
 
-  if (pixels)
-    delete[] pixels;
-
-  pixels = new Color[width * height];
+  pixels.resize (width * height);
 
   ImageRow row (src.width);
 
@@ -73,15 +59,15 @@ Image::load (const std::string &filename, const char *format, unsigned border)
 }
 
 void
-Image::save (const ImageSinkParams &params) const
+Image::save (const std::string &filename, const Params &params) const
 {
-  ImageOutput dst (params);
+  ImageOutput out (filename, width, height, params);
 
-  for (unsigned y = 0; y < params.height; y++)
+  for (unsigned y = 0; y < height; y++)
     {
-      ImageRow &row = dst.next_row ();
+      ImageRow &row = out[y].pixels;
 
-      for (unsigned x = 0; x < params.width; x++)
+      for (unsigned x = 0; x < width; x++)
 	row[x] = pixel (x, y);
     }
 }
@@ -104,7 +90,7 @@ Image::Image (const Image &base, unsigned offs_x, unsigned offs_y,
   width = w;
   height = h;
 
-  pixels = new Color[w * h];
+  pixels.resize (w * h);
 
   for (unsigned y = 0; y < h; y++)
     for (unsigned x = 0; x < w; x++)

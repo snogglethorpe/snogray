@@ -24,11 +24,12 @@ using namespace std;
 // into SCENE.
 //
 void
-SampleMap::sample (const Ray &eye_ray, Scene &scene)
+SampleMap::sample (const Ray &eye_ray, Scene &scene,
+		   const TraceParams &trace_params)
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
-  GlobalTraceState global_tstate;
+  GlobalTraceState global_tstate (trace_params);
   Trace trace (scene, global_tstate);
 
   IsecParams isec_params;
@@ -91,17 +92,5 @@ SampleMap::normalize ()
     pixel (s->dir) *= scale;
 }
 
-// Save this map to a file.
-//
-void
-SampleMap::save (const ImageSinkParams &params) const
-{
-  ImageGrrrSinkParams _params (params);
-  
-  _params.width = map.width;
-  _params.height = map.height;
-
-  map.save (_params);
-}
 
 // arch-tag: 1dd56b0e-9b6f-4918-8111-381692268f98

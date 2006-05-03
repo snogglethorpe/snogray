@@ -1,6 +1,6 @@
 // image-byte-vec.h -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,44 +12,37 @@
 #ifndef __IMAGE_INT_VEC_H__
 #define __IMAGE_INT_VEC_H__
 
+#include <vector>
+
 #include "image-io.h"
 
 namespace Snogray {
 
 // Output
 
-struct ByteVecImageSinkParams : public ImageFmtSinkParams
-{
-  ByteVecImageSinkParams (const ImageSinkParams &params)
-    : ImageFmtSinkParams (params)
-  {
-    if (! target_gamma)
-      target_gamma = ImageSinkParams::DEFAULT_TARGET_GAMMA;
-  }
-};
-
 class ByteVecImageSink : public ImageSink
 {
 public:
 
   typedef unsigned char byte;
+  typedef std::vector<byte> ByteVec;
 
-  ByteVecImageSink (const ByteVecImageSinkParams &params)
-    : ImageSink (params),
-      gamma_correction (
-	params.target_gamma == 0 ? 0 : 1 / params.target_gamma),
-      output_row (new byte[params.width * 3])
-  { }
+  ByteVecImageSink (const std::string &filename,
+		    unsigned width, unsigned height,
+		    const Params &params = Params::NONE);
   ~ByteVecImageSink ();
 
   // We define these
+  //
   virtual void write_row (const ImageRow &row);
   virtual float max_intens () const;
 
-  // Subclasses can define this instead of the generic write_row
-  virtual void write_row (const byte *byte_vec) = 0;
+  // Subclasses should define this instead of the generic write_row
+  //
+  virtual void write_row (const ByteVec &byte_vec) = 0;
 
   // Floating-point to byte conversion
+  //
   byte color_component_to_byte (Color::component_t com)
   {
     if (com < 0)
@@ -65,56 +58,52 @@ public:
   }
 
   // Explicit gamma-correction factor
+  //
   float gamma_correction;
 
 private:
 
   // A single row of bytes we use as temporary storage during output
-  byte *output_row;
+  //
+  ByteVec output_row;
 };
 
 
 // Input
-
-struct ByteVecImageSourceParams : public ImageFmtSourceParams
-{
-  ByteVecImageSourceParams (const ImageSourceParams &params)
-    : ImageFmtSourceParams (params)
-  { }
-};
 
 class ByteVecImageSource : public ImageSource
 {
 public:
 
   typedef unsigned char byte;
+  typedef std::vector<byte> ByteVec;
 
   static const float DEFAULT_SOURCE_GAMMA = 2.2;
  
-  ByteVecImageSource (const ByteVecImageSourceParams &params,
+  ByteVecImageSource (const std::string &filename, const Params &params,
 		      float _gamma_correction = DEFAULT_SOURCE_GAMMA)
-    : gamma_correction (_gamma_correction),
+    : ImageSource (filename, params), gamma_correction (_gamma_correction),
       //
       // The following must be set by subclass using `set_size' after
       // reading image header
       //
-      width (0), height (0), input_row (0),
-      bytes_per_component (1), component_scale (1 / 255.0),
+      input_row (0), bytes_per_component (1), component_scale (1 / 255.0),
       num_channels (3)
   { }
   ~ByteVecImageSource ();
 
-  // We define these
-  virtual void read_size (unsigned &width, unsigned &height);
+  // We define this
+  //
   virtual void read_row (ImageRow &row);
 
-  // Subclasses can define this instead of the generic read_row
-  virtual void read_row (byte *byte_vec) = 0;
+  // Subclasses should define this instead of the generic read_row.
+  //
+  virtual void read_row (std::vector<byte> &byte_vec) = 0;
 
   // Explicit gamma-correction factor; should be set by subclass as
   // appropriate (in many cases it's read from the file header, so can't
-  // actually be passed during superclass [us] construction time, but
-  // should be set soon there after as soon as know).
+  // actually be passed during superclass construction time, but should
+  // be set as soon as it is known).
   //
   float gamma_correction;
 
@@ -123,8 +112,8 @@ protected:
   // Called by subclass (usually after reading image header) to finish
   // setting up stuff.
   //
-  void set_specs (unsigned _width, unsigned _height, unsigned _num_channels = 3,
-		  unsigned bit_depth = 8);
+  void set_specs (unsigned _width, unsigned _height,
+		  unsigned _num_channels = 3, unsigned bit_depth = 8);
 
   Color::component_t int_to_color_component (unsigned int_cc)
   {
@@ -137,7 +126,7 @@ protected:
     return int_alpha * component_scale;
   }
 
-  unsigned next_int_component (byte* &byte_ptr)
+  unsigned next_int_component (ByteVec::const_iterator &byte_ptr)
   {
     if (bytes_per_component == 2)
       {
@@ -149,22 +138,22 @@ protected:
       return *byte_ptr++;
   }
 
-  Color::component_t next_color_component (byte* &byte_ptr)
+  Color::component_t
+  next_color_component (ByteVec::const_iterator &byte_ptr)
   {
     return int_to_color_component (next_int_component (byte_ptr));
   }
-  Color::component_t next_alpha_component (byte* &byte_ptr)
+  Color::component_t
+  next_alpha_component (ByteVec::const_iterator &byte_ptr)
   {
     return int_to_alpha_component (next_int_component (byte_ptr));
   }
 
 private:
 
-  unsigned width, height;
-
   // A single row of bytes we use as temporary storage during input
   //
-  byte *input_row;
+  ByteVec input_row;
 
   // Bytes per pixel-component (1 or 2)
   //

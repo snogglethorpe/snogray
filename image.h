@@ -1,6 +1,6 @@
 // image.h -- Image datatype
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,11 +12,10 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
-#include <string>
-#include <cmath>
+#include <vector>
 
-#include "color.h"
 #include "image-io.h"
+
 
 namespace Snogray {
 
@@ -27,15 +26,13 @@ public:
   // Basic image constructor
   //
   Image (unsigned _width, unsigned _height)
-    : width (_width), height (_height), pixels (new Color[_width * _height])
+    : width (_width), height (_height), pixels (_width * _height)
   { }
-  ~Image ();
 
   // Constructors for an image loaded from a file
   //
-  Image (const std::string &filename, const char *format = 0);
-  Image (const std::string &filename, unsigned border);
-  Image (const std::string &filename, const char *format, unsigned border);
+  Image (const std::string &filename, unsigned border = 0);
+  Image (const std::string &filename, const Params &params, unsigned border =0);
 
   // Constructor for extracting a sub-image of BASE.  If W or H are 0, the
   // maximum available width or height is used.  Note that because of the
@@ -62,15 +59,17 @@ public:
     return pixels[y * width + x];
   }
 
-  void load (const std::string &filename, const char *format = 0, unsigned border = 0);
+  void load (const std::string &filename, const Params &params,
+	     unsigned border = 0);
 
-  void save (const ImageSinkParams &params) const;
+  void save (const std::string &filename, const Params &params = Params::NONE)
+    const;
 
   unsigned width, height;
 
 private:
 
-  Color *pixels;
+  std::vector<Color> pixels;
 };
 
 }

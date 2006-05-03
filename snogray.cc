@@ -24,9 +24,10 @@
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
-#include "image-io.h"
+#include "render.h"
+#include "image-output.h"
 #include "image-cmdline.h"
-#include "wire-frame.h"
+#include "render-cmdline.h"
 #include "scene-def.h"
 #include "trace-stats.h"
 
@@ -35,9 +36,24 @@ using namespace std;
 
 
 
+static void
+print_params (const Params &params, const string &name_pfx,
+	      unsigned col1, unsigned col2)
+{
+  string pfx (col1, ' ');
+  pfx += name_pfx;
+  pfx += " ";
+  unsigned pfx_len =  pfx.length ();
+
+  for (Params::const_iterator p = params.begin(); p != params.end(); p++)
+    cout << pfx << p->name << ": "
+	 << setw (col2 - pfx_len - p->name.length() - 2)
+	 << p->string_val() << endl;
+}
+
 // Print useful scene info
 //
-void
+static void
 print_scene_info (const Scene &scene, const SceneDef &scene_def)
 {
   Space::Stats tstats = scene.space.stats ();
@@ -49,12 +65,9 @@ print_scene_info (const Scene &scene, const SceneDef &scene_def)
        << setw (8) << commify (scene.surfaces.size ()) << endl;
   cout << "   lights:          "
        << setw (12) << commify (scene.lights.size ()) << endl;
-  if (scene.assumed_gamma != 1)
-    cout << "   assumed gamma:   "
-	 << setw (12) << scene.assumed_gamma << endl;
-  if (scene_def.light_scale != 1)
-    cout << "   light scale:     "
-	 << setw (12) << scene_def.light_scale << endl;
+
+  print_params (scene_def.params, "scene", 3, 32);
+
   cout << "   materials:       "
        << setw (12) << commify (scene.materials.size ()) << endl;
 
@@ -76,26 +89,17 @@ print_scene_info (const Scene &scene, const SceneDef &scene_def)
 
 // Print image info
 //
-void
-print_image_info (const ImageOutput &image,
-		  const ImageSinkParams &image_sink_params,
-		  unsigned width, unsigned height, unsigned multiple,
+static void
+print_image_info (const Params &image_params, const Params &render_params,
+		  unsigned width, unsigned height,
 		  unsigned limit_x, unsigned limit_y,
 		  unsigned limit_width, unsigned limit_height)
 {
   cout << "Image:" << endl;
 
-  if (multiple == 1)
-    cout << "   size:    "
-	 << setw (20) << (stringify (width)
-			  + " x " + stringify (height))
-	 << endl;
-  else
-    cout << "   size:    "
-	 << setw (20) << (stringify (width) + " x " + stringify (height)
-			  + " x " + stringify (multiple))
-	 <<" (" << (width * multiple) << " x " << (height * multiple) << ")"
-	 << endl;
+  cout << "   size:    "
+       << setw (20) << (stringify (width) + " x " + stringify (height))
+       << endl;
 
   if (limit_x != 0 || limit_y != 0
       || limit_width != width || limit_height != height)
@@ -106,43 +110,8 @@ print_image_info (const ImageOutput &image,
 	 << " (" << limit_width << " x "  << limit_height << ")"
 	 << endl;
 
-  if (image_sink_params.target_gamma != 0)
-    cout << "   target_gamma:           "
-	 << setw (5) << image_sink_params.target_gamma << endl;
-
-  // Anti-aliasing info
-  //
-
-  if ((image.aa_factor + image_sink_params.aa_overlap) > 1)
-    {
-      if (image.aa_factor > 1)
-	cout << "   aa_factor:               "
-	     << setw (4) << image.aa_factor << endl;
-
-      if (image_sink_params.aa_overlap > 0)
-	cout << "   aa_kernel_size:          "
-	     << setw (4)
-	     << (image.aa_factor + image_sink_params.aa_overlap*2)
-	     << " (overlap = " << image_sink_params.aa_overlap << ")"
-	     << endl;
-      else
-	cout << "   aa_kernel_size:          "
-	     << setw (4) << image.aa_factor << endl;
-
-      cout << "   aa_filter:           " << setw (8);
-      if (image_sink_params.aa_filter == ImageOutput::aa_box_filter)
-	cout << "box";
-      else if (image_sink_params.aa_filter == ImageOutput::aa_triang_filter)
-	cout << "triang";
-      else if (image_sink_params.aa_filter == ImageOutput::aa_gauss_filter
-	       || !image_sink_params.aa_filter)
-	cout << "gauss";
-      else
-	cout << "???";
-      cout << endl;
-    }
-
-  cout << endl;
+  print_params (render_params, "render", 3, 32);
+  print_params (image_params, "output", 3, 32);
 }
 
 
@@ -151,6 +120,7 @@ print_image_info (const ImageOutput &image,
 // A "limit spec" represents a user's specification of a single
 // rendering limit (on x, y, width, or height), which may be absolute,
 // relative, a proportion of the image size, or both.
+//
 struct LimitSpec
 {
   LimitSpec (const char *_name, unsigned _abs_val)
@@ -279,7 +249,7 @@ parse_limit_opt_arg (CmdLineParser &clp,
 	  ok = limit_max_x_spec.parse (spec);
 	  if (ok)
 	    {
-	      spec += strspn (spec, ", ");
+	      spec += strspn (spec, " ,x");
 	      ok = limit_max_y_spec.parse (spec);
 	    }
 	}
@@ -313,26 +283,18 @@ help (CmdLineParser &clp, ostream &os)
   "Ray-trace an image"
 n
 s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
-s "  -m, --multiple=NUM         Make real output size NUM times specified size"
-s "                               (useful if it will later be anti-aliased)"
+n
+s RENDER_OPTIONS_HELP
+n
+s SCENE_DEF_OPTIONS_HELP
+n
+s IMAGE_OUTPUT_OPTIONS_HELP
+n
 s "  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
 n
 s "  -q, --quiet                Do not output informational or progress messages"
 s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
-n
-s "  -w, --wire-frame[=PARAMS]  Output in \"wire-frame\" mode; PARAMS has the form"
-s "                               [TINT][/COLOR][:FILL] (default: 0.7/1:0)"
-s "                               TINT is how much object color affects wires"
-s "                               COLOR is the base color of wires"
-s "                               FILL is the intensity of the scene between wires"
-n
-s "  -j, --jitter[=REPEAT]      Randomly jitter eye-rays; if REPEAT is specified,"
-s "                               each eye-ray is repeated that many times"
-n
-s SCENE_DEF_OPTIONS_HELP
-n
-s IMAGE_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -354,17 +316,14 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "jitter",		optional_argument, 0, 'j' },
     { "size",		required_argument, 0, 's' },
-    { "multiple",	required_argument, 0, 'm' },
     { "limit",		required_argument, 0, 'l' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
-    { "wire-frame",     optional_argument, 0, 'w' },
-    { "dump-samples",	required_argument, 0, 'S' },
 
     SCENE_DEF_LONG_OPTIONS,
+    RENDER_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
 
@@ -372,8 +331,9 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "j::w::s:m:l:qpPS:"
+    "s:l:qpP"
     SCENE_DEF_SHORT_OPTIONS
+    RENDER_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -388,11 +348,7 @@ int main (int argc, char *const *argv)
   bool quiet = false;
   Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
-  bool wire_frame = false;
-  WireFrameParams wire_frame_params;
-  unsigned multiple = 1;
-  unsigned jitter = 0;
-  ImageCmdlineSinkParams image_sink_params (clp);
+  Params image_params, render_params;
   SceneDef scene_def;
 
   // This speeds up I/O on cin/cout by not syncing with C stdio.
@@ -405,26 +361,10 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-      case 'w':
-	wire_frame = true;
-	if (clp.opt_arg ())
-	  wire_frame_params.parse (clp);
-	break;
-
-      case 'j':
-	if (clp.opt_arg ())
-	  jitter = clp.unsigned_opt_arg ();
-	else
-	  jitter = 1;
-	break;
-
 	// Size options
 	//
       case 's':
 	parse_size_opt_arg (clp, width, height);
-	break;
-      case 'm':
-	multiple = clp.unsigned_opt_arg ();
 	break;
       case 'l':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
@@ -447,14 +387,17 @@ int main (int argc, char *const *argv)
 	progress_set = true;
 	break;
 
+	// Rendering options
 	//
+	RENDER_OPTION_CASES (clp, render_params);
+
 	// Scene options
 	//
 	SCENE_DEF_OPTION_CASES (clp, scene_def);
 
 	// Image options
 	//
-	IMAGE_OUTPUT_OPTION_CASES (clp, image_sink_params);
+	IMAGE_OUTPUT_OPTION_CASES (clp, image_params);
 
 	// Generic options
 	//
@@ -468,7 +411,7 @@ int main (int argc, char *const *argv)
 
   // Output filename
   //
-  image_sink_params.file_name = clp.get_arg();
+  string file_name = clp.get_arg();
 
 
   // Start of "overall elapsed" time
@@ -513,155 +456,46 @@ int main (int argc, char *const *argv)
     = limit_max_y_spec.apply (clp, height, limit_y) - limit_y;
 
   // Create output image.  The size of what we output is the same as the
-  // limit, and includes the user's multiple, but not aa_factor.
+  // limit (which defaults to, but is not the same as the nominal output
+  // image size).
   //
   // This will produce diagnostics and exit if there's something wrong
   // with IMAGE_SINK_PARAMS or a problem creating the output image, so
   // we create the image before printing any normal output.
   //
-  image_sink_params.width = limit_width * multiple;
-  image_sink_params.height = limit_height * multiple;
-  ImageOutput image (image_sink_params);
+  ImageOutput output (file_name, limit_width, limit_height, image_params);
 
   // Maybe print lots of useful information
   //
   if (! quiet)
     {
       print_scene_info (scene, scene_def);
-      print_image_info (image, image_sink_params, width, height, multiple,
+      print_image_info (image_params, render_params, width, height,
 			limit_x, limit_y, limit_width, limit_height);
+      cout << endl; // blank line
     }
 
-  // For convenience, we fold the size increase due to anti-aliasing into
-  // the user's specified size multiple.
-  //
-  unsigned hr_multiple = multiple * image.aa_factor;
 
-  // The size of the actual image we're calculating
-  //
-  const unsigned hr_width = width * hr_multiple;
-  const unsigned hr_height = height * hr_multiple;
+  TraceStats trace_stats;
 
-  // Limits in terms of higher-resolution pre-AA image
-  //
-  unsigned hr_limit_x = limit_x * hr_multiple;
-  unsigned hr_limit_y = limit_y * hr_multiple;
-  unsigned hr_limit_max_x = hr_limit_x + limit_width * hr_multiple;
-  unsigned hr_limit_max_y = hr_limit_y + limit_height * hr_multiple;
-
-  // We create this object regardless of whether we're doing wire-frame
-  // output or not; in the latter case it simply isn't used.
-  //
-  WireFrameRendering
-    wire_frame_rendering (scene, camera, hr_width, hr_height,
-			  hr_limit_x, hr_limit_y,
-			  hr_limit_max_x, hr_limit_max_y,
-			  wire_frame_params);
-
-  long long num_eye_rays = 0;
-
-  // Global R/W state during tracing.
-  //
-  GlobalTraceState global_tstate;
-
-  // Start progress indicator
-  //
-  Progress prog (cout, "line", limit_y, limit_height, verbosity);
-
-  prog.start ();
-
-  // Main ray-tracing loop
+  // Create the image.
   //
   Rusage render_beg_ru;
-  for (unsigned y = hr_limit_y; y < hr_limit_max_y; y++)
-    {
-      prog.update (limit_y + (y - hr_limit_y) / hr_multiple);
-
-      // This is basically a cache to speed up tracing by holding hints
-      // that take advantage of spatial coherency.  We create a new one
-      // for each row as the state at the end of the previous row is
-      // probably not too useful anyway.
-      //
-      Trace trace (scene, global_tstate);
-
-      // Process and (maybe) output one image row.  In wire-frame mode,
-      // we actually output one row behind the row being calculated, so
-      // we supress output the first time.
-      //
-      if (wire_frame)
-	{
-	  // Wire-frame rendering mode
-
-	  wire_frame_rendering.render_row (trace);
-
-	  if (y > hr_limit_y)
-	    wire_frame_rendering.get_prev_row (image.next_row ());
-
-	  wire_frame_rendering.advance_row ();
-	}
-      else
-	{
-	  // Normal rendering mode
-
-	  ImageRow &output_row = image.next_row ();
-
-	  for (unsigned x = hr_limit_x; x < hr_limit_max_x; x++)
-	    {
-	      // Translate the image position X, Y into a ray radiating from
-	      // the camera.
-	      //
-	      Ray camera_ray
-		= camera.get_ray (x, y, hr_width, hr_height, jitter);
-
-	      // Cast the camera ray and calculate image color at that point.
-	      //
-	      Color pix = trace.render (camera_ray);
-
-	      // If oversampling, send out more rays for this pixel, and
-	      // average the result.
-	      //
-	      if (jitter > 1)
-		{
-		  for (unsigned j = 1; j < jitter; j++)
-		    {
-		      camera_ray
-			= camera.get_ray (x, y, hr_width, hr_height, true);
-		      pix += trace.render (camera_ray);
-		    }
-
-		  pix /= jitter;
-		}
-
-	      // If necessary undo any bogus gamma-correction embedded in
-	      // the scene lighting.  We'll do proper gamma correct later.
-	      //
-	      if (scene.assumed_gamma != 1)
-		pix = pix.pow (scene.assumed_gamma);
-
-	      output_row[x - hr_limit_x] = pix;
-	    }
-	}
-
-      num_eye_rays += (hr_limit_max_x - hr_limit_x);
-    }
-
-  // In wire-frame mode we output one row behind the calcuation, so in
-  // that case output the final row.
-  //
-  if (wire_frame)
-    wire_frame_rendering.get_prev_row (image.next_row ());
-
+  render (scene, camera, width, height, output, limit_x, limit_y,
+	  render_params, trace_stats, cout, verbosity);
   Rusage render_end_ru;
+
 
   Timeval end_time (Timeval::TIME_OF_DAY);
 
-  prog.end ();
 
   // Print stats
   //
   if (! quiet)
     {
-      print_trace_stats (global_tstate, scene, cout);
+      trace_stats.print (cout, scene);
+
+      long num_eye_rays = limit_width * limit_height;
 
       // a field width of 14 is enough for over a year of time...
       cout << "Time:" << endl;
@@ -674,8 +508,8 @@ int main (int argc, char *const *argv)
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time.fmt(1) << endl;
 
-      long long sc  = global_tstate.stats.scene_intersect_calls;
-      long long sst = global_tstate.stats.scene_shadow_tests;
+      long long sc  = trace_stats.scene_intersect_calls;
+      long long sst = trace_stats.scene_shadow_tests;
       double rps = (double)(sc + sst) / render_time;
       double erps = (double)num_eye_rays / render_time;
       cout << "  rays per second:    " << setw (8) << commify ((long long)rps)
@@ -684,5 +518,6 @@ int main (int argc, char *const *argv)
 	   << endl;
     }
 }
+
 
 // arch-tag: adea1df7-f224-4a25-9856-7959d7674435

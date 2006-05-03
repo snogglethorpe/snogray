@@ -11,10 +11,6 @@
 
 #include <cmath>
 
-extern "C" {
-#include <ppm.h>
-}
-
 #include "image-ppm.h"
 
 using namespace Snogray;
@@ -22,62 +18,28 @@ using namespace Snogray;
 
 // Output
 
-class PpmImageSink : public ImageSink
-{
-public:
-
-  PpmImageSink (const PpmImageSinkParams &params);
-  ~PpmImageSink ();
-
-  virtual void write_row (const ImageRow &row);
-  virtual float max_intens () const;
-
-  // Floating-point to pixval conversion
-  pixval color_component_to_pixval (Color::component_t com)
-  {
-    if (com < 0)
-      return 0;
-
-    com = powf (com, 1 / IMAGE_PPM_GAMMA); // gamma correction
-
-    if (com >= 1)
-      return max_pixval;
-    else
-      return (pixval)(max_pixval * com);
-  }
-
-private:
-
-  FILE *stream;
-
-  // A single row of bytes we use as temporary storage during output
-  //
-  pixel *output_row;
-
-  // PPM params (currently these have fixed values)
-  //
-  pixval max_pixval;
-  bool force_plain;
-};
-
-PpmImageSink::PpmImageSink (const PpmImageSinkParams &params)
-  : ImageSink (params),
-    output_row (ppm_allocrow (params.width)),
+PpmImageSink::PpmImageSink (const std::string &filename,
+			    unsigned width, unsigned height,
+			    const Params &params)
+  : ImageSink (filename, width, height, params),
+    output_row (ppm_allocrow (width)),
     //
     // XXX need someway to let the user set these...
     //
     max_pixval (255), force_plain (false)
 {
+  if (params.get_float ("gamma", IMAGE_PPM_GAMMA) != IMAGE_PPM_GAMMA)
+    open_err ("PPM format uses a fixed gamma of " _IMAGE_PPM_GAMMA_STRING);
+
   // Open output file
   //
-  stream = fopen (params.file_name, "wb");
+  stream = fopen (filename.c_str(), "wb");
   if (! stream)
-    params.sys_error ("Could not open output file");
+    open_err ("", true);
 
   // Write file header
   //
-  ppm_writeppminit (stream, params.width, params.height,
-		    max_pixval, force_plain);
+  ppm_writeppminit (stream, width, height, max_pixval, force_plain);
 }
 
 PpmImageSink::~PpmImageSink ()
@@ -108,57 +70,18 @@ PpmImageSink::max_intens () const
   return 1;
 }
 
-ImageSink *
-PpmImageSinkParams::make_sink () const
-{
-  return new PpmImageSink (*this);
-}
-
 
 // Input
 
-class PpmImageSource : public ImageSource
-{  
-public:
-  PpmImageSource (const PpmImageSourceParams &params);
-  ~PpmImageSource ();
-
-  virtual void read_size (unsigned &width, unsigned &height);
-  virtual void read_row (ImageRow &row);
-
-  // Pixval to floating-point conversion
-  Color::component_t pixval_to_color_component (pixval pv)
-  {
-    Color::component_t com = ((Color::component_t)pv) / max_pixval;
-
-    com = powf (com, IMAGE_PPM_GAMMA); // undo gamma correction
-
-    return com;
-  }
-
-private:
-
-  FILE *stream;
-
-  unsigned width, height;
-
-  // A single row of bytes we use as temporary storage during input
-  //
-  pixel *input_row;
-
-  // PPM params
-  //
-  pixval max_pixval;
-  int format;
-};
-
-PpmImageSource::PpmImageSource (const PpmImageSourceParams &params)
+PpmImageSource::PpmImageSource (const std::string &filename,
+				const Params &params)
+  : ImageSource (filename, params)
 {
   // Open input file
   //
-  stream = fopen (params.file_name, "rb");
+  stream = fopen (filename.c_str(), "rb");
   if (! stream)
-    params.sys_error ("Could not open input file");
+    open_err ("", true);
 
   // Read file header
   //
@@ -181,13 +104,6 @@ PpmImageSource::~PpmImageSource ()
 }
 
 void
-PpmImageSource::read_size (unsigned &_width, unsigned &_height)
-{
-  _width = width;
-  _height = height;
-}
-
-void
 PpmImageSource::read_row (ImageRow &row)
 {
   ppm_readppmrow (stream, input_row, width, max_pixval, format);
@@ -205,10 +121,5 @@ PpmImageSource::read_row (ImageRow &row)
     }
 }
 
-ImageSource *
-PpmImageSourceParams::make_source () const
-{
-  return new PpmImageSource (*this);
-}
 
 // arch-tag: 1a5e77d9-3076-4197-80da-57643fe8b5af

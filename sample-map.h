@@ -20,6 +20,7 @@ namespace Snogray {
 
 class Scene;
 class Ray;
+class TraceParams;
 
 // An image that holds a visual representation, in the form of a
 // longitude-latitude map, of a light sample distribution.
@@ -43,7 +44,8 @@ public:
   // Add samples from the first intersection reached by tracing EYE_RAY
   // into SCENE.
   //
-  void sample (const Ray &eye_ray, Scene &scene);
+  void sample (const Ray &eye_ray, Scene &scene,
+	       const TraceParams &trace_params);
 
   // Normalize samples (so that the maximum sample has value 1)
   //
@@ -51,7 +53,10 @@ public:
 
   // Save this map to a file.
   //
-  void save (const ImageSinkParams &params) const;
+  void save (const std::string &filename, const Params &params) const
+  {
+    map.save (filename, params);
+  }
 
   // Return a reference to the map pixel in direction DIR.
   //

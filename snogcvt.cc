@@ -1,6 +1,6 @@
 // snogcvt.cc -- Image-type conversion utility
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,13 +12,35 @@
 #include <iostream>
 
 #include "cmdlineparser.h"
-#include "image-io.h"
+#include "image-input.h"
+#include "image-output.h"
 #include "image-cmdline.h"
 
 using namespace Snogray;
 using namespace std;
 
 
+
+static void
+parse_size_opt_arg (CmdLineParser &clp, unsigned &width, unsigned &height)
+{
+  const char *size = clp.opt_arg ();
+  char *end = 0;
+
+  width = strtoul (size, &end, 10);
+
+  if (end && end != size)
+    {
+      size = end + strspn (end, " ,x");
+
+      height = strtoul (size, &end, 10);
+
+      if (end && end != size && *end == '\0')
+	return;
+    }
+
+  clp.opt_err ("requires a size specification (WIDTHxHEIGHT)");
+}
 
 static void
 usage (CmdLineParser &clp, ostream &os)
@@ -39,6 +61,8 @@ help (CmdLineParser &clp, ostream &os)
 
   os <<
   "Change the format of or transform an image file"
+n
+s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 n
 s IMAGE_INPUT_OPTIONS_HELP
 n
@@ -62,12 +86,14 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
+    { "size",		required_argument, 0, 's' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
+    "s:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -76,8 +102,8 @@ int main (int argc, char *const *argv)
 
   // Parameters set from the command line
   //
-  ImageCmdlineSourceParams src_image_params (clp);
-  ImageCmdlineSinkParams dst_image_params (clp);
+  unsigned dst_width = 0, dst_height = 0; // zero means copy from source image
+  Params src_params, dst_params;
 
   // Parse command-line options
   //
@@ -85,8 +111,12 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-	IMAGE_OUTPUT_OPTION_CASES (clp, dst_image_params);
-	IMAGE_INPUT_OPTION_CASES (clp, src_image_params);
+      case 's':
+	parse_size_opt_arg (clp, dst_width, dst_height);
+	break;
+
+	IMAGE_OUTPUT_OPTION_CASES (clp, dst_params);
+	IMAGE_INPUT_OPTION_CASES (clp, src_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -100,43 +130,55 @@ int main (int argc, char *const *argv)
 
   // Open the input image
   //
-  src_image_params.file_name = clp.get_arg();
-  ImageInput src_image (src_image_params);
+  ImageInput src (clp.get_arg(), src_params);
 
-  // We get the output image's size from the input image
+  // Default the output image's size from the input image.  If only one
+  // dimension was specified, we scale the other to maintain the source
+  // image's aspect ratio.
   //
-  unsigned width = src_image.width;
-  unsigned height = src_image.height;
-
-  // If the output image is going to be anti-aliased, it will consume
-  // AA_FACTOR input pixels (in both vertical and horizontal directions)
-  // for every output pixel produced; modify the output image size
-  // accordingly.
-  //
-  if (dst_image_params.aa_factor > 1)
+  if (dst_width == 0 && dst_height == 0)
     {
-      width /= dst_image_params.aa_factor;
-      height /= dst_image_params.aa_factor;
+      dst_width = src.width;
+      dst_height = src.height;
+    }
+  else if (dst_width == 0)
+    dst_width
+      = unsigned (src.width * (float (dst_height) / src.height)
+		  + 0.5);
+  else if (dst_height == 0)
+    dst_height
+      = unsigned (src.height * (float (dst_width) / src.width)
+		  + 0.5);
+
+  // If the user didn't specify a filter, maybe pick a default
+  //
+  if (! dst_params.get ("filter"))
+    {
+      if (dst_width == src.width || dst_height == src.height)
+	//
+	// If the image size is not being changed, force no filtering
+	//
+	dst_params.set ("filter", "none");
     }
 
-  // Open the output image using the resulting adjust size.
+  // Open the output image.
   //
-  dst_image_params.file_name = clp.get_arg ();
-  dst_image_params.width = width;
-  dst_image_params.height = height;
-  ImageOutput dst_image (dst_image_params);
+  ImageOutput dst (clp.get_arg(), dst_width, dst_height, dst_params);
+
+  // The scaling we apply during image conversion.
+  //
+  float x_scale = float (dst_width) / float (src.width);
+  float y_scale = float (dst_height) / float (src.height);
 
   // Copy input image to output image, doing any processing
   //
-  for (unsigned y = 0; y < src_image.height; y++)
+  ImageRow src_row (src.width);
+  for (unsigned y = 0; y < src.height; y++)
     {
-      // Get a row to write into from the output image
-      //
-      ImageRow &output_row = dst_image.next_row ();
+      src.read_row (src_row);
 
-      // Read into it from the input image
-      //
-      src_image.read_row (output_row);
+      for (unsigned x = 0; x < src.width; x++)
+	dst.add_sample ((x + 0.5) * x_scale, (y + 0.5) * y_scale, src_row[x]);
     }
 }
 

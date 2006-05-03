@@ -1,6 +1,6 @@
-// image-io.h -- Image input and output
+// image-io.h -- Low-level image input and output
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -14,230 +14,130 @@
 
 #include <string>
 #include <cmath>
+#include <vector>
 
 #include "color.h"
+#include "params.h"
 
 
 namespace Snogray {
 
-// Rows in an image
-
-class ImageRow
+// A row in an image.
+//
+class ImageRow : std::vector<Color>
 {
 public:
-  ImageRow (unsigned _width) : width (_width), pixels (new Color[_width]) { }
-  ~ImageRow () { delete[] pixels; }
 
-  Color& operator[] (unsigned index) { return pixels[index]; }
-  const Color& operator[] (unsigned index) const { return pixels[index]; }
+  ImageRow (unsigned _width = 0)
+    : std::vector<Color> (_width), width (_width)
+  { }
+
+  void clear () { for (unsigned i = 0; i < width; i++) (*this)[i] = 0; }
+  void resize (unsigned w) { std::vector<Color>::resize (w); width = w; }
+
+  // Inherit some stuff from vector
+  //
+  using std::vector<Color>::operator[];
+  using std::vector<Color>::size;
+  using std::vector<Color>::at;
 
   unsigned width;
-  Color *pixels;
 };
 
 
-
-struct ImageParams
+// Common superclass for ImageSink and ImageSource.  Mainly provides space
+// to hold various fields.
+//
+class ImageIo
 {
-  ImageParams () : file_name (0), format (0) { }
-  virtual ~ImageParams (); // stop gcc bitching
+public:
 
-  // This is called when something wrong is detect with some parameter
-  virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
+  // If FILENAME has a recognized extension from which we can guess its
+  // format, return it (converted to lower-case).
+  //
+  static std::string filename_format (const std::string &filename);
 
-  // Calls error with current errno message appended
-  void sys_error (const std::string &msg) const __attribute__ ((noreturn));
+  // Return true if FILENAME has a recogized image format we can read.
+  //
+  static bool recognized_filename (const std::string &filename);
 
-  // Return the file format to use; if the FORMAT field is 0, then try
-  // to guess it from FILE_NAME.
-  const char *find_format () const;
+  // If PARAMS contains an explicit "format" entry, return its value,
+  // otherwise if FILENAME has a recognized extension from which we can
+  // guess its format, return it (converted to lower-case).
+  //
+  static std::string find_format (const Params &params,
+				  const std::string &filename);
 
-  const char *file_name;	// 0 means standard input
-  const char *format;		// 0 means auto-detect
+
+  ImageIo (const std::string &_filename, unsigned _width, unsigned _height)
+    : filename (_filename), width (_width), height (_height)
+  { }
+
+  // Handy functions to throw an error.  We use C strings instead of
+  // std::string because most uses of this function pass constant strings
+  // and std::string can create amazingly bloated code.
+  //
+  void err (const char *msg, bool use_errno = false)
+    __attribute__ ((noreturn));
+  void open_err (const char *dir, const char *msg = "", bool use_errno = false)
+    __attribute__ ((noreturn));
+
+  std::string filename;
+
+  unsigned width, height;
 };
 
 
 // Image output
 
-struct ImageSinkParams : ImageParams
-{
-  static const float DEFAULT_TARGET_GAMMA = 2.2;
-  static const float DEFAULT_QUALITY = 98; // 0-100
-
-  ImageSinkParams ()
-    : width (0), height (0),
-      exposure (0),
-      aa_factor (0), aa_overlap (0), aa_filter (0),
-      target_gamma (0), quality (0)
-  { }
-
-  class ImageSink *make_sink () const;
-
-  // This is called when something wrong is detect with some parameter
-  virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
-
-  unsigned width, height;
-
-  // The intensity of the output image is scaled by 2^exposure
-  //
-  float exposure;
-
-  unsigned aa_factor, aa_overlap;
-  float (*aa_filter) (int offs, unsigned size);
-
-  // The following are for use of backends.  Not all backends use all
-  // parameters.  0 means unspecified (use default/ignore).
-  float target_gamma;		// For backends with limited dynamic range
-  float quality;		// For lossy compression; range 0-100 ala jpeg
-};
-
-// This is the class that format-specific subclasses override; it just
-// provides a sturb error method which throws an exception if called.
-struct ImageFmtSinkParams : ImageSinkParams
-{
-  ImageFmtSinkParams (const ImageSinkParams &params)
-    : ImageSinkParams (params), generic_params (&params)
-  { }
-
-  virtual void error (const std::string &msg) const __attribute__ ((noreturn));
-
-  // Original generic parameters, if any
-  const ImageSinkParams *generic_params;
-};
-
-class ImageSink
+class ImageSink  : public ImageIo
 {
 public:
-  ImageSink (const ImageSinkParams &params) { }
+
+  static const float DEFAULT_TARGET_GAMMA = 2.2;
+
+  static ImageSink *open (const std::string &filename,
+			  unsigned width, unsigned height,
+			  const Params &params = Params::NONE);
 
   virtual ~ImageSink () = 0;
 
   virtual void write_row (const ImageRow &row) = 0;
   virtual float max_intens () const;
-};
 
-// Get rid of the class later when we convert image-io to use
-// exceptions. XXX
-//
-struct ImageGrrrSinkParams : public ImageSinkParams
-{
-  ImageGrrrSinkParams (const ImageSinkParams &params)
-    : ImageSinkParams (params)
+  void open_err (const char *msg = "", bool use_errno = false)
+    __attribute__ ((noreturn));
+
+protected:
+
+  ImageSink (const std::string &filename, unsigned width, unsigned height,
+	     const Params &params)
+    : ImageIo (filename, width, height)
   { }
-  virtual void error (const std::string &msg) const;
-};
-
-class ImageOutput
-{
-public:
-  typedef float (*aa_filter_t) (int offs, unsigned size);
-
-  static const aa_filter_t DEFAULT_AA_FILTER;
-
-  ImageOutput (const ImageSinkParams &params);
-  ~ImageOutput ();
-
-  // Returns next row for storing into, after writing previous rows to
-  // output sink.
-  ImageRow &next_row ();
-
-  // The intensity of the output image is scaled by 2^exposure
-  //
-  float exposure;
-
-  unsigned aa_factor;
-
-  // Anti-aliasing filters
-  static float aa_box_filter (int offs, unsigned size);
-  static float aa_triang_filter (int offs, unsigned size);
-  static float aa_gauss_filter (int offs, unsigned size);
-
-private:
-
-  void write_accumulated_rows ();
-
-  float *make_aa_kernel (float (*aa_filter)(int offs, unsigned size),
-			 unsigned kernel_size);
-  ImageRow &fill_aa_row ();
-
-  ImageSink *sink;
-
-  float intensity_scale;	// 2^exposure
-
-  ImageRow **recent_rows;
-  ImageRow *aa_row;
-
-  unsigned next_row_offs;
-  unsigned num_accumulated_rows;
-
-  float *aa_kernel;
-  unsigned aa_kernel_size;
-  float aa_max_intens;
 };
 
 
 // Image input
 
-struct ImageSourceParams : ImageParams
-{
-  class ImageSource *make_source () const;
-
-  // This is called when something wrong is detect with some parameter
-  virtual void error (const std::string &msg) const __attribute__ ((noreturn)) = 0;
-};
-
-// This is the class that format-specific subclasses override; it just
-// provides a sturb error method which throws an exception if called.
-struct ImageFmtSourceParams : ImageSourceParams
-{
-  ImageFmtSourceParams (const ImageSourceParams &params)
-    : ImageSourceParams (params), generic_params (&params)
-  { }
-
-  virtual void error (const std::string &msg) const __attribute__ ((noreturn));
-
-  // Original generic parameters, if any
-  const ImageSourceParams *generic_params;
-};
-
-class ImageSource
+class ImageSource : public ImageIo
 {
 public:
-  static ImageSource *make (const std::string &filename, const char *format);
+
+  static ImageSource *open (const std::string &filename,
+			    const Params &params = Params::NONE);
+
   virtual ~ImageSource ();
-  virtual void read_size (unsigned &width, unsigned &height) = 0;
+
+  void open_err (const char *msg = "", bool use_errno = false)
+    __attribute__ ((noreturn));
+
   virtual void read_row (ImageRow &row) = 0;
-};
 
-class ImageInput
-{
-public:
+protected:
 
-  // Returns true if FILENAME is a recogized image format we can read.
-  //
-  static bool recognized_filename (const std::string &filename);
-
-  ImageInput (const ImageSourceParams &params)
-    : source (params.make_source ())
-  {
-    source->read_size (width, height);
-  }
-  ImageInput (const std::string &filename, const char *format)
-    : source (ImageSource::make (filename, format))
-  {
-    source->read_size (width, height);
-  }
-  ~ImageInput () { delete source; }
-
-  // Reads a row of image data into ROW
-  void read_row (ImageRow &row) { source->read_row (row); }
-
-  // Set from the image
-  unsigned width, height;
-
-private:
-
-  ImageSource *source;
+  ImageSource (const std::string &filename, const Params &params)
+    : ImageIo (filename, 0, 0)
+  { }
 };
 
 }

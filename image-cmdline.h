@@ -12,180 +12,63 @@
 #ifndef __IMAGE_CMDLINE_H__
 #define __IMAGE_CMDLINE_H__
 
-#include "image-io.h"
-#include "cmdlineparser.h"
-
 // The following macros can be used in defining option parsers.
 
 // Image input options
-//
+
 #define IMAGE_INPUT_OPTIONS_HELP "\
- Input options:\n\
-  -I, --input-format=FMT     Input image format FMT\n\
-                               (one of: exr, png, ppm, pfm, jpeg,\n\
-                                hdr, pic, rgbe)"
-//
+  -I, --input-options=OPTS   Set input-image options; OPTS has the format\n\
+                               OPT1=VAL1[,...]; current options include:\n\
+                                 \"format\" -- set the type of input file"
+
 #define IMAGE_INPUT_SHORT_OPTIONS "I:"
-//
+
 #define IMAGE_INPUT_LONG_OPTIONS			\
- { "input-format",	required_argument, 0, 'I' }
-//
+ { "input-options",	required_argument, 0, 'I' }
+
 #define IMAGE_INPUT_OPTION_CASES(clp, params)	\
   case 'I':					\
-    params.format = clp.opt_arg ();		\
+    params.parse (clp.opt_arg ());		\
     break;
+
 
 // Image output options
-//
-#define IMAGE_OUTPUT_AA_OPTIONS_HELP "\
- Anti-aliasing:\n\
-  -a, --aa-factor=N          Use NxN input pixels to compute each output pixel\n\
-  -A, --aa-overlap=M         Include M adjacent input pixels in anti-aliasing\n\
-  -F, --aa-filter=NAME       Use anti-aliasing filter NAME (one of: box,\n\
-                               triang, gauss; default: gauss)"
-//
-#define IMAGE_OUTPUT_AA_SHORT_OPTIONS "a:A:F:"
-//
-#define IMAGE_OUTPUT_AA_LONG_OPTIONS			\
-  { "aa-factor",	required_argument, 0, 'a' },	\
-  { "aa-overlap",	required_argument, 0, 'A' },	\
-  { "aa-filter",	required_argument, 0, 'F' }
-//
-#define IMAGE_OUTPUT_AA_OPTION_CASES(clp, params)	\
-  /* Anti-aliasing options */				\
-  case 'a':						\
-    params.aa_factor = clp.unsigned_opt_arg ();		\
-    break;						\
-  case 'A':						\
-    params.aa_overlap = clp.unsigned_opt_arg ();	\
-    break;						\
-  case 'F':						\
-    params.parse_aa_filter_opt_arg ();			\
-    break;
 
-#define IMAGE_OUTPUT_TRANSFORM_OPTIONS_HELP "\
- Transforms:\n\
-  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops"
-//
-#define IMAGE_OUTPUT_TRANSFORM_SHORT_OPTIONS "e:"
-//
-#define IMAGE_OUTPUT_TRANSFORM_LONG_OPTIONS			\
-  { "exposure",		required_argument, 0, 'e' }
-//
-#define IMAGE_OUTPUT_TRANSFORM_OPTION_CASES(clp, params)	\
-  /* Transform options */					\
-  case 'e':							\
-    params.exposure = clp.float_opt_arg ();			\
-    break;
+#define IMAGE_OUTPUT_OPTIONS_HELP "\
+  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops\n\
+  -F, --filter=FILTER[,WID]  Filter to apply to the output image; if specified,\n\
+                               WID is the support width of the filter.\n\
+                               FILTER may be \"gauss\", \"triangle\", or \"box\"\n\
+                               (default \"box\")\n\
+\n\
+  -O, --output-options=OPTS  Set output-image options; OPTS has the format\n\
+                               OPT1=VAL1[,...]; current options include:\n\
+                                 \"format\"  -- output file type\n\
+                                 \"gamma\"   -- target gamma correction\n\
+                                 \"quality\" -- image compression quality (0-100)\n\
+                                 \"filter\"  -- output filter\n\
+                                 \"exposure\"-- increase exposure by N stops"
 
-#define IMAGE_OUTPUT_FMT_OPTIONS_HELP "\
- Output options:\n\
-  -O, --output-format=FMT    Output image format FMT\n\
-                               (one of: exr, png, ppm, pfm, jpeg,\n\
-                                hdr, pic, rgbe)\n\
-  -g, --gamma=GAMMA          Do gamma correction for a target display\n\
-                               gamma of GAMMA (default: 2.2, for output\n\
-                               formats that need gamma-correction)\n\
-  -Q, --quality=PERCENT	     Set output quality, for formats that support it\n\
-                               (range: 0-100; default 98)"
-//
-#define IMAGE_OUTPUT_FMT_SHORT_OPTIONS "O:g:Q:"
-//
-#define IMAGE_OUTPUT_FMT_LONG_OPTIONS			\
-  { "output-format",	required_argument, 0, 'O' },	\
-  { "gamma",		required_argument, 0, 'g' },	\
-  { "quality",		required_argument, 0, 'Q' }
-//
-#define IMAGE_OUTPUT_FMT_OPTION_CASES(clp, params)	\
-  case 'O':						\
-    params.format = clp.opt_arg ();			\
-    break;						\
-  case 'g':						\
-    params.target_gamma = clp.float_opt_arg ();		\
-    break;						\
-  case 'Q':						\
-    params.quality = clp.float_opt_arg ();		\
-    break;
+#define IMAGE_OUTPUT_SHORT_OPTIONS "e:F:O:"
 
-#define IMAGE_OUTPUT_OPTIONS_HELP		\
-  IMAGE_OUTPUT_FMT_OPTIONS_HELP			\
-  "\n\n" IMAGE_OUTPUT_TRANSFORM_OPTIONS_HELP	\
-  "\n\n" IMAGE_OUTPUT_AA_OPTIONS_HELP
-//
-#define IMAGE_OUTPUT_SHORT_OPTIONS		\
-  IMAGE_OUTPUT_FMT_SHORT_OPTIONS		\
-  IMAGE_OUTPUT_TRANSFORM_SHORT_OPTIONS		\
-  IMAGE_OUTPUT_AA_SHORT_OPTIONS
-//
-#define IMAGE_OUTPUT_LONG_OPTIONS		\
-  IMAGE_OUTPUT_FMT_LONG_OPTIONS,		\
-  IMAGE_OUTPUT_TRANSFORM_LONG_OPTIONS,		\
-  IMAGE_OUTPUT_AA_LONG_OPTIONS
-//
+#define IMAGE_OUTPUT_LONG_OPTIONS			\
+  { "filter",		required_argument, 0, 'F' },	\
+  { "exposure",		required_argument, 0, 'e' },	\
+  { "output-options",	required_argument, 0, 'O' }
+
 #define IMAGE_OUTPUT_OPTION_CASES(clp, params)		\
-  IMAGE_OUTPUT_FMT_OPTION_CASES (clp, params)		\
-  IMAGE_OUTPUT_TRANSFORM_OPTION_CASES (clp, params)	\
-  IMAGE_OUTPUT_AA_OPTION_CASES (clp, params)
+  case 'F':						\
+    params.set ("filter", clp.opt_arg ());		\
+    break;						\
+  case 'e':						\
+    params.set ("exposure", clp.float_opt_arg ());	\
+    break;						\
+  case 'O':						\
+    params.parse (clp.opt_arg ());			\
+    break;
 
-
-
-namespace Snogray {
-
-// This class can be used when parsing image parameters
-struct ImageCmdlineSinkParams : ImageSinkParams
-{
-  ImageCmdlineSinkParams (CmdLineParser &_clp) : clp (_clp) { }
-
-  // This is called when something wrong is detect with some parameter
-  virtual void error (const std::string &msg) const;
-
-  void parse_aa_filter_opt_arg ()
-  {
-    const char *filt_name = clp.opt_arg ();
-    if (strcmp (filt_name, "box") == 0)
-      aa_filter = ImageOutput::aa_box_filter;
-    else if (strcmp (filt_name, "triang") == 0)
-      aa_filter = ImageOutput::aa_triang_filter;
-    else if (strcmp (filt_name, "gauss") == 0)
-      aa_filter = ImageOutput::aa_gauss_filter;
-    else
-      clp.opt_err ("requires an anti-aliasing filter name"
-		   " (box, triang, gauss)");
-  }
-
-  // Returns a name for the specified aa_filter
-  const char *aa_filter_name()
-  {
-    float (*filt) (int offs, unsigned size)
-      = aa_filter ? aa_filter : ImageOutput::DEFAULT_AA_FILTER;
-    if (filt == ImageOutput::aa_box_filter)
-      return "box";
-    else if (filt == ImageOutput::aa_triang_filter)
-      return "triang";
-    else if (filt == ImageOutput::aa_gauss_filter)
-      return "gauss";
-    else
-      return "???";
-  }
-
-  // We keep track of this so that we may format error messages nicely
-  CmdLineParser &clp;
-};
-
-// This class can be used when parsing image parameters
-struct ImageCmdlineSourceParams : ImageSourceParams
-{
-  ImageCmdlineSourceParams (CmdLineParser &_clp) : clp (_clp) { }
-
-  // This is called when something wrong is detect with some parameter
-  virtual void error (const std::string &msg) const;
-
-  // We keep track of this so that we may format error messages nicely
-  CmdLineParser &clp;
-};
-
-}
 
 #endif /* __IMAGE_CMDLINE_H__ */
+
 
 // arch-tag: d728801d-ce3a-414e-89a1-60b259197526

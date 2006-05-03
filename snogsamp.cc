@@ -19,6 +19,7 @@
 #include "sample-map.h"
 #include "cmdlineparser.h"
 #include "image-cmdline.h"
+#include "trace-params.h"
 
 using namespace Snogray;
 using namespace std;
@@ -102,9 +103,7 @@ s "  -n, --no-normalize         Don't normalize sample values"
 n
 s SCENE_DEF_OPTIONS_HELP
 n
-s IMAGE_OUTPUT_FMT_OPTIONS_HELP
-n
-s IMAGE_OUTPUT_TRANSFORM_OPTIONS_HELP
+s IMAGE_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -141,8 +140,7 @@ int main (int argc, char *const *argv)
     { "lights",		no_argument,	   0, OPT_LIGHTS },
     { "size",		required_argument, 0, 'r' },
     SCENE_DEF_LONG_OPTIONS,
-    IMAGE_OUTPUT_FMT_LONG_OPTIONS,
-    IMAGE_OUTPUT_TRANSFORM_LONG_OPTIONS,
+    IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
@@ -150,8 +148,7 @@ int main (int argc, char *const *argv)
   char short_options[] =
     "s:m:nr:"
     SCENE_DEF_SHORT_OPTIONS
-    IMAGE_OUTPUT_FMT_SHORT_OPTIONS
-    IMAGE_OUTPUT_TRANSFORM_SHORT_OPTIONS
+    IMAGE_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
@@ -159,7 +156,7 @@ int main (int argc, char *const *argv)
   // Parameters set from the command line
   //
   SceneDef scene_def;			      // scene to be probed
-  ImageCmdlineSinkParams image_sink_params (clp);
+  Params image_params, render_params;
   unsigned width = 640, height = 480; // virtual "camera image"
   unsigned map_width = 800, map_height = 400; // sample map size
   bool no_normalize = false;
@@ -193,8 +190,7 @@ int main (int argc, char *const *argv)
 	break;
 
 	SCENE_DEF_OPTION_CASES (clp, scene_def);
-	IMAGE_OUTPUT_FMT_OPTION_CASES (clp, image_sink_params);
-	IMAGE_OUTPUT_TRANSFORM_OPTION_CASES (clp, image_sink_params);
+	IMAGE_OUTPUT_OPTION_CASES (clp, image_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -204,38 +200,42 @@ int main (int argc, char *const *argv)
   CMDLINEPARSER_CATCH
     (clp, scene_def.parse (clp, clp.num_remaining_args() - 1));
 
-  image_sink_params.file_name = clp.get_arg();
+  std::string filename = clp.get_arg();
 
   // Define the scene.
 
   Scene scene;
   Camera camera;
 
-  camera.set_aspect_ratio ((float)width / (float)height);
+  camera.set_aspect_ratio (float (width) / float (height));
 
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
 
   // Make a map
 
+  TraceParams trace_params (render_params);
+
   SampleMap map (map_width, map_height, map_type);
 
-  map.sample (camera.get_ray (x, y, width, height), scene);
+  float u = float (x) / float (width);
+  float v = float (y) / float (height);
+  map.sample (camera.get_ray (u, v), scene, trace_params);
 
   if (! no_normalize)
     map.normalize ();
 
-  if (sample_width > 0)
-    {
-      // We use the image backend's image-smoothing to make circular
-      // "smears" for each sample.  The relationship between size,
-      // brightness, and perceived size, is very ad-hoc, but this works
-      // well enough.
+//   if (sample_width > 0)
+//     {
+//       // We use the image backend's image-smoothing to make circular
+//       // "smears" for each sample.  The relationship between size,
+//       // brightness, and perceived size, is very ad-hoc, but this works
+//       // well enough.
+//
+//       image_params.aa_overlap = sample_width;
+//       image_params.exposure += log (float (sample_width)) / 2 + 3;
+//     }
 
-      image_sink_params.aa_overlap = sample_width;
-      image_sink_params.exposure += log (float (sample_width)) / 2 + 3;
-    }
-
-  map.save (image_sink_params);
+  map.save (filename, image_params);
 
   cout << "sample map has " << map.num_samples << " samples" << endl;
   cout << "   min = " << map.min << endl;

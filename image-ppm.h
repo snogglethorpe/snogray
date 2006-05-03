@@ -1,6 +1,6 @@
 // image-ppm.h -- PPM format image handling
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,14 +12,18 @@
 #ifndef __IMAGE_PPM_H__
 #define __IMAGE_PPM_H__
 
+extern "C" {
+#include <ppm.h>
+}
+
 #include "image-io.h"
 
 
 // PPM has fixed gamma correction:  each sample is "...  proportional to
 // the intensity of the CIE Rec. 709 red, green, and blue in the pixel,
-// adjusted by the CIE Rec.  709 gamma transfer function.  (That
-// transfer function specifies a gamma number of 2.2 and has a linear
-// section for small intensities)."
+// adjusted by the CIE Rec.  709 gamma transfer function.  (That transfer
+// function specifies a gamma number of 2.2 and has a linear section for
+// small intensities)."
 //
 #define IMAGE_PPM_GAMMA 2.2
 
@@ -29,27 +33,83 @@
 
 namespace Snogray {
 
-struct PpmImageSinkParams : public ImageFmtSinkParams
-{
-  PpmImageSinkParams (const ImageSinkParams &params)
-    : ImageFmtSinkParams (params)
-  {
-    if (params.target_gamma && params.target_gamma != IMAGE_PPM_GAMMA)
-      params.error ("PPM format uses a fixed gamma of "
-		    _IMAGE_PPM_GAMMA_STRING);
-  }
-    
-  virtual ImageSink *make_sink () const;
-};
+
+// Output
 
-class PpmImageSourceParams : public ImageFmtSourceParams
+class PpmImageSink : public ImageSink
 {
 public:
-  PpmImageSourceParams (const ImageSourceParams &params)
-    : ImageFmtSourceParams (params)
-  { }
-    
-  virtual ImageSource *make_source () const;
+
+  PpmImageSink (const std::string &filename, unsigned width, unsigned height,
+		const Params &params = Params::NONE);
+  ~PpmImageSink ();
+
+  virtual void write_row (const ImageRow &row);
+  virtual float max_intens () const;
+
+  // Floating-point to pixval conversion
+  pixval color_component_to_pixval (Color::component_t com)
+  {
+    if (com < 0)
+      return 0;
+
+    com = powf (com, 1 / IMAGE_PPM_GAMMA); // gamma correction
+
+    if (com >= 1)
+      return max_pixval;
+    else
+      return (pixval)(max_pixval * com);
+  }
+
+private:
+
+  FILE *stream;
+
+  // A single row of bytes we use as temporary storage during output
+  //
+  pixel *output_row;
+
+  // PPM params (currently these have fixed values)
+  //
+  pixval max_pixval;
+  bool force_plain;
+};
+
+
+// Input
+
+class PpmImageSource : public ImageSource
+{  
+public:
+
+  PpmImageSource (const std::string &filename,
+		  const Params &params = Params::NONE);
+  ~PpmImageSource ();
+
+  virtual void read_row (ImageRow &row);
+
+  // Pixval to floating-point conversion
+  Color::component_t pixval_to_color_component (pixval pv)
+  {
+    Color::component_t com = ((Color::component_t)pv) / max_pixval;
+
+    com = powf (com, IMAGE_PPM_GAMMA); // undo gamma correction
+
+    return com;
+  }
+
+private:
+
+  FILE *stream;
+
+  // A single row of bytes we use as temporary storage during input
+  //
+  pixel *input_row;
+
+  // PPM params
+  //
+  pixval max_pixval;
+  int format;
 };
 
 }

@@ -1,6 +1,6 @@
 // snogdiff.cc -- Image-comparison utility
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -13,7 +13,8 @@
 #include <cmath>
 
 #include "cmdlineparser.h"
-#include "image-io.h"
+#include "image-input.h"
+#include "image-output.h"
 #include "image-cmdline.h"
 
 using namespace Snogray;
@@ -78,8 +79,7 @@ int main (int argc, char *const *argv)
 
   // Parameters set from the command line
   //
-  ImageCmdlineSourceParams src_image_params (clp);
-  ImageCmdlineSinkParams dst_image_params (clp);
+  Params src_params, dst_params;
 
   // Parse command-line options
   //
@@ -87,8 +87,8 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-	IMAGE_OUTPUT_OPTION_CASES (clp, dst_image_params);
-	IMAGE_INPUT_OPTION_CASES (clp, src_image_params);
+	IMAGE_OUTPUT_OPTION_CASES (clp, dst_params);
+	IMAGE_INPUT_OPTION_CASES (clp, src_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -102,60 +102,45 @@ int main (int argc, char *const *argv)
 
   // Open the input images
   //
-  src_image_params.file_name = clp.get_arg();
-  ImageInput src1_image (src_image_params);
-
-  src_image_params.file_name = clp.get_arg();
-  ImageInput src2_image (src_image_params);
+  ImageInput src1 (clp.get_arg(), src_params);
+  ImageInput src2 (clp.get_arg(), src_params);
 
   // We get the output image's size from the input image
   //
-  unsigned width = src1_image.width;
-  unsigned height = src1_image.height;
+  unsigned width = src1.width;
+  unsigned height = src1.height;
 
-  if (src2_image.width != width || src2_image.height != height)
+  if (src2.width != width || src2.height != height)
     clp.err ("Input images must be the same size");
-
-  // If the output image is going to be anti-aliased, it will consume
-  // AA_FACTOR input pixels (in both vertical and horizontal directions)
-  // for every output pixel produced; modify the output image size
-  // accordingly.
-  //
-  if (dst_image_params.aa_factor > 1)
-    {
-      width /= dst_image_params.aa_factor;
-      height /= dst_image_params.aa_factor;
-    }
 
   // Open the output image using the resulting adjust size.
   //
-  dst_image_params.file_name = clp.get_arg ();
-  dst_image_params.width = width;
-  dst_image_params.height = height;
-  ImageOutput dst_image (dst_image_params);
+  ImageOutput dst (clp.get_arg (), width, height, dst_params);
 
-  // This is a temp row we use during reading
+  // These are temp rows we use during reading
   //
-  ImageRow row2 (width);
+  ImageRow row1 (width), row2 (width);
 
   // Copy input image to output image, doing any processing
   //
   for (unsigned y = 0; y < height; y++)
     {
-      // Get a row to write into from the output image
-      //
-      ImageRow &output_row = dst_image.next_row ();
-
-      // Read into it from the first source image
-      //
-      src1_image.read_row (output_row);
-
-      // Read in the second source image and subtract from the first
-
-      src2_image.read_row (row2);
+      src1.read_row (row1);
+      src2.read_row (row2);
 
       for (unsigned x = 0; x < width; x++)
-	output_row[x] -= row2[x];
+	{
+	  Color p = row1[x] - row2[x];
+
+	  // We care about the absolute value of the difference
+	  // (negative values aren't useful), so invert any negative
+	  // components.
+	  //
+	  Color::component_t r = abs (p.r()), g = abs (p.g()), b = abs (p.b());
+	  p.set_rgb (r, g, b);
+
+	  dst.add_sample (x + 0.5, y + 0.5, p);
+	}
     }
 }
 
