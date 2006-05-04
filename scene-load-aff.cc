@@ -32,7 +32,8 @@
 #include "sphere.h"
 #include "mesh.h"
 #include "phong.h"
-#include "point-light.h"
+#include "sphere-light.h"
+#include "glow.h"
 
 using namespace Snogray;
 using namespace std;
@@ -314,10 +315,17 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	{
 	  Pos pos = read_pos (stream);
 
-	  if (stream.peek () == '\n')
-	    add (new PointLight (pos, AFF_LIGHT_INTENS));
-	  else
-	    add (new PointLight (pos, AFF_LIGHT_INTENS * read_color (stream)));
+	  Color intens (AFF_LIGHT_INTENS);
+	  if (stream.peek () != '\n')
+	    intens *= read_color (stream);
+
+	  dist_t radius = 1;
+	  dist_t area = 4 * M_PI * radius * radius;
+
+	  intens /= area;
+
+	  add (new SphereLight (pos, radius, intens));
+	  add (new Sphere (add (new Glow (intens)), pos, radius));
 	}
       else if (strcmp (cmd_buf, "f") == 0 || strcmp (cmd_buf, "fm") == 0)
 	//

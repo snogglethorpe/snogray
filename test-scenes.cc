@@ -18,6 +18,7 @@
 #include "point-light.h"
 #include "far-light.h"
 #include "rect-light.h"
+#include "sphere-light.h"
 #include "sphere.h"
 #include "tripar.h"
 #include "lambert.h"
@@ -79,9 +80,11 @@ add_bulb (Scene &scene, const Pos &pos, float radius,
 	  const Color &col = Color::white)
 {
   dist_t area = 4 * M_PI * radius * radius;
-  const Material *bulb_mat = scene.add (new Glow (col / area));
-  scene.add (new PointLight (pos, col));
-  scene.add (new Sphere (bulb_mat, pos, radius));
+
+  Color intens = col / area;
+
+  scene.add (new SphereLight (pos, radius, intens));
+  scene.add (new Sphere (scene.add (new Glow (intens)), pos, radius));
 }
 
 
@@ -459,9 +462,10 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
   switch ((num / 10) % 10)
     {
     case 0:
-      // night-time teapot, point lights
+      // night-time teapot
       //
-      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 600));
+      add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 50);
+      //scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 600));
       //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
       add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 30 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (1, 4, 2), 0.2, 30 * Color (1, 1, 0.3));
@@ -641,7 +645,7 @@ def_scene_orange (unsigned num, const string &arg, Scene &scene, Camera &camera)
     {
     case 0:
       // night-time orange
-      scene.add (new PointLight (Pos (-3.1, 9.8, 12.1), 100));
+      add_bulb (scene, Pos (-3.1, 9.8, 12.1), 1, 8);
       add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
       break;
