@@ -1396,8 +1396,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
-  const Material *matte_silver
-    = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+//const Material *matte_silver
+//  = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *grey
     = scene.add (new Material (Color (0.3, 0.2, 0.2),
 			       cook_torrance (0.5, 0.2, Ior (1, 1))));
@@ -1409,6 +1409,12 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 			       cook_torrance (0.8, 0.5, 5)));
   const Material *gloss_white
     = scene.add (new Material (Color (0.8, 0.8, 0.8),
+			       cook_torrance (0.4, 0.1, 2)));
+  const Material *gloss_blue
+    = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
+			     cook_torrance (0.4, 0.3, 4)));
+  const Material *moss
+    = scene.add (new Material (Color (0.1, 0.2, 0.05),
 			       cook_torrance (0.4, 0.1, 2)));
   const Material *mirror
     = scene.add (new Mirror (Ior (0.25, 3), 0.95));
@@ -1425,7 +1431,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 2:
       obj_mat = silver; break;
     case 3:
-      obj_mat = matte_silver; break;
+      obj_mat = moss; break;
     case 4:
       obj_mat = blue; break;
     case 5:
@@ -1436,6 +1442,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       obj_mat = off_white; break;
     case 8:
       obj_mat = gloss_white; break;
+    case 9:
+      obj_mat = gloss_blue; break;
     }
 
   Xform xform;
@@ -1510,7 +1518,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   switch (lighting)
     {
     case 0:
-      scene.add (new PointLight (Pos (  10, 10,  0), 500));
+      add_bulb (scene, Pos (  10, 10,  0), 1, 500);
       break;
 
     case 1:
@@ -1527,6 +1535,19 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 
     case 4:
       add_rect_bulb (scene, Pos (-1, 5, -1), Vec (2, 0, 0), Vec (0, 0, 2), 45);
+      break;
+
+    case 6:
+      add_bulb (scene, Pos ( 2.0, 0,   1.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 1.0, 0,  -2.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 2.0, 0,  -1.0), 0.2, Color (1, 1, 0.5) * 8);
+      // fallthrough
+    case 5:
+      add_bulb (scene, Pos (-2.0, 0,  -1.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-1.0, 0,  -2.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-2.0, 0,   1.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-1.0, 0,   2.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 1.0, 0,   2.0), 0.2, Color (1, 1, 0.5) * 8);
       break;
 
     case 8:
