@@ -33,7 +33,8 @@
 #include "camera.h"
 #include "phong.h"
 #include "cook-torrance.h"
-#include "point-light.h"
+#include "sphere-light.h"
+#include "glow.h"
 
 #include "load-3ds.h"
 
@@ -356,9 +357,19 @@ TdsLoader::convert (const Xform &xform)
     convert (node, xform);
 
   if (scene)
-    for (Lib3dsLight *l = file->lights; l; l = l->next)
-      scene->add (new PointLight (pos (l->position) * xform,
-				  color (l->color) * l->multiplier));
+    {
+      dist_t radius = 50;
+      dist_t area_scale = 1 / (4 * M_PI * radius * radius);
+
+      for (Lib3dsLight *l = file->lights; l; l = l->next)
+	{
+	  const Pos loc = pos (l->position) * xform;
+	  const Color intens = color (l->color) * l->multiplier * area_scale;
+
+	  scene->add (new SphereLight (loc, radius, intens));
+	  scene->add (new Sphere (scene->add (new Glow (intens)), loc, radius));
+	}
+    }
 }
 
 // Load 3ds scene file FILENAME into memory.
