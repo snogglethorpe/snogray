@@ -20,6 +20,7 @@
 
 using namespace Snogray;
 
+
 static void
 render_by_rows (const Scene &scene, const Camera &camera,
 		unsigned width, unsigned height,
@@ -49,6 +50,60 @@ render_by_rows (const Scene &scene, const Camera &camera,
   prog.end ();
 }
 
+
+
+static void
+render_by_blocks (unsigned block_width, unsigned block_height,
+		  const Scene &scene, const Camera &camera,
+		  unsigned width, unsigned height,
+		  ImageOutput &output, unsigned offs_x, unsigned offs_y,
+		  Sample2Gen &sample_gen,
+		  const TraceParams &trace_params, TraceStats &stats,
+		  std::ostream &prog_stream, Progress::Verbosity verbosity)
+{
+  unsigned num_block_rows = (output.height + block_height - 1) / block_height;
+  unsigned num_block_cols = (output.width + block_width - 1) / block_width;
+  unsigned num_blocks = num_block_cols * num_block_rows;
+
+  // Start progress indicator
+  //
+  Progress prog (prog_stream, "block", 0, num_blocks, verbosity);
+
+  prog.start ();
+
+  Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
+		     block_height, sample_gen, trace_params);
+
+  unsigned cur_block_num = 0;
+
+  for (unsigned block_y_offs = 0;
+       block_y_offs < output.height;
+       block_y_offs += block_height)
+    for (unsigned block_x_offs = 0;
+	 block_x_offs < output.width;
+	 block_x_offs += block_width)
+      {
+	unsigned cur_block_width
+	  = ((block_x_offs + block_width > output.width)
+	     ? output.width - block_x_offs
+	     : block_width);
+	unsigned cur_block_height
+	  = ((block_y_offs + block_height > output.height)
+	     ? output.height - block_y_offs
+	     : block_height);
+
+	renderer.render_block (offs_x + block_x_offs, offs_y + block_y_offs,
+			       cur_block_width, cur_block_height);
+
+	prog.update (cur_block_num++);
+    }
+
+  stats = renderer.trace_stats ();
+
+  prog.end ();
+}
+
+
 
 // Return an appropriate sample generator.
 //
@@ -70,8 +125,15 @@ Snogray::render (const Scene &scene, const Camera &camera,
   std::auto_ptr<Sample2Gen> sample_gen (make_sample_gen (params));
   TraceParams trace_params (params);
 
-  render_by_rows (scene, camera, width, height, output, offs_x, offs_y,
-		  *sample_gen, trace_params, stats, progress_stream, verbosity);
+  if (params.get_int ("render-by-rows", 0))
+    render_by_rows (scene, camera, width, height, output, offs_x, offs_y,
+		    *sample_gen, trace_params, stats,
+		    progress_stream, verbosity);
+  else
+    render_by_blocks (16, 16,
+		      scene, camera, width, height, output, offs_x, offs_y,
+		      *sample_gen, trace_params, stats,
+		      progress_stream, verbosity);
 }
 
 // arch-tag: cbd1f440-1ebb-465b-a4e3-bd17777245f9
