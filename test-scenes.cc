@@ -1477,43 +1477,51 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   normalize (mesh, 0.4);
   scene.add (mesh);
 
+  float floor_level = -0.2;	// default
+
   switch (base)
     {
-    case 0:
+    case 0:			// platform + chessboard floor
     default:
       add_cube (scene, grey, Pos (-0.5, 0, -0.5),
-		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
-      add_chessboard (scene, Vec (0, -0.2, 0));
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
+      add_chessboard (scene, Vec (0, floor_level, 0));
       break;
 
-    case 1:
+    case 1:			// no platform, only chessboard floor
+      floor_level = 0;
       add_chessboard (scene);
       break;
 
-    case 2:
+    case 2:			// platform only
       add_cube (scene, grey, Pos (-0.5, 0, -0.5),
-		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
+      floor_level = 0; // no floor, really, so pretend it's at top of platform
       break;
 
-    case 3:
+    case 3:			// wide platform only
       add_cube (scene, grey, Pos (-2, 0, -2),
 		Vec (4, 0, 0), Vec (0, 0, 4), Vec (0, -1, 0));
+      floor_level = 0; // platform is floor
       break;
 
-    case 4:
+    case 4:			// glass platform + chessboard floor
       add_cube (scene, glass, Pos (-0.5, 0, -0.5),
-		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
-      add_chessboard (scene, Vec (0, -0.2, 0));
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
+      add_chessboard (scene, Vec (0, floor_level, 0));
       break;
 
-    case 5:
+    case 5:			// glass platform only
       add_cube (scene, glass, Pos (-0.5, 0, -0.5),
-		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, -0.2, 0));
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
       break;
 
     case 9:
       break;
     }
+
+  float fbr = 0.2;
+  float fby = floor_level + fbr;
 
   switch (lighting)
     {
@@ -1538,16 +1546,16 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
 
     case 6:
-      add_bulb (scene, Pos ( 2.0, 0,   1.0), 0.2, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos ( 1.0, 0,  -2.0), 0.2, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos ( 2.0, 0,  -1.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 2.0, fby,   1.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 1.0, fby,  -2.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 2.0, fby,  -1.0), fbr, Color (1, 1, 0.5) * 8);
       // fallthrough
     case 5:
-      add_bulb (scene, Pos (-2.0, 0,  -1.0), 0.2, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos (-1.0, 0,  -2.0), 0.2, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos (-2.0, 0,   1.0), 0.2, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos (-1.0, 0,   2.0), 0.2, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos ( 1.0, 0,   2.0), 0.2, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-2.0, fby,  -1.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-1.0, fby,  -2.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-2.0, fby,   1.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
       break;
 
     case 8:
