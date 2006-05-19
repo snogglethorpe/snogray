@@ -77,6 +77,9 @@ Progress::update (unsigned pos)
 
 	  unsigned update_limit = unsigned (pos + (end_pos - start_pos) * 0.05);
 
+	  if (update_limit > pos + 25)
+	    update_limit = pos + 25;
+
 	  // Always wait until the next line, but never too long.
 	  //
 	  if (update_pos == pos)
