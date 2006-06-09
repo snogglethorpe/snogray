@@ -464,11 +464,11 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 0:
       // night-time teapot
       //
-      add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 50);
+      add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 100);
       //scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 600));
       //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
-      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 30 * Color (1, 1, 0.3));
-      add_bulb (scene, Pos (1, 4, 2), 0.2, 30 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 60 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (1, 4, 2), 0.2, 60 * Color (1, 1, 0.3));
       break;
 
     case 1:
