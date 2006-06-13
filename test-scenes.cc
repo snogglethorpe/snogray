@@ -622,13 +622,6 @@ add_scene_descs_teapot (vector<TestSceneDesc> &descs)
 static void
 def_scene_orange (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
-  // Orange mesh and coords come from .nff file
-  //
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
-
-  // Note that the coordinates in this scene are weird -- it uses Z as
-  // "height" rather than depth.
-
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
@@ -645,23 +638,23 @@ def_scene_orange (unsigned num, const string &arg, Scene &scene, Camera &camera)
     {
     case 0:
       // night-time orange
-      add_bulb (scene, Pos (-3.1, 9.8, 12.1), 1, 8);
-      add_bulb (scene, Pos (4.7, 2, 3), 0.2, 4 * Color (1, 1, 0.3));
-      add_bulb (scene, Pos (-1, -2, 4), 0.2, 4 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (-3.1, 12.1, 9.8), 1, 80);
+      add_bulb (scene, Pos (4.7, 3, 2), 0.2, 40 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (-1, 4, -2), 0.2, 40 * Color (1, 1, 0.3));
       break;
 
     case 1:
       // day-time orange
-      scene.add (new FarLight (Vec (-1, 0.5, 1), 0.05, 1));
-      scene.add (new FarLight (Vec (0, 1, 0), 1, 1));
+      scene.add (new FarLight (Vec (-1, 1, 0.5), 0.05, 1));
+      scene.add (new FarLight (Vec (0, 0, 1), 1, 1));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
 
     case 2:
       // night-time orange 2
-      add_rect_bulb (scene, Pos (6, 2, 0), Vec (0, -3, 0), Vec (0, 0, 3),
+      add_rect_bulb (scene, Pos (6, 0, 2), Vec (0, 0, -3), Vec (0, 3, 0),
 		     2 * Color (1, 1, 0.3));
-      add_rect_bulb (scene, Pos (4,0,6), Vec(1,0,0), Vec(0,8,0),
+      add_rect_bulb (scene, Pos (4,6, 0), Vec(1,0,0), Vec(0,8,0),
 		     Color(10,10,6));
       break;
     }
@@ -678,12 +671,12 @@ def_scene_orange (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 2: mat = glass; max_err = 0.001; break;
     }
 
-  scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 0, 3), 3, 0.002),
+  scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 3, 0), 3, 0.002),
 		       Tessel::ConstMaxErr (max_err), smooth));
 
   camera.set_vert_fov (M_PI_4 * 0.9);
-  camera.move (Pos (4.86, 7.2, 5.4));
-  camera.point (Pos (0, -0.2, 0), Vec (0, 0, 1));
+  camera.move (Pos (4.86, 5.4, 7.2));
+  camera.point (Pos (0, 0, -0.2), Vec (0, 1, 0));
 }
 
 static void
