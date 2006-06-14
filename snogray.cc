@@ -502,11 +502,11 @@ int main (int argc, char *const *argv)
       Timeval scene_def_time
 	= ((scene_end_ru.utime() - scene_beg_ru.utime())
 	   + (scene_end_ru.stime() - scene_beg_ru.stime()));
-      cout << "  scene def cpu:" << setw (14) << scene_def_time.fmt(1) << endl;
+      cout << "  scene def cpu:" << setw (14) << scene_def_time << endl;
       Timeval render_time = render_end_ru.utime() - render_beg_ru.utime();
-      cout << "  rendering cpu:" << setw (14) << render_time.fmt(1) << endl;
+      cout << "  rendering cpu:" << setw (14) << render_time << endl;
       Timeval elapsed_time = end_time - beg_time;
-      cout << "  total elapsed:" << setw (14) << elapsed_time.fmt(1) << endl;
+      cout << "  total elapsed:" << setw (14) << elapsed_time << endl;
 
       long long sc  = trace_stats.scene_intersect_calls;
       long long sst = trace_stats.scene_shadow_tests;

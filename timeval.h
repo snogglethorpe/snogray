@@ -68,8 +68,15 @@ struct Timeval : timeval
     return Timeval (sec, usec);
   }
 
-  std::string fmt (unsigned sub_sec_prec = 3) const;
+  std::string fmt (unsigned sub_sec_prec = 0) const;
 };
+
+static inline std::ostream&
+operator<< (std::ostream &os, const Timeval &tv)
+{
+  os << tv.fmt ();
+  return os;
+}
 
 }
 

@@ -66,9 +66,10 @@ Progress::update (unsigned pos)
 	  // Output progress
 	  //
 	  os << "\rrendering: " << unit_name << " " << setw (pos_width) << pos
+	     << " / " << end_pos
 	     << "  (" << setw (3) << unsigned (progress * 100) << "%, "
-	     << setw (7) << (now - start_time).fmt(0) << " elapsed, "
-	     << setw (7) << remaining_est.fmt(0) << " remaining) ...";
+	     << setw (7) << (now - start_time) << " elapsed, "
+	     << setw (7) << remaining_est << " remaining) ...";
 
 	  // Estimate which pos we will have reached after the desired
 	  // update interval, and make that our next update pos.
@@ -95,6 +96,7 @@ Progress::update (unsigned pos)
 	  // Output progress
 	  //
 	  os << "\rrendering: " << unit_name << " " << setw (pos_width) << pos
+	     << " / " << end_pos
 	     << "  (" << setw (3) << unsigned (progress * 100) << "%) ...";
 
 	  update_pos = pos + 1;
