@@ -1383,4 +1383,151 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:       1
 
 
+   2006-06-16 [work]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-139
+   cmd: snogray test:teapot184 -Rjitter=1 -s1280x1024 -a7 -b ../cubetexs/grace_cross.exr -coy-60,z0.6,mf5.5 ../images/grt14.jpg
+   * adding mesh: 30,057 vertices, 57,360 triangles
+   * adding mesh: 626,749 vertices, 629,458 triangles
+   * adding mesh: 33,076 vertices, 38,880 triangles
+   * adding mesh: 47,674 vertices, 57,532 triangles
+   * adding mesh: 51,316 vertices, 60,132 triangles
+   * adding mesh: 184,994 vertices, 194,180 triangles
+   Scene:
+      scene:         test:teapot184
+      top-level surfaces:        15
+      lights:                     5
+      scene background: ../cubetexs/grace_cross.exr
+      materials:                 18
+      tree surfaces:      2,589,001 (59% duplicates)
+      tree nodes:           642,923 (50% leaves)
+      tree avg depth:             5
+      tree max depth:            21
+   Image:
+      size:             1280 x 1024
+      render jitter:              1
+      render oversample:          7
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:                 152,074,049
+	horizon hint hits:     88,457,863 (58%)
+	horizon hint misses:   15,637,955 (10%)
+	tree node tests:    9,751,891,476 ( 0%)
+	surface tests:     12,016,913,060 ( 0%)
+     shadow:
+	rays:               3,393,524,273
+	shadow hint hits:      68,492,169 ( 2%)
+	shadow hint misses: 1,282,239,445 (37%)
+	tree node tests:  151,333,018,444 ( 0%)
+	surface tests:    175,153,480,030 ( 0%)
+     illum:
+	illum calls:          104,106,300
+	average light samples:       46.9
+	average shadow rays:         32.6 (69%)
+   Time:
+     scene def cpu:           10s
+     rendering cpu:      18:50:56
+     total elapsed:      19:14:15
+     rays per second:      52,251
+     eye-rays per second:      19
+
+
+   cmd: snogray -a10 -s1280x1024 test:teapot41 -Rjitter=1 ../images/jitter37.jpg
+   * adding mesh: 30,057 vertices, 57,360 triangles
+   * adding mesh: 130,769 vertices, 139,238 triangles
+   * adding mesh: 33,076 vertices, 38,880 triangles
+   * adding mesh: 48,047 vertices, 58,358 triangles
+   * adding mesh: 51,316 vertices, 60,132 triangles
+   * adding mesh: 191,839 vertices, 201,218 triangles
+   Scene:
+      scene:          test:teapot41
+      top-level surfaces:        13
+      lights:                     2
+      materials:                 20
+      tree surfaces:      1,395,959 (60% duplicates)
+      tree nodes:           375,157 (52% leaves)
+      tree avg depth:            10
+      tree max depth:            22
+   Image:
+      size:             1280 x 1024
+      render oversample:         10
+      render jitter:              1
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:                 236,564,481
+	horizon hint hits:    170,513,769 (72%)
+	horizon hint misses:   15,414,392 ( 6%)
+	tree node tests:   11,780,885,892 ( 0%)
+	surface tests:     10,415,862,987 ( 0%)
+     shadow:
+	rays:               4,476,912,609
+	shadow hint hits:     209,374,846 ( 4%)
+	shadow hint misses: 1,162,580,161 (25%)
+	tree node tests:  164,546,002,749 ( 0%)
+	surface tests:    146,122,736,528 ( 0%)
+     illum:
+	illum calls:          179,113,879
+	average light samples:         40
+	average shadow rays:           25 (62%)
+   Time:
+     scene def cpu:            6s
+     rendering cpu:      18:07:20
+     total elapsed:      19:48:50
+     rays per second:      72,248
+     eye-rays per second:      20
+
+
+   cmd: snogray -a3 -s1280x1024 test:teapot164 -Rjitter=1 -coy-80,od15,z0.6,mf4,ry15 ../images/jitter38.jpg
+   * adding mesh: 30,057 vertices, 57,360 triangles
+   * adding mesh: 626,749 vertices, 629,458 triangles
+   * adding mesh: 33,076 vertices, 38,880 triangles
+   * adding mesh: 47,674 vertices, 57,532 triangles
+   * adding mesh: 51,316 vertices, 60,132 triangles
+   * adding mesh: 184,994 vertices, 194,180 triangles
+   Scene:
+      scene:         test:teapot164
+      top-level surfaces:        17
+      lights:                     2
+      materials:                 20
+      tree surfaces:      2,589,004 (59% duplicates)
+      tree nodes:           642,923 (50% leaves)
+      tree avg depth:             5
+      tree max depth:            21
+   Image:
+      size:             1280 x 1024
+      render oversample:          3
+      render jitter:              1
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:                  20,922,175
+	horizon hint hits:     10,976,610 (52%)
+	horizon hint misses:    3,008,558 (14%)
+	tree node tests:    1,119,975,546 ( 0%)
+	surface tests:      1,219,924,598 ( 0%)
+     shadow:
+	rays:                 289,798,122
+	shadow hint hits:       3,796,491 ( 1%)
+	shadow hint misses:    58,427,086 (20%)
+	tree node tests:   12,030,185,906 ( 0%)
+	surface tests:     13,160,372,165 ( 0%)
+     illum:
+	illum calls:           12,484,240
+	average light samples:       34.4
+	average shadow rays:         23.2 (67%)
+   Time:
+     scene def cpu:           10s
+     rendering cpu:       1:30:54
+     total elapsed:       1:37:48
+     rays per second:      56,973
+     eye-rays per second:     240
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
