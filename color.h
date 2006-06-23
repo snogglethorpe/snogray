@@ -46,11 +46,12 @@ public:
   template<typename S>
   void operator/= (S denom) { *this *= 1 / component_t (denom); }
 
-  void operator+= (const Color &col2)
+  const Color &operator+= (const Color &col2)
   {
     _r += col2._r;
     _g += col2._g;
     _b += col2._b;
+    return *this;
   }
   void operator-= (const Color &col2)
   {
