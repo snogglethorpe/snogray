@@ -98,8 +98,8 @@ FarLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 		<= r_sq)
 	      {
 		const Vec jitter
-		  = u_inc * (u_offs + random (0, 1))
-		  + v_inc * (v_offs + random (0, 1));
+		  = u_inc * (u_offs + random (1.0))
+		  + v_inc * (v_offs + random (1.0));
 
 		const Vec L = (dir + jitter).unit();
 		float NL = dot (N, L);
