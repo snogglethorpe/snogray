@@ -15,6 +15,8 @@
 #include <fstream>
 #include <cmath>
 
+#include "rand.h"
+
 namespace Snogray {
 
 // A color.
@@ -172,6 +174,18 @@ inline Color pow (const Color &base, const Color &exp)
 inline Color log (const Color &col)
 {
   return Color (logf (col._r), logf (col._g), logf (col._b));
+}
+
+inline Color random (Color limit = 1.f)
+{
+  return Color (random (limit._r), random (limit._g), random (limit._b));
+}
+
+inline Color random (Color min, Color limit)
+{
+  return Color (random (min._r, limit._r),
+		random (min._g, limit._g),
+		random (min._b, limit._b));
 }
 
 
