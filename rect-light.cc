@@ -71,8 +71,9 @@ RectLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 
 	      Vec lvec = sample_pos - isec.point;
 	      dist_t dist = lvec.length ();
+	      dist_t inv_dist = 1 / dist;
 
-	      const Vec L = lvec.unit ();
+	      const Vec L = lvec * inv_dist;
 	      float NL = dot (N, L);
 
 	      if (NL > 0)
@@ -82,7 +83,8 @@ RectLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 		  //   -cos (light_norm, lvec)) / distance^2 / num_samples
 		  //
 		  Color::component_t scale =
-		    fabs (dot (normal, L)) * num_samples_scale / (dist * dist);
+		    fabs (dot (normal, L))
+		    * num_samples_scale * inv_dist * inv_dist;
 
 		  samples.add_light (power * scale, L, dist, this);
 		}
