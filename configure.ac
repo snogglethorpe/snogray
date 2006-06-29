@@ -12,7 +12,7 @@ PKG_PROG_PKG_CONFIG
 #
 have_libpng=no
 if test x"$PKG_CONFIG" != x; then
-  PKG_CHECK_MODULES([libpng], [libpng], [have_libpng=yes])
+  PKG_CHECK_MODULES([libpng], [libpng], [have_libpng=yes], [have_libpng=no])
 fi
 if test $have_libpng = yes; then
   AC_DEFINE([HAVE_LIBPNG], [1], [Define if libpng is installed])
@@ -23,7 +23,7 @@ AM_CONDITIONAL([have_libpng], [test $have_libpng = yes])
 #
 have_libexr=no
 if test x"$PKG_CONFIG" != x; then
-  PKG_CHECK_MODULES([libexr], [OpenEXR], [have_libexr=yes])
+  PKG_CHECK_MODULES([libexr], [OpenEXR], [have_libexr=yes], [have_libexr=no])
 fi
 if test $have_libexr = yes; then
  AC_DEFINE([HAVE_LIBEXR], [1], [Define if libOpenEXR is installed])
