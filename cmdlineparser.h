@@ -17,6 +17,8 @@
 
 #include <getopt.h>
 
+#include "config.h"
+
 // The following macros can be used in defining option parsers.
 //
 #define CMDLINEPARSER_GENERAL_OPTIONS_HELP "\
@@ -38,7 +40,8 @@
     help (clp, cout);						\
     exit (0);							\
   case CMDLINEPARSER_OPT_VERSION:				\
-    cout << clp.prog_name() << " (snogray) 1.0" << endl;	\
+    cout << clp.prog_name() << " (snogray) " << PACKAGE_VERSION	\
+         << endl;						\
     exit (0);
 
 namespace Snogray {
