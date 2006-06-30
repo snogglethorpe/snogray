@@ -115,7 +115,7 @@ Progress::end ()
 	os << "done" << endl;
       else
 	os << "\rrendering: done"
-	   << string (unit_name.length() - 4 + pos_width + 49, ' ')
+	   << string (unit_name.length() - 4 + pos_width + 56, ' ')
 	   << endl;
     }
 }
