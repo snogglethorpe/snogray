@@ -9,7 +9,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-// #include <iostream>
+#include "config.h"
 
 #include <string>
 #include <map>
@@ -243,7 +243,11 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform)
     {
       Lib3dsMesh *m = lib3ds_file_mesh_by_name (file, node->name);
 
-      if (m)
+      if (m
+#ifdef HAVE_LIB3DS_OBJ_FLAGS
+	  && !(m->obj_flags & LIB3DS_OBJF_HIDDEN)
+#endif
+	  )
 	{
 	  Lib3dsMatrix N, M, X;
 	  Lib3dsObjectData *d = &node->data.object;
@@ -362,6 +366,9 @@ TdsLoader::convert (const Xform &xform)
       dist_t area_scale = 1 / (4 * M_PI * radius * radius);
 
       for (Lib3dsLight *l = file->lights; l; l = l->next)
+#ifdef HAVE_LIB3DS_OBJ_FLAGS
+	if (! (l->obj_flags & LIB3DS_OBJF_HIDDEN))
+#endif
 	{
 	  const Pos loc = pos (l->position) * xform;
 	  const Color intens = color (l->color) * l->multiplier * area_scale;
@@ -409,7 +416,16 @@ Snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
   xform.scale (1, 1, -1);
 
   if (l.file->cameras)
-    l.set_camera (camera, l.file->cameras, xform);
+    {
+      Lib3dsCamera *c = l.file->cameras;
+
+#ifdef HAVE_LIB3DS_OBJ_FLAGS
+      while (c && (c->obj_flags & LIB3DS_OBJF_HIDDEN))
+	c = c->next;
+#endif
+
+      l.set_camera (camera, c, xform);
+    }
 
   l.convert (xform);
 }

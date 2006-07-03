@@ -76,6 +76,34 @@ if test $have_lib3ds = yes; then
 fi
 AM_CONDITIONAL([have_lib3ds], [test $have_lib3ds = yes])
 
+# See if lib3ds supports the "obj_flags" extension, which adds handling
+# of LIB3DS_OBJ_ chunks (in particular the LIB3DS_OBJ_HIDDEN chunk,
+# which is used by many real-world models).
+#
+# (currently this is my own extension to lib3ds; hopefully in the future
+# it can get merged into the standard version)
+#
+if test $have_lib3ds = yes; then
+
+  _OLD_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS $LIB3DS_CFLAGS"
+
+  AC_MSG_CHECKING([whether lib3ds supports obj_flags extension])
+  AC_TRY_COMPILE([#include <lib3ds/mesh.h>],
+  	         [extern Lib3dsMesh *m; m->obj_flags = LIB3DS_OBJF_HIDDEN;],
+		 [have_lib3ds_obj_flags=yes],
+		 [have_lib3ds_obj_flags=no])
+  AC_MSG_RESULT([$have_lib3ds_obj_flags])
+
+  if test $have_lib3ds_obj_flags = yes; then
+    AC_DEFINE([HAVE_LIB3DS_OBJ_FLAGS], [1],
+              [Define if lib3ds has "obj_flags" support])
+  fi  
+
+  CFLAGS="$_OLD_CFLAGS"
+fi
+
+
 AC_CONFIG_FILES([Makefile])
 
 AC_OUTPUT
