@@ -9,6 +9,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iostream>
 #include <sstream>
 
 #include "test-scenes.h"
@@ -615,6 +616,155 @@ add_scene_descs_teapot (vector<TestSceneDesc> &descs)
   descs.push_back (TestSceneDesc ("teapot3[0-9]", "Teapot Daytime lighting (area lights)"));
   descs.push_back (TestSceneDesc ("teapot4[0-9]", "Teapot Night lighting (overhead light)"));
 
+}
+
+
+
+static void
+def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
+{
+  // Chessboard
+  //
+  add_chessboard (scene);
+
+  // Table/ground
+
+  const Material *grey
+    = scene.add (new Material (Color (0.3, 0.2, 0.2),
+			       cook_torrance (0.5, 0.2, Ior (1, 1))));
+
+  dist_t tw = 16;
+  add_cube (scene, grey, Pos (-tw / 2, -1, -tw / 2),
+	    Vec (tw, 0, 0), Vec (0, -tw, 0), Vec (0, 0, tw));
+
+  switch (num)
+    {
+    case 0:
+      // night-time balls
+      //
+      add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 100);
+      //scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 600));
+      //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
+      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 60 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (1, 4, 2), 0.2, 60 * Color (1, 1, 0.3));
+      break;
+
+    case 1:
+      // day-time balls, point lights
+      //
+      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 500));
+      scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 300));
+      scene.set_background (Color (0.078, 0.361, 0.753));
+      break;
+      
+    case 2:
+      // night-time balls, area lights
+      //
+      add_rect_bulb (scene, Pos(3.1, 12.1, -9.8), Vec(-5, 0, 0), Vec(0, 5, 0),
+		     50);
+      // fall through
+    case 5:
+      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
+		     15 * Color (1, 1, 0.3));
+      break;
+
+    case 3:
+      // day-time balls, area lights
+      //
+      scene.add (new FarLight (Vec (1, 1, -0.5), 0.05, 6));
+      scene.set_background (Color (0.078, 0.361, 0.753));
+      break;
+      
+    case 4:
+      // night-time balls, area lights, strong overhead
+      //
+      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 6);
+      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 1), Vec (0, 1, 0),
+		     40 * Color (1, 1, 0.3));
+      break;
+      
+    case 6:
+      // night-time balls, area lights, strong front light
+      //
+      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 6);
+      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
+		     10 * Color (1, 1, 0.3));
+      break;
+
+    case 7:
+      // surrounding area lights
+      //
+      {
+	// Lights
+
+	float b = 12;			// brightness
+	dist_t ld = 12, lh = 6, lw = 8; // distance (from origin), height, width
+	Vec lhv (0, lh, 0);		// height vector
+
+	add_rect_bulb (scene, Pos(-ld,     0, -lw / 2), Vec(0,  0, lw), lhv, b);
+	add_rect_bulb (scene, Pos( ld,     0, -lw / 2), Vec(0,  0, lw), lhv, b);
+	add_rect_bulb (scene, Pos(-lw / 2, 0,      ld), Vec(lw, 0,  0), lhv, b);
+
+	// Light bezels
+
+	dist_t bd = ld + 0.1, bh = 1 + lh + 1, bw = lw + 2;;
+	Vec bhv (0, bh, 0);
+
+	add_rect (scene, grey, Pos(-bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
+	add_rect (scene, grey, Pos( bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
+	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
+      }
+      break;
+
+    case 8:
+      add_deb_lights (DEB_GRACE, 1, scene);
+      break;
+
+    case 9:
+      add_deb_lights (DEB_RNL, 1, scene);
+      break;
+    }
+
+  Color colors[]
+    = { Color (0.5, 0, 0), Color (0, 0, 0.5), Color (0, 0.5, 0) };
+  const unsigned num_colors = (sizeof colors) / (sizeof colors[0]);
+
+  const unsigned rank = 4;
+  const dist_t width = (dist_t (rank) - 1) / 2;
+  const unsigned num_balls = rank * rank;
+  for (unsigned i = 0; i < num_balls; i++)
+    {
+      dist_t rad = 0.65;
+      dist_t sep = rad * 2 * 1.5;
+
+      coord_t x = ((i / rank) - width) * sep;
+      coord_t y = rad;
+      coord_t z = ((i % rank) - width) * sep;
+
+      Color base_col = colors[i % num_colors];
+      float col_rand = 0.3;
+      Color col
+	= base_col
+	- random (col_rand * base_col)
+	+ random (col_rand * (1 - base_col));
+      Color hl_col = 1 - col;
+
+      float spec = powf (1.5f, float (i) - float (num_balls * 0.75));
+
+      const Material *mat = new Material (col, cook_torrance (hl_col, spec));
+
+      scene.add (new Sphere (mat, Pos (x, y, z), rad));
+    }
+
+  camera.set_vert_fov (M_PI_4 * 0.9);
+  camera.move (Pos (-4.86, 5.4, -7.2));
+  camera.point (Pos (0, 0, 0.2), Vec (0, 1, 0));
+}
+
+static void
+add_scene_descs_balls (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("balls", "Balls of varying specularity"));
 }
 
 
@@ -1650,6 +1800,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_mesh (num, arg, scene, camera);
   else if (name == "teapot")
     def_scene_teapot (num, arg, scene, camera);
+  else if (name == "balls")
+    def_scene_balls (num, arg, scene, camera);
   else if (name == "orange")
     def_scene_orange (num, arg, scene, camera);
   else if (ends_in (name, "bunny"))
@@ -1675,6 +1827,7 @@ Snogray::list_test_scenes ()
 
   add_scene_descs_miles (descs);
   add_scene_descs_teapot (descs);
+  add_scene_descs_balls (descs);
   add_scene_descs_orange (descs);
   add_scene_descs_pretty_bunny (descs);
   add_scene_descs_cornell_box (descs);
