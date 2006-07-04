@@ -1669,7 +1669,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   switch (lighting)
     {
     case 0:
-      add_bulb (scene, Pos (  10, 10,  0), 1, 500);
+      add_bulb (scene, Pos (  10, 10,  0), 1, 1000);
       break;
 
     case 1:
@@ -1685,7 +1685,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
 
     case 4:
-      add_rect_bulb (scene, Pos (-1, 5, -1), Vec (2, 0, 0), Vec (0, 0, 2), 45);
+      add_rect_bulb (scene, Pos (-1, 5, -1), Vec (2, 0, 0), Vec (0, 0, 2), 30);
       break;
 
     case 6:
