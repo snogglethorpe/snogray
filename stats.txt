@@ -1118,7 +1118,7 @@ After adding trace-state tree, horizon hints:
       aa_kernel_size:            10
       aa_filter:                box
 
-   rendering: done                                                     ..
+   rendering: done
 
    Rendering stats:
      intersect:
@@ -1166,7 +1166,7 @@ After adding trace-state tree, horizon hints:
       aa_kernel_size:            10
       aa_filter:                box
 
-   rendering: done                                                     .
+   rendering: done
 
    Rendering stats:
      intersect:
@@ -1310,7 +1310,7 @@ After adding trace-state tree, horizon hints:
       aa_kernel_size:             7
       aa_filter:                box
 
-   rendering: done                                                    .
+   rendering: done
 
    Rendering stats:
      intersect:
@@ -1355,7 +1355,7 @@ After adding trace-state tree, horizon hints:
       render oversample:         10
       render jitter:              1
 
-   rendering: done                                                      ....
+   rendering: done
 
    Rendering stats:
      intersect:
@@ -1528,6 +1528,52 @@ After adding trace-state tree, horizon hints:
      total elapsed:       1:37:48
      rays per second:      56,973
      eye-rays per second:     240
+
+
+   2006-07-02 [home]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-153
+   cmd: snogray -b ../cubetexs/grace_cross.exr -cmy-0.3,mf0.5 test:mesh280:../dist/models/supercar-3ds/Supercar.3ds -s1280x1024 -a5 ../images/supercar30.jpg
+   * adding mesh: 177,490 vertices, 209,437 triangles
+   Scene:
+      scene:   test:mesh280:../dist/models/supercar-3ds/Supercar.3ds
+      top-level surfaces:         7
+      lights:                     5
+      scene background: ../cubetexs/grace_cross.exr
+      materials:                 11
+      tree surfaces:        495,768 (57% duplicates)
+      tree nodes:           110,524 (40% leaves)
+      tree avg depth:             7
+      tree max depth:            26
+   Image:
+      size:             1280 x 1024
+      render oversample:          5
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:                 254,753,709
+	horizon hint hits:     47,045,697 (18%)
+	horizon hint misses:   96,093,700 (37%)
+	tree node tests:    9,134,121,326 ( 0%)
+	surface tests:    107,007,700,544 ( 0%)
+     shadow:
+	rays:               1,299,970,010
+	shadow hint hits:      50,137,710 ( 3%)
+	shadow hint misses:   275,169,916 (21%)
+	non-opaque traces:    103,820,976 ( 7%; average depth = 2.04615)
+	tree node tests:   31,109,147,212 ( 0%)
+	surface tests:    376,287,065,090 ( 0%)
+     illum:
+	illum calls:           29,228,855
+	average light samples:       59.5
+	average shadow rays:         44.5 (74%)
+   Time:
+     scene def cpu:           21s
+     rendering cpu:      80:46:08
+     total elapsed:      89:40:41
+     rays per second:       5,346
+     eye-rays per second:       4
 
 
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
