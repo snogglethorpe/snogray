@@ -114,9 +114,8 @@ Progress::end ()
       if (verbosity == MINIMAL)
 	os << "done" << endl;
       else
-	os << "\rrendering: done"
-	   << string (unit_name.length() - 4 + pos_width + 56, ' ')
-	   << endl;
+	os << "\r" << string (11 + unit_name.length() + pos_width * 2 + 52, ' ')
+	   << "\rrendering: done" << endl;
     }
 }
 
