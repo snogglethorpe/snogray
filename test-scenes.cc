@@ -747,11 +747,10 @@ def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
 	= base_col
 	- random (col_rand * base_col)
 	+ random (col_rand * (1 - base_col));
-      Color hl_col = 1 - col;
 
       float spec = powf (1.5f, float (i) - float (num_balls * 0.75));
 
-      const Material *mat = new Material (col, cook_torrance (hl_col, spec));
+      const Material *mat = new Material (col * 0.7, cook_torrance (0.3, spec));
 
       scene.add (new Sphere (mat, Pos (x, y, z), rad));
     }
