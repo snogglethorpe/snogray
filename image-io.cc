@@ -60,6 +60,12 @@ ImageSource::open_err (const char *msg, bool use_errno)
   ImageIo::open_err ("input", msg, use_errno);
 }
 
+void
+ImageSink::flush ()
+{
+  // do nothing
+}
+
 float
 ImageSink::max_intens () const
 {

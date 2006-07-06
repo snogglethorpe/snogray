@@ -79,23 +79,27 @@ render_by_blocks (unsigned block_width, unsigned block_height,
   for (unsigned block_y_offs = 0;
        block_y_offs < output.height;
        block_y_offs += block_height)
-    for (unsigned block_x_offs = 0;
-	 block_x_offs < output.width;
-	 block_x_offs += block_width)
-      {
-	unsigned cur_block_width
-	  = ((block_x_offs + block_width > output.width)
-	     ? output.width - block_x_offs
-	     : block_width);
-	unsigned cur_block_height
-	  = ((block_y_offs + block_height > output.height)
-	     ? output.height - block_y_offs
-	     : block_height);
+    {
+      for (unsigned block_x_offs = 0;
+	   block_x_offs < output.width;
+	   block_x_offs += block_width)
+	{
+	  unsigned cur_block_width
+	    = ((block_x_offs + block_width > output.width)
+	       ? output.width - block_x_offs
+	       : block_width);
+	  unsigned cur_block_height
+	    = ((block_y_offs + block_height > output.height)
+	       ? output.height - block_y_offs
+	       : block_height);
 
-	renderer.render_block (offs_x + block_x_offs, offs_y + block_y_offs,
-			       cur_block_width, cur_block_height);
+	  renderer.render_block (offs_x + block_x_offs, offs_y + block_y_offs,
+				 cur_block_width, cur_block_height);
 
-	prog.update (cur_block_num++);
+	  prog.update (cur_block_num++);
+      }
+
+      output.flush ();
     }
 
   stats = renderer.trace_stats ();

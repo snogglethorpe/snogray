@@ -88,11 +88,22 @@ PngImageSink::write_row (const ByteVec &byte_vec)
     }
 
   png_write_row (png, (png_byte *)(&byte_vec[0]));
+}
 
+// Write previously written rows to disk, if possible.  This may flush
+// I/O buffers etc., but will not in any way change the output (so for
+// instance, it will _not_ flush the compression state of a PNG output
+// image, as that can make the resulting compression worse).
+//
+void
+PngImageSink::flush ()
+{
   // Flushing every line screws up compression; the docs say that doing
   // so periodically but less often (e.g., `using png_set_flush') works
   // better, but doesn't specify how often is good.
   //////png_write_flush (png);
+
+  fflush (stream);
 }
 
 

@@ -31,6 +31,13 @@ public:
 
   virtual void write_row (const ByteVec &byte_vec);
 
+  // Write previously written rows to disk, if possible.  This may flush
+  // I/O buffers etc., but will not in any way change the output (so for
+  // instance, it will _not_ flush the compression state of a PNG output
+  // image, as that can make the resulting compression worse).
+  //
+  virtual void flush ();
+
 private:
 
   FILE *stream;

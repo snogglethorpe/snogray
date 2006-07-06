@@ -80,6 +80,13 @@ public:
   //
   SampleRow &operator[] (int y) { return row (y); }
 
+  // Write the completed portion of the output image to disk, if possible.
+  // This may flush I/O buffers etc., but will not in any way change the
+  // output (so for instance, it will _not_ flush the compression state of
+  // a PNG output image, as that can make the resulting compression worse).
+  //
+  void flush () { sink->flush (); }
+
   // Make sure at least NUM rows are buffered in memory before being written.
   // NUM is a minimum -- more rows may be buffered if necessary to support
   // the output filter, or for other internal reasons.

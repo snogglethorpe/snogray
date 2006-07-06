@@ -67,7 +67,19 @@ void
 JpegImageSink::write_row (const ByteVec &byte_vec)
 {
   const JSAMPLE *rows[1] = { &byte_vec[0] };
+
   jpeg_write_scanlines (&jpeg_info, const_cast<JSAMPLE **>(rows), 1);
+}
+
+// Write previously written rows to disk, if possible.  This may flush
+// I/O buffers etc., but will not in any way change the output (so for
+// instance, it will _not_ flush the compression state of a PNG output
+// image, as that can make the resulting compression worse).
+//
+void
+JpegImageSink::flush ()
+{
+  fflush (stream);
 }
 
 
