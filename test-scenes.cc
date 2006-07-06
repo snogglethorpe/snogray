@@ -642,11 +642,11 @@ def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 0:
       // night-time balls
       //
-      add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 100);
+      add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 200);
       //scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 600));
       //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
-      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 60 * Color (1, 1, 0.3));
-      add_bulb (scene, Pos (1, 4, 2), 0.2, 60 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 120 * Color (1, 1, 0.3));
+      add_bulb (scene, Pos (1, 4, 2), 0.2, 120 * Color (1, 1, 0.3));
       break;
 
     case 1:
@@ -661,11 +661,13 @@ def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
       // night-time balls, area lights
       //
       add_rect_bulb (scene, Pos(3.1, 12.1, -9.8), Vec(-5, 0, 0), Vec(0, 5, 0),
-		     50);
-      // fall through
-    case 5:
+		     100);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
 		     15 * Color (1, 1, 0.3));
+
+    case 5:
+      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
+		     30 * Color (1, 1, 0.3));
       break;
 
     case 3:
@@ -678,17 +680,17 @@ def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 4:
       // night-time balls, area lights, strong overhead
       //
-      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 6);
+      add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 12);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 1), Vec (0, 1, 0),
-		     40 * Color (1, 1, 0.3));
+		     80 * Color (1, 1, 0.3));
       break;
       
     case 6:
       // night-time balls, area lights, strong front light
       //
-      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 6);
+      add_rect_bulb (scene, Pos (-3, 0, -8), Vec (6, 0, 0), Vec (0, 3, 0), 20);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
-		     10 * Color (1, 1, 0.3));
+		     20 * Color (1, 1, 0.3));
       break;
 
     case 7:
@@ -697,7 +699,7 @@ def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
       {
 	// Lights
 
-	float b = 12;			// brightness
+	float b = 25;			// brightness
 	dist_t ld = 12, lh = 6, lw = 8; // distance (from origin), height, width
 	Vec lhv (0, lh, 0);		// height vector
 
