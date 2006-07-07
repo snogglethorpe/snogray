@@ -485,8 +485,6 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
       //
       add_rect_bulb (scene, Pos(3.1, 12.1, -9.8), Vec(-5, 0, 0), Vec(0, 5, 0),
 		     50);
-      // fall through
-    case 5:
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
 		     15 * Color (1, 1, 0.3));
       break;
@@ -504,6 +502,12 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
       add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 6);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 1), Vec (0, 1, 0),
 		     40 * Color (1, 1, 0.3));
+      break;
+ 
+    case 5:
+      // night-time teapot, area lights, wide overhead
+      //
+      add_rect_bulb (scene, Pos(10, 6, -10), Vec(-20, 0, 0), Vec(0, 0, 20), 4);
       break;
       
     case 6:
@@ -665,11 +669,6 @@ def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
 		     15 * Color (1, 1, 0.3));
 
-    case 5:
-      add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
-		     30 * Color (1, 1, 0.3));
-      break;
-
     case 3:
       // day-time balls, area lights
       //
@@ -678,13 +677,19 @@ def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
       
     case 4:
-      // night-time balls, area lights, strong overhead
+      // night-time balls, area lights, strong overhead and small side light
       //
       add_rect_bulb (scene, Pos (3, 6, -3), Vec (-6, 0, 0), Vec (0, 0, 6), 12);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 1), Vec (0, 1, 0),
 		     80 * Color (1, 1, 0.3));
       break;
-      
+ 
+    case 5:
+      // night-time balls, area lights, wide overhead
+      //
+      add_rect_bulb (scene, Pos(10, 6, -10), Vec(-20, 0, 0), Vec(0, 0, 20), 4);
+      break;
+
     case 6:
       // night-time balls, area lights, strong front light
       //
