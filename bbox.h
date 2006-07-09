@@ -20,6 +20,7 @@ namespace Snogray {
 class BBox
 {
 public:
+
   // Be careful that every component of _MAX is greater than that of _MIN!
   BBox (const Pos &_min, const Pos &_max)
     : min (_min), max (_max)

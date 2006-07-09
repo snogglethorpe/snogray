@@ -30,6 +30,7 @@ namespace Snogray {
 class Color
 {
 public:
+
   typedef float component_t;
 
   static const Color black, white, funny;

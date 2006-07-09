@@ -23,6 +23,7 @@ namespace Snogray {
 
 class Camera {
 public:
+
   static const Pos DEFAULT_POS;
   static const float DEFAULT_ASPECT_RATIO = 4.0 / 3.0;
   static const float DEFAULT_HORIZ_FOV = M_PI / 4;

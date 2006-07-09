@@ -24,6 +24,7 @@ namespace Snogray {
 class Ray
 {
 public:
+
   Ray (Pos _origin, Vec _extent)
     : origin (_origin), dir (_extent.unit ()), len (_extent.length ()),
       _end (_origin + _extent)
@@ -62,6 +63,7 @@ public:
   dist_t len;
 
 private:
+
   // This is a pre-computed copy of (ORIGIN + DIR * LEN)
   Pos _end;
 };

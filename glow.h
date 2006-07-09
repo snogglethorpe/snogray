@@ -19,6 +19,7 @@ namespace Snogray {
 class Glow : public Material
 {
 public:
+
   Glow (const Color &_color) : Material (_color, Material::SHADOW_NONE) { }
 
   virtual Color render (const Intersect &isec) const;

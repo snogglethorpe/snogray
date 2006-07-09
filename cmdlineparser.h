@@ -49,6 +49,7 @@ namespace Snogray {
 class CmdLineParser
 {
 public:
+
   CmdLineParser (int _argc, char *const *_argv,
 		 const char *_short_opts, const struct option *_long_opts)
     : argc (_argc), argv (_argv),
