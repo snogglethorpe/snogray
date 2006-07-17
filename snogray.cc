@@ -10,6 +10,7 @@
 //
 
 #include <iostream>
+#include <cerrno>
 #include <sstream>
 #include <iomanip>
 #include <string>
@@ -26,6 +27,7 @@
 #include "light.h"
 #include "render.h"
 #include "image-output.h"
+#include "image-input.h"
 #include "image-cmdline.h"
 #include "render-cmdline.h"
 #include "scene-def.h"
@@ -33,6 +35,118 @@
 
 using namespace Snogray;
 using namespace std;
+
+
+// File I/O helper functions for image recovering
+	  
+// The maximum "backup" file we make when recovering a partial image.
+//
+#define RECOVER_BACKUP_LIMIT 100
+
+// The number of rows at the end of a recovered image file that we throw
+// away, to guard against garbage.
+//
+#define RECOVER_DISCARD_ROWS 4
+
+// Return true if a file called FILE_NAME is readable.
+//
+static bool 
+file_exists (const string &file_name)
+{
+  ifstream test (file_name.c_str ());
+  bool exists = !!test;
+  return exists;
+}
+
+// Choose a "backup filename" (using the GNU convention of suffixes like
+// ".~1~", ".~2~" etc), and rename FILE_NAME to it.  The backup filename
+// is returned.  If this cannot be done an exception is thrown.
+//
+static string
+rename_to_backup_file (const string &file_name)
+{
+  string backup_name;
+
+  unsigned backup_num;
+  for (backup_num = 1; backup_num < RECOVER_BACKUP_LIMIT; backup_num++)
+    {
+      backup_name = file_name + ".~" + stringify (backup_num) + "~";
+      if (! file_exists (backup_name))
+	break;
+    }
+  if (backup_num == RECOVER_BACKUP_LIMIT)
+    throw runtime_error (
+	    file_name
+	    + ": Cannot recover -- too many backup files already exist");
+
+  if (rename (file_name.c_str(), backup_name.c_str()) != 0)
+    throw runtime_error (backup_name + ": " + strerror (errno));
+
+  return backup_name;
+}
+
+// Initialize the output by reading as many image rows as possible from
+// SRC and copying them to DST; if a read-error is encountered, a small
+// number of the last rows read are discarded, to guard against garbaged
+// final lines.  The number of rows recovered is returned.
+//
+// SRC is closed and deleted after recovering it.
+//
+unsigned
+recover_image (ImageInput *src, ImageOutput &dst)
+{
+  ImageRow src_row (src->width);
+
+  // Make sure there's some number of rows buffered in memory, so we can
+  // guard against errors.
+  //
+  dst.set_num_buffered_rows (16);
+
+  int y = 0;
+  bool failed = false;
+  while (!failed && y < int (dst.height))
+    {
+      try
+	{
+	  src->read_row (src_row);
+	}
+      catch (...)
+	{
+	  failed = true;
+	}
+
+      if (! failed)
+	{
+	  ImageRow &dst_row = dst[y].pixels;
+
+	  for (unsigned x = 0; x < dst.width; x++)
+	    dst_row[x] = src_row[x];
+	}
+
+      y++;
+    }
+
+  // If we couldn't read the entire image, discard some of the final
+  // rows we read (they should still be buffered in memory); this helps
+  // with cases where the last few rows are garbage.
+  //
+  if (failed)
+    for (unsigned i = 0; i < RECOVER_DISCARD_ROWS && y > 0; i++)
+      dst[--y].clear ();
+
+  // Set the lower output bound.  Rendering will ignore anything below
+  // this bound, and treat it as the "image edge" (and so properly
+  // handle rendering extra pixels to correctly deal with output filters
+  // etc).
+  //
+  dst.set_min_y (y);
+
+  // Close the file-to-be-recovered, ignoring any errors in the process.
+  //
+  try { delete src; } catch (runtime_error &err) { }
+
+  return y;
+}
 
 
 
@@ -290,6 +404,8 @@ s SCENE_DEF_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
 n
+s "  -C, --continue             Continue a previously aborted render"
+n
 s "  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
 n
 s "  -q, --quiet                Do not output informational or progress messages"
@@ -321,6 +437,7 @@ int main (int argc, char *const *argv)
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
+    { "continue",	no_argument,	   0, 'C' },
 
     SCENE_DEF_LONG_OPTIONS,
     RENDER_LONG_OPTIONS,
@@ -345,7 +462,7 @@ int main (int argc, char *const *argv)
   unsigned width = 640, height = 480;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
-  bool quiet = false;
+  bool quiet = false, recover = false;
   Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
   Params image_params, render_params;
@@ -369,6 +486,10 @@ int main (int argc, char *const *argv)
       case 'l':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
 			     limit_max_x_spec, limit_max_y_spec);
+	break;
+
+      case 'C':
+	recover = true;
 	break;
 
 	// Verbosity options
@@ -455,6 +576,38 @@ int main (int argc, char *const *argv)
   unsigned limit_height
     = limit_max_y_spec.apply (clp, height, limit_y) - limit_y;
 
+  // If possible, try to recover a previously aborted render.
+  //
+  ImageInput *recover_input = 0;
+  if (file_exists (file_name))
+    {
+      if (recover)
+	//
+	// Recover a previous aborted render
+	try
+	  {
+	    recover_input = new ImageInput (file_name);
+
+	    string recover_backup = rename_to_backup_file (file_name);
+
+	    cout << file_name << ": Backup in " << recover_backup << endl;
+	  }
+	catch (runtime_error &err)
+	  {
+	    clp.err (err.what ());
+	  }
+      else
+	{
+	  cerr << clp.err_pfx() << file_name << ": Output file already exists"
+	       << endl;
+	  cerr << clp.err_pfx()
+	       << "To continue a previously aborted render"
+	       << ", use the `--continue' option"
+	       << endl;
+	  exit (23);
+	}
+    }
+
   // Create output image.  The size of what we output is the same as the
   // limit (which defaults to, but is not the same as the nominal output
   // image size).
@@ -464,6 +617,21 @@ int main (int argc, char *const *argv)
   // we create the image before printing any normal output.
   //
   ImageOutput output (file_name, limit_width, limit_height, image_params);
+
+  if (recover_input)
+    {
+      unsigned num_recovered = recover_image (recover_input, output);
+      recover_input = 0;
+
+      cout << file_name << ": Recovered " << num_recovered << " rows" << endl;
+
+      if (num_recovered == limit_height)
+	{
+	  cout << file_name << ": Entire image was recovered, not rendering"
+	       << endl;
+	  return 0; // We want destructors to run, so must not use exit!
+	}
+    }
 
   // Maybe print lots of useful information
   //

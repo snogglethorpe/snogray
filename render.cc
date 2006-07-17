@@ -76,6 +76,11 @@ render_by_blocks (unsigned block_width, unsigned block_height,
 
   unsigned cur_block_num = 0;
 
+  // Iterate over every block, rendering each one.  Note that in the
+  // case of a recovered image, many of these blocks may be outside
+  // OUTPUT's "min_y" limit; that's OK -- rendering them will simply
+  // have no effect.
+  //
   for (unsigned block_y_offs = 0;
        block_y_offs < output.height;
        block_y_offs += block_height)

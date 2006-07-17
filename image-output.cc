@@ -31,11 +31,12 @@ ImageOutput::ImageOutput (const std::string &filename,
   : width (_width), height (_height),
     filter (make_filter (params)),
     filter_radius (filter ? int (std::ceil (filter->max_width() - 1.0001)) : 0),
+    min_y (0),
     exposure (params.get_float ("exposure", 0)),
     neg_clamp (-std::abs (params.get_float ("neg-clamp", DEFAULT_NEG_CLAMP))),
     sink (ImageSink::open (filename, _width, _height, params)),
     num_buffered_rows (filter_radius * 2 + 1), num_user_buffered_rows (0),
-    rows (num_buffered_rows), cur_y_min (0),
+    rows (num_buffered_rows), buf_y (0),
     intensity_scale (exposure == 0 ? 1 : std::pow (2, exposure)),
     max_intens (sink->max_intens ())
 {
@@ -44,13 +45,13 @@ ImageOutput::ImageOutput (const std::string &filename,
 }
 
 // Write the the lowest currently buffered row to the output sink, and
-// recycle its storage for use by another row.  CUR_Y_MIN is incremented
+// recycle its storage for use by another row.  BUF_Y is incremented
 // to reflect the new lowest buffered row.
 //
 void
 ImageOutput::flush_min_row ()
 {
-  SampleRow &r = rows[cur_y_min % num_buffered_rows];
+  SampleRow &r = rows[buf_y % num_buffered_rows];
 
   for (unsigned x = 0; x < width; x++)
     {
@@ -65,15 +66,23 @@ ImageOutput::flush_min_row ()
 
   r.clear ();
 
-  cur_y_min++;
+  buf_y++;
+}
+
+void
+ImageOutput::set_min_y (int new_min_y)
+{
+  while (buf_y < new_min_y)
+    flush_min_row ();
+  min_y = new_min_y;
 }
 
 ImageOutput::~ImageOutput ()
 {
   // Write as-yet unwritten rows
   //
-  while (cur_y_min < int (height))
-    flush_min_row ();
+  set_min_y (height);
+  flush ();
 }
 
 
@@ -106,10 +115,10 @@ ImageOutput::set_num_buffered_rows (unsigned num)
 ImageOutput::SampleRow &
 ImageOutput::_row (int y)
 {
-  if (y < cur_y_min)
+  if (y < buf_y)
     throw std::runtime_error ("Previously output image row addressed");
 
-  while (int (cur_y_min + num_buffered_rows) <= y)
+  while (int (buf_y + num_buffered_rows) <= y)
     flush_min_row ();
 
   return rows[y % num_buffered_rows];
@@ -155,7 +164,10 @@ ImageOutput::add_sample (float sx, float sy, const Color &color)
 	{
 	  int py = y + fy; // y-coordinate of a pixel within the filter's radius
 
-	  if (py >= 0 && py < int (height))
+	  // Check to make sure the coordinates are inside the physical
+	  // output boundaries.
+	  //
+	  if (py >= min_y && py < int (height))
 	    {
 	      SampleRow &r = row (py); // One row of output image at PY
 

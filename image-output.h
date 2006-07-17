@@ -70,7 +70,7 @@ public:
   //
   SampleRow &row (int y)
   {
-    if (y >= cur_y_min && y < cur_y_min + int (num_buffered_rows))
+    if (y >= buf_y && y < buf_y + int (num_buffered_rows))
       return rows[y % num_buffered_rows];
     else
       return _row (y);
@@ -93,6 +93,10 @@ public:
   //
   void set_num_buffered_rows (unsigned num);
 
+  // Flush any buffered rows until the current minimum (buffered) row is MIN_Y.
+  //
+  void set_min_y (int min_y);
+
   // Size of output image.
   //
   unsigned width, height;
@@ -110,6 +114,10 @@ public:
   int filter_radius;		// really unsigned, but g++ goes nuts with
 				// warnings if we actually use that type
 
+  // Lowest possible row (no output is ever done below this).
+  //
+  int min_y;
+
   // The intensity of the output image is scaled by 2^exposure.
   //
   float exposure;
@@ -125,8 +133,8 @@ private:
   static Filter *make_filter (const Params &params);
 
   // Write the the lowest currently buffered row to the output sink, and
-  // recycle its storage for use by another row.  CUR_Y_MIN is
-  // incremented to reflect the new lowest buffered row.
+  // recycle its storage for use by another row.  BUF_Y is incremented to
+  // reflect the new lowest buffered row.
   //
   void flush_min_row ();
 
@@ -150,9 +158,9 @@ private:
   //
   std::vector<SampleRow> rows;
 
-  // Lowest row currently in memory.
+  // Lowest row currently buffered in memory.
   //
-  int cur_y_min;
+  int buf_y;
 
   float intensity_scale;	// 2^exposure
 

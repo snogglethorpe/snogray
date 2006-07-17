@@ -40,25 +40,27 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 void
 Renderer::render_block (int x, int y, int w, int h)
 {
-  // Clamp the parameters to fit our limit (LIM_X, LIM_Y, LIM_W, LIM_H)
+  // Clamp the parameters to fit our limit (LIM_X, LIM_Y, LIM_W, LIM_H).
+  // We also clamp with respect to the physical output boundaries.
 
-  if (y < lim_y)
+  int min_y = lim_y + output.min_y, max_y = lim_y + lim_h;
+  int min_x = lim_x, max_x = lim_x + lim_w;
+
+  if (y < min_y)
     {
-      h -= (lim_y - y);
-      y = lim_y;
+      h -= (min_y - y);
+      y = min_y;
     }
+  if (y + h > max_y)
+    h = max_y - y;
 
-  if (y + h > lim_y + lim_h)
-    h = lim_y + lim_h - y;
-
-  if (x < lim_x)
+  if (x < min_x)
     {
-      w -= (lim_x - x);
-      x = lim_x;
+      w -= (min_x - x);
+      x = min_x;
     }
-
-  if (x + w > lim_x + lim_w)
-    w = lim_x + lim_w - x;
+  if (x + w > max_x)
+    w = max_x - x;
 
   // Now if there's anything left after clamping, render it
   //
@@ -69,22 +71,22 @@ Renderer::render_block (int x, int y, int w, int h)
       // preceding/following the first/last row for their effect on
       // following/preceding rows.
       //
-      if (output.filter_radius != 0 && y == lim_y)
+      if (output.filter_radius != 0 && y == min_y)
 	{
 	  y -= output.filter_radius;
 	  h += output.filter_radius;
 	}
-      if (output.filter_radius != 0 && y + h == lim_y + lim_h)
+      if (output.filter_radius != 0 && y + h == max_y)
 	h += output.filter_radius;
 
       // Do the same thing for columns.
       //
-      if (output.filter_radius != 0 && x == lim_x)
+      if (output.filter_radius != 0 && x == min_x)
 	{
 	  x -= output.filter_radius;
 	  w += output.filter_radius;
 	}
-      if (output.filter_radius != 0 && x + w == lim_x + lim_w)
+      if (output.filter_radius != 0 && x + w == max_x)
 	w += output.filter_radius;
 
       // This is basically a cache to speed up tracing by holding hints
