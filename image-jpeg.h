@@ -13,11 +13,65 @@
 #define __IMAGE_JPEG_H__
 
 #include <cstdio>
+#include <csetjmp>
 #include <jpeglib.h>
 
 #include "image-byte-vec.h"
 
 namespace Snogray {
+
+class JpegErrState : public jpeg_error_mgr
+{
+public:
+
+  JpegErrState (const std::string &_filename);
+
+  // This is similar to the standard C `setjmp': it should be called
+  // before attempting a libjpeg operation that might yield an error,
+  // and will return false; if an error subsquently happens during the
+  // _following_ operation, this call will essentially return a second
+  // time, this time with a return value of true.
+  //
+  // It must be inline, because `setjmp' uses special compiler support.
+  //
+  bool trap_err () { return err || setjmp (jmpbuf) != 0; }
+
+  // If an error was seen, throw an appropriate exception.
+  //
+  void throw_err ();
+
+  // True if we saw an error.
+  //
+  bool err;
+
+  std::string err_msg;
+
+  // Just reference to the filename stored elsewhere.
+  //
+  const std::string &err_filename;
+
+private:
+
+  // Used for jump from one of our error handlers back past libjpeg
+  // library routines into the nearest calling C++ function.
+  // Unfortunately we can't just throw an error directly from the error
+  // handler, because the C++ runtime seems to abort as soon as it hits
+  // a non-C++ function on the stack.
+  //
+  jmp_buf jmpbuf;
+
+  // Called for fatal errors.
+  //
+  static void libjpeg_err_handler (j_common_ptr cinfo);
+
+  // Called for warnings (MSG_LEVEL < 0) and "trace messages" (>= 0).
+  //
+  static void libjpeg_warn_handler (j_common_ptr cinfo, int msg_level);
+
+  // Call to output a message.
+  //
+  static void libjpeg_msg_handler (j_common_ptr cinfo);
+};
 
 class JpegImageSink : public ByteVecImageSink
 {  
@@ -43,8 +97,9 @@ private:
 
   FILE *stream;
 
-  struct jpeg_compress_struct jpeg_info;
-  struct jpeg_error_mgr jpeg_err;
+  jpeg_compress_struct jpeg_info;
+
+  JpegErrState jpeg_err;
 };
 
 class JpegImageSource : public ByteVecImageSource
@@ -62,7 +117,8 @@ private:
   FILE *stream;
 
   struct jpeg_decompress_struct jpeg_info;
-  struct jpeg_error_mgr jpeg_err;
+
+  struct JpegErrState jpeg_err;
 };
 
 }
