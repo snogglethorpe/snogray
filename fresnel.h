@@ -94,6 +94,10 @@ public:
 	// light ray.
 
 	float sin_trans_angle = sin (refl_angle) / ior.n;
+
+	if (sin_trans_angle > 1)
+	  return 1;
+
 	float trans_angle = asin (sin_trans_angle);
 	float cos_trans_angle = cos (trans_angle);
 
