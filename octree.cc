@@ -50,29 +50,33 @@ Octree::for_each_possible_intersector (const Ray &ray,
 	  // Note that we basically ignore the extent of RAY during
 	  // these calculations, and treat RAY as an infinite line.
 
-	  dist_t x_min_scale = (x_min - ray.origin.x) / ray.dir.x;
+	  dist_t inv_x = ray.dir.x == 0 ? 0 : 1 / ray.dir.x;
+	  dist_t inv_y = ray.dir.y == 0 ? 0 : 1 / ray.dir.y;
+	  dist_t inv_z = ray.dir.z == 0 ? 0 : 1 / ray.dir.z;
+
+	  dist_t x_min_scale = (x_min - ray.origin.x) * inv_x;
 	  const Pos x_min_isec (x_min,
 				ray.origin.y + ray.dir.y * x_min_scale,
 				ray.origin.z + ray.dir.z * x_min_scale);
-	  dist_t x_max_scale = (x_max - ray.origin.x) / ray.dir.x;
+	  dist_t x_max_scale = (x_max - ray.origin.x) * inv_x;
 	  const Pos x_max_isec (x_max,
 				ray.origin.y + ray.dir.y * x_max_scale,
 				ray.origin.z + ray.dir.z * x_max_scale);
 
-	  dist_t y_min_scale = (y_min - ray.origin.y) / ray.dir.y;
+	  dist_t y_min_scale = (y_min - ray.origin.y) * inv_y;
 	  const Pos y_min_isec (ray.origin.x + ray.dir.x * y_min_scale,
 				y_min,
 				ray.origin.z + ray.dir.z * y_min_scale);
-	  dist_t y_max_scale = (y_max - ray.origin.y) / ray.dir.y;
+	  dist_t y_max_scale = (y_max - ray.origin.y) * inv_y;
 	  const Pos y_max_isec (ray.origin.x + ray.dir.x * y_max_scale,
 				y_max,
 				ray.origin.z + ray.dir.z * y_max_scale);
 
-	  dist_t z_min_scale = (z_min - ray.origin.z) / ray.dir.z;
+	  dist_t z_min_scale = (z_min - ray.origin.z) * inv_z;
 	  const Pos z_min_isec (ray.origin.x + ray.dir.x * z_min_scale,
 				ray.origin.y + ray.dir.y * z_min_scale,
 				z_min);
-	  dist_t z_max_scale = (z_max - ray.origin.z) / ray.dir.z;
+	  dist_t z_max_scale = (z_max - ray.origin.z) * inv_z;
 	  const Pos z_max_isec (ray.origin.x + ray.dir.x * z_max_scale,
 				ray.origin.y + ray.dir.y * z_max_scale,
 				z_max);
