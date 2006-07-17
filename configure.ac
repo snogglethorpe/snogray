@@ -7,6 +7,15 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_PROG_RANLIB
 
+AC_CHECK_HEADERS([fenv.h])
+
+have_feenableexcept=no
+AC_CHECK_LIB([m], [feenableexcept], [have_feenableexcept=yes])
+if test $have_feenableexcept = yes; then
+  AC_DEFINE([HAVE_FEENABLEEXCEPT], [1],
+            [Define if feenableexcept is defined in -lm])
+fi
+
 # Check for pkg-config program, used for configuring some libraries.
 # 
 m4_define_default([PKG_PROG_PKG_CONFIG],

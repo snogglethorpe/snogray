@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "config.h"
+
 #include <iostream>
 #include <cerrno>
 #include <sstream>
@@ -16,6 +18,10 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
+
+#ifdef HAVE_FENV_H
+#include <fenv.h>
+#endif
 
 #include "cmdlineparser.h"
 #include "rusage.h"
@@ -146,6 +152,36 @@ recover_image (ImageInput *src, ImageOutput &dst)
   try { delete src; } catch (runtime_error &err) { }
 
   return y;
+}
+
+
+// Floating-point exceptions
+
+// Try to enable those floating-point exceptions which don't interfere
+// with normal calculations.  This is to help debugging (the program
+// will die if an exception is hit).
+//
+static void
+enable_fp_exceptions ()
+{
+#ifdef HAVE_FEENABLEEXCEPT
+
+  fexcept_t fexcepts = 0;
+
+#ifdef FE_DIVBYZERO
+  fexcepts |= FE_DIVBYZERO;
+#endif
+#ifdef FE_OVERFLOW
+  fexcepts |= FE_OVERFLOW;
+#endif
+#ifdef FE_INVALID
+  fexcepts |= FE_INVALID;
+#endif
+
+  if (fexcepts)
+    feenableexcept (fexcepts);
+
+#endif // HAVE_FEENABLEEXCEPT
 }
 
 
@@ -468,9 +504,17 @@ int main (int argc, char *const *argv)
   Params image_params, render_params;
   SceneDef scene_def;
 
+
   // This speeds up I/O on cin/cout by not syncing with C stdio.
   //
   ios::sync_with_stdio (false);
+
+
+  // Enable floating-point exceptions if possible, which can help
+  // debugging.
+  //
+  enable_fp_exceptions ();
+
 
   // Parse command-line options
   //
