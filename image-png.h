@@ -20,7 +20,27 @@
 
 namespace Snogray {
 
-class PngImageSink : public ByteVecImageSink
+class PngErrState
+{
+public:
+
+  PngErrState (const std::string &_filename)
+    : libpng_err (false), err_filename (_filename)
+  { }
+
+  void throw_libpng_err ();
+
+  static void libpng_err_handler (png_structp libpng_struct, const char *msg);
+
+  bool libpng_err;
+  std::string libpng_err_msg;
+
+  // Just reference to the filename stored elsewhere.
+  //
+  const std::string &err_filename;
+};
+
+class PngImageSink : public ByteVecImageSink, PngErrState
 {  
 public:
 
@@ -40,13 +60,13 @@ public:
 
 private:
 
-  FILE *stream;
+  png_structp libpng_struct;
+  png_infop libpng_info;
 
-  png_structp png;
-  png_infop png_info;
+  FILE *stream;
 };
 
-class PngImageSource : public ByteVecImageSource
+class PngImageSource : public ByteVecImageSource, PngErrState
 {  
 public:
 
@@ -58,10 +78,10 @@ public:
 
 private:
 
-  FILE *stream;
+  png_structp libpng_struct;
+  png_infop libpng_info;
 
-  png_structp png;
-  png_infop png_info;
+  FILE *stream;
 };
 
 }

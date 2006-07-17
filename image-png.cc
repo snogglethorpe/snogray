@@ -15,14 +15,38 @@
 
 using namespace Snogray;
 
+
+// Common code for libpng access
+
+void
+PngErrState::throw_libpng_err ()
+{
+  if (libpng_err)
+    throw std::runtime_error (err_filename + ": " + libpng_err_msg);
+}
+
+void
+PngErrState::libpng_err_handler (png_structp libpng_struct, const char *msg)
+{
+  PngErrState *state = static_cast<PngErrState *> (libpng_struct->error_ptr);
+
+  if (! state->libpng_err)
+    {
+      state->libpng_err = true;
+      state->libpng_err_msg = msg;
+    }
+
+  longjmp (png_jmpbuf (libpng_struct), 1);
+}
 
 
 // Output
 
-PngImageSink::PngImageSink (const std::string &filename,
+PngImageSink::PngImageSink (const std::string &_filename,
 			    unsigned width, unsigned height,
 			    const Params &params)
-  : ByteVecImageSink (filename, width, height, params)
+  : ByteVecImageSink (_filename, width, height, params),
+    PngErrState (filename)
 {
   // Open output file
 
@@ -32,62 +56,63 @@ PngImageSink::PngImageSink (const std::string &filename,
 
   // Create libpng data structures
 
-  png = png_create_write_struct (PNG_LIBPNG_VER_STRING, 0, 0, 0);
-  if (! png)
+  libpng_struct
+    = png_create_write_struct (PNG_LIBPNG_VER_STRING,
+			       (png_voidp)static_cast<PngErrState *>(this),
+			       libpng_err_handler, 0);
+  if (! libpng_struct)
     {
       fclose (stream);
       open_err ("Could not create PNG struct");
     }
 
-  png_info = png_create_info_struct (png);
-  if (! png_info)
+  libpng_info = png_create_info_struct (libpng_struct);
+  if (! libpng_info)
     {
-      png_destroy_write_struct(&png, 0);
+      png_destroy_write_struct(&libpng_struct, 0);
       fclose (stream);
       open_err ("Could not create PNG info struct");
     }
 
-  if (setjmp (png_jmpbuf (png)))
+  if (setjmp (png_jmpbuf (libpng_struct)))
     {
-      png_destroy_write_struct (&png, &png_info);
+      png_destroy_write_struct (&libpng_struct, &libpng_info);
       fclose (stream);
       open_err ("Error writing PNG file");
     }
 
   // Write file header
 
-  png_set_IHDR (png, png_info, width, height,
+  png_set_IHDR (libpng_struct, libpng_info, width, height,
 		8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
 		PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-  png_set_gAMA (png, png_info, gamma_correction);
+  png_set_gAMA (libpng_struct, libpng_info, gamma_correction);
 
-  png_init_io (png, stream);
+  png_init_io (libpng_struct, stream);
 
-  png_write_info (png, png_info);
+  png_write_info (libpng_struct, libpng_info);
 }
 
 PngImageSink::~PngImageSink ()
 {
-  if (setjmp (png_jmpbuf (png)))
-    throw std::runtime_error (filename + ": Error destroying PNG object!");
+  if (!libpng_err && setjmp (png_jmpbuf (libpng_struct)) == 0)
+    png_write_end (libpng_struct, libpng_info);
 
-  png_write_end (png, png_info);
-  png_destroy_write_struct (&png, &png_info);
+  png_destroy_write_struct (&libpng_struct, &libpng_info);
 
   fclose (stream);
+
+  if (libpng_err)
+    throw_libpng_err ();
 }
 
 void
 PngImageSink::write_row (const ByteVec &byte_vec)
 {
-  if (setjmp (png_jmpbuf (png)))
-    {
-      png_destroy_write_struct (&png, &png_info);
-      fclose (stream);
-      throw std::runtime_error (filename + ": Error writing PNG file");
-    }
-
-  png_write_row (png, (png_byte *)(&byte_vec[0]));
+  if (!libpng_err && setjmp (png_jmpbuf (libpng_struct)) == 0)
+    png_write_row (libpng_struct, (png_byte *)(&byte_vec[0]));
+  else
+    throw_libpng_err ();
 }
 
 // Write previously written rows to disk, if possible.  This may flush
@@ -101,7 +126,7 @@ PngImageSink::flush ()
   // Flushing every line screws up compression; the docs say that doing
   // so periodically but less often (e.g., `using png_set_flush') works
   // better, but doesn't specify how often is good.
-  //////png_write_flush (png);
+  //////png_write_flush (libpng_struct);
 
   fflush (stream);
 }
@@ -109,9 +134,10 @@ PngImageSink::flush ()
 
 // Input
 
-PngImageSource::PngImageSource (const std::string &filename,
+PngImageSource::PngImageSource (const std::string &_filename,
 				const Params &params)
-  : ByteVecImageSource (filename, params)
+  : ByteVecImageSource (_filename, params),
+    PngErrState (filename)
 {
   // Open input file
 
@@ -121,42 +147,46 @@ PngImageSource::PngImageSource (const std::string &filename,
 
   // Create libpng data structures
 
-  png = png_create_read_struct (PNG_LIBPNG_VER_STRING, 0, 0, 0);
-  if (! png)
+  libpng_struct
+    = png_create_read_struct (PNG_LIBPNG_VER_STRING,
+			      (png_voidp)static_cast<PngErrState *>(this),
+			      libpng_err_handler, 0);
+  if (! libpng_struct)
     {
       fclose (stream);
       open_err ("Could not create PNG struct");
     }
 
-  png_info = png_create_info_struct (png);
-  if (! png_info)
+  libpng_info = png_create_info_struct (libpng_struct);
+  if (! libpng_info)
     {
-      png_destroy_read_struct(&png, 0, 0);
+      png_destroy_read_struct (&libpng_struct, 0, 0);
       fclose (stream);
       open_err ("Could not create PNG info struct");
     }
 
-  if (setjmp (png_jmpbuf (png)))
+  if (setjmp (png_jmpbuf (libpng_struct)))
     {
-      png_destroy_read_struct (&png, &png_info, 0);
+      png_destroy_read_struct (&libpng_struct, &libpng_info, 0);
       fclose (stream);
       open_err ("Error writing PNG file");
     }
 
   // Read file header
 
-  png_init_io (png, stream);
+  png_init_io (libpng_struct, stream);
 
-  png_read_info (png, png_info);
+  png_read_info (libpng_struct, libpng_info);
 
   png_uint_32 _width, _height;
   int _bit_depth;
   int color_type, interlace_method, compression_method, filter_method;
-  png_get_IHDR (png, png_info, &_width, &_height, &_bit_depth, &color_type,
+  png_get_IHDR (libpng_struct, libpng_info,
+		&_width, &_height, &_bit_depth, &color_type,
 		&interlace_method, &compression_method, &filter_method);
 
   double _gamma_correction;
-  png_get_gAMA (png, png_info, &_gamma_correction);
+  png_get_gAMA (libpng_struct, libpng_info, &_gamma_correction);
 
   unsigned _num_channels;
   switch (color_type)
@@ -167,12 +197,12 @@ PngImageSource::PngImageSource (const std::string &filename,
     case PNG_COLOR_TYPE_RGB_ALPHA:	_num_channels = 4; break;
 
     case PNG_COLOR_TYPE_PALETTE:
-      png_set_palette_to_rgb (png);
+      png_set_palette_to_rgb (libpng_struct);
       _num_channels = 3;
       break;
 
     default:
-      png_destroy_read_struct (&png, &png_info, 0);
+      png_destroy_read_struct (&libpng_struct, &libpng_info, 0);
       fclose (stream);
       open_err ("Unsupported PNG image type");
     }
@@ -180,14 +210,14 @@ PngImageSource::PngImageSource (const std::string &filename,
   // Expand sub-byte grey-scale bit-depths to one-byte-per-pxel
   //
   if (color_type == PNG_COLOR_TYPE_GRAY && _bit_depth < 8)
-    png_set_gray_1_2_4_to_8 (png);
+    png_set_gray_1_2_4_to_8 (libpng_struct);
 
   // Convert a tRNS chunk to a full alpha channel.
   //
-  if (png_get_valid (png, png_info, PNG_INFO_tRNS)
+  if (png_get_valid (libpng_struct, libpng_info, PNG_INFO_tRNS)
       && (_num_channels == 1 || _num_channels == 3))
     {
-      png_set_tRNS_to_alpha (png);
+      png_set_tRNS_to_alpha (libpng_struct);
       _num_channels++;
     }
 
@@ -196,22 +226,24 @@ PngImageSource::PngImageSource (const std::string &filename,
 
 PngImageSource::~PngImageSource ()
 {
-  if (setjmp (png_jmpbuf (png)))
-    throw std::runtime_error (filename + ": Error destorying PNG object!");
+  if (!libpng_err && setjmp (png_jmpbuf (libpng_struct)) == 0)
+    png_read_end (libpng_struct, 0);
 
-  png_read_end (png, 0);
-  png_destroy_read_struct (&png, &png_info, 0);
+  png_destroy_read_struct (&libpng_struct, &libpng_info, 0);
 
   fclose (stream);
+
+  if (libpng_err)
+    throw_libpng_err ();
 }
 
 void
 PngImageSource::read_row (ByteVec &byte_vec)
 {
-  if (setjmp (png_jmpbuf (png)))
-    throw std::runtime_error (filename + ": Error reading PNG file");
-
-  png_read_row (png, static_cast<png_byte *>(&byte_vec[0]), 0);
+  if (!libpng_err && setjmp (png_jmpbuf (libpng_struct)) == 0)
+    png_read_row (libpng_struct, static_cast<png_byte *>(&byte_vec[0]), 0);
+  else
+    throw_libpng_err ();
 }
 
 
