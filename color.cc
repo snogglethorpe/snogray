@@ -21,7 +21,7 @@ const Color Color::white (1,1,1);
 const Color Color::funny (0,10,0);
 
 std::ostream&
-Snogray::operator<< (std::ostream &os, const Color &col)
+Snogray::operator<< (std::ostream &os, const ColorOnly &col)
 {
   os << "rgb<" << std::setprecision (5) << lim (col.r ())
      << ", " << std::setprecision (5) << lim (col.g ())

@@ -11,6 +11,7 @@
 
 #include <stdexcept>
 
+#include "snogmath.h"
 #include "ray.h"
 #include "intersect.h"
 #include "rand.h"

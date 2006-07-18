@@ -34,7 +34,7 @@ public:
   //
   Color attenuate (Color light, dist_t distance) const
   {
-    return light * pow (M_E, -absorption * distance);
+    return light * pow (Color (M_E), -absorption * distance);
   }
 
   // Index of refraction; controls how light bends when passing between two
