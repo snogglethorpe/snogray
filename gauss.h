@@ -30,14 +30,14 @@ public:
   Gauss (float _alpha = DEFAULT_ALPHA,
 	 float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
     : Filter (_x_width, _y_width), alpha (_alpha),
-      x_exp (std::exp (-alpha * x_width * x_width)),
-      y_exp (std::exp (-alpha * y_width * y_width))
+      x_exp (exp (-alpha * x_width * x_width)),
+      y_exp (exp (-alpha * y_width * y_width))
   { }
   Gauss (const Params &params)
     : Filter (params, DEFAULT_WIDTH),
       alpha (params.get_float ("alpha", DEFAULT_ALPHA)),
-      x_exp (std::exp (-alpha * x_width * x_width)),
-      y_exp (std::exp (-alpha * y_width * y_width))
+      x_exp (exp (-alpha * x_width * x_width)),
+      y_exp (exp (-alpha * y_width * y_width))
   { }
   ~Gauss ();
 
@@ -45,7 +45,7 @@ public:
 
   float gauss1 (float offs, float ex) const
   {
-    return std::max (std::exp (-alpha * offs * offs) - ex, 0.f);
+    return max (exp (-alpha * offs * offs) - ex, 0.f);
   }
 
   float alpha;

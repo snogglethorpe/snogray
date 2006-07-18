@@ -31,7 +31,7 @@ struct RgbeColor
     : r (0), g (0), b (0), exp (0)
   {
     Color::component_t _r = col.r(), _g = col.g(), _b = col.b();
-    Color::component_t max_comp = std::max (_r, std::max (_g, _b));
+    Color::component_t max_comp = max (_r, max (_g, _b));
 
     if (max_comp > 1e-32)
       {

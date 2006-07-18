@@ -43,7 +43,7 @@ public:
 
   float mitchell1 (float x) const
   {
-    x = std::abs (2.f * x);
+    x = abs (2.f * x);
 
     // This formula is from the PBRT book
     //

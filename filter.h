@@ -12,9 +12,7 @@
 #ifndef __FILTER_H__
 #define __FILTER_H__
 
-#include <cmath>
-#include <algorithm> 		// for std::max
-
+#include "snogmath.h"
 #include "params.h"
 
 namespace Snogray {
@@ -29,7 +27,7 @@ public:
 
   float max_width () const
   {
-    return std::max (x_width, y_width);
+    return max (x_width, y_width);
   }
 
   virtual float val (float x, float y) const = 0;

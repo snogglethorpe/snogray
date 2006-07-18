@@ -10,8 +10,8 @@
 //
 
 #include <string>
-#include <cmath>
 
+#include "snogmath.h"
 #include "excepts.h"
 #include "filter.h"
 #include "mitchell.h"
@@ -30,14 +30,14 @@ ImageOutput::ImageOutput (const std::string &filename,
 			  const Params &params)
   : width (_width), height (_height),
     filter (make_filter (params)),
-    filter_radius (filter ? int (std::ceil (filter->max_width() - 1.0001)) : 0),
+    filter_radius (filter ? int (ceil (filter->max_width() - 1.0001)) : 0),
     min_y (0),
     exposure (params.get_float ("exposure", 0)),
-    neg_clamp (-std::abs (params.get_float ("neg-clamp", DEFAULT_NEG_CLAMP))),
+    neg_clamp (-abs (params.get_float ("neg-clamp", DEFAULT_NEG_CLAMP))),
     sink (ImageSink::open (filename, _width, _height, params)),
     num_buffered_rows (filter_radius * 2 + 1), num_user_buffered_rows (0),
     rows (num_buffered_rows), buf_y (0),
-    intensity_scale (exposure == 0 ? 1 : std::pow (2, exposure)),
+    intensity_scale (exposure == 0 ? 1 : pow (2, exposure)),
     max_intens (sink->max_intens ())
 {
   for (unsigned i = 0; i < rows.size (); i++)
