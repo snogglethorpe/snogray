@@ -101,7 +101,7 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &samples,
       //
       // where alpha is the angle between N and H.
       //
-      float cos_alpha = NH;
+      float cos_alpha = max (min (NH, 1.f), -1.f);
       float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
       float tan_alpha = tan (acos (cos_alpha));
       float D_exp = exp (-tan_alpha * tan_alpha * m_2_inv);

@@ -12,6 +12,8 @@
 #ifndef __FRESNEL_H__
 #define __FRESNEL_H__
 
+#include <cmath>
+
 #include "intersect.h"
 
 namespace Snogray {
@@ -75,6 +77,12 @@ public:
     //    F = (abs(Fs)^2 + abs(Fp)^2) / 2
     //
 
+    // Clamp COS_REFL_ANGLE between -1 and 1, as values even just slightly
+    // outside that range (not uncommon, due to floating-point precision
+    // errors) can cause a floating-point exception.
+    //
+    cos_refl_angle = max (min (cos_refl_angle, 1.f), -1.f);
+
     float refl_angle = acos (cos_refl_angle);
 
     float Fs, Fp;
@@ -93,10 +101,7 @@ public:
 	// trans_angle are the reflection and refraction refl_angles of the
 	// light ray.
 
-	float sin_trans_angle = sin (refl_angle) / ior.n;
-
-	if (sin_trans_angle > 1)
-	  return 1;
+	float sin_trans_angle = max (min (sin (refl_angle) / ior.n, 1.f), -1.f);
 
 	float trans_angle = asin (sin_trans_angle);
 	float cos_trans_angle = cos (trans_angle);
