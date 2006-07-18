@@ -12,8 +12,7 @@
 #ifndef __FRESNEL_H__
 #define __FRESNEL_H__
 
-#include <cmath>
-
+#include "snogmath.h"
 #include "intersect.h"
 
 namespace Snogray {
