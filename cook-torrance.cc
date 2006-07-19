@@ -70,8 +70,12 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &samples,
 
   // 1 / (N dot V)
   //
+  // If NV == 0, then the eye-ray is perpendicular to the normal, which
+  // basically means we can't see anything (but it's a rare case so don't
+  // bother to optimize it, just protect against division by zero).
+  //
   float NV = dot (N, V);
-  float NV_inv = 1 / NV;
+  float NV_inv = NV == 0 ? 0 : 1 / NV;
 
   // Info for calculating the Fresnel term.
   //
