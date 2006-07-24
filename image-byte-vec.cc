@@ -12,6 +12,7 @@
 #include <cmath>
 #include <string>
 
+#include "snogmath.h"
 #include "excepts.h"
 #include "string-funs.h"
 
@@ -90,7 +91,7 @@ ByteVecImageSource::set_specs (unsigned _width, unsigned _height,
   //
   bytes_per_component = bit_depth <= 8 ? 1 : 2;
 
-  component_scale = 1 / (Color::component_t)((1 << bit_depth) - 1);
+  component_scale = 1 / Color::component_t ((1 << bit_depth) - 1);
 
   input_row.resize (_width * _num_channels * bytes_per_component);
 }

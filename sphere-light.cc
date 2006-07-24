@@ -60,7 +60,7 @@ SphereLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 // according to the light's intensity in the sample's disphereion.
 //
 void
-SphereLight::filter_samples (const Intersect &isec, SampleRayVec &samples,
+SphereLight::filter_samples (const Intersect &isec, SampleRayVec &,
 			     SampleRayVec::iterator from,
 			     SampleRayVec::iterator to)
   const

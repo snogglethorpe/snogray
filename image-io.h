@@ -119,7 +119,7 @@ public:
 protected:
 
   ImageSink (const std::string &filename, unsigned width, unsigned height,
-	     const Params &params)
+	     const Params &)
     : ImageIo (filename, width, height)
   { }
 };
@@ -143,7 +143,7 @@ public:
 
 protected:
 
-  ImageSource (const std::string &filename, const Params &params)
+  ImageSource (const std::string &filename, const Params &)
     : ImageIo (filename, 0, 0)
   { }
 };

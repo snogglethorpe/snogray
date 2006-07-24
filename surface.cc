@@ -43,7 +43,7 @@ Surface::smoothing_group () const
 // where RAY intersects this surface.
 //
 bool
-Surface::confirm_shadow (const Ray &ray, dist_t dist, const Intersect &isec)
+Surface::confirm_shadow (const Ray &, dist_t, const Intersect &)
   const
 {
   return true;
@@ -61,8 +61,8 @@ barf ()
 }
 
 dist_t
-Surface::intersection_distance (const Ray &ray, IsecParams &isec_params, unsigned num) const { barf (); }
-Intersect Surface::intersect_info (const Ray &ray, const IsecParams &isec_params, Trace &trace) const { barf (); }
+Surface::intersection_distance (const Ray &, IsecParams &, unsigned) const { barf (); }
+Intersect Surface::intersect_info (const Ray &, const IsecParams &, Trace &) const { barf (); }
 
 BBox Surface::bbox () const { barf (); }
 

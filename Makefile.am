@@ -32,7 +32,7 @@ EXTRA_DIST = autogen.sh					\
 #
 
 OPT = -O5 -fomit-frame-pointer -ffast-math $(MACHINE_OPT)
-DEBUG = -g -Wall
+DEBUG = -g -Wall -Wextra -std=c++98
 #PG = -pg
 #MUDFLAP = -fmudflap
 

@@ -78,7 +78,7 @@ CmdLineParser::opt_err_pfx () const
       pfx += long_opts[long_opt_index].name;
     }
   else
-    pfx += (char)short_opt;
+    pfx += char (short_opt);
   pfx += "'";
   return pfx;
 }

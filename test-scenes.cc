@@ -195,7 +195,7 @@ tobj (tobj_type type, const Material *mat, const Pos &pos, dist_t radius,
 
 
 static void
-def_scene_miles (unsigned num, const string &arg, Scene &scene, Camera &camera)
+def_scene_miles (unsigned num, const string &, Scene &scene, Camera &camera)
 {
 //  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
 //  Material *mat2 = scene.add (new Lambert (Color (0.5, 0.5, 0)));
@@ -284,9 +284,7 @@ def_scene_miles (unsigned num, const string &arg, Scene &scene, Camera &camera)
   for (unsigned i = 0; i < gsize; i++)
     for (unsigned j = 0; j < gsize; j++)
       {
-	Color color (0,
-		     (float)j / (float)gsize,
-		     (float)i / (float)gsize);
+	Color color (0, float (j) / float (gsize), float (i) / float (gsize));
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
 	const Material *mat
 	  = scene.add (new Material (color * 0.5, phong (0.5, 500)));
@@ -625,7 +623,7 @@ add_scene_descs_teapot (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_balls (unsigned num, const string &arg, Scene &scene, Camera &camera)
+def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 {
   // Chessboard
   //
@@ -776,7 +774,7 @@ add_scene_descs_balls (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_orange (unsigned num, const string &arg, Scene &scene, Camera &camera)
+def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
 {
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
@@ -846,7 +844,7 @@ add_scene_descs_orange (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_cornell_box (unsigned num, const string &arg,
+def_scene_cornell_box (unsigned num, const string &,
 		       Scene &scene, Camera &camera)
 {
   float light_intens = 15;
@@ -1147,7 +1145,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
 }
 
 static void
-def_scene_cs465 (unsigned num, const string &arg, Scene &scene, Camera &camera)
+def_scene_cs465 (unsigned num, const string &, Scene &scene, Camera &camera)
 {
   switch (num)
     {
@@ -1214,7 +1212,7 @@ def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &
 #endif
 
 static void
-def_scene_pretty_dancer (unsigned num, const string &arg,
+def_scene_pretty_dancer (unsigned num, const string &,
 			 Scene &scene, Camera &camera)
 {
   // Simple colored materials
@@ -1246,7 +1244,7 @@ def_scene_pretty_dancer (unsigned num, const string &arg,
     { "Material8",		// gold
       new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
 		  cook_torrance (Color (1, 1, 0.3), 0, Ior (0.25, 3))) },
-    { 0 }
+    { 0, 0 }
   };
 
   const string msh_file_base = "+pretty-dancer";
@@ -1258,9 +1256,10 @@ def_scene_pretty_dancer (unsigned num, const string &arg,
 
       const Brdf *brdf
 	= (sm->m != 0
-	   ? (const Brdf *)cook_torrance (sm->spec, sm->m,
-					  sm->ior == 0 ? 5 : sm->ior)
-	   : (const Brdf *)lambert);
+	   ? static_cast<const Brdf *> (
+				 cook_torrance (sm->spec, sm->m,
+						sm->ior == 0 ? 5 : sm->ior))
+	   : static_cast<const Brdf *> (lambert));
 
       const Material *mat = scene.add (new Material (sm->diff, brdf));
 
@@ -1726,7 +1725,7 @@ add_scene_descs_mesh (vector<TestSceneDesc> &descs)
 
 
 static void
-def_scene_light (unsigned num, const string &arg, Scene &scene, Camera &camera)
+def_scene_light (unsigned num, const string &arg, Scene &scene, Camera &)
 {
   if (arg == "reset")
     {

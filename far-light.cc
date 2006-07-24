@@ -120,7 +120,7 @@ FarLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 // according to the light's intensity in the sample's difarion.
 //
 void
-FarLight::filter_samples (const Intersect &isec, SampleRayVec &samples,
+FarLight::filter_samples (const Intersect &, SampleRayVec &,
 			  SampleRayVec::iterator from,
 			  SampleRayVec::iterator to)
   const

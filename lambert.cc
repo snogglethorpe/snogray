@@ -25,7 +25,7 @@ const Lambert *Snogray::lambert = new Lambert;
 // importance function.
 //
 void
-Lambert::gen_samples (const Intersect &isec, SampleRayVec &samples)
+Lambert::gen_samples (const Intersect &, SampleRayVec &)
   const
 {
   throw std::runtime_error ("Lambert::gen_samples");
@@ -35,7 +35,7 @@ Lambert::gen_samples (const Intersect &isec, SampleRayVec &samples)
 // the BRDF's reflectivity in the sample's direction.
 //
 void
-Lambert::filter_samples (const Intersect &isec, SampleRayVec &samples,
+Lambert::filter_samples (const Intersect &isec, SampleRayVec &,
 			 SampleRayVec::iterator from,
 			 SampleRayVec::iterator to)
   const

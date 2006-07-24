@@ -45,7 +45,7 @@ Snogray::cook_torrance (const Color &spec_col, float m, const Ior &ior)
 // importance function.
 //
 void
-CookTorrance::gen_samples (const Intersect &isec, SampleRayVec &samples)
+CookTorrance::gen_samples (const Intersect &, SampleRayVec &)
   const
 {
   throw std::runtime_error ("CookTorrance::gen_samples");
@@ -55,7 +55,7 @@ CookTorrance::gen_samples (const Intersect &isec, SampleRayVec &samples)
 // the BRDF's reflectivity in the sample's direction.
 //
 void
-CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &samples,
+CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 			      SampleRayVec::iterator from,
 			      SampleRayVec::iterator to)
   const

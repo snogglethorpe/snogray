@@ -39,8 +39,8 @@ Material::render (const Intersect &isec) const
 // opaque shadows (the most common kind) don't use it!
 //
 Color
-Material::shadow (const Intersect &isec, const Ray &light_ray,
-		  const Color &light_color, const Light &light)
+Material::shadow (const Intersect &isec, const Ray &,
+		  const Color &, const Light &light)
   const
 {
   // This method only gets called if we encounter an opaque surface,

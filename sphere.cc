@@ -32,9 +32,7 @@ using namespace Snogray;
 // (flat surfaces will return failure for anything except 0).
 //
 dist_t
-Sphere::intersection_distance (const Ray &ray,
-			       IsecParams &isec_params,
-			       unsigned num)
+Sphere::intersection_distance (const Ray &ray, IsecParams &, unsigned num)
   const
 {
   if (num > 1)
@@ -74,8 +72,7 @@ Sphere::intersection_distance (const Ray &ray,
 }
 
 Intersect
-Sphere::intersect_info (const Ray &ray, const IsecParams &isec_params,
-			Trace &trace)
+Sphere::intersect_info (const Ray &ray, const IsecParams &, Trace &trace)
   const
 {
   Pos point = ray.end ();

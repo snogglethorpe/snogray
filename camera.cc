@@ -21,9 +21,10 @@ const float Camera::DEFAULT_HORIZ_FOV;
 Camera::Camera (const Pos &_pos, float aspect, float horiz_fov)
   : pos (_pos), user_up (Vec (0, 1, 0)),
     forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
-    target_dist (1), z_mode (Z_INCREASES_FORWARD), fov_x (horiz_fov)
+    target_dist (1), z_mode (Z_INCREASES_FORWARD),
+    aspect_ratio (aspect), fov_x (horiz_fov)
 {
-  set_aspect_ratio (aspect);
+  set_horiz_fov (fov_x);     // x fov remains constant, while y fov changes
 }
 
 // Change the current camera direction according to the rotational

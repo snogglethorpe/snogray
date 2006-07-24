@@ -101,7 +101,7 @@ RectLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 // according to the light's intensity in the sample's direction.
 //
 void
-RectLight::filter_samples (const Intersect &isec, SampleRayVec &samples,
+RectLight::filter_samples (const Intersect &isec, SampleRayVec &,
 			   SampleRayVec::iterator from,
 			   SampleRayVec::iterator to)
   const

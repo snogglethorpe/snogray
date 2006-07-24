@@ -42,8 +42,7 @@ Tripar::intersection_distance (const Ray &ray, IsecParams &isec_params,
 }
 
 Intersect
-Tripar::intersect_info (const Ray &ray, const IsecParams &isec_params,
-			Trace &trace)
+Tripar::intersect_info (const Ray &ray, const IsecParams &, Trace &trace)
   const
 {
   return Intersect (ray, this, ray.end (), (cross (e1, e2)).unit (), trace);

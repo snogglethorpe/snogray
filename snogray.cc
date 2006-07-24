@@ -334,7 +334,7 @@ LimitSpec::parse (const char *&str)
 unsigned
 LimitSpec::apply (CmdLineParser &clp, unsigned range, unsigned base) const
 {
-  unsigned val = is_frac ? (unsigned)(frac_val * range) : abs_val;
+  unsigned val = is_frac ? unsigned (frac_val * range) : abs_val;
 
   if (is_rel)
     val += base;
@@ -595,7 +595,7 @@ int main (int argc, char *const *argv)
 
   // Default camera aspect ratio to give pixels a 1:1 aspect ratio
   //
-  camera.set_aspect_ratio ((float)width / (float)height);
+  camera.set_aspect_ratio (float (width) / float (height));
 
   // Read in the scene/camera definitions
   //
@@ -722,11 +722,13 @@ int main (int argc, char *const *argv)
 
       long long sc  = trace_stats.scene_intersect_calls;
       long long sst = trace_stats.scene_shadow_tests;
-      double rps = (double)(sc + sst) / render_time;
-      double erps = (double)num_eye_rays / render_time;
-      cout << "  rays per second:    " << setw (8) << commify ((long long)rps)
+      double rps = double (sc + sst) / render_time;
+      double erps = double (num_eye_rays) / render_time;
+      cout << "  rays per second:    "
+	   << setw (8) << commify (static_cast<long long> (rps))
 	   << endl;
-      cout << "  eye-rays per second:" << setw (8) << commify ((long long)erps)
+      cout << "  eye-rays per second:"
+	   << setw (8) << commify (static_cast<long long> (erps))
 	   << endl;
     }
 }

@@ -57,7 +57,7 @@ Mirror::render (const Intersect &isec) const
 //
 void
 MirrorCoating::remove_specular_reflection (const Intersect &isec,
-					   SampleRayVec &samples,
+					   SampleRayVec &,
 					   SampleRayVec::iterator from,
 					   SampleRayVec::iterator to)
   const

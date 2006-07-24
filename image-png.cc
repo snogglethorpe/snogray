@@ -58,7 +58,7 @@ PngImageSink::PngImageSink (const std::string &_filename,
 
   libpng_struct
     = png_create_write_struct (PNG_LIBPNG_VER_STRING,
-			       (png_voidp)static_cast<PngErrState *>(this),
+			       png_voidp (static_cast<PngErrState *>(this)),
 			       libpng_err_handler, 0);
   if (! libpng_struct)
     {
@@ -110,7 +110,7 @@ void
 PngImageSink::write_row (const ByteVec &byte_vec)
 {
   if (!libpng_err && setjmp (png_jmpbuf (libpng_struct)) == 0)
-    png_write_row (libpng_struct, (png_byte *)(&byte_vec[0]));
+    png_write_row (libpng_struct, const_cast<png_byte *> (&byte_vec[0]));
   else
     throw_libpng_err ();
 }
@@ -149,7 +149,7 @@ PngImageSource::PngImageSource (const std::string &_filename,
 
   libpng_struct
     = png_create_read_struct (PNG_LIBPNG_VER_STRING,
-			      (png_voidp)static_cast<PngErrState *>(this),
+			      png_voidp (static_cast<PngErrState *>(this)),
 			      libpng_err_handler, 0);
   if (! libpng_struct)
     {

@@ -23,7 +23,7 @@ struct Timeval : timeval
   typedef enum { TIME_OF_DAY } __tod_t;
 
   // Type trick; only gets used when arg is Timeval::TIME_OF_DAY
-  Timeval (__tod_t x) { gettimeofday (static_cast<timeval *>(this), 0); }
+  Timeval (__tod_t) { gettimeofday (static_cast<timeval *>(this), 0); }
 
   Timeval (const timeval &tv) : timeval (tv) { }
 
@@ -39,7 +39,7 @@ struct Timeval : timeval
     tv_usec = usec;
   }
 
-  operator double () const { return tv_sec + (double)tv_usec / 1000000.0; }
+  operator double () const { return tv_sec + double (tv_usec) / 1000000.0; }
 
   Timeval operator- (const Timeval &tv2) const
   {

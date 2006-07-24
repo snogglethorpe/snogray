@@ -1,6 +1,6 @@
 // freelist.h -- Memory freelists
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -139,7 +139,7 @@ public:
 // returned to the freelist using "FREELIST.put(OBJ)".
 //
 template<class T>
-inline void *operator new (size_t s, Snogray::Freelist<T> &fl)
+inline void *operator new (size_t, Snogray::Freelist<T> &fl)
 {
   return static_cast<void *>(fl.get ());
 }

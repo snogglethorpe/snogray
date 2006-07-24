@@ -16,7 +16,7 @@ using namespace Snogray;
 Box::~Box () { } // stop gcc bitching
 
 float
-Box::val (float x, float y) const
+Box::val (float, float) const
 {
   return 1;
 }

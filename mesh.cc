@@ -291,8 +291,7 @@ Mesh::Triangle::smoothing_group () const
 // where RAY intersects this surface.
 //
 bool
-Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t dist,
-				const Intersect &isec)
+Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t, const Intersect &isec)
   const
 {
   if (isec.smoothing_group == static_cast<const void *>(&mesh))

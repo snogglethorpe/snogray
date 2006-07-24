@@ -57,7 +57,7 @@ Tessel::Function::~Function () { }
 Tessel::MaxErrCalc::~MaxErrCalc () { }
 
 Tessel::err_t
-Tessel::ConstMaxErr::max_err (const Pos &pos) const
+Tessel::ConstMaxErr::max_err (const Pos &) const
 {
   return err;
 }

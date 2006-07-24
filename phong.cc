@@ -40,7 +40,7 @@ Snogray::phong (const Color &spec_col, float exp)
 // importance function.
 //
 void
-Phong::gen_samples (const Intersect &isec, SampleRayVec &samples)
+Phong::gen_samples (const Intersect &, SampleRayVec &)
   const
 {
   throw std::runtime_error ("Phong::gen_samples");
@@ -50,7 +50,7 @@ Phong::gen_samples (const Intersect &isec, SampleRayVec &samples)
 // the BRDF's reflectivity in the sample's direction.
 //
 void
-Phong::filter_samples (const Intersect &isec, SampleRayVec &samples,
+Phong::filter_samples (const Intersect &isec, SampleRayVec &,
 		       SampleRayVec::iterator from,
 		       SampleRayVec::iterator to)
   const

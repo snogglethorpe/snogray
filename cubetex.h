@@ -41,6 +41,8 @@ private:
 
   struct Face
   {
+    Face () : tex (0) { }
+
     Texture2 *tex;
 
     Vec u_dir, v_dir;
