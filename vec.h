@@ -91,7 +91,7 @@ public:
   }
   T length () const
   {
-    return sqrtf (x * x + y * y + z * z);
+    return sqrt (x * x + y * y + z * z);
   }
 
   TVec unit () const

@@ -53,12 +53,14 @@ public:
     if (com < 0)
       return 0;
 
-    com = powf (com, 1 / IMAGE_PPM_GAMMA); // gamma correction
+    // Do gamma correction
+    //
+    com = pow (com, Color::component_t (1 / IMAGE_PPM_GAMMA));
 
     if (com >= 1)
       return max_pixval;
     else
-      return (pixval)(max_pixval * com);
+      return pixval (max_pixval * com);
   }
 
 private:
@@ -91,9 +93,11 @@ public:
   // Pixval to floating-point conversion
   Color::component_t pixval_to_color_component (pixval pv)
   {
-    Color::component_t com = ((Color::component_t)pv) / max_pixval;
+    Color::component_t com = Color::component_t (pv) / max_pixval;
 
-    com = powf (com, IMAGE_PPM_GAMMA); // undo gamma correction
+    // Undo gamma correction.
+    //
+    com = pow (com, Color::component_t (IMAGE_PPM_GAMMA));
 
     return com;
   }

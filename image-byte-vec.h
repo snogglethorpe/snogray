@@ -14,6 +14,7 @@
 
 #include <vector>
 
+#include "snogmath.h"
 #include "image-io.h"
 
 namespace Snogray {
@@ -49,12 +50,12 @@ public:
       return 0;
 
     if (gamma_correction != 0)
-      com = powf (com, gamma_correction);
+      com = pow (com, gamma_correction);
 
     if (com >= 0.9999)
       return 255;
     else
-      return (byte)(256.0 * com);
+      return byte (256.0 * com);
   }
 
   // Explicit gamma-correction factor
@@ -118,7 +119,7 @@ protected:
   Color::component_t int_to_color_component (unsigned int_cc)
   {
     Color::component_t com = int_cc * component_scale;
-    com = powf (com, gamma_correction); // undo gamma correction
+    com = pow (com, gamma_correction); // undo gamma correction
     return com;
   }
   Color::component_t int_to_alpha_component (unsigned int_alpha)

@@ -13,7 +13,6 @@
 #define __COLOR_H__
 
 #include <fstream>
-#include <cmath>
 
 #include "rand.h"
 #include "snogmath.h"
@@ -90,29 +89,29 @@ public:
 
   Color clamp (float max_intens) const
   {
-    return Color (std::min (_r, max_intens),
-		  std::min (_g, max_intens),
-		  std::min (_b, max_intens));
+    return Color (min (_r, max_intens),
+		  min (_g, max_intens),
+		  min (_b, max_intens));
   }
   Color clamp (float min_intens, float max_intens) const
   {
-    return Color (std::min (std::max (_r, min_intens), max_intens),
-		  std::min (std::max (_g, min_intens), max_intens),
-		  std::min (std::max (_b, min_intens), max_intens));
+    return Color (min (max (_r, min_intens), max_intens),
+		  min (max (_g, min_intens), max_intens),
+		  min (max (_b, min_intens), max_intens));
   }
 
   Color pow (float exp) const
   {
-    return Color (powf (_r, exp), powf (_g, exp), powf (_b, exp));
+    return Color (std::pow (_r, exp), std::pow (_g, exp), std::pow (_b, exp));
   }
 
   component_t min_component () const
   {
-    return std::min (_r, std::min (_g, _b));
+    return min (_r, min (_g, _b));
   }
   component_t max_component () const
   {
-    return std::min (_r, std::min (_g, _b));
+    return min (_r, min (_g, _b));
   }
 
   component_t r () const { return _r; }
@@ -210,13 +209,13 @@ inline Color operator* (float scale, const ColorOnly &col)
 
 inline Color pow (const ColorOnly &base, const Color &exp)
 {
-  return Color (powf (base._r, exp._r),
-		powf (base._g, exp._g),
-		powf (base._b, exp._b));
+  return Color (pow (base._r, exp._r),
+		pow (base._g, exp._g),
+		pow (base._b, exp._b));
 }
 inline Color log (const ColorOnly &col)
 {
-  return Color (logf (col._r), logf (col._g), logf (col._b));
+  return Color (log (col._r), log (col._g), log (col._b));
 }
 
 inline Color random (const ColorOnly &limit = Color (1.f))
@@ -233,21 +232,17 @@ inline Color random (const ColorOnly &min, const ColorOnly &limit)
 
 inline Color abs (const ColorOnly &col)
 {
-  return Color (std::abs (col._r), std::abs (col._g), std::abs (col._b));
+  return Color (abs (col._r), abs (col._g), abs (col._b));
 }
 
 inline Color max (const ColorOnly &c1, const ColorOnly &c2)
 {
-  return Color (std::max (c1._r, c2._r),
-		std::max (c1._g, c2._g),
-		std::max (c1._b, c2._b));
+  return Color (max (c1._r, c2._r), max (c1._g, c2._g), max (c1._b, c2._b));
 }
 
 inline Color min (const ColorOnly &c1, const ColorOnly &c2)
 {
-  return Color (std::min (c1._r, c2._r),
-		std::min (c1._g, c2._g),
-		std::min (c1._b, c2._b));
+  return Color (min (c1._r, c2._r), min (c1._g, c2._g), min (c1._b, c2._b));
 }
 
 extern std::ostream& operator<< (std::ostream &os,
