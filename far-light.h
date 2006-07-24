@@ -12,8 +12,7 @@
 #ifndef __FAR_LIGHT_H__
 #define __FAR_LIGHT_H__
 
-#include <cmath>
-
+#include "snogmath.h"
 #include "light.h"
 #include "color.h"
 #include "pos.h"

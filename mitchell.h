@@ -12,8 +12,6 @@
 #ifndef __MITCHELL_H__
 #define __MITCHELL_H__
 
-#include <cmath>
-
 #include "filter.h"
 
 namespace Snogray {

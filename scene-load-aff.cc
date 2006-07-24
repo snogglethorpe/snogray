@@ -21,10 +21,10 @@
 // to load both.
 //
 
-#include <cmath>
 #include <fstream>
 #include <string>
 
+#include "snogmath.h"
 #include "excepts.h"
 #include "scene.h"
 #include "mirror.h"

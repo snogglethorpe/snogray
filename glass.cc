@@ -9,8 +9,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cmath>
-
+#include "snogmath.h"
 #include "fresnel.h"
 #include "intersect.h"
 

@@ -12,10 +12,10 @@
 #ifndef __VEC_H__
 #define __VEC_H__
 
-#include <cmath>
 #include <fstream>
 #include <iomanip>
 
+#include "snogmath.h"
 #include "tuple3.h"
 
 namespace Snogray {

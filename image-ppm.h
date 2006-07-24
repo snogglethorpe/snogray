@@ -14,6 +14,9 @@
 
 extern "C" {
 #include <ppm.h>
+#undef min
+#undef max
+#undef abs
 }
 
 #include "image-io.h"

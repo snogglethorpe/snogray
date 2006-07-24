@@ -12,8 +12,7 @@
 #ifndef __IMAGE_RGBE_H__
 #define __IMAGE_RGBE_H__
 
-#include <cmath>
-
+#include "snogmath.h"
 #include "image-io.h"
 
 

@@ -13,9 +13,9 @@
 #define __IMAGE_IO_H__
 
 #include <string>
-#include <cmath>
 #include <vector>
 
+#include "snogmath.h"
 #include "color.h"
 #include "params.h"
 

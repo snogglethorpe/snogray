@@ -12,8 +12,7 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
-#include <cmath>
-
+#include "snogmath.h"
 #include "rand.h"
 #include "coords.h"
 #include "ray.h"

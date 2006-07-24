@@ -9,10 +9,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cmath>
 #include <complex>
 #include <list>
 
+#include "snogmath.h"
 #include "vec.h"
 #include "excepts.h"
 #include "trace.h"

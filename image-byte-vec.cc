@@ -9,7 +9,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cmath>
 #include <string>
 
 #include "snogmath.h"

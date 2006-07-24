@@ -10,7 +10,8 @@
 //
 
 #include <iomanip>
-#include <cmath>
+
+#include "snogmath.h"
 
 #include "progress.h"
 

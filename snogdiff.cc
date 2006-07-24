@@ -10,8 +10,8 @@
 //
 
 #include <iostream>
-#include <cmath>
 
+#include "snogmath.h"
 #include "cmdlineparser.h"
 #include "image-input.h"
 #include "image-output.h"

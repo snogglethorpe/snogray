@@ -9,11 +9,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cmath>
 #include <string>
 #include <fstream>
 #include <sstream>
 
+#include "snogmath.h"
 #include "excepts.h"
 #include "image-io.h"
 

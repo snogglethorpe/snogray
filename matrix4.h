@@ -12,7 +12,7 @@
 #ifndef __MATRIX4_H__
 #define __MATRIX4_H__
 
-#include <cmath>
+#include "snogmath.h"
 
 namespace Snogray {
 

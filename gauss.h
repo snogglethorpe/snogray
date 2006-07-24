@@ -12,8 +12,6 @@
 #ifndef __GAUSS_H__
 #define __GAUSS_H__
 
-#include <cmath>
-
 #include "filter.h"
 
 namespace Snogray {

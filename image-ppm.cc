@@ -9,7 +9,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cmath>
+#include "snogmath.h"
 
 #include "image-ppm.h"
 

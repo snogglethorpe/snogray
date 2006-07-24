@@ -9,9 +9,9 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cmath>
 #include <list>
 
+#include "snogmath.h"
 #include "intersect.h"
 #include "excepts.h"
 
