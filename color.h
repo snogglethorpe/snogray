@@ -35,13 +35,38 @@ public:
 
   typedef float component_t;
 
+  // Tuple length for reading and writing images.
+  //
+  static const unsigned TUPLE_LEN = 3;
+
   static const Color black, white, funny;
 
   Color () : _r (0), _g (0), _b (0) { }
   Color (component_t r, component_t g, component_t b)
     : _r (r), _g (g), _b (b)
   { }
-  template<typename S> Color (S grey) : _r (grey), _g (grey), _b (grey) { }
+
+  // Scalar constructors
+  //
+  Color (int grey) : _r (grey), _g (_r), _b (_r) { }
+  Color (float grey) : _r (grey), _g (_r), _b (_r) { }
+  Color (double grey) : _r (grey), _g (_r), _b (_r) { }
+  // template<typename S> Color (S grey) : _r (grey), _g (grey), _b (grey) { }
+
+  // Constructor for making from an image tuple; there must be at least
+  // TUPLE_LEN floats available at tuple.
+  //
+  explicit Color (const float tuple[])
+    : _r (tuple[0]), _g (tuple[1]), _b (tuple[2])
+  { }
+
+  // Store this color into the floating-poing tuple TUPLE; there must be
+  // at least TUPLE_LEN floats available at tuple.
+  //
+  void store (float tuple[]) const
+  {
+    tuple[0] = _r; tuple[1] = _g; tuple[2] = _b;
+  }
 
   friend Color operator* (const ColorOnly &col1, const Color &filter);
 

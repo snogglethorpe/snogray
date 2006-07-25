@@ -58,19 +58,22 @@ public:
     map.save (filename, params);
   }
 
-  // Return a reference to the map pixel in direction DIR.
+  // Return the map pixel in direction DIR.
   //
-  Color &pixel (const Vec &dir)
+  Color get (const Vec &dir)
   {
     unsigned x = unsigned (map.width * (dir.longitude() + M_PI) / (M_PI * 2));
     unsigned y = unsigned (map.height * (-dir.latitude() + M_PI_2) / M_PI);
     return map (x, y);
   }
-  const Color &pixel (const Vec &dir) const
+
+  // Set the map pixel in direction DIR to COL.
+  //
+  void put (const Vec &dir, const Color &col)
   {
     unsigned x = unsigned (map.width * (dir.longitude() + M_PI) / (M_PI * 2));
     unsigned y = unsigned (map.height * (-dir.latitude() + M_PI_2) / M_PI);
-    return map (x, y);
+    map.put (x, y, col);
   }
 
   // The actual image map.

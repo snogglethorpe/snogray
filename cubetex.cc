@@ -16,6 +16,7 @@
 #include "snogmath.h"
 #include "excepts.h"
 #include "image-io.h"
+#include "matrix-tex2.h"
 
 #include "cubetex.h"
 
@@ -63,8 +64,8 @@ Cubetex::map (const Vec &dir) const
   // Calculate u and v -- basically the non-axis components of DIR
   // divided by the axis component.
   //
-  Texture2::param_t u = dot (dir, face.u_dir) / axis_val;
-  Texture2::param_t v = dot (dir, face.v_dir) / axis_val;
+  tparam_t u = dot (dir, face.u_dir) / axis_val;
+  tparam_t v = dot (dir, face.v_dir) / axis_val;
 
   // Translate [-1, 1] params into [0, 1] for texture lookup
   //
@@ -194,7 +195,7 @@ Cubetex::load (istream &stream, const string &filename_pfx)
 
       try
 	{ 
-	  face.tex = new Texture2 (tex_filename);
+	  face.tex = new MatrixTex2<Color> (tex_filename);
 	}
       catch (runtime_error &err)
 	{
@@ -253,7 +254,7 @@ Cubetex::load (const Image &image)
     // "vertical cross" format
     {
       // Back
-      faces[5].tex = new Texture2 (image, size, size * 3, size, size);
+      faces[5].tex = new MatrixTex2<Color> (image, size, size * 3, size, size);
       faces[5].u_dir = Vec (-1, 0, 0);
       faces[5].v_dir = Vec (0, 1, 0);
     }
@@ -262,7 +263,7 @@ Cubetex::load (const Image &image)
     // "horizontal cross" format
     {
       // Back
-      faces[5].tex = new Texture2 (image, size * 3, size, size, size);
+      faces[5].tex = new MatrixTex2<Color> (image, size * 3, size, size, size);
       faces[5].u_dir = Vec (1, 0, 0);
       faces[5].v_dir = Vec (0, -1, 0);
     }
@@ -272,27 +273,27 @@ Cubetex::load (const Image &image)
   // Common parts of the two "cross" formats
 
   // Right
-  faces[0].tex = new Texture2 (image, size * 2, size, size, size);
+  faces[0].tex = new MatrixTex2<Color> (image, size * 2, size, size, size);
   faces[0].u_dir = Vec (0, 0, -1);
   faces[0].v_dir = Vec (0, 1, 0);
 
   // Left
-  faces[1].tex = new Texture2 (image, 0, size, size, size);
+  faces[1].tex = new MatrixTex2<Color> (image, 0, size, size, size);
   faces[1].u_dir = Vec (0, 0, -1);
   faces[1].v_dir = Vec (0, -1, 0);
 
   // Top
-  faces[2].tex = new Texture2 (image, size, 0, size, size);
+  faces[2].tex = new MatrixTex2<Color> (image, size, 0, size, size);
   faces[2].u_dir = Vec (1, 0, 0);
   faces[2].v_dir = Vec (0, 0, -1);
 
   // Bottom
-  faces[3].tex = new Texture2 (image, size, size * 2, size, size);
+  faces[3].tex = new MatrixTex2<Color> (image, size, size * 2, size, size);
   faces[3].u_dir = Vec (-1, 0, 0);
   faces[3].v_dir = Vec (0, 0, -1);
 
   // Front
-  faces[4].tex = new Texture2 (image, size, size, size, size);
+  faces[4].tex = new MatrixTex2<Color> (image, size, size, size, size);
   faces[4].u_dir = Vec (1, 0, 0);
   faces[4].v_dir = Vec (0, 1, 0);
 }

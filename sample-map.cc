@@ -67,7 +67,7 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
       for (SampleRayVec::iterator s = samples.begin() + num_samples;
 	   s != samples.end(); s++)
 	{	
-	  pixel (s->dir) += s->val;
+	  put (s->dir, get (s->dir) + s->val);
 
 	  sum += s->val;
 	  if (num_samples == 0 || s->val < min)
@@ -89,7 +89,7 @@ SampleMap::normalize ()
 
   for (SampleRayVec::const_iterator s = samples.begin ();
        s != samples.end (); s++)
-    pixel (s->dir) *= scale;
+    put (s->dir, get (s->dir) * scale);
 }
 
 

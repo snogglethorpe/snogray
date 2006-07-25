@@ -1,6 +1,6 @@
 // cubetex.h -- Texture wrapped around a cube
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -17,7 +17,7 @@
 
 #include "color.h"
 #include "vec.h"
-#include "texture2.h"
+#include "tex2.h"
 #include "image.h"
 
 namespace Snogray {
@@ -43,7 +43,7 @@ private:
   {
     Face () : tex (0) { }
 
-    Texture2 *tex;
+    Tex2<Color> *tex;
 
     Vec u_dir, v_dir;
   };
