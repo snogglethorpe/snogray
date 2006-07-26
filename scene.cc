@@ -9,10 +9,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "cubetex.h"
+#include "global-tstate.h"
+#include "envmap.h"
 
 #include "scene.h"
-#include "global-tstate.h"
+
 
 using namespace Snogray;
 using namespace std;
@@ -28,7 +29,7 @@ Scene::~Scene ()
   for (material_iterator_t mi = materials.begin(); mi != materials.end(); mi++)
     delete *mi;
 
-  delete bg_cube;
+  delete env_map;
 }
 
 
@@ -233,8 +234,8 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
 Color
 Scene::background (const Ray &ray) const
 {
-  if (bg_cube)
-    return bg_cube->map (ray.dir);
+  if (env_map)
+    return env_map->map (ray.dir);
   else
     return bg_color;
 }
@@ -242,21 +243,21 @@ Scene::background (const Ray &ray) const
 void
 Scene::set_background (const Color &col)
 {
-  if (bg_cube)
+  if (env_map)
     {
-      delete bg_cube;
-      bg_cube = 0;
+      delete env_map;
+      env_map = 0;
     }
 
   bg_color = col;
 }
 
 void
-Scene::set_background (const Cubetex *cube)
+Scene::set_background (const Envmap *map)
 {
-  delete bg_cube;
+  delete env_map;
 
-  bg_cube = cube;
+  env_map = map;
 }
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558

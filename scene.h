@@ -27,7 +27,7 @@
 
 namespace Snogray {
 
-class Cubetex;
+class Envmap;
 
 class Scene
 {
@@ -41,7 +41,7 @@ public:
   static const int DEFAULT_ASSUMED_GAMMA = 1;
 
   Scene ()
-    : horizon (DEFAULT_HORIZON), bg_cube (0),
+    : horizon (DEFAULT_HORIZON), env_map (0),
       assumed_gamma (DEFAULT_ASSUMED_GAMMA)
   { }
   ~Scene ();
@@ -113,7 +113,7 @@ public:
   unsigned num_lights () const { return lights.size (); }
 
   void set_background (const Color &col);
-  void set_background (const Cubetex *cube);
+  void set_background (const Envmap *env_map);
 
   void set_assumed_gamma (float g) { assumed_gamma = g; }
 
@@ -130,7 +130,7 @@ public:
   // Background color or image
   //
   Color bg_color;
-  const Cubetex *bg_cube;
+  const Envmap *env_map;
 
   Octree space;
 

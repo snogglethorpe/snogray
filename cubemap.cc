@@ -1,4 +1,4 @@
-// cubetex.cc -- Texture wrapped around a cube
+// cubemap.cc -- Texture wrapped around a cube
 //
 //  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
@@ -18,27 +18,13 @@
 #include "image-io.h"
 #include "matrix-tex2.h"
 
-#include "cubetex.h"
+#include "cubemap.h"
 
 using namespace Snogray;
 using namespace std;
 
-Cubetex::Cubetex (const string &filename)
-{
-  for (unsigned i = 0; i < 6; i++)
-    faces[i].tex = 0;
-
-  load (filename);
-}
-
-Cubetex::~Cubetex ()
-{
-  for (unsigned i = 0; i < 6; i++)
-    delete faces[i].tex;
-}
-
 Color
-Cubetex::map (const Vec &dir) const
+Cubemap::map (const Vec &dir) const
 {
   // Choose the main axis of view
 
@@ -78,10 +64,10 @@ Cubetex::map (const Vec &dir) const
 }
 
 
-// Cubetex general loading interface
+// Cubemap general loading interface
 
 void
-Cubetex::load (const string &filename)
+Cubemap::load (const string &filename)
 {
   if (ImageIo::recognized_filename (filename))
     //
@@ -95,7 +81,7 @@ Cubetex::load (const string &filename)
 	}
       catch (runtime_error &err)
 	{
-	  throw file_error (filename + ": Error loading cubetex image: "
+	  throw file_error (filename + ": Error loading cubemap image: "
 			    + err.what ());
 	}
     }
@@ -109,7 +95,7 @@ Cubetex::load (const string &filename)
 	try
 	  { 
 	    // Compute filename prefix used for individual image files from
-	    // the path used to open the cubetex file.
+	    // the path used to open the cubemap file.
 	    //
 	    string filename_pfx;
 	    unsigned pfx_end = filename.find_last_of ("/");
@@ -120,11 +106,11 @@ Cubetex::load (const string &filename)
 	  }
 	catch (runtime_error &err)
 	  {
-	    throw file_error (filename + ": Error loading cubetex file: "
+	    throw file_error (filename + ": Error loading cubemap file: "
 			      + err.what ());
 	  }
       else
-	throw file_error (filename + ": Cannot open cubetex file");
+	throw file_error (filename + ": Cannot open cubemap file");
     }
 }
 
@@ -132,7 +118,7 @@ Cubetex::load (const string &filename)
 // Loading of a .ctx "descriptor" file
 
 void
-Cubetex::load (istream &stream, const string &filename_pfx)
+Cubemap::load (istream &stream, const string &filename_pfx)
 {
   unsigned num_faces_loaded = 0;
 
@@ -174,7 +160,7 @@ Cubetex::load (istream &stream, const string &filename_pfx)
 
       Face &face = faces[face_num];
 
-      if (face.tex)
+      if (face.tex.get ())
 	throw bad_format (kw + ": Face defined multiple times");
       else
 	num_faces_loaded++;
@@ -195,7 +181,7 @@ Cubetex::load (istream &stream, const string &filename_pfx)
 
       try
 	{ 
-	  face.tex = new MatrixTex2<Color> (tex_filename);
+	  face.tex.reset (new MatrixTex2<Color> (tex_filename));
 	}
       catch (runtime_error &err)
 	{
@@ -205,7 +191,7 @@ Cubetex::load (istream &stream, const string &filename_pfx)
 }
 
 Vec
-Cubetex::parse_axis_dir (const string &str)
+Cubemap::parse_axis_dir (const string &str)
 {
   dist_t val = 1;
   bool bad = false;
@@ -244,7 +230,7 @@ Cubetex::parse_axis_dir (const string &str)
 // Loading of a single background image
 
 void
-Cubetex::load (const Image &image)
+Cubemap::load (const Image &image)
 {
   unsigned size;
   unsigned w = image.width, h = image.height;
@@ -254,7 +240,8 @@ Cubetex::load (const Image &image)
     // "vertical cross" format
     {
       // Back
-      faces[5].tex = new MatrixTex2<Color> (image, size, size * 3, size, size);
+      faces[5].tex.reset (
+		     new MatrixTex2<Color> (image, size, size * 3, size, size));
       faces[5].u_dir = Vec (-1, 0, 0);
       faces[5].v_dir = Vec (0, 1, 0);
     }
@@ -263,7 +250,8 @@ Cubetex::load (const Image &image)
     // "horizontal cross" format
     {
       // Back
-      faces[5].tex = new MatrixTex2<Color> (image, size * 3, size, size, size);
+      faces[5].tex.reset (
+		     new MatrixTex2<Color> (image, size * 3, size, size, size));
       faces[5].u_dir = Vec (1, 0, 0);
       faces[5].v_dir = Vec (0, -1, 0);
     }
@@ -273,27 +261,27 @@ Cubetex::load (const Image &image)
   // Common parts of the two "cross" formats
 
   // Right
-  faces[0].tex = new MatrixTex2<Color> (image, size * 2, size, size, size);
+  faces[0].tex.reset (new MatrixTex2<Color> (image, size * 2, size, size,size));
   faces[0].u_dir = Vec (0, 0, -1);
   faces[0].v_dir = Vec (0, 1, 0);
 
   // Left
-  faces[1].tex = new MatrixTex2<Color> (image, 0, size, size, size);
+  faces[1].tex.reset (new MatrixTex2<Color> (image, 0, size, size, size));
   faces[1].u_dir = Vec (0, 0, -1);
   faces[1].v_dir = Vec (0, -1, 0);
 
   // Top
-  faces[2].tex = new MatrixTex2<Color> (image, size, 0, size, size);
+  faces[2].tex.reset (new MatrixTex2<Color> (image, size, 0, size, size));
   faces[2].u_dir = Vec (1, 0, 0);
   faces[2].v_dir = Vec (0, 0, -1);
 
   // Bottom
-  faces[3].tex = new MatrixTex2<Color> (image, size, size * 2, size, size);
+  faces[3].tex.reset (new MatrixTex2<Color> (image, size, size * 2, size,size));
   faces[3].u_dir = Vec (-1, 0, 0);
   faces[3].v_dir = Vec (0, 0, -1);
 
   // Front
-  faces[4].tex = new MatrixTex2<Color> (image, size, size, size, size);
+  faces[4].tex.reset (new MatrixTex2<Color> (image, size, size, size, size));
   faces[4].u_dir = Vec (1, 0, 0);
   faces[4].v_dir = Vec (0, 1, 0);
 }

@@ -15,7 +15,7 @@
 
 #include "scene.h"
 #include "camera.h"
-#include "cubetex.h"
+#include "envmap.h"
 #include "excepts.h"
 #include "glow.h"
 #include "image-io.h"
@@ -336,11 +336,11 @@ SceneDef::load (Scene &scene, Camera &camera)
   if (! bg_spec.empty ())
     {
       unsigned len = bg_spec.length ();
-      if (bg_spec.substr (0, 5) == "cube:")
-	scene.set_background (new Cubetex (bg_spec.substr (5)));
+      if (bg_spec.substr (0, 5) == "envmap:")
+	scene.set_background (load_envmap (bg_spec.substr (7)));
       else if (len > 4 && bg_spec.substr (len - 4) == ".ctx"
 	       || ImageIo::recognized_filename (bg_spec))
-	scene.set_background (new Cubetex (bg_spec));
+	scene.set_background (load_envmap (bg_spec));
       else
 	scene.set_background (atof (bg_spec.c_str()));
     }
