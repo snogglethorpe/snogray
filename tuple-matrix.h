@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "params.h"
+#include "color.h"
 
 
 namespace Snogray {
