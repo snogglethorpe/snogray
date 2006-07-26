@@ -68,14 +68,6 @@ public:
     tuple[0] = _r; tuple[1] = _g; tuple[2] = _b;
   }
 
-  friend Color operator* (const ColorOnly &col1, const Color &filter);
-
-  template<typename S>
-  Color operator/ (S denom) const;
-
-  template<typename S>
-  void operator/= (S denom) { *this *= 1 / component_t (denom); }
-
   const Color &operator+= (const Color &col2)
   {
     _r += col2._r;
@@ -109,6 +101,13 @@ public:
   // formulas.
   //
   Color operator- () const { return Color (-_r, -_g, -_b); }
+
+  friend Color operator* (const ColorOnly &col1, const Color &filter);
+
+  // Division by a scalar.
+  //
+  Color operator/ (component_t denom) const;
+  void operator/= (component_t denom) { *this *= 1 / denom; }
 
   float intensity () const { return (_r + _g + _b) / 3; }
 
@@ -163,10 +162,12 @@ public:
 };
 
 
-template<typename S>
-inline Color Color::operator/ (S denom) const
+// Division by a scalar.
+//
+inline Color
+Color::operator/ (component_t denom) const
 {
-  return *this * (1 / component_t (denom));
+  return *this * (1 / denom);
 }
 
 
@@ -216,7 +217,7 @@ inline Color operator* (const ColorOnly &col1, const Color &filter)
 {
   return Color (col1._r * filter._r, col1._g * filter._g, col1._b * filter._b);
 }
-inline Color operator/ (const ColorOnly &col1, const ColorOnly &filter)
+inline Color operator/ (const Color &col1, const ColorOnly &filter)
 {
   return Color (filter._r == 0 ? 0 : col1._r / filter._r,
 		filter._g == 0 ? 0 : col1._g / filter._g,
@@ -258,6 +259,11 @@ inline Color random (const ColorOnly &min, const ColorOnly &limit)
 inline Color abs (const ColorOnly &col)
 {
   return Color (abs (col._r), abs (col._g), abs (col._b));
+}
+
+inline Color sqrt (const ColorOnly &col)
+{
+  return Color (sqrt (col._r), sqrt (col._g), sqrt (col._b));
 }
 
 inline Color max (const ColorOnly &c1, const ColorOnly &c2)
