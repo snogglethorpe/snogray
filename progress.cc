@@ -58,11 +58,10 @@ Progress::update (unsigned pos)
 
 	  // How fast we seem to be progressing (poss per second)
 	  //
-	  float cur_lps = (pos - last_pos) / last_interval;
 	  float overall_lps = (pos - start_pos) / elapsed;
-	  float est_lps = (cur_lps + overall_lps) / 2;
+	  float cur_lps = (pos - last_pos) / last_interval;
 	  
-	  Timeval remaining_est = (end_pos - pos) / est_lps;
+	  Timeval remaining_est = (end_pos - pos) / overall_lps;
 
 	  // Output progress
 	  //
@@ -79,8 +78,8 @@ Progress::update (unsigned pos)
 
 	  unsigned update_limit = unsigned (pos + (end_pos - start_pos) * 0.05);
 
-	  if (update_limit > pos + 25)
-	    update_limit = pos + 25;
+	  if (update_limit > pos + 5)
+	    update_limit = pos + 5;
 
 	  // Always wait until the next line, but never too long.
 	  //
