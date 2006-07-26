@@ -13,7 +13,6 @@
 
 using namespace Snogray;
 
-Box::~Box () { } // stop gcc bitching
 
 float
 Box::val (float, float) const

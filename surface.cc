@@ -16,7 +16,6 @@
 
 using namespace Snogray;
 
-Surface::~Surface () { } // stop gcc bitching
 
 // Add this (or some other ...) surfaces to SPACE
 //

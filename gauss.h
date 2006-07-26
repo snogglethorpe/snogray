@@ -37,7 +37,6 @@ public:
       x_exp (exp (-alpha * x_width * x_width)),
       y_exp (exp (-alpha * y_width * y_width))
   { }
-  ~Gauss ();
 
   virtual float val (float x, float y) const;
 

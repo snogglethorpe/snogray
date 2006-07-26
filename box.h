@@ -28,7 +28,6 @@ public:
   Box (const Params &params)
     : Filter (params, DEFAULT_WIDTH)
   { }
-  ~Box ();
 
   virtual float val (float x, float y) const;
 };

@@ -67,7 +67,6 @@ public:
 
   RgbeImageSink (const std::string &filename, unsigned width, unsigned height,
 		 const Params &params = Params::NONE);
-  ~RgbeImageSink ();
 
   virtual void write_row (const ImageRow &row);
 
@@ -93,7 +92,6 @@ public:
 
   RgbeImageSource (const std::string &filename,
 		   const Params &params = Params::NONE);
-  ~RgbeImageSource ();
 
   virtual void read_row (ImageRow &row);
 

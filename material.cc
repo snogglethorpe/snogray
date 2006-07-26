@@ -20,8 +20,6 @@
 
 using namespace Snogray;
 
-Material::~Material () { } // stop gcc bitching
-
 
 
 Color

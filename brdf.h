@@ -27,7 +27,7 @@ class Brdf
 {
 public:
 
-  virtual ~Brdf (); // stop gcc bitching
+  virtual ~Brdf () { }
 
   // Generate samples of this BRDF and add them to SAMPLES.
   //

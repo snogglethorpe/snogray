@@ -31,7 +31,6 @@ public:
   ByteVecImageSink (const std::string &filename,
 		    unsigned width, unsigned height,
 		    const Params &params = Params::NONE);
-  ~ByteVecImageSink ();
 
   // We define these
   //
@@ -91,7 +90,6 @@ public:
       input_row (0), bytes_per_component (1), component_scale (1 / 255.0),
       num_channels (3)
   { }
-  ~ByteVecImageSource ();
 
   // We define this
   //

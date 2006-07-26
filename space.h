@@ -22,7 +22,7 @@ public:
 
   class IntersectCallback; // fwd decl
 
-  virtual ~Space ();
+  virtual ~Space () { }
 
   // Add SURFACE to the space
   //
@@ -74,7 +74,7 @@ public:
       : stop (false), stats (_stats)
     { }
 
-    virtual ~IntersectCallback (); // stop gcc bitching
+    virtual ~IntersectCallback () { }
 
     virtual void operator() (Surface *) = 0;
 

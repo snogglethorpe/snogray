@@ -32,7 +32,6 @@ public:
     if (params.get ("gamma"))
       open_err ("OpenEXR format does not use gamma correction");
   }
-  ~ExrImageSink ();
 
   virtual void write_row (const ImageRow &row);
 
@@ -61,7 +60,6 @@ public:
 
     row_buf.resize (width);
   }
-  ~ExrImageSource ();
 
   virtual void read_row (ImageRow &row);
 

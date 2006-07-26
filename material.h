@@ -37,7 +37,7 @@ public:
   Material (const Color &col, ShadowType _shadow_type)
     : color (col), brdf (*lambert), shadow_type (_shadow_type)
   { }
-  virtual ~Material ();
+  virtual ~Material () { }
 
   virtual Color render (const Intersect &isec) const;
 

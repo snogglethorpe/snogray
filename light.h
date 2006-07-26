@@ -27,7 +27,7 @@ class Light
 public:
 
   Light () : num (0) { }
-  virtual ~Light (); // stop gcc bitching
+  virtual ~Light () { }
 
   // Generate some samples of this light and add them to SAMPLES.
   //

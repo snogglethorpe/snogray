@@ -35,7 +35,6 @@ public:
       b (params.get_float ("b", DEFAULT_B)),
       c (params.get_float ("c", DEFAULT_C))
   { }
-  ~Mitchell ();
 
   virtual float val (float x, float y) const;
 

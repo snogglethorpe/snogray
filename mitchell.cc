@@ -13,7 +13,6 @@
 
 using namespace Snogray;
 
-Mitchell::~Mitchell () { } // stop gcc bitching
 
 float
 Mitchell::val (float x, float y) const

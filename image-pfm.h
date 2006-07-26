@@ -46,7 +46,6 @@ public:
 
   PfmImageSource (const std::string &filename,
 		  const Params &params = Params::NONE);
-  ~PfmImageSource ();
 
   virtual void read_row (ImageRow &row);
 

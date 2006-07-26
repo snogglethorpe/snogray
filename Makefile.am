@@ -95,11 +95,11 @@ libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		\
 	sample2.h sample2-gen.h sample-ray.h scene.cc scene.h		\
 	scene-def.cc scene-def.h scene-load.cc scene-load-aff.cc	\
 	snogmath.h space.h sphere.cc sphere.h sphere-light.cc		\
-	sphere-light.h stub-dtors.cc surface.cc surface.h tessel.cc	\
-	tessel.h tessel-param.cc tessel-param.h test-scenes.cc		\
-	test-scenes.h timeval.cc timeval.h trace.cc trace.h		\
-	trace-params.h trace-stats.cc trace-stats.h tripar.cc tripar.h	\
-	tripar-isec.h tuple3.h vec.h wire-frame.h xform.h
+	sphere-light.h surface.cc surface.h tessel.cc tessel.h		\
+	tessel-param.cc tessel-param.h test-scenes.cc test-scenes.h	\
+	timeval.cc timeval.h trace.cc trace.h trace-params.h		\
+	trace-stats.cc trace-stats.h tripar.cc tripar.h tripar-isec.h	\
+	tuple3.h vec.h wire-frame.h xform.h
 
 # Library dependencies of libsnogrender.a
 #

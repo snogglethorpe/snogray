@@ -249,8 +249,5 @@ RgbeImageSource::read_row (ImageRow &row)
     row[i] = row_buf[i];
 }
 
-RgbeImageSink::~RgbeImageSink () { } // stop gcc bitching
-RgbeImageSource::~RgbeImageSource () { } // stop gcc bitching
-
 
 // arch-tag: 07aa953d-c887-434a-ad33-405ab1976006

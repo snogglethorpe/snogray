@@ -42,7 +42,7 @@ class Surface
 public:
 
   Surface (const Material *mat) : material (mat) { }
-  virtual ~Surface (); // stop gcc bitching
+  virtual ~Surface () { }
 
   // If this surface intersects the bounded-ray RAY, change RAY's length to
   // reflect the point of intersection, and return true; otherwise return

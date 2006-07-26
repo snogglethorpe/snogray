@@ -13,7 +13,6 @@
 
 using namespace Snogray;
 
-Gauss::~Gauss () { } // stop gcc bitching
 
 float
 Gauss::val (float x, float y) const

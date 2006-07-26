@@ -22,7 +22,7 @@ class Sample2Gen : public std::vector<Sample2>
 {
 public:
 
-  virtual ~Sample2Gen ();	// stupid gcc
+  virtual ~Sample2Gen () { }
 
   virtual void generate () = 0;
 

@@ -126,8 +126,5 @@ ByteVecImageSource::read_row (ImageRow &row)
     }
 }
 
-ByteVecImageSink::~ByteVecImageSink () { } // stop gcc bitching
-ByteVecImageSource::~ByteVecImageSource () { } // stop gcc bitching
-
 
 // arch-tag: ee0370d1-7cdb-42d4-96e3-4cf7757cc2cf

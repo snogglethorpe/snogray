@@ -44,8 +44,5 @@ ExrImageSource::read_row (ImageRow &row)
   cur_y++;
 }
 
-ExrImageSink::~ExrImageSink () { } // stop gcc bitching
-ExrImageSource::~ExrImageSource () { } // stop gcc bitching
-
 
 // arch-tag: a6c557de-fa39-4773-8357-dee599502a47

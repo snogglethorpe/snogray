@@ -132,7 +132,5 @@ PfmImageSource::read_row (ImageRow &row)
   next_y++;
 }
 
-PfmImageSource::~PfmImageSource () { } // stop gcc bitching
-
 
 // arch-tag: 225e07ef-d906-4866-9120-b7d360506249
