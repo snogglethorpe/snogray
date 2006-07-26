@@ -1576,4 +1576,192 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:       4
 
 
+   2006-07-11 [work]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-162 + image-light patch
+   cmd: snogray -cz0.7,od20 -a4 -s1280x1024 test:teapot1 -b ../cubetexs/uffizi_cross.exr -Rjitter=1 ../images/ufpot0.jpg
+   * face-light: 91 regions, radiance = rgb<1.3679, 1.2955, 1.4177>
+   * face-light: 103 regions, radiance = rgb<1.2414, 1.1832, 1.3082>
+   * face-light: 75 regions, radiance = rgb<6.6285, 6.5395, 7.5803>
+   * face-light: 95 regions, radiance = rgb<0.39179, 0.34702, 0.35872>
+   * face-light: 85 regions, radiance = rgb<0.31244, 0.27648, 0.28131>
+   * face-light: 101 regions, radiance = rgb<0.28686, 0.25249, 0.26009>
+   min_goodness = 0.0099513
+   max_goodness = 0.99524
+   num_goodnesses = 550
+   avg_goodness = 0.41229
+   * adding mesh: 30,057 vertices, 57,360 triangles
+   * adding mesh: 130,769 vertices, 139,238 triangles
+   * adding mesh: 33,076 vertices, 38,880 triangles
+   * adding mesh: 48,047 vertices, 58,358 triangles
+   * adding mesh: 51,316 vertices, 60,132 triangles
+   * adding mesh: 191,839 vertices, 201,218 triangles
+   Scene:
+      scene:           test:teapot1
+      top-level surfaces:        15
+      lights:                     6
+      scene background: ../cubetexs/uffizi_cross.exr
+      materials:                 18
+      tree surfaces:      1,395,969 (60% duplicates)
+      tree nodes:           375,162 (52% leaves)
+      tree avg depth:             5
+      tree max depth:            20
+   Image:
+      size:             1280 x 1024
+      render oversample:          4
+      render jitter:              1
+
+   rendering: done
+
+   Rendering stats:
+     intersect:
+	rays:                  27,171,244
+	horizon hint hits:     13,331,051 (49%)
+	horizon hint misses:    1,891,464 ( 6%)
+	tree node tests:      888,065,791 ( 0%)
+	surface tests:        836,470,434 ( 0%)
+     shadow:
+	rays:                 888,304,779
+	shadow hint hits:      85,501,648 ( 9%)
+	shadow hint misses:   203,106,614 (22%)
+	tree node tests:   22,390,455,354 ( 0%)
+	surface tests:     21,277,610,244 ( 0%)
+     illum:
+	illum calls:           15,227,134
+	average light samples:        141
+	average shadow rays:         58.3 (41%)
+   Time:
+     scene def cpu:            9s
+     rendering cpu:       3:05:12
+     total elapsed:       3:59:19
+     rays per second:      82,387
+     eye-rays per second:     117
+
+
+   2006-07-13 [laptop]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-162 + image-light patch
+   cmd: snogray -a10 -s1280x1024 -Rjitter=1 -cod20,z0.8,oy-30,z1.3,ru10,ry-10 test:teapot1 -b +cubes/kitchen_cross.exr ../../images/kpot2.jpg
+   * face-light: 85 regions, radiance = rgb<0.36187, 0.30182, 0.269>
+   * face-light: 81 regions, radiance = rgb<0.4552, 0.36139, 0.29867>
+   * face-light: 75 regions, radiance = rgb<0.87998, 0.62896, 0.38274>
+   * face-light: 101 regions, radiance = rgb<0.31932, 0.22578, 0.20233>
+   * face-light: 79 regions, radiance = rgb<3.088, 3.877, 4.6393>
+   * face-light: 89 regions, radiance = rgb<0.42093, 0.34491, 0.31213>
+   min_goodness = 0.0039937
+   max_goodness = 0.97309
+   num_goodnesses = 510
+   avg_goodness = 0.2892
+   * adding mesh: 30,057 vertices, 57,360 triangles
+   * adding mesh: 130,769 vertices, 139,238 triangles
+   * adding mesh: 33,076 vertices, 38,880 triangles
+   * adding mesh: 48,047 vertices, 58,358 triangles
+   * adding mesh: 51,316 vertices, 60,132 triangles
+   * adding mesh: 191,839 vertices, 201,218 triangles
+   Scene:
+      scene:           test:teapot1
+      top-level surfaces:        15
+      lights:                     6
+      scene background: +cubes/kitchen_cross.exr
+      materials:                 18
+      tree surfaces:      1,395,969 (60% duplicates)
+      tree nodes:           375,162 (52% leaves)
+      tree avg depth:             5
+      tree max depth:            20
+   Image:
+      size:             1280 x 1024
+      render oversample:         10
+      render jitter:              1
+
+   rendering: done                                                             .
+
+   Rendering stats:
+     intersect:
+	rays:                 201,414,824
+	horizon hint hits:     80,269,999 (39%)
+	horizon hint misses:   10,345,039 ( 5%)
+	tree node tests:    8,427,545,166 ( 0%)
+	surface tests:      8,654,036,007 ( 0%)
+     shadow:
+	rays:               6,134,208,775
+	shadow hint hits:   1,252,134,854 (20%)
+	shadow hint misses: 1,803,313,839 (29%)
+	tree node tests:  205,335,327,111 ( 0%)
+	surface tests:    221,204,020,200 ( 0%)
+     illum:
+	illum calls:           90,620,302
+	average light samples:        127
+	average shadow rays:         67.7 (53%)
+   Time:
+     scene def cpu:            8s
+     rendering cpu:      33:37:43
+     total elapsed:      33:40:05
+     rays per second:      52,333
+     eye-rays per second:      10
+
+
+   2006-07-17 [work]
+      note -- This represents only about the final 80% of the image
+              (--continue was used to continue an earlier aborted render)
+      	      and it's still over 1 trillion surface tests!
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-170-173 + image-light patch
+   cmd: snogray -s1280x1024 -a7 -Ilight-adj=0.5 -b ../cubetexs/rnl_cross.exr -cmy-0.3,mf0.5 test:mesh200:../dist/models/supercar/Supercar.3ds ../images/supercar32.jpg --continue
+   * face-light: 67 regions, radiance = rgb<1.7233, 1.9732, 2.118>
+   * face-light: 69 regions, radiance = rgb<3.9962, 4.3098, 4.268>
+   * face-light: 93 regions, radiance = rgb<4.1149, 5.1614, 6.1096>
+   * face-light: 95 regions, radiance = rgb<0.4111, 0.35536, 0.29406>
+   * face-light: 65 regions, radiance = rgb<2.0702, 2.1656, 2.0748>
+   * face-light: 87 regions, radiance = rgb<1.1758, 1.2437, 1.2522>
+   min_goodness = 0.13717
+   max_goodness = 0.86082
+   num_goodnesses = 235
+   avg_goodness = 0.38745
+   min_variance = -1.5078e-10
+   max_variance = 1.0102e-06
+   num_variancees = 476
+   avg_variance = 2.1463e-08
+   * adding mesh: 177,490 vertices, 209,437 triangles
+   ../images/supercar32.jpg: Backup in ../images/supercar32.jpg.~4~
+   ../images/supercar32.jpg: Recovered 268 rows
+   Scene:
+      scene:   test:mesh200:../dist/models/supercar/Supercar.3ds
+      top-level surfaces:         7
+      lights:                     6
+      scene light-adj:          0.5
+      scene background: ../cubetexs/rnl_cross.exr
+      materials:                 11
+      tree surfaces:        495,765 (57% duplicates)
+      tree nodes:           110,524 (40% leaves)
+      tree avg depth:             7
+      tree max depth:            26
+   Image:
+      size:             1280 x 1024
+      render oversample:          7
+
+   rendering: done                                                             ..
+
+   Rendering stats:
+     intersect:
+	rays:                 578,071,910
+	horizon hint hits:     64,759,678 (11%)
+	horizon hint misses:  264,978,908 (45%)
+	tree node tests:   22,375,596,849 ( 0%)
+	surface tests:    254,907,987,928 ( 0%)
+     shadow:
+	rays:               3,605,850,052
+	shadow hint hits:     106,291,419 ( 2%)
+	shadow hint misses:   826,293,706 (22%)
+	non-opaque traces:    246,932,883 ( 6%; average depth = 2.1022)
+	tree node tests:   90,600,201,396 ( 0%)
+	surface tests:   1,077,159,330,465 ( 0%)
+     illum:
+	illum calls:           50,036,934
+	average light samples:        118
+	average shadow rays:         72.1 (61%)
+   Time:
+     scene def cpu:            5s
+     rendering cpu:      88:19:21
+     total elapsed:     102:08:55
+     rays per second:      13,158
+     eye-rays per second:       4
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
