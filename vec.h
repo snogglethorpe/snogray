@@ -167,6 +167,12 @@ operator* (T scale, const TVec<T> &vec)
 }
 
 template<typename T>
+static inline TVec<T> abs (const TVec<T> &vec)
+{
+  return TVec<T> (abs (vec.x), abs (vec.y), abs (vec.z));
+}
+
+template<typename T>
 static std::ostream&
 operator<< (std::ostream &os, const TVec<T> &vec)
 {
