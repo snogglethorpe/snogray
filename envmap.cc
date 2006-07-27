@@ -15,6 +15,7 @@
 #include "excepts.h"
 #include "image-io.h"
 #include "cubemap.h"
+#include "spheremap.h"
 
 #include "envmap.h"
 
@@ -56,6 +57,12 @@ Snogray::make_envmap (const Image &image)
     // 4x3 or 3x4 aspect ratio: "cross" format cubemap
     //
     return new Cubemap (image);
+
+  else if (w == h || w == h * 2)
+    //
+    // 1x1 or 2x1 aspect ratio: sphere-map
+    //
+    return new Spheremap (image);
   else
     throw bad_format ("Unrecognized environment-map image size");
 }
