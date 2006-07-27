@@ -89,8 +89,9 @@ public:
   MatrixTex2 (const std::string &filename)
     : matrix (filename), interp (matrix.width, matrix.height)
   { }
-  MatrixTex2 (const TupleMatrix<T> &base, unsigned offs_x, unsigned offs_y,
-	      unsigned w, unsigned h)
+  MatrixTex2 (const TupleMatrix<T> &base,
+	      unsigned offs_x = 0, unsigned offs_y = 0,
+	      unsigned w = 0, unsigned h = 0)
     : matrix (base, offs_x, offs_y, w, h), interp (matrix.width, matrix.height)
   { }
 
