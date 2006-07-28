@@ -302,7 +302,9 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	//     "b" R G B
 	//
 	{
-	  set_background (read_color (stream));
+	  Color col = read_color (stream);
+	  if (! bg_set)
+	    set_background (col);
 	}
 
       else if (strcmp (cmd_buf, "l") == 0)

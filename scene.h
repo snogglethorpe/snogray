@@ -41,7 +41,7 @@ public:
   static const int DEFAULT_ASSUMED_GAMMA = 1;
 
   Scene ()
-    : horizon (DEFAULT_HORIZON), env_map (0),
+    : horizon (DEFAULT_HORIZON), env_map (0), bg_set (false),
       assumed_gamma (DEFAULT_ASSUMED_GAMMA)
   { }
   ~Scene ();
@@ -131,6 +131,7 @@ public:
   //
   Color bg_color;
   const Envmap *env_map;
+  bool bg_set;			// true if background is non-default
 
   Octree space;
 

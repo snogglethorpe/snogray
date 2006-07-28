@@ -89,51 +89,6 @@ add_bulb (Scene &scene, const Pos &pos, float radius,
 }
 
 
-// Lighting for Paul Debevec environment maps.
-
-enum deb_light
-{
-  DEB_RNL,
-  DEB_GRACE
-};
-
-static void
-add_deb_lights (enum deb_light kind, float scale, Scene &scene)
-{
-  scale *= 6;
-
-  switch (kind)
-    {
-    case DEB_GRACE:
-      // Far-lights on top and two sides.  This roughly matches Paul
-      // Debevec's "grace cathedral" environment map.
-      //
-      scene.add (new FarLight (Vec ( 0, 1,  0),     0.2, scale * 0.2));
-      scene.add (new FarLight (Vec ( 0, 1, -1),     2,   scale * 0.075));
-      scene.add (new FarLight (Vec ( 0, 1,  1),     2,   scale * 0.075));
-      scene.add (new FarLight (Vec (-1, 0.2, -0.5), 0.4, scale * Color (1, 0.9, .5)));
-      scene.add (new FarLight (Vec ( 1, 0.1,  0.1), 0.2, scale * 0.5));
-      break;
-
-    case DEB_RNL:
-      // This roughly matches Paul Debevec's "RNL" environment map
-
-      // sun
-      scene.add (new FarLight (Vec(-1, 0.3,  1), 0.05, scale * 2));
-
-      // sky overhead
-      scene.add (new FarLight (Vec( 0, 1,    0), 0.5,  scale * Color(0.1, 0.1, 0.2)));
-
-      // sky other directions
-      scene.add (new FarLight (Vec(-1, 0.5,  1), 0.5,  scale * Color(0.3, 0.3, 0.4)));
-      scene.add (new FarLight (Vec( 1, 0.5,  1), 0.5,  scale * Color(0.2, 0.2, 0.3)));
-      scene.add (new FarLight (Vec(-1, 0.5, -1), 0.5,  scale * Color(0.2, 0.2, 0.3)));
-      scene.add (new FarLight (Vec( 1, 0.5, -1), 0.5,  scale * Color(0.05, 0.05, 0.1)));
-      break;
-    }
-}
-
-
 
 static void
 add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
@@ -217,6 +172,14 @@ def_scene_miles (unsigned num, const string &, Scene &scene, Camera &camera)
   switch ((num / 10) % 10)
     {
     case 0:
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
+
+    case 1:
       add_bulb (scene, Pos (0, 15, 0), 0.06, 90);
       add_bulb (scene, Pos (0, 0, -5), 0.06, 90);
       add_bulb (scene, Pos (-5, 10, 0), 0.06, 120 * Color (0, 0, 1));
@@ -226,27 +189,19 @@ def_scene_miles (unsigned num, const string &, Scene &scene, Camera &camera)
       add_bulb (scene, Pos ( 40, 15,  40), 0.06, 3000);
       break;
 
-    case 1:
+    case 2:
       add_rect_bulb (scene, Pos(-80, 0, -80), Vec(0, 80, 0), Vec(0, 0, 160),
 		     10);
       break;
 
-    case 2:
+    case 3:
       add_rect_bulb (scene, Pos(-40, 0, 0), Vec(40, 0, 40), Vec(0, 5, 0), 15);
       add_rect_bulb (scene, Pos(0, 0, -40), Vec(40, 0, 40), Vec(0, 5, 0), 15);
       break;
 
-    case 3:
+    case 4:
       add_rect_bulb (scene, Pos(-20, -3, 0), Vec(20, 0, 20), Vec(0, 1, 0), 150);
       add_rect_bulb (scene, Pos(0, -3, -20), Vec(20, 0, 20), Vec(0, 1, 0), 150);
-      break;
-
-    case 5:
-      add_deb_lights (DEB_GRACE, 1, scene);
-      break;
-
-    case 6:
-      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
 
@@ -326,7 +281,7 @@ def_scene_pretty_bunny (unsigned num, const string &arg,
   const Material *glass = scene.add (new Glass (1.5));
   const Material *gold
     = scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
-			     cook_torrance (Color (1, 1, 0.3), 0,
+			     cook_torrance (Color (1, 1, 0.3), 0.01,
 					    Ior (0.25, 3))));
 
   bool goldbunny = (arg == "gold");
@@ -350,24 +305,24 @@ def_scene_pretty_bunny (unsigned num, const string &arg,
   switch (num % 10)
     {
     case 0:
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
+
+    case 1:
       add_bulb (scene, Pos (0, 10, 0), 0.06, 300);
       add_bulb (scene, Pos (15, 2, 0), 0.06, 300);
       add_bulb (scene, Pos (0, 1, 15), 0.06, 300);
       break;
 
-    case 1:
+    case 2:
       add_rect_bulb (scene, Pos(-5, 10, -5), Vec(10, 0, 0), Vec(0, 0, 10), 6);
       break;
-    case 2:
+    case 3:
       add_rect_bulb (scene, Pos(-10, 0, 2), Vec(0, 10, 0), Vec(6, 0, 6), 10);
-      break;
-
-    case 8:
-      add_deb_lights (DEB_GRACE, 2, scene);
-      break;
-
-    case 9:
-      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
 }
@@ -393,10 +348,12 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
   // Pot
 
   const Material *silver
-    = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
-			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+//     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
+// 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+    = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0,
+			     cook_torrance (1, 0.1, Ior (0.25, 3))));
   const Material *matte_silver
-    = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+    = scene.add (new Material (0.1, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
   const Material *gloss_blue
     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
@@ -441,13 +398,6 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
   switch ((num / 100) % 10)
     {
     case 0:
-      // green ground plane, wide grey "table"
-      //
-      add_rect (scene, grey, Pos (-14, -1, -14), Vec (38, 0, 0), Vec (0, 0, 38));
-      add_rect (scene, green, Pos (-100, -3, -100), Vec (200, 0, 0), Vec (0, 0, 200));
-      break;
-
-    case 1:
       // Narrow grey "plinth"
       //
       {
@@ -456,11 +406,26 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
 		  Vec (tw, 0, 0), Vec (0, -tw, 0), Vec (0, 0, tw));
       }
       break;
+
+    case 1:
+      // green ground plane, wide grey "table"
+      //
+      add_rect (scene, grey, Pos (-14, -1, -14), Vec (38, 0, 0), Vec (0, 0, 38));
+      add_rect (scene, green, Pos (-100, -3, -100), Vec (200, 0, 0), Vec (0, 0, 200));
+      break;
     }
 
   switch ((num / 10) % 10)
     {
     case 0:
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
+
+    case 1:
       // night-time teapot
       //
       add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 100);
@@ -468,14 +433,6 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
       //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
       add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 60 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (1, 4, 2), 0.2, 60 * Color (1, 1, 0.3));
-      break;
-
-    case 1:
-      // day-time teapot, point lights
-      //
-      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 500));
-      scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 300));
-      scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
     case 2:
@@ -540,14 +497,6 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
 	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
       }
       break;
-
-    case 8:
-      add_deb_lights (DEB_GRACE, 1, scene);
-      break;
-
-    case 9:
-      add_deb_lights (DEB_RNL, 1, scene);
-      break;
     }
 
   if (num % 10 > 0)
@@ -557,7 +506,7 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
       const Material *glass = scene.add (new Glass (1.5));
       const Material *gold
 	= scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
-				 cook_torrance (Color (1, 1, 0.3), 0,
+				 cook_torrance (Color (1, 1, 0.3), 0.01,
 						Ior (0.25, 3))));
 
       dist_t max_err = 0.0002;
@@ -639,24 +588,26 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
   add_cube (scene, grey, Pos (-tw / 2, -1, -tw / 2),
 	    Vec (tw, 0, 0), Vec (0, -tw, 0), Vec (0, 0, tw));
 
-  switch (num)
+  unsigned fancy_type = (num % 10);
+  unsigned lighting = ((num / 10) % 10);
+  unsigned saturation = ((num / 100) % 10);
+
+  switch (lighting)
     {
     case 0:
-      // night-time balls
+      // default
       //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
+
+    case 1:
       add_bulb (scene, Pos (3.1, 12.1, -9.8), 1, 200);
       //scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 600));
       //scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 5));
       add_bulb (scene, Pos (-4.7, 3, -2), 0.2, 120 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (1, 4, 2), 0.2, 120 * Color (1, 1, 0.3));
-      break;
-
-    case 1:
-      // day-time balls, point lights
-      //
-      scene.add (new PointLight (Pos (3.1, 12.1, -9.8), 500));
-      scene.add (new PointLight (Pos (-11.3, 8.8, -5.1), 300));
-      scene.set_background (Color (0.078, 0.361, 0.753));
       break;
       
     case 2:
@@ -720,18 +671,10 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
       }
       break;
-
-    case 8:
-      add_deb_lights (DEB_GRACE, 1, scene);
-      break;
-
-    case 9:
-      add_deb_lights (DEB_RNL, 1, scene);
-      break;
     }
 
-  Color colors[]
-    = { Color (0.5, 0, 0), Color (0, 0, 0.5), Color (0, 0.5, 0) };
+  Color colors[] = { Color (0.7, 0.3, 0), Color (0, 0.1, 0.9), Color (0, 1, 0),
+		     Color (0.2, 0.4, 0.1), Color (0.4, 0.3, 0.2) };
   const unsigned num_colors = (sizeof colors) / (sizeof colors[0]);
 
   const unsigned rank = 4;
@@ -746,16 +689,60 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
       coord_t y = rad;
       coord_t z = ((i % rank) - width) * sep;
 
-      Color base_col = colors[i % num_colors];
-      float col_rand = 0.3;
+      Color base_col = colors[i % num_colors] * 0.6;
+
+      float col_rand = 0.4;
       Color col
 	= base_col
 	- random (col_rand * base_col)
 	+ random (col_rand * (1 - base_col));
 
+      Color pastel = base_col;
+      switch (saturation)
+	{
+	default:
+	case 0: pastel = (pastel + 0.2) / 1.2; break;
+	case 1: pastel = (pastel + 1) / 2; break;
+	case 2: /* nothing */ break;
+	}
+
       float spec = powf (1.5f, float (i) - float (num_balls * 0.75));
 
-      const Material *mat = new Material (col * 0.7, cook_torrance (0.3, spec));
+      const Material *mat;
+      switch (fancy_type == 2 ? 0 : (i % 3))
+	{
+	case 0:
+	default:
+	  mat = new Material (col * 0.7, cook_torrance (0.3, spec));
+	  break;
+
+	case 1:
+	  mat = new Material (0, cook_torrance (pastel, spec, Ior (0.25, 3)));
+
+// 	  mat = new Mirror (Ior (0.25, 3), 0.9 * pastel, 0,
+// 			    cook_torrance (pastel, spec, Ior (0.25, 3)));
+
+// 	  if (fancy_type == 0)
+// 	    // Reflective with slightly fuzz around highlights
+// 	    //
+// 	    mat = new Mirror (Ior (0.25, 3), 0.9 * pastel, 0.2 * pastel,
+// 			      cook_torrance (0.8 * pastel, 0.1, Ior (0.25, 3)));
+// 	  else
+// 	    // Purely reflective
+// 	    //
+// 	    mat = new Mirror (Ior (0.25, 3), pastel);
+	  break;
+
+	case 2:
+	  if ((i / 3) % 2 == 0)
+	    mat = new Glass (Medium (1.5, (base_col + 0.2) / 1.2));
+	  else
+	    mat = new Mirror (Ior (0.25, 3), 0.9 * pastel, 0,
+			      cook_torrance (pastel, 0.1, Ior (0.25, 3)));
+	  break;
+	}
+
+      scene.add (mat);
 
       scene.add (new Sphere (mat, Pos (x, y, z), rad));
     }
@@ -851,6 +838,10 @@ def_scene_cornell_box (unsigned num, const string &,
   bool fill_light = true;
   float scale = 1;
 
+  unsigned scn = num % 10;
+  unsigned floor = (num / 10) % 10;
+  unsigned walls = (num / 100) % 10;
+
   coord_t rear   =  2   * scale, front = -3   * scale;
   coord_t left   = -1.2 * scale, right =  1.2 * scale;
   coord_t bottom =  0   * scale, top   =  2   * scale;
@@ -883,18 +874,36 @@ def_scene_cornell_box (unsigned num, const string &,
 
   const Material *wall_mat = scene.add (new Material (1));
 
-  if (num % 10 == 1)
+  if (scn >= 1)
     {
       fill_light = false;
       light_intens *= 1.5;
       light_z += scale * 0.2;
 
-      // This is a yellow-green glass
-      const Material *glass
-	= scene.add (new Glass (Medium (1.5, Color (0.3, 0.3, 0.9))));
-      const Material *metal
-	= scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.2,
-				 cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+      const Material *glass, *metal;
+
+      switch (scn)
+	{
+	default:
+	case 1:
+	  // Default: metal with slightly non-perfect reflection, and
+	  // yellow-green glass.
+	  //
+	  glass = new Glass (Medium (1.5, Color (0.3, 0.3, 0.9)));
+	  metal = new Mirror (Ior (0.25, 3), 0.9, 0,
+			      cook_torrance (1, 0.1, Ior (0.25, 3)));
+	  break;
+
+	case 2:
+	  // Perfect materials
+	  //
+	  glass = new Glass (1.5);
+	  metal = new Mirror (Ior (0.25, 3), 0.9);
+	  break;
+	}
+
+      scene.add (metal);
+      scene.add (glass);
 
       scene.add (new Sphere (metal, LBR + Vec (rad*1.55, rad, -rad*3), rad));
       scene.add (new Sphere (glass, Pos (right - rad*1.5, rad, -rad), rad));
@@ -932,35 +941,59 @@ def_scene_cornell_box (unsigned num, const string &,
   const coord_t light_front = light_z - light_width / 2;
   const coord_t light_back  = light_z + light_width / 2;
 
-  add_rect_bulb (scene, Pos (light_left, top + light_inset, light_front),
-		 Vec (light_width, 0, 0), Vec (0, 0, light_width),
-		 light_intens);
+  // If true, omit the light, the back wall, and the ceiling.
+  //
+  bool open = walls != 0;
+  bool really_open = walls > 1;
+
+  if (! open)
+    add_rect_bulb (scene, Pos (light_left, top + light_inset, light_front),
+		   Vec (light_width, 0, 0), Vec (0, 0, light_width),
+		   light_intens);
 
   // Back wall
-  add_rect (scene, wall_mat, LBR, LTR, RTR);
+  //
+  if (! open)
+    add_rect (scene, wall_mat, LBR, LTR, RTR);
+
   // Right wall
-  add_rect (scene, right_wall_mat, RBR, RTR, RTF);
+  //
+  if (! really_open)
+    add_rect (scene, right_wall_mat, RBR, RTR, RTF);
+
   // Left wall
-  add_rect (scene, left_wall_mat, LBR, LTR, LTF);
+  //
+  if (! really_open)
+    add_rect (scene, left_wall_mat, LBR, LTR, LTF);
+
   // Ceiling
-  add_rect (scene, wall_mat, LTF, LTR, Pos (light_left, top, rear));
-  add_rect (scene, wall_mat, RTR, RTF, Pos (light_right, top, front));
-  add_rect (scene, wall_mat,
-	    Pos (light_left, top, front),
-	    Pos (light_left, top, light_front),
-	    Pos (light_right, top, light_front));
-  add_rect (scene, wall_mat,
-	    Pos (light_left, top, light_back),
-	    Pos (light_left, top, rear),
-	    Pos (light_right, top, rear));
+  //
+  if (! open)
+    {
+      add_rect (scene, wall_mat, LTF, LTR, Pos (light_left, top, rear));
+      add_rect (scene, wall_mat, RTR, RTF, Pos (light_right, top, front));
+      add_rect (scene, wall_mat,
+		Pos (light_left, top, front),
+		Pos (light_left, top, light_front),
+		Pos (light_right, top, light_front));
+      add_rect (scene, wall_mat,
+		Pos (light_left, top, light_back),
+		Pos (light_left, top, rear),
+		Pos (light_right, top, rear));
+    }
 
   // Floor
-  if ((num / 10) % 10 == 0)
+  //
+  if (floor == 0)
     add_rect (scene, wall_mat, LBF, LBR, RBR);
   else
     add_chessboard (scene, max (width, depth) / 8, (num / 10 - 1) % 10);
 
+  if (scene.env_map)
+    fill_light = false;
+
   // for debugging
+  //
   if (fill_light)
     scene.add (new PointLight (Pos (left + 0.1, bottom + 0.1, front + 0.1),
 			       light_intens / 5));
@@ -1243,7 +1276,7 @@ def_scene_pretty_dancer (unsigned num, const string &,
   const NamedMat material_refs[] = {
     { "Material8",		// gold
       new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
-		  cook_torrance (Color (1, 1, 0.3), 0, Ior (0.25, 3))) },
+		  cook_torrance (Color (1, 1, 0.3), 0.1, Ior (0.25, 3))) },
     { 0, 0 }
   };
 
@@ -1298,35 +1331,41 @@ def_scene_pretty_dancer (unsigned num, const string &,
       scene.add (new Mesh (text_mat, "+eli-birthday.msh"));
     }
 
-  if (num == 0 && !birthday_card)
-    scene.add (new PointLight (Pos (6, 8, 10), 100));
-  else
-    switch (lighting)
-      {
-      case 0:
-	// outdoor lighting
-	add_deb_lights (DEB_RNL, 1, scene);
+  switch (lighting)
+    {
+    case 0:
+      // default
+      //
+      if (scene.env_map)
 	break;
 
-      case 1:
-	// indoor lighting -- big lights on sides and in back
+      if (! birthday_card)
+	{
+	  scene.add (new PointLight (Pos (6, 8, 10), 100));
+	  break;
+	}
 
-	add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
-	add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
-	add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 1.5);
-	break;
+      // otherwise, fall through
 
-      case 2:
-	// like case 2, but with no explicitly visible light objects
+    case 1:
+      // indoor lighting -- big lights on sides and in back
 
-	scene.add (new RectLight (Pos (-15, -5, -5),
-				  Vec (0, 10, 0), Vec (0, 0, 10), 150));
-	scene.add (new RectLight (Pos (15, -5, -5),
-				  Vec (0, 10, 0), Vec (0, 0, 10), 150));
-	scene.add (new RectLight (Pos (-5, -5, -20),
-				  Vec (10, 0, 0), Vec (0, 10, 0), 150));
-	break;
-      }
+      add_rect_bulb (scene, Pos (-15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
+      add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
+      add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 1.5);
+      break;
+
+    case 2:
+      // like case 2, but with no explicitly visible light objects
+
+      scene.add (new RectLight (Pos (-15, -5, -5),
+				Vec (0, 10, 0), Vec (0, 0, 10), 150));
+      scene.add (new RectLight (Pos (15, -5, -5),
+				Vec (0, 10, 0), Vec (0, 0, 10), 150));
+      scene.add (new RectLight (Pos (-5, -5, -20),
+				Vec (10, 0, 0), Vec (0, 10, 0), 150));
+      break;
+    }
 
   if (birthday_card)
     {
@@ -1475,22 +1514,22 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
   switch (lighting)
     {
     case 0:
-      scene.add (new PointLight (Pos (0, height + 5, 5), light_intens));
-      scene.add (new PointLight (Pos (-5, height + 5, -5), 15));
-      scene.add (new PointLight (Pos (10, height + -5, -15), 100));
-      break;
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
 
     case 1:
+      add_bulb (scene, Pos (0, height + 5, 5), 1, light_intens);
+      add_bulb (scene, Pos (-5, height + 5, -5), 1, 15);
+      add_bulb (scene, Pos (10, height + -5, -15), 1, 100);
+      break;
+
+    case 2:
       add_rect_bulb (scene, Pos (-1, 0, -5), Vec (0, 3, 0), Vec (-3, 0, 3), 15);
       add_rect_bulb (scene, Pos (10, 0, -5), Vec (0, 7, 0), Vec (0, 0, 7), 5);
-      break;
-
-    case 8:
-      add_deb_lights (DEB_GRACE, 1, scene);
-      break;
-
-    case 9:
-      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
 }
@@ -1674,8 +1713,12 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   switch (lighting)
     {
     case 0:
-      add_bulb (scene, Pos (  10, 10,  0), 1, 1000);
-      break;
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
 
     case 1:
       add_rect_bulb (scene, Pos (-3, 5, -3), Vec (6, 0, 0), Vec (0, 0, 6), 5);
@@ -1704,14 +1747,6 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       add_bulb (scene, Pos (-2.0, fby,   1.0), fbr, Color (1, 1, 0.5) * 8);
       add_bulb (scene, Pos (-1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
       add_bulb (scene, Pos ( 1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
-      break;
-
-    case 8:
-      add_deb_lights (DEB_GRACE, 1, scene);
-      break;
-
-    case 9:
-      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
 }
@@ -1758,14 +1793,6 @@ def_scene_light (unsigned num, const string &arg, Scene &scene, Camera &)
 
     case 4:
       scene.add (new FarLight (Vec (1, 1, -0.5), 0.05, 6));
-      break;
-
-    case 8:
-      add_deb_lights (DEB_GRACE, 1, scene);
-      break;
-
-    case 9:
-      add_deb_lights (DEB_RNL, 1, scene);
       break;
     }
 }

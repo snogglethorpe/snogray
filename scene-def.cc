@@ -282,6 +282,22 @@ SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
 void
 SceneDef::load (Scene &scene, Camera &camera)
 {
+  // Set background (this is done before reading in the scene, so the scene
+  // defining code can adjust for the presence of an environment map).
+  //
+  std::string bg_spec = params.get_string ("background");
+  if (! bg_spec.empty ())
+    {
+      unsigned len = bg_spec.length ();
+      if (bg_spec.substr (0, 5) == "envmap:")
+	scene.set_background (load_envmap (bg_spec.substr (7)));
+      else if (len > 4 && bg_spec.substr (len - 4) == ".ctx"
+	       || ImageIo::recognized_filename (bg_spec))
+	scene.set_background (load_envmap (bg_spec));
+      else
+	scene.set_background (atof (bg_spec.c_str()));
+    }
+
   // Read in scene file (or built-in test scene)
   //
   for (std::vector<Spec>::iterator spec = specs.begin();
@@ -308,21 +324,6 @@ SceneDef::load (Scene &scene, Camera &camera)
   float assumed_gamma = params.get_float ("gamma", 1);
   if (assumed_gamma != 1)
     scene.set_assumed_gamma (assumed_gamma);
-
-  // Override scene parameters specified on command-line
-  //
-  std::string bg_spec = params.get_string ("background");
-  if (! bg_spec.empty ())
-    {
-      unsigned len = bg_spec.length ();
-      if (bg_spec.substr (0, 5) == "envmap:")
-	scene.set_background (load_envmap (bg_spec.substr (7)));
-      else if (len > 4 && bg_spec.substr (len - 4) == ".ctx"
-	       || ImageIo::recognized_filename (bg_spec))
-	scene.set_background (load_envmap (bg_spec));
-      else
-	scene.set_background (atof (bg_spec.c_str()));
-    }
 
   if (camera_cmds.length () > 0)
     interpret_camera_cmds (camera, camera_cmds);

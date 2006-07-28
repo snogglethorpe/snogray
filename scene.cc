@@ -250,6 +250,7 @@ Scene::set_background (const Color &col)
     }
 
   bg_color = col;
+  bg_set = true;
 }
 
 void
@@ -258,6 +259,7 @@ Scene::set_background (const Envmap *map)
   delete env_map;
 
   env_map = map;
+  bg_set = true;
 }
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558
