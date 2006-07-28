@@ -110,13 +110,5 @@ SphereLight::filter_samples (const Intersect &isec, SampleRayVec &,
     }
 }
 
-// Adjust this light's intensity by a factor of SCALE.
-//
-void
-SphereLight::scale_intensity (float scale)
-{
-  power *= scale;
-  power_per_sample *= scale;
-}
 
 // arch-tag: 1caf0ba2-7ec6-4814-be51-b57bbda71fe8

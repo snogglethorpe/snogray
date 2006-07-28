@@ -27,7 +27,6 @@
                                  \"format\"    -- scene file type\n\
                                  \"background\"-- scene background\n\
                                  \"gamma\"     -- implied scene gamma correction\n\
-                                 \"light-adj\" -- adjustment for scene lighting\n\
 \n\
       --list-test-scenes     Ouput a list of builtin test-scenes to stdout\n\
 \n\

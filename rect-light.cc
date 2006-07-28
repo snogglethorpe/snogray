@@ -127,12 +127,5 @@ RectLight::filter_samples (const Intersect &isec, SampleRayVec &,
     }
 }
 
-// Adjust this light's intensity by a factor of SCALE.
-//
-void
-RectLight::scale_intensity (float scale)
-{
-  power *= scale;
-}
 
 // arch-tag: 60165b73-d34e-4f49-9a90-958daefdeb78

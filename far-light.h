@@ -45,10 +45,6 @@ public:
 			       SampleRayVec::iterator to)
     const;
 
-  // Adjust this light's intensity by a factor of SCALE.
-  //
-  virtual void scale_intensity (float scale);
-
   Vec dir;
   dist_t radius;
 

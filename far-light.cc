@@ -130,12 +130,5 @@ FarLight::filter_samples (const Intersect &, SampleRayVec &,
       s->set_light (color, Scene::DEFAULT_HORIZON, this);
 }
 
-// Adjust this light's intensity by a factor of SCALE.
-//
-void
-FarLight::scale_intensity (float scale)
-{
-  color *= scale;
-}
 
 // arch-tag: 879b496d-2a8d-4a7e-8d0a-f92d67d4f165

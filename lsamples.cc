@@ -36,7 +36,7 @@ struct indexed_sample_val_gtr
 
 void
 LightSamples::generate (const Intersect &isec,
-			const std::vector<Light *> lights)
+			const std::vector<const Light *> lights)
 {
   // Fill the sample vector
   //
@@ -48,7 +48,7 @@ LightSamples::generate (const Intersect &isec,
 
   samples.clear ();
 
-  for (std::vector<Light *>::const_iterator li = lights.begin();
+  for (std::vector<const Light *>::const_iterator li = lights.begin();
        li != lights.end(); li++)
     (*li)->gen_samples (isec, samples);
  

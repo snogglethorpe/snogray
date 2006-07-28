@@ -39,12 +39,12 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
     {
       Intersect isec
 	= surf->intersect_info (intersected_ray, isec_params, trace);
-      std::vector<Light *> &lights = scene.lights;
+      std::vector<const Light *> &lights = scene.lights;
 
       if (map_type == BRDF)
 	isec.brdf.gen_samples (isec, samples);
       else if (map_type == LIGHTS)
-	for (std::vector<Light *>::const_iterator li = lights.begin();
+	for (std::vector<const Light *>::const_iterator li = lights.begin();
 	     li != lights.end(); li++)
 	  (*li)->gen_samples (isec, samples);
       else
@@ -56,7 +56,7 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 	  // This loop should be the same as the following two methods, but
 	  // they run into memory allocation botches...
 	  //
-	  for (LightSamples::iterator ls = lsamples.begin();
+	  for (LightSamples::const_iterator ls = lsamples.begin();
 	       ls != lsamples.end(); ls++)
 	    samples.add (*ls);
 

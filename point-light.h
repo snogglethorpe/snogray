@@ -39,10 +39,6 @@ public:
 			       SampleRayVec::iterator to)
     const;
 
-  // Adjust this light's intensity by a factor of SCALE.
-  //
-  virtual void scale_intensity (float scale);
-
   Pos pos;
   Color color;
 };

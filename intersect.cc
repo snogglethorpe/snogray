@@ -74,7 +74,8 @@ Intersect::illum () const
   // samples are not shadowed.
   //
   Color poss_radiance;
-  for (LightSamples::iterator s = lsamples.begin (); s != lsamples.end (); s++)
+  for (LightSamples::const_iterator s = lsamples.begin ();
+       s != lsamples.end (); s++)
     poss_radiance += s->val;
 
   // Accumulated output radiance
@@ -86,7 +87,8 @@ Intersect::illum () const
 
   Trace &sub_trace = subtrace (Trace::SHADOW);
 
-  for (LightSamples::iterator s = lsamples.begin (); s != lsamples.end (); s++)
+  for (LightSamples::const_iterator s = lsamples.begin ();
+       s != lsamples.end (); s++)
     if (s->val > 0)
       {
 	// If RADIANCE is beyond some threshold, give up even though we

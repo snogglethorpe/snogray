@@ -27,7 +27,8 @@ class LightSamples
 {
 public:
 
-  void generate (const Intersect &isec, const std::vector<Light *> lights);
+  void generate (const Intersect &isec,
+		 const std::vector<const Light *> lights);
 
   // Accessors for the final result.
   //
@@ -44,7 +45,7 @@ public:
     return samples[sample_indices[i]];
   }
 
-protected:
+private:
 
   SampleRayVec samples;
 
@@ -69,6 +70,11 @@ protected:
       : lsamples (_lsamples), idx_iter (_idx_iter)
     { }
 
+    // This is intended for normal-to-const iterator conversion.
+    //
+    template<typename I2>
+    Iter (const I2 &i2) : lsamples (i2.lsamples), idx_iter (i2.idx_iter) { }
+
     V &operator* () const { return lsamples.samples[*idx_iter]; }
     V *operator-> () const { return &lsamples.samples[*idx_iter]; }
 
@@ -83,8 +89,6 @@ protected:
     void operator += (difference_type d) { idx_iter += d; }
 
     operator unsigned () const { return *idx_iter; }
-
-  private:
 
     LS &lsamples;
 

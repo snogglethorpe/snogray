@@ -26,8 +26,8 @@ public:
 
   SphereLight (const Pos &_pos, float _radius, const Color &emittance)
     : pos (_pos), radius (_radius),
-      power (emittance * (4.f * float (M_PI) * _radius * _radius)),
-      power_per_sample (power / NUM_SAMPLES)
+      power_per_sample (emittance * (4.f * float (M_PI) * _radius * _radius)
+			/ NUM_SAMPLES)
   { }
 
   // Generate (up to) NUM samples of this light and add them to SAMPLES.
@@ -45,18 +45,13 @@ public:
 			       SampleRayVec::iterator to)
     const;
 
-  // Adjust this light's intensity by a factor of SCALE.
-  //
-  virtual void scale_intensity (float scale);
-
   // Location and size of the light.
   //
   Pos pos;
   float radius;
 
-  // Total emitted power for the entire light, and power per light sample.
+  // Power emitted per light sample.
   //
-  Color power;
   Color power_per_sample;
 };
 

@@ -33,7 +33,7 @@ class Scene
 {
 public:
 
-  typedef std::vector<Light *>::const_iterator light_iterator_t;
+  typedef std::vector<const Light *>::const_iterator light_iterator_t;
   typedef std::list<Surface *>::const_iterator surface_iterator_t;
   typedef std::list<const Material *>::const_iterator material_iterator_t;
 
@@ -119,7 +119,7 @@ public:
 
   std::list<Surface *> surfaces;
 
-  std::vector<Light *> lights;
+  std::vector<const Light *> lights;
 
   std::list<const Material *> materials;
 

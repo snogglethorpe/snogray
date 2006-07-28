@@ -309,27 +309,6 @@ SceneDef::load (Scene &scene, Camera &camera)
   if (assumed_gamma != 1)
     scene.set_assumed_gamma (assumed_gamma);
 
-  // Correct scene lighting
-  //
-  float light_scale = params.get_float ("light-adj", 1);
-  if (light_scale != 1)
-    {
-      for (Scene::light_iterator_t li = scene.lights.begin();
-	   li != scene.lights.end(); li++)
-	{
-	  Light *light = *li;
-	  light->scale_intensity (light_scale);
-	}
-      for (Scene::material_iterator_t li = scene.materials.begin();
-	   li != scene.materials.end(); li++)
-	{
-	  Material *material = const_cast<Material *> (*li);
-	  Glow *glow = dynamic_cast<Glow *> (material);
-	  if (glow)
-	    glow->color *= light_scale;
-	}
-    }
-
   // Override scene parameters specified on command-line
   //
   std::string bg_spec = params.get_string ("background");
