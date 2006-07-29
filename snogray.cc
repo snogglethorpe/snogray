@@ -722,8 +722,8 @@ int main (int argc, char *const *argv)
 
       long long sc  = trace_stats.scene_intersect_calls;
       long long sst = trace_stats.scene_shadow_tests;
-      double rps = double (sc + sst) / render_time;
-      double erps = double (num_eye_rays) / render_time;
+      double rps = render_time == 0 ? 0 : double (sc + sst) / render_time;
+      double erps = render_time == 0 ? 0 : double (num_eye_rays) / render_time;
       cout << "  rays per second:    "
 	   << setw (8) << commify (static_cast<long long> (rps))
 	   << endl;

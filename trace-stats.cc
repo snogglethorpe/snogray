@@ -21,6 +21,20 @@
 using namespace Snogray;
 using namespace std;
 
+// Return 100 * (NUM / DEN) as an int; if DEN == 0, return 0.
+//
+static int percent (long long num, long long den)
+{
+  return den == 0 ? 0 : (100 * num / den);
+}
+
+// Return NUM / DEN as a float; if DEN == 0, return 0;
+//
+static float fraction (long long num, long long den)
+{
+  return den == 0 ? 0 : (float (num) / float (den));
+}
+
 // Print post-rendering scene statistics
 //
 void
@@ -42,15 +56,17 @@ TraceStats::print (ostream &os, const Scene &scene)
   os << "  intersect:" << endl;
   os << "     rays:            " << setw (16) << commify (sc) << endl;
   os << "     horizon hint hits:" << setw (15) << commify (hhh)
-     << " (" << setw(2) << (100 * hhh / sc) << "%)" << endl;
+     << " (" << setw(2) << percent (hhh, sc) << "%)" << endl;
   os << "     horizon hint misses:" << setw (13) << commify (hhm)
-     << " (" << setw(2) << (100 * hhm / sc) << "%)" << endl;
+     << " (" << setw(2) << percent (hhm, sc) << "%)" << endl;
   if (tstats.num_nodes != 0)
     os << "     tree node tests: " << setw (16) << commify (tnc)
-       << " (" << setw(2) << (100 * tnc / (sc * tstats.num_nodes)) << "%)" << endl;
+       << " (" << setw(2) << percent (tnc, sc * tstats.num_nodes) << "%)"
+       << endl;
   if (tstats.num_surfaces != 0)
     os << "     surface tests:   " << setw (16) << commify (ocic)
-       << " (" << setw(2) << (100 * ocic / (sc * tstats.num_surfaces)) << "%)" << endl;
+       << " (" << setw(2) << percent (ocic, sc * tstats.num_surfaces) << "%)"
+       << endl;
 
   long long sst = scene_shadow_tests;
 
@@ -67,22 +83,22 @@ TraceStats::print (ostream &os, const Scene &scene)
       os << "     rays:            " << setw (16) << commify (sst)
 	 << endl;
       os << "     shadow hint hits:" << setw (16) << commify (shh)
-	 << " (" << setw(2) << (100 * shh / sst) << "%)" << endl;
+	 << " (" << setw(2) << percent (shh, sst) << "%)" << endl;
       os << "     shadow hint misses:" << setw (14) << commify (shm)
-	 << " (" << setw(2) << (100 * shm / sst) << "%)" << endl;
+	 << " (" << setw(2) << percent (shm, sst) << "%)" << endl;
       if (sss != 0)
 	os << "     non-opaque traces: " << setw (14) << commify (sss)
-	   << " (" << setw(2) << (100 * sss / sst) << "%"
-	   << "; average depth = " << (float (oss) / float (sss)) << ")"
+	   << " (" << setw(2) << percent (sss, sst) << "%"
+	   << "; average depth = " << fraction (oss, sss) << ")"
 	   << endl;
       if (tstats.num_nodes != 0)
 	os << "     tree node tests: " << setw (16) << commify (tnt)
-	   << " (" <<setw(2) << (100 * tnt / (tstats.num_nodes * (sst - shh))) << "%)"
-	   << endl;
+	   << " (" << setw(2) << percent (tnt, tstats.num_nodes * (sst - shh))
+	   << "%)" << endl;
       if (tstats.num_surfaces != 0)
 	os << "     surface tests:   " << setw (16) << commify (ot)
-	   << " (" <<setw(2) << (100 * ot / (tstats.num_surfaces * (sst - shh))) << "%)"
-	   << endl;
+	   << " (" << setw(2) << percent (ot, tstats.num_surfaces * (sst - shh))
+	   << "%)" << endl;
     }
 
   long long ic = illum_calls;
@@ -95,11 +111,10 @@ TraceStats::print (ostream &os, const Scene &scene)
       os << "     illum calls:     " << setw (16)
 	 << commify (ic) << endl;
       os << "     average light samples: " << setw (10)
-	 << setprecision(3) << (float (is) / float (ic)) << endl;
+	 << setprecision(3) << fraction (is, ic) << endl;
       os << "     average shadow rays:   " << setw (10)
-	 << setprecision(3) << (float (sst) / float (ic))
-	 << " (" << setw(2) << (sst * 100 / is) << "%)"
-	 << endl;
+	 << setprecision(3) << fraction (sst, ic)
+	 << " (" << setw(2) << percent (sst, is) << "%)" << endl;
     }
 }
 
