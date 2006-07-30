@@ -925,7 +925,7 @@ def_scene_cornell_box (unsigned num, const string &,
       right_wall_mat = scene.add (new Material (Color (0.35, 1, 0.35)));
 
       dist_t cube_sz = height * 0.4;
-      float cube_angle = 50 * (M_PI / 180);
+      float cube_angle = 50 * (M_PIf / 180);
       Vec cube_up (0, cube_sz, 0);
       Vec cube_right (cube_sz * cos(cube_angle), 0, cube_sz * sin(cube_angle));
       Vec cube_fwd (cube_sz * -sin(cube_angle), 0, cube_sz * cos(cube_angle));

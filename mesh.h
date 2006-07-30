@@ -130,7 +130,7 @@ public:
   // vertices may increase (to prevent this, specify a sufficiently large
   // MAX_ANGLE, e.g. 2 * PI).
   //
-  void compute_vertex_normals (float max_angle = 45 * M_PI / 180);
+  void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
 
   MPos vertex (vert_index_t index) { return vertices[index]; }
   MPos vertex_normal (vert_index_t index) { return vertex_normals[index]; }

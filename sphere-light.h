@@ -26,7 +26,7 @@ public:
 
   SphereLight (const Pos &_pos, float _radius, const Color &emittance)
     : pos (_pos), radius (_radius),
-      power_per_sample (emittance * (4.f * float (M_PI) * _radius * _radius)
+      power_per_sample (emittance * (4.f * M_PIf * _radius * _radius)
 			/ NUM_SAMPLES)
   { }
 

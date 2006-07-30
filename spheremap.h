@@ -82,8 +82,8 @@ public:
 
     // Convert to range 0-1 for texture lookup
     //
-    u = (u + tparam_t (M_PI)) * tparam_t (M_1_PI * 0.5);
-    v = (v + tparam_t (M_PI)) * tparam_t (M_1_PI * 0.5);
+    u = (u + M_PIf) * M_1_PIf * 0.5f;
+    v = (v + M_PIf) * M_1_PIf * 0.5f;
 
     return tex.map (u, v);
   }
