@@ -19,8 +19,10 @@
 
 #include "envmap.h"
 
+
 using namespace Snogray;
 using namespace std;
+
 
 Envmap *
 Snogray::load_envmap (const string &filename)
@@ -58,13 +60,16 @@ Snogray::make_envmap (const Image &image)
     //
     return new Cubemap (image);
 
-  else if (w == h || w == h * 2)
-    //
-    // 1x1 or 2x1 aspect ratio: sphere-map
-    //
-    return new Spheremap (image);
+  else if (w == h)
+    return new Spheremap<DebevecMapping> (image);
+//     return new Spheremap<MirrorBallMapping> (image);
+
+  else if (w == h * 2)
+    return new Spheremap<LatLongMapping> (image);
+
   else
     throw bad_format ("Unrecognized environment-map image size");
 }
+
 
 // arch-tag: 7b474cbf-edf1-47de-a29a-24ee442a0b57
