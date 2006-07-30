@@ -29,6 +29,8 @@ AC_LANG_PUSH(C++)
 #   now, just don't use "extern template".  Also, perhaps it would be
 #   good to see what results other versions of g++ yield.  XXX
 #
+have_extern_template=no
+#
 #   AC_MSG_CHECKING([whether C++ compiler supports "extern template"])
 #   AC_COMPILE_IFELSE(
 # 	AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
