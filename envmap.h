@@ -29,11 +29,22 @@ public:
   virtual Color map (const Vec &dir) const = 0;
 };
 
-// Return an appropriate subclass of Envmap, based on details of the
-// filename or image.
+// Return an appropriate subclass of Envmap, initialized from SPEC
+// (usually a filename to load).  FMT is the type of environment-map.
 //
-Envmap *load_envmap (const std::string &filename);
-Envmap *make_envmap (const Image &image);
+// If FMT is "", any colon-separated prefix will be removed from SPEC,
+// and used as the format name (and ther remainder of SPEC used as the
+// actual filename); if FMT is "auto", SPEC will be left untouched, and
+// an attempt will be made to guess the format based on the image size.
+//
+Envmap *load_envmap (const std::string &spec, const std::string &fmt = "");
+
+// Return an appropriate subclass of Envmap, initialized from IMAGE.
+// FMT is the type of environment-map (specifically, the type of mapping
+// from direction to image coordinates).  If FMT is "" or "auto", an
+// attempt will be made to guess the format based on the image size.
+//
+Envmap *make_envmap (const Image &image, const std::string &fmt = "");
 
 }
 

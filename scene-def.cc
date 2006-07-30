@@ -19,12 +19,15 @@
 #include "excepts.h"
 #include "glow.h"
 #include "image-io.h"
+#include "string-funs.h"
 #include "cmdlineparser.h"
 
 #include "scene-def.h"
 
+
 using namespace Snogray;
 using namespace std;
+
 
 
 // User command-line camera-commands
@@ -288,14 +291,14 @@ SceneDef::load (Scene &scene, Camera &camera)
   std::string bg_spec = params.get_string ("background");
   if (! bg_spec.empty ())
     {
-      unsigned len = bg_spec.length ();
-      if (bg_spec.substr (0, 5) == "envmap:")
-	scene.set_background (load_envmap (bg_spec.substr (7)));
-      else if (len > 4 && bg_spec.substr (len - 4) == ".ctx"
-	       || ImageIo::recognized_filename (bg_spec))
+      std::string fmt = strip_prefix (bg_spec, ":");
+
+      if (fmt == "grey" || fmt == "g")
+	scene.set_background (atof (bg_spec.c_str()));
+      else if (fmt == "envmap")
 	scene.set_background (load_envmap (bg_spec));
       else
-	scene.set_background (atof (bg_spec.c_str()));
+	scene.set_background (load_envmap (bg_spec, fmt));
     }
 
   // Read in scene file (or built-in test scene)
@@ -348,5 +351,6 @@ SceneDef::specs_rep () const
 
   return rep;
 }
+
 
 // arch-tag: b48e19f8-8e7b-46bf-9812-03eeb57fef7e

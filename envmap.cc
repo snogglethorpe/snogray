@@ -16,6 +16,7 @@
 #include "image-io.h"
 #include "cubemap.h"
 #include "spheremap.h"
+#include "string-funs.h"
 
 #include "envmap.h"
 
@@ -24,9 +25,23 @@ using namespace Snogray;
 using namespace std;
 
 
+// Return an appropriate subclass of Envmap, initialized from SPEC
+// (usually a filename to load).  FMT is the type of environment-map.
+//
+// If FMT is "", any colon-separated prefix will be removed from SPEC,
+// and used as the format name (and ther remainder of SPEC used as the
+// actual filename); if FMT is "auto", SPEC will be left untouched, and
+// an attempt will be made to guess the format based on the image size.
+//
 Envmap *
-Snogray::load_envmap (const string &filename)
+Snogray::load_envmap (const string &spec, const string &_fmt)
 {
+  string filename = spec;
+  string fmt = _fmt;
+
+  if (fmt.empty ())
+    fmt = strip_prefix (filename, ":");
+
   if (ImageIo::recognized_filename (filename))
     //
     // Load from a single image file
@@ -35,7 +50,7 @@ Snogray::load_envmap (const string &filename)
 
       try
 	{
-	  return make_envmap (image);
+	  return make_envmap (image, fmt);
 	}
       catch (runtime_error &err)
 	{
@@ -47,28 +62,63 @@ Snogray::load_envmap (const string &filename)
     throw runtime_error (filename + ": Unrecognized environment-map file type");
 }
 
+
+
+// Return an appropriate subclass of Envmap, initialized from IMAGE.
+// FMT is the type of environment-map (specifically, the type of mapping
+// from direction to image coordinates).  If FMT is "" or "auto", an
+// attempt will be made to guess the format based on the image size.
+//
 Envmap *
-Snogray::make_envmap (const Image &image)
+Snogray::make_envmap (const Image &image, const string &_fmt)
 {
-  unsigned size;
-  unsigned w = image.width, h = image.height;
+  string fmt = _fmt;
 
-  if (((size = w / 3) * 3 == w && size * 4 == h)
-      || ((size = w / 4) * 4 == w && size * 3 == h))
+  if (fmt.empty() || fmt == "auto")
     //
-    // 4x3 or 3x4 aspect ratio: "cross" format cubemap
-    //
-    return new Cubemap (image);
+    // Try to guess the proper fmt
+    {
+      unsigned size;
+      unsigned w = image.width, h = image.height;
 
-  else if (w == h)
+      if (((size = w / 3) * 3 == w && size * 4 == h)
+	  || ((size = w / 4) * 4 == w && size * 3 == h))
+	fmt = "cube";     // 4x3 or 3x4 aspect ratio: "cross" cubemap
+      else if (w == h)
+	fmt = "debevec";	// Debevec angular mapping
+      else if (w == h * 2)
+	fmt = "latlong";	// Latitude-longitude ("panorama") mapping
+      else
+	throw bad_format ("Unrecognized environment-map image size");
+    }
+
+  fmt = downcase (fmt);
+  fmt = strip (fmt, " \t-_");
+
+  // Remove "map" at the end.
+  //
+  if (ends_in (fmt, "map"))
+    fmt.erase (fmt.length() - 3);
+
+  if (fmt == "d" || fmt == "debevec" || fmt == "angular")
     return new Spheremap<DebevecMapping> (image);
-//     return new Spheremap<MirrorBallMapping> (image);
 
-  else if (w == h * 2)
+  else if (fmt == "m" || fmt == "mball" || fmt == "mirror"
+	   || fmt == "mirrorball")
+     return new Spheremap<MirrorBallMapping> (image);
+
+  else if (fmt == "l" || fmt == "ll" || fmt == "latlong"
+	   || fmt == "panorama" || fmt == "latitudelongitude")
     return new Spheremap<LatLongMapping> (image);
 
+  else if (fmt == "mercator" || fmt == "cylinder" || fmt == "cylindrical")
+    return new Spheremap<MercatorMapping> (image);
+
+  else if (fmt == "c" || fmt == "cube")
+    return new Cubemap (image);
+
   else
-    throw bad_format ("Unrecognized environment-map image size");
+    throw bad_format ("Unrecognized environment-map format \"" + fmt + "\"");
 }
 
 
