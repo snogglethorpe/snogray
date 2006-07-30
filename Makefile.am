@@ -87,19 +87,19 @@ libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		\
 	glass.cc glass.h global-tstate.h glow.cc glow.h grid.cc grid.h	\
 	intersect.cc intersect.h lambert.cc lambert.h light.h		\
 	lsamples.cc lsamples.h material.cc material.h matrix4.h		\
-	matrix-tex2.h medium.h mesh.cc mesh.h mesh-load.cc mirror.cc	\
-	mirror.h octree.cc octree.h phong.cc phong.h plastic.cc		\
-	plastic.h point-light.cc point-light.h pos.h progress.cc	\
-	progress.h rand.h ray.cc ray.h rect-light.cc rect-light.h	\
-	render.cc render.h render-cmdline.h renderer.cc renderer.h	\
-	sample2.h sample2-gen.h sample-ray.h scene.cc scene.h		\
-	scene-def.cc scene-def.h scene-load.cc scene-load-aff.cc	\
-	snogmath.h space.h sphere.cc sphere.h sphere-light.cc		\
-	sphere-light.h surface.cc surface.h tessel.cc tessel.h		\
-	tessel-param.cc tessel-param.h test-scenes.cc test-scenes.h	\
-	timeval.cc timeval.h trace.cc trace.h trace-params.h		\
-	trace-stats.cc trace-stats.h tripar.cc tripar.h tripar-isec.h	\
-	tuple3.h vec.h wire-frame.h xform.h
+	matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc medium.h mesh.cc	\
+	mesh.h mesh-load.cc mirror.cc mirror.h octree.cc octree.h	\
+	phong.cc phong.h plastic.cc plastic.h point-light.cc		\
+	point-light.h pos.h progress.cc progress.h rand.h ray.cc ray.h	\
+	rect-light.cc rect-light.h render.cc render.h render-cmdline.h	\
+	renderer.cc renderer.h sample2.h sample2-gen.h sample-ray.h	\
+	scene.cc scene.h scene-def.cc scene-def.h scene-load.cc		\
+	scene-load-aff.cc snogmath.h space.h sphere.cc sphere.h		\
+	sphere-light.cc sphere-light.h surface.cc surface.h tessel.cc	\
+	tessel.h tessel-param.cc tessel-param.h test-scenes.cc		\
+	test-scenes.h timeval.cc timeval.h trace.cc trace.h		\
+	trace-params.h trace-stats.cc trace-stats.h tripar.cc tripar.h	\
+	tripar-isec.h tuple3.h vec.h wire-frame.h xform.h
 
 # Library dependencies of libsnogrender.a
 #

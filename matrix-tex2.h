@@ -18,7 +18,9 @@
 #include "tuple-matrix.h"
 #include "tex2.h"
 
+
 namespace Snogray {
+
 
 // This is a common class for doing MatrixTex2 interpolation
 //
@@ -86,33 +88,12 @@ class MatrixTex2 : public Tex2<T>
 {
 public:
 
-  MatrixTex2 (const std::string &filename)
-    : matrix (filename), interp (matrix.width, matrix.height)
-  { }
+  MatrixTex2 (const std::string &filename);
   MatrixTex2 (const TupleMatrix<T> &base,
 	      unsigned offs_x = 0, unsigned offs_y = 0,
-	      unsigned w = 0, unsigned h = 0)
-    : matrix (base, offs_x, offs_y, w, h), interp (matrix.width, matrix.height)
-  { }
+	      unsigned w = 0, unsigned h = 0);
 
-  virtual T map (tparam_t u, tparam_t v) const
-  {
-    unsigned xi_lo, yi_lo, xi_hi, yi_hi;
-    float x_lo_fr, y_lo_fr, x_hi_fr, y_hi_fr;
-    interp.calc_params (u, v,
-			xi_lo, yi_lo, xi_hi, yi_hi,
-			x_lo_fr, y_lo_fr, x_hi_fr, y_hi_fr);
-
-    // Interpolate between the 4 pixels surrounding (x, y).
-    // No attempt is made to optimize the case where an pixel is hit
-    // directly, as that's probably fairly rare.
-    //
-    return
-	x_lo_fr * y_lo_fr * matrix (xi_lo, yi_lo)
-      + x_lo_fr * y_hi_fr * matrix (xi_lo, yi_hi)
-      + x_hi_fr * y_lo_fr * matrix (xi_hi, yi_lo)
-      + x_hi_fr * y_hi_fr * matrix (xi_hi, yi_hi);
-  }
+  virtual T map (tparam_t u, tparam_t v) const;
 
 private:
 
@@ -123,8 +104,14 @@ private:
   const MatrixTex2Interp interp;
 };
 
-}
 
-#endif /* __MATRIX_TEX2_H__ */
+} // namespace Snogray
+
+// Include method definitions
+//
+#include "matrix-tex2.tcc"
+
+#endif // __MATRIX_TEX2_H__
+
 
 // arch-tag: 0d92b346-d347-4025-aab0-cbaf594f6789

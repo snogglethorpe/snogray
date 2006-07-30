@@ -4,8 +4,51 @@ AM_INIT_AUTOMAKE
 
 AC_CONFIG_HEADERS([config.h])
 
+
 AC_PROG_CXX
 AC_PROG_RANLIB
+
+
+##
+## --------------------------------
+## Language feature tests
+##
+
+
+# See if this compiler supports the "extern template class Foo<T>"
+# syntax for suppressing template instantiation of specific types
+# (currently this is a g++ extension).
+#
+AC_LANG_PUSH(C++)
+#
+#   XXX Currently, using g++'s "extern template" seems to yield slightly
+#   worse results (requires more space) with g++ 4.1 than just letting
+#   the compiler do things automatically with weak definitions of
+#   template methods.  We should investigate this again once we start
+#   using some template classes (like MatrixTex2) more heavily, but for
+#   now, just don't use "extern template".  Also, perhaps it would be
+#   good to see what results other versions of g++ yield.  XXX
+#
+#   AC_MSG_CHECKING([whether C++ compiler supports "extern template"])
+#   AC_COMPILE_IFELSE(
+# 	AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
+# 			extern template class Foo<int>;]),
+# 	[have_extern_template=yes],
+# 	[have_extern_template=no])
+#   AC_MSG_RESULT([$have_extern_template])
+
+  if test $have_extern_template = yes; then
+    AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
+	      [Define if C++ compiler supports "extern template" extension])
+  fi  
+AC_LANG_POP(C++)
+
+
+##
+## --------------------------------
+## Compiler/runtime environment tests
+##
+
 
 AC_CHECK_HEADERS([fenv.h])
 
@@ -15,6 +58,13 @@ if test $have_feenableexcept = yes; then
   AC_DEFINE([HAVE_FEENABLEEXCEPT], [1],
             [Define if feenableexcept is defined in -lm])
 fi
+
+
+##
+## --------------------------------
+## Tests for optional autoconf macros
+##
+
 
 # Check for pkg-config program, used for configuring some libraries.
 # 
@@ -29,6 +79,13 @@ PKG_PROG_PKG_CONFIG
 m4_define_default([PKG_CHECK_MODULES],
   [AC_MSG_CHECKING([$1])
    $4])
+
+
+##
+## --------------------------------
+## External library tests
+##
+
 
 # Check for PNG image library
 #
@@ -111,6 +168,12 @@ if test $have_lib3ds = yes; then
 
   CFLAGS="$_OLD_CFLAGS"
 fi
+
+
+##
+## ----------------------------------------------------------------
+## Final output
+##
 
 
 AC_CONFIG_FILES([Makefile])

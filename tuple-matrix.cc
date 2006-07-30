@@ -17,6 +17,7 @@
 
 using namespace Snogray;
 
+
 TupleMatrixData::TupleMatrixData (unsigned _tuple_len,
 				  const std::string &filename, unsigned border)
   : tuple_len (_tuple_len)
