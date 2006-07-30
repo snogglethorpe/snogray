@@ -82,10 +82,6 @@ struct DebevecMapping
   }
 };
 
-// z=0=>acos == pi/2, z=-1=>acos == pi, z=1 => acos=0
-// -1 => 1  1=>0  0=>.5
-// 0.5f - 0.5f * z
-
 // Mapping used by a raw mirrored-ball light-probe image.  Similar to
 // the Debevec mapping, but the radius to z mapping is a cosine function
 // rather than linear.
