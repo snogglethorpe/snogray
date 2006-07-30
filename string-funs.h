@@ -24,6 +24,22 @@ extern std::string stringify (unsigned num);
 //
 extern std::string commify (unsigned long long num, unsigned sep_count = 1);
 
+// Return a lower-case version of STR.
+//
+extern std::string downcase (const std::string &str);
+
+// Return a copy of STR with any character in REM_CHARS removed.
+//
+extern std::string strip (const std::string &str, const std::string &chars);
+
+// If STR contains any of the characters in SEP_CHARS, remove the prefix
+// until the first such character, and that character, from STR.  Return
+// removed prefix (without the separator character) is returned.  If no
+// character in SEP_CHARS occurs in STR, "" is returned, and STR left
+// unmodified
+//
+std::string strip_prefix (std::string &str, const std::string &sep_chars);
+
 static inline bool
 ends_in (const std::string &str, const std::string &sfx)
 {

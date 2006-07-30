@@ -9,13 +9,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cstring>
-#include <cctype>
-#include <algorithm>
-
 #include "config.h"
 
 #include "excepts.h"
+#include "string-funs.h"
 
 #include "image-pfm.h"
 #include "image-rgbe.h"
@@ -53,9 +50,7 @@ ImageIo::filename_format (const std::string &filename)
 
   std::string ext = filename.substr (dot + 1);
 
-  transform (ext.begin(), ext.end(), ext.begin(), tolower);
-
-  return ext;
+  return downcase (ext);
 }
 
 // If PARAMS contains an explicit "format" entry, return its value,

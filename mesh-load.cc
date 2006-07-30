@@ -12,8 +12,6 @@
 #include <iostream>
 #include <fstream>
 #include <cerrno>
-#include <cctype>
-#include <algorithm>
 
 #include "config.h"
 
@@ -37,14 +35,10 @@ Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
 {
   unsigned ext_pos = file_name.find_last_of (".");
 
-  if (ext_pos + 1 >= file_name.length())
+  if (ext_pos == std::string::npos)
     throw runtime_error ("No filename extension to determine mesh file format");
 
-  string fmt = file_name.substr (ext_pos + 1);
-
-  // Make FMT lower-case.
-  //
-  std::transform (fmt.begin(), fmt.end(), fmt.begin(), ::tolower);
+  string fmt = downcase (file_name.substr (ext_pos + 1));
 
   // First look for formats that want to open the file themselves.
   //
