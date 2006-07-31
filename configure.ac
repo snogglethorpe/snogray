@@ -20,29 +20,30 @@ AC_PROG_RANLIB
 # (currently this is a g++ extension).
 #
 AC_LANG_PUSH(C++)
-#
-#   XXX Currently, using g++'s "extern template" seems to yield slightly
-#   worse results (requires more space) with g++ 4.1 than just letting
-#   the compiler do things automatically with weak definitions of
-#   template methods.  We should investigate this again once we start
-#   using some template classes (like MatrixTex2) more heavily, but for
-#   now, just don't use "extern template".  Also, perhaps it would be
-#   good to see what results other versions of g++ yield.  XXX
-#
-have_extern_template=no
-#
-#   AC_MSG_CHECKING([whether C++ compiler supports "extern template"])
-#   AC_COMPILE_IFELSE(
-# 	AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
-# 			extern template class Foo<int>;]),
-# 	[have_extern_template=yes],
-# 	[have_extern_template=no])
-#   AC_MSG_RESULT([$have_extern_template])
+
+  AC_ARG_ENABLE([extern-template],
+      AS_HELP_STRING([--enable-extern-template],
+		     [Use C++ "extern template" extension]),
+      [enable_extern_template="$enableval"],
+      [enable_extern_template=yes])
+
+  if test "$enable_extern_template" = yes; then
+    AC_MSG_CHECKING([whether C++ compiler supports "extern template"])
+    AC_COMPILE_IFELSE(
+	AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
+			extern template class Foo<int>;]),
+	[have_extern_template=yes],
+	[have_extern_template=no])
+    AC_MSG_RESULT([$have_extern_template])
+  else
+    have_extern_template="no"
+  fi
 
   if test $have_extern_template = yes; then
     AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
 	      [Define if C++ compiler supports "extern template" extension])
   fi  
+
 AC_LANG_POP(C++)
 
 
