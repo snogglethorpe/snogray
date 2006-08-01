@@ -28,20 +28,23 @@ EXTRA_DIST = autogen.sh					\
 
 ################################################################
 #
-# General compilation flags
+# General compilation flags.  "OPT" and "DEBUG" intentionally have short
+# names so that it's easy for a user to override them from the command
+# line.  CXX_OPT_FLAGS, CXX_MACH_FLAGS and CXX_EXTRA_OPT_FLAGS are set
+# by automake/autoconf.
 #
-
-OPT = -O5 -fomit-frame-pointer -ffast-math $(MACHINE_OPT)
+OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
-CHECK = $(CXX_OPT_WALL) $(CXX_OPT_WEXTRA) $(CXX_OPT_STD_CXX98)
+
 #PG = -pg
 #MUDFLAP = -fmudflap
 
 # Even though CFLAGS and CXXFLAGS are the "user flags", automake uses
 # them to define optimization flags, so we must do so as well.  The user
-# can also use them to override our optimization choice.
+# can also use them to override our optimization choice.  CXX_CHECK_FLAGS
+# is set by automake/autoconf.
 #
-CFLAGS = $(OPT) $(DEBUG) $(CHECK)
+CFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS)
 CXXFLAGS = $(CFLAGS)
 
 # Other flags we pass via AM_CXXFLAGS
@@ -59,22 +62,6 @@ AM_LDFLAGS = $(PG) $(MUDFLAP)
 #
 AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 	$(libnetpbm_CFLAGS) $(LIB3DS_CFLAGS)
-
-
-################################################################
-#
-# Per-host configuration
-#
-
-HOST_OPT_dhapc248.dev.necel.com = $(ARCH_OPT_pentium4)
-ARCH_OPT_pentium3 = -march=pentium3 -mfpmath=sse -msse
-ARCH_OPT_pentium4 = -march=pentium4 -mfpmath=sse -msse2
-ARCH_OPT_i686 = $(ARCH_OPT_pentium3)
-
-HOST := $(shell hostname)
-ARCH := $(shell uname -m)
-HOST_OPT_$(HOST) ?= $(ARCH_OPT_$(ARCH))
-MACHINE_OPT = $(HOST_OPT_$(HOST))
 
 
 ################################################################

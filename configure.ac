@@ -54,24 +54,53 @@ fi
 ##
 
 
-# Test whether the compiler accepts various options
+# Test whether the compiler accepts various flags
 
-AC_DEFUN([SNOGRAY_CHECK_CXX_OPT], [
+# Individually checks whether the C++ compiler accepts the whitespace
+# separated flags in $2, and defines a subst named $1 containing all
+# options that were accepted.
+#
+AC_DEFUN([SNOGRAY_CHECK_CXX_FLAGS], [
+    AC_LANG_ASSERT(C++)
+    _SAVED_CXXFLAGS="$CXXFLAGS"
+    OK_FLAGS=""
+    for OPT in $2; do
+      CXXFLAGS="$_SAVED_CXXFLAGS $OPT"
+      AC_MSG_CHECKING(whether C++ compiler accepts "$OPT" option)
+      AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
+      AC_MSG_RESULT([$opt_ok])
+      if test "$opt_ok" = yes; then
+	if test "$OK_FLAGS" = ""; then
+	  OK_FLAGS="$OPT"
+	else
+	  OK_FLAGS="$OK_FLAGS $OPT"
+	fi
+      fi
+    done
+    AC_SUBST([$1], [$OK_FLAGS])
+    CXXFLAGS="$_SAVED_CXXFLAGS"
+])
+
+# Checks whether the C+++ compiler accepts the flags in $2, and if so
+# defines a subst named $1 containing $2.
+#
+AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
     AC_LANG_ASSERT(C++)
     _SAVED_CXXFLAGS="$CXXFLAGS"
     CXXFLAGS="$CXXFLAGS $2"
-    AC_MSG_CHECKING([whether C++ compiler accepts "$2" option])
-    AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [have_$1=yes], [have_$1=no])
-    AC_MSG_RESULT([$have_$1])
-    if test "$have_$1" = yes; then
+    case "$2" in *' '*) S=s;; *) S="";; esac
+    AC_MSG_CHECKING([whether C++ compiler accepts "$2" option$S])
+    AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
+    AC_MSG_RESULT([$opt_ok])
+    if test "$opt_ok" = yes; then
       AC_SUBST([$1], [$2])
     fi
     CXXFLAGS="$_SAVED_CXXFLAGS"
 ])
 
-SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WALL], [-Wall])
-SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WEXTRA], [-Wextra])
-SNOGRAY_CHECK_CXX_OPT([CXX_OPT_STD_CXX98], [-std=c++98])
+# Try to be very picky, if the compiler lets us.
+#
+SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra -std=c++98])
 
 
 ##
@@ -197,6 +226,52 @@ if test $have_lib3ds = yes; then
   fi  
 
   CFLAGS="$_OLD_CFLAGS"
+fi
+
+
+##
+## ----------------------------------------------------------------
+## Try to set optimization flags based on the type of CPU being used
+##
+
+if test "$GXX" = yes; then
+
+  # We try to use the host type to set optimization flags
+  #
+  AC_CANONICAL_HOST
+  
+  # These flags should always be accepted by g++
+  #
+  AC_SUBST([CXX_OPT_FLAGS], ["-O5 -fomit-frame-pointer"])
+
+  # Some optimization flags which not be supported.
+  #
+  SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_OPT_FLAGS], [-ffast-math])
+
+  # Guess machine-specific options based on cpu type.
+  #
+  case "$host_cpu" in
+    i586)
+      CXX_MACH_FLAGS="-march=pentium3 -mfpmath=sse -msse" ;;
+    i686)
+      CXX_MACH_FLAGS="-march=pentium4 -mfpmath=sse -msse2" ;;
+    *)
+      CXX_MACH_FLAGS="";;
+  esac
+
+  # Check machine options for validity; note that we check them all
+  # together, not individually, as some may depend on others.
+  #
+  SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MACH_FLAGS])
+
+else
+
+  AC_MSG_WARN([Not using GNU compiler, so not setting optimization flags])
+
+  # This is accepted by almost every compiler.
+  #
+  AC_SUBST([CXX_OPT_FLAGS], [-O])
+
 fi
 
 

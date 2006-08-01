@@ -21,7 +21,7 @@ backup ^(Makefile\.in|Makefile|aclocal\.m4|configure|config\.h\.in)$
 
 # Ignore boilerplate and system-install stuff
 #
-backup ^(depcomp|install-sh|missing|mkinstalldirs)$
+backup ^(depcomp|install-sh|missing|mkinstalldirs|config\.(guess|sub))$
 
 junk ^(\.deps)$
 
