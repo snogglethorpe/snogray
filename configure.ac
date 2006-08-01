@@ -9,6 +9,11 @@ AC_PROG_CXX
 AC_PROG_RANLIB
 
 
+# We use C++ for everything, so do all our tests using that too.
+#
+AC_LANG(C++)
+
+
 ##
 ## --------------------------------
 ## Language feature tests
@@ -18,67 +23,60 @@ AC_PROG_RANLIB
 # See if this compiler supports the "extern template class Foo<T>"
 # syntax for suppressing template instantiation of specific types
 # (currently this is a g++ extension).
-#
-AC_LANG_PUSH(C++)
 
-  AC_ARG_ENABLE([extern-template],
-      AS_HELP_STRING([--enable-extern-template],
-		     [Use C++ "extern template" extension]),
-      [enable_extern_template="$enableval"],
-      [enable_extern_template=yes])
+AC_ARG_ENABLE([extern-template],
+    AS_HELP_STRING([--enable-extern-template],
+		   [Use C++ "extern template" extension]),
+    [enable_extern_template="$enableval"],
+    [enable_extern_template=yes])
 
-  if test "$enable_extern_template" = yes; then
-    AC_MSG_CHECKING([whether C++ compiler supports "extern template"])
-    AC_COMPILE_IFELSE(
-	AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
-			extern template class Foo<int>;]),
-	[have_extern_template=yes],
-	[have_extern_template=no])
-    AC_MSG_RESULT([$have_extern_template])
-  else
-    have_extern_template="no"
-  fi
+if test "$enable_extern_template" = yes; then
+  AC_MSG_CHECKING([whether C++ compiler supports "extern template"])
+  AC_COMPILE_IFELSE(
+      AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
+		      extern template class Foo<int>;]),
+      [have_extern_template=yes],
+      [have_extern_template=no])
+  AC_MSG_RESULT([$have_extern_template])
+else
+  have_extern_template="no"
+fi
 
-  if test $have_extern_template = yes; then
-    AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
-	      [Define if C++ compiler supports "extern template" extension])
-  fi  
-
-AC_LANG_POP(C++)
+if test $have_extern_template = yes; then
+  AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
+	    [Define if C++ compiler supports "extern template" extension])
+fi  
 
 
 ##
 ## --------------------------------
-## Compiler option tests
+## Compiler tests
 ##
-     
-AC_LANG_PUSH(C++)
 
-  # We can't make this language-independent because there's no way to
-  # get info about the current language setting from autoconf.
-  
-  AC_DEFUN([SNOGRAY_CHECK_CXX_OPT], [
-      _SAVED_CXXFLAGS="$CXXFLAGS"
-      CXXFLAGS="$CXXFLAGS $2"
-      AC_MSG_CHECKING([whether C++ compiler accepts "$2" option])
-      AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [have_$1=yes], [have_$1=no])
-      AC_MSG_RESULT([$have_$1])
-      if test "$have_$1" = yes; then
-	AC_SUBST([$1], [$2])
-      fi
-      CXXFLAGS="$_SAVED_CXXFLAGS"
-  ])
 
-  SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WALL], [-Wall])
-  SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WEXTRA], [-Wextra])
-  SNOGRAY_CHECK_CXX_OPT([CXX_OPT_STD_CXX98], [-std=c++98])
+# Test whether the compiler accepts various options
 
-AC_LANG_POP(C++)
+AC_DEFUN([SNOGRAY_CHECK_CXX_OPT], [
+    AC_LANG_ASSERT(C++)
+    _SAVED_CXXFLAGS="$CXXFLAGS"
+    CXXFLAGS="$CXXFLAGS $2"
+    AC_MSG_CHECKING([whether C++ compiler accepts "$2" option])
+    AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [have_$1=yes], [have_$1=no])
+    AC_MSG_RESULT([$have_$1])
+    if test "$have_$1" = yes; then
+      AC_SUBST([$1], [$2])
+    fi
+    CXXFLAGS="$_SAVED_CXXFLAGS"
+])
+
+SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WALL], [-Wall])
+SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WEXTRA], [-Wextra])
+SNOGRAY_CHECK_CXX_OPT([CXX_OPT_STD_CXX98], [-std=c++98])
 
 
 ##
 ## --------------------------------
-## Compiler/runtime environment tests
+## Standard library/environment tests
 ##
 
 
