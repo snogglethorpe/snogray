@@ -49,6 +49,35 @@ AC_LANG_POP(C++)
 
 ##
 ## --------------------------------
+## Compiler option tests
+##
+     
+AC_LANG_PUSH(C++)
+
+  # We can't make this language-independent because there's no way to
+  # get info about the current language setting from autoconf.
+  
+  AC_DEFUN([SNOGRAY_CHECK_CXX_OPT], [
+      _SAVED_CXXFLAGS="$CXXFLAGS"
+      CXXFLAGS="$CXXFLAGS $2"
+      AC_MSG_CHECKING([whether C++ compiler accepts "$2" option])
+      AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [have_$1=yes], [have_$1=no])
+      AC_MSG_RESULT([$have_$1])
+      if test "$have_$1" = yes; then
+	AC_SUBST([$1], [$2])
+      fi
+      CXXFLAGS="$_SAVED_CXXFLAGS"
+  ])
+
+  SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WALL], [-Wall])
+  SNOGRAY_CHECK_CXX_OPT([CXX_OPT_WEXTRA], [-Wextra])
+  SNOGRAY_CHECK_CXX_OPT([CXX_OPT_STD_CXX98], [-std=c++98])
+
+AC_LANG_POP(C++)
+
+
+##
+## --------------------------------
 ## Compiler/runtime environment tests
 ##
 

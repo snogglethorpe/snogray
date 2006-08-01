@@ -32,7 +32,8 @@ EXTRA_DIST = autogen.sh					\
 #
 
 OPT = -O5 -fomit-frame-pointer -ffast-math $(MACHINE_OPT)
-DEBUG = -g -Wall -Wextra -std=c++98
+DEBUG = -g
+CHECK = $(CXX_OPT_WALL) $(CXX_OPT_WEXTRA) $(CXX_OPT_STD_CXX98)
 #PG = -pg
 #MUDFLAP = -fmudflap
 
@@ -40,7 +41,7 @@ DEBUG = -g -Wall -Wextra -std=c++98
 # them to define optimization flags, so we must do so as well.  The user
 # can also use them to override our optimization choice.
 #
-CFLAGS = $(OPT) $(DEBUG)
+CFLAGS = $(OPT) $(DEBUG) $(CHECK)
 CXXFLAGS = $(CFLAGS)
 
 # Other flags we pass via AM_CXXFLAGS
