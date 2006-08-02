@@ -33,7 +33,7 @@ using namespace std;
 // User command-line camera-commands
 
 static char
-eat (istream &stream, const char *choices, char *req_desc = 0)
+eat (istream &stream, const char *choices, const char *req_desc = 0)
 {
   stream >> ws;
 

@@ -1250,7 +1250,13 @@ def_scene_pretty_dancer (unsigned num, const string &,
 {
   // Simple colored materials
   //
-  struct SimpleNamedMat{ char *name; float m; Color diff; Color spec; Ior ior;};
+  struct SimpleNamedMat{
+    const char *name;
+    float m;
+    Color diff;
+    Color spec;
+    Ior ior;
+  };
   static const SimpleNamedMat materials[] = {
     { "Material0",  0,   Color (1.0, 0.8, 0.8), 0, 0 },
     { "Material1",  0,   Color (1.0, 0.7, 0.7), 0, 0 },
@@ -1272,7 +1278,7 @@ def_scene_pretty_dancer (unsigned num, const string &,
   
   // More complex materials
   //
-  struct NamedMat { char *name; const Material *mat; };
+  struct NamedMat { const char *name; const Material *mat; };
   const NamedMat material_refs[] = {
     { "Material8",		// gold
       new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
