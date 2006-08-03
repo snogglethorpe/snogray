@@ -67,7 +67,7 @@ public:
   // Set the tuple at location X, Y from the color COL (if the tuple
   // length is not three, an appropriate translation is done).
   //
-  void put (unsigned x, unsigned y, const Color &col);
+  void set_pixel (unsigned x, unsigned y, const Color &col);
 
   // Load tuple matrix from the file FILENAME.  PARAMS contains various
   // tuple-format-specific parameters that might be needed.  The loaded
@@ -82,6 +82,31 @@ public:
   void save (const std::string &filename, const Params &params = Params::NONE)
     const;
 
+  // Store a value of type T into a tuple (assuming the tuple length is
+  // correct).
+  //
+  // For otherwise unknown types, we assume they're a class, and try to use
+  // for a "store" method which they should define.
+  //
+  // For some common non-class scalar types we just convert to a float and
+  // store that.
+  //
+  template<typename T>
+  void store (unsigned x, unsigned y, const T &val)
+  {
+    val.store (tuple (x, y));
+  }
+  void store (unsigned x, unsigned y, float val) { *tuple (x, y) = val; }
+  void store (unsigned x, unsigned y, double val) { *tuple (x, y) = val; }
+  void store (unsigned x, unsigned y, int val) { *tuple (x, y) = val; }
+  void store (unsigned x, unsigned y, unsigned val) { *tuple (x, y) = val; }
+
+  template<typename T>
+  T load (unsigned x, unsigned y) const
+  {
+    return T (tuple (x, y));
+  }
+
   // Number of elements in each tuple tuple; should be greater than 0.
   //
   const unsigned tuple_len;
@@ -90,10 +115,53 @@ public:
   //
   unsigned width, height;
 
+protected:
+
+  // For otherwise unknown types, we assume they're a class, and try to use
+  // for a static const field "TUPLE_LEN" they should define.
+  //
+  // For some common non-class scalar types we just return 1.
+  //
+  template<typename T>
+  inline unsigned type_tuple_len () { return T::TUPLE_LEN; }
+
 private:
 
   std::vector<float> data;
+
 };
+
+template<>
+inline float
+TupleMatrixData::load<float> (unsigned x, unsigned y) const
+{
+  return *tuple (x, y);
+}
+template<>
+inline double
+TupleMatrixData::load<double> (unsigned x, unsigned y) const
+{
+  return *tuple (x, y);
+}
+template<>
+inline int
+TupleMatrixData::load<int> (unsigned x, unsigned y) const
+{
+  return int (*tuple (x, y));
+}
+template<>
+inline unsigned
+TupleMatrixData::load<unsigned> (unsigned x, unsigned y) const
+{
+  return unsigned (*tuple (x, y));
+}
+
+template<>
+inline unsigned TupleMatrixData::type_tuple_len<float> () { return 1; }
+template<>
+inline unsigned TupleMatrixData::type_tuple_len<int> () { return 1; }
+template<>
+inline unsigned TupleMatrixData::type_tuple_len<double> () { return 1; }
 
 
 
@@ -105,27 +173,27 @@ class TupleMatrix : public TupleMatrixData
 public:
 
   TupleMatrix (unsigned _width, unsigned _height)
-    : TupleMatrixData (T::TUPLE_LEN, _width, _height)
+    : TupleMatrixData (type_tuple_len<T> (), _width, _height)
   { }
 
   // Constructors for a matrix loaded from an image file.
   //
   TupleMatrix (const std::string &filename, unsigned border = 0)
-    : TupleMatrixData (T::TUPLE_LEN, filename, border)
+    : TupleMatrixData (type_tuple_len<T> (), filename, border)
   { }
   TupleMatrix (const std::string &filename, const Params &params,
 	       unsigned border = 0)
-    : TupleMatrixData (T::TUPLE_LEN, filename, params, border)
+    : TupleMatrixData (type_tuple_len<T> (), filename, params, border)
   { }
 
   // Constructor for extracting a sub-matrix of BASE.  If W or H are 0, the
   // maximum available width or height is used.  Note that because of the
   // defaults, this is used as the copy-constructor.
   //
-  TupleMatrix (const TupleMatrix<T> &base,
+  TupleMatrix (const TupleMatrix &base,
 	       unsigned offs_x = 0, unsigned offs_y = 0,
 	       unsigned w = 0, unsigned h = 0)
-    : TupleMatrixData (T::TUPLE_LEN, base, offs_x, offs_y, w, h)
+    : TupleMatrixData (type_tuple_len<T> (), base, offs_x, offs_y, w, h)
   { }
 
   T operator() (unsigned x, unsigned y) const
@@ -135,11 +203,12 @@ public:
 
   T get (unsigned x, unsigned y) const
   {
-    return T (tuple (x, y));
+    return load<T> (x, y);
   }
+
   void put (unsigned x, unsigned y, const T &val)
   {
-    val.store (tuple (x, y));
+    store (x, y, val);
   }
 
 };

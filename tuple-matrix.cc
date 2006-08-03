@@ -56,7 +56,7 @@ TupleMatrixData::pixel (unsigned x, unsigned y) const
 // length is not three, an appropriate translation is done).
 //
 void
-TupleMatrixData::put (unsigned x, unsigned y, const Color &col)
+TupleMatrixData::set_pixel (unsigned x, unsigned y, const Color &col)
 {
   float *t = tuple (x, y);
 
@@ -92,12 +92,12 @@ TupleMatrixData::load (const std::string &filename, const Params &params,
       src.read_row (row);
 
       for (unsigned x = 0; x < src.width; x++)
-	put (x + border, y + border, row[x]);
+	set_pixel (x + border, y + border, row[x]);
 
       for (unsigned b = 0; b < border; b++)
 	{
-	  put (b, y + border, 0);
-	  put (width - b, y + border, 0);
+	  set_pixel (b, y + border, 0);
+	  set_pixel (width - b, y + border, 0);
 	}
     }
 }
@@ -141,7 +141,7 @@ TupleMatrixData::TupleMatrixData (unsigned _tuple_len,
 
   for (unsigned y = 0; y < h; y++)
     for (unsigned x = 0; x < w; x++)
-      put (x, y, base.pixel (x + offs_x, y + offs_y));
+      set_pixel (x, y, base.pixel (x + offs_x, y + offs_y));
 }
 
 
