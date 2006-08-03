@@ -41,8 +41,10 @@ SphereLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
       float rand2_ang = random (2 * M_PIf);
       float x = r_sqrt_rand1 * cos (rand2_ang);
       float y = r_sqrt_rand1 * sin (rand2_ang);
+      // Note -- the abs here is just to avoid negative numbers caused by
+      // floating-point imprecision.
       float z
-	= (sqrt (radius * radius - x * x - y * y)
+	= (sqrt (abs (radius * radius - x * x - y * y))
 	   * sin (M_PIf * (random(1.f) - 0.5)));
       const Pos sample_pos = pos + Pos (x, y, z);
 
