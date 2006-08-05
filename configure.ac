@@ -253,15 +253,17 @@ if test "$GXX" = yes; then
       }
     ' /proc/cpuinfo`]
 
+    note=''
     case "$cpuinfo_model" in
       "Pentium III")
 	cpuinfo_cpu=pentium3 ;;
       "Pentium 4")
 	cpuinfo_cpu=pentium4 ;;
       *)
-	cpuinfo_cpu=unknown ;;
+	cpuinfo_cpu=unknown
+        note=" ($cpuinfo_model)";;
     esac
-    AC_MSG_RESULT([$cpuinfo_cpu])
+    AC_MSG_RESULT([$cpuinfo_cpu$note])
 
     test "$cpuinfo_cpu" = unknown || host_cpu="$cpuinfo_cpu"
   fi
