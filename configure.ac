@@ -240,6 +240,32 @@ if test "$GXX" = yes; then
   #
   AC_CANONICAL_HOST
   
+  # If this is a linux system with /proc/cpuinfo we can be a bit more specific
+  #
+  if test -r /proc/cpuinfo; then
+    AC_MSG_CHECKING([CPU type in /proc/cpuinfo])
+
+    cpuinfo_model=[`$AWK '
+      /^model name/ {
+	sub (/^.*: */, "")
+	gsub (/ *\([^)]*\) */, "")
+	print $0
+      }
+    ' /proc/cpuinfo`]
+
+    case "$cpuinfo_model" in
+      "Pentium III")
+	cpuinfo_cpu=pentium3 ;;
+      "Pentium 4")
+	cpuinfo_cpu=pentium4 ;;
+      *)
+	cpuinfo_cpu=unknown ;;
+    esac
+    AC_MSG_RESULT([$cpuinfo_cpu])
+
+    test "$cpuinfo_cpu" = unknown || host_cpu="$cpuinfo_cpu"
+  fi
+
   # These flags should always be accepted by g++
   #
   AC_SUBST([CXX_OPT_FLAGS], ["-O5 -fomit-frame-pointer"])
@@ -251,9 +277,9 @@ if test "$GXX" = yes; then
   # Guess machine-specific options based on cpu type.
   #
   case "$host_cpu" in
-    i586)
+    i686|pentium3)
       CXX_MACH_FLAGS="-march=pentium3 -mfpmath=sse -msse" ;;
-    i686)
+    i786|pentium4)
       CXX_MACH_FLAGS="-march=pentium4 -mfpmath=sse -msse2" ;;
     *)
       CXX_MACH_FLAGS="";;
