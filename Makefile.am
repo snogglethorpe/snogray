@@ -142,7 +142,7 @@ endif
 #
 
 libsnogmisc_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
-	color.h freelist.cc freelist.h llist.h params.cc params.h	\
+	color.h freelist.cc freelist.h llist.h params.cc params.h ref.h	\
 	rusage.h string-funs.cc string-funs.h
 
 
