@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iostream>
+
 #include "excepts.h"
 #include "image-input.h"
 #include "image-output.h"
@@ -82,6 +84,24 @@ TupleMatrixData::load (const std::string &filename, const Params &params,
 
   width = src.width + border * 2;
   height = src.height + border * 2;
+
+  // Loading a very large image can be slow (largely due to thrashing -- a
+  // 6K x 3K image requires 216 MB of memory unpacked!), so tell the user
+  // what we're doing.
+  //
+  if (width * height > 1024 * 1024)
+    {
+      std::string bn = filename;
+      unsigned last_slash = bn.find_last_of ("/");
+
+      if (last_slash != std::string::npos)
+	bn.erase (0, last_slash + 1);
+
+      std::cout << "* loading large image: " << bn
+		<< " (" << width << " x " << height << ", "
+		<< (width * height * tuple_len * sizeof (float) / (1024 * 1024))
+		<< " MB" << ")" << std::endl;
+    }
 
   data.resize (tuple_len * width * height);
 
