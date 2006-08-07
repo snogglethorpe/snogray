@@ -44,7 +44,7 @@ Envmap *load_envmap (const std::string &spec, const std::string &fmt = "");
 // from direction to image coordinates).  If FMT is "" or "auto", an
 // attempt will be made to guess the format based on the image size.
 //
-Envmap *make_envmap (const Image &image, const std::string &fmt = "");
+Envmap *make_envmap (const Ref<Image> &image, const std::string &fmt = "");
 
 }
 

@@ -95,9 +95,18 @@ class MatrixTex2 : public Tex2<T>
 public:
 
   MatrixTex2 (const std::string &filename);
+
+  // This constructor stores a (ref-counted) _reference_ to BASE.
+  //
+  MatrixTex2 (const Ref<TupleMatrix<T> > &base);
+
+  // This constructor _copies_ the specified region of BASE (and so doesn't
+  // reference BASE).
+  //
   MatrixTex2 (const TupleMatrix<T> &base,
-	      unsigned offs_x = 0, unsigned offs_y = 0,
-	      unsigned w = 0, unsigned h = 0);
+	      unsigned offs_x, unsigned offs_y, unsigned w, unsigned h);
+  MatrixTex2 (const Ref<TupleMatrix<T> > &base,
+	      unsigned offs_x, unsigned offs_y, unsigned w, unsigned h);
 
   virtual T map (tparam_t u, tparam_t v) const;
 
@@ -117,7 +126,7 @@ private:
 
     Iter &operator++ ()
     {
-      if (++x == mat.matrix.width)
+      if (++x == mat.matrix->width)
 	{
 	  x = 0;
 	  ++y;
@@ -135,7 +144,7 @@ private:
     //
     T val () const { return mat.matrix (x, y); }
 
-    void set (const T &val) const { mat.matrix.put (x, y, val); }
+    void set (const T &val) const { mat.matrix->put (x, y, val); }
 
     MT &mat;
 
@@ -153,13 +162,13 @@ public:
   iterator begin () { return iterator (*this); }
   const_iterator begin () const { return const_iterator (*this); }
 
-  const_iterator end () const { return const_iterator(*this, 0, matrix.height);}
+  const_iterator end () const {return const_iterator(*this, 0, matrix->height);}
 
 private:
 
   // Matrix holding data for this texture.
   //
-  TupleMatrix<T> matrix;
+  Ref<TupleMatrix<T> > matrix;
 
   const MatrixTex2Interp interp;
 };

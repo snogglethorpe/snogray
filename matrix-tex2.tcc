@@ -26,14 +26,28 @@ namespace Snogray {
 
 template<typename T>
 MatrixTex2<T>::MatrixTex2 (const std::string &filename)
-  : matrix (filename), interp (matrix.width, matrix.height)
+  : matrix (new TupleMatrix<T> (filename)),
+    interp (matrix->width, matrix->height)
+{ }
+
+template<typename T>
+MatrixTex2<T>::MatrixTex2 (const Ref<TupleMatrix<T> > &base)
+  : matrix (base), interp (matrix->width, matrix->height)
 { }
 
 template<typename T>
 MatrixTex2<T>::MatrixTex2 (const TupleMatrix<T> &base,
 			   unsigned offs_x, unsigned offs_y,
 			   unsigned w, unsigned h)
-  : matrix (base, offs_x, offs_y, w, h), interp (matrix.width, matrix.height)
+  : matrix (new TupleMatrix<T> (base, offs_x, offs_y, w, h)),
+    interp (matrix->width, matrix->height)
+{ }
+template<typename T>
+MatrixTex2<T>::MatrixTex2 (const Ref<TupleMatrix<T> > &base,
+			   unsigned offs_x, unsigned offs_y,
+			   unsigned w, unsigned h)
+  : matrix (new TupleMatrix<T> (base, offs_x, offs_y, w, h)),
+    interp (matrix->width, matrix->height)
 { }
 
 template<typename T>
@@ -51,10 +65,10 @@ MatrixTex2<T>::map (tparam_t u, tparam_t v) const
   // directly, as that's probably fairly rare.
   //
   return
-    x_lo_fr * y_lo_fr * matrix (xi_lo, yi_lo)
-    + x_lo_fr * y_hi_fr * matrix (xi_lo, yi_hi)
-    + x_hi_fr * y_lo_fr * matrix (xi_hi, yi_lo)
-    + x_hi_fr * y_hi_fr * matrix (xi_hi, yi_hi);
+    x_lo_fr * y_lo_fr * (*matrix) (xi_lo, yi_lo)
+    + x_lo_fr * y_hi_fr * (*matrix) (xi_lo, yi_hi)
+    + x_hi_fr * y_lo_fr * (*matrix) (xi_hi, yi_lo)
+    + x_hi_fr * y_hi_fr * (*matrix) (xi_hi, yi_hi);
 }
 
 

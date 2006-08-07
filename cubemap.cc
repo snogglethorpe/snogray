@@ -73,7 +73,7 @@ Cubemap::load (const string &filename)
     //
     // Load from a single image file
     {
-      Image image (filename);
+      Ref<Image> image = new Image (filename);
 
       try
 	{
@@ -230,10 +230,10 @@ Cubemap::parse_axis_dir (const string &str)
 // Loading of a single background image
 
 void
-Cubemap::load (const Image &image)
+Cubemap::load (const Ref<Image> &image)
 {
   unsigned size;
-  unsigned w = image.width, h = image.height;
+  unsigned w = image->width, h = image->height;
 
   if ((size = w / 3) * 3 == w && size * 4 == h)
     //

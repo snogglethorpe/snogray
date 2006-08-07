@@ -46,7 +46,7 @@ Snogray::load_envmap (const string &spec, const string &_fmt)
     //
     // Load from a single image file
     {
-      Image image (filename);
+      Ref<Image> image = new Image (filename);
 
       try
 	{
@@ -70,7 +70,7 @@ Snogray::load_envmap (const string &spec, const string &_fmt)
 // attempt will be made to guess the format based on the image size.
 //
 Envmap *
-Snogray::make_envmap (const Image &image, const string &_fmt)
+Snogray::make_envmap (const Ref<Image> &image, const string &_fmt)
 {
   string fmt = _fmt;
 
@@ -79,7 +79,7 @@ Snogray::make_envmap (const Image &image, const string &_fmt)
     // Try to guess the proper fmt
     {
       unsigned size;
-      unsigned w = image.width, h = image.height;
+      unsigned w = image->width, h = image->height;
 
       if (((size = w / 3) * 3 == w && size * 4 == h)
 	  || ((size = w / 4) * 4 == w && size * 3 == h))

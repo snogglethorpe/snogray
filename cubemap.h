@@ -29,14 +29,14 @@ public:
   {
     load (spec);
   }
-  Cubemap (const Image &image)
+  Cubemap (const Ref<Image> &image)
   {
     load (image);
   }
 
   void load (const std::string &filename);
   void load (std::istream &stream, const std::string &filename_pfx);
-  void load (const Image &image);
+  void load (const Ref<Image> &image);
 
   virtual Color map (const Vec &dir) const;
 

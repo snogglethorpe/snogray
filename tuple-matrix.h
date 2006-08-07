@@ -14,6 +14,7 @@
 
 #include <vector>
 
+#include "ref.h"
 #include "params.h"
 #include "color.h"
 
@@ -23,7 +24,7 @@ namespace Snogray {
 // This is the low-level storage class for tuple matrices, holding a
 // matrix of floating-point values, grouped into fixed-length tuples.
 //
-class TupleMatrixData
+class TupleMatrixData : public RefCounted
 {
 public:
 
@@ -194,6 +195,11 @@ public:
 	       unsigned offs_x = 0, unsigned offs_y = 0,
 	       unsigned w = 0, unsigned h = 0)
     : TupleMatrixData (type_tuple_len<T> (), base, offs_x, offs_y, w, h)
+  { }
+  TupleMatrix (const Ref<TupleMatrix> &base,
+	       unsigned offs_x = 0, unsigned offs_y = 0,
+	       unsigned w = 0, unsigned h = 0)
+    : TupleMatrixData (type_tuple_len<T> (), *base, offs_x, offs_y, w, h)
   { }
 
   T operator() (unsigned x, unsigned y) const

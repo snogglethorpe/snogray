@@ -108,7 +108,7 @@ class Spheremap : public Envmap
 {
 public:
 
-  Spheremap (const Image &image) : tex (image) { }
+  Spheremap (const Ref<Image> &image) : tex (image) { }
 
   virtual Color map (const Vec &dir) const
   {
