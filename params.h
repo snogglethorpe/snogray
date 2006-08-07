@@ -69,6 +69,10 @@ public:
 
   static Params NONE;
 
+  Params () { }
+  Params (const std::string &init) { parse (init); }
+  Params (const char *init) { parse (init); }
+
   Param *get (const std::string &name);
   const Param *get (const std::string &name) const;
 
