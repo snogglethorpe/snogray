@@ -245,25 +245,36 @@ if test "$GXX" = yes; then
   if test -r /proc/cpuinfo; then
     AC_MSG_CHECKING([CPU type in /proc/cpuinfo])
 
-    cpuinfo_model=[`$AWK '
-      /^model name/ {
-	sub (/^.*: */, "")
-	gsub (/ *\([^)]*\) */, "")
-	print $0
-      }
-    ' /proc/cpuinfo`]
+    cpuinfo_cpu=unknown
+    cpuinfo_note=''
+   
+    case "$host_cpu" in
+      i?86)
+	cpuinfo=[`$AWK '
+          /^cpu family[ \t]*:/ { family = $NF; next }
+	  /^model[ \t]*:/ { model = $NF; next }
+	  /^model name[ \t]*:/ {
+	    sub (/^.*: */, ""); gsub (/ *\([^)]*\)/, ""); name = $0
+	    next
+	  }
+          END { print family "/" model "/" name }
+	' /proc/cpuinfo`]
 
-    note=''
-    case "$cpuinfo_model" in
-      "Pentium III")
-	cpuinfo_cpu=pentium3 ;;
-      "Pentium 4")
-	cpuinfo_cpu=pentium4 ;;
-      *)
-	cpuinfo_cpu=unknown
-        note=" ($cpuinfo_model)";;
+	cpuinfo_name=`basename "$cpuinfo"`
+	cpuinfo_note=" ($cpuinfo_name)"
+
+	case "$cpuinfo" in
+	  15/*)
+	    cpuinfo_cpu=pentium4 ;;
+	  "*Pentium III*")
+	    cpuinfo_cpu=pentium3 ;;
+	  "*Pentium 4*")
+	    cpuinfo_cpu=pentium4 ;;
+	esac
+	;;
     esac
-    AC_MSG_RESULT([$cpuinfo_cpu$note])
+
+    AC_MSG_RESULT([$cpuinfo_cpu$cpuinfo_note])
 
     test "$cpuinfo_cpu" = unknown || host_cpu="$cpuinfo_cpu"
   fi
