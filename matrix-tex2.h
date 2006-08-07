@@ -14,6 +14,7 @@
 
 #include <string>
 
+#include "uv.h"
 #include "snogmath.h"
 #include "tuple-matrix.h"
 #include "tex2.h"
@@ -73,6 +74,11 @@ public:
     yi_lo = height - yi_lo - 1;
     yi_hi = height - yi_hi - 1;
   }
+
+  UV map (unsigned x, unsigned y) const 
+  {
+    return UV (float (x) / u_scale, float (y) / v_scale);
+  }
   
 private:
 
@@ -94,6 +100,60 @@ public:
 	      unsigned w = 0, unsigned h = 0);
 
   virtual T map (tparam_t u, tparam_t v) const;
+
+private:
+
+  template<class MT>
+  struct Iter
+  {
+    Iter (MT &_mat, unsigned _x = 0, unsigned _y = 0)
+      : mat (_mat), x (_x), y (_y)
+    { }
+
+    // This is intended for normal-to-const iterator conversion.
+    //
+    template<class MT2>
+    Iter (const Iter<MT2> &i2) : mat (i2.mat), x (i2.x), y (i2.y) { }
+
+    Iter &operator++ ()
+    {
+      if (++x == mat.matrix.width)
+	{
+	  x = 0;
+	  ++y;
+	}
+      return *this;
+    }
+
+    bool operator== (const Iter &i2) const { return x == i2.x && y == i2.y; }
+    bool operator!= (const Iter &i2) const { return x != i2.x || y != i2.y; }
+
+    UV uv () const { return mat.interp.map (x, y); }
+
+    // Returns the value of the texture where the iterator points;
+    // slightly faster than doing a normal texture lookup.
+    //
+    T val () const { return mat.matrix (x, y); }
+
+    void set (const T &val) const { mat.matrix.put (x, y, val); }
+
+    MT &mat;
+
+    unsigned x, y;
+  };
+
+  friend class iterator;
+  friend class const_iterator;
+
+public:
+
+  typedef Iter<MatrixTex2> iterator;
+  typedef Iter<const MatrixTex2> const_iterator;
+
+  iterator begin () { return iterator (*this); }
+  const_iterator begin () const { return const_iterator (*this); }
+
+  const_iterator end () const { return const_iterator(*this, 0, matrix.height);}
 
 private:
 
