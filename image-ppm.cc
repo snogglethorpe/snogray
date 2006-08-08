@@ -28,7 +28,9 @@ PpmImageSink::PpmImageSink (const std::string &filename,
     //
     max_pixval (255), force_plain (false)
 {
-  if (params.get_float ("gamma", IMAGE_PPM_GAMMA) != IMAGE_PPM_GAMMA)
+  float gamma = params.get_float ("gamma", IMAGE_PPM_GAMMA);
+
+  if (gamma < IMAGE_PPM_GAMMA - 0.01 || gamma > IMAGE_PPM_GAMMA + 0.01)
     open_err ("PPM format uses a fixed gamma of " _IMAGE_PPM_GAMMA_STRING);
 
   // Open output file
