@@ -266,9 +266,9 @@ if test "$GXX" = yes; then
 	case "$cpuinfo" in
 	  15/*)
 	    cpuinfo_cpu=pentium4 ;;
-	  "*Pentium III*")
+	  *"Pentium III"*)
 	    cpuinfo_cpu=pentium3 ;;
-	  "*Pentium 4*")
+	  *"Pentium 4"*)
 	    cpuinfo_cpu=pentium4 ;;
 	esac
 	;;
