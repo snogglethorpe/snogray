@@ -264,11 +264,15 @@ if test "$GXX" = yes; then
 	cpuinfo_note=" ($cpuinfo_name)"
 
 	case "$cpuinfo" in
-	  15/*)
-	    cpuinfo_cpu=pentium4 ;;
 	  *"Pentium III"*)
 	    cpuinfo_cpu=pentium3 ;;
 	  *"Pentium 4"*)
+	    cpuinfo_cpu=pentium4 ;;
+	  *"Pentium M"*)
+	    cpuinfo_cpu=pentium-m ;;
+	  15/*)
+	    cpuinfo_cpu=pentium4 ;;
+	  6/9/*)
 	    cpuinfo_cpu=pentium4 ;;
 	esac
 	;;
@@ -294,6 +298,8 @@ if test "$GXX" = yes; then
       CXX_MACH_FLAGS="-march=pentium3 -mfpmath=sse -msse" ;;
     i786|pentium4)
       CXX_MACH_FLAGS="-march=pentium4 -mfpmath=sse -msse2" ;;
+    pentium-m)
+      CXX_MACH_FLAGS="-march=pentium-m -mfpmath=sse -msse2" ;;
     *)
       CXX_MACH_FLAGS="";;
   esac
