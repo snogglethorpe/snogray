@@ -27,6 +27,7 @@
 #include "rusage.h"
 #include "string-funs.h"
 #include "progress.h"
+#include "globals.h"
 
 #include "scene.h"
 #include "camera.h"
@@ -498,7 +499,7 @@ int main (int argc, char *const *argv)
   unsigned width = 640, height = 480;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
-  bool quiet = false, recover = false;
+  bool recover = false;
   Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
   Params image_params, render_params;

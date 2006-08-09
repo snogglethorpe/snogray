@@ -12,10 +12,12 @@
 #include <iostream>
 #include <fstream>
 
-#include "tripar-isec.h"
+#include "globals.h"
 #include "excepts.h"
-#include "tessel.h"
 #include "string-funs.h"
+
+#include "tripar-isec.h"
+#include "tessel.h"
 
 #include "mesh.h"
 
@@ -505,8 +507,9 @@ Mesh::compute_vertex_normals (float max_angle)
 void
 Mesh::add_to_space (Space &space)
 {
-  if (triangles.size () > 10000)
-    std::cout << "* adding mesh: " << commify (vertices.size ()) << " vertices"
+  if (!quiet && triangles.size () > 50000)
+    std::cout << "* adding large mesh: "
+	      << commify (vertices.size ()) << " vertices"
 	      << ", " << commify (triangles.size ()) << " triangles"
 	      << std::endl;
 

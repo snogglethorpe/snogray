@@ -11,7 +11,9 @@
 
 #include <iostream>
 
+#include "globals.h"
 #include "excepts.h"
+
 #include "image-input.h"
 #include "image-output.h"
 
@@ -89,7 +91,7 @@ TupleMatrixData::load (const std::string &filename, const Params &params,
   // 6K x 3K image requires 216 MB of memory unpacked!), so tell the user
   // what we're doing.
   //
-  if (width * height > 1024 * 1024)
+  if (!quiet && width * height > 1024 * 1024)
     {
       std::string bn = filename;
       unsigned last_slash = bn.find_last_of ("/");
