@@ -72,12 +72,12 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		 \
 	cook-torrance.cc cook-torrance.h coords.h cubemap.cc cubemap.h	 \
 	envmap.cc envmap.h excepts.h far-light.cc far-light.h fresnel.h	 \
-	glass.cc glass.h global-tstate.h glow.cc glow.h grid.cc grid.h	 \
-	intersect.cc intersect.h lambert.cc lambert.h light.h		 \
-	lsamples.cc lsamples.h material.cc material.h matrix4.h		 \
-	matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc medium.h mesh.cc	 \
-	mesh.h mesh-load.cc mirror.cc mirror.h octree.cc octree.h	 \
-	phong.cc phong.h plastic.cc plastic.h point-light.cc		 \
+	glass.cc glass.h global-tstate.h globals.cc globals.h glow.cc	 \
+	glow.h grid.cc grid.h intersect.cc intersect.h lambert.cc	 \
+	lambert.h light.h lsamples.cc lsamples.h material.cc material.h	 \
+	matrix4.h matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc medium.h	 \
+	mesh.cc mesh.h mesh-load.cc mirror.cc mirror.h octree.cc	 \
+	octree.h phong.cc phong.h plastic.cc plastic.h point-light.cc	 \
 	point-light.h pos.h progress.cc progress.h rand.h ray.cc ray.h	 \
 	rect-light.cc rect-light.h render.cc render.h render-cmdline.h	 \
 	renderer.cc renderer.h sample2.h sample2-gen.h sample-ray.h	 \
@@ -142,8 +142,8 @@ endif
 #
 
 libsnogmisc_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
-	color.h freelist.cc freelist.h globals.cc globals.h llist.h	\
-	params.cc params.h ref.h rusage.h string-funs.cc string-funs.h
+	color.h freelist.cc freelist.h llist.h params.cc params.h ref.h	\
+	rusage.h string-funs.cc string-funs.h
 
 
 ################################################################
