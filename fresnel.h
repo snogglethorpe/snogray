@@ -108,8 +108,16 @@ public:
 	float nc1 = ior.n * cos_refl_angle;
 	float nc2 = ior.n * cos_trans_angle;
 
-	Fs = (nc1 - cos_trans_angle) / (nc1 + cos_trans_angle);
-	Fp = (cos_refl_angle - nc2) / (cos_refl_angle + nc2);
+	// XXX The following conditionals protect against zero-divide by
+	// making the result zero in that case; but they seem wrong -- as
+	// the denominator _approaches_ zero, we'll return a very large
+	// value, which seems bizarre ... shouldn't we always return 0-1?
+
+	float Fs_den = nc1 + cos_trans_angle;
+	Fs = (Fs_den == 0) ? 0 : (nc1 - cos_trans_angle) / Fs_den;
+
+	float Fp_den = cos_refl_angle + nc2;
+	Fp = (Fp_den == 0) ? 0 : (cos_refl_angle - nc2) / Fp_den;
       }
     else
       {
