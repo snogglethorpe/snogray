@@ -167,11 +167,11 @@ public:
 
   const_iterator end () const {return const_iterator(*this, 0, matrix->height);}
 
-private:
-
   // Matrix holding data for this texture.
   //
   Ref<TupleMatrix<T> > matrix;
+
+private:
 
   const MatrixTex2Interp interp;
 };
