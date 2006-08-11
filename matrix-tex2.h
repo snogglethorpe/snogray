@@ -115,40 +115,43 @@ private:
   template<class MT>
   struct Iter
   {
-    Iter (MT &_mat, unsigned _x = 0, unsigned _y = 0)
-      : mat (_mat), x (_x), y (_y)
+    Iter (MT &_mat, unsigned x = 0, unsigned y = 0)
+      : mat (_mat), _x (x), _y (y)
     { }
 
     // This is intended for normal-to-const iterator conversion.
     //
     template<class MT2>
-    Iter (const Iter<MT2> &i2) : mat (i2.mat), x (i2.x), y (i2.y) { }
+    Iter (const Iter<MT2> &i2) : mat (i2.mat), _x (i2._x), _y (i2._y) { }
 
     Iter &operator++ ()
     {
-      if (++x == mat.matrix->width)
+      if (++_x == mat.matrix->width)
 	{
-	  x = 0;
-	  ++y;
+	  _x = 0;
+	  ++_y;
 	}
       return *this;
     }
 
-    bool operator== (const Iter &i2) const { return x == i2.x && y == i2.y; }
-    bool operator!= (const Iter &i2) const { return x != i2.x || y != i2.y; }
+    bool operator== (const Iter &i2) const { return _x == i2._x && _y == i2._y; }
+    bool operator!= (const Iter &i2) const { return _x != i2._x || _y != i2._y; }
 
-    UV uv () const { return mat.interp.map (x, y); }
+    UV uv () const { return mat.interp.map (_x, _y); }
+
+    unsigned x () const { return _x; }
+    unsigned y () const { return _y; }
 
     // Returns the value of the texture where the iterator points;
     // slightly faster than doing a normal texture lookup.
     //
-    T val () const { return mat.matrix (x, y); }
+    T val () const { return mat.matrix->get (_x, _y); }
 
-    void set (const T &val) const { mat.matrix->put (x, y, val); }
+    void set (const T &val) const { mat.matrix->put (_x, _y, val); }
 
     MT &mat;
 
-    unsigned x, y;
+    unsigned _x, _y;
   };
 
   friend class iterator;
