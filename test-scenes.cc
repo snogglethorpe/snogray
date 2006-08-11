@@ -1600,9 +1600,10 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   const Material *off_white
     = scene.add (new Material (Color (0.8, 0.8, 0.8),
 			       cook_torrance (0.8, 0.5, 5)));
-  const Material *gloss_white
-    = scene.add (new Material (Color (0.8, 0.8, 0.8),
-			       cook_torrance (0.4, 0.1, 2)));
+  const Material *gloss_warm_grey
+    = scene.add (new Material (0.5, cook_torrance (0.5, 0.03, 2)));
+  const Material *semigloss_white
+    = scene.add (new Material (0.9, cook_torrance (0.1, 0.05, 2)));
   const Material *gloss_blue
     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
@@ -1634,7 +1635,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 7:
       obj_mat = off_white; break;
     case 8:
-      obj_mat = gloss_white; break;
+      obj_mat = gloss_warm_grey; break;
     case 9:
       obj_mat = gloss_blue; break;
     }
