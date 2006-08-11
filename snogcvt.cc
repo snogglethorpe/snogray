@@ -178,7 +178,7 @@ int main (int argc, char *const *argv)
       src.read_row (src_row);
 
       for (unsigned x = 0; x < src.width; x++)
-	dst.add_sample ((x + 0.5) * x_scale, (y + 0.5) * y_scale, src_row[x]);
+	dst.add_sample ((x + 0.5f) * x_scale, (y + 0.5f) * y_scale, src_row[x]);
     }
 }
 

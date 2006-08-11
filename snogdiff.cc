@@ -139,7 +139,7 @@ int main (int argc, char *const *argv)
 	  Color::component_t r = abs (p.r()), g = abs (p.g()), b = abs (p.b());
 	  p.set_rgb (r, g, b);
 
-	  dst.add_sample (x + 0.5, y + 0.5, p);
+	  dst.add_sample (x + 0.5f, y + 0.5f, p);
 	}
     }
 }
