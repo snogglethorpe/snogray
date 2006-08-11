@@ -91,7 +91,8 @@ TupleMatrixData::load (const std::string &filename, const Params &params,
   // 6K x 3K image requires 216 MB of memory unpacked!), so tell the user
   // what we're doing.
   //
-  if (!quiet && width * height > 1024 * 1024)
+  bool emit_size_note = (!quiet && width * height > 1024 * 1024);
+  if (emit_size_note)
     {
       std::string bn = filename;
       unsigned last_slash = bn.find_last_of ("/");
@@ -102,7 +103,8 @@ TupleMatrixData::load (const std::string &filename, const Params &params,
       std::cout << "* loading large image: " << bn
 		<< " (" << width << " x " << height << ", "
 		<< (width * height * tuple_len * sizeof (float) / (1024 * 1024))
-		<< " MB" << ")" << std::endl;
+		<< " MB" << ")...";
+      std::cout.flush ();
     }
 
   data.resize (tuple_len * width * height);
@@ -121,6 +123,12 @@ TupleMatrixData::load (const std::string &filename, const Params &params,
 	  set_pixel (b, y + border, 0);
 	  set_pixel (width - b, y + border, 0);
 	}
+    }
+
+  if (emit_size_note)
+    {
+      std::cout << "done" << std::endl;
+      std::cout.flush ();
     }
 }
 
