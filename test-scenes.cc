@@ -358,25 +358,30 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
   const Material *glass = scene.add (new Glass (1.5));
+  const Material *gloss_neutral_grey
+    = scene.add (new Material (0.5, cook_torrance (0.5, 0.03, 2)));
+  const Material *semigloss_white
+    = scene.add (new Material (0.9, cook_torrance (0.1, 0.05, 2)));
+  const Material *semigloss_off_white
+    = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
 
   const Material *teapot_mat = 0;
   switch ((num / 1000) % 10)
     {
     case 0: default:
-      teapot_mat = silver;
-      break;
-
+      teapot_mat = silver; 	break;
     case 1:
-      teapot_mat = matte_silver;
-      break;
-
+      teapot_mat = matte_silver;break;
     case 2:
-      teapot_mat = gloss_blue;
-      break;
-
+      teapot_mat = gloss_blue; 	break;
     case 3:
-      teapot_mat = glass;	// surface is not closed, so a bit dodgy
-      break;
+      teapot_mat = glass; 	break; // a bit dodgy, as surface is not closed
+    case 4:
+      teapot_mat = gloss_neutral_grey; break;
+    case 5:
+      teapot_mat = semigloss_off_white; break;
+    case 6:
+      teapot_mat = semigloss_white; break;
     }
 
   string mesh_file = arg.empty() ? "teapot.msh" : arg;
@@ -1597,13 +1602,10 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   const Material *dull_grey
     = scene.add (new Material (Color (0.2, 0.2, 0.2),
 			       cook_torrance (0.8, 0.5, 5)));
-  const Material *off_white
-    = scene.add (new Material (Color (0.8, 0.8, 0.8),
-			       cook_torrance (0.8, 0.5, 5)));
-  const Material *gloss_warm_grey
+  const Material *gloss_neutral_grey
     = scene.add (new Material (0.5, cook_torrance (0.5, 0.03, 2)));
-  const Material *semigloss_white
-    = scene.add (new Material (0.9, cook_torrance (0.1, 0.05, 2)));
+  const Material *semigloss_off_white
+    = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
   const Material *gloss_blue
     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
 			     cook_torrance (0.4, 0.3, 4)));
@@ -1633,9 +1635,9 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 6:
       obj_mat = mirror; break;
     case 7:
-      obj_mat = off_white; break;
+      obj_mat = semigloss_off_white; break;
     case 8:
-      obj_mat = gloss_warm_grey; break;
+      obj_mat = gloss_neutral_grey; break;
     case 9:
       obj_mat = gloss_blue; break;
     }
