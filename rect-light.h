@@ -38,14 +38,6 @@ public:
   virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
     const;
 
-  // Modify the value of the BRDF samples in SAMPLES from FROM to TO,
-  // according to the light's intensity in the sample's direction.
-  //
-  virtual void filter_samples (const Intersect &isec, SampleRayVec &samples,
-			       SampleRayVec::iterator from,
-			       SampleRayVec::iterator to)
-    const;
-
   // Location and size of the light.
   //
   Pos pos;

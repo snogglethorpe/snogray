@@ -9,7 +9,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "ray.h"
 #include "intersect.h"
 
 #include "point-light.h"
@@ -31,37 +30,6 @@ PointLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
       dist_t dist = lvec.length ();
       samples.add_light (color / (dist * dist), lvec.unit(), dist, this);
     }
-}
-
-// Modify the value of the BRDF samples in SAMPLES from FROM to TO,
-// according to the light's intensity in the sample's direction.
-//
-void
-PointLight::filter_samples (const Intersect &isec, SampleRayVec &,
-			    SampleRayVec::iterator from,
-			    SampleRayVec::iterator to)
-  const
-{
-  // Unlikely to be much use (because very few samples will hit a point
-  // light), but try...
-
-  Vec lvec = pos - isec.point;
-  dist_t dist = lvec.length ();
-
-  for (SampleRayVec::iterator s = from; s != to; s++)
-    if (dist < s->dist || s->dist == 0)
-      {
-	Vec samp_targ = s->dir * dist;
-
-	dist_t dx = pos.x - samp_targ.x;
-	dist_t dy = pos.y - samp_targ.y;
-	dist_t dz = pos.z - samp_targ.z;
-
-	if (dx < Eps && dx > -Eps
-	    && dy < Eps && dy > -Eps
-	    && dz < Eps && dz > -Eps)
-	  s->set_light (color / (dist * dist), dist, this);
-      }
 }
 
 

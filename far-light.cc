@@ -9,7 +9,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "ray.h"
 #include "intersect.h"
 #include "rand.h"
 #include "scene.h"
@@ -114,20 +113,6 @@ FarLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 	  v_offs += 1;
 	}
     }
-}
-
-// Modify the value of the BRDF samples in SAMPLES from FROM to TO,
-// according to the light's intensity in the sample's difarion.
-//
-void
-FarLight::filter_samples (const Intersect &, SampleRayVec &,
-			  SampleRayVec::iterator from,
-			  SampleRayVec::iterator to)
-  const
-{
-  for (SampleRayVec::iterator s = from; s != to; s++)
-    if (s->dist == 0 && dot (dir, s->dir) <= max_cos)
-      s->set_light (color, Scene::DEFAULT_HORIZON, this);
 }
 
 

@@ -9,12 +9,9 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <stdexcept>
-
-#include "snogmath.h"
-#include "ray.h"
-#include "intersect.h"
 #include "rand.h"
+#include "snogmath.h"
+#include "intersect.h"
 
 #include "sphere-light.h"
 
@@ -56,60 +53,6 @@ SphereLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 
       if (NL > 0)
 	samples.add_light (power_per_sample / (dist * dist), L, dist, this);
-    }
-}
-
-// Modify the value of the BRDF samples in SAMPLES from FROM to TO,
-// according to the light's intensity in the sample's disphereion.
-//
-void
-SphereLight::filter_samples (const Intersect &isec, SampleRayVec &,
-			     SampleRayVec::iterator from,
-			     SampleRayVec::iterator to)
-  const
-{
-  const Pos &org = isec.point;
-  const Vec diff = org - pos;
-
-  for (SampleRayVec::iterator s = from; s != to; s++)
-    {
-      const Vec &dir = s->dir;	   // must be a unit vector
-      float dir_dir = dot (dir, dir); // theoretically, exactly 1; in
-				      // practice, not _quite_
-      float dir_diff = dot (dir, diff);
-      float determ
-	= (dir_diff * dir_diff) - dir_dir * (dot (diff, diff) - (radius * radius));
-
-      float dist = 0;
-      if (determ >= 0)
-	{
-	  float common = -dir_diff / dir_dir;
-
-	  if (determ > 0 || common <= 0)
-	    {
-	      float determ_factor = sqrt (determ) / dir_dir;
-	      float t0 = common - determ_factor;
-	      float t1 = common + determ_factor;
-
-	      if (t0 > 0)
-		dist = t0;
-	      else if (t1 > 0)
-		dist = t1;
-	    }
-	}
-
-      if (dist > 0 && (dist < s->dist || s->dist == 0))
-	{
-	  Vec normal = (diff + dir * dist).unit ();
-
-	  // This expression is basically:
-	  //
-	  //   -cos (light_norm, sublight_lvec)) / distance^2
-	  //
-	  Color::component_t scale = abs (dot (normal, dir)) / (dist * dist);
-
-	  s->set_light (power_per_sample * scale, dist, this);
-	}
     }
 }
 

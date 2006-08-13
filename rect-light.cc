@@ -9,10 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "ray.h"
-#include "intersect.h"
 #include "rand.h"
-#include "tripar-isec.h"
+#include "intersect.h"
 
 #include "rect-light.h"
 
@@ -93,36 +91,6 @@ RectLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 	    }
 
 	  v_offs += v_step;	       // step to next grid point in v direction
-	}
-    }
-}
-
-// Modify the value of the BRDF samples in SAMPLES from FROM to TO,
-// according to the light's intensity in the sample's direction.
-//
-void
-RectLight::filter_samples (const Intersect &isec, SampleRayVec &,
-			   SampleRayVec::iterator from,
-			   SampleRayVec::iterator to)
-  const
-{
-  const Pos &org = isec.point;
-
-  for (SampleRayVec::iterator s = from; s != to; s++)
-    {
-      dist_t u, v;
-      dist_t dist
-	= parallelogram_intersect (pos, side1, side2, org, s->dir, u, v);
-
-      if (dist > 0 && (dist < s->dist || s->dist == 0))
-	{
-	  // This expression is basically:
-	  //
-	  //   -cos (light_norm, sublight_lvec)) / distance^2
-	  //
-	  Color::component_t scale = fabs (dot (normal, s->dir)) / (dist * dist);
-
-	  s->set_light (power * scale, dist, this);
 	}
     }
 }
