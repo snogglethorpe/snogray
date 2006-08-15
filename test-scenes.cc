@@ -593,9 +593,8 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
   add_cube (scene, grey, Pos (-tw / 2, -1, -tw / 2),
 	    Vec (tw, 0, 0), Vec (0, -tw, 0), Vec (0, 0, tw));
 
-  unsigned fancy_type = (num % 10);
+  unsigned saturation = (num % 10);
   unsigned lighting = ((num / 10) % 10);
-  unsigned saturation = ((num / 100) % 10);
 
   switch (lighting)
     {
@@ -706,49 +705,20 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
       switch (saturation)
 	{
 	default:
-	case 0: pastel = (pastel + 0.2) / 1.2; break;
+	case 0: /* nothing */ break;
 	case 1: pastel = (pastel + 1) / 2; break;
-	case 2: /* nothing */ break;
+	case 2: pastel = (pastel + 0.2) / 1.2; break;
 	}
 
       float spec = powf (1.5f, float (i) - float (num_balls * 0.75));
 
       const Material *mat;
-      switch (fancy_type == 2 ? 0 : (i % 3))
-	{
-	case 0:
-	default:
-	  mat = new Material (col * 0.7, cook_torrance (0.3, spec));
-	  break;
-
-	case 1:
-	  mat = new Material (0, cook_torrance (pastel, spec, Ior (0.25, 3)));
-
-// 	  mat = new Mirror (Ior (0.25, 3), 0.9 * pastel, 0,
-// 			    cook_torrance (pastel, spec, Ior (0.25, 3)));
-
-// 	  if (fancy_type == 0)
-// 	    // Reflective with slightly fuzz around highlights
-// 	    //
-// 	    mat = new Mirror (Ior (0.25, 3), 0.9 * pastel, 0.2 * pastel,
-// 			      cook_torrance (0.8 * pastel, 0.1, Ior (0.25, 3)));
-// 	  else
-// 	    // Purely reflective
-// 	    //
-// 	    mat = new Mirror (Ior (0.25, 3), pastel);
-	  break;
-
-	case 2:
-	  if ((i / 3) % 2 == 0)
-	    mat = new Glass (Medium (1.5, (base_col + 0.2) / 1.2));
-	  else
-	    mat = new Mirror (Ior (0.25, 3), 0.9 * pastel, 0,
-			      cook_torrance (pastel, 0.1, Ior (0.25, 3)));
-	  break;
-	}
+      if (i % 3 == 1)
+	mat = new Glass (Medium (1.5, (base_col + 0.2) / 1.2));
+      else
+	mat = new Material (col * 0.7, cook_torrance (0.3, spec));
 
       scene.add (mat);
-
       scene.add (new Sphere (mat, Pos (x, y, z), rad));
     }
 
