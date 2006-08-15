@@ -635,7 +635,9 @@ int main (int argc, char *const *argv)
 
 	    string recover_backup = rename_to_backup_file (file_name);
 
-	    cout << file_name << ": Backup in " << recover_backup << endl;
+	    if (! quiet)
+	      cout << "* recover: " << file_name
+		   << ": Backup in " << recover_backup << endl;
 	  }
 	catch (runtime_error &err)
 	  {
@@ -668,7 +670,9 @@ int main (int argc, char *const *argv)
       unsigned num_recovered = recover_image (recover_input, output);
       recover_input = 0;
 
-      cout << file_name << ": Recovered " << num_recovered << " rows" << endl;
+      if (! quiet)
+	cout << "* recover: " << file_name
+	     << ": Recovered " << num_recovered << " rows" << endl;
 
       if (num_recovered == limit_height)
 	{
