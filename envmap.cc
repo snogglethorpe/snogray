@@ -111,8 +111,10 @@ Snogray::make_envmap (const Ref<Image> &image, const string &_fmt)
 	   || fmt == "panorama" || fmt == "latitudelongitude")
     return new Spheremap<LatLongMapping> (image);
 
+#if 0
   else if (fmt == "mercator" || fmt == "cylinder" || fmt == "cylindrical")
     return new Spheremap<MercatorMapping> (image);
+#endif
 
   else if (fmt == "c" || fmt == "cube")
     return new Cubemap (image);

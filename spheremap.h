@@ -12,8 +12,7 @@
 #ifndef __SPHEREMAP_H__
 #define __SPHEREMAP_H__
 
-#include <memory>
-
+#include "excepts.h"
 #include "color.h"
 #include "uv.h"
 #include "matrix-tex2.h"
@@ -31,22 +30,50 @@ namespace Snogray {
 //
 struct LatLongMapping
 {
-  UV map (const Vec &dir) const
+  static UV map (const Vec &dir)
   {
     return UV ((dir.longitude () + M_PI) * M_1_PI * 0.5,
-	       (dir.latitude () + M_PI_2) / M_PI);
+	       (dir.latitude () + M_PI_2) * M_1_PI);
+  }
+
+  static Vec map (const UV &uv)
+  {
+    double lng = (uv.u - 0.5) * M_PI * 2;
+    double lat = (uv.v - 0.5) * M_PI;
+
+    double sin_lng = sin (lng), cos_lng = cos (lng);
+    double sin_lat = sin (lat), cos_lat = cos (lat);
+
+    return Vec (sin_lng * cos_lat, sin_lat, cos_lng * cos_lat);
+  }
+
+  // Returns the area on the sphere corresponding to a one-unit area at
+  // location UV in the texture.
+  //
+  static float sphere_area (UV uv)
+  {
+    return cos (uv.v * M_PIf - M_PI_2f);
   }
 };
 
+#if 0
 // Linear mapping of longitude to u, and y to v
 //
 struct MercatorMapping
 {
-  UV map (const Vec &dir) const
+  static UV map (const Vec &dir) const
   {
     return UV ((dir.longitude () + M_PI) * M_1_PI * 0.5, (dir.y + 1) * 0.5);
   }
+
+  static Vec map (const UV &uv) const
+  {
+    float theta = (uv.u - 0.5) * M_P * 2, phi = uv.v * M_PI;
+    float sin_phi = sin (phi);
+    return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
+  }
 };
+#endif
 
 // Mapping used by Paul Debevec's light-probe images.  As described on
 // his web page:
@@ -72,13 +99,21 @@ struct MercatorMapping
 //
 struct DebevecMapping
 {
-  UV map (const Vec &dir) const
+  static UV map (const Vec &dir)
   {
     tparam_t x = dir.x, y = dir.y, z = dir.z;
     tparam_t d = sqrt (x * x + y * y);
     tparam_t rpi = (d == 0) ? 0 : M_1_PIf * 0.5f * acos (z) / d;
 
     return UV (x * rpi + 0.5f, y * rpi + 0.5f);
+  }
+
+  static Vec map (const UV &uv)
+  {
+    double u = (uv.u - 0.5) * 2, v = (uv.v - 0.5) * 2;
+    float theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
+    float sin_phi = sin (phi);
+    return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
 };
 
@@ -88,13 +123,24 @@ struct DebevecMapping
 //
 struct MirrorBallMapping
 {
-  UV map (const Vec &dir) const
+  static UV map (const Vec &dir)
   {
     tparam_t x = dir.x, y = dir.y, z = dir.z;
     tparam_t d = sqrt (x * x + y * y);
     tparam_t rpi = (d == 0) ? 0 : 0.5f * sqrt (0.5f * (1 - z)) / d;
 
     return UV (x * rpi + 0.5f, y * rpi + 0.5f);
+  }
+
+  // XXXX this is not correct !!!!! XXXX
+  // (right now it's just a copy of DebevecMapping::map(UV))
+  //
+  static Vec map (const UV &uv)
+  {
+    double u = (uv.u - 0.5) * 2, v = (uv.v - 0.5) * 2;
+    float theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
+    float sin_phi = sin (phi);
+    return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
 };
 
@@ -116,7 +162,26 @@ public:
     return tex.map (uv.u, uv.v);
   }
 
+
+  // Return a "radiance-map" -- a lat-long format spheremap image
+  // containing radiance values of the environment map -- for this
+  // environment map.
+  //
+  virtual Ref<Image> radiance_map () const
+  {
+    throw std::runtime_error ("Spheremap::radiance_map");
+  }
+
 private:
+
+#if 0
+  virtual void fill (FillDst &dst) const
+  {
+    for (MatrixTex2<Color>::const_iterator p = tex.begin ();
+	 p != tex.end (); ++p)
+      dst.put (mapping.map (p.uv ()), p.val ());
+  }
+#endif
 
   // The texture wrapped around the sphere.
   //
@@ -124,6 +189,13 @@ private:
 
   Mapping mapping;
 };
+
+
+// Override the general definition of Spheremap::radiance_map for
+// LatLongMapping, as it can be done more efficiently.
+//
+template<>
+extern Ref<Image> Spheremap<LatLongMapping>::radiance_map () const;
 
 
 }

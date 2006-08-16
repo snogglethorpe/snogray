@@ -753,20 +753,28 @@ def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
   switch (lighting)
     {
     case 0:
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
+
+    case 1:
       // night-time orange
       add_bulb (scene, Pos (-3.1, 12.1, 9.8), 1, 80);
       add_bulb (scene, Pos (4.7, 3, 2), 0.2, 40 * Color (1, 1, 0.3));
       add_bulb (scene, Pos (-1, 4, -2), 0.2, 40 * Color (1, 1, 0.3));
       break;
 
-    case 1:
+    case 2:
       // day-time orange
       scene.add (new FarLight (Vec (-1, 1, 0.5), 0.05, 1));
       scene.add (new FarLight (Vec (0, 0, 1), 1, 1));
       scene.set_background (Color (0.078, 0.361, 0.753));
       break;
 
-    case 2:
+    case 3:
       // night-time orange 2
       add_rect_bulb (scene, Pos (6, 0, 2), Vec (0, 0, -3), Vec (0, 3, 0),
 		     2 * Color (1, 1, 0.3));
@@ -821,8 +829,16 @@ def_scene_cornell_box (unsigned num, const string &,
   coord_t left   = -1.2 * scale, right =  1.2 * scale;
   coord_t bottom =  0   * scale, top   =  2   * scale;
 
+  if (walls > 0)
+    front = -1;			// "half open"
+
+  // If true, omit the light, the back wall, and the ceiling.
+  //
+  bool open = walls > 1;
+  bool really_open = walls > 2;
+
   dist_t width   = right - left;
-  dist_t depth	 = rear - front;
+  dist_t depth	 = max (abs (rear), abs (front)) * 2;
   dist_t height  = top - bottom;
   coord_t mid_x  = left + width / 2;
   coord_t mid_z  = 0;
@@ -916,12 +932,7 @@ def_scene_cornell_box (unsigned num, const string &,
   const coord_t light_front = light_z - light_width / 2;
   const coord_t light_back  = light_z + light_width / 2;
 
-  // If true, omit the light, the back wall, and the ceiling.
-  //
-  bool open = walls != 0;
-  bool really_open = walls > 1;
-
-  if (! open)
+  if (!open && !scene.env_map)
     add_rect_bulb (scene, Pos (light_left, top + light_inset, light_front),
 		   Vec (light_width, 0, 0), Vec (0, 0, light_width),
 		   light_intens);
@@ -962,7 +973,7 @@ def_scene_cornell_box (unsigned num, const string &,
   if (floor == 0)
     add_rect (scene, wall_mat, LBF, LBR, RBR);
   else
-    add_chessboard (scene, max (width, depth) / 8, (num / 10 - 1) % 10);
+    add_chessboard (scene, 1.2 * max (width, depth) / 8, (num / 10 - 1) % 10);
 
   if (scene.env_map)
     fill_light = false;
@@ -1007,7 +1018,8 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   scene.add (new Sphere (mat1, Pos (0, 0, -0.866), 1));
   scene.add (new Sphere (mat2, Pos (1, 0, 0.866), 1));
   scene.add (new Sphere (mat3, Pos (-1, 0, 0.866), 1));
-  scene.add (new PointLight (Pos (0, 5, 0), 25));
+  if (! scene.env_map)		// defer to environmental lighting
+    scene.add (new PointLight (Pos (0, 5, 0), 25));
 }
 
 static void
@@ -1029,26 +1041,29 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
   // ground
   add_rect (scene, grey, Pos (-10, -1, -10), Vec (20, 0, 0), Vec (0, 0, 20));
 
-  // Small Area type light
-  scene.add (new PointLight (Pos (5, 5, 0), 8));
-  scene.add (new PointLight (Pos (5.1, 5, 0), 8));
-  scene.add (new PointLight (Pos (5.2, 5, 0), 8));
-  scene.add (new PointLight (Pos (5.3, 5, 0), 8));
-  scene.add (new PointLight (Pos (5, 5.1, 0), 8));
-  scene.add (new PointLight (Pos (5.1, 5.1, 0), 8));
-  scene.add (new PointLight (Pos (5.2, 5.1, 0), 8));
-  scene.add (new PointLight (Pos (5.3, 5.1, 0), 8));
-  scene.add (new PointLight (Pos (5, 5.2, 0), 8));
-  scene.add (new PointLight (Pos (5.1, 5.2, 0), 8));
-  scene.add (new PointLight (Pos (5.2, 5.2, 0), 8));
-  scene.add (new PointLight (Pos (5.3, 5.2, 0), 8));
-  scene.add (new PointLight (Pos (5, 5.3, 0), 8));
-  scene.add (new PointLight (Pos (5.1, 5.3, 0), 8));
-  scene.add (new PointLight (Pos (5.2, 5.3, 0), 8));
-  scene.add (new PointLight (Pos (5.3, 5.3, 0), 8));
+  if (! scene.env_map)		// defer to environmental lighting
+    {
+      // Small Area type light
+      scene.add (new PointLight (Pos (5, 5, 0), 8));
+      scene.add (new PointLight (Pos (5.1, 5, 0), 8));
+      scene.add (new PointLight (Pos (5.2, 5, 0), 8));
+      scene.add (new PointLight (Pos (5.3, 5, 0), 8));
+      scene.add (new PointLight (Pos (5, 5.1, 0), 8));
+      scene.add (new PointLight (Pos (5.1, 5.1, 0), 8));
+      scene.add (new PointLight (Pos (5.2, 5.1, 0), 8));
+      scene.add (new PointLight (Pos (5.3, 5.1, 0), 8));
+      scene.add (new PointLight (Pos (5, 5.2, 0), 8));
+      scene.add (new PointLight (Pos (5.1, 5.2, 0), 8));
+      scene.add (new PointLight (Pos (5.2, 5.2, 0), 8));
+      scene.add (new PointLight (Pos (5.3, 5.2, 0), 8));
+      scene.add (new PointLight (Pos (5, 5.3, 0), 8));
+      scene.add (new PointLight (Pos (5.1, 5.3, 0), 8));
+      scene.add (new PointLight (Pos (5.2, 5.3, 0), 8));
+      scene.add (new PointLight (Pos (5.3, 5.3, 0), 8));
 
-  // fill light
-  scene.add (new PointLight (Pos (-5, 1, -22), 100));
+      // fill light
+      scene.add (new PointLight (Pos (-5, 1, -22), 100));
+    }
 }
 
 static void
@@ -1083,10 +1098,13 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   scene.add (new Sphere (shinyGray, Pos (0, 0, 2.5), 1));
   scene.add (new Sphere (shinyWhite, Pos (2.5, 0, 0), 1));
 
-  scene.add (new PointLight (Pos (0, 10, 5), Color (50, 30, 30)));
-  scene.add (new PointLight (Pos (5, 10, 0), Color (30, 30, 50)));
-  scene.add (new PointLight (Pos (5, 10, 5), Color (30, 50, 30)));
-  scene.add (new PointLight (Pos (6, 6, 6), Color (25, 25, 25)));
+  if (! scene.env_map)		// defer to environmental lighting
+    {
+      scene.add (new PointLight (Pos (0, 10, 5), Color (50, 30, 30)));
+      scene.add (new PointLight (Pos (5, 10, 0), Color (30, 30, 50)));
+      scene.add (new PointLight (Pos (5, 10, 5), Color (30, 50, 30)));
+      scene.add (new PointLight (Pos (6, 6, 6), Color (25, 25, 25)));
+    }
 }
 
 void 
@@ -1136,6 +1154,13 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   switch ((variant / 10) % 10)
     {
     case 0:
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
+
     case 1:
       add_bulb (scene, Pos (0, 10, 0), .5, 250);
       add_bulb (scene, Pos (15, 2, 0), .5, 250);
@@ -1738,46 +1763,6 @@ add_scene_descs_mesh (vector<TestSceneDesc> &descs)
 
 
 
-static void
-def_scene_light (unsigned num, const string &arg, Scene &scene, Camera &)
-{
-  if (arg == "reset")
-    {
-      scene.lights.clear ();
-      return;
-    }
-
-  if (arg == "grace")
-    num = 8;
-  else if (arg == "rnl")
-    num = 9;
-
-  switch (num)
-    {
-    case 0:
-      scene.add (new PointLight (Pos (  10, 10,  0), 500));
-      break;
-
-    case 1:
-      add_rect_bulb (scene, Pos (-3, 5, -3), Vec (6, 0, 0), Vec (0, 0, 6), 5);
-      break;
-
-    case 2:
-      add_rect_bulb (scene, Pos (-7, 5, -7), Vec (14, 0, 0), Vec (0, 0, 14), 2);
-      break;
-
-    case 3:
-      add_rect_bulb (scene, Pos (7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
-      break;
-
-    case 4:
-      scene.add (new FarLight (Vec (1, 1, -0.5), 0.05, 6));
-      break;
-    }
-}
-
-
-
 void
 Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
@@ -1825,8 +1810,6 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_pretty_dancer (num, arg, scene, camera);
   else if (name == "tessel")
     def_scene_tessel (num, arg, scene, camera);
-  else if (name == "light")
-    def_scene_light (num, arg, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }

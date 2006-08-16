@@ -38,7 +38,15 @@ public:
   void load (std::istream &stream, const std::string &filename_pfx);
   void load (const Ref<Image> &image);
 
+  // Return the color of this environment map in direction DIR.
+  //
   virtual Color map (const Vec &dir) const;
+
+  // Return a "radiance-map" -- a lat-long format spheremap image
+  // containing radiance values of the environment map -- for this
+  // environment map.
+  //
+  virtual Ref<Image> radiance_map () const;
 
 private:
 

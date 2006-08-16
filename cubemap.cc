@@ -64,6 +64,35 @@ Cubemap::map (const Vec &dir) const
 }
 
 
+
+// Return a "radiance-map" -- a lat-long format spheremap image
+// containing radiance values of the environment map -- for this
+// environment map.
+//
+Ref<Image>
+Cubemap::radiance_map () const
+{
+  throw std::runtime_error ("Cubemap::radiance_map");
+}
+
+#if 0
+void
+Cubemap::fill (FillDst &) const
+{
+  throw std::runtime_error ("Cubemap::fill");
+
+//   for (unsigne fnum = 0; fnum < 6; fnum++)
+//     {
+//       const Face &face = faces[fnum];
+//
+//       for (unsigned y = 0; y < face.tex.matrix.height; y++)
+//         for (unsigned x = 0; x < face.tex.matrix.width; x++)
+//           dst.put (mapping.map (tex.map_coords (x, y)));
+//     }
+}
+#endif
+
+
 // Cubemap general loading interface
 
 void
@@ -285,5 +314,6 @@ Cubemap::load (const Ref<Image> &image)
   faces[4].u_dir = Vec (1, 0, 0);
   faces[4].v_dir = Vec (0, 1, 0);
 }
+
 
 // arch-tag: 6f62ca7f-6a3e-47d7-a558-3f321b11fd70

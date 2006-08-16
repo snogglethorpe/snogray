@@ -16,6 +16,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "envmap.h"
+#include "envmap-light.h"
 #include "excepts.h"
 #include "glow.h"
 #include "image-io.h"
@@ -321,6 +322,17 @@ SceneDef::load (Scene &scene, Camera &camera)
 	  tag = "<standard input>";
 	throw runtime_error (tag + ": Error reading scene: " + err.what ());
       }
+
+  if (scene.env_map)
+    {
+      EnvmapLight *env_light = new EnvmapLight (*scene.env_map);
+
+      scene.add (env_light);
+
+      string env_light_dump_file = params.get_string ("env-light-dump-file");
+      if (! env_light_dump_file.empty ())
+	env_light->dump (env_light_dump_file, *scene.env_map);
+    }
 
   // Correct for bogus "gamma correction in lighting"
   //

@@ -26,7 +26,15 @@ public:
 
   virtual ~Envmap () { }
 
+  // Return the color of this environment map in direction DIR.
+  //
   virtual Color map (const Vec &dir) const = 0;
+
+  // Return a "radiance-map" -- a lat-long format spheremap image
+  // containing radiance values of the environment map -- for this
+  // environment map.
+  //
+  virtual Ref<Image> radiance_map () const = 0;
 };
 
 // Return an appropriate subclass of Envmap, initialized from SPEC
