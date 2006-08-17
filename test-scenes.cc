@@ -1763,6 +1763,42 @@ add_scene_descs_mesh (vector<TestSceneDesc> &descs)
 
 
 
+// This test scene is a modification of cs465-3.  It's useful for
+// testing environmental lighting.
+//
+static void
+def_scene_xsph (unsigned, const string &, Scene &scene, Camera &camera)
+{
+  camera.move (Pos (6, 6, 6));
+  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+
+  const Material *ct_black
+    = scene.add (new Material (0.02, cook_torrance (0.8, 0.1, 2)));
+  const Material *ct_grey
+    = scene.add (new Material (0.2, cook_torrance (0.8, 0.05, 2)));
+  const Material *mirror
+    = scene.add (new Mirror (Ior (0.25, 3), 0.95));
+  const Material *box_mat
+    = scene.add (new Material (Color (0.2, 0.3, 0.2)));
+  const Material *gray
+    = scene.add (new Material (0.6));
+	
+  // box
+  add_cube (scene, box_mat, Pos (-1, -1, -1),
+	    Vec (2, 0, 0), Vec (0, 2, 0), Vec (0, 0, 2));
+
+  // ground
+  add_rect (scene, gray, Pos (-10, -1, -10), Vec (20, 0, 0), Vec (0, 0, 20));
+
+  // spheres	
+  scene.add (new Sphere (ct_black, Pos (0, 2, 0), 1));
+  scene.add (new Sphere (ct_grey, Pos (0, 0, 2.5), 1));
+  scene.add (new Sphere (mirror, Pos (2.5, 0, 0), 1));
+}
+
+
+
+
 void
 Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
@@ -1810,6 +1846,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_pretty_dancer (num, arg, scene, camera);
   else if (name == "tessel")
     def_scene_tessel (num, arg, scene, camera);
+  else if (name == "xsph")
+    def_scene_xsph (num, arg, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }
