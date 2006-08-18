@@ -48,7 +48,15 @@ public:
   ~PpmImageSink ();
 
   virtual void write_row (const ImageRow &row);
-  virtual float max_intens () const;
+
+  virtual float max_intens () const { return 1; }
+
+  // Write previously written rows to disk, if possible.  This may flush
+  // I/O buffers etc., but will not in any way change the output (so for
+  // instance, it will _not_ flush the compression state of a PNG output
+  // image, as that can make the resulting compression worse).
+  //
+  virtual void flush () { fflush (stream); }
 
   // Floating-point to pixval conversion
   pixval color_component_to_pixval (Color::component_t com)

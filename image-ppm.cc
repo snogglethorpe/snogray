@@ -66,12 +66,6 @@ PpmImageSink::write_row (const ImageRow &row)
   ppm_writeppmrow (stream, output_row, width, max_pixval, force_plain);
 }
 
-float
-PpmImageSink::max_intens () const
-{
-  return 1;
-}
-
 
 // Input
 
