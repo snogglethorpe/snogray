@@ -1448,16 +1448,15 @@ bool Snogray::tessel_smooth = true;
 static void
 def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
-  unsigned lighting = num / 10;
-  num %= 10;
+  unsigned mat_num = 	 num % 10;
+  unsigned lighting =	 (num / 10) % 10;
+  unsigned perturb_num = (num / 100) % 10;
 
   coord_t height = -1.2;
   coord_t cheight = 0;
 
   camera.move (Pos (3, cheight + 0.25, -5));
   camera.point (Pos (0, -0.5, 0), Vec (0, 1, 0));
-
-  num %= 10;
 
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
@@ -1469,7 +1468,7 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
 
   const Material *mat;
   float light_intens = 100;
-  switch (num % 4)
+  switch (mat_num)
     {
     case 0:
     default:
@@ -1484,13 +1483,12 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
     }
 
-  num /= 4;
-
   Tessel::ConstMaxErr max_err (tessel_accur);
 
-  // Sphere and torus accept a "perburb" factor
+  // Sphere and torus accept a "perturb" factor
+  //
   dist_t perturb = 0;
-  switch (num)
+  switch (perturb_num)
     {
     case 1: perturb = 0.001; break;
     case 2: perturb = 0.002; break;
