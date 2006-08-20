@@ -59,6 +59,13 @@ public:
     if (smooth)
       compute_vertex_normals ();
   }
+  Mesh (const Material *mat, const std::string &file_name, bool smooth)
+    : Surface (mat), left_handed (true)
+  {
+    load (file_name);
+    if (smooth)
+      compute_vertex_normals ();
+  }
   Mesh (const Material *mat, const std::string &file_name,
 	const Xform &xform, const std::string &mat_name)
     : Surface (mat), left_handed (true)
@@ -101,6 +108,13 @@ public:
   vert_index_t add_vertex (const MPos &pos, const MVec &normal,
 			   VertexNormalGroup &vgroup);
 
+  // Add NORMAL as the vertex normal for the previously-added vertex at
+  // VERT_INDEX.  In certain cases where not all vertices have explicit
+  // normals, new vertices can be added by implicit mesh smoothing; the
+  // actual index where NORMAL was added is returned.
+  //
+  vert_index_t add_normal (vert_index_t vert_index, const MVec &normal);
+
   // Add the results of tessellating TESSEL_FUN with MAX_ERR.
   //
   void add (const Tessel::Function &tessel_fun,
@@ -137,6 +151,19 @@ public:
 
   unsigned num_vertices () const { return vertices.size (); }
   unsigned num_triangles () const { return triangles.size (); }
+
+  // Resize the internal data structures in advance for NUM_VERTS more
+  // vertices and normals (if WITH_NORMALS is true), and NUM_TRIS more
+  // triangles.
+  //
+  void reserve (unsigned num_verts, unsigned num_tris,
+		bool with_normals = false)
+  {
+    vertices.reserve (num_vertices() + num_verts);
+    triangles.reserve (num_triangles() + num_tris);
+    if (with_normals)
+      vertex_normals.reserve (num_vertices() + num_verts);
+  }
 
   // Return a bounding box for the entire mesh
   //

@@ -104,6 +104,33 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal, VertexNormalGroup &vgroup
 }
 
 
+// Add just a normal
+
+// Add NORMAL as the vertex normal for the previously-added vertex at
+// VERT_INDEX.  In certain cases where not all vertices have explicit
+// normals, new vertices can be added by implicit mesh smoothing; the
+// actual index where NORMAL was added is returned.
+//
+Mesh::vert_index_t
+Mesh::add_normal (vert_index_t vert_index, const MVec &normal)
+{
+  // Make sure the vertex_normals vector contains entries for all previous
+  // vertices (the effect of this is that if a mesh contains vertices with
+  // explicit normals, all triangles will have interpolated normals, even
+  // those using vertices with implicit normals).
+  //
+  if (vertex_normals.size() < vert_index)
+    {
+      compute_vertex_normals ();
+      vert_index = vertices.size (); // compute_vertex_normals can add vertices
+    }
+
+  vertex_normals.push_back (normal);
+
+  return vert_index;
+}
+
+
 // Add a triangle to the mesh
 
 void
@@ -507,6 +534,11 @@ Mesh::compute_vertex_normals (float max_angle)
 void
 Mesh::add_to_space (Space &space)
 {
+  // Shrink the allocated space in the various vectors to the amount
+  // actually needed.
+  //
+  
+
   if (!quiet && triangles.size () > 50000)
     std::cout << "* adding large mesh: "
 	      << commify (vertices.size ()) << " vertices"

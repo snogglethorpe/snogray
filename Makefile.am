@@ -44,8 +44,8 @@ DEBUG = -g
 # can also use them to override our optimization choice.  CXX_CHECK_FLAGS
 # is set by automake/autoconf.
 #
-CFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS)
-CXXFLAGS = $(CFLAGS)
+CFLAGS = $(OPT) $(DEBUG)
+CXXFLAGS = $(CFLAGS) $(CXX_CHECK_FLAGS)
 
 # Other flags we pass via AM_CXXFLAGS
 #
@@ -95,6 +95,8 @@ libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		 \
 # Library dependencies of libsnogrender.a
 #
 RENDER_LIBS =
+
+libsnogrender_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
 
 if have_lib3ds
   libsnogrender_a_SOURCES += load-3ds.cc load-3ds.h

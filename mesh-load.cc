@@ -21,6 +21,7 @@
 #ifdef HAVE_LIB3DS
 # include "load-3ds.h"
 #endif
+#include "load-ply.h"
 
 #include "mesh.h"
 
@@ -33,33 +34,45 @@ using namespace std;
 void
 Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
 {
-  unsigned ext_pos = file_name.find_last_of (".");
-
-  if (ext_pos == std::string::npos)
-    throw runtime_error ("No filename extension to determine mesh file format");
-
-  string fmt = downcase (file_name.substr (ext_pos + 1));
-
-  // First look for formats that want to open the file themselves.
-  //
-#ifdef HAVE_LIB3DS
-  if (fmt == "3ds")
-    load_3ds_file (file_name, *this, xform);
-  else
-#endif
-    // Try to open the stream, and then look for formats that want a stream.
-    //
+  try
     {
-      ifstream stream (file_name.c_str());
+      unsigned ext_pos = file_name.find_last_of (".");
 
-      if (! stream)
-	throw file_error (string ("Cannot open mesh file: ")
-			  + strerror (errno));
+      if (ext_pos == std::string::npos)
+	throw runtime_error ("No filename extension to determine mesh format");
 
-      if (fmt == "msh" || fmt == "mesh")
-	load_msh_file (stream, xform, mat_name);
+      string fmt = downcase (file_name.substr (ext_pos + 1));
+
+      // First look for formats that want to open the file themselves.
+      //
+#ifdef HAVE_LIB3DS
+      if (fmt == "3ds")
+	load_3ds_file (file_name, *this, xform);
       else
-	throw (runtime_error (string ("Unknown mesh file format: ") + fmt));
+#endif
+
+	if (fmt == "ply")
+	  load_ply_file (file_name, *this, xform);
+
+	else
+	  // Try to open the stream, and then look for formats that want
+	  // a stream.
+	  //
+	  {
+	    ifstream stream (file_name.c_str());
+
+	    if (! stream)
+	      throw file_error (string (": ") + strerror (errno));
+
+	    if (fmt == "msh" || fmt == "mesh")
+	      load_msh_file (stream, xform, mat_name);
+	    else
+	      throw (runtime_error ("Unknown mesh file format: " + fmt));
+	  }
+    }
+  catch (runtime_error &err)
+    {
+      throw runtime_error (file_name + ": " + err.what ());
     }
 }
 
@@ -93,10 +106,7 @@ Mesh::load_msh_file (istream &stream, const Xform &xform,
       stream >> num_triangles;
 
       if (! skip)
-	{
-	  vertices.reserve (base_vert + num_vertices);
-	  triangles.reserve (vertices.size() + num_triangles);
-	}
+	reserve (num_vertices, num_triangles);
 
       stream >> kw;
       if (strcmp (kw, "vertices") != 0)
