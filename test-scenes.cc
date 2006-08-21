@@ -1794,6 +1794,87 @@ def_scene_xsph (unsigned, const string &, Scene &scene, Camera &camera)
   scene.add (new Sphere (mirror, Pos (2.5, 0, 0), 1));
 }
 
+
+
+// This scene is from the paper "Efficient BRDF Importance Sampling
+// Using a Factored Representation", by Jason Lawrence, Szymon
+// Rusinkiewicz, and Ravi Ramamoorthi.  They kindly provide models for
+// their test-scen to allow others to reproduce it.
+//
+static void
+def_scene_frep (unsigned num, const string &arg, Scene &scene, Camera &camera)
+{
+  camera.move (Pos (20.736, 3.9952, 0.3));
+  camera.point (Pos (0.0, 1.9952, 0.3), Vec (0, 1, 0));
+  camera.set_horiz_fov (M_PI_4f); // 45 deg; original scene used 22.5 deg?
+
+  // Currently snogray does not implement the factored BRDF algorithm
+  // (nor can it handle measured BRDFs in anyway), so these materials
+  // are just ad-hoc replacements.
+
+  const Material *table
+    = scene.add (new Material (0.1, cook_torrance (0.7, 0.2, 3)));
+  const Material *vase_red
+    = scene.add (new Material (Color (0.6, 0.1, 0.1),
+			       cook_torrance (0.4, 0.3, 3)));
+  const Material *metallic_blue
+    = scene.add (new Material (Color (0, 0, 0.05),
+			       cook_torrance (Color (0.05, 0.05, 0.8),
+					      0.2, Ior (0.25, 3))));
+  const Material *nickel
+    = scene.add (new Material (0, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
+  const Material *red_plastic
+    = scene.add (new Material (Color (0.6, 0.1, 0),
+			       cook_torrance (0.6, 0.1, 2)));
+  const Material *brown_plastic
+    = scene.add (new Material (Color (0.2, 0.15, 0),
+			       cook_torrance (0.6, 0.1, 2)));
+    
+
+  string pfx = arg;
+  if (!pfx.empty () && pfx[pfx.length () - 1] != '/')
+    pfx += "/";
+
+  Xform xform;
+  
+  xform.scale (1, 1, -1);	// flip z-axis
+
+  scene.add (new Mesh (table,		pfx + "table.ply", 	  xform, true));
+  scene.add (new Mesh (vase_red, 	pfx + "vase.ply", 	  xform, true));
+  scene.add (new Mesh (metallic_blue, 	pfx + "bowl.ply", 	  xform, true));
+  scene.add (new Mesh (nickel, 		pfx + "teapot_body.ply",  xform, true));
+  scene.add (new Mesh (brown_plastic, 	pfx + "teapot_handle.ply",xform, true));
+  scene.add (new Mesh (metallic_blue, 	pfx + "teapot_top.ply",   xform, true));
+  scene.add (new Mesh (nickel, 		pfx + "teapot_wire.ply",  xform, true));
+  scene.add (new Mesh (red_plastic, 	pfx + "teapot_bird.ply",  xform, true));
+
+  switch (num)
+    {
+    case 0:
+      // default
+      //
+      if (scene.env_map)
+	break;
+
+      // otherwise, fall through
+
+    case 1:
+      add_rect_bulb (scene, Pos (-3, 10, -3), Vec (6, 0, 0), Vec (0, 0, 6), 20);
+      break;
+
+    case 2:
+      add_rect_bulb (scene, Pos (-7, 10, -7), Vec(14, 0, 0), Vec(0, 0, 14), 10);
+      break;
+
+    case 3:
+      add_rect_bulb (scene, Pos (7, 0, -5), Vec (0, 0, 10), Vec (0, 4, 0), 10);
+      break;
+
+    case 4:
+      add_rect_bulb (scene, Pos (-1, 5, -1), Vec (2, 0, 0), Vec (0, 0, 2), 30);
+      break;
+    }
+}
 
 
 
@@ -1846,6 +1927,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_tessel (num, arg, scene, camera);
   else if (name == "xsph")
     def_scene_xsph (num, arg, scene, camera);
+  else if (name == "frep")
+    def_scene_frep (num, arg, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }
