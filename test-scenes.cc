@@ -336,58 +336,42 @@ add_scene_descs_pretty_bunny (vector<TestSceneDesc> &descs)
 
 
 
-static void
-def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
+static const Material *
+def_teapot_mat (Scene &scene, unsigned num)
 {
-  // The teapot and board meshes were originally produced as a .nff file by
-  // the SPD package, which uses Z as the vertical axis.  This transform
-  // mutates them into our preferred coordinate system.
-  //
-  Xform mesh_xform = Xform::x_rotation (-M_PI_2).scale (-1, 1, 1);
-
-  // Pot
-
-  const Material *silver
-//     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
-// 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
-    = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0,
-			     cook_torrance (1, 0.1, Ior (0.25, 3))));
-  const Material *matte_silver
-    = scene.add (new Material (0.1, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
-  const Material *gloss_blue
-    = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
-			     cook_torrance (0.4, 0.3, 4)));
-  const Material *glass = scene.add (new Glass (1.5));
-  const Material *gloss_neutral_grey
-    = scene.add (new Material (0.5, cook_torrance (0.5, 0.03, 2)));
-  const Material *semigloss_white
-    = scene.add (new Material (0.9, cook_torrance (0.1, 0.05, 2)));
-  const Material *semigloss_off_white
-    = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
-
-  const Material *teapot_mat = 0;
-  switch ((num / 1000) % 10)
+  switch (num)
     {
-    case 0: default:
-      teapot_mat = silver; 	break;
-    case 1:
-      teapot_mat = matte_silver;break;
-    case 2:
-      teapot_mat = gloss_blue; 	break;
-    case 3:
-      teapot_mat = glass; 	break; // a bit dodgy, as surface is not closed
-    case 4:
-      teapot_mat = gloss_neutral_grey; break;
-    case 5:
-      teapot_mat = semigloss_off_white; break;
-    case 6:
-      teapot_mat = semigloss_white; break;
+    case 0: default: // "silver"
+      return scene.add (new Mirror (Ior (0.25, 3), 0.9, 0,
+				    cook_torrance (1, 0.1, Ior (0.25, 3))));
+//     	scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
+// 		  	       cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+
+    case 1: // "nickel"
+      return
+	scene.add (new Material (0, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
+
+    case 2: // gloss_blue
+      return scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
+				    cook_torrance (0.4, 0.3, 4)));
+
+    case 3: // glass
+      return scene.add (new Glass (1.5));
+
+    case 4: // gloss_neutral_grey
+      return scene.add (new Material (0.5, cook_torrance (0.5, 0.03, 2)));
+
+    case 5: // semigloss_white
+      return scene.add (new Material (0.9, cook_torrance (0.1, 0.05, 2)));
+
+    case 6: // semigloss_off_white
+      return scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
     }
+}
 
-  string mesh_file = arg.empty() ? "teapot.msh" : arg;
-  Xform teapot_xform = mesh_xform * Xform::translation (Vec (0, -0.1, 0));
-  scene.add (new Mesh (teapot_mat, mesh_file, teapot_xform, true));
-
+static void
+def_teapot_stand (Scene &scene, unsigned num)
+{
   // Chessboard
   //
   add_chessboard (scene);
@@ -400,7 +384,7 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
   const Material *green
     = scene.add (new Material (Color (0.1, 0.5, 0.1)));
 
-  switch ((num / 100) % 10)
+  switch (num)
     {
     case 0:
       // Narrow grey "plinth"
@@ -419,8 +403,12 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
       add_rect (scene, green, Pos (-100, -3, -100), Vec (200, 0, 0), Vec (0, 0, 200));
       break;
     }
+}
 
-  switch ((num / 10) % 10)
+static void
+def_teapot_lighting (Scene &scene, unsigned num)
+{
+  switch (num)
     {
     case 0:
       // default
@@ -497,14 +485,22 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
 	dist_t bd = ld + 0.1, bh = 1 + lh + 1, bw = lw + 2;;
 	Vec bhv (0, bh, 0);
 
+	const Material *grey
+	  = scene.add (new Material (Color (0.3, 0.2, 0.2),
+				     cook_torrance (0.5, 0.2, Ior (1, 1))));
+
 	add_rect (scene, grey, Pos(-bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
 	add_rect (scene, grey, Pos( bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
 	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
       }
       break;
     }
+}
 
-  if (num % 10 > 0)
+static void
+def_teapot_props (Scene &scene, unsigned num)
+{
+  if (num > 0)
     {
       const Material *orange
 	= scene.add (new Material (Color (0.6,0.5,0.05), cook_torrance (0.4, 0.1)));
@@ -516,7 +512,7 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
 
       dist_t max_err = 0.0002;
 
-      switch (num % 10)
+      switch (num)
 	{
 	case 1:
 	  scene.add (tobj (TOBJ_SPHERE, gold, Pos (-3, 0, -2), 0.6, max_err));
@@ -553,10 +549,36 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
       scene.add (tobj (TOBJ_SINC,   yellow, Pos (2.2, 0, -3.1), 0.7, max_err));
       scene.add (tobj (TOBJ_SPHERE, red,    Pos (-2.3, 0, 1.7), 0.7, max_err));
     }
+}
 
+static void
+def_teapot_camera (Camera &camera)
+{
   camera.set_vert_fov (M_PI_4 * 0.9);
   camera.move (Pos (-4.86, 5.4, -7.2));
   camera.point (Pos (0, 0, 0.2), Vec (0, 1, 0));
+}
+
+static void
+def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
+{
+  string mesh_file = arg.empty() ? "teapot.msh" : arg;
+
+  // The teapot and board meshes were originally produced as a .nff file by
+  // the SPD package, which uses Z as the vertical axis.  This transform
+  // mutates them into our preferred coordinate system.
+  //
+  Xform mesh_xform = Xform::x_rotation (-M_PI_2).scale (-1, 1, 1);
+
+  const Material *mat = def_teapot_mat (scene, (num / 1000) % 10);
+
+  Xform teapot_xform = mesh_xform * Xform::translation (Vec (0, -0.1, 0));
+  scene.add (new Mesh (mat, mesh_file, teapot_xform, true));
+
+  def_teapot_stand (scene, (num / 100) % 10);
+  def_teapot_lighting (scene, (num / 10) % 10);
+  def_teapot_props (scene, num % 10);
+  def_teapot_camera (camera);
 }
 
 static void
@@ -784,7 +806,6 @@ def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
     }
 
   dist_t max_err = 0.0002;
-  bool smooth = true;
 
   const Material *mat;
   switch (num)
@@ -796,7 +817,7 @@ def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
     }
 
   scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 3, 0), 3, 0.002),
-		       Tessel::ConstMaxErr (max_err), smooth));
+		       Tessel::ConstMaxErr (max_err)));
 
   camera.set_vert_fov (M_PI_4 * 0.9);
   camera.move (Pos (4.86, 5.4, 7.2));
@@ -1878,6 +1899,56 @@ def_scene_frep (unsigned num, const string &arg, Scene &scene, Camera &camera)
 
 
 
+// A modification of frep, putting the frep pot in the teapot scene. :-)
+//
+static void
+def_scene_trep (unsigned num, const string &arg, Scene &scene, Camera &camera)
+{
+  const Material *nickel
+    = scene.add (new Material (0, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
+  const Material *metallic_blue
+    = scene.add (new Material (Color (0, 0, 0.05),
+			       cook_torrance (Color (0.05, 0.05, 0.8),
+					      0.2, Ior (0.25, 3))));
+  const Material *red_plastic
+    = scene.add (new Material (Color (0.6, 0.1, 0),
+			       cook_torrance (0.6, 0.1, 2)));
+  const Material *brown_plastic
+    = scene.add (new Material (Color (0.2, 0.15, 0),
+			       cook_torrance (0.6, 0.1, 2)));
+    
+  const Material *body_mat = def_teapot_mat (scene, (num / 1000) % 10);
+
+  string pfx = arg;
+  if (!pfx.empty () && pfx[pfx.length () - 1] != '/')
+    pfx += "/";
+
+  Xform flip_z;
+  flip_z.scale (1, 1, -1);	// flip z-axis
+
+  Mesh *pot = new Mesh ();
+  pot->load (pfx + "teapot_body.ply", flip_z, body_mat);
+  pot->load (pfx + "teapot_handle.ply", flip_z, brown_plastic);
+  pot->load (pfx + "teapot_top.ply", flip_z, metallic_blue);
+  pot->load (pfx + "teapot_wire.ply", flip_z, nickel);
+  pot->load (pfx + "teapot_bird.ply", flip_z, red_plastic);
+  pot->compute_vertex_normals ();
+
+  SXform pot_xform;
+  pot_xform.scale (2);
+  pot_xform.rotate_y (M_PIf * .75f);
+  normalize (pot, pot_xform);
+
+  scene.add (pot);
+
+  def_teapot_stand (scene, (num / 100) % 10);
+  def_teapot_lighting (scene, (num / 10) % 10);
+  def_teapot_props (scene, num % 10);
+  def_teapot_camera (camera);
+}
+
+
+
 void
 Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
@@ -1929,6 +2000,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_xsph (num, arg, scene, camera);
   else if (name == "frep")
     def_scene_frep (num, arg, scene, camera);
+  else if (name == "trep")
+    def_scene_trep (num, arg, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }
