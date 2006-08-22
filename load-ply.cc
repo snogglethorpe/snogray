@@ -45,9 +45,9 @@ rply_error_cb (const char *str)
 
 struct RplyState
 {
-  RplyState (Mesh &_mesh, const Xform &_xform)
+  RplyState (Mesh &_mesh, const Xform &_xform, const Material *_mat = 0)
     : mesh (_mesh), base_vert_index (mesh.num_vertices ()),
-      xform (_xform), norm_xform (xform.inverse().transpose()),
+      xform (_xform), norm_xform (xform.inverse().transpose()), mat (_mat),
       last_vert_index (0)
   { }
 
@@ -60,6 +60,8 @@ struct RplyState
   // A variant of XFORM suitable for transforming normals.
   //
   Xform norm_xform;
+
+  const Material *mat;
 
   double vals[3];
 
@@ -135,7 +137,8 @@ face_cb (p_ply_argument arg)
   if (n == 2)
     s->mesh.add_triangle (Mesh::vert_index_t (s->vals[0]) + s->base_vert_index,
 			  Mesh::vert_index_t (s->vals[1]) + s->base_vert_index,
-			  Mesh::vert_index_t (s->vals[2]) + s->base_vert_index);
+			  Mesh::vert_index_t (s->vals[2]) + s->base_vert_index,
+			  s->mat);
 
   return 1;
 }
@@ -144,11 +147,12 @@ face_cb (p_ply_argument arg)
 // Main loading function
 
 // Load mesh from a .ply format mesh file into MESH.  Geometry is first
-// transformed by XFORM.
+// transformed by XFORM.  If non-zero the material MAT will be used for
+// triangles loaded (otherwise MESH's default material will be used).
 //
 void
 Snogray::load_ply_file (const std::string &filename, Mesh &mesh,
-			const Xform &xform)
+			const Xform &xform, const Material *mat)
 {
   volatile p_ply ply = 0;
 
@@ -164,7 +168,7 @@ Snogray::load_ply_file (const std::string &filename, Mesh &mesh,
 
   ply_read_header (ply);
 
-  RplyState state (mesh, xform);
+  RplyState state (mesh, xform, mat);
   void *cookie = (void *)&state;
 
   unsigned nverts

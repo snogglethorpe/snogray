@@ -32,7 +32,8 @@ using namespace std;
 // Generic mesh-file loading
 
 void
-Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
+Mesh::load (const string &file_name, const Xform &xform, const Material *mat,
+	    const string &mat_name)
 {
   try
     {
@@ -52,7 +53,7 @@ Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
 #endif
 
 	if (fmt == "ply")
-	  load_ply_file (file_name, *this, xform);
+	  load_ply_file (file_name, *this, xform, mat);
 
 	else
 	  // Try to open the stream, and then look for formats that want
@@ -65,7 +66,7 @@ Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
 	      throw file_error (string (": ") + strerror (errno));
 
 	    if (fmt == "msh" || fmt == "mesh")
-	      load_msh_file (stream, xform, mat_name);
+	      load_msh_file (stream, xform, mat, mat_name);
 	    else
 	      throw (runtime_error ("Unknown mesh file format: " + fmt));
 	  }
@@ -80,7 +81,7 @@ Mesh::load (const string &file_name, const Xform &xform, const string &mat_name)
 // .msh mesh-file format
 
 void
-Mesh::load_msh_file (istream &stream, const Xform &xform,
+Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
 		     const string &mat_name)
 {
   char kw[50];
@@ -137,7 +138,8 @@ Mesh::load_msh_file (istream &stream, const Xform &xform,
 	  stream >> v2i;
 
 	  if (! skip)
-	    add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i);
+	    add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i,
+			  mat);
 	}
 
       stream >> kw;

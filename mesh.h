@@ -52,17 +52,10 @@ public:
   // All-in-one constructor for loading a mesh from FILE_NAME.
   //
   Mesh (const Material *mat, const std::string &file_name,
-	const Xform &xform = Xform::identity, bool smooth = false)
+	const Xform &xform = Xform::identity, bool smooth = true)
     : Surface (mat), left_handed (true)
   {
     load (file_name, xform);
-    if (smooth)
-      compute_vertex_normals ();
-  }
-  Mesh (const Material *mat, const std::string &file_name, bool smooth)
-    : Surface (mat), left_handed (true)
-  {
-    load (file_name);
     if (smooth)
       compute_vertex_normals ();
   }
@@ -70,19 +63,19 @@ public:
 	const Xform &xform, const std::string &mat_name)
     : Surface (mat), left_handed (true)
   {
-    load (file_name, xform, mat_name);
+    load (file_name, xform, 0, mat_name);
   }
   Mesh (const Material *mat, const std::string &file_name,
 	const Xform &xform, const char *mat_name)
     : Surface (mat), left_handed (true)
   {
-    load (file_name, xform, mat_name);
+    load (file_name, xform, 0, mat_name);
   }
 
   // All-in-one constructor for a tessellated mesh.
   //
   Mesh (const Material *mat, const Tessel::Function &tessel_fun,
-	const Tessel::MaxErrCalc &max_err, bool smooth = false)
+	const Tessel::MaxErrCalc &max_err, bool smooth = true)
     : Surface (mat), left_handed (true)
   {
     add (tessel_fun, max_err, smooth);
@@ -125,11 +118,14 @@ public:
   //
   void load (const std::string &file_name,
 	     const Xform &xform = Xform::identity,
+	     const Material *mat = 0,
 	     const std::string &mat_name = "");
 
   // For loading mesh from .msh file
   //
-  void load_msh_file (std::istream &stream, const Xform &xform,
+  void load_msh_file (std::istream &stream,
+		      const Xform &xform = Xform::identity,
+		      const Material *mat = 0,
 		      const std::string &mat_name = "");
 
   // Add this (or some other ...) surfaces to SPACE
