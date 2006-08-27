@@ -97,13 +97,13 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
   const Material *gloss_black
     = scene.add (new Mirror (1.5, 0.4, 0.02, cook_torrance (0.9, 0.2)));
   const Material *black
-    = scene.add (new Material (0.02, cook_torrance (0.9, 1)));
+    = scene.add (new Material (0.02, cook_torrance (0.2, 0.005)));
   const Material *gloss_ivory
     = scene.add (new Mirror (1.5, 0.4, Color (1, 0.8, 0.5),
-			     cook_torrance (0.2, 0.2)));
+			     cook_torrance (0.1, 0.2)));
   const Material *ivory
-    = scene.add (new Material (Color (1, 0.8, 0.5),
-			       cook_torrance (0.2, 2)));
+    = scene.add (new Material (Color (0.5, 0.4, 0.1),
+			       cook_torrance (0.2, 0.05)));
 
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05),
@@ -1949,6 +1949,24 @@ def_scene_trep (unsigned num, const string &arg, Scene &scene, Camera &camera)
 
 
 
+// Variation on scene from PBRT book for testing multiple importance
+// sampling.
+//
+static void
+def_scene_mis (unsigned num, const string &arg, Scene &scene, Camera &camera)
+{
+  add_chessboard (scene, Xform::identity, 1);
+
+  add_bulb (scene, Pos (-2, 2, 5), 1, 100);
+  add_bulb (scene, Pos (2, 2, 5), 0.05, 10);
+
+  camera.move (Pos (0, 1, -6));
+  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+  camera.set_horiz_fov (M_PI_4f);
+}
+
+
+
 void
 Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
@@ -2002,6 +2020,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_frep (num, arg, scene, camera);
   else if (name == "trep")
     def_scene_trep (num, arg, scene, camera);
+  else if (name == "mis")
+    def_scene_mis (num, arg, scene, camera);
   else
     throw (runtime_error ("Unknown test scene"));
 }
