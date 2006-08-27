@@ -103,7 +103,7 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
 			     cook_torrance (0.1, 0.2)));
   const Material *ivory
     = scene.add (new Material (Color (0.5, 0.4, 0.1),
-			       cook_torrance (0.2, 0.05)));
+			       cook_torrance (0.1, 0.2)));
 
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05),
@@ -1957,10 +1957,10 @@ def_scene_mis (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
   add_chessboard (scene, Xform::identity, 1);
 
-  add_bulb (scene, Pos (-2, 2, 5), 1, 100);
-  add_bulb (scene, Pos (2, 2, 5), 0.05, 10);
+  add_bulb (scene, Pos (-1.5, 1.2, 4), 1,    100 * Color (0.8, 0.8, 0.2));
+  add_bulb (scene, Pos ( 1.5, 1.2, 4), 0.05, 100 * Color (0.4, 0.4, 1));
 
-  camera.move (Pos (0, 1, -6));
+  camera.move (Pos (0, 1.5, -6));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
   camera.set_horiz_fov (M_PI_4f);
 }
