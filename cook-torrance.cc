@@ -82,65 +82,66 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
   const Fresnel fres (isec.trace.medium ? isec.trace.medium->ior : 1, ior);
 
   for (SampleRayVec::iterator s = from; s != to; s++)
-    {
-      // The Cook-Torrance specular term is:
-      //
-      //    p_s = (F / PI) * (D * G / (N dot V))
-      //
-      // We calculate each of these sub-terms below
+    if (s->val != 0)
+      {
+	// The Cook-Torrance specular term is:
+	//
+	//    p_s = (F / PI) * (D * G / (N dot V))
+	//
+	// We calculate each of these sub-terms below
 
-      // Light-ray direction vector (normalized)
-      //
-      const Vec &L = s->dir;
-      float NL = dot (N, L);
+	// Light-ray direction vector (normalized)
+	//
+	const Vec &L = s->dir;
+	float NL = dot (N, L);
 
-      // Half-way vector between eye-ray and light-ray (normalized)
-      //
-      const Vec H = (V + L).unit ();
-      float NH = dot (N, H);
+	// Half-way vector between eye-ray and light-ray (normalized)
+	//
+	const Vec H = (V + L).unit ();
+	float NH = dot (N, H);
 
-      // Calculate D (microfacet distribution) term:
-      //
-      //    D = (1 / (4 * m^2 * (cos alpha)^2)) * e^(-((tan alpha) / m)^2)
-      //
-      // where alpha is the angle between N and H.
-      //
-      float cos_alpha = max (min (NH, 1.f), -1.f);
-      float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
+	// Calculate D (microfacet distribution) term:
+	//
+	//    D = (1 / (4 * m^2 * (cos alpha)^2)) * e^(-((tan alpha) / m)^2)
+	//
+	// where alpha is the angle between N and H.
+	//
+	float cos_alpha = max (min (NH, 1.f), -1.f);
+	float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
 
-      float D;
-      if (cos_4_alpha < Eps)
-	D = 0;			// cos_alpha is too small, avoid underflow
-      else
-	{
-	  float tan_alpha = tan (acos (cos_alpha));
-	  float D_exp = exp (-tan_alpha * tan_alpha * m_2_inv);
-	  D = m_2_inv / (4 * cos_4_alpha) * D_exp;
-	}
+	float D;
+	if (cos_4_alpha < Eps)
+	  D = 0;			// cos_alpha is too small, avoid underflow
+	else
+	  {
+	    float tan_alpha = tan (acos (cos_alpha));
+	    float D_exp = exp (-tan_alpha * tan_alpha * m_2_inv);
+	    D = m_2_inv / (4 * cos_4_alpha) * D_exp;
+	  }
 
-      // Calculate F (fresnel) term
-      //
-      float F = fres.reflectance (NL);
+	// Calculate F (fresnel) term
+	//
+	float F = fres.reflectance (NL);
 
-      // Calculate G (microfacet masking/shadowing) term
-      //
-      //    G = min (1,
-      //             2 * (N dot H) * (N dot V) / (V dot H),
-      //             2 * (N dot H) * (N dot L) / (V dot H))
-      //
-      float VH = dot (V, H);
-      float G = 2 * NH * ((NV > NL) ? NL : NV) / VH;
-      G = G <= 1 ? G : 1;
+	// Calculate G (microfacet masking/shadowing) term
+	//
+	//    G = min (1,
+	//             2 * (N dot H) * (N dot V) / (V dot H),
+	//             2 * (N dot H) * (N dot L) / (V dot H))
+	//
+	float VH = dot (V, H);
+	float G = 2 * NH * ((NV > NL) ? NL : NV) / VH;
+	G = G <= 1 ? G : 1;
 
-      float specular = F * D * G * NV_inv * M_1_PI;
-      float diffuse = NL * M_1_PI; // standard lambertian diffuse term
+	float specular = F * D * G * NV_inv * M_1_PI;
+	float diffuse = NL * M_1_PI; // standard lambertian diffuse term
 
-      // The final reflectance is:
-      //
-      //   p = k_d * p_d + k_s * p_s
-      //
-      s->set_refl (isec.color * diffuse + specular_color * specular);
-    }
+	// The final reflectance is:
+	//
+	//   p = k_d * p_d + k_s * p_s
+	//
+	s->set_refl (isec.color * diffuse + specular_color * specular);
+      }
 }
 
 // arch-tag: a0a0049e-9af6-4438-ab58-081630151122
