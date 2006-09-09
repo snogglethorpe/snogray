@@ -25,9 +25,8 @@ public:
   using Tuple3<T>::y;
   using Tuple3<T>::z;
 
-  TPos (T _x = 0, T _y = 0, T _z = 0)
-    : Tuple3<T> (_x, _y, _z)
-  { }
+  TPos (T _x, T _y, T _z) : Tuple3<T> (_x, _y, _z) { }
+  TPos () { }
 
   // Allow easy down-casting for sharing code
   //

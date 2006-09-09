@@ -520,7 +520,7 @@ Mesh::compute_vertex_normals (float max_angle)
       //
       num_verts = vertices.size ();
 
-      vertex_normals.resize (num_verts, 0);
+      vertex_normals.resize (num_verts);
 
       for (vert_index_t v = num_old_norms; v < num_verts; v++)
 	vertex_normals[v] = norm_groups[v].normal;

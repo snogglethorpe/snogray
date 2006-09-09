@@ -22,7 +22,8 @@ class Tuple3
 {
 public:
 
-  Tuple3 (T _x = 0, T _y = 0, T _z = 0) : x (_x), y (_y), z (_z) { }
+  Tuple3 (T _x, T _y, T _z) : x (_x), y (_y), z (_z) { }
+  Tuple3 () : x (0), y (0), z (0) { }
 
   // Allow easy "tuple-casting"
   //
