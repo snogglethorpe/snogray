@@ -42,7 +42,7 @@ Plastic::render (const Intersect &isec) const
 
   if (refl > Eps)
     {
-      Vec mirror_dir = isec.ray.dir.reflection (isec.normal);
+      Vec mirror_dir = isec.viewer.mirror (isec.normal);
       Ray mirror_ray (isec.point, mirror_dir);
       radiance += refl * isec.subtrace (Trace::REFLECTION).render (mirror_ray);
     }

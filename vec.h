@@ -106,13 +106,13 @@ public:
   T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
   T longitude () const { return atan2 (x, z); }
 
-  // Return this vector reflected around NORMAL
+  // Return the "mirror" of this vector around NORMAL
   //
-  TVec reflection (const TVec &normal) const
+  TVec mirror (const TVec &normal) const
   {
-    // Rr =  Ri - 2 N (Ri . N)
+    // mirror =  2 N (vec . N) - vec
 
-    return  *this - normal * dot (*this, normal) * 2;
+    return  normal * dot (*this, normal) * 2 - *this;
   }
 
   // Return this vector refracted through a medium transition across a
