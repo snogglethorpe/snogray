@@ -26,8 +26,9 @@ using namespace Snogray;
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 		      const Pos &_pos, const Vec &_normal, bool _back,
 		      Trace &_trace, const void *_smoothing_group)
-  : ray (_ray), surface (_surface),
-    pos (_pos), n ((_back ? -_normal : _normal).unit ()),
+  : ray (_ray), surface (_surface), pos (_pos),
+    n ((_back ? -_normal : _normal).unit ()),
+    s (n.perpendicular ().unit ()), t (cross (s, t).unit ()),
     v (-_ray.dir), nv (dot (n, v)), back (_back),
     material (*_surface->material),
     brdf (material.brdf), color (material.color),
