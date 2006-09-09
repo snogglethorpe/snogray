@@ -38,13 +38,9 @@ struct LatLongMapping
 
   static Vec map (const UV &uv)
   {
+    double colat = (uv.v - 0.5) * M_PI;
     double lng = (uv.u - 0.5) * M_PI * 2;
-    double lat = (uv.v - 0.5) * M_PI;
-
-    double sin_lng = sin (lng), cos_lng = cos (lng);
-    double sin_lat = sin (lat), cos_lat = cos (lat);
-
-    return Vec (sin_lng * cos_lat, sin_lat, cos_lng * cos_lat);
+    return y_axis_latlong_to_vec (colat, lng);
   }
 
   // Returns the area on the sphere corresponding to a one-unit area at

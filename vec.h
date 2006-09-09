@@ -104,6 +104,7 @@ public:
   }
 
   T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
+  T colatitude () const { return atan2 (sqrt (x * x + z * z), y); }
   T longitude () const { return atan2 (x, z); }
 
   // Return the "mirror" of this vector around NORMAL
@@ -171,6 +172,41 @@ static inline TVec<T> abs (const TVec<T> &vec)
 {
   return TVec<T> (abs (vec.x), abs (vec.y), abs (vec.z));
 }
+
+
+// Constructor for converting spherical coordinates (relative to the
+// y-axis) to a vector.  Note that the first argument is the
+// "colatitude", where 0 is straight up along the y axis (as opposed to
+// "latitude", where 0 is in the x-z plane).
+//
+template<typename T>
+static inline TVec<T> y_axis_spherical_to_vec (T colat, T lng)
+{
+  T sin_theta = sin (colat);
+  return TVec<T> (sin (lng) * sin_theta, cos (colat), cos (lng) * sin_theta);
+}
+
+// Constructor for converting spherical coordinates (relative to the
+// y-axis) to a vector, where the colatitude is represented by its
+// cosine.
+//
+template<typename T>
+static inline TVec<T> y_axis_cos_spherical_to_vec (T cos_theta, T azimuth)
+{
+  T sin_theta = sqrt (1 - cos_theta * cos_theta);
+  return TVec<T> (sin (azimuth) * sin_theta, cos_theta, cos (azimuth) * sin_theta);
+}
+
+// Constructor for converting latitude-longitude coordinates (relative
+// to the y-axis) to a vector.
+//
+template<typename T>
+static inline TVec<T> y_axis_latlong_to_vec (T lat, T lng)
+{
+  T cos_lat = cos (lat);
+  return TVec<T> (sin (lng) * cos_lat, sin (lat), cos (lng) * cos_lat);
+}
+
 
 template<typename T>
 static std::ostream&
