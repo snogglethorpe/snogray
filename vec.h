@@ -102,6 +102,20 @@ public:
       return operator* (1 / len);
   }
 
+  // Return an arbitrary vector which is perpendicular to this one.
+  // The return value is not normalized.
+  //
+  TVec perpendicular () const
+  {
+    // If VEC is pointing along the y-axis, just return some other axis.
+    // Otherwise, return VEC x (VEC x (0,1,0)).
+    //
+    if (x < Eps && z < Eps)
+      return TVec (y, 0, 0);
+    else
+      return TVec (x * y, -(z * z) - (x * x), y * z);
+  }
+
   T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
   T colatitude () const { return atan2 (sqrt (x * x + z * z), y); }
   T longitude () const { return atan2 (x, z); }

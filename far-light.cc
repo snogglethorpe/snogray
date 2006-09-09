@@ -20,17 +20,7 @@ using namespace Snogray;
 void
 FarLight::init ()
 {
-  Vec up (0, 1, 0);
-
-  Vec u0 = cross (dir, up);
-
-  // If DIR was the same as UP, U0 ends up zero-length, so retry with
-  // another UP.
-  //
-  if (u0.length () < Eps)
-    u0 = cross (dir, Vec (1, 0, 0));
-
-  u = cross (dir, u0).unit () * radius;
+  u = dir.perpendicular().unit () * radius;
   v = cross (dir, u).unit ()  * radius;
 
   u_inc = u * 2 / JITTER_STEPS;
