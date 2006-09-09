@@ -20,7 +20,7 @@ using namespace Snogray;
 Color
 Mirror::render (const Intersect &isec) const
 {
-  float cos_refl_angle = dot (isec.normal, isec.viewer);
+  float cos_refl_angle = isec.nv;
   float medium_ior = isec.trace.medium ? isec.trace.medium->ior : 1;
   const Fresnel fres (medium_ior, mirror_coating.ior);
   float fres_refl = fres.reflectance (cos_refl_angle);
@@ -33,8 +33,8 @@ Mirror::render (const Intersect &isec) const
   //
   if (refl > Eps)
     {
-      Vec mirror_dir = isec.viewer.mirror (isec.normal);
-      Ray mirror_ray (isec.point, mirror_dir);
+      Vec mirror_dir = isec.v.mirror (isec.n);
+      Ray mirror_ray (isec.pos, mirror_dir);
       Trace &sub_trace = isec.subtrace (Trace::REFLECTION);
 
       radiance += refl * sub_trace.render (mirror_ray);
@@ -66,7 +66,7 @@ MirrorCoating::remove_specular_reflection (const Intersect &isec,
 
   for (SampleRayVec::iterator s = from; s != to; s++)
     {
-      float fres_refl = fres.reflectance (dot (isec.normal, s->dir));
+      float fres_refl = fres.reflectance (dot (isec.n, s->dir));
       const Color refl = fres_refl * reflectance;
       s->set_refl (1 - refl);
     }

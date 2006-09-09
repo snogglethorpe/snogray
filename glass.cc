@@ -79,16 +79,15 @@ Glass::render (const Intersect &isec) const
 
   // Render transmitted light
 
-  Vec xmit_dir
-    = isec.ray.dir.refraction (isec.normal, refr.old_ior, refr.new_ior);
+  Vec xmit_dir = isec.ray.dir.refraction (isec.n, refr.old_ior, refr.new_ior);
 
   if (! xmit_dir.null ())
     {
-      float xmit = refr.transmittance (dot (xmit_dir, -isec.normal));
+      float xmit = refr.transmittance (dot (xmit_dir, -isec.n));
 
       if (xmit > Eps)
 	{
-	  Ray xmit_ray (isec.point, xmit_dir);
+	  Ray xmit_ray (isec.pos, xmit_dir);
 	  Trace::Type subtrace_type
 	    = refr.entering ? Trace::REFRACTION_IN : Trace::REFRACTION_OUT;
 	  Trace &sub_trace = isec.subtrace (subtrace_type, refr.new_medium);
@@ -98,12 +97,12 @@ Glass::render (const Intersect &isec) const
 
   // Render reflected light
 
-  float refl = refr.reflectance (dot (isec.normal, isec.viewer));
+  float refl = refr.reflectance (isec.nv);
 
   if (refl > Eps)
     {
-      Vec mirror_dir = isec.viewer.mirror (isec.normal);
-      Ray mirror_ray (isec.point, mirror_dir);
+      Vec mirror_dir = isec.v.mirror (isec.n);
+      Ray mirror_ray (isec.pos, mirror_dir);
 
       radiance += refl * isec.subtrace (Trace::REFLECTION).render (mirror_ray);
     }
@@ -134,7 +133,7 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
 
   // Use the straight-through angle.
   //
-  float xmit = refr.transmittance (dot (light_ray.dir, -isec.normal));
+  float xmit = refr.transmittance (dot (light_ray.dir, -isec.n));
       
   if (xmit > Eps)
     {

@@ -284,7 +284,7 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params,
 	}
     }
 
-  return Intersect (ray, this, point, norm.unit(), back, trace,
+  return Intersect (ray, this, point, norm, back, trace,
 		    static_cast<const void *>(&mesh));
 }
 

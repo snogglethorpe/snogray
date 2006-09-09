@@ -23,9 +23,9 @@ void
 PointLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
-  Vec lvec = pos - isec.point;
+  Vec lvec = pos - isec.pos;
 
-  if (dot (isec.normal, lvec) >= -Eps)
+  if (dot (isec.n, lvec) >= -Eps)
     {
       dist_t dist = lvec.length ();
       samples.add_light (color / (dist * dist), lvec.unit(), dist, this);

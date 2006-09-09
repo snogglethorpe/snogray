@@ -60,22 +60,13 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 			      SampleRayVec::iterator to)
   const
 {
-  // Surface normal
-  //
-  const Vec &N = isec.normal;
-
-  // Eye-ray direction vector (normalized)
-  //
-  const Vec V = -isec.ray.dir;
-
   // 1 / (N dot V)
   //
   // If NV == 0, then the eye-ray is perpendicular to the normal, which
   // basically means we can't see anything (but it's a rare case so don't
   // bother to optimize it, just protect against division by zero).
   //
-  float NV = dot (N, V);
-  float NV_inv = NV == 0 ? 0 : 1 / NV;
+  float nv_inv = isec.nv == 0 ? 0 : 1 / isec.nv;
 
   // Info for calculating the Fresnel term.
   //
@@ -86,19 +77,19 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
       {
 	// The Cook-Torrance specular term is:
 	//
-	//    p_s = (F / PI) * (D * G / (N dot V))
+	//    f_s = (F / PI) * (D * G / (N dot V))
 	//
 	// We calculate each of these sub-terms below
 
 	// Light-ray direction vector (normalized)
 	//
-	const Vec &L = s->dir;
-	float NL = dot (N, L);
+	const Vec &l = s->dir;
+	float nl = dot (isec.n, l);
 
 	// Half-way vector between eye-ray and light-ray (normalized)
 	//
-	const Vec H = (V + L).unit ();
-	float NH = dot (N, H);
+	const Vec h = (isec.v + l).unit ();
+	float nh = dot (isec.n, h);
 
 	// Calculate D (microfacet distribution) term:
 	//
@@ -106,7 +97,7 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 	//
 	// where alpha is the angle between N and H.
 	//
-	float cos_alpha = max (min (NH, 1.f), -1.f);
+	float cos_alpha = max (min (nh, 1.f), -1.f);
 	float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
 
 	float D;
@@ -121,7 +112,7 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 
 	// Calculate F (fresnel) term
 	//
-	float F = fres.reflectance (NL);
+	float F = fres.reflectance (nl);
 
 	// Calculate G (microfacet masking/shadowing) term
 	//
@@ -129,16 +120,16 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 	//             2 * (N dot H) * (N dot V) / (V dot H),
 	//             2 * (N dot H) * (N dot L) / (V dot H))
 	//
-	float VH = dot (V, H);
-	float G = 2 * NH * ((NV > NL) ? NL : NV) / VH;
+	float vh = dot (isec.v, h);
+	float G = 2 * nh * ((isec.nv > nl) ? nl : isec.nv) / vh;
 	G = G <= 1 ? G : 1;
 
-	float specular = F * D * G * NV_inv * M_1_PI;
-	float diffuse = NL * M_1_PI; // standard lambertian diffuse term
+	float specular = F * D * G * nv_inv * M_1_PI;
+	float diffuse = nl * M_1_PI; // standard lambertian diffuse term
 
 	// The final reflectance is:
 	//
-	//   p = k_d * p_d + k_s * p_s
+	//   f = k_d * f_d + k_s * f_s
 	//
 	s->set_refl (isec.color * diffuse + specular_color * specular);
       }

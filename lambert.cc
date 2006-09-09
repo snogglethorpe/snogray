@@ -40,15 +40,13 @@ Lambert::filter_samples (const Intersect &isec, SampleRayVec &,
 			 SampleRayVec::iterator to)
   const
 {
-  const Vec &N = isec.normal;
-
   for (SampleRayVec::iterator s = from; s != to; s++)
     if (s->val != 0)
       {
-	const Vec &L = s->dir;
-	float NL = dot (N, L);
+	const Vec &l = s->dir;
+	float nl = dot (isec.n, l);
 
-	float diffuse = NL * M_1_PI; // standard lambertian diffuse term
+	float diffuse = nl * M_1_PI; // standard lambertian diffuse term
 
 	s->set_refl (isec.color * diffuse);
       }

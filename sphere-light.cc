@@ -28,10 +28,6 @@ void
 SphereLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
-  // Surface normal (of the surface intersected, not the light)
-  //
-  const Vec &N = isec.normal;
-
   for (unsigned i = 0; i < NUM_SAMPLES; i++)
     {
       float r_sqrt_rand1 = radius * sqrt (random (1.f));
@@ -45,14 +41,14 @@ SphereLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 	   * sin (M_PIf * (random(1.f) - 0.5)));
       const Pos sample_pos = pos + Pos (x, y, z);
 
-      Vec lvec = sample_pos - isec.point;
+      Vec lvec = sample_pos - isec.pos;
       dist_t dist = lvec.length ();
 
-      const Vec L = lvec.unit ();
-      float NL = dot (N, L);
+      const Vec l = lvec.unit ();
+      float nl = dot (isec.n, l);
 
-      if (NL > 0)
-	samples.add_light (power_per_sample / (dist * dist), L, dist, this);
+      if (nl > 0)
+	samples.add_light (power_per_sample / (dist * dist), l, dist, this);
     }
 }
 

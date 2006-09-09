@@ -96,20 +96,24 @@ public:
 
   // Details of the intersection.
   //
-  const Pos point;		// Point where RAY intersects SURFACE
-  const Vec normal;		// Surface normal at POINT
-  const bool back;		// True if RAY hit the back of SURFACE
+  const Pos pos;		// Point where RAY intersects SURFACE
 
-  // A vector pointing towards the viewer; this is just -RAY.dir; many
-  // algorithms use the outgoing formulation, so we provide it
-  // explicitly.
+  // Normalized surface normal at POS.
   //
-  const Vec viewer;
+  const Vec n;
 
-  // (NORMAL dot VIEWER), aka cos(theta) where theta is the angle
-  // between NORMAL and VIEWER.
+  // A unit vector pointing towards the viewer; this is just -RAY.dir; many
+  // algorithms use the outgoing formulation, so we provide it explicitly.
+  //
+  const Vec v;
+
+  // (N dot V), aka cos(theta) where theta is the angle between N and V.
   //
   float nv;
+
+  // True if RAY hit the back of SURFACE (relative to the normal).
+  //
+  const bool back;
 
   // Oft-used properties of SURFACE.
   //

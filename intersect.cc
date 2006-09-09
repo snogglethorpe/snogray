@@ -24,11 +24,11 @@ using namespace Snogray;
 
 
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Pos &_point, const Vec &_normal, bool _back,
+		      const Pos &_pos, const Vec &_normal, bool _back,
 		      Trace &_trace, const void *_smoothing_group)
   : ray (_ray), surface (_surface),
-    point (_point), normal (_back ? -_normal : _normal), back (_back),
-    viewer (-_ray.dir), nv (dot (viewer, normal)),
+    pos (_pos), n ((_back ? -_normal : _normal).unit ()),
+    v (-_ray.dir), nv (dot (n, v)), back (_back),
     material (*_surface->material),
     brdf (material.brdf), color (material.color),
     smoothing_group (_smoothing_group), trace (_trace)
@@ -39,10 +39,10 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 // also have a zero smoothing group, so we omit that parameter.
 //
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Pos &_point, const Vec &_normal, Trace &_trace)
+		      const Pos &_pos, const Vec &_normal, Trace &_trace)
   : ray (_ray), surface (_surface),
-    point (_point), normal (_normal), back (dot (normal, _ray.dir) > 0),
-    viewer (-_ray.dir), nv (dot (viewer, normal)),
+    pos (_pos), n (_normal.unit ()), v (-_ray.dir), nv (dot (n, v)),
+    back (nv < 0),
     material (*_surface->material),
     brdf (material.brdf), color (material.color),
     smoothing_group (0), trace (_trace)
@@ -51,9 +51,11 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
   // declared `normal' const to avoid anybody mucking with it...
   //
   if (back)
-    const_cast<Vec&> (normal) = -normal;
+    {
+      const_cast<Vec&> (n) = -n;
+      const_cast<float&> (nv) = -nv;
+    }
 }
-
 
 
 
@@ -106,7 +108,7 @@ Intersect::illum () const
 	    break;
 	  }
 
-	const Ray shadow_ray (point, s->dir, s->dist);
+	const Ray shadow_ray (pos, s->dir, s->dist);
 
 	// Find any surface that's shadowing LIGHT_RAY.
 	//

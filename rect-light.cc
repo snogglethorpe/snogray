@@ -24,18 +24,14 @@ void
 RectLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
   const
 {
-  // Surface normal (of the surface intersected, not the light)
-  //
-  const Vec &N = isec.normal;
-
   // First detect cases where the light isn't visible at all, by
   // examining the dot product of the surface normal with rays to the
   // four corners of the light.
   //
-  if (dot (N, pos - isec.point) > 0
-      || dot (N, pos + side1 - isec.point) > 0
-      || dot (N, pos + side2 - isec.point) > 0
-      || dot (N, pos + side1 + side2 - isec.point) > 0)
+  if (dot (isec.n, pos - isec.pos) > 0
+      || dot (isec.n, pos + side1 - isec.pos) > 0
+      || dot (isec.n, pos + side2 - isec.pos) > 0
+      || dot (isec.n, pos + side1 + side2 - isec.pos) > 0)
     {    
       // The light seems to be visible, so iterate over its surface in a
       // grid pattern, adding a sample for each point
@@ -67,24 +63,24 @@ RectLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
 		   + side1 * (u_offs + random (u_step))
 		   + side2 * (v_offs + random (v_step)));
 
-	      Vec lvec = sample_pos - isec.point;
+	      Vec lvec = sample_pos - isec.pos;
 	      dist_t dist = lvec.length ();
 	      dist_t inv_dist = 1 / dist;
 
-	      const Vec L = lvec * inv_dist;
-	      float NL = dot (N, L);
+	      const Vec l = lvec * inv_dist;
+	      float nl = dot (isec.n, l);
 
-	      if (NL > 0)
+	      if (nl > 0)
 		{
 		  // This expression is basically:
 		  //
 		  //   -cos (light_norm, lvec)) / distance^2 / num_samples
 		  //
 		  Color::component_t scale =
-		    fabs (dot (normal, L))
+		    fabs (dot (normal, l))
 		    * num_samples_scale * inv_dist * inv_dist;
 
-		  samples.add_light (power * scale, L, dist, this);
+		  samples.add_light (power * scale, l, dist, this);
 		}
 
 	      u_offs += u_step;    // step to next grid point in u direction

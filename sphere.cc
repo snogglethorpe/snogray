@@ -76,7 +76,7 @@ Sphere::intersect_info (const Ray &ray, const IsecParams &, Trace &trace)
   const
 {
   Pos point = ray.end ();
-  return Intersect (ray, this, point, (point - center).unit (), trace);
+  return Intersect (ray, this, point, point - center, trace);
 }
 
 // Return a bounding box for this surface.

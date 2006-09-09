@@ -99,8 +99,6 @@ EnvmapLight::gen_samples (const Intersect &isec, SampleRayVec &samples) const
 {
   gen_region_samples (samples);
 
-  const Vec &N = isec.normal;
-
   // Fixup the samples generated
   //
   // StructLight::gen_region_samples doesn't know the mapping from its 2d
@@ -115,7 +113,7 @@ EnvmapLight::gen_samples (const Intersect &isec, SampleRayVec &samples) const
       i->dir = LatLongMapping::map (ll_uv);
       i->dist = Scene::DEFAULT_HORIZON;
 
-      if (dot (N, i->dir) <= 0)
+      if (dot (isec.n, i->dir) <= 0)
 	i->invalidate ();
     }
 }

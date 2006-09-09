@@ -34,7 +34,7 @@ Plastic::render (const Intersect &isec) const
 
   if (xmit > Eps)
     {
-      Ray xmit_ray (isec.point, isec.ray.dir);
+      Ray xmit_ray (isec.pos, isec.ray.dir);
       radiance += xmit * isec.subtrace (Trace::TRANSMISSION).render (xmit_ray);
     }
 
@@ -42,8 +42,8 @@ Plastic::render (const Intersect &isec) const
 
   if (refl > Eps)
     {
-      Vec mirror_dir = isec.viewer.mirror (isec.normal);
-      Ray mirror_ray (isec.point, mirror_dir);
+      Vec mirror_dir = isec.v.mirror (isec.n);
+      Ray mirror_ray (isec.pos, mirror_dir);
       radiance += refl * isec.subtrace (Trace::REFLECTION).render (mirror_ray);
     }
 
@@ -66,7 +66,7 @@ Plastic::shadow (const Intersect &isec, const Ray &light_ray,
   // Calculate the amount of transmitted light which would be lost due
   // to Fresnel reflection from the back surface.
   //
-  float cos_xmit_angle = dot (light_ray.dir, -isec.normal);
+  float cos_xmit_angle = dot (light_ray.dir, -isec.n);
   float medium_ior = isec.trace.medium ? isec.trace.medium->ior : 1;
   float refl = Fresnel (medium_ior, ior).reflectance (cos_xmit_angle);
 
