@@ -88,19 +88,17 @@ public:
   // Transform VEC from a "Z-normal" coordinate system (where the
   // intersection normal is (0,0,1)) to world coordinates.
   //
-  Vec z_normal_to_world (const Vec &vec)
+  Vec z_normal_to_world (const Vec &vec) const
   {
-    return Vec (s.x * vec.x + t.x * vec.y + n.x * vec.z,
-		s.y * vec.x + t.y * vec.y + n.y * vec.z,
-		s.z * vec.x + t.z * vec.y + n.z * vec.z);
+    return vec.to_basis (s, t, n);
   }
 
   // Transform VEC from world coordinates to the "Z-normal" coordinate
   // system (where the intersection normal is (0,0,1)).
   //
-  Vec world_to_z_normal (const Vec &vec)
+  Vec world_to_z_normal (const Vec &vec) const
   {
-    return Vec (dot (vec, s), dot (vec, t), dot (vec, n));
+    return vec.from_basis (s, t, n);
   }
 
   // Ray which intersected something; its endpoint is the point of intersection.

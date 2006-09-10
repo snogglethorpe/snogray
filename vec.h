@@ -120,6 +120,27 @@ public:
   T colatitude () const { return atan2 (sqrt (x * x + z * z), y); }
   T longitude () const { return atan2 (x, z); }
 
+  // Transform this vector to a coordinate system with (orthonormal)
+  // axes X_AXIS, Y_AXIS, and Z_AXIS.
+  //
+  TVec to_basis (const TVec &x_axis, const TVec &y_axis, const TVec &z_axis)
+    const
+  {
+    return TVec (x_axis.x * x + y_axis.x * y + z_axis.x * z,
+		 x_axis.y * x + y_axis.y * y + z_axis.y * z,
+		 x_axis.z * x + y_axis.z * y + z_axis.z * z);
+  }
+
+  // Transform this vector from a coordinate system with (orthonormal)
+  // axes X_AXIS, Y_AXIS, and Z_AXIS to a coordinate system where the
+  // axes are (1,0,0), (0,1,0), and (0,0,1).
+  //
+  TVec from_basis  (const TVec &x_axis, const TVec &y_axis, const TVec &z_axis)
+    const
+  {
+    return TVec (dot (*this, x_axis), dot (*this, y_axis), dot (*this, z_axis));
+  }
+
   // Return the "mirror" of this vector around NORMAL
   //
   TVec mirror (const TVec &normal) const
