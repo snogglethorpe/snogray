@@ -28,7 +28,7 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 		      Trace &_trace, const void *_smoothing_group)
   : ray (_ray), surface (_surface), pos (_pos),
     n ((_back ? -_normal : _normal).unit ()),
-    s (n.perpendicular ().unit ()), t (cross (s, t).unit ()),
+    s (n.perpendicular ().unit ()), t (cross (s, n).unit ()),
     v (-_ray.dir), nv (dot (n, v)), back (_back),
     material (*_surface->material),
     brdf (material.brdf), color (material.color),
