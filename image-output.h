@@ -15,19 +15,15 @@
 #include <memory>
 #include <string>
 
+#include "filter-conv.h"
 #include "image-io.h"
 
 
 namespace Snogray {
 
-class Filter;
-
 class ImageOutput
 {
 public:
-
-  static const float DEFAULT_NEG_CLAMP = -0.1;
-  static const float MAX_FILTER_WIDTH_SCALE = 2.f;
 
   // Basically an ImageRow, but with sample weighting information.
   //
@@ -61,24 +57,17 @@ public:
   // just added to the nearest pixel.  The floating-point center of a pixel
   // is at its integer coordinates + (0.5, 0.5).
   //
-  void add_sample (float sx, float sy, const Color &color);
-
-  // Returns a row at absolute position Y.  Rows cannot be addressed
-  // completely randomly, as only NUM_BUFFERED_ROWS rows are buffered in
-  // memory; if a row which has already been output is specified, an error
-  // is signaled.
-  //
-  SampleRow &row (int y)
+  void add_sample (float sx, float sy, const Color &color)
   {
-    if (y >= buf_y && y < buf_y + int (num_buffered_rows))
-      return rows[y % num_buffered_rows];
-    else
-      return _row (y);
-  }
+    Color col = color;
 
-  // Alias for row() method.
-  //
-  SampleRow &operator[] (int y) { return row (y); }
+    if (exposure != 0)
+      col *= intensity_scale;
+    if (max_intens != 0)
+      col = col.clamp (max_intens);
+
+    filter_conv.add_sample (sx, sy, col, *this);
+  }
 
   // Write the completed portion of the output image to disk, if possible.
   // This may flush I/O buffers etc., but will not in any way change the
@@ -97,22 +86,53 @@ public:
   //
   void set_min_y (int min_y);
 
+  // Return the number rows or columns on either side of any pixel that are
+  // effective when a sample is added inside that pixel (because of filter
+  // convolution).
+  //
+  unsigned filter_radius () const { return filter_conv.filter_radius; }
+
+  // Add a sample with value COLOR at integer coordinates PX, PY.  WEIGHT
+  // controls how much this sample counts relative to other samples added
+  // at the same coordinates.  It is assumed that COLOR has already been
+  // scaled by WEIGHT.
+  //
+  // [This method is a callback used by Filterconv<ImageOutput>.]
+  //
+  void add_sample (int px, int py, const Color &color, float weight)
+  {
+    SampleRow &r = row (py);
+    r.pixels[px] += color;
+    r.weights[px] += weight;
+  }
+
+  // Return true if the given X or Y coordinate is valid.
+  //
+  // [These methods are callbacks used by Filterconv<ImageOutput>.]
+  //
+  bool valid_x (int px) { return px >= 0 && px < int (width); }
+  bool valid_y (int py) { return py >= min_y && py < int (height); }
+
+  // Returns a row at absolute position Y.  Rows cannot be addressed
+  // completely randomly, as only NUM_BUFFERED_ROWS rows are buffered in
+  // memory; if a row which has already been output is specified, an error
+  // is signaled.
+  //
+  SampleRow &row (int y)
+  {
+    if (y >= buf_y && y < buf_y + int (num_buffered_rows))
+      return rows[y % num_buffered_rows];
+    else
+      return _row (y);
+  }
+
+  // Alias for row() method.
+  //
+  SampleRow &operator[] (int y) { return row (y); }
+
   // Size of output image.
   //
   unsigned width, height;
-
-  // Anti-aliasing filter.
-  //
-  const Filter *filter;
-
-  // "Radius" of FILTER.  This is an integer defining the number of
-  // adjacent pixels on all sides of a pixel which are effected by output
-  // samples within it.  It is calculated by expanding the maximum
-  // filter width to a pixel boundary, and subtracting one to eliminate
-  // the center pixel.
-  //
-  int filter_radius;		// really unsigned, but g++ goes nuts with
-				// warnings if we actually use that type
 
   // Lowest possible row (no output is ever done below this).
   //
@@ -122,15 +142,8 @@ public:
   //
   float exposure;
 
-  // A clamp for the minimum negative value of filtered sample points.
-  // See the comment in ImageOutput::add_sample for more details.
-  //
-  float neg_clamp;
-
 
 private:
-
-  static Filter *make_filter (const Params &params);
 
   // Write the the lowest currently buffered row to the output sink, and
   // recycle its storage for use by another row.  BUF_Y is incremented to
@@ -145,6 +158,8 @@ private:
   // Where the output goes.
   //
   std::auto_ptr<ImageSink> sink;
+
+  FilterConv<ImageOutput> filter_conv;
 
   // Number of rows kept buffered in memory.
   //

@@ -15,13 +15,19 @@
 #include "snogmath.h"
 #include "params.h"
 
+
 namespace Snogray {
+
 
 // 2D filter
 //
 class Filter
 {
 public:
+
+  // Return a new a filter depending on the parameters in PARAMS.
+  //
+  static Filter *make (const Params &params);
 
   virtual ~Filter ();
 
@@ -51,8 +57,10 @@ protected:
   { }
 };
 
+
 }
 
 #endif /* __FILTER_H__ */
+
 
 // arch-tag: 872c9e08-6d72-4d0b-89ca-d5423c1ea696

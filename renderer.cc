@@ -66,28 +66,30 @@ Renderer::render_block (int x, int y, int w, int h)
   //
   if (h > 0 && w > 0)
     {
+      unsigned filt_rad = output.filter_radius ();
+
       // If rendering the first or last row, and the output filter we're
       // using covers more than a single pixel, we must do a number of rows
       // preceding/following the first/last row for their effect on
       // following/preceding rows.
       //
-      if (output.filter_radius != 0 && y == min_y)
+      if (filt_rad != 0 && y == min_y)
 	{
-	  y -= output.filter_radius;
-	  h += output.filter_radius;
+	  y -= filt_rad;
+	  h += filt_rad;
 	}
-      if (output.filter_radius != 0 && y + h == max_y)
-	h += output.filter_radius;
+      if (filt_rad != 0 && y + h == max_y)
+	h += filt_rad;
 
       // Do the same thing for columns.
       //
-      if (output.filter_radius != 0 && x == min_x)
+      if (filt_rad != 0 && x == min_x)
 	{
-	  x -= output.filter_radius;
-	  w += output.filter_radius;
+	  x -= filt_rad;
+	  w += filt_rad;
 	}
-      if (output.filter_radius != 0 && x + w == max_x)
-	w += output.filter_radius;
+      if (filt_rad != 0 && x + w == max_x)
+	w += filt_rad;
 
       // This is basically a cache to speed up tracing by holding hints
       // that take advantage of spatial coherency.  We create a new one
