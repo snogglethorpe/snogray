@@ -1,4 +1,4 @@
-// mitchell.h -- Mitchell filter
+// mitchell-filt.h -- Mitchell filter
 //
 //  Copyright (C) 2006  Miles Bader <miles@gnu.org>
 //
@@ -9,8 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MITCHELL_H__
-#define __MITCHELL_H__
+#ifndef __MITCHELL_FILT_H__
+#define __MITCHELL_FILT_H__
 
 #include "filter.h"
 
@@ -20,7 +20,7 @@ namespace Snogray {
 
 // 2D mitchell filter
 //
-class Mitchell : public Filter
+class MitchellFilt : public Filter
 {
 public:
 
@@ -28,11 +28,11 @@ public:
   static const float DEFAULT_C = 1.f / 3.f;
   static const float DEFAULT_WIDTH = 2;
 
-  Mitchell (float _b = DEFAULT_B, float _c = DEFAULT_C,
-	    float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
+  MitchellFilt (float _b = DEFAULT_B, float _c = DEFAULT_C,
+		float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
     : Filter (_x_width, _y_width), b (_b), c (_c)
   { }
-  Mitchell (const Params &params)
+  MitchellFilt (const Params &params)
     : Filter (params, DEFAULT_WIDTH),
       b (params.get_float ("b", DEFAULT_B)),
       c (params.get_float ("c", DEFAULT_C))
@@ -64,7 +64,7 @@ public:
 
 }
 
-#endif /* __MITCHELL_H__ */
+#endif /* __MITCHELL_FILT_H__ */
 
 
 // arch-tag: 7fd2ef94-7377-449a-a24a-dfbea8c016bc

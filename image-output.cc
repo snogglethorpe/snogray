@@ -14,9 +14,9 @@
 #include "snogmath.h"
 #include "excepts.h"
 #include "filter.h"
-#include "mitchell.h"
-#include "gauss.h"
-#include "box.h"
+#include "mitchell-filt.h"
+#include "gauss-filt.h"
+#include "box-filt.h"
 
 #include "image-output.h"
 
@@ -248,7 +248,7 @@ ImageOutput::make_filter (const Params &params)
   std::string filter_type = params.get_string ("filter");
 
   if (filter_type.empty ())
-    return new Mitchell ();
+    return new MitchellFilt ();
   else
     {
       Params filter_params;
@@ -267,11 +267,11 @@ ImageOutput::make_filter (const Params &params)
       if (filter_type == "none")
 	return 0;
       else if (filter_type == "mitchell")
-	return new Mitchell (filter_params);
+	return new MitchellFilt (filter_params);
       else if (filter_type == "gauss")
-	return new Gauss (filter_params);
+	return new GaussFilt (filter_params);
       else if (filter_type == "box")
-	return new Box (filter_params);
+	return new BoxFilt (filter_params);
       else
 	throw std::runtime_error
 	  (filter_type + ": unknown output filter type");

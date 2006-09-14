@@ -9,8 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __BOX_H__
-#define __BOX_H__
+#ifndef __BOX_FILT_H__
+#define __BOX_FILT_H__
 
 #include "filter.h"
 
@@ -18,16 +18,16 @@
 namespace Snogray {
 
 
-class Box : public Filter
+class BoxFilt : public Filter
 {
 public:
 
   static const float DEFAULT_WIDTH = 0.5;
 
-  Box (float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
+  BoxFilt (float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
     : Filter (_x_width, _y_width)
   { }
-  Box (const Params &params)
+  BoxFilt (const Params &params)
     : Filter (params, DEFAULT_WIDTH)
   { }
 
@@ -40,7 +40,7 @@ public:
 
 }
 
-#endif /* __BOX_H__ */
+#endif /* __BOX_FILT_H__ */
 
 
 // arch-tag: bd67bb8b-e1c1-42db-b623-a4169b5070fc
