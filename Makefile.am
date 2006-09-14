@@ -109,12 +109,12 @@ endif
 # Snogray image I/O library, libsnogimage.a
 #
 
-libsnogimage_a_SOURCES = box.cc box.h filter.h gauss.cc gauss.h image.h	\
+libsnogimage_a_SOURCES = box.h filter.h gauss.h image.h			\
 	image-byte-vec.cc image-byte-vec.h image-cmdline.h		\
 	tuple-matrix.cc tuple-matrix.h image-dispatch.cc image-dtors.cc	\
 	image-input.h image-io.cc image-io.h image-output.cc		\
 	image-output.h image-pfm.cc image-pfm.h image-rgbe.cc		\
-	image-rgbe.h mitchell.cc mitchell.h
+	image-rgbe.h mitchell.h
 
 # Library dependencies of libsnogimage.a
 #

@@ -14,7 +14,9 @@
 
 #include "filter.h"
 
+
 namespace Snogray {
+
 
 class Box : public Filter
 {
@@ -29,11 +31,16 @@ public:
     : Filter (params, DEFAULT_WIDTH)
   { }
 
-  virtual float val (float x, float y) const;
+  virtual float val (float, float) const
+  {
+    return 1;
+  }
 };
+
 
 }
 
 #endif /* __BOX_H__ */
+
 
 // arch-tag: bd67bb8b-e1c1-42db-b623-a4169b5070fc

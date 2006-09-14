@@ -14,7 +14,9 @@
 
 #include "filter.h"
 
+
 namespace Snogray {
+
 
 // 2D gauss
 //
@@ -38,7 +40,10 @@ public:
       y_exp (exp (-alpha * y_width * y_width))
   { }
 
-  virtual float val (float x, float y) const;
+  virtual float val (float x, float y) const
+  {
+    return gauss1 (x, x_exp) * gauss1 (y, y_exp);
+  }
 
   float gauss1 (float offs, float ex) const
   {
@@ -50,8 +55,10 @@ public:
   float x_exp, y_exp;
 };
 
+
 }
 
 #endif /* __GAUSS_H__ */
+
 
 // arch-tag: 6599c368-7f8e-4636-8ff8-6eb1688f033a

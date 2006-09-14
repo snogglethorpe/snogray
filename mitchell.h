@@ -14,7 +14,9 @@
 
 #include "filter.h"
 
+
 namespace Snogray {
+
 
 // 2D mitchell filter
 //
@@ -36,7 +38,10 @@ public:
       c (params.get_float ("c", DEFAULT_C))
   { }
 
-  virtual float val (float x, float y) const;
+  virtual float val (float x, float y) const
+  {
+    return mitchell1 (x * inv_x_width) * mitchell1 (y * inv_y_width);
+  }
 
   float mitchell1 (float x) const
   {
@@ -56,8 +61,10 @@ public:
   float b, c;
 };
 
+
 }
 
 #endif /* __MITCHELL_H__ */
+
 
 // arch-tag: 7fd2ef94-7377-449a-a24a-dfbea8c016bc
