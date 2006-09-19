@@ -17,8 +17,11 @@
 #include "coords.h"
 #include "ray.h"
 #include "xform.h"
+#include "sample-disk.h"
+
 
 namespace Snogray {
+
 
 class Camera {
 public:
@@ -269,36 +272,43 @@ public:
 
     if (aperture != 0)
       {
-	// The camera aperture, converted to scene units.
+	// The radius of the camera aperture in scene units.
 	//
-	float adj_aperture = aperture / scene_unit;
+	float aperture_radius = aperture * 0.5f / scene_unit;
+
+	// The camera aperture is circular, so convert the independent
+	// random variables FOCUS_U and FOCUS_V into a sample uniformly
+	// distributed on a disk.
+	//
+	float coc_x, coc_y;	// "Circle of Confusion"
+	sample_disk (focus_u, focus_v, coc_x, coc_y);
 
 	// How much we will randomly perturb the camera position to simulate
 	// depth-of-field.
 	//
-	float src_perturb_u = adj_aperture * (focus_u - 0.5);
-	float src_perturb_v = adj_aperture * (focus_v - 0.5);
+	float src_perturb_x = aperture_radius * coc_x;
+	float src_perturb_y = aperture_radius * coc_y;
 
 	// The distance to the focus plane, in scene units.
 	//
 	float focus_distance = (focus == 0) ? target_dist : focus;
 
-	// Similarly, much we will randomly perturb the corresponding point on
-	// the "virtual film plane" 1 unit in front of camera position to
-	// simulate depth-of-field.  This is simply the above perturbation
-	// scaled by (1 - 1 / FOCUS_DISTANCE).
+	// Similarly, we will randomly perturb the corresponding point on
+	// the "virtual film plane" 1 unit in front of camera position.
+	// This is simply the above perturbation scaled by (1 - 1 /
+	// FOCUS_DISTANCE).
 	//
 	float targ_perturb_scale = 1 - 1 / focus_distance;
-	float targ_perturb_u = src_perturb_u * targ_perturb_scale;
-	float targ_perturb_v = src_perturb_v * targ_perturb_scale;
+	float targ_perturb_x = src_perturb_x * targ_perturb_scale;
+	float targ_perturb_y = src_perturb_y * targ_perturb_scale;
 
 	// Perturb the camera position.
 	//
-	src += right * src_perturb_u + up * src_perturb_v;
+	src += right * src_perturb_x + up * src_perturb_y;
 
 	// Perturb the point on the virtual film plane.
 	//
-	targ += right * targ_perturb_u + up * targ_perturb_v;
+	targ += right * targ_perturb_x + up * targ_perturb_y;
       }
 
     return Ray (src, targ);
@@ -347,8 +357,10 @@ public:
   float tan_half_fov_x, tan_half_fov_y;
 };
 
+
 }
 
 #endif /* __CAMERA_H__ */
+
 
 // arch-tag: 45c04676-91b9-4fdb-ae65-2fd3ea0f0228
