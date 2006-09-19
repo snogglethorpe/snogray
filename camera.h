@@ -23,9 +23,31 @@ namespace Snogray {
 class Camera {
 public:
 
-  static const Pos DEFAULT_POS;
-  static const float DEFAULT_ASPECT_RATIO = 4.0 / 3.0;
-  static const float DEFAULT_HORIZ_FOV = M_PI / 4;
+  class Format {
+  public:
+
+    Format (float width, float height)
+      : film_width (width), film_height (height)
+    { }
+
+    // Return the horizontal field-of-view of a lens with the given focal length
+    //
+    float horiz_fov (float focal_length)
+    {
+      return atan2 (film_width / 2, focal_length) * 2;
+    }
+
+    // Return the vertical field-of-view of a lens with the given focal length
+    //
+    float vertical_fov (float focal_length)
+    {
+      return atan2 (film_height / 2, focal_length) * 2;
+    }
+
+    // Size of film
+    //
+    float film_width, film_height;
+  };
 
   // Whether the (camera-relative) Z-axis increases when we move forward
   // (into the image), or decreases.  Our native mode is "increases forward",
@@ -36,9 +58,12 @@ public:
     Z_DECREASES_FORWARD
   };
 
-  Camera (const Pos &_pos = DEFAULT_POS,
-	  float aspect = DEFAULT_ASPECT_RATIO,
-	  float horiz_fov = DEFAULT_HORIZ_FOV);
+
+  static const Format FMT_35mm, FMT_6x6, FMT_6x7;
+  static const Format FMT_APS_C, FMT_APS_H, FMT_APS_P; // who cares, but ...
+
+  Camera (const Format &fmt = FMT_35mm, float focal_length = 0 /* 0==auto */);
+
 
   // Move the camera to absolution position POS
   //
@@ -102,32 +127,61 @@ public:
   //
   void transform (const Xform &xform);
 
-  void set_aspect_ratio (float ratio)
-   {
-    aspect_ratio = ratio;
-    set_horiz_fov (fov_x);	// x fov remains constant, while y fov changes
+
+  float focal_length () const
+  {
+    return format.film_width / 2 / tan_half_fov_x;
+  }
+  void set_focal_length (float focal_len)
+  {
+    tan_half_fov_x = format.film_width / 2 / focal_len;
+    tan_half_fov_y = format.film_height / 2 / focal_len;
   }
 
-  void set_horiz_fov (float fov)
-  {
-    fov_x = fov;
-    tan_half_fov_x = tan (fov_x / 2);
-    tan_half_fov_y = tan_half_fov_x / aspect_ratio;
-    fov_y = atan (tan_half_fov_y) * 2;
-  }
-  void set_vert_fov (float fov)
-  {
-    fov_y = fov;
-    tan_half_fov_y = tan (fov_y / 2);
-    tan_half_fov_x = tan_half_fov_y * aspect_ratio;
-    fov_x = atan (tan_half_fov_x) * 2;
-  }
   void zoom (float magnification)
   {
     tan_half_fov_x /= magnification;
     tan_half_fov_y /= magnification;
-    fov_x = atan (tan_half_fov_x) * 2;
-    fov_y = atan (tan_half_fov_y) * 2;
+  }
+  void set_horiz_fov (float fov)
+  {
+    tan_half_fov_x = tan (fov / 2);
+    tan_half_fov_y = format.film_height / (format.film_width / tan_half_fov_x);
+  }
+  void set_vert_fov (float fov)
+  {
+    tan_half_fov_y = tan (fov / 2);
+    tan_half_fov_x = format.film_width / (format.film_height / tan_half_fov_y);
+  }
+
+  float aspect_ratio () const
+  {
+    return format.film_width / format.film_height;
+  }
+  void set_aspect_ratio (float aspect_ratio)
+  {
+    float focal_len = focal_length ();
+
+    float old_aspect_ratio = format.film_width / format.film_height;
+    float aspect_ratio_change = aspect_ratio /  old_aspect_ratio;
+
+    // Expand whichever film dimension necessary to fit the new aspect ratio.
+    //
+    if (aspect_ratio_change >= 1)
+      format.film_width *= aspect_ratio_change;
+    else
+      format.film_height /= aspect_ratio_change;
+
+    set_focal_length (focal_len); // update tan_half_fov_* variables
+  }
+
+  void set_format (const Format &fmt)
+  {
+    float focal_len = focal_length ();
+
+    format = fmt;
+
+    set_focal_length (focal_len); // update tan_half_fov_* variables
   }
 
   Ray get_ray (float u, float v) const
@@ -152,6 +206,8 @@ public:
       }
   }
 
+  Format format;
+
   Pos pos;
   Vec user_up;
 
@@ -165,9 +221,6 @@ public:
   //
   enum z_mode z_mode;
 
-  float aspect_ratio;		// horiz / vert
-
-  float fov_x, fov_y;
   float tan_half_fov_x, tan_half_fov_y;
 };
 

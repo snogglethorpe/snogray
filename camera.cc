@@ -13,19 +13,37 @@
 
 using namespace Snogray;
 
-const Pos Camera::DEFAULT_POS = Pos (0, 0, 0);
-const float Camera::DEFAULT_ASPECT_RATIO;
-const float Camera::DEFAULT_HORIZ_FOV;
+
+const Camera::Format Camera::FMT_35mm (36, 24); // mm
+const Camera::Format Camera::FMT_6x6 (56, 56); // mm
+const Camera::Format Camera::FMT_6x7 (70, 56); // mm
+const Camera::Format Camera::FMT_APS_C (25.1, 16.7); // mm
+const Camera::Format Camera::FMT_APS_H (30.2, 16.7); // mm
+const Camera::Format Camera::FMT_APS_P (30.2, 9.5); // mm
 
 
-Camera::Camera (const Pos &_pos, float aspect, float horiz_fov)
-  : pos (_pos), user_up (Vec (0, 1, 0)),
+Camera::Camera (const Format &fmt, float focal_len)
+  : format (fmt),
+    user_up (Vec (0, 1, 0)),
     forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
-    target_dist (1), z_mode (Z_INCREASES_FORWARD),
-    aspect_ratio (aspect), fov_x (horiz_fov)
+    target_dist (1), z_mode (Z_INCREASES_FORWARD)
 {
-  set_horiz_fov (fov_x);     // x fov remains constant, while y fov changes
+  // By default, set the focal length proportional to a 50mm lens for 35mm film
+  //
+  if (focal_len == 0)
+    {
+      float aspect_ratio = fmt.film_width / fmt.film_height;
+      float aspect_ratio_35mm = FMT_35mm.film_width / FMT_35mm.film_height;
+
+      if (aspect_ratio > aspect_ratio_35mm)
+	focal_len = 50 * (fmt.film_width / FMT_35mm.film_width);
+      else
+	focal_len = 50 * (fmt.film_height / FMT_35mm.film_height);
+    }
+
+  set_focal_length (focal_len);
 }
+
 
 // Change the current camera direction according to the rotational
 // transform ROT_XFORM (ROT_XFORM is assume to be a pure rotational

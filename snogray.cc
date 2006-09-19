@@ -364,6 +364,12 @@ parse_size_opt_arg (CmdLineParser &clp, unsigned &width, unsigned &height)
 
   if (end && end != size)
     {
+      // If no height is given, it will be set according to the camera's
+      // aspect ratio
+      //
+      if (*end == '\0') 
+	return;
+
       size = end + strspn (end, " ,x");
 
       height = strtoul (size, &end, 10);
@@ -372,7 +378,7 @@ parse_size_opt_arg (CmdLineParser &clp, unsigned &width, unsigned &height)
 	return;
     }
 
-  clp.opt_err ("requires a size specification (WIDTHxHEIGHT)");
+  clp.opt_err ("requires a size specification (WIDTH, or WIDTHxHEIGHT)");
 }
 
 static void
@@ -496,7 +502,7 @@ int main (int argc, char *const *argv)
 
   // Parameters set from the command line
   //
-  unsigned width = 640, height = 480;
+  unsigned width = 640, height = 0;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   bool recover = false;
@@ -594,9 +600,14 @@ int main (int argc, char *const *argv)
   Scene scene;
   Camera camera;
 
-  // Default camera aspect ratio to give pixels a 1:1 aspect ratio
+  // If the user specified both a width and a height, set the camera aspect
+  // ratio to maintain pixels with a 1:1 aspect ratio, otherwise compute
+  // the height using the default aspect ratio.
   //
-  camera.set_aspect_ratio (float (width) / float (height));
+  if (height != 0)
+    camera.set_aspect_ratio (float (width) / float (height));
+  else
+    height = unsigned (width / camera.aspect_ratio ());
 
   // Read in the scene/camera definitions
   //
