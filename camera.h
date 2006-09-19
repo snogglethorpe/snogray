@@ -58,9 +58,11 @@ public:
     Z_DECREASES_FORWARD
   };
 
-
+  // Various pre-defined camera formats
+  //
   static const Format FMT_35mm, FMT_6x6, FMT_6x7;
   static const Format FMT_APS_C, FMT_APS_H, FMT_APS_P; // who cares, but ...
+  static const Format FMT_4x3, FMT_5x4, FMT_16x9; // ersatz formats for video
 
   Camera (const Format &fmt = FMT_35mm, float focal_length = 0 /* 0==auto */);
 

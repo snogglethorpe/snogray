@@ -14,12 +14,21 @@
 using namespace Snogray;
 
 
+// Real camera/film formats
+//
 const Camera::Format Camera::FMT_35mm (36, 24); // mm
 const Camera::Format Camera::FMT_6x6 (56, 56); // mm
 const Camera::Format Camera::FMT_6x7 (70, 56); // mm
 const Camera::Format Camera::FMT_APS_C (25.1, 16.7); // mm
 const Camera::Format Camera::FMT_APS_H (30.2, 16.7); // mm
 const Camera::Format Camera::FMT_APS_P (30.2, 9.5); // mm
+
+// Ersatz formats for other common aspect ratios; these are sized so
+// that 35mm lens focal lengths more or less work with them.
+//
+const Camera::Format Camera::FMT_4x3 (36, 27); // mm
+const Camera::Format Camera::FMT_5x4 (36, 28.8); // mm
+const Camera::Format Camera::FMT_16x9 (128.f / 3.f, 24); // mm
 
 
 Camera::Camera (const Format &fmt, float focal_len)
