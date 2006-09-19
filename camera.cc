@@ -31,11 +31,11 @@ const Camera::Format Camera::FMT_5x4 (36, 28.8); // mm
 const Camera::Format Camera::FMT_16x9 (128.f / 3.f, 24); // mm
 
 
-Camera::Camera (const Format &fmt, float focal_len)
+Camera::Camera (const Format &fmt, float _scene_unit, float focal_len)
   : format (fmt),
     user_up (Vec (0, 1, 0)),
     forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
-    target_dist (1), z_mode (Z_INCREASES_FORWARD)
+    target_dist (1), scene_unit (_scene_unit), z_mode (Z_INCREASES_FORWARD)
 {
   // By default, set the focal length proportional to a 50mm lens for 35mm film
   //

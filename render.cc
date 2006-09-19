@@ -25,7 +25,7 @@ static void
 render_by_rows (const Scene &scene, const Camera &camera,
 		unsigned width, unsigned height,
 		ImageOutput &output, unsigned offs_x, unsigned offs_y,
-		Sample2Gen &sample_gen,
+		Sample2Gen &sample_gen, Sample2Gen &focus_sample_gen,
 		const TraceParams &trace_params, TraceStats &stats,
 		std::ostream &prog_stream, Progress::Verbosity verbosity)
 {
@@ -37,7 +37,7 @@ render_by_rows (const Scene &scene, const Camera &camera,
   prog.start ();
 
   Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     1, sample_gen, trace_params);
+		     1, sample_gen, focus_sample_gen, trace_params);
 
   for (unsigned row_offs = 0; row_offs < output.height; row_offs++)
     {
@@ -57,7 +57,7 @@ render_by_blocks (unsigned block_width, unsigned block_height,
 		  const Scene &scene, const Camera &camera,
 		  unsigned width, unsigned height,
 		  ImageOutput &output, unsigned offs_x, unsigned offs_y,
-		  Sample2Gen &sample_gen,
+		  Sample2Gen &sample_gen, Sample2Gen &focus_sample_gen,
 		  const TraceParams &trace_params, TraceStats &stats,
 		  std::ostream &prog_stream, Progress::Verbosity verbosity)
 {
@@ -72,7 +72,7 @@ render_by_blocks (unsigned block_width, unsigned block_height,
   prog.start ();
 
   Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     block_height, sample_gen, trace_params);
+		     block_height, sample_gen, focus_sample_gen, trace_params);
 
   unsigned cur_block_num = 0;
 
@@ -114,10 +114,10 @@ render_by_blocks (unsigned block_width, unsigned block_height,
 
 
 
-// Return an appropriate sample generator.
+// Return an appropriate sample generator for anti-aliasing.
 //
 static Sample2Gen *
-make_sample_gen (const Params &params)
+make_aa_sample_gen (const Params &params)
 {
   unsigned oversample = params.get_uint ("oversample", 1);
   unsigned jitter = params.get_uint ("jitter", 0);
@@ -131,17 +131,18 @@ Snogray::render (const Scene &scene, const Camera &camera,
 		 const Params &params, TraceStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
-  std::auto_ptr<Sample2Gen> sample_gen (make_sample_gen (params));
+  std::auto_ptr<Sample2Gen> sample_gen (make_aa_sample_gen (params));
+  std::auto_ptr<Sample2Gen> focus_sample_gen (sample_gen->clone ());
   TraceParams trace_params (params);
 
   if (params.get_int ("render-by-rows", 0))
     render_by_rows (scene, camera, width, height, output, offs_x, offs_y,
-		    *sample_gen, trace_params, stats,
+		    *sample_gen, *focus_sample_gen, trace_params, stats,
 		    progress_stream, verbosity);
   else
     render_by_blocks (16, 16,
 		      scene, camera, width, height, output, offs_x, offs_y,
-		      *sample_gen, trace_params, stats,
+		      *sample_gen, *focus_sample_gen, trace_params, stats,
 		      progress_stream, verbosity);
 }
 

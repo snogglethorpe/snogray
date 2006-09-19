@@ -21,13 +21,15 @@ using namespace Snogray;
 Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned _width, unsigned _height,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
-		    unsigned max_y_block_size, Sample2Gen &_sample_gen,
+		    unsigned max_y_block_size,
+		    Sample2Gen &_sample_gen, Sample2Gen &_focus_sample_gen,
 		    const TraceParams &trace_params)
   : scene (_scene), camera (_camera), width (_width), height (_height),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
-    sample_gen (_sample_gen), global_tstate (trace_params)
+    sample_gen (_sample_gen), focus_sample_gen (_focus_sample_gen),
+    global_tstate (trace_params)
 {
   output.set_num_buffered_rows (max_y_block_size);
 }
@@ -118,7 +120,24 @@ Renderer::render_pixel (int x, int y, Trace &trace)
   //
   sample_gen.generate ();
 
-  for (Sample2Gen::iterator s = sample_gen.begin(); s != sample_gen.end(); s++)
+  // Generate samples for depth-of-field simulation.  There are the same
+  // number as anti-alising samples, but their position should not be
+  // correlated.
+  //
+  // We only need these samples when the camera's "aperture" is non-zero,
+  // but for simplicity we always step through the samples, so we need to
+  // generate the focus samples the first time even in the zero-aperture
+  // case just to make sure the sample vector is full.
+  //
+  if (camera.aperture != 0 || focus_sample_gen.size () == 0)
+    {
+      focus_sample_gen.generate ();
+      focus_sample_gen.shuffle (); // de-correlate from antialiasing samples
+    }
+
+  for (Sample2Gen::iterator s = sample_gen.begin(),
+	 fs = focus_sample_gen.begin ();
+       s != sample_gen.end(); ++s, ++fs)
     {
       // The X/Y coordinates of the specific sample S
       //
@@ -133,7 +152,7 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       // Translate the image position U, V into a ray coming from the
       // camera.
       //
-      Ray camera_ray = camera.get_ray (u, v);
+      Ray camera_ray = camera.get_ray (u, v, fs->u, fs->v);
 
       // Cast the camera ray and calculate image color at that
       // point.

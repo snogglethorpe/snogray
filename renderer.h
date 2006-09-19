@@ -31,7 +31,8 @@ public:
   Renderer (const Scene &_scene, const Camera &_camera,
 	    unsigned _width, unsigned _height,
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
-	    unsigned max_y_block_size, Sample2Gen &_sample_gen,
+	    unsigned max_y_block_size,
+	    Sample2Gen &_sample_gen, Sample2Gen &_focus_sample_gen,
 	    const TraceParams &trace_params);
 
   // Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
@@ -76,6 +77,10 @@ private:
   // Sample generator used to generate samples within a pixel.
   //
   Sample2Gen &sample_gen;
+
+  // Sample generator used to generate focus samples.
+  //
+  Sample2Gen &focus_sample_gen;
 
   // Global R/W state during tracing.
   //

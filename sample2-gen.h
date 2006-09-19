@@ -13,6 +13,7 @@
 #define __SAMPLE2_GEN_H__
 
 #include <vector>
+#include <algorithm>
 
 #include "sample2.h"
 
@@ -24,10 +25,14 @@ public:
 
   virtual ~Sample2Gen () { }
 
+  virtual Sample2Gen *clone () const = 0;
+
   virtual void generate () = 0;
 
   void clear () { cur_sample = 0; }
   void add (float u, float v) { (*this)[cur_sample++] = Sample2 (u, v); }
+
+  void shuffle () { random_shuffle (begin (), end ()); }
 
 protected:
 

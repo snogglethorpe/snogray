@@ -27,6 +27,11 @@ public:
       jitter (_jitter)
   { }
 
+  virtual Sample2Gen *clone () const
+  {
+    return new Grid (u_steps, v_steps, true); // XXX note we force jitter on...
+  }
+
   virtual void generate ();
 
   unsigned u_steps, v_steps;

@@ -64,7 +64,10 @@ public:
   static const Format FMT_APS_C, FMT_APS_H, FMT_APS_P; // who cares, but ...
   static const Format FMT_4x3, FMT_5x4, FMT_16x9; // ersatz formats for video
 
-  Camera (const Format &fmt = FMT_35mm, float focal_length = 0 /* 0==auto */);
+  static const float DEFAULT_SCENE_UNIT = 25.4; // 1 scene unit in camera units
+
+  Camera (const Format &fmt = FMT_35mm, float _scene_unit = DEFAULT_SCENE_UNIT,
+	  float focal_length = 0 /* 0==auto */);
 
 
   // Move the camera to absolution position POS
@@ -130,6 +133,41 @@ public:
   void transform (const Xform &xform);
 
 
+  // Set the mapping of "scene units" to camera units (nominally mm).
+  // This is only used for depth-of-field simulation.  The default value is
+  // 25.4mm, or 1 inch
+  //
+  void set_scene_unit (float camera_units)
+  {
+    scene_unit = camera_units;
+  }
+
+  // Set the distance to the focus plane, in scene units.  This defaults to
+  // the "target distance" (the distance between the camera position and
+  // the position passed to the `point' method).
+  //
+  void set_focus (float distance)
+  {
+    focus = distance;
+  }
+
+  // Similarly, but to a point in the scene, or along a scene vector.
+  //
+  void set_focus (const Pos &point_on_focus_plane)
+  {
+    set_focus (point_on_focus_plane - pos);
+  }
+  void set_focus (const Vec &vec)
+  {
+    // The distance to the focus plane is parallel to the camera forward
+    // vector.
+    //
+    Vec components = vec.to_basis (right, up, forward);
+    set_focus (components.z);
+  }
+
+  // Return / set the focal length in camera units (nominally mm).
+  //
   float focal_length () const
   {
     return format.film_width / 2 / tan_half_fov_x;
@@ -139,6 +177,10 @@ public:
     tan_half_fov_x = format.film_width / 2 / focal_len;
     tan_half_fov_y = format.film_height / 2 / focal_len;
   }
+
+  // Set the camera aperture for depth-of-field simulation, in f-stops
+  //
+  void set_f_stop (float f_stop) { aperture = focal_length () / f_stop; }
 
   void zoom (float magnification)
   {
@@ -186,6 +228,9 @@ public:
     set_focal_length (focal_len); // update tan_half_fov_* variables
   }
 
+  // Return an eye-ray from this camera for position U,V on the film plane,
+  // with no depth-of-field.  U and V have a range of 0-1.
+  //
   Ray get_ray (float u, float v) const
   {
     Pos targ = pos;
@@ -195,6 +240,68 @@ public:
     targ += 2 * (v - 0.5) * up * tan_half_fov_y;
 
     return Ray (pos, targ);
+  }
+
+  // Return an eye-ray from this camera for position (U, V) on the film
+  // plane, with the random perturbation (FOCUS_U, FOCUS_V) for
+  // depth-of-field simulation no depth-of-field.  All paramters have a
+  // range of 0-1.
+  //
+  Ray get_ray (float u, float v, float focus_u, float focus_v) const
+  {
+    // The source of the camera ray, which is the camera position
+    // (actually the optical center of the lens), possibly perturbed for
+    // depth-of-field simulation
+    //
+    Pos src = pos;
+
+    // The point on the virtual film plane (one unit in front of the camera
+    // position, projected from the actual film plane which lies behind the
+    // camera position) which is the end of the camera ray.
+    //
+    Pos targ = pos;
+
+    // Adjust TARG to its final poitn on the virtual film plane.
+    //
+    targ += forward;
+    targ += 2 * (u - 0.5) * right * tan_half_fov_x;
+    targ += 2 * (v - 0.5) * up * tan_half_fov_y;
+
+    if (aperture != 0)
+      {
+	// The camera aperture, converted to scene units.
+	//
+	float adj_aperture = aperture / scene_unit;
+
+	// How much we will randomly perturb the camera position to simulate
+	// depth-of-field.
+	//
+	float src_perturb_u = adj_aperture * (focus_u - 0.5);
+	float src_perturb_v = adj_aperture * (focus_v - 0.5);
+
+	// The distance to the focus plane, in scene units.
+	//
+	float focus_distance = (focus == 0) ? target_dist : focus;
+
+	// Similarly, much we will randomly perturb the corresponding point on
+	// the "virtual film plane" 1 unit in front of camera position to
+	// simulate depth-of-field.  This is simply the above perturbation
+	// scaled by (1 - 1 / FOCUS_DISTANCE).
+	//
+	float targ_perturb_scale = 1 - 1 / focus_distance;
+	float targ_perturb_u = src_perturb_u * targ_perturb_scale;
+	float targ_perturb_v = src_perturb_v * targ_perturb_scale;
+
+	// Perturb the camera position.
+	//
+	src += right * src_perturb_u + up * src_perturb_v;
+
+	// Perturb the point on the virtual film plane.
+	//
+	targ += right * targ_perturb_u + up * targ_perturb_v;
+      }
+
+    return Ray (src, targ);
   }
 
   // Set whether the Z axis increases into the image or decreases
@@ -215,9 +322,23 @@ public:
 
   Vec forward, up, right;
 
-  // How far it is to the "target".  Mainly used for the "orbit" methods.
+  // How far it is to the "target".
   //
   dist_t target_dist;
+
+  // Lens aperture.  This only affects depth-of-field, not exposure like in
+  // a real camera.  Zero means perfect focus.
+  //
+  float aperture;
+
+  // The distance to the focus plane, from POS.  If zero, TARGET_DIST is used.
+  //
+  float focus;
+
+  // The length of one "scene unit", in "camera units" (the same units we
+  // use for focal-length, aperture etc, nominally mm).
+  //
+  float scene_unit;
 
   // How the Z axis behaves with respect to the camera
   //

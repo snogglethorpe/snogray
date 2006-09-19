@@ -177,7 +177,7 @@ interpret_camera_cmds (Camera &camera, const string &cmds)
     { 
       while (! stream.eof ())
 	{
-	  char cmd = eat (stream, "gtzlmro", "command");
+	  char cmd = eat (stream, "gtzlfdumro", "command");
 
 	  if (cmd == 'g')
 	    camera.move (read_pos (stream));
@@ -186,7 +186,13 @@ interpret_camera_cmds (Camera &camera, const string &cmds)
 	  else if (cmd == 'z')
 	    camera.zoom (read_float (stream, "zoom factor"));
 	  else if (cmd == 'l')
-	    camera.set_focal_length (read_float (stream, "focal length"));
+	    camera.set_focal_length (read_float (stream, "lens focal length"));
+	  else if (cmd == 'f')
+	    camera.set_f_stop (read_float (stream, "f-stop"));
+	  else if (cmd == 'd')
+	    camera.set_focus (read_float (stream, "focus distance"));
+	  else if (cmd == 'u')
+	    camera.set_scene_unit (read_float (stream, "scene unit (in mm)"));
 	  else if (cmd == 'm')
 	    {
 	      char dir = eat (stream, "udlrfbxyz", "movement direction/axis");
