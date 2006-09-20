@@ -43,7 +43,11 @@
 using namespace Snogray;
 using namespace std;
 
-#define DEFAULT_IMAGE_SIZE 512	// used for the "long" dimension
+// Default size used for the "long" dimension of output image.  This
+// particular size is nice because it's divisible by a 2, 3, 5, 9, and 16,
+// which allows it to naturally fit a fair number of film formats.
+//
+#define DEFAULT_IMAGE_SIZE 720
 
 
 // File I/O helper functions for image recovering
