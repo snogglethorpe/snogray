@@ -1625,7 +1625,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 			     cook_torrance (0.4, 0.3, 4)));
   const Material *moss
     = scene.add (new Material (Color (0.1, 0.2, 0.05),
-			       cook_torrance (0.4, 0.1, 2)));
+			       cook_torrance (0.8, 0.1, 2)));
   const Material *mirror
     = scene.add (new Mirror (Ior (0.25, 3), 0.95));
     
