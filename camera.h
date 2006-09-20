@@ -33,18 +33,28 @@ public:
       : film_width (width), film_height (height)
     { }
 
+    float film_diagonal () const
+    {
+      return sqrt (film_height * film_height + film_width * film_width);
+    }
+
     // Return the horizontal field-of-view of a lens with the given focal length
     //
-    float horiz_fov (float focal_length)
+    float horiz_fov (float focal_length) const
     {
       return atan2 (film_width / 2, focal_length) * 2;
     }
 
     // Return the vertical field-of-view of a lens with the given focal length
     //
-    float vertical_fov (float focal_length)
+    float vertical_fov (float focal_length) const
     {
       return atan2 (film_height / 2, focal_length) * 2;
+    }
+
+    float diagonal_fov (float focal_length) const
+    {
+      return atan2 (film_diagonal () / 2, focal_length) * 2;
     }
 
     // Size of film
@@ -56,10 +66,9 @@ public:
   // (into the image), or decreases.  Our native mode is "increases forward",
   // but imported scenes may use a different convention.
   //
-  enum z_mode {
-    Z_INCREASES_FORWARD,
-    Z_DECREASES_FORWARD
-  };
+  enum z_mode { Z_INCREASES_FORWARD, Z_DECREASES_FORWARD };
+
+  enum orient_t { ORIENT_VERT, ORIENT_HORIZ };
 
   // Various pre-defined camera formats
   //
@@ -181,15 +190,20 @@ public:
     tan_half_fov_y = format.film_height / 2 / focal_len;
   }
 
-  // Set the camera aperture for depth-of-field simulation, in f-stops
+  // Set the actual focal length to something that has the same diagonal
+  // field of view that FOCAL_LEN does in FOC_LEN_FMT.
   //
-  void set_f_stop (float f_stop) { aperture = focal_length () / f_stop; }
+  void set_focal_length (float focal_len, const Format &foc_len_fmt)
+  {
+    set_diagonal_fov (foc_len_fmt.diagonal_fov (focal_len));
+  }
 
   void zoom (float magnification)
   {
     tan_half_fov_x /= magnification;
     tan_half_fov_y /= magnification;
   }
+
   void set_horiz_fov (float fov)
   {
     tan_half_fov_x = tan (fov / 2);
@@ -200,6 +214,13 @@ public:
     tan_half_fov_y = tan (fov / 2);
     tan_half_fov_x = format.film_width / (format.film_height / tan_half_fov_y);
   }
+  void set_diagonal_fov (float fov)
+  {
+    float tan_half_fov = tan (fov / 2);
+    float diag_angle = atan2 (format.film_width, format.film_height);
+    tan_half_fov_x = sin (diag_angle) * tan_half_fov;
+    tan_half_fov_y = cos (diag_angle) * tan_half_fov;
+  }
 
   float aspect_ratio () const
   {
@@ -207,29 +228,41 @@ public:
   }
   void set_aspect_ratio (float aspect_ratio)
   {
-    float focal_len = focal_length ();
+    float old_focal_len = focal_length ();
+    Format old_format = format;
 
-    float old_aspect_ratio = format.film_width / format.film_height;
-    float aspect_ratio_change = aspect_ratio /  old_aspect_ratio;
+    float old_diagonal = format.film_diagonal ();
+    float new_diag_angle = atan (aspect_ratio);
 
-    // Expand whichever film dimension necessary to fit the new aspect ratio.
-    //
-    if (aspect_ratio_change >= 1)
-      format.film_width *= aspect_ratio_change;
-    else
-      format.film_height /= aspect_ratio_change;
+    format.film_width = old_diagonal * sin (new_diag_angle);
+    format.film_height = old_diagonal * cos (new_diag_angle);
 
-    set_focal_length (focal_len); // update tan_half_fov_* variables
+    set_focal_length (old_focal_len, old_format);
   }
 
   void set_format (const Format &fmt)
   {
-    float focal_len = focal_length ();
+    float old_focal_len = focal_length ();
+    Format old_format = format;
 
     format = fmt;
 
-    set_focal_length (focal_len); // update tan_half_fov_* variables
+    set_focal_length (old_focal_len, old_format);
   }
+
+  void set_orientation (orient_t orient)
+  {
+    orient_t cur_orient = aspect_ratio () >= 1 ? ORIENT_HORIZ : ORIENT_VERT;
+
+    if (orient != cur_orient)
+      // Flip the current format
+      //
+      set_format (Format (format.film_height, format.film_width));
+  }
+
+  // Set the camera aperture for depth-of-field simulation, in f-stops
+  //
+  void set_f_stop (float f_stop) { aperture = focal_length () / f_stop; }
 
   // Return an eye-ray from this camera for position U,V on the film plane,
   // with no depth-of-field.  U and V have a range of 0-1.

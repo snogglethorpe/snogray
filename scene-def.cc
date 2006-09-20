@@ -177,7 +177,7 @@ interpret_camera_cmds (Camera &camera, const string &cmds)
     { 
       while (! stream.eof ())
 	{
-	  char cmd = eat (stream, "gtzlfdumro", "command");
+	  char cmd = eat (stream, "gtzlfduhvmro", "command");
 
 	  if (cmd == 'g')
 	    camera.move (read_pos (stream));
@@ -193,6 +193,10 @@ interpret_camera_cmds (Camera &camera, const string &cmds)
 	    camera.set_focus (read_float (stream, "focus distance"));
 	  else if (cmd == 'u')
 	    camera.set_scene_unit (read_float (stream, "scene unit (in mm)"));
+	  else if (cmd == 'h')
+	    camera.set_orientation (Camera::ORIENT_HORIZ);
+	  else if (cmd == 'v')
+	    camera.set_orientation (Camera::ORIENT_VERT);
 	  else if (cmd == 'm')
 	    {
 	      char dir = eat (stream, "udlrfbxyz", "movement direction/axis");

@@ -41,17 +41,9 @@ Camera::Camera (const Format &fmt, float _scene_unit, float focal_len)
   // By default, set the focal length proportional to a 50mm lens for 35mm film
   //
   if (focal_len == 0)
-    {
-      float aspect_ratio = fmt.film_width / fmt.film_height;
-      float aspect_ratio_35mm = FMT_35mm.film_width / FMT_35mm.film_height;
-
-      if (aspect_ratio > aspect_ratio_35mm)
-	focal_len = 50 * (fmt.film_width / FMT_35mm.film_width);
-      else
-	focal_len = 50 * (fmt.film_height / FMT_35mm.film_height);
-    }
-
-  set_focal_length (focal_len);
+    set_focal_length (50, FMT_35mm);
+  else
+    set_focal_length (focal_len);
 }
 
 

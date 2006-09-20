@@ -43,6 +43,8 @@
 using namespace Snogray;
 using namespace std;
 
+#define DEFAULT_IMAGE_SIZE 512	// used for the "long" dimension
+
 
 // File I/O helper functions for image recovering
 	  
@@ -354,31 +356,40 @@ LimitSpec::apply (CmdLineParser &clp, unsigned range, unsigned base) const
 
 // Parsers for --size and --limit command-line option arguments
 
+// Parse a size option argument.  If both a width and height are
+// specified WIDTH and HEIGHT are set.  If only a single number is
+// specified, SIZE is set instead.
+//
 static void
-parse_size_opt_arg (CmdLineParser &clp, unsigned &width, unsigned &height)
+parse_size_opt_arg (CmdLineParser &clp,
+		    unsigned &width, unsigned &height, unsigned &size)
 {
-  const char *size = clp.opt_arg ();
+  const char *arg = clp.opt_arg ();
   char *end = 0;
 
-  width = strtoul (size, &end, 10);
+  unsigned num = strtoul (arg, &end, 10);
 
-  if (end && end != size)
+  if (end && end != arg)
     {
       // If no height is given, it will be set according to the camera's
       // aspect ratio
       //
       if (*end == '\0') 
-	return;
+	{
+	  size = num;
+	  return;
+	}
 
-      size = end + strspn (end, " ,x");
+      arg = end + strspn (end, " ,x");
 
-      height = strtoul (size, &end, 10);
+      width = num;
+      height = strtoul (arg, &end, 10);
 
-      if (end && end != size && *end == '\0')
+      if (end && end != arg && *end == '\0')
 	return;
     }
 
-  clp.opt_err ("requires a size specification (WIDTH, or WIDTHxHEIGHT)");
+  clp.opt_err ("requires a size specification (WIDTHxHEIGHT, or SIZE)");
 }
 
 static void
@@ -440,6 +451,8 @@ help (CmdLineParser &clp, ostream &os)
   "Ray-trace an image"
 n
 s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
+s "  -w, --width=WIDTH          Set image width to WIDTH pixels"
+s "  -h, --height=HEIGHT        Set image height to HEIGHT lines"
 n
 s RENDER_OPTIONS_HELP
 n
@@ -476,6 +489,8 @@ int main (int argc, char *const *argv)
   //
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
+    { "width",		required_argument, 0, 'w' },
+    { "height",		required_argument, 0, 'h' },
     { "limit",		required_argument, 0, 'l' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
@@ -491,7 +506,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:l:qpP"
+    "s:w:h:l:qpP"
     SCENE_DEF_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
@@ -502,7 +517,7 @@ int main (int argc, char *const *argv)
 
   // Parameters set from the command line
   //
-  unsigned width = 640, height = 0;
+  unsigned width = 0, height = 0, size = DEFAULT_IMAGE_SIZE;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   bool recover = false;
@@ -532,8 +547,15 @@ int main (int argc, char *const *argv)
 	// Size options
 	//
       case 's':
-	parse_size_opt_arg (clp, width, height);
+	parse_size_opt_arg (clp, width, height, size);
 	break;
+      case 'w':
+	width = clp.unsigned_opt_arg ();
+	break;
+      case 'h':
+	height = clp.unsigned_opt_arg ();
+	break;
+
       case 'l':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
 			     limit_max_x_spec, limit_max_y_spec);
@@ -600,18 +622,39 @@ int main (int argc, char *const *argv)
   Scene scene;
   Camera camera;
 
-  // If the user specified both a width and a height, set the camera aspect
-  // ratio to maintain pixels with a 1:1 aspect ratio, otherwise compute
-  // the height using the default aspect ratio.
-  //
-  if (height != 0)
-    camera.set_aspect_ratio (float (width) / float (height));
-  else
-    height = unsigned (width / camera.aspect_ratio ());
 
   // Read in the scene/camera definitions
   //
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
+
+
+  // If the user specified both a width and a height, set the camera aspect
+  // ratio to maintain pixels with a 1:1 aspect ratio.
+  //
+  if (width && height)
+    camera.set_aspect_ratio (float (width) / float (height));
+  else
+    // Otherwise, the output image size was not fully specified, so use
+    // the camera's aspect ration to deduce the missing dimension from
+    // the provided one, or from SIZE, which sets the longest dimension
+    // rather than a specific one.
+    {
+      float ar = camera.aspect_ratio ();
+
+      if (!width && !height)
+	{
+	  if (ar > 1)
+	    width = size;
+	  else
+	    height = size;
+	}
+
+      if (width)
+	height = unsigned (width / ar);
+      else
+	width = unsigned (height * ar);
+    }
+
 
   Rusage scene_end_ru;		// stop timing scene definition
 
