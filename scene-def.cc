@@ -190,7 +190,17 @@ interpret_camera_cmds (Camera &camera, const string &cmds)
 	  else if (cmd == 'f')
 	    camera.set_f_stop (read_float (stream, "f-stop"));
 	  else if (cmd == 'd')
-	    camera.set_focus (read_float (stream, "focus distance"));
+	    {
+	      char mod = eat (stream, "+-");
+	      float dist = read_float (stream, "focus distance");
+	      if (mod)
+		{
+		  if (mod == '-')
+		    dist = -dist;
+		  dist += camera.focus_distance ();
+		}
+	      camera.set_focus (dist);
+	    }
 	  else if (cmd == 'u')
 	    camera.set_scene_unit (read_float (stream, "scene unit (in mm)"));
 	  else if (cmd == 'h')

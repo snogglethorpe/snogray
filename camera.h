@@ -178,6 +178,14 @@ public:
     set_focus (components.z);
   }
 
+  // Return the distance to the focus plane, in scene units.
+  //
+  float focus_distance () const
+  {
+    return (focus == 0) ? target_dist : focus;
+  }
+
+
   // Return / set the focal length in camera units (nominally mm).
   //
   float focal_length () const
@@ -222,6 +230,7 @@ public:
     tan_half_fov_y = cos (diag_angle) * tan_half_fov;
   }
 
+
   float aspect_ratio () const
   {
     return format.film_width / format.film_height;
@@ -240,6 +249,7 @@ public:
     set_focal_length (old_focal_len, old_format);
   }
 
+
   void set_format (const Format &fmt)
   {
     float old_focal_len = focal_length ();
@@ -249,6 +259,7 @@ public:
 
     set_focal_length (old_focal_len, old_format);
   }
+
 
   void set_orientation (orient_t orient)
   {
@@ -263,6 +274,7 @@ public:
   // Set the camera aperture for depth-of-field simulation, in f-stops
   //
   void set_f_stop (float f_stop) { aperture = focal_length () / f_stop; }
+
 
   // Return an eye-ray from this camera for position U,V on the film plane,
   // with no depth-of-field.  U and V have a range of 0-1.
@@ -322,16 +334,12 @@ public:
 	float src_perturb_x = aperture_radius * coc_x;
 	float src_perturb_y = aperture_radius * coc_y;
 
-	// The distance to the focus plane, in scene units.
+	// Similarly, we will randomly perturb the corresponding point
+	// on the "virtual film plane" 1 unit in front of the camera
+	// position.  This is simply the above perturbation scaled by
+	// (1 - 1 / FOCUS_DISTANCE).
 	//
-	float focus_distance = (focus == 0) ? target_dist : focus;
-
-	// Similarly, we will randomly perturb the corresponding point on
-	// the "virtual film plane" 1 unit in front of camera position.
-	// This is simply the above perturbation scaled by (1 - 1 /
-	// FOCUS_DISTANCE).
-	//
-	float targ_perturb_scale = 1 - 1 / focus_distance;
+	float targ_perturb_scale = 1 - 1 / focus_distance ();
 	float targ_perturb_x = src_perturb_x * targ_perturb_scale;
 	float targ_perturb_y = src_perturb_y * targ_perturb_scale;
 
@@ -347,6 +355,7 @@ public:
     return Ray (src, targ);
   }
 
+
   // Set whether the Z axis increases into the image or decreases
   //
   void set_z_mode (enum z_mode _z_mode)
@@ -357,6 +366,7 @@ public:
 	z_mode = _z_mode;
       }
   }
+
 
   Format format;
 
