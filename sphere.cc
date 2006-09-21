@@ -10,15 +10,13 @@
 //
 
 #include "sphere.h"
+#include "sphere-isec.h"
 
 #include "intersect.h"
 
-// Any intersection closer than this will be rejected as spurious
-// (i.e. logically zero, but off due to floating-point imprecision).
-//
-#define MIN_ISEC_DIST (1e-7)
 
 using namespace Snogray;
+
 
 // Return the distance from RAY's origin to the closest intersection
 // of this surface with RAY, or 0 if there is none.  RAY is considered
@@ -38,37 +36,7 @@ Sphere::intersection_distance (const Ray &ray, IsecParams &, unsigned num)
   if (num > 1)
     return 0;
 
-  Vec dir = ray.dir;		  // must be a unit vector
-  dist_t dir_dir = dot (dir, dir); // theoretically, exactly 1; in
-				  // practice, not _quite_
-  Vec diff = ray.origin - center;
-  dist_t dir_diff = dot (dir, diff);
-  dist_t determ
-    = (dir_diff * dir_diff) - dir_dir * (dot (diff, diff) - (radius * radius));
-
-  if (determ >= 0)
-    {
-      dist_t common = -dir_diff / dir_dir;
-
-      if (determ <= 0 && common > 0)
-	{
-	  if (num == 0)
-	    return common;
-	}
-      else
-	{
-	  dist_t determ_factor = sqrt (determ) / dir_dir;
-	  dist_t t0 = common - determ_factor;
-	  dist_t t1 = common + determ_factor;
-
-	  if (num == 0 && t0 > MIN_ISEC_DIST)
-	    return t0;
-	  else if (t1 > MIN_ISEC_DIST)
-	    return t1;
-	}
-    }
-
-  return 0;
+  return sphere_intersect (center, radius, ray.origin, ray.dir, num == 1);
 }
 
 Intersect
@@ -86,5 +54,6 @@ Sphere::bbox () const
   return BBox (Pos (center.x - radius, center.y - radius, center.z - radius),
 	       Pos (center.x + radius, center.y + radius, center.z + radius));
 }
+
 
 // arch-tag: dc88fe85-ed78-4f90-bbe2-7e670fde73a6
