@@ -152,7 +152,7 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       // Translate the image position U, V into a ray coming from the
       // camera.
       //
-      Ray camera_ray = camera.get_ray (u, v, fs->u, fs->v);
+      Ray camera_ray = camera.eye_ray (u, v, fs->u, fs->v);
 
       // Cast the camera ray and calculate image color at that
       // point.

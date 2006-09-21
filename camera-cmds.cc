@@ -200,7 +200,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   TraceParams trace_params (render_params);
   GlobalTraceState global_tstate (trace_params);
 
-  Ray probe (camera.get_ray (u, v), Scene::DEFAULT_HORIZON);
+  Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 
   Trace trace (scene, global_tstate);
 

@@ -219,7 +219,7 @@ int main (int argc, char *const *argv)
 
   float u = float (x) / float (width);
   float v = float (y) / float (height);
-  map.sample (camera.get_ray (u, v), scene, trace_params);
+  map.sample (camera.eye_ray (u, v), scene, trace_params);
 
   if (! no_normalize)
     map.normalize ();

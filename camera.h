@@ -279,15 +279,9 @@ public:
   // Return an eye-ray from this camera for position U,V on the film plane,
   // with no depth-of-field.  U and V have a range of 0-1.
   //
-  Ray get_ray (float u, float v) const
+  Ray eye_ray (float u, float v) const
   {
-    Pos targ = pos;
-
-    targ += forward;
-    targ += 2 * (u - 0.5) * right * tan_half_fov_x;
-    targ += 2 * (v - 0.5) * up * tan_half_fov_y;
-
-    return Ray (pos, targ);
+    return Ray (pos, eye_vec (u, v));
   }
 
   // Return an eye-ray from this camera for position (U, V) on the film
@@ -295,7 +289,7 @@ public:
   // depth-of-field simulation no depth-of-field.  All paramters have a
   // range of 0-1.
   //
-  Ray get_ray (float u, float v, float focus_u, float focus_v) const
+  Ray eye_ray (float u, float v, float focus_u, float focus_v) const
   {
     // The source of the camera ray, which is the camera position
     // (actually the optical center of the lens), possibly perturbed for
@@ -303,17 +297,11 @@ public:
     //
     Pos src = pos;
 
-    // The point on the virtual film plane (one unit in front of the camera
+    // A vector point on the virtual film plane (one unit in front of the camera
     // position, projected from the actual film plane which lies behind the
     // camera position) which is the end of the camera ray.
     //
-    Pos targ = pos;
-
-    // Adjust TARG to its final poitn on the virtual film plane.
-    //
-    targ += forward;
-    targ += 2 * (u - 0.5) * right * tan_half_fov_x;
-    targ += 2 * (v - 0.5) * up * tan_half_fov_y;
+    Vec targ = eye_vec (u, v);
 
     if (aperture != 0)
       {
@@ -398,6 +386,19 @@ public:
   enum z_mode z_mode;
 
   float tan_half_fov_x, tan_half_fov_y;
+
+private:
+
+  // Returns a vector which points from the camera position to point (U, V)
+  // on the virtual film plane (one unit in front of the camera).
+  //
+  Vec eye_vec (float u, float v) const
+  {
+    dist_t x = 2 * dist_t (u) - 1;
+    dist_t y = 2 * dist_t (v) - 1;
+    return forward + right * x * tan_half_fov_x + up * y * tan_half_fov_y;
+  }
+
 };
 
 
