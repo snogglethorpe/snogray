@@ -301,7 +301,7 @@ public:
     // position, projected from the actual film plane which lies behind the
     // camera position) which is the end of the camera ray.
     //
-    Vec targ = eye_vec (u, v);
+    Pos targ = pos + eye_vec (u, v); // keeping targ as a vector screws up XXX
 
     if (aperture != 0)
       {
