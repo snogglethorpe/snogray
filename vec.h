@@ -253,8 +253,14 @@ operator<< (std::ostream &os, const TVec<T> &vec)
   return os;
 }
 
-typedef TVec<dist_t>  Vec;
 typedef TVec<sdist_t> SVec;
+
+// XXX Commented out because it causes some weird bloat in generated code,
+// even though it's never used!!
+//
+//typedef TVec<ddist_t> DVec;
+
+typedef TVec<dist_t>  Vec;
 
 }
 

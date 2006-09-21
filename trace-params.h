@@ -21,7 +21,7 @@ class TraceParams
 public:
 
   static const unsigned DEFAULT_MAX_DEPTH = 6;
-  static const double DEFAULT_MIN_TRACE = 1e-10;
+  static const dist_t DEFAULT_MIN_TRACE = 1e-10;
 
   TraceParams ()
     : max_depth (DEFAULT_MAX_DEPTH), min_trace (DEFAULT_MIN_TRACE)
@@ -47,7 +47,7 @@ public:
   // though usually in weird cases like models with multiple "optional"
   // parts which are all enabled by default).
   //
-  double min_trace;
+  dist_t min_trace;
 };
 
 }

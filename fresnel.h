@@ -150,8 +150,8 @@ public:
 	float a2_b2_common
 	  = sqrt (n2_m_k2_m_sin2_refl_angle * n2_m_k2_m_sin2_refl_angle
 		  + 4 * n2k2);
-	float a2 = (a2_b2_common + n2_m_k2_m_sin2_refl_angle) * 0.5;
-	float b2 = (a2_b2_common - n2_m_k2_m_sin2_refl_angle) * 0.5;
+	float a2 = (a2_b2_common + n2_m_k2_m_sin2_refl_angle) / 2;
+	float b2 = (a2_b2_common - n2_m_k2_m_sin2_refl_angle) / 2;
 
 	float a2_p_b2 = a2 + b2;
 	float a = sqrt (a2);
@@ -165,7 +165,7 @@ public:
 	Fp = Fs * ((Fp_term1 - Fp_term2) / (Fp_term1 + Fp_term2));
       }
 
-    return (Fs * Fs + Fp * Fp) * 0.5;
+    return (Fs * Fs + Fp * Fp) / 2;
   }
 
   // Final index of refracetion (the ratio of the indices of refraction on

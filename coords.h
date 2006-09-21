@@ -19,15 +19,20 @@ namespace Snogray {
 //
 #define Eps	(1e-15)
 
-// Normal (high precision) coordinates
-//
-typedef double coord_t;
-typedef coord_t dist_t;
-
-// "short" coordinates for use where space is critical
+// single-precision coordinates for use where space is critical
 //
 typedef float scoord_t;
 typedef scoord_t sdist_t;
+
+// double-precision coordinates, for where precision is critical
+//
+typedef double dcoord_t;
+typedef dcoord_t ddist_t;
+
+// Normal coordinates
+//
+typedef dcoord_t coord_t;
+typedef ddist_t dist_t;
 
 template<typename T>
 inline T lim (T v) { return (v < Eps && v > -Eps) ? 0 : v; }

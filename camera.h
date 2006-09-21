@@ -307,7 +307,7 @@ public:
       {
 	// The radius of the camera aperture in scene units.
 	//
-	float aperture_radius = aperture * 0.5f / scene_unit;
+	float aperture_radius = aperture / 2 / scene_unit;
 
 	// The camera aperture is circular, so convert the independent
 	// random variables FOCUS_U and FOCUS_V into a sample uniformly

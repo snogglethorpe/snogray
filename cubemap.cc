@@ -55,8 +55,8 @@ Cubemap::map (const Vec &dir) const
 
   // Translate [-1, 1] params into [0, 1] for texture lookup
   //
-  u = (u + 1) * 0.5;
-  v = (v + 1) * 0.5;
+  u = (u + 1) / 2;
+  v = (v + 1) / 2;
 
   // Lookup the value
   //

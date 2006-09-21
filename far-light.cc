@@ -27,17 +27,17 @@ FarLight::init ()
   v_inc = v * 2 / JITTER_STEPS;
 
   dist_t r_sq = steps_radius * steps_radius;
-  double v_offs = -steps_radius;
+  dist_t v_offs = -steps_radius;
 
   // Pre-scale the brightness so that each sublight contributes 1 / NUM_LIGHTS
   // to the total brightness.  We have to count the number of lights
   // that actually contribute.
 
-  double num_lights = 0;
+  dist_t num_lights = 0;
 
   for (unsigned i = 0; i < JITTER_STEPS; i++)
     {
-      double u_offs = -steps_radius;
+      dist_t u_offs = -steps_radius;
 
       for (unsigned j = 0; j < JITTER_STEPS; j++)
 	{
@@ -71,11 +71,11 @@ FarLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
     {
       Color samp_color = color * num_lights_scale;
       dist_t r_sq = steps_radius * steps_radius;
-      double v_offs = -steps_radius;
+      dist_t v_offs = -steps_radius;
 
       for (unsigned i = 0; i < JITTER_STEPS; i++)
 	{
-	  double u_offs = -steps_radius;
+	  dist_t u_offs = -steps_radius;
 
 	  for (unsigned j = 0; j < JITTER_STEPS; j++)
 	    if ((u_offs + 0.5) * (u_offs + 0.5)

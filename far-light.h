@@ -27,7 +27,7 @@ public:
 
   FarLight (const Vec &_dir, dist_t _radius, const Color &col)
     : dir (_dir), radius (_radius), color (col), max_cos (cos (atan (_radius))),
-      steps_radius (double (JITTER_STEPS) / 2)
+      steps_radius (dist_t (JITTER_STEPS) / 2)
   { init (); }
 
   // Generate (up to) NUM samples of this light and add them to SAMPLES.
@@ -51,7 +51,7 @@ private:
 
   dist_t max_cos;
 
-  double steps_radius;
+  dist_t steps_radius;
 
   Color::component_t num_lights_scale;
 };

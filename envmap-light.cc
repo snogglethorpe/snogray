@@ -51,7 +51,7 @@ public:
 
   virtual float aspect_ratio (float, float y, float w, float h) const
   {
-    w *= cos ((y + h * 0.5f) / height * M_PIf - M_PI_2f);
+    w *= cos ((y + h  / 2) / height * M_PIf - M_PI_2f);
     return w / h;
   }
 };

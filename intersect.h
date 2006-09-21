@@ -104,17 +104,17 @@ public:
   // Returns the cosine of the angle between the surface normal and the
   // normalized vector VEC.
   //
-  double cos_n (const Vec &vec) const
+  dist_t cos_n (const Vec &vec) const
   {
-    return min (dot (n, vec), 1.); // use min to clamp precision errors
+    return min (dot (n, vec), dist_t (1)); // use min to clamp precision errors
   }
 
   // Returns the cosine of the angle between the viewing direction and the
   // normalized vector VEC.
   //
-  double cos_v (const Vec &vec) const
+  dist_t cos_v (const Vec &vec) const
   {
-    return min (dot (v, vec), 1.); // use min to clamp precision errors
+    return min (dot (v, vec), dist_t (1)); // use min to clamp precision errors
   }
 
   // Ray which intersected something; its endpoint is the point of intersection.

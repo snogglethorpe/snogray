@@ -1,6 +1,6 @@
 // tessel-param.cc -- Tessellation of parametric surfaces
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -157,8 +157,8 @@ SphereTesselFun::surface_pos (param_t u, param_t v) const
   if (radius_perturb != 0)
     r *= random (1 - radius_perturb, 1 + radius_perturb);
 
-  double sin_u = sin (u), cos_u = cos (u);
-  double sin_v = sin (v), cos_v = cos (v);
+  coord_t sin_u = sin (u), cos_u = cos (u);
+  coord_t sin_v = sin (v), cos_v = cos (v);
 
   return Pos (cos_v * cos_u * r + origin.x,
 	      sin_u 	    * r + origin.y,
@@ -255,7 +255,7 @@ Pos
 SincTesselFun::surface_pos (param_t u, param_t v) const
 {
   param_t t = u * SINC_X_COMP;
-  double sinc = t < Eps ? 1.0 : sin (t) / t;
+  dist_t sinc = t < Eps ? 1.0 : sin (t) / t;
   return origin + Vec (cos (v) * u * radius,
 		       sinc * radius * (1 / SINC_Y_COMP),
 		       sin (v) * u * radius);
@@ -268,7 +268,7 @@ SincTesselFun::vertex_normal (const Vertex &vertex) const
 {
   param_t u = vertex.u, v = vertex.v;
   param_t t = u * SINC_X_COMP;
-  double deriv = t < Eps ? 0 : (cos (t) / t - sin (t) / (t * t));
+  dist_t deriv = t < Eps ? 0 : (cos (t) / t - sin (t) / (t * t));
   dist_t norm_x = -deriv;
   dist_t norm_y = SINC_Y_COMP / SINC_X_COMP;
   return Vec (cos (v) * norm_x, norm_y, sin (v) * norm_x).unit ();

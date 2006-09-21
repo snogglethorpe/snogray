@@ -162,7 +162,7 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
 
       const Vec &dir = intersected_ray.dir;
 
-      double bias = global.params.min_trace;
+      dist_t bias = global.params.min_trace;
       const Vec biased_origin = intersected_ray.end() + bias * dir;
 
       Ray continued_light_ray (biased_origin, dir,

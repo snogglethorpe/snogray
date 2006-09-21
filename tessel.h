@@ -1,6 +1,6 @@
 // tessel.h -- Surface tessellation
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -40,7 +40,7 @@ public:
   // Distance of a point on the tessellation from the actual point on
   // the curve.
   //
-  typedef double err_t;
+  typedef dist_t err_t;
 
   // This type should be overridden to supply as an argument to the constructor.
   //

@@ -32,14 +32,14 @@ struct LatLongMapping
 {
   static UV map (const Vec &dir)
   {
-    return UV ((dir.longitude () + M_PI) * M_1_PI * 0.5,
+    return UV ((dir.longitude () + M_PI) * M_1_PI / 2,
 	       (dir.latitude () + M_PI_2) * M_1_PI);
   }
 
   static Vec map (const UV &uv)
   {
-    double colat = (uv.v - 0.5) * M_PI;
-    double lng = (uv.u - 0.5) * M_PI * 2;
+    dist_t colat = (uv.v - 0.5) * M_PI;
+    dist_t lng = (uv.u - 0.5) * M_PI * 2;
     return y_axis_latlong_to_vec (colat, lng);
   }
 
@@ -59,12 +59,12 @@ struct MercatorMapping
 {
   static UV map (const Vec &dir) const
   {
-    return UV ((dir.longitude () + M_PI) * M_1_PI * 0.5, (dir.y + 1) * 0.5);
+    return UV ((dir.longitude () + M_PI) * M_1_PI / 2, (dir.y + 1) / 2);
   }
 
   static Vec map (const UV &uv) const
   {
-    float theta = (uv.u - 0.5) * M_P * 2, phi = uv.v * M_PI;
+    float theta = ((uv.u * 2) - 1) * M_PI, phi = uv.v * M_PI;
     float sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
@@ -99,16 +99,16 @@ struct DebevecMapping
   {
     tparam_t x = dir.x, y = dir.y, z = dir.z;
     tparam_t d = sqrt (x * x + y * y);
-    tparam_t rpi = (d == 0) ? 0 : M_1_PIf * 0.5f * acos (z) / d;
+    tparam_t rpi = (d == 0) ? 0 : M_1_PIf * acos (z) / 2 / d;
 
     return UV (x * rpi + 0.5f, y * rpi + 0.5f);
   }
 
   static Vec map (const UV &uv)
   {
-    double u = (uv.u - 0.5) * 2, v = (uv.v - 0.5) * 2;
-    float theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
-    float sin_phi = sin (phi);
+    dist_t u = uv.u * 2 - 1, v = uv.v * 2 - 1;
+    dist_t theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
+    dist_t sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
 };
@@ -123,7 +123,7 @@ struct MirrorBallMapping
   {
     tparam_t x = dir.x, y = dir.y, z = dir.z;
     tparam_t d = sqrt (x * x + y * y);
-    tparam_t rpi = (d == 0) ? 0 : 0.5f * sqrt (0.5f * (1 - z)) / d;
+    tparam_t rpi = (d == 0) ? 0 : sqrt ((1 - z) / 2) / 2 / d;
 
     return UV (x * rpi + 0.5f, y * rpi + 0.5f);
   }
@@ -133,9 +133,9 @@ struct MirrorBallMapping
   //
   static Vec map (const UV &uv)
   {
-    double u = (uv.u - 0.5) * 2, v = (uv.v - 0.5) * 2;
-    float theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
-    float sin_phi = sin (phi);
+    dist_t u = uv.u * 2 - 1, v = uv.v * 2 - 1;
+    dist_t theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
+    dist_t sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
 };

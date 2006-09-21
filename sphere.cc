@@ -39,16 +39,16 @@ Sphere::intersection_distance (const Ray &ray, IsecParams &, unsigned num)
     return 0;
 
   Vec dir = ray.dir;		  // must be a unit vector
-  double dir_dir = dot (dir, dir); // theoretically, exactly 1; in
+  dist_t dir_dir = dot (dir, dir); // theoretically, exactly 1; in
 				  // practice, not _quite_
   Vec diff = ray.origin - center;
-  double dir_diff = dot (dir, diff);
-  double determ
+  dist_t dir_diff = dot (dir, diff);
+  dist_t determ
     = (dir_diff * dir_diff) - dir_dir * (dot (diff, diff) - (radius * radius));
 
   if (determ >= 0)
     {
-      double common = -dir_diff / dir_dir;
+      dist_t common = -dir_diff / dir_dir;
 
       if (determ <= 0 && common > 0)
 	{
@@ -57,9 +57,9 @@ Sphere::intersection_distance (const Ray &ray, IsecParams &, unsigned num)
 	}
       else
 	{
-	  double determ_factor = sqrt (determ) / dir_dir;
-	  double t0 = common - determ_factor;
-	  double t1 = common + determ_factor;
+	  dist_t determ_factor = sqrt (determ) / dir_dir;
+	  dist_t t0 = common - determ_factor;
+	  dist_t t1 = common + determ_factor;
 
 	  if (num == 0 && t0 > MIN_ISEC_DIST)
 	    return t0;
