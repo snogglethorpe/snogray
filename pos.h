@@ -31,7 +31,7 @@ public:
   // Allow easy down-casting for sharing code
   //
   template<typename T2>
-  TPos (const Tuple3<T2> &t) : Tuple3<T> (t) { }
+  explicit TPos (const Tuple3<T2> &t) : Tuple3<T> (t) { }
 
   using Tuple3<T>::operator*=;
   using Tuple3<T>::operator/=;
@@ -78,11 +78,6 @@ public:
   {
     return (*this - p2).length ();
   }
-
-  TPos midpoint (const TPos &p2) const
-  {
-    return TPos ((x + p2.x) / 2, (y + p2.y) / 2, (z + p2.z) / 2);
-  }
 };
 
 template<typename T>
@@ -91,6 +86,15 @@ operator* (T scale, const TPos<T> &pos)
 {
   return pos * scale;
 }
+
+
+template<typename T>
+static inline TPos<T>
+midpoint (const TPos<T> &p1, const TPos<T> &p2)
+{
+  return TPos<T> ((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2);
+}
+
 
 template<typename T>
 static std::ostream&

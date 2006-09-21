@@ -44,6 +44,8 @@ public:
   TXform (const Matrix4<T2> &m) : Matrix4<T> (m) { }
   template<typename T2>
   TXform (const T2 els[4][4]) : Matrix4<T> (els) { }
+  template<typename T2>
+  explicit TXform (const TXform<T2> &xf) : Matrix4<T> (xf) { }
 
   static TXform translation (const TVec<T> &offs)
   {

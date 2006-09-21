@@ -74,7 +74,7 @@ Tessel::get_vertices (std::vector<SPos> &_vertices) const
 
   for (LinkedList<Vertex>::iterator vi = vertices.begin();
        vi != vertices.end(); vi++)
-    _vertices.push_back (vi->pos);
+    _vertices.push_back (SPos (vi->pos));
 }
 
 // Add triangle vertices to TRI_VERTS as groups of three vertex indices
@@ -132,7 +132,7 @@ Tessel::sample (const Vertex *vert1, const Vertex *vert2)
     {
       Vertex *mid = fun.midpoint (*this, vert1, vert2);
 
-      const Pos edge_mid = (pos1 + pos2) / 2;
+      const Pos edge_mid = midpoint (pos1, pos2);
       dist_t corr = (mid->pos - edge_mid).length ();
 
       Subdiv *bef_mid = sample (vert1, mid);

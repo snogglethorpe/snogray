@@ -41,8 +41,8 @@ public:
 
   // A vertex group can be used to group vertices together.
   //
-  typedef std::map<MPos, vert_index_t> VertexGroup;
-  typedef std::map<std::pair<MPos, MVec>, vert_index_t> VertexNormalGroup;
+  typedef std::map<Pos, vert_index_t> VertexGroup;
+  typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
 
   // Basic constructor.  Actual contents must be defined later.  If no
   // material is defined, all triangles added must have an explicit material.
@@ -85,20 +85,20 @@ public:
   //
   void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
 		     const Material *mat = 0);
-  void add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
+  void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
 		     const Material *mat = 0);
-  void add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
+  void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
 		     VertexGroup &vgroup, const Material *mat = 0);
 
   // Add a vertex to the mesh
   //
-  vert_index_t add_vertex (const MPos &pos);
-  vert_index_t add_vertex (const MPos &pos, VertexGroup &vgroup);
+  vert_index_t add_vertex (const Pos &pos);
+  vert_index_t add_vertex (const Pos &pos, VertexGroup &vgroup);
 
   // Add a vertex with normal to the mesh
   //
-  vert_index_t add_vertex (const MPos &pos, const MVec &normal);
-  vert_index_t add_vertex (const MPos &pos, const MVec &normal,
+  vert_index_t add_vertex (const Pos &pos, const Vec &normal);
+  vert_index_t add_vertex (const Pos &pos, const Vec &normal,
 			   VertexNormalGroup &vgroup);
 
   // Add NORMAL as the vertex normal for the previously-added vertex at
@@ -106,7 +106,7 @@ public:
   // normals, new vertices can be added by implicit mesh smoothing; the
   // actual index where NORMAL was added is returned.
   //
-  vert_index_t add_normal (vert_index_t vert_index, const MVec &normal);
+  vert_index_t add_normal (vert_index_t vert_index, const Vec &normal);
 
   // Add the results of tessellating TESSEL_FUN with MAX_ERR.
   //
@@ -142,8 +142,9 @@ public:
   //
   void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
 
-  MPos vertex (vert_index_t index) { return vertices[index]; }
-  MPos vertex_normal (vert_index_t index) { return vertex_normals[index]; }
+  Pos vertex (vert_index_t index) const { return Pos (vertices[index]); }
+  Vec vertex_normal (vert_index_t index) const
+  { return Vec (vertex_normals[index]); }
 
   unsigned num_vertices () const { return vertices.size (); }
   unsigned num_triangles () const { return triangles.size (); }
@@ -165,7 +166,7 @@ public:
   //
   virtual BBox bbox () const;
 
-  void transform (SXform &xform);
+  void transform (Xform &xform);
 
 private:
 
@@ -242,13 +243,13 @@ private:
 
     // Vertex NUM of this triangle
     //
-    const MPos &v (unsigned num) const { return mesh.vertices[vi[num]]; }
+    Pos v (unsigned num) const { return Pos (mesh.vertices[vi[num]]); }
 
     // Normal of vertex NUM (assuming this mesh contains vertex normals!)
     //
-    const MVec &vnorm (unsigned num) const
+    Vec vnorm (unsigned num) const
     {
-      return mesh.vertex_normals[vi[num]];
+      return Vec (mesh.vertex_normals[vi[num]]);
     }
 
     // These both return the "raw" normal of this triangle, not doing
@@ -258,7 +259,7 @@ private:
     //
     const Vec raw_normal_unscaled () const
     {
-      const MVec e1 = v(1) - v(0), e2 = v(2) - v(0);
+      Vec e1 = v(1) - v(0), e2 = v(2) - v(0);
       return mesh.left_handed ? cross (e2, e1) : cross (e1, e2);
     }
     const Vec raw_normal () const

@@ -39,7 +39,7 @@ SphereLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
       float z
 	= (sqrt (abs (radius * radius - x * x - y * y))
 	   * sin (M_PIf * (random(1.f) - 0.5)));
-      const Pos sample_pos = pos + Pos (x, y, z);
+      const Pos sample_pos = pos + Vec (x, y, z);
 
       Vec lvec = sample_pos - isec.pos;
       dist_t dist = lvec.length ();

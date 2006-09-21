@@ -52,6 +52,15 @@ public:
     els[3][2] = _els[3][2]; els[3][3] = _els[3][3];
   }
 
+  template<typename T2>
+  explicit Matrix4 (const Matrix4<T2> &m2)
+  {
+    for (unsigned i = 0; i < 4; i++)
+      for (unsigned j = 0; j < 4; j++)
+	els[i][j] = m2 (i, j);
+  }
+
+
   T &operator() (unsigned i, unsigned j) { return els[i][j]; }
   const T &operator() (unsigned i, unsigned j) const { return els[i][j]; }
 

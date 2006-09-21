@@ -35,7 +35,7 @@ public:
   // Allow easy down-casting for sharing code
   //
   template<typename T2>
-  TVec (const Tuple3<T2> &t) : Tuple3<T> (t) { }
+  explicit TVec (const Tuple3<T2> &t) : Tuple3<T> (t) { }
 
   using Tuple3<T>::operator*=;
   using Tuple3<T>::operator/=;

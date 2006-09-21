@@ -63,8 +63,7 @@ void ParamTesselFun::get_vertex_normals (
 	 vi != vertices_end; vi++)
       {
 	const Vertex &vert = static_cast<const Vertex &>(*vi);
-	SVec normal = vertex_normal (vert);
-	normals.push_back (normal);
+	normals.push_back (SVec (vertex_normal (vert)));
       }
 }
 

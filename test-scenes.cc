@@ -1571,13 +1571,13 @@ add_scene_descs_tessel (vector<TestSceneDesc> &descs)
 // Test scene for looking at meshes
 
 static void
-normalize (Mesh *mesh, const SXform &xform = SXform::identity)
+normalize (Mesh *mesh, const Xform &xform = Xform::identity)
 {
   const BBox bbox = mesh->bbox ();
-  const SPos center = (bbox.max + bbox.min) / 2;
-  const SVec size = bbox.max - bbox.min;
+  const Pos center = midpoint (bbox.max, bbox.min);
+  const Vec size = bbox.max - bbox.min;
 
-  SXform norm;
+  Xform norm;
   norm.translate (-center.x, size.y / 2 - center.y, -center.z);
   norm.scale (2 / bbox.max_size ());
   norm *= xform;

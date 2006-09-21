@@ -33,15 +33,16 @@ namespace Snogray {
 //
 template<typename T>
 inline T
-sphere_intersect (T radius, const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+sphere_intersect (T radius,
+		  const TVec<T> &ray_origin_offs, const TVec<T> &ray_dir,
 		  bool far_isec = false)
 {
-  TVec<T> org (ray_origin);
-  T dir_diff = dot (ray_dir, org);
+  T dir_diff = dot (ray_dir, ray_origin_offs);
   T dir_dir = dot (ray_dir, ray_dir); // theoretically, exactly 1; in
 				// practice, not _quite_
+  T diff_diff = dot (ray_origin_offs, ray_origin_offs);
   T determ
-    = ((dir_diff * dir_diff) - dir_dir * (dot (org, org) - (radius * radius)));
+    = ((dir_diff * dir_diff) - dir_dir * (diff_diff - (radius * radius)));
 
   if (determ >= 0)
     {

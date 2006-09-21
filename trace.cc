@@ -91,7 +91,7 @@ Trace::render (const Ray &ray)
   if (depth > global.params.max_depth)
     return scene.background (ray);
 
-  const Vec biased_origin = ray.origin + global.params.min_trace * ray.dir;
+  const Pos biased_origin = ray.origin + global.params.min_trace * ray.dir;
 
   Ray intersected_ray (biased_origin, ray.dir, scene.horizon);
 
@@ -163,7 +163,7 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
       const Vec &dir = intersected_ray.dir;
 
       dist_t bias = global.params.min_trace;
-      const Vec biased_origin = intersected_ray.end() + bias * dir;
+      const Pos biased_origin = intersected_ray.end() + bias * dir;
 
       Ray continued_light_ray (biased_origin, dir,
 			       light_ray.len - intersected_ray.len - bias);

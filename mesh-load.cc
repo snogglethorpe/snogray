@@ -176,7 +176,7 @@ Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
 	      stream >> norm.z;
 
 	      if (! skip)
-		vertex_normals.push_back ((norm * norm_xform).unit ());
+		vertex_normals.push_back (MVec (norm * norm_xform).unit ());
 	    }
 
 	  stream >> kw;

@@ -30,10 +30,10 @@ using namespace std;
 // This simple version always adds a new vertex
 //
 Mesh::vert_index_t
-Mesh::add_vertex (const MPos &pos)
+Mesh::add_vertex (const Pos &pos)
 {
   vert_index_t vert_index = vertices.size ();
-  vertices.push_back (pos);
+  vertices.push_back (MPos (pos));
   return vert_index;
 }
 
@@ -41,7 +41,7 @@ Mesh::add_vertex (const MPos &pos)
 // adds new vertices.
 //
 Mesh::vert_index_t
-Mesh::add_vertex (const MPos &pos, VertexGroup &vgroup)
+Mesh::add_vertex (const Pos &pos, VertexGroup &vgroup)
 {
   VertexGroup::iterator prev_entry = vgroup.find (pos);
 
@@ -61,7 +61,7 @@ Mesh::add_vertex (const MPos &pos, VertexGroup &vgroup)
 // This simple version always adds a new vertex+normal
 //
 Mesh::vert_index_t
-Mesh::add_vertex (const MPos &pos, const MVec &normal)
+Mesh::add_vertex (const Pos &pos, const Vec &normal)
 {
   vert_index_t vert_index = vertices.size ();
 
@@ -76,8 +76,8 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal)
       vert_index = vertices.size (); // compute_vertex_normals can add vertices
     }
 
-  vertices.push_back (pos);
-  vertex_normals.push_back (normal);
+  vertices.push_back (MPos (pos));
+  vertex_normals.push_back (MVec (normal));
 
   return vert_index;
 }
@@ -87,7 +87,7 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal)
 // normal is considered "new").
 //
 Mesh::vert_index_t
-Mesh::add_vertex (const MPos &pos, const MVec &normal, VertexNormalGroup &vgroup)
+Mesh::add_vertex (const Pos &pos, const Vec &normal, VertexNormalGroup &vgroup)
 {
   VertexNormalGroup::key_type key (pos, normal);
   VertexNormalGroup::iterator prev_entry = vgroup.find (key);
@@ -112,7 +112,7 @@ Mesh::add_vertex (const MPos &pos, const MVec &normal, VertexNormalGroup &vgroup
 // actual index where NORMAL was added is returned.
 //
 Mesh::vert_index_t
-Mesh::add_normal (vert_index_t vert_index, const MVec &normal)
+Mesh::add_normal (vert_index_t vert_index, const Vec &normal)
 {
   // Make sure the vertex_normals vector contains entries for all previous
   // vertices (the effect of this is that if a mesh contains vertices with
@@ -125,7 +125,7 @@ Mesh::add_normal (vert_index_t vert_index, const MVec &normal)
       vert_index = vertices.size (); // compute_vertex_normals can add vertices
     }
 
-  vertex_normals.push_back (normal);
+  vertex_normals.push_back (MVec (normal));
 
   return vert_index;
 }
@@ -146,7 +146,7 @@ Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
 }
 
 void
-Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
+Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
 		    VertexGroup &vgroup, const Material *mat)
 {
   vert_index_t v0i = add_vertex (v0, vgroup);
@@ -157,7 +157,7 @@ Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
 }
 
 void
-Mesh::add_triangle (const MPos &v0, const MPos &v1, const MPos &v2,
+Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
 		    const Material *mat)
 {
   add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2), mat);
@@ -553,29 +553,31 @@ Mesh::add_to_space (Space &space)
 BBox
 Mesh::bbox () const
 {
-  BBox bbox (vertices[0]);
+  BBox bbox = vertex (0);
 
   for (vert_index_t v = 1; v < vertices.size (); v++)
-    bbox.include (vertices[v]);
+    bbox.include (vertex (v));
 
   return bbox;
 }
 
 void
-Mesh::transform (SXform &xform)
+Mesh::transform (Xform &xform)
 {
+  SXform xf = SXform (xform);
+
   for (vert_index_t v = 0; v < vertices.size (); v++)
-    vertices[v] *= xform;
+    vertices[v] *= xf;
 
   if (vertex_normals.size() > 0)
     {
       // Calculate a variant of XFORM suitable for transforming
       // normals.
       //
-      SXform norm_xform = xform.inverse().transpose();
+      SXform norm_xf = xf.inverse().transpose();
 
       for (vert_index_t v = 0; v < vertex_normals.size (); v++)
-	vertex_normals[v] *= norm_xform;
+	vertex_normals[v] *= norm_xf;
     }
 }
 

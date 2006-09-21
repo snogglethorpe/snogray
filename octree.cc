@@ -1,6 +1,6 @@
 // octree.cc -- Voxel tree datatype (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -175,9 +175,9 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 	  // calculation we do in this method (hopefully dividing by two
 	  // is efficient).
 	  //
-	  const Pos x_mid_isec = x_min_isec.midpoint (x_max_isec);
-	  const Pos y_mid_isec = y_min_isec.midpoint (y_max_isec);
-	  const Pos z_mid_isec = z_min_isec.midpoint (z_max_isec);
+	  const Pos x_mid_isec = midpoint (x_min_isec, x_max_isec);
+	  const Pos y_mid_isec = midpoint (y_min_isec, y_max_isec);
+	  const Pos z_mid_isec = midpoint (z_min_isec, z_max_isec);
 	  const coord_t x_mid = x_mid_isec.x;
 	  const coord_t y_mid = y_mid_isec.y;
 	  const coord_t z_mid = z_mid_isec.z;

@@ -195,7 +195,7 @@ MeshState::read_polygon (istream &stream, const Material *mat,
       Pos center;
 
       for (unsigned i = 0; i < num_vertices; i++)
-	center += mesh->vertex (verts[i]);
+	center += Vec (mesh->vertex (verts[i]));
 
       unsigned center_vert
 	= mesh->add_vertex (center / num_vertices, vertex_group);
