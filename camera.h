@@ -174,7 +174,7 @@ public:
     // The distance to the focus plane is parallel to the camera forward
     // vector.
     //
-    Vec components = vec.to_basis (right, up, forward);
+    Vec components = vec.from_basis (right, up, forward);
     set_focus (components.z);
   }
 

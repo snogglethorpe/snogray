@@ -9,18 +9,14 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-
 #include "scene.h"
-#include "camera.h"
 #include "envmap.h"
 #include "envmap-light.h"
 #include "excepts.h"
 #include "glow.h"
 #include "image-io.h"
 #include "string-funs.h"
+#include "camera-cmds.h"
 #include "cmdlineparser.h"
 
 #include "scene-def.h"
@@ -29,230 +25,13 @@
 using namespace Snogray;
 using namespace std;
 
-
-
-// User command-line camera-commands
-
-static char
-eat (istream &stream, const char *choices, const char *req_desc = 0)
-{
-  stream >> ws;
-
-  char ch = stream.eof() ? 0 : stream.peek();
-
-  for (const char *p = choices; *p; p++)
-    if (ch == *p)
-      {
-	stream.get ();		// eat it
-	return ch;
-      }
-
-  if (req_desc)
-    {
-      string msg;
-
-      if (ch)
-	msg += "Invalid ";
-      else
-	msg += "Missing ";
-
-      msg += req_desc;
-
-      if (ch)
-	{
-	  msg += " `";
-	  msg += ch;
-	  msg += "'";
-	}
-
-      msg += "; expected one of ";
-
-      for (const char *p = choices; *p; p++)
-	{
-	  msg += "`";
-	  msg += *p;
-	  msg += "'";
-	  if (p[1])
-	    {
-	      if (p > choices || p[2])
-		msg += ",";
-	      if (! p[2])
-		msg += " or";
-	      msg += " ";
-	    }
-	}
-      
-      throw (runtime_error (msg));
-    }
-
-  return 0;  
-}
-
-static void
-eat_close (istream &stream, char open)
-{
-  if (open)
-    {
-      char close_delims[2] = { open, 0 };
-      switch (open)
-	{
-	case '(': close_delims[0] = ')'; break;
-	case '[': close_delims[0] = ']'; break;
-	case '{': close_delims[0] = '}'; break;
-	case '<': close_delims[0] = '>'; break;
-	}
-      eat (stream, close_delims, "close bracket");
-    }
-}
-
-static double
-read_float (istream &stream, const char *desc)
-{
-  double val;
-  if (stream >> val)
-    return val;
-  else
-    throw runtime_error (string ("Missing/invalid ") + desc);
-}
-
-static double
-read_angle (istream &stream, const char *desc)
-{
-  return read_float (stream, desc) * M_PI / 180;
-}
-
-static dist_t
-read_dist (istream &stream, const char *desc)
-{
-  return read_float (stream, desc);
-}
-
-static Pos
-read_pos (istream &stream)
-{
-  Pos pos;
-  char open = eat (stream, "(<[{");
-  pos.x = read_float (stream, "x coord");
-  eat (stream, ",", "comma");
-  pos.y = read_float (stream, "y coord");
-  eat (stream, ",", "comma");
-  pos.z = read_float (stream, "z coord");
-  eat_close (stream, open);
-  return pos;
-}
-
-static Xform
-read_rot_xform (istream &stream, const Camera &camera)
-{
-  char dir = eat (stream, "udlraxyz", "direction/axis");
-  float angle = read_angle (stream, "angle");
-  Xform xform;
-
-  if (dir == 'u')
-    xform.rotate (camera.right, -angle);
-  else if (dir == 'd')
-    xform.rotate (camera.right, angle);
-  else if (dir == 'l')
-    xform.rotate (camera.up, -angle);
-  else if (dir == 'r')
-    xform.rotate (camera.up, angle);
-  else if (dir == 'a')
-    xform.rotate (camera.forward, angle);
-  else if (dir == 'x')
-    xform.rotate_x (angle);
-  else if (dir == 'y')
-    xform.rotate_y (angle);
-  else if (dir == 'z')
-    xform.rotate_z (angle);
-
-  return xform;
-}
-
-static void
-interpret_camera_cmds (Camera &camera, const string &cmds)
-{
-  istringstream stream (cmds);
-
-  try
-    { 
-      while (! stream.eof ())
-	{
-	  char cmd = eat (stream, "gtzlfduhvmro", "command");
-
-	  if (cmd == 'g')
-	    camera.move (read_pos (stream));
-	  else if (cmd == 't')
-	    camera.point (read_pos (stream));
-	  else if (cmd == 'z')
-	    camera.zoom (read_float (stream, "zoom factor"));
-	  else if (cmd == 'l')
-	    camera.set_focal_length (read_float (stream, "lens focal length"));
-	  else if (cmd == 'f')
-	    camera.set_f_stop (read_float (stream, "f-stop"));
-	  else if (cmd == 'd')
-	    {
-	      char mod = eat (stream, "+-");
-	      float dist = read_float (stream, "focus distance");
-	      if (mod)
-		{
-		  if (mod == '-')
-		    dist = -dist;
-		  dist += camera.focus_distance ();
-		}
-	      camera.set_focus (dist);
-	    }
-	  else if (cmd == 'u')
-	    camera.set_scene_unit (read_float (stream, "scene unit (in mm)"));
-	  else if (cmd == 'h')
-	    camera.set_orientation (Camera::ORIENT_HORIZ);
-	  else if (cmd == 'v')
-	    camera.set_orientation (Camera::ORIENT_VERT);
-	  else if (cmd == 'm')
-	    {
-	      char dir = eat (stream, "udlrfbxyz", "movement direction/axis");
-	      dist_t dist = read_dist (stream, "movement distance");
-
-	      if (dir == 'r')
-		camera.move (camera.right * dist);
-	      else if (dir == 'l')
-		camera.move (-camera.right * dist);
-	      else if (dir == 'u')
-		camera.move (camera.up * dist);
-	      else if (dir == 'd')
-		camera.move (-camera.up * dist);
-	      else if (dir == 'f')
-		camera.move (camera.forward * dist);
-	      else if (dir == 'b')
-		camera.move (-camera.forward * dist);
-	      else if (dir == 'x')
-		camera.move (Vec (dist, 0, 0));
-	      else if (dir == 'y')
-		camera.move (Vec (0, dist, 0));
-	      else if (dir == 'z')
-		camera.move (Vec (0, 0, dist));
-	    }
-	  else if (cmd == 'r')
-	    camera.rotate (read_rot_xform (stream, camera));
-	  else if (cmd == 'o')
-	    camera.orbit (read_rot_xform (stream, camera).inverse ());
-
-	  eat (stream, ",;/");	// eat delimiter
-	}
-    }
-  catch (runtime_error &err)
-    {
-      throw runtime_error (cmds + ": Error interpreting camera commands: "
-			   + err.what ());
-    }
-}
-
 
 // Command-line parsing
 
 SceneDef::Spec
 SceneDef::cin_spec ()
 {
-  std::string explicit_fmt = params.get_string ("format");
+  string explicit_fmt = params.get_string ("format");
   if (explicit_fmt == "test")
     throw runtime_error ("No test-scene name specified");
   else if (explicit_fmt.empty ())
@@ -278,14 +57,14 @@ SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
   else
     while (num > 0)
       {
-	std::string user_name = clp.get_arg ();
+	string user_name = clp.get_arg ();
 
 	if (user_name == "-")
 	  specs.push_back (cin_spec ());
 	else
 	  {
-	    std::string name = user_name;
-	    std::string fmt = params.get_string ("format");
+	    string name = user_name;
+	    string fmt = params.get_string ("format");
 
 	    if (fmt.empty() && name.substr (0, 5) == "test:")
 	      {
@@ -311,10 +90,10 @@ SceneDef::load (Scene &scene, Camera &camera)
   // Set background (this is done before reading in the scene, so the scene
   // defining code can adjust for the presence of an environment map).
   //
-  std::string bg_spec = params.get_string ("background");
+  string bg_spec = params.get_string ("background");
   if (! bg_spec.empty ())
     {
-      std::string fmt = strip_prefix (bg_spec, ":");
+      string fmt = strip_prefix (bg_spec, ":");
 
       if (fmt == "grey" || fmt == "g")
 	scene.set_background (atof (bg_spec.c_str()));
@@ -326,7 +105,7 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   // Read in scene file (or built-in test scene)
   //
-  for (std::vector<Spec>::iterator spec = specs.begin();
+  for (vector<Spec>::iterator spec = specs.begin();
        spec != specs.end(); spec++)
     try
       {
@@ -363,19 +142,19 @@ SceneDef::load (Scene &scene, Camera &camera)
     scene.set_assumed_gamma (assumed_gamma);
 
   if (camera_cmds.length () > 0)
-    interpret_camera_cmds (camera, camera_cmds);
+    interpret_camera_cmds (camera_cmds, camera, scene);
 }
 
 
 
 // Returns a string containing the parsed scene specs.
 //
-std::string
+string
 SceneDef::specs_rep () const
 {
-  std::string rep;
+  string rep;
 
-  for (std::vector<Spec>::const_iterator spec = specs.begin();
+  for (vector<Spec>::const_iterator spec = specs.begin();
        spec != specs.end(); spec++)
     {
       if (spec != specs.begin ())
