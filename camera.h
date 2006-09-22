@@ -297,11 +297,12 @@ public:
     //
     Pos src = pos;
 
-    // A vector point on the virtual film plane (one unit in front of the camera
-    // position, projected from the actual film plane which lies behind the
-    // camera position) which is the end of the camera ray.
+    // A vector from SRC to the point on the virtual film plane (one
+    // unit in front of the camera position, projected from the actual
+    // film plane which lies behind the camera position) which is the
+    // end of the camera ray.
     //
-    Pos targ = pos + eye_vec (u, v); // keeping targ as a vector screws up XXX
+    Vec targ = eye_vec (u, v);
 
     if (aperture != 0)
       {
@@ -322,20 +323,22 @@ public:
 	float src_perturb_x = aperture_radius * coc_x;
 	float src_perturb_y = aperture_radius * coc_y;
 
-	// Similarly, we will randomly perturb the corresponding point
-	// on the "virtual film plane" 1 unit in front of the camera
-	// position.  This is simply the above perturbation scaled by
-	// (1 - 1 / FOCUS_DISTANCE).
+	// The end of the camera-ray pointed to by TARG should be perturbed
+	// slightly less than SRC, by a factor of 1 / FOCUS_DISTANCE.
+	// [Note that if FOCUS_DISTANCE is exactly 1, the end of the camera
+	// ray won't be perturbed at all, meaning that everything at a
+	// distance of 1 will be in focus, as expected.]
 	//
-	float targ_perturb_scale = 1 - 1 / focus_distance ();
-	float targ_perturb_x = src_perturb_x * targ_perturb_scale;
-	float targ_perturb_y = src_perturb_y * targ_perturb_scale;
+	float targ_perturb_adj = -1 / focus_distance ();
+	float targ_perturb_x = src_perturb_x * targ_perturb_adj;
+	float targ_perturb_y = src_perturb_y * targ_perturb_adj;
 
 	// Perturb the camera position.
 	//
 	src += right * src_perturb_x + up * src_perturb_y;
 
-	// Perturb the point on the virtual film plane.
+	// Add the compensation factor to TARG so that the end of
+	// the camera-ray is perturbed slightly less than SRC.
 	//
 	targ += right * targ_perturb_x + up * targ_perturb_y;
       }
