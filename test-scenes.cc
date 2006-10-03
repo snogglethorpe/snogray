@@ -97,13 +97,14 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
   const Material *gloss_black
     = scene.add (new Mirror (1.5, 0.4, 0.02, cook_torrance (0.9, 0.2)));
   const Material *black
-    = scene.add (new Material (0.02, cook_torrance (0.2, 0.005)));
+    = scene.add (new Material (0.02, cook_torrance (0.9, 0.005)));
+  const Material *phong_black
+    = scene.add (new Material (0.02, phong (0.9, 1000)));
   const Material *gloss_ivory
     = scene.add (new Mirror (1.5, 0.4, Color (1, 0.8, 0.5),
 			     cook_torrance (0.1, 0.2)));
   const Material *ivory
-    = scene.add (new Material (Color (0.5, 0.4, 0.1),
-			       cook_torrance (0.1, 0.2)));
+    = scene.add (new Material (Color (0.8, 0.7, 0.3)));
 
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05),
@@ -111,8 +112,16 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
 
   Xform mesh_xform = Xform::x_rotation (-M_PI_2).scale (-1, 1, 1) * xform;
 
-  const Material *b1_mat = variant == 0 ? gloss_black : black;
-  const Material *b2_mat = variant == 0 ? gloss_ivory : ivory;
+  const Material *b1_mat, *b2_mat;
+  switch (variant)
+    {
+    case 0: default:
+      b1_mat = gloss_black; b2_mat = gloss_ivory; break;
+    case 1:
+      b1_mat = black; b2_mat = ivory; break;
+    case 2:
+      b1_mat = phong_black; b2_mat = ivory; break;
+    }
 
   scene.add (new Mesh (b1_mat, "board1.msh", mesh_xform));
   scene.add (new Mesh (b2_mat, "board2.msh", mesh_xform));
@@ -603,7 +612,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 {
   // Chessboard
   //
-  add_chessboard (scene);
+  add_chessboard (scene, Xform::identity, 1);
 
   // Table/ground
 
@@ -617,6 +626,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 
   unsigned saturation = (num % 10);
   unsigned lighting = ((num / 10) % 10);
+  unsigned brdf = ((num / 100) % 10);
 
   switch (lighting)
     {
@@ -643,6 +653,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 		     100);
       add_rect_bulb (scene, Pos (-6, 0, -2), Vec (0, 0, 3), Vec (0, 3, 0),
 		     15 * Color (1, 1, 0.3));
+      break;
 
     case 3:
       // day-time balls, area lights
@@ -732,13 +743,18 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 	case 2: pastel = (pastel + 0.2) / 1.2; break;
 	}
 
-      float spec = powf (1.5f, float (i) - float (num_balls * 0.75));
+      float ct_m = powf (1.5f, float (i) - float (num_balls * 0.75));
+      float phong_exp = 1000 * float (i) / float (num_balls);
 
       const Material *mat;
       if (i % 3 == 1)
 	mat = new Glass (Medium (1.5, (base_col + 0.2) / 1.2));
+      else if (brdf == 0)
+	mat = new Material (col * 0.7, cook_torrance (0.3, ct_m));
+      else if (brdf == 1)
+	mat = new Material (col * 0.7, phong (0.3, phong_exp));
       else
-	mat = new Material (col * 0.7, cook_torrance (0.3, spec));
+	mat = new Material (col * 0.7);
 
       scene.add (mat);
       scene.add (new Sphere (mat, Pos (x, y, z), rad));
@@ -1617,7 +1633,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     = scene.add (new Material (Color (0.2, 0.2, 0.2),
 			       cook_torrance (0.8, 0.5, 5)));
   const Material *gloss_neutral_grey
-    = scene.add (new Material (0.5, cook_torrance (0.5, 0.03, 2)));
+    = scene.add (new Material (0.1, cook_torrance (0.9, 0.03, 2)));
   const Material *semigloss_off_white
     = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
   const Material *gloss_blue
@@ -1953,12 +1969,27 @@ def_scene_trep (unsigned num, const string &arg, Scene &scene, Camera &camera)
 // sampling.
 //
 static void
-def_scene_mis (unsigned num, const string &arg, Scene &scene, Camera &camera)
+def_scene_mis (unsigned num, const string &, Scene &scene, Camera &camera)
 {
-  add_chessboard (scene, Xform::identity, 1);
+  unsigned chess_variant = 2 - (num % 10);
+  unsigned light_variant = (num / 10) % 10;
 
-  add_bulb (scene, Pos (-1.5, 1.2, 4), 1,    100 * Color (0.8, 0.8, 0.2));
-  add_bulb (scene, Pos ( 1.5, 1.2, 4), 0.05, 100 * Color (0.4, 0.4, 1));
+  add_chessboard (scene, Xform::identity, chess_variant);
+
+  switch (light_variant)
+    {
+    case 0: default:
+      add_bulb (scene, Pos (-1.5, 1.2, 4), 1,    100 * Color (0.8, 0.8, 0.2));
+      add_bulb (scene, Pos ( 1.5, 1.2, 4), 0.05, 100 * Color (0.4, 0.4, 1));
+      break;
+
+    case 1:
+      add_rect_bulb (scene, Pos (-2.5, 0.2, 4), Vec(0,2,0), Vec(2,0,0),
+		     30 * Color (0.8, 0.8, 0.2));
+      add_rect_bulb (scene, Pos ( 1.45, 1.15, 4), Vec(0,0.1,0), Vec(0.1,0,0),
+		     100 * Color (0.4, 0.4, 1));
+      break;
+    }
 
   camera.move (Pos (0, 1.5, -6));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
