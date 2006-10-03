@@ -1764,4 +1764,53 @@ After adding trace-state tree, horizon hints:
      eye-rays per second:       4
 
 
+   2006-09-29 [work]
+   rev: miles@gnu.org--2006/snogray--devo--0--patch-274
+   cmd: snogray -a10 -s1152 -cv,u150,l500,f22,od20,ru8,mb10,a.58,.72 -b ../envmaps/sachform/URBANbase-download_color.exr test:mesh8:../dist/models/happy.msh ../images/dof5.jpg
+   * loading large image: URBANbase-download_color.exr (4000 x 2000, 91 MB)...done
+   * adding large mesh: 555,163 vertices, 1,087,716 triangles
+   * envmap-light: generating radiance map...analyzing...done
+   * envmap-light: 328 regions, radiance = rgb<9.3016, 8.3103, 7.9694>
+   * autofocus distance: 11.412
+   Scene:
+      scene:   test:mesh8:../dist/models/happy.msh
+      top-level surfaces:        10
+      lights:                     1
+      scene background: ../envmaps/sachform/URBANbase-download_color.exr
+      materials:                 17
+      tree surfaces:      2,631,404 (58% duplicates)
+      tree nodes:         1,184,563 (41% leaves)
+      tree avg depth:             6
+      tree max depth:            60
+   Image:
+      size:              768 x 1152
+      render oversample:         10
+
+   rendering: done                                                             .
+
+   Rendering stats:
+     intersect:
+	rays:                  97,518,563
+	horizon hint hits:     27,470,920 (28%)
+	horizon hint misses:   15,368,757 (15%)
+	tree node tests:    8,126,479,562 ( 0%)
+	surface tests:      4,027,035,830 ( 0%)
+     shadow:
+	rays:               4,842,191,720
+	shadow hint hits:     201,420,959 ( 4%)
+	shadow hint misses: 1,750,047,756 (36%)
+	tree node tests:  197,713,136,439 ( 0%)
+	surface tests:    159,740,617,935 ( 0%)
+     illum:
+	illum calls:           42,841,361
+	average light samples:        328
+	average shadow rays:          113 (34%)
+   Time:
+     scene def cpu:            9s
+     rendering cpu:      24:16:19
+     total elapsed:      24:21:29
+     rays per second:      56,532
+     eye-rays per second:      10
+
+
 ;; arch-tag: 95153983-c1ba-49ad-8285-bbcf390ded90
