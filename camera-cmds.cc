@@ -263,7 +263,19 @@ Snogray::interpret_camera_cmds (const string &cmds, Camera &camera,
 	  else if (cmd == 'z')	// zoom
 	    camera.zoom (read_float (stream, "zoom factor"));
 	  else if (cmd == 'l')	// lens focal length
-	    camera.set_focal_length (read_float (stream, "lens focal length"));
+	    {
+	      float foclen = read_float (stream, "lens focal length");
+
+	      // preserve the camera's current f-stop, if any (otherwise,
+	      // the camera retains the old aperture setting, which
+	      // corresponds to a different f-stop with the new focal
+	      // length).
+	      //
+	      float f_stop = camera.f_stop ();
+
+	      camera.set_focal_length (foclen);
+	      camera.set_f_stop (f_stop);
+	    }
 	  else if (cmd == 'f')	// set f-stop
 	    camera.set_f_stop (read_float (stream, "f-stop"));
 	  else if (cmd == 'd')	// set focus distance
