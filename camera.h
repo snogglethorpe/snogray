@@ -198,6 +198,16 @@ public:
     tan_half_fov_y = format.film_height / 2 / focal_len;
   }
 
+  // Return the "equivalent" focal length in format FOC_LEN_FMT:  a focal
+  // length that has the same diagonal field-of-view in FOC_LEN_FMT as the
+  // camera's focal length does in its current format.
+  //
+  float focal_length (const Format &foc_len_fmt) const
+  {
+    float diag_fov = format.diagonal_fov (focal_length ());
+    float tan_half_diag_fov = tan (diag_fov / 2);
+    return foc_len_fmt.film_diagonal() / 2 / tan_half_diag_fov;
+  }
   // Set the actual focal length to something that has the same diagonal
   // field of view that FOCAL_LEN does in FOC_LEN_FMT.
   //
@@ -271,9 +281,22 @@ public:
       set_format (Format (format.film_height, format.film_width));
   }
 
-  // Set the camera aperture for depth-of-field simulation, in f-stops
+  // Get/set the camera aperture for depth-of-field simulation, in f-stops.
   //
-  void set_f_stop (float f_stop) { aperture = focal_length () / f_stop; }
+  // A value of zero is special-cased to mean an "infinite" f-stop (i.e.,
+  // an aperture of zero).
+  //
+  float f_stop () const
+  {
+    return aperture ? focal_length () / aperture : 0;
+  }
+  void set_f_stop (float f_stop)
+  {
+    if (f_stop == 0)
+      aperture = 0;
+    else
+      aperture = focal_length () / f_stop;
+  }
 
 
   // Return an eye-ray from this camera for position U,V on the film plane,
