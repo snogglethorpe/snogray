@@ -1242,6 +1242,85 @@ add_scene_descs_cs465 (vector<TestSceneDesc> &descs)
 
 
 
+void 
+def_scene_cs665_test1 (Scene &scene, Camera &camera)
+{
+  camera.move (Pos (0, 2, 5));
+  camera.point (Pos (0,0,0), Vec(0,1,0));
+  camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
+
+  float light_radius = 0.001;
+  float light_area = 4 * M_PIf * light_radius * light_radius;
+
+  add_bulb (scene, Pos (0, 3, 0), light_radius, 2e7 * light_area);
+
+  const Material *white = scene.add (new Material (1));
+
+  scene.add (new Sphere (white, Pos(0,0,0), 0.5));
+
+  Mesh *mesh = new Mesh (white);
+  mesh->add_vertex (Pos (-1, 0, 1));
+  mesh->add_vertex (Pos (1, 0, 1));
+  mesh->add_vertex (Pos (1, 0, -1));
+  mesh->add_vertex (Pos (-1, 0, -1));
+  mesh->add_triangle (3, 0, 1);
+  mesh->add_triangle (1, 2, 3);
+  scene.add (mesh);
+}
+
+void 
+def_scene_cs665_test10 (Scene &scene, Camera &camera)
+{
+  camera.move (Pos (0, 2, 5));
+  camera.point (Pos (0,0,0), Vec(0,1,0));
+  camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
+
+  float light_radius = 0.001;
+  float light_area = 4 * M_PIf * light_radius * light_radius;
+
+  add_bulb (scene, Pos (0.5, 3, 10),    light_radius, 2e8 * light_area);
+  add_bulb (scene, Pos (0.5, 3, 0),     light_radius, Color (2e7, 0, 0) * light_area);
+  add_bulb (scene, Pos (-0.5, 3, 0.5),  light_radius, Color (0, 2e7, 0) * light_area);
+  add_bulb (scene, Pos (-0.5, 3, -0.5), light_radius, Color (0, 0, 2e7) * light_area);
+
+  const Material *white = scene.add (new Material (1));
+  const Material *mat00
+    = scene.add (new Material (Color (0.8, 0, 0),
+			       cook_torrance (1, 0.3, Ior (2.14, 4.0))));
+
+  scene.add (new Sphere (mat00, Pos(0,0,0), 0.5));
+
+  Mesh *mesh = new Mesh (white);
+  mesh->add_vertex (Pos (-1, 0, 1));
+  mesh->add_vertex (Pos (1, 0, 1));
+  mesh->add_vertex (Pos (1, 0, -1));
+  mesh->add_vertex (Pos (-1, 0, -1));
+  mesh->add_triangle (1, 0, 3);
+  mesh->add_triangle (3, 2, 1);
+  scene.add (mesh);
+}
+
+static void
+def_scene_cs665 (unsigned num, const string &, Scene &scene, Camera &camera)
+{
+  switch (num)
+    {
+    case 0:
+    case 1:  def_scene_cs665_test1 (scene, camera); break;
+    case 10: def_scene_cs665_test10 (scene, camera); break;
+    default:
+      throw runtime_error ("unknown cs665 test scene");
+    }
+}
+
+static void
+add_scene_descs_cs665 (vector<TestSceneDesc> &descs)
+{
+  descs.push_back (TestSceneDesc ("cs665-[1-4]", "Cornell CS665 test-scene 1-4"));
+}
+
+
+
 #if 0
 static void
 def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &camera)
@@ -2041,6 +2120,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_cornell_box (num, arg, scene, camera);
   else if (name == "cs465")
     def_scene_cs465 (num, arg, scene, camera);
+  else if (name == "cs665")
+    def_scene_cs665 (num, arg, scene, camera);
   else if (ends_in (name, "dancer"))
     def_scene_pretty_dancer (num, arg, scene, camera);
   else if (name == "tessel")
@@ -2069,6 +2150,7 @@ Snogray::list_test_scenes ()
   add_scene_descs_pretty_bunny (descs);
   add_scene_descs_cornell_box (descs);
   add_scene_descs_cs465 (descs);
+  add_scene_descs_cs665 (descs);
   add_scene_descs_pretty_dancer (descs);
   add_scene_descs_tessel (descs);
   add_scene_descs_mesh (descs);
