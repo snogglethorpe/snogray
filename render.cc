@@ -120,7 +120,7 @@ static Sample2Gen *
 make_aa_sample_gen (const Params &params)
 {
   unsigned oversample = params.get_uint ("oversample", 1);
-  unsigned jitter = params.get_uint ("jitter", 0);
+  unsigned jitter = params.get_uint ("jitter", 1);
   return new Grid (oversample, oversample, jitter);
 }
 
