@@ -91,9 +91,14 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 	const Vec h = (isec.v + l).unit ();
 	float nh = dot (isec.n, h);
 
+	// Angle between view angle and half-way vector (also between
+	// light-angle and half-way vector -- lh == vh).
+	//
+	float vh = dot (isec.v, h);
+
 	// Calculate D (microfacet distribution) term:
 	//
-	//    D = (1 / (4 * m^2 * (cos alpha)^2)) * e^(-((tan alpha) / m)^2)
+	//    D = (1 / (4 * m^2 * (cos alpha)^4)) * e^(-((tan alpha) / m)^2)
 	//
 	// where alpha is the angle between N and H.
 	//
@@ -107,12 +112,12 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 	  {
 	    float tan_alpha = tan (acos (cos_alpha));
 	    float D_exp = exp (-tan_alpha * tan_alpha * m_2_inv);
-	    D = m_2_inv / (4 * cos_4_alpha) * D_exp;
+	    D = D_exp * m_2_inv * 0.25f / cos_4_alpha;
 	  }
 
-	// Calculate F (fresnel) term
+	// Calculate F (fresnel) term.
 	//
-	float F = fres.reflectance (nl);
+	float F = fres.reflectance (vh);
 
 	// Calculate G (microfacet masking/shadowing) term
 	//
@@ -120,11 +125,10 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 	//             2 * (N dot H) * (N dot V) / (V dot H),
 	//             2 * (N dot H) * (N dot L) / (V dot H))
 	//
-	float vh = dot (isec.v, h);
 	float G = 2 * nh * ((isec.nv > nl) ? nl : isec.nv) / vh;
 	G = G <= 1 ? G : 1;
 
-	float specular = F * D * G * nv_inv * M_1_PI;
+	float specular = F * D * G * nv_inv * M_1_PIf;
 	float diffuse = nl * M_1_PI; // standard lambertian diffuse term
 
 	// The final reflectance is:
