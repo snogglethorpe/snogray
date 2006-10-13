@@ -1801,8 +1801,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
 
     case 2:			// platform only
-      add_cube (scene, grey, Pos (-0.5, 0, -0.5),
-		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
+      add_cube (scene, grey, Pos (-0.5, -10, -0.5),
+		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, 10, 0));
       floor_level = 0; // no floor, really, so pretend it's at top of platform
       break;
 
