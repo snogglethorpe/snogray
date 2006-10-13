@@ -103,16 +103,17 @@ CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
 	// where alpha is the angle between N and H.
 	//
 	float cos_alpha = max (min (nh, 1.f), -1.f);
-	float cos_4_alpha = cos_alpha * cos_alpha * cos_alpha * cos_alpha;
+	float cos2_alpha = cos_alpha * cos_alpha;
+	float cos4_alpha = cos2_alpha * cos2_alpha;
 
 	float D;
-	if (cos_4_alpha < Eps)
+	if (cos4_alpha < Eps)
 	  D = 0;			// cos_alpha is too small, avoid underflow
 	else
 	  {
-	    float tan_alpha = tan (acos (cos_alpha));
-	    float D_exp = exp (-tan_alpha * tan_alpha * m_2_inv);
-	    D = D_exp * m_2_inv * 0.25f / cos_4_alpha;
+	    float tan2_alpha = 1 / cos2_alpha - 1;
+	    float D_exp = exp (-tan2_alpha * m_2_inv);
+	    D = D_exp * m_2_inv * 0.25f / cos4_alpha;
 	  }
 
 	// Calculate F (fresnel) term.
