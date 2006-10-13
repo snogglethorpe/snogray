@@ -1245,6 +1245,7 @@ add_scene_descs_cs465 (vector<TestSceneDesc> &descs)
 void 
 def_scene_cs665_test1 (Scene &scene, Camera &camera)
 {
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
   camera.move (Pos (0, 2, 5));
   camera.point (Pos (0,0,0), Vec(0,1,0));
   camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
@@ -1271,6 +1272,7 @@ def_scene_cs665_test1 (Scene &scene, Camera &camera)
 void 
 def_scene_cs665_test10 (Scene &scene, Camera &camera)
 {
+  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
   camera.move (Pos (0, 2, 5));
   camera.point (Pos (0,0,0), Vec(0,1,0));
   camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
