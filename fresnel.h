@@ -73,9 +73,6 @@ public:
   //
   float reflectance (float cos_refl_angle) const
   {
-    //    F = (abs(Fs)^2 + abs(Fp)^2) / 2
-    //
-
     // Clamp COS_REFL_ANGLE between -1 and 1, as values even just slightly
     // outside that range (not uncommon, due to floating-point precision
     // errors) can cause a floating-point exception.
@@ -84,11 +81,15 @@ public:
 
     float refl_angle = acos (cos_refl_angle);
 
-    float Fs, Fp;
+    // Reflectance of parallel and perpendicular polarized light.
+    //
+    float Rp, Rs;
 
     if (ior.k == 0)
       {
 	// No complex term
+	//
+	//    F = (abs(Fs)^2 + abs(Fp)^2) / 2
 	//
 	//    Fp = (n cos refl_angle - cos trans_angle)
 	//         / (n cos refl_angle + cos trans_angle)
@@ -114,22 +115,27 @@ public:
 	// value, which seems bizarre ... shouldn't we always return 0-1?
 
 	float Fs_den = nc1 + cos_trans_angle;
-	Fs = (Fs_den == 0) ? 0 : (nc1 - cos_trans_angle) / Fs_den;
+	float Fs = (Fs_den == 0) ? 0 : (nc1 - cos_trans_angle) / Fs_den;
 
 	float Fp_den = cos_refl_angle + nc2;
-	Fp = (Fp_den == 0) ? 0 : (cos_refl_angle - nc2) / Fp_den;
+	float Fp = (Fp_den == 0) ? 0 : (cos_refl_angle - nc2) / Fp_den;
+
+	// Square Fs and Fp to get reflectance
+	//
+	Rs = Fs * Fs;
+	Rp = Fp * Fp;
       }
     else
       {
 	// Complex term (k is imaginary part -- ior == n + i * k)
 	//
 	//       a^2 + b^2 - 2 a cos refl_angle + cos^2 refl_angle
-	//  Fs = -------------------------------------------------
+	//  Rs = -------------------------------------------------
 	//       a^2 + b^2 + 2 a cos refl_angle + cos^2 refl_angle
 	//
 	//            a^2 + b^2 - 2 a sin refl_angle tan refl_angle
 	//              + sin^2 refl_angle tan^2 refl_angle
-	//  Fp = Fs -------------------------------------------------
+	//  Rp = Rs -------------------------------------------------
 	//            a^2 + b^2 - 2 a sin refl_angle tan refl_angle
 	//		+ sin^2 refl_angle tan^2 refl_angle
 	//
@@ -156,20 +162,21 @@ public:
 	float a2_p_b2 = a2 + b2;
 	float a = sqrt (a2);
 
-	float Fs_term1 = a2_p_b2 + cos_refl_angle * cos_refl_angle;
-	float Fs_term2 = 2 * a * cos_refl_angle;
-	Fs = (Fs_term1 - Fs_term2) / (Fs_term1 + Fs_term2);
+	float Rs_term1 = a2_p_b2 + cos_refl_angle * cos_refl_angle;
+	float Rs_term2 = 2 * a * cos_refl_angle;
+	Rs = (Rs_term1 - Rs_term2) / (Rs_term1 + Rs_term2);
 
-	float Fp_term1 = a2_p_b2 + sin_tan_refl_angle * sin_tan_refl_angle;
-	float Fp_term2 = 2 * a * sin_tan_refl_angle;
-	Fp = Fs * ((Fp_term1 - Fp_term2) / (Fp_term1 + Fp_term2));
+	float Rp_term1 = a2_p_b2 + sin_tan_refl_angle * sin_tan_refl_angle;
+	float Rp_term2 = 2 * a * sin_tan_refl_angle;
+	Rp = Rs * ((Rp_term1 - Rp_term2) / (Rp_term1 + Rp_term2));
       }
 
-    return (Fs * Fs + Fp * Fp) / 2;
+    return (Rs + Rp) / 2;
   }
 
   // Final index of refracetion (the ratio of the indices of refraction on
   // either side of the interface).
+  //
   Ior ior;
 
   // Some derived quantities.
