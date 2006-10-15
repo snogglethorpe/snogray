@@ -185,8 +185,9 @@ PngImageSource::PngImageSource (const std::string &_filename,
 		&_width, &_height, &_bit_depth, &color_type,
 		&interlace_method, &compression_method, &filter_method);
 
-  double _gamma_correction;
-  png_get_gAMA (libpng_struct, libpng_info, &_gamma_correction);
+  double encoding_gamma_correction;
+  if (png_get_gAMA (libpng_struct, libpng_info, &encoding_gamma_correction))
+    set_gamma_correction (1 / encoding_gamma_correction);
 
   unsigned _num_channels;
   switch (color_type)

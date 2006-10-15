@@ -57,9 +57,20 @@ public:
       return byte (256.0 * com);
   }
 
-  // Explicit gamma-correction factor
+  // TARGET_GAMMA is the gamma correction factor the _target_ (e.g. a display)
+  // uses when it eventually reads the image we're writing:
   //
-  float gamma_correction;
+  //   DISPLAY_VAL = IMAGE_VAL ^ TARGET_GAMMA.
+  //
+  // GAMMA_CORRECTION is the gamma-correction factor _we_ use to
+  // "correct" for the target's calculation:
+  //
+  //   IMAGE_VAL = SOURCE_VAL ^ GAMMA_CORRECTION.
+  //
+  // Since GAMMA_CORRECTION == 1 / TARGET_GAMMA, the overall result is
+  // that DISPLAY_VAL == SOURCE_VAL, which is our goal.
+  //
+  float target_gamma, gamma_correction;
 
 private:
 
@@ -80,16 +91,7 @@ public:
 
   static const float DEFAULT_SOURCE_GAMMA = 2.2;
  
-  ByteVecImageSource (const std::string &filename, const Params &params,
-		      float _gamma_correction = DEFAULT_SOURCE_GAMMA)
-    : ImageSource (filename, params), gamma_correction (_gamma_correction),
-      //
-      // The following must be set by subclass using `set_size' after
-      // reading image header
-      //
-      input_row (0), bytes_per_component (1), component_scale (1 / 255.0),
-      num_channels (3)
-  { }
+  ByteVecImageSource (const std::string &filename, const Params &params);
 
   // We define this
   //
@@ -99,10 +101,20 @@ public:
   //
   virtual void read_row (std::vector<byte> &byte_vec) = 0;
 
-  // Explicit gamma-correction factor; should be set by subclass as
-  // appropriate (in many cases it's read from the file header, so can't
-  // actually be passed during superclass construction time, but should
-  // be set as soon as it is known).
+  // Explicit gamma-correction factor:
+  //
+  //    FINAL_VAL = IMAGE_VAL ^ GAMMA_CORRECTION
+  //
+  // Should be set by subclass when appropriate (in many cases it's read
+  // from the file header, so can't actually be passed during superclass
+  // construction time, but should be set as soon as it is known).
+  //
+  // Note that when the gamma correction is stored in the file itself,
+  // it may be the inverse of this -- for instance in the case of the
+  // PNG format, the value in a "gAMA chunk" is the correction value
+  // _applied at image encoding time_; our value of GAMMA_CORRECTION
+  // needs to be the inverse of that, to invert the encoding
+  // transformation.
   //
   float gamma_correction;
 
@@ -113,6 +125,14 @@ protected:
   //
   void set_specs (unsigned _width, unsigned _height,
 		  unsigned _num_channels = 3, unsigned bit_depth = 8);
+
+  // Set the gamma correction factor that should be used when converting
+  // image bytes into internal linear values.
+  //
+  void set_gamma_correction (float _gamma_correction)
+  {
+    gamma_correction = _gamma_correction;
+  }
 
   Color::component_t int_to_color_component (unsigned int_cc)
   {

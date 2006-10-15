@@ -26,14 +26,10 @@ ByteVecImageSink::ByteVecImageSink (const std::string &filename,
 				    unsigned width, unsigned height,
 				    const Params &params)
   : ImageSink (filename, width, height, params),
-    gamma_correction (params.get_float ("gamma", 0)),
+    target_gamma (params.get_float ("gamma", DEFAULT_TARGET_GAMMA)),
+    gamma_correction (1 / target_gamma),
     output_row (width * 3)
-{
-  if (gamma_correction != 0)
-    gamma_correction = 1 / gamma_correction; // we actually want the inverse
-  else
-    gamma_correction = 1 / DEFAULT_TARGET_GAMMA;
-}
+{ }
 
 void
 ByteVecImageSink::write_row (const ImageRow &row)
@@ -60,6 +56,19 @@ ByteVecImageSink::max_intens () const
 
 
 // Input
+
+ByteVecImageSource::ByteVecImageSource (const std::string &filename,
+					const Params &params)
+  : ImageSource (filename, params),
+    gamma_correction (params.get_float ("gamma", DEFAULT_SOURCE_GAMMA)),
+    //
+    // The following must be set by subclass using `set_size' after
+    // reading image header
+    //
+    input_row (0), bytes_per_component (1), component_scale (1 / 255.0),
+    num_channels (3)
+{ }
+
 
 // Called by subclass (usually after reading image header) to finish
 // setting up stuff.
