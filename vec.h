@@ -110,7 +110,7 @@ public:
     // If VEC is pointing along the y-axis, just return some other axis.
     // Otherwise, return VEC x (VEC x (0,1,0)).
     //
-    if (x < Eps && z < Eps)
+    if (abs (x) < Eps && abs (z) < Eps)
       return TVec (y, 0, 0);
     else
       return TVec (x * y, -(z * z) - (x * x), y * z);
