@@ -110,13 +110,37 @@ SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra -std=c++98])
 ##
 
 
-AC_CHECK_HEADERS([fenv.h])
+# Allow point exceptions to be enabled (which can make debugging much easier).
 
-have_feenableexcept=no
-AC_CHECK_LIB([m], [feenableexcept], [have_feenableexcept=yes])
-if test $have_feenableexcept = yes; then
-  AC_DEFINE([HAVE_FEENABLEEXCEPT], [1],
-            [Define if feenableexcept is defined in -lm])
+AC_ARG_ENABLE([fp-exceptions],
+    AS_HELP_STRING([--enable-fp-exceptions],
+		   [Enable floating-point exceptions]),
+    [enable_fp_exceptions="$enableval"],
+    [enable_fp_exceptions=yes])
+
+use_fp_exceptions=no
+
+if test "$enable_fp_exceptions" = yes; then
+
+  AC_CHECK_HEADERS([fenv.h])
+
+  have_feenableexcept=no
+  AC_CHECK_LIB([m], [feenableexcept], [have_feenableexcept=yes])
+  if test $have_feenableexcept = yes; then
+    AC_DEFINE([HAVE_FEENABLEEXCEPT], [1],
+	      [Define if feenableexcept is defined in -lm])
+  fi
+
+  if test "$ac_cv_header_fenv_h" = yes && test "$have_feenableexcept" = yes
+  then
+    use_fp_exceptions=yes
+  fi
+
+fi
+
+if test "$use_fp_exceptions" = yes; then
+  AC_DEFINE([USE_FP_EXCEPTIONS], [1],
+  	    [Define if enabling floating-point exceptions])
 fi
 
 
@@ -288,9 +312,24 @@ if test "$GXX" = yes; then
   #
   AC_SUBST([CXX_OPT_FLAGS], ["-O5 -fomit-frame-pointer"])
 
-  # Some optimization flags which not be supported.
+  # g++ flags for architecture-independent floating-point optimization.
   #
-  SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_OPT_FLAGS], [-ffast-math])
+  # When given the -ffast-math option, g++ will by default speculatively
+  # evaluate floating-point expressions even if they may trap (e.g.,
+  # divide).  The -ftrapping-math option causes g++ to be more careful
+  # in such cases, so use that if we're going to enable floating-point
+  # exceptions.
+  #
+  if test "$use_fp_exceptions" = yes; then
+    CXX_MATH_FLAGS="-ffast-math -ftrapping-math"
+  else
+    CXX_MATH_FLAGS="-ffast-math"
+  fi
+
+  # Validate extra optimization flags.
+  #
+  CXX_EXTRA_OPT_FLAGS="$CXX_MATH_FLAGS"
+  SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_OPT_FLAGS], [$CXX_EXTRA_OPT_FLAGS])
 
   # Guess machine-specific options based on cpu type.
   #

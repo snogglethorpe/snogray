@@ -171,7 +171,7 @@ recover_image (ImageInput *src, ImageOutput &dst)
 static void
 enable_fp_exceptions ()
 {
-#ifdef HAVE_FEENABLEEXCEPT
+#if defined(USE_FP_EXCEPTIONS) && defined(HAVE_FEENABLEEXCEPT)
 
   fexcept_t fexcepts = 0;
 
@@ -188,7 +188,7 @@ enable_fp_exceptions ()
   if (fexcepts)
     feenableexcept (fexcepts);
 
-#endif // HAVE_FEENABLEEXCEPT
+#endif // USE_FP_EXCEPTIONS && HAVE_FEENABLEEXCEPT
 }
 
 
