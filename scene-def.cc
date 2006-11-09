@@ -130,7 +130,7 @@ SceneDef::load (Scene &scene, Camera &camera)
 
       scene.add (env_light);
 
-      string env_light_dump_file = params.get_string ("env-light-dump-file");
+      string env_light_dump_file = params.get_string ("envlight-dump-file");
       if (! env_light_dump_file.empty ())
 	env_light->dump (env_light_dump_file, *scene.env_map);
     }
