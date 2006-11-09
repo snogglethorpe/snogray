@@ -13,6 +13,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "trace.h"
+#include "mis-illum.h"
 #include "global-tstate.h"
 
 #include "sample-map.h"
@@ -23,9 +24,9 @@ using namespace std;
 // Add samples from the first intersection reached by tracing EYE_RAY
 // into SCENE.
 //
-void
+unsigned
 SampleMap::sample (const Ray &eye_ray, Scene &scene,
-		   const TraceParams &trace_params)
+		   const TraceParams &trace_params, bool intensity)
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
@@ -39,45 +40,54 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
     {
       Intersect isec
 	= surf->intersect_info (intersected_ray, isec_params, trace);
-      std::vector<const Light *> &lights = scene.lights;
 
-      if (map_type == BRDF)
-	isec.brdf.gen_samples (isec, samples);
-      else if (map_type == LIGHTS)
-	for (std::vector<const Light *>::const_iterator li = lights.begin();
-	     li != lights.end(); li++)
-	  (*li)->gen_samples (isec, samples);
-      else
-	{
-	  LightSamples &lsamples = global_tstate.light_samples;
+      MisIllum mis_illum (trace);
 
-	  lsamples.generate (isec, lights);
+      mis_illum.distribute_light_samples (trace_params.num_light_samples,
+					  mis_illum.light_params);
+      mis_illum.gen_samples (isec, trace_params.num_brdf_samples,
+			     mis_illum.light_params, samples);
 
-	  // This loop should be the same as the following two methods, but
-	  // they run into memory allocation botches...
-	  //
-	  for (LightSamples::const_iterator ls = lsamples.begin();
-	       ls != lsamples.end(); ls++)
-	    samples.add (*ls);
-
-	  // XXX1: copy (lsamples.begin(), lsamples.end(), samples.end());
-	  // XXX2: samples.insert (samples.end(), lsamples.begin(), lsamples.end()); 
-	}
-
-      for (SampleRayVec::iterator s = samples.begin() + num_samples;
-	   s != samples.end(); s++)
+      for (IllumSampleVec::iterator s = samples.begin() + num_samples;
+	   s != samples.end(); ++s)
 	{	
-	  put (s->dir, get (s->dir) + s->val);
+	  Color val = intensity ? s->val : 5;
 
-	  sum += s->val;
-	  if (num_samples == 0 || s->val < min)
-	    min = s->val;
-	  if (s->val > max)
-	    max = s->val;
+	  put (s->dir, get (s->dir) + val);
+
+	  if (intensity)
+	    {
+	      sum += val;
+	      if (num_samples == 0 || val < min)
+		min = val;
+	      if (val > max)
+		max = val;
+	    }
 
 	  num_samples++;
 	}
+
+      // Number of real+virtual samples.
+      //
+      unsigned num = 0;
+
+      // Count the number of real+virtual light samples.
+      //
+      for (std::vector<SampleIllum::LightParams>::iterator lp
+	     = mis_illum.light_params.begin();
+	   lp != mis_illum.light_params.end(); ++lp)
+	num += lp->num_samples;
+
+      // There's no way to do the same thing for brdf samples, so assume
+      // there are no virtual brdf samples (which is true more often
+      // than for lights at least).
+      //
+      num += trace_params.num_brdf_samples;
+
+      return num;
     }
+  else
+    return 0;
 }
 
 // Normalize samples
@@ -87,7 +97,7 @@ SampleMap::normalize ()
 {
   float scale = 1 / max.intensity ();
 
-  for (SampleRayVec::const_iterator s = samples.begin ();
+  for (IllumSampleVec::const_iterator s = samples.begin ();
        s != samples.end (); s++)
     put (s->dir, get (s->dir) * scale);
 }

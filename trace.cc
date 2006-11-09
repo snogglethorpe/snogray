@@ -10,6 +10,7 @@
 //
 
 #include "scene.h"
+#include "illum.h"
 #include "global-tstate.h"
 
 #include "trace.h"
@@ -20,7 +21,8 @@ using namespace Snogray;
 //
 Trace::Trace (const Scene &_scene, GlobalTraceState &_global)
   : scene (_scene), parent (0), global (_global),
-    type (SPONTANEOUS), origin (0), horizon_hint (0), depth (0), medium (0)
+    type (SPONTANEOUS), origin (0), horizon_hint (0), depth (0), medium (0),
+    _illum (0)
 {
   _init ();
 }
@@ -30,7 +32,8 @@ Trace::Trace (const Scene &_scene, GlobalTraceState &_global)
 Trace::Trace (Type _type, Trace *_parent)
   : scene (_parent->scene), parent (_parent), global (_parent->global),
     type (_type), origin (0), horizon_hint (0), depth (_parent->depth + 1),
-    medium (parent->medium)
+    medium (parent->medium),
+    _illum (0)
 {
   _init ();
 }
@@ -50,6 +53,9 @@ Trace::_init ()
 
 Trace::~Trace ()
 {
+  if (_illum)
+    global.illum_global_state->put_illum (_illum);
+
   for (unsigned i = 0; i < NUM_TRACE_TYPES; i++)
     delete subtraces[i];
 

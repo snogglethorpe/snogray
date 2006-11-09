@@ -9,19 +9,21 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <complex>
 #include <list>
 
 #include "snogmath.h"
 #include "vec.h"
-#include "excepts.h"
 #include "trace.h"
 #include "intersect.h"
+#include "ward-dist.h"
+#include "cos-dist.h"
+#include "grid-iter.h"
 
 #include "cook-torrance.h"
 
+
 using namespace Snogray;
-using namespace std;
+
 
 // Source of "constant" (not-to-be-freed) CookTorrance BRDFs
 //
@@ -40,104 +42,176 @@ Snogray::cook_torrance (const Color &spec_col, float m, const Ior &ior)
   return &brdfs.front ();
 }
 
-// Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
-// For best results, they should be distributed according to the BRDF's
-// importance function.
-//
-void
-CookTorrance::gen_samples (const Intersect &, SampleRayVec &)
-  const
-{
-  throw std::runtime_error ("CookTorrance::gen_samples");
-}
+
 
-// Modify the value of each of the light-samples in SAMPLES according to
-// the BRDF's reflectivity in the sample's direction.
+// The details of cook-torrance evaluation are in this class.
 //
-void
-CookTorrance::filter_samples (const Intersect &isec, SampleRayVec &,
-			      SampleRayVec::iterator from,
-			      SampleRayVec::iterator to)
-  const
+struct CtCalc
 {
-  // 1 / (N dot V)
+  CtCalc (const CookTorrance &_ct, const Intersect &_isec)
+    // If NV == 0, then the eye-ray is perpendicular to the normal, which
+    // basically means we can't see anything (but it's a rare case so don't
+    // bother to optimize it, just protect against division by zero).
+    //
+    : ct (_ct), isec (_isec),
+      spec_dist (ct.m), diff_dist (),
+      fres (isec.trace.medium ? isec.trace.medium->ior : 1, ct.ior),
+      nv (isec.nv), inv_pi_nv (nv == 0 ? 0 : M_1_PIf / nv)
+  { }
+
+  // Calculate D (microfacet distribution) term.  Traditionally
+  // Cook-torrance uses a Beckmann distribution for this, but we use the
+  // Ward Isotropic distribution becuase it's easy to sample.
   //
-  // If NV == 0, then the eye-ray is perpendicular to the normal, which
-  // basically means we can't see anything (but it's a rare case so don't
-  // bother to optimize it, just protect against division by zero).
+  float D (float nh) const
+  {
+    return spec_dist.pdf (nh);
+  }
+  float D_pdf (float nh, float vh) const
+  {
+    // The division by 4 * VH here is intended to compensate for the fact
+    // that the underlying distribution SPEC_DIST is actually that of the
+    // half-vector H, whereas the pdf we want should be the distribution of
+    // the light-vector L.  I don't really understand why it works, but
+    // it's in the PBRT book, and seems to have good results.
+    //
+    return spec_dist.pdf (nh) / (4 * vh);
+  }
+
+  // Calculate F (fresnel) term
   //
-  float nv_inv = isec.nv == 0 ? 0 : 1 / isec.nv;
+  float F (float vh) const { return fres.reflectance (vh); }
+
+  // Calculate G (microfacet masking/shadowing) term
+  //
+  //    G = min (1,
+  //             2 * (N dot H) * (N dot V) / (V dot H),
+  //             2 * (N dot H) * (N dot L) / (V dot H))
+  //
+  float G (float vh, float nh, float nl) const
+  {
+    return min (2 * nh * ((isec.nv > nl) ? nl : isec.nv) / vh, 1.f);
+  }
+
+  // Return the CT reflectance for the sample in direction L, where H is
+  // the half-vector.  The pdf is returned in PDF.
+  //
+  Color val (const Vec &l, const Vec &h, float &pdf) const
+  {
+    float nh = isec.cos_n (h), nl = isec.cos_n (l);
+
+    // Angle between view angle and half-way vector (also between
+    // light-angle and half-way vector -- lh == vh).
+    //
+    float vh = isec.cos_v (h);
+
+    // The Cook-Torrance specular term is:
+    //
+    //    f_s = (F / PI) * D * G / (N dot V)
+    //
+    // We sample the specular term using the D component only, so the pdf
+    // is only based on that.
+    //
+    float spec = F (vh) * D (nh) * G (vh, nh, nl) * inv_pi_nv;
+    float spec_pdf = D_pdf (nh, vh);
+
+    // Diffuse term is a simple lambertian (cosine) distriution, and its
+    // pdf is exact.
+    //
+    float diff = diff_dist.pdf (nl);
+    float diff_pdf = diff;	// identical
+
+    pdf = 0.5f * (spec_pdf + diff_pdf);
+
+    return isec.color * diff + ct.specular_color * spec;
+  }
+
+  void gen_sample (float u, float v, IllumSampleVec &samples)
+  {
+    Vec l, h;
+    if (u < 0.5)
+      {
+	l = isec.z_normal_to_world (diff_dist.sample (u * 2, v));
+	h = (isec.v + l).unit ();
+      }
+    else
+      {
+	h = isec.z_normal_to_world (spec_dist.sample (u * 2 - 1, v));
+	if (isec.cos_v (h) < 0)
+	  h = -h;
+	l = isec.v.mirror (h);
+      }
+
+    if (isec.cos_n (l) > 0)
+      {
+	float pdf;
+	Color f = val (l, h, pdf);
+
+	samples.push_back (IllumSample (l, f, pdf));
+      }
+  }
+
+  void filter_sample (const IllumSampleVec::iterator &s)
+  {
+    const Vec &l = s->dir;
+    const Vec h = (isec.v + l).unit ();
+    s->refl = val (l, h, s->brdf_pdf);
+  }
+
+  const CookTorrance &ct;
+
+  const Intersect &isec;
+
+  // Sample distributions for specular and diffuse components.
+  //
+  const WardDist spec_dist;
+  const CosDist diff_dist;
 
   // Info for calculating the Fresnel term.
   //
-  const Fresnel fres (isec.trace.medium ? isec.trace.medium->ior : 1, ior);
+  const Fresnel fres;
 
-  for (SampleRayVec::iterator s = from; s != to; s++)
-    if (s->val != 0)
-      {
-	// The Cook-Torrance specular term is:
-	//
-	//    f_s = (F / PI) * (D * G / (N dot V))
-	//
-	// We calculate each of these sub-terms below
+  // (N dot V) and 1 / (PI * N dot V).
+  //
+  const float nv, inv_pi_nv;
+};
 
-	// Light-ray direction vector (normalized)
-	//
-	const Vec &l = s->dir;
-	float nl = dot (isec.n, l);
+
 
-	// Half-way vector between eye-ray and light-ray (normalized)
-	//
-	const Vec h = (isec.v + l).unit ();
-	float nh = dot (isec.n, h);
+// Generate around NUM samples of this BRDF and add them to SAMPLES.
+// NUM is only a suggestion.
+//
+unsigned
+CookTorrance::gen_samples (const Intersect &isec, unsigned num,
+			   IllumSampleVec &samples)
+  const
+{
+  CtCalc calc (*this, isec);
 
-	// Angle between view angle and half-way vector (also between
-	// light-angle and half-way vector -- lh == vh).
-	//
-	float vh = dot (isec.v, h);
+  GridIter grid_iter (num);
 
-	// Calculate D (microfacet distribution) term:
-	//
-	//    D = (1 / (4 * m^2 * (cos alpha)^4)) * e^(-((tan alpha) / m)^2)
-	//
-	// where alpha is the angle between N and H.
-	//
-	float cos_alpha = max (min (nh, 1.f), -1.f);
-	float cos2_alpha = cos_alpha * cos_alpha;
-	float cos4_alpha = cos2_alpha * cos2_alpha;
+  float u, v;
+  while (grid_iter.next (u, v))
+    calc.gen_sample (u, v, samples);
 
-	float D;
-	if (cos4_alpha < Eps)
-	  D = 0;			// cos_alpha is too small, avoid underflow
-	else
-	  {
-	    float tan2_alpha = 1 / cos2_alpha - 1;
-	    float D_exp = exp (-tan2_alpha * m_2_inv);
-	    D = D_exp * m_2_inv * 0.25f / cos4_alpha;
-	  }
-
-	// Calculate F (fresnel) term.
-	//
-	float F = fres.reflectance (vh);
-
-	// Calculate G (microfacet masking/shadowing) term
-	//
-	//    G = min (1,
-	//             2 * (N dot H) * (N dot V) / (V dot H),
-	//             2 * (N dot H) * (N dot L) / (V dot H))
-	//
-	float G = 2 * nh * ((isec.nv > nl) ? nl : isec.nv) / vh;
-	G = G <= 1 ? G : 1;
-
-	float specular = F * D * G * nv_inv * M_1_PIf;
-	float diffuse = nl * M_1_PI; // standard lambertian diffuse term
-
-	// The final reflectance is:
-	//
-	//   f = k_d * f_d + k_s * f_s
-	//
-	s->set_refl (isec.color * diffuse + specular_color * specular);
-      }
+  return grid_iter.num_samples ();
 }
+
+// Add reflectance information for this BRDF to samples from BEG_SAMPLE
+// to END_SAMPLE.
+//
+void
+CookTorrance::filter_samples (const Intersect &isec,
+			      const IllumSampleVec::iterator &beg_sample,
+			      const IllumSampleVec::iterator &end_sample)
+  const
+{
+  CtCalc calc (*this, isec);
+
+  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
+    if (! s->invalid)
+      calc.filter_sample (s);
+}
+
 
 // arch-tag: a0a0049e-9af6-4438-ab58-081630151122

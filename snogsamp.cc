@@ -19,6 +19,7 @@
 #include "sample-map.h"
 #include "cmdlineparser.h"
 #include "image-cmdline.h"
+#include "render-cmdline.h"
 #include "trace-params.h"
 
 using namespace Snogray;
@@ -97,9 +98,11 @@ n
 s "      --brdf                 Only sample the BRDF"
 s "      --lights               Only sample the lights"
 n
-s "  -w, --sample-width=N       Set width of displayed samples"
+s "  -n, --num-samples=NUM      Set the number of samples"
 n
-s "  -n, --no-normalize         Don't normalize sample values"
+s "  -i, --intensity            Indicate sample intensity too"
+n
+s "  -N, --no-normalize         Don't normalize sample values"
 n
 s SCENE_DEF_OPTIONS_HELP
 n
@@ -135,20 +138,24 @@ int main (int argc, char *const *argv)
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
     { "map-size",	required_argument, 0, 'm' },
-    { "no-normalize",	no_argument, 	   0, 'n' },
+    { "num-samples",	required_argument, 0, 'n' },
+    { "no-normalize",	no_argument, 	   0, 'N' },
     { "brdf",		no_argument,	   0, OPT_BRDF },
     { "lights",		no_argument,	   0, OPT_LIGHTS },
+    { "intensity",	no_argument,	   0, 'i' },
     { "size",		required_argument, 0, 'r' },
     SCENE_DEF_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
+    RENDER_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   //
   char short_options[] =
-    "s:m:nr:"
+    "s:m:n:Nr:"
     SCENE_DEF_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
+    RENDER_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
@@ -159,7 +166,7 @@ int main (int argc, char *const *argv)
   Params image_params, render_params;
   unsigned width = 640, height = 480; // virtual "camera image"
   unsigned map_width = 800, map_height = 400; // sample map size
-  bool no_normalize = false;
+  bool no_normalize = false, intensity = false;
   SampleMap::type map_type = SampleMap::FILTERED;
   unsigned sample_width = 5;	// default
 
@@ -179,6 +186,12 @@ int main (int argc, char *const *argv)
       case 'm':			// map size
 	parse_size_opt_arg (clp, map_width, map_height);
 	break;
+      case 'N':
+	no_normalize = true;
+	break;
+      case 'i':
+	intensity = true;
+	break;
       case OPT_LIGHTS: 		// sample lights only
 	map_type = SampleMap::LIGHTS;
 	break;
@@ -191,6 +204,7 @@ int main (int argc, char *const *argv)
 
 	SCENE_DEF_OPTION_CASES (clp, scene_def);
 	IMAGE_OUTPUT_OPTION_CASES (clp, image_params);
+	RENDER_OPTION_CASES (clp, render_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -219,9 +233,10 @@ int main (int argc, char *const *argv)
 
   float u = float (x) / float (width);
   float v = float (y) / float (height);
-  map.sample (camera.eye_ray (u, v), scene, trace_params);
+  unsigned num
+    = map.sample (camera.eye_ray (u, v), scene, trace_params, intensity);
 
-  if (! no_normalize)
+  if (intensity && !no_normalize)
     map.normalize ();
 
 //   if (sample_width > 0)
@@ -237,10 +252,15 @@ int main (int argc, char *const *argv)
 
   map.save (filename, image_params);
 
-  cout << "sample map has " << map.num_samples << " samples" << endl;
-  cout << "   min = " << map.min << endl;
-  cout << "   max = " << map.max << endl;
-  cout << "   sum = " << map.sum << endl;
+  cout << "sample map has " << map.num_samples
+       << " / " << num << " samples" << endl;
+
+  if (intensity)
+    {
+      cout << "   min intensity = " << map.min << endl;
+      cout << "   max intensity = " << map.max << endl;
+      cout << "   avg intensity = " << map.sum / num << endl;
+    }
 }
 
 // arch-tag: dcd4d4d2-d3b4-43bc-8251-bfa7139ae20c

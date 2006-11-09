@@ -106,15 +106,22 @@ TraceStats::print (ostream &os, const Scene &scene)
   if (ic != 0)
     {
       long long is = illum_samples;
+      long long isi = illum_samples - illum_specular_samples;
+      long long iss = illum_specular_samples;
 
       os << "  illum:" << endl;
       os << "     illum calls:     " << setw (16)
 	 << commify (ic) << endl;
-      os << "     average light samples: " << setw (10)
-	 << setprecision(3) << fraction (is, ic) << endl;
-      os << "     average shadow rays:   " << setw (10)
-	 << setprecision(3) << fraction (sst, ic)
-	 << " (" << setw(2) << percent (sst, is) << "%)" << endl;
+      if (isi)
+	os << "     average non-spec samples:" << setw (8)
+	   << setprecision(3) << fraction (isi, ic) << endl;
+      if (iss)
+	os << "     average specular samples:" << setw (8)
+	   << setprecision(3) << fraction (iss, ic) << endl;
+      if (sst)
+	os << "     average shadow rays:   " << setw (10)
+	   << setprecision(3) << fraction (sst, ic)
+	   << " (" << setw(2) << percent (sst, isi) << "%)" << endl;
     }
 }
 

@@ -41,11 +41,11 @@ public:
 
   void set_type (type _type) { map_type = _type; }
 
-  // Add samples from the first intersection reached by tracing EYE_RAY
+  // Add NUM samples from the first intersection reached by tracing EYE_RAY
   // into SCENE.
   //
-  void sample (const Ray &eye_ray, Scene &scene,
-	       const TraceParams &trace_params);
+  unsigned sample (const Ray &eye_ray, Scene &scene,
+		   const TraceParams &trace_params, bool intensity = false);
 
   // Normalize samples (so that the maximum sample has value 1)
   //
@@ -89,11 +89,11 @@ public:
 
   // Samples we've collected
   //
-  SampleRayVec samples;
+  IllumSampleVec samples;
 
 private:
 
-  void process_samples (const SampleRayVec &samples);
+  void process_samples (const IllumSampleVec &samples);
 };
 
 }

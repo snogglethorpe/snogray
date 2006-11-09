@@ -12,6 +12,7 @@
 #ifndef __TRACE_PARAMS_H__
 #define __TRACE_PARAMS_H__
 
+#include "coords.h"
 #include "params.h"
 
 namespace Snogray {
@@ -20,16 +21,34 @@ class TraceParams
 {
 public:
 
+  static const unsigned DEFAULT_BRDF_SAMPLES = 16;
+  static const unsigned DEFAULT_LIGHT_SAMPLES = 16;
   static const unsigned DEFAULT_MAX_DEPTH = 6;
   static const dist_t DEFAULT_MIN_TRACE = 1e-10;
+  static const float DEFAULT_SPECULAR_THRESHOLD = 50;
+  static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
 
   TraceParams ()
     : max_depth (DEFAULT_MAX_DEPTH), min_trace (DEFAULT_MIN_TRACE)
   { }
   TraceParams (const Params &params)
-    : max_depth (params.get_uint ("max-depth", DEFAULT_MAX_DEPTH)),
-      min_trace (params.get_float ("min-trace", DEFAULT_MIN_TRACE))
+    : num_brdf_samples (
+	params.get_uint ("brdf-samples", DEFAULT_BRDF_SAMPLES)),
+      num_light_samples (
+	params.get_uint ("light-samples", DEFAULT_LIGHT_SAMPLES)),
+      max_depth (
+	params.get_uint ("max-depth", DEFAULT_MAX_DEPTH)),
+      min_trace (
+	params.get_float ("min-trace", DEFAULT_MIN_TRACE)),
+      specular_threshold (
+	params.get_float ("specular-threshold", DEFAULT_SPECULAR_THRESHOLD)),
+      envlight_intens_frac (
+	params.get_float ("envlight-intens-frac", DEFAULT_ENVLIGHT_INTENS_FRAC))
   { }
+
+  unsigned num_brdf_samples;
+
+  unsigned num_light_samples;
 
   // Deepest level of recursive tracing allowed.  Non-opaque shadow rays
   // use twice this depth (they have purely linear complexity though,
@@ -48,6 +67,13 @@ public:
   // parts which are all enabled by default).
   //
   dist_t min_trace;
+
+  // Threshold of BRDF reflectivity above which the BRDF is treated as
+  // "specular" even if it's not truly specular.
+  //
+  float specular_threshold;
+
+  float envlight_intens_frac;
 };
 
 }

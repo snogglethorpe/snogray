@@ -22,20 +22,28 @@ class RectLight : public Light
 {
 public:
 
-  static const unsigned JITTER_STEPS = 5;
-
   RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
-	     const Color &emittance)
+	     const Color &_intensity)
     : pos (_pos), side1 (_side1), side2 (_side2),
-      power (emittance * cross (_side1, _side2).length ()),
+      intensity (_intensity), area (cross (side1, side2).length ()),
       normal (cross (_side1, _side2).unit ())
   { }
 
-  // Generate (up to) NUM samples of this light and add them to SAMPLES.
-  // For best results, they should be distributed according to the light's
-  // intensity.
+  // Generate around NUM samples of this light and add them to SAMPLES.
+  // Return the actual number of samples (NUM is only a suggestion).
   //
-  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
+  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
+				IllumSampleVec &samples)
+    const;
+
+  // For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
+  // light, and where light is closer than the sample's previously recorded
+  // light distance (or the previous distance is zero), overwrite the
+  // sample's light-related fields with information from this light.
+  //
+  virtual void filter_samples (const Intersect &isec, 
+			       const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
     const;
 
   // Location and size of the light.
@@ -43,9 +51,11 @@ public:
   Pos pos;
   Vec side1, side2;
 
-  // Total emitted power for the entire light.
+  // Radiant emittance of this light (W / m^2).
   //
-  Color power;
+  Color intensity;
+
+  float area;
 
 private:
 

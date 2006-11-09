@@ -13,6 +13,7 @@
 # Targets
 #
 bin_PROGRAMS = snogray snogcvt snogdiff snogsamp
+noinst_PROGRAMS = hemint
 
 # Internal libraries; not installed
 #
@@ -69,29 +70,31 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 # Snogray rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		 \
-	camera-cmds.cc camera-cmds.h cook-torrance.cc cook-torrance.h	 \
-	coords.h cubemap.cc cubemap.h envmap.cc envmap.h envmap-light.cc \
-	envmap-light.h excepts.h far-light.cc far-light.h fresnel.h	 \
-	glass.cc glass.h globals.cc globals.h global-tstate.h glow.cc	 \
-	glow.h grid.cc grid.h image-sum.h intersect.cc intersect.h	 \
-	lambert.cc lambert.h light.h lsamples.cc lsamples.h material.cc	 \
-	material.h matrix4.h matrix-tex2.cc matrix-tex2.h		 \
-	matrix-tex2.tcc medium.h mesh.cc mesh.h mesh-load.cc mirror.cc	 \
-	mirror.h octree.cc octree.h phong.cc phong.h plastic.cc		 \
-	plastic.h point-light.cc point-light.h pos.h progress.cc	 \
-	progress.h radiance-map.h rand.h ray.cc ray.h rect-light.cc	 \
-	rect-light.h render.cc render.h render-cmdline.h renderer.cc	 \
-	renderer.h rmap-analyzer.cc rmap-analyzer.h sample-disk.h	 \
-	sample-ray.h sample2-gen.h sample2.h scene.cc scene.h		 \
-	scene-def.cc scene-def.h scene-load-aff.cc scene-load.cc	 \
-	snogmath.h space.h sphere.cc sphere.h sphere-isec.h		 \
-	sphere-light.cc sphere-light.h spheremap.cc spheremap.h		 \
-	struct-light.cc struct-light.h surface.cc surface.h tessel.cc	 \
-	tessel.h tessel-param.cc tessel-param.h test-scenes.cc		 \
-	test-scenes.h tex2.h timeval.cc timeval.h trace.cc trace.h	 \
-	trace-params.h trace-stats.cc trace-stats.h tripar.cc tripar.h	 \
-	tripar-isec.h tuple3.h uv.h vec.h wire-frame.h xform.h
+libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		\
+	camera-cmds.cc camera-cmds.h cook-torrance.cc cook-torrance.h	\
+	coords.h cos-dist.h cubemap.cc cubemap.h envmap.cc envmap.h	\
+	envmap-light.cc envmap-light.h excepts.h far-light.cc		\
+	far-light.h fresnel.h glass.cc glass.h globals.cc globals.h	\
+	global-tstate.cc global-tstate.h glow.cc glow.h grid.cc grid.h	\
+	grid-iter.h illum.h illum-sample.h image-sum.h intersect.cc	\
+	intersect.h lambert.cc lambert.h light.h light-map.h		\
+	lmap-analyzer.cc lmap-analyzer.h material.cc material.h		\
+	matrix4.h matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc medium.h	\
+	mesh.cc mesh.h mesh-load.cc mirror.cc mirror.h mis-illum.cc	\
+	mis-illum.h octree.cc octree.h phong.cc phong.h phong-dist.h	\
+	plastic.cc plastic.h point-light.cc point-light.h pos.h		\
+	progress.cc progress.h rand.h ray.cc ray.h rect-light.cc	\
+	rect-light.h render.cc render.h render-cmdline.h renderer.cc	\
+	renderer.h sample-disk.h sample-illum.cc sample-illum.h		\
+	sample2-gen.h sample2.h scene.cc scene.h scene-def.cc		\
+	scene-def.h scene-load-aff.cc scene-load.cc snogmath.h space.cc	\
+	space.h sphere.cc sphere.h sphere-isec.h sphere-light.cc	\
+	sphere-light.h spheremap.cc spheremap.h struct-light.cc		\
+	struct-light.h surface.cc surface.h tessel.cc tessel.h		\
+	tessel-param.cc tessel-param.h test-scenes.cc test-scenes.h	\
+	tex2.h timeval.cc timeval.h trace.cc trace.h trace-params.h	\
+	trace-stats.cc trace-stats.h tripar.cc tripar.h tripar-isec.h	\
+	tuple3.h uv.h vec.h ward-dist.h wire-frame.h xform.h
 
 # Library dependencies of libsnogrender.a
 #
@@ -178,6 +181,9 @@ snogcvt_LDADD = libsnogimage.a libsnogmisc.a $(IMAGE_LIBS) $(LIBS)
 
 snogdiff_SOURCES = snogdiff.cc
 snogdiff_LDADD = libsnogimage.a libsnogmisc.a $(IMAGE_LIBS) $(LIBS)
+
+hemint_SOURCES = hemint.cc
+hemint_LDADD = libsnogmisc.a
 
 
 ## arch-tag: cfcae754-60d5-470f-b3ea-248fbf0a01c8

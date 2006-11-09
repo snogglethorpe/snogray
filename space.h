@@ -12,9 +12,13 @@
 #ifndef __SPACE_H__
 #define __SPACE_H__
 
-#include "surface.h"
 
 namespace Snogray {
+
+class Surface;
+class BBox;
+class Ray;
+
 
 class Space
 {
@@ -26,7 +30,7 @@ public:
 
   // Add SURFACE to the space
   //
-  void add (Surface *surface) { add (surface, surface->bbox ()); }
+  void add (Surface *surface);
   virtual void add (Surface *surface, const BBox &surface_bbox) = 0;
 
   // Call CALLBACK for each surface in the voxel tree that _might_
@@ -92,8 +96,10 @@ public:
   virtual Stats stats () const = 0;
 };
 
+
 }
 
 #endif /* __SPACE_H__ */
+
 
 // arch-tag: b992c2ec-257d-4b88-9001-83a90353e668

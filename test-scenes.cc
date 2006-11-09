@@ -375,15 +375,15 @@ def_teapot_mat (Scene &scene, unsigned num)
 
     case 6: // semigloss_off_white
       return scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
+
+    case 7: // Purely lambertian greenish gray
+      return scene.add (new Material (Color (0.6, 0.9, 0.6)));
     }
 }
 
 static void
 def_teapot_stand (Scene &scene, unsigned num)
 {
-  // Chessboard
-  //
-  add_chessboard (scene);
 
   // Table/ground
 
@@ -393,23 +393,49 @@ def_teapot_stand (Scene &scene, unsigned num)
   const Material *green
     = scene.add (new Material (Color (0.1, 0.5, 0.1)));
 
+  const Material *lambertian_grey
+    = scene.add (new Material (0.5));
+
+  dist_t plinth_width = 16;
+
   switch (num)
     {
     case 0:
-      // Narrow grey "plinth"
+      // Narrow grey "plinth" + chessboard
       //
-      {
-	dist_t tw = 16;
-	add_cube (scene, grey, Pos (-tw / 2, -1, -tw / 2),
-		  Vec (tw, 0, 0), Vec (0, -tw, 0), Vec (0, 0, tw));
-      }
+      add_cube (scene, grey,
+		Pos (-plinth_width / 2, -1, -plinth_width / 2),
+		Vec (plinth_width, 0, 0),
+		Vec (0, -plinth_width, 0),
+		Vec (0, 0, plinth_width));
+      add_chessboard (scene, Xform::identity, 1);
       break;
 
     case 1:
-      // green ground plane, wide grey "table"
+      // green ground plane, wide grey "table" + chessboard
       //
       add_rect (scene, grey, Pos (-14, -1, -14), Vec (38, 0, 0), Vec (0, 0, 38));
       add_rect (scene, green, Pos (-100, -3, -100), Vec (200, 0, 0), Vec (0, 0, 200));
+      add_chessboard (scene, Xform::identity, 1);
+      break;
+
+    case 2: 
+      // Narrow grey "plinth" only
+      //
+      add_cube (scene, grey,
+		Pos (-plinth_width / 2, 0, -plinth_width / 2),
+		Vec (plinth_width, 0, 0),
+		Vec (0, -plinth_width, 0),
+		Vec (0, 0, plinth_width));
+
+    case 3: 
+      // Similar, but with purely lambertian reflectance.
+      //
+      add_cube (scene, lambertian_grey,
+		Pos (-plinth_width / 2, 0, -plinth_width / 2),
+		Vec (plinth_width, 0, 0),
+		Vec (0, -plinth_width, 0),
+		Vec (0, 0, plinth_width));
       break;
     }
 }
@@ -744,7 +770,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 	}
 
       float ct_m = powf (1.5f, float (i) - float (num_balls * 0.75));
-      float phong_exp = 1000 * float (i) / float (num_balls);
+      float phong_exp = 1000 * float (i*i) / float (num_balls*num_balls);
 
       const Material *mat;
       if (i % 3 == 1)
@@ -942,8 +968,10 @@ def_scene_cornell_box (unsigned num, const string &,
   else // default
     {
       const Material *gloss_blue
-	= scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
-			     cook_torrance (0.4, 0.3, 4)));
+	= scene.add (new Material (Color (0.3, 0.3, 0.6),
+				   cook_torrance (0.4, 0.01, 2)));
+// 	= scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
+// 			     cook_torrance (0.4, 0.3, 4)));
       const Material *white
 	= scene.add (new Material (0.8, cook_torrance (0.2, 0.5, 2)));
 
@@ -1044,19 +1072,21 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   // and one light directly above the center of the 3 spheres.
 
   const Material *mat1
-    = scene.add (new Material (Color (1, 0.5, 0.2), phong (1, 300)));
+    = scene.add (new Material (Color (1, 0.5, 0.2)));
   const Material *mat2
-    = scene.add (new Material (Color (0.8, 0.8, 0.8), phong (.2, 300)));
+    = scene.add (new Material (Color (0.8, 0.8, 0.8)));
   const Material *mat3
-    = scene.add (new Material (Color (0.8, 0, 0), phong (.2, 400)));
+    = scene.add (new Material (Color (0.8, 0, 0)));
 
   camera.move (Pos (0, 3, -4));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
   scene.add (new Sphere (mat1, Pos (0, 0, -0.866), 1));
   scene.add (new Sphere (mat2, Pos (1, 0, 0.866), 1));
   scene.add (new Sphere (mat3, Pos (-1, 0, 0.866), 1));
+
   if (! scene.env_map)		// defer to environmental lighting
-    scene.add (new PointLight (Pos (0, 5, 0), 25));
+    add_bulb (scene, Pos (0, 5, 0), 1, 25);
+//     scene.add (new PointLight (Pos (0, 5, 0), 25));
 }
 
 static void
@@ -1717,9 +1747,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     = scene.add (new Material (0.1, cook_torrance (0.9, 0.03, 2)));
   const Material *semigloss_off_white
     = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
-  const Material *gloss_blue
-    = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
-			     cook_torrance (0.4, 0.3, 4)));
+  const Material *gloss_blue_green
+    = scene.add (new Material (Color(0, .08, .1), cook_torrance (.9, .02, 2)));
   const Material *moss
     = scene.add (new Material (Color (0.1, 0.2, 0.05),
 			       cook_torrance (0.8, 0.1, 2)));
@@ -1750,7 +1779,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 8:
       obj_mat = gloss_neutral_grey; break;
     case 9:
-      obj_mat = gloss_blue; break;
+      obj_mat = gloss_blue_green; break;
     }
 
   Xform xform;

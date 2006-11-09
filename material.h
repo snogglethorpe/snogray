@@ -32,7 +32,8 @@ public:
 
   Material (const Color &col, const Brdf *brdf = lambert,
 	    ShadowType _shadow_type = SHADOW_OPAQUE)
-    : color (col), brdf (* (brdf ? brdf : lambert)), shadow_type (_shadow_type)
+    : color (col), brdf (* (brdf ? brdf : lambert)), light (0),
+      shadow_type (_shadow_type)
   { }
   Material (const Color &col, ShadowType _shadow_type)
     : color (col), brdf (*lambert), shadow_type (_shadow_type)
@@ -55,6 +56,10 @@ public:
 
   Color color;
   const Brdf &brdf;
+
+  // If this material is bound to a light, the light, otherwise zero.
+  //
+  const Light *light;
 
   // The general sort of shadow this material will cast.  This value
   // should never change for a given material, so can be cached.

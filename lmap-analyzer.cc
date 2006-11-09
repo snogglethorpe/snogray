@@ -11,7 +11,7 @@
 
 #include "snogmath.h"
 
-#include "rmap-analyzer.h"
+#include "lmap-analyzer.h"
 
 
 using namespace Snogray;
@@ -22,9 +22,9 @@ using namespace Snogray;
 static float maybe_inv (float x) { return x > 1 ? 1 / x : x; }
 
 
-RmapAnalyzer::RmapAnalyzer (const RadianceMap &_rmap, float nominal_num_regions)
-  : width (_rmap.width), height (_rmap.height),
-    rmap (_rmap), rmap_sum  (*_rmap.map),
+LmapAnalyzer::LmapAnalyzer (const LightMap &_lmap, float nominal_num_regions)
+  : width (_lmap.width), height (_lmap.height),
+    lmap (_lmap), lmap_sum  (*_lmap.map),
     nominal_region_area (width * height / nominal_num_regions),
     mean_intensity (mean (0, 0, width, height).intensity ()),
     inv_mean_intensity (1 / mean_intensity)
@@ -35,19 +35,19 @@ RmapAnalyzer::RmapAnalyzer (const RadianceMap &_rmap, float nominal_num_regions)
 // Return true if the region (X, Y) - (X+W, Y+W) should be split.
 //
 bool
-RmapAnalyzer::should_split (float x, float y, float w, float h)
+LmapAnalyzer::should_split (float x, float y, float w, float h)
   const
 {
-  if (rmap.too_small (x, y, w, h))
+  if (lmap.too_small (x, y, w, h))
     return false;
-  else if (rmap.too_big (x, y, w, h))
+  else if (lmap.too_big (x, y, w, h))
     return true;
   else
     {
       float area = w * h;
 
       float intens_dev = mean (x, y, w, h).intensity() * inv_mean_intensity;
-      float ar = maybe_inv (rmap.aspect_ratio (x, y, w, h));
+      float ar = maybe_inv (lmap.aspect_ratio (x, y, w, h));
 
       if (intens_dev == 0)
 	return false;
@@ -63,7 +63,7 @@ RmapAnalyzer::should_split (float x, float y, float w, float h)
 
 
 float
-RmapAnalyzer::judge_split (float split, SplitDim split_dim,
+LmapAnalyzer::judge_split (float split, SplitDim split_dim,
 			   float x, float y, float w, float h)
   const
 {
@@ -79,10 +79,10 @@ RmapAnalyzer::judge_split (float split, SplitDim split_dim,
   // We mainly judge the split based on the average goodness of our
   // childrens' aspect ratios.  This may seem a bit simplistic, but it's
   // important to get even coverage in the case that the (rectangular)
-  // radiance-map is mapped on to a sphere for environment-map lighting.
+  // light-map is mapped on to a sphere for environment-map lighting.
 
-  float ar1 = maybe_inv (rmap.aspect_ratio (x1, y1, w1, h1));
-  float ar2 = maybe_inv (rmap.aspect_ratio (x2, y2, w2, h2));
+  float ar1 = maybe_inv (lmap.aspect_ratio (x1, y1, w1, h1));
+  float ar2 = maybe_inv (lmap.aspect_ratio (x2, y2, w2, h2));
 
   float child_ar_av = (ar1 + ar2) * 0.5f;
 
@@ -116,9 +116,9 @@ RmapAnalyzer::judge_split (float split, SplitDim split_dim,
 #define GOODNESS_EPS 	0.01
 
 float
-RmapAnalyzer::find_dim_split_point (SplitDim split_dim,
-				     float x, float y, float w, float h,
-				     float &goodness)
+LmapAnalyzer::find_dim_split_point (SplitDim split_dim,
+				    float x, float y, float w, float h,
+				    float &goodness)
   const
 {
   float sz = (split_dim == U_DIM) ? w : h;
@@ -151,15 +151,17 @@ RmapAnalyzer::find_dim_split_point (SplitDim split_dim,
   return split;
 }
 
-// Return true if the region (X, Y) - (X+W, Y+H) should be
+// Return true if the region (U, V) - (U+U_SZ, V+V_SZ) should be
 // split.  If true is returned, then the size and axis on which to
 // split are returned in SPLIT_POINT and SPLIT_DIM respectively.
 //
 bool
-RmapAnalyzer::find_split_point (float x, float y, float w, float h,
-				 float &split_point, SplitDim &split_dim)
+LmapAnalyzer::find_split_point (float u, float v, float u_sz, float v_sz,
+				float &split_point, SplitDim &split_dim)
   const
 {
+  float x = u * width, y = v * height, w = u_sz * width, h = v_sz * height;
+
   if (should_split (x, y, w, h))
     {
       float x_goodness, y_goodness;
@@ -168,12 +170,12 @@ RmapAnalyzer::find_split_point (float x, float y, float w, float h,
 
       if (x_goodness > y_goodness)
 	{
-	  split_point = x_split;
+	  split_point = x_split / width;
 	  split_dim = U_DIM;
 	}
       else
 	{
-	  split_point = y_split;
+	  split_point = y_split / height;
 	  split_dim = V_DIM;
 	}
 

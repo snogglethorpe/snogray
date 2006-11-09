@@ -20,19 +20,19 @@ class Lambert : public Brdf
 {
 public:
 
-  // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
-  // For best results, they should be distributed according to the BRDF's
-  // importance function.
+  // Generate around NUM samples of this BRDF and add them to SAMPLES.
+  // NUM is only a suggestion.
   //
-  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
+  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
+				IllumSampleVec &samples)
     const;
 
-  // Modify the value of each of the light-samples in SAMPLES according to
-  // the BRDF's reflectivity in the sample's direction.
+  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
+  // to END_SAMPLE.
   //
-  virtual void filter_samples (const Intersect &isec, SampleRayVec &samples,
-			       SampleRayVec::iterator from,
-			       SampleRayVec::iterator to)
+  virtual void filter_samples (const Intersect &isec, 
+			       const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
     const;
 };
 

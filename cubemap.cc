@@ -65,14 +65,14 @@ Cubemap::map (const Vec &dir) const
 
 
 
-// Return a "radiance-map" -- a lat-long format spheremap image
-// containing radiance values of the environment map -- for this
+// Return a "light-map" -- a lat-long format spheremap image
+// containing light values of the environment map -- for this
 // environment map.
 //
 Ref<Image>
-Cubemap::radiance_map () const
+Cubemap::light_map () const
 {
-  throw std::runtime_error ("Cubemap::radiance_map");
+  throw std::runtime_error ("Cubemap::light_map");
 }
 
 #if 0

@@ -20,7 +20,7 @@ class Grid : public Sample2Gen
 {
 public:
 
-  Grid (unsigned _u_steps, unsigned _v_steps, bool _jitter)
+  Grid (unsigned _u_steps, unsigned _v_steps, bool _jitter = true)
     : Sample2Gen (_u_steps * _v_steps),
       u_steps (_u_steps), v_steps (_v_steps),
       u_step (1 / float (_u_steps)), v_step (1 / float (_v_steps)),

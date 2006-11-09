@@ -14,8 +14,10 @@
 #include "scene.h"
 #include "globals.h"
 #include "spheremap.h"
-#include "radiance-map.h"
-#include "rmap-analyzer.h"
+#include "light-map.h"
+#include "lmap-analyzer.h"
+#include "grid-iter.h"
+#include "cos-dist.h"
 
 #include "envmap-light.h"
 
@@ -36,11 +38,11 @@ using namespace Snogray;
 #define MIN_ANGLE (2.f / 360.f)
 
 
-class LatLongRmap : public RadianceMap
+class LatLongLmap : public LightMap
 {
 public:
 
-  LatLongRmap (Ref<Image> _map) : RadianceMap (_map) { }
+  LatLongLmap (Ref<Image> _map) : LightMap (_map) { }
 
   virtual bool too_small (float, float, float w, float h) const
   {
@@ -61,13 +63,13 @@ EnvmapLight::EnvmapLight (const Envmap &envmap)
 {
   if (!quiet)
     {
-      std::cout << "* envmap-light: generating radiance map...";
+      std::cout << "* envmap-light: generating light map...";
       std::cout.flush ();
     }
 
-  // An image holding radiance from envmap.
+  // An image holding light from envmap.
   //
-  LatLongRmap rmap (envmap.radiance_map ());
+  LatLongLmap lmap (envmap.light_map ());
 
   if (!quiet)
     {
@@ -75,47 +77,139 @@ EnvmapLight::EnvmapLight (const Envmap &envmap)
       std::cout.flush ();
     }
 
-  // Analyze the resulting radiance map image.
+  // Analyze the resulting light map image.
   //
-  RmapAnalyzer rmap_analyzer (rmap, NOMINAL_NUM_REGIONS);
+  LmapAnalyzer lmap_analyzer (lmap, NOMINAL_NUM_REGIONS);
 
-  analyze (rmap_analyzer);
+  analyze (lmap_analyzer);
 
-  if (!quiet)
+  if (! quiet)
     {
+      unsigned num_regions;
+      Color mean_intensity;
+      get_stats (num_regions, mean_intensity);
       std::cout << "done" << std::endl
-		<< "* envmap-light: " << num_leaf_regions << " regions"
-		<< ", radiance = " << root_region->radiance
+		<< "* envmap-light: " << num_regions << " regions"
+		<< ", mean intensity = " << mean_intensity
 		<< std::endl;
       std::cout.flush ();
     }
 }
 
+
 
 // Generate some samples of this light and add them to SAMPLES.
 //
-void
-EnvmapLight::gen_samples (const Intersect &isec, SampleRayVec &samples) const
+unsigned
+EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
+			  IllumSampleVec &samples)
+  const
 {
-  gen_region_samples (samples);
+  float intens_frac = isec.trace.global.params.envlight_intens_frac;
+  float hemi_frac = 1 - intens_frac;
 
-  // Fixup the samples generated
-  //
-  // StructLight::gen_region_samples doesn't know the mapping from its 2d
-  // uv space to 3d directions, so it simply encodes the uv coordinates as
-  // the x and y components of each sample's direction vector.  We complete
-  // the process by doing the conversion to a real direction.
-  //
-  for (SampleRayVec::iterator i = samples.begin(); i != samples.end(); ++i)
+  float inv_hemi_frac = (hemi_frac == 0) ? 0 : 1 / hemi_frac;
+  float inv_intens_frac = (hemi_frac == 1) ? 0 : 1 / intens_frac;
+
+  CosDist hemi_dist;
+
+  GridIter grid_iter (num);
+
+  float u, v;
+  while (grid_iter.next (u, v))
     {
-      UV ll_uv = UV (i->dir.x, i->dir.y);
+      // The intensity of this sample.
+      //
+      Color intens;
 
-      i->dir = LatLongMapping::map (ll_uv);
-      i->dist = Scene::DEFAULT_HORIZON;
+      // The pdf in the light's intensity distribution for this sample.
+      //
+      float intens_pdf;
 
-      if (dot (isec.n, i->dir) <= 0)
-	i->invalidate ();
+      // The direction of this sample.
+      //
+      Vec dir;
+
+      // Choose hemi or intensity sampling based on the V parameter.
+      //
+      if (v < hemi_frac)
+	{
+	  // Map U,V to the hemisphere around ISEC's normal, with
+	  // distribution HEMI_DIST.
+	  // 
+	  float rescaled_v = v * inv_hemi_frac;
+	  dir = isec.z_normal_to_world (hemi_dist.sample (u, rescaled_v));
+	  UV map_pos = LatLongMapping::map (dir);
+	  intens = intensity (map_pos.u, map_pos.v, intens_pdf);
+	}
+      else
+	{
+	  // Map U,V to a direction (which may be anywhere in the
+	  // sphere) based on the light's intensity distribution.
+	  //
+	  float rescaled_v = (v - hemi_frac) * inv_intens_frac;
+	  UV map_pos = intensity_sample (u, rescaled_v, intens, intens_pdf);
+	  dir = LatLongMapping::map (map_pos);
+
+	  // If this sample is in the wrong hemisphere, throw it away.
+	  //
+	  if (isec.cos_n (dir) < 0)
+	    continue;
+	}
+
+      // The intensity distribution covers the entire sphere, so adjust
+      // the pdf to reflect that.
+      //
+      intens_pdf *= 0.25f * M_1_PI;
+
+      float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
+      float pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
+
+      samples.push_back (IllumSample (dir, intens, pdf, 0, this));
     }
+
+  return grid_iter.num_samples ();
+}
+
+
+
+// For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
+// light, and where light is closer than the sample's previously recorded
+// light distance (or the previous distance is zero), overwrite the
+// sample's light-related fields with information from this light.
+//
+void
+EnvmapLight::filter_samples (const Intersect &isec,
+			     const IllumSampleVec::iterator &beg_sample,
+			     const IllumSampleVec::iterator &end_sample)
+  const
+{
+  float intens_frac = isec.trace.global.params.envlight_intens_frac;
+  float hemi_frac = 1 - intens_frac;
+
+  CosDist hemi_dist;
+
+  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
+    if (s->dist == 0)
+      {
+	// Find S's direction in our light map.
+	//
+	UV map_pos = LatLongMapping::map (s->dir);
+
+	// Look up the intensity at that point.
+	//
+	float intens_pdf;
+	s->val = intensity (map_pos.u, map_pos.v, intens_pdf);
+
+	// The intensity distribution covers the entire sphere, so adjust
+	// the pdf to reflect that.
+	//
+	intens_pdf *= 0.25f * M_1_PI;
+
+	float hemi_pdf = hemi_dist.pdf (isec.cos_n (s->dir));
+	s->light_pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
+	s->light = this;
+      }
 }
 
 

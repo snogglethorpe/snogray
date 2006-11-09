@@ -12,30 +12,33 @@
 #ifndef __GLOBAL_TSTATE_H__
 #define __GLOBAL_TSTATE_H__
 
+
 #include "trace-stats.h"
 #include "trace-params.h"
-#include "lsamples.h"
+
 
 namespace Snogray {
+
+class IllumGlobalState;
+
 
 class GlobalTraceState
 {
 public:
 
-  GlobalTraceState (const TraceParams &_params) : params (_params) { }
+  GlobalTraceState (const TraceParams &_params);
 
   const TraceParams &params;
 
-  TraceStats stats;
+  IllumGlobalState *illum_global_state;
 
-  // This is only used temporarily by Scene::illum, but we keep it around
-  // permanently to avoid the overhead of memory allocation.
-  //
-  LightSamples light_samples;
+  TraceStats stats;
 };
+
 
 }
 
 #endif /* __GLOBAL_TSTATE_H__ */
+
 
 // arch-tag: f3691316-99dd-4b9c-a405-8c816ba4e361

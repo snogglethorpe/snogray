@@ -30,27 +30,26 @@ public:
       underlying_brdf (_underlying_brdf)
   { }
 
-  // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
-  // For best results, they should be distributed according to the BRDF's
-  // importance function.
+  // Generate around NUM samples of this BRDF and add them to SAMPLES.
+  // Return the actual number of samples (NUM is only a suggestion).
   //
-  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
+  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
+				IllumSampleVec &samples)
     const;
 
-  // Modify the value of each of the light-samples in SAMPLES according to
-  // the BRDF's reflectivity in the sample's direction.
+  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
+  // to END_SAMPLE.
   //
-  virtual void filter_samples (const Intersect &isec, SampleRayVec &samples,
-			       SampleRayVec::iterator from,
-			       SampleRayVec::iterator to)
+  virtual void filter_samples (const Intersect &isec, 
+			       const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
     const;
 
   // Remove from SAMPLES any light reflected by perfect specular reflection.
   //
   void remove_specular_reflection (const Intersect &isec,
-				   SampleRayVec &samples,
-				   SampleRayVec::iterator from,
-				   SampleRayVec::iterator to)
+				   IllumSampleVec::iterator beg_sample,
+				   IllumSampleVec::iterator end_sample)
     const;
 
   // Index of refraction for calculating fresnel reflection term.

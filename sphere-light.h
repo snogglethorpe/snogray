@@ -22,29 +22,42 @@ class SphereLight : public Light
 {
 public:
 
-  static const unsigned NUM_SAMPLES = 25;
-
-  SphereLight (const Pos &_pos, float _radius, const Color &emittance)
-    : pos (_pos), radius (_radius),
-      power_per_sample (emittance * (4.f * M_PIf * _radius * _radius)
-			/ NUM_SAMPLES)
+  SphereLight (const Pos &_pos, float _radius, const Color &_intensity)
+    : pos (_pos), radius (_radius), intensity (_intensity) 
   { }
 
-  // Generate (up to) NUM samples of this light and add them to SAMPLES.
-  // For best results, they should be distributed according to the light's
-  // intensity.
+  // Generate around NUM samples of this light and add them to SAMPLES.
+  // Return the actual number of samples (NUM is only a suggestion).
   //
-  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
+  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
+				IllumSampleVec &samples)
+    const;
+
+  // For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
+  // light, and where light is closer than the sample's previously recorded
+  // light distance (or the previous distance is zero), overwrite the
+  // sample's light-related fields with information from this light.
+  //
+  virtual void filter_samples (const Intersect &isec, 
+			       const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
     const;
 
   // Location and size of the light.
   //
   Pos pos;
-  float radius;
+  dist_t radius;
 
-  // Power emitted per light sample.
+  // Radiant emittance of this light (W / m^2).
   //
-  Color power_per_sample;
+  Color intensity;
+
+private:
+
+  // Return the solid angle subtended by this sphere from the point of view
+  // of an external observer at OBSERVER.
+  //
+  float solid_angle (const Pos &observer) const;
 };
 
 }

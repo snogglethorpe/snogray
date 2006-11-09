@@ -119,16 +119,16 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
 
 struct SceneShadowCallback : Space::IntersectCallback
 {
-  SceneShadowCallback (const Light &_light, const Ray &_light_ray,
-		       const Intersect &_isec, Trace &_trace)
+  SceneShadowCallback (const Ray &_light_ray, const Intersect &_isec,
+		       Trace &_trace, const Light *_light)
     : IntersectCallback (&_trace.global.stats.space_shadow), 
-      light (_light), light_ray (_light_ray), isec (_isec),
-      shadower (0), trace (_trace), num_tests (0)
+      light_ray (_light_ray), isec (_isec),
+      shadower (0), trace (_trace), light (_light),
+      num_tests (0)
   { }
 
   virtual void operator() (Surface *);
 
-  const Light &light;
   const Ray &light_ray;
 
   // Intersection which is possibly shadowed.
@@ -140,6 +140,8 @@ struct SceneShadowCallback : Space::IntersectCallback
   const Surface *shadower;
 
   Trace &trace;
+
+  const Light *light;
 
   unsigned num_tests;
 };
@@ -160,7 +162,8 @@ SceneShadowCallback::operator () (Surface *surface)
 	  // Remember which surface we found, so we can try it first
 	  // next time.
 	  //
-	  trace.shadow_hints[light.num] = surface;
+	  if (light)
+	    trace.shadow_hints[light->num] = surface;
 
 	  if (shadow_type == Material::SHADOW_OPAQUE)
 	    //
@@ -183,8 +186,8 @@ SceneShadowCallback::operator () (Surface *surface)
 // guarantees about the properties of further intersections.
 //
 const Surface *
-Scene::shadow_caster (const Ray &light_ray, const Light &light,
-		      const Intersect &isec, Trace &trace)
+Scene::shadow_caster (const Ray &light_ray, const Intersect &isec,
+		      Trace &trace, const Light *light)
   const
 {
   trace.global.stats.scene_shadow_tests++;
@@ -202,23 +205,26 @@ Scene::shadow_caster (const Ray &light_ray, const Light &light,
   // where a new opaque surface is found, the hint will be updated
   // elsewhere (in Material::shadow actually).
   //
-  const Surface *hint = trace.shadow_hints[light.num];
-  if (hint && hint != trace.origin)
+  if (light)
     {
-      if (hint->shadows (light_ray, isec))
+      const Surface *hint = trace.shadow_hints[light->num];
+      if (hint && hint != trace.origin)
 	{
-	  trace.global.stats.shadow_hint_hits++;
-	  return hint;
-	}
-      else
-	// It didn't work; clear this hint out.
-	{
-	  trace.global.stats.shadow_hint_misses++;
-	  trace.shadow_hints[light.num] = 0;
+	  if (hint->shadows (light_ray, isec))
+	    {
+	      trace.global.stats.shadow_hint_hits++;
+	      return hint;
+	    }
+	  else
+	    // It didn't work; clear this hint out.
+	    {
+	      trace.global.stats.shadow_hint_misses++;
+	      trace.shadow_hints[light->num] = 0;
+	    }
 	}
     }
 
-  SceneShadowCallback shadow_cb (light, light_ray, isec, trace);
+  SceneShadowCallback shadow_cb (light_ray, isec, trace, light);
 
   space.for_each_possible_intersector (light_ray, shadow_cb);
 

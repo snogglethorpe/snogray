@@ -23,6 +23,7 @@ class Camera;
 class ImageSink;
 class Filter;
 class Sample2Gen;
+class Trace;
 
 class Renderer
 {

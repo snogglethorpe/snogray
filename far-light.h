@@ -19,41 +19,58 @@
 
 namespace Snogray {
 
+// A light at an "infinite" distance.
+//
 class FarLight : public Light
 {
 public:
 
-  static const unsigned JITTER_STEPS = 5;
-
-  FarLight (const Vec &_dir, dist_t _radius, const Color &col)
-    : dir (_dir), radius (_radius), color (col), max_cos (cos (atan (_radius))),
-      steps_radius (dist_t (JITTER_STEPS) / 2)
-  { init (); }
-
-  // Generate (up to) NUM samples of this light and add them to SAMPLES.
-  // For best results, they should be distributed according to the light's
-  // intensity.
+  // ANGLE is the apparent (linear) angle subtended by of the light.
+  // INTENSITY is the amount of light emitted per steradian.
   //
-  virtual void gen_samples (const Intersect &isec, SampleRayVec &samples)
+  FarLight (const Vec &_dir, float _angle, const Color &_intensity)
+    : dir (_dir.unit ()), angle (_angle), intensity (_intensity),
+      ox (_dir.perpendicular ().unit ()), oy (cross (dir, ox).unit ()),
+      pdf (1 / angle), max_cos (cos (_angle / 2))
+  { }
+
+  // Generate around NUM samples of this light and add them to SAMPLES.
+  // Return the actual number of samples (NUM is only a suggestion).
+  //
+  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
+				IllumSampleVec &samples)
+    const;
+
+  // For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
+  // light, and where light is closer than the sample's previously recorded
+  // light distance (or the previous distance is zero), overwrite the
+  // sample's light-related fields with information from this light.
+  //
+  virtual void filter_samples (const Intersect &isec, 
+			       const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
     const;
 
   Vec dir;
-  dist_t radius;
+  dist_t angle;
 
-  Color color;
+  Color intensity;
 
 private:
-
-  void init ();
   
-  Vec u, v;
-  Vec u_inc, v_inc;
+  // Vectors orthonormal with DIR.
+  //
+  const Vec ox, oy;
 
+  // As our light subtends a constant angle, and we sample it uniformly
+  // by solid angle, we have a constant pdf.
+  //
+  const float pdf;
+
+  // The maximum cosine of the angle between a sample and this light --
+  // any samples beyond that do not hit the light.
+  //
   dist_t max_cos;
-
-  dist_t steps_radius;
-
-  Color::component_t num_lights_scale;
 };
 
 }

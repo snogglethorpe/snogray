@@ -159,13 +159,13 @@ public:
   }
 
 
-  // Return a "radiance-map" -- a lat-long format spheremap image
-  // containing radiance values of the environment map -- for this
+  // Return a "light-map" -- a lat-long format spheremap image
+  // containing light values of the environment map -- for this
   // environment map.
   //
-  virtual Ref<Image> radiance_map () const
+  virtual Ref<Image> light_map () const
   {
-    throw std::runtime_error ("Spheremap::radiance_map");
+    throw std::runtime_error ("Spheremap::light_map");
   }
 
 private:
@@ -187,11 +187,11 @@ private:
 };
 
 
-// Override the general definition of Spheremap::radiance_map for
+// Override the general definition of Spheremap::light_map for
 // LatLongMapping, as it can be done more efficiently.
 //
 template<>
-extern Ref<Image> Spheremap<LatLongMapping>::radiance_map () const;
+extern Ref<Image> Spheremap<LatLongMapping>::light_map () const;
 
 
 }

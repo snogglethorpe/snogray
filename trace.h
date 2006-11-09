@@ -14,6 +14,8 @@
 
 #include "color.h"
 #include "medium.h"
+#include "illum.h"
+#include "global-tstate.h"
 
 namespace Snogray {
 
@@ -22,6 +24,7 @@ class Surface;
 class Brdf;
 class Light;
 class Scene;
+class Illum;
 class Intersect;
 class GlobalTraceState;
 
@@ -109,12 +112,21 @@ public:
   // The following are convenience methods that just call the equivalent
   // method in the scene.
   //
-  const Surface *shadow_caster (const Ray &light_ray, const Light &light,
-				const Intersect &isec);
+  const Surface *shadow_caster (const Ray &light_ray, const Intersect &isec,
+				const Light *light);
 
   // Searches back through the trace history to find the enclosing medium.
   //
   const Medium *enclosing_medium ();
+
+  // Return the local illumination object for this trace.
+  //
+  Illum &illuminator ()
+  {
+    if (! _illum)
+      _illum = global.illum_global_state->get_illum (*this);
+    return *_illum;
+  }
 
 
   const Scene &scene;
@@ -166,6 +178,10 @@ public:
   const Medium *medium;
 
 private:
+
+  // Illuminator for intersections.
+  //
+  Illum *_illum;
 
   void _init ();
 };

@@ -56,65 +56,67 @@ Mirror::render (const Intersect &isec) const
 //
 void
 MirrorCoating::remove_specular_reflection (const Intersect &isec,
-					   SampleRayVec &,
-					   SampleRayVec::iterator from,
-					   SampleRayVec::iterator to)
+					   IllumSampleVec::iterator beg_sample,
+					   IllumSampleVec::iterator end_sample)
   const
 {
   float medium_ior = isec.trace.medium ? isec.trace.medium->ior : 1;
   const Fresnel fres (medium_ior, ior);
 
-  for (SampleRayVec::iterator s = from; s != to; s++)
+  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
     {
       float fres_refl = fres.reflectance (dot (isec.n, s->dir));
       const Color refl = fres_refl * reflectance;
-      s->set_refl (1 - refl);
+      s->refl *= (1 - refl);
     }
 }
 
-// Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
-// For best results, they should be distributed according to the BRDF's
-// importance function.
+// Generate around NUM samples of this BRDF and add them to SAMPLES.
+// Return the actual number of samples (NUM is only a suggestion).
+//
+unsigned
+MirrorCoating::gen_samples (const Intersect &isec, unsigned num,
+			    IllumSampleVec &samples)
+  const
+{
+  if (! underlying_brdf)
+    return 0;
+
+  unsigned base_off = samples.size ();
+
+  // First get the underlying BRDF end_sample generate its native samples.
+  //
+  num = underlying_brdf->gen_samples (isec, num, samples);
+
+  // Now adjust the samples end_sample remove any light reflected by perfect
+  // specular reflection.
+  //
+  remove_specular_reflection (isec, samples.begin() + base_off, samples.end());
+
+  return num;
+}
+
+// Add reflectance information for this BRDF to samples from BEG_SAMPLE
+// to END_SAMPLE.
 //
 void
-MirrorCoating::gen_samples (const Intersect &isec, SampleRayVec &samples)
+MirrorCoating::filter_samples (const Intersect &isec, 
+			       const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
   const
 {
   if (underlying_brdf)
     {
-      // First get the underlying BRDF to generate its native samples.
-      //
-      underlying_brdf->gen_samples (isec, samples);
-
-      // Now adjust the samples to remove any light reflected by perfect
-      // specular reflection.
-      //
-      remove_specular_reflection
-	(isec, samples, samples.begin(), samples.end());
-    }
-}
-
-// Modify the value of each of the light-samples in SAMPLES according to
-// the BRDF's reflectivity in the sample's direction.
-//
-void
-MirrorCoating::filter_samples (const Intersect &isec, SampleRayVec &samples,
-			      SampleRayVec::iterator from,
-			      SampleRayVec::iterator to)
-  const
-{
-  if (underlying_brdf)
-    {
-      remove_specular_reflection (isec, samples, from, to);
+      remove_specular_reflection (isec, beg_sample, end_sample);
 
       // Now that we've removed specularly reflected light, apply the
       // underlying BRDF.
       //
-      underlying_brdf->filter_samples (isec, samples, from, to);
+      underlying_brdf->filter_samples (isec, beg_sample, end_sample);
     }
   else
-    for (SampleRayVec::iterator s = from; s != to; s++)
-      s->invalidate ();
+    for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
+      s->invalid = true;
 }
 
 // arch-tag: b895139d-fe9f-414a-9665-3b5e4b8f691a

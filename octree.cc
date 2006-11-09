@@ -9,6 +9,9 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "bbox.h"
+#include "ray.h"
+
 #include "octree.h"
 
 using namespace Snogray;

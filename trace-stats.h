@@ -22,14 +22,14 @@ class Scene;
 
 struct TraceStats
 {
-  TraceStats () : scene_intersect_calls (0),
-	     surface_intersect_calls (0),
-	     scene_shadow_tests (0),
-	     shadow_hint_hits (0), shadow_hint_misses (0),
-	     scene_slow_shadow_traces (0), surface_slow_shadow_traces (0),
-	     horizon_hint_hits (0), horizon_hint_misses (0),
-	     surface_intersects_tests (0),
-	     illum_calls (0), illum_samples (0)
+  TraceStats ()
+    : scene_intersect_calls (0),
+      surface_intersect_calls (0),
+      scene_shadow_tests (0), shadow_hint_hits (0), shadow_hint_misses (0),
+      scene_slow_shadow_traces (0), surface_slow_shadow_traces (0),
+      horizon_hint_hits (0), horizon_hint_misses (0),
+      surface_intersects_tests (0),
+      illum_calls (0), illum_samples (0), illum_specular_samples (0)
   { }
   unsigned long long scene_intersect_calls;
   unsigned long long surface_intersect_calls;
@@ -43,6 +43,7 @@ struct TraceStats
   unsigned long long surface_intersects_tests;
   unsigned long long illum_calls;
   unsigned long long illum_samples;
+  unsigned long long illum_specular_samples;
   Space::IsecStats space_intersect;
   Space::IsecStats space_shadow;
 

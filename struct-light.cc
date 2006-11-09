@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <algorithm>
+
 #include "scene.h"
 
 #include "struct-light.h"
@@ -17,6 +19,46 @@
 
 using namespace Snogray;
 
+
+
+void
+StructLight::analyze (const Analyzer &analyzer)
+{
+  // should free any non-null root_region  XXX
+
+  root_region = analyzer.analyze (*this);
+
+  if (! leaf_regions.empty ())
+    {
+      num_leaf_regions = float (leaf_regions.size ());
+      inv_num_leaf_regions = 1 / num_leaf_regions;
+    }
+}
+
+
+
+// Get some statistics about this light.
+//
+void
+StructLight::get_stats (unsigned &num_regions, Color &mean_intensity) const
+{
+  if (root_region)
+    {
+      num_regions = leaf_regions.size ();
+
+      mean_intensity = 0;
+      for (std::vector<Region *>::const_iterator r = leaf_regions.begin ();
+	   r != leaf_regions.end (); ++r)
+	mean_intensity += (*r)->intensity * (*r)->area;
+    }
+  else
+    {
+      num_regions = 0;
+      mean_intensity = 0;
+    }    
+}
+
+
 
 // Analyzes the structure and returns a region-tree covering it.
 //
@@ -33,13 +75,13 @@ StructLight::Analyzer::analyze (float u, float v, float u_sz, float v_sz,
     // Try splitting
     {
       if (split_dim == U_DIM)
-	return slight.add_region (Region::U_SPLIT, split_point,
+	return slight.add_region (Region::U_SPLIT,
 				  analyze (u, v, split_point, v_sz, slight),
 				  analyze (u + split_point, v,
 					   u_sz - split_point, v_sz,
 					   slight));
       else
-	return slight.add_region (Region::V_SPLIT, split_point,
+	return slight.add_region (Region::V_SPLIT,
 				  analyze (u, v, u_sz, split_point, slight),
 				  analyze (u, v + split_point,
 					   u_sz, v_sz - split_point,
@@ -48,112 +90,66 @@ StructLight::Analyzer::analyze (float u, float v, float u_sz, float v_sz,
 
   // We're not splitting this region, so add it as a leaf
   //
-  return slight.add_region (radiance (u, v, u_sz, v_sz));
+  return slight.add_region (intensity (u, v, u_sz, v_sz), u, v, u_sz, v_sz);
 }
 
 
+// Sample map dumping
 
-// Generate some samples from this region and its sub-regions, and
-// add them to SAMPLES; N is the surface normal of the surface
-// being illuminated.  The boundaries of the region are
-// (U_MIN,V_MIN) - (U_MIN+U_SZ, V_MIN+V_SZ).
+// Dump a picture of the generated light regions to a file called
+// FILENAME.  ORIG_IMAGE should be the original image from which this
+// light was created.
 //
-void
-StructLight::Region::gen_samples (float u_min, float v_min,
-				  float u_sz, float v_sz,
-				  SampleRayVec &samples,
-				  const StructLight *light)
-  const
-{
-  switch (split_type)
-    {
-    case NO_SPLIT:
-      if (radiance > Eps)
-	{
-	  float u = random (u_min, u_min + u_sz);
-	  float v = random (v_min, v_min + v_sz);
-
-	  u = (u - light->u_min) / light->u_sz;
-	  v = (v - light->v_min) / light->v_sz;
-
-	  // This is not really a valid sample:  we don't know the mapping
-	  // from 2d uv space to 3d directions, so we simply encode the uv
-	  // coordinates as the x and y components of the sample's
-	  // direction vector.  The caller should complete the process by
-	  // doing the conversion to a real direction.
-	  //
-	  samples.add_light (radiance, Vec (u, v, 0), 0, light);
-	}
-      break;
-
-    case U_SPLIT:
-      sub_region_0->gen_samples (u_min, v_min, split_point, v_sz,
-				 samples, light);
-      sub_region_1->gen_samples (u_min + split_point, v_min,
-				 u_sz - split_point, v_sz, samples, light);
-      break;
-
-    case V_SPLIT:
-      sub_region_0->gen_samples (u_min, v_min, u_sz, split_point,
-				 samples, light);
-      sub_region_1->gen_samples (u_min, v_min + split_point,
-				 u_sz, v_sz - split_point, samples, light);
-      break;
-    }
-}
-
-
-
 void
 StructLight::dump (const std::string &filename, const Image &orig_image) const
 {
-  Image image ((unsigned)u_sz, (unsigned)v_sz);
-
-  float scale = (u_sz * v_sz) / (4 * M_PIf);
+  Image image (orig_image.width, orig_image.height);
 
   if (root_region)
-    root_region->dump (u_min, v_min, u_sz, v_sz, orig_image, scale, image);
+    root_region->dump (orig_image, image);
 
   image.save (filename);
 }
 
 void
-StructLight::Region::dump (float u_min, float v_min, float u_sz, float v_sz,
-			   const Image &orig_image, float scale, Image &image)
+StructLight::Region::dump (const Image &orig_image, Image &image)
   const
 {
-  switch (split_type)
+  unsigned x_min = unsigned (float (image.width)  * u_min + 0.5f);
+  unsigned y_min = unsigned (float (image.height) * v_min + 0.5f);
+  unsigned x_lim = unsigned (float (image.width)  * (u_min + u_sz) + 0.5f);
+  unsigned y_lim = unsigned (float (image.height) * (v_min + v_sz) + 0.5f);
+
+  if (kind == LEAF)
     {
-    case U_SPLIT:
-      for (unsigned v = unsigned (v_min); v < unsigned (v_min + v_sz); v++)
-	image.put (unsigned (u_min + split_point), image.height - v - 1,
-		   Color (1, 0, 0));
-      sub_region_0->dump (u_min, v_min, split_point, v_sz,
-			  orig_image, scale, image);
-      sub_region_1->dump (u_min + split_point, v_min, u_sz - split_point, v_sz,
-			  orig_image, scale, image);
-      break;
-
-    case V_SPLIT:
-      for (unsigned u = unsigned (u_min); u < unsigned (u_min + u_sz); u++)
-	image.put (u, image.height - unsigned (v_min + split_point) - 1,
-		   Color (1, 0, 0));
-      sub_region_0->dump (u_min, v_min, u_sz, split_point,
-			  orig_image, scale, image);
-      sub_region_1->dump (u_min, v_min + split_point, u_sz, v_sz - split_point,
-			  orig_image, scale, image);
-      break;
-
-    case NO_SPLIT:
-      for (unsigned u = unsigned (u_min + 1); u < unsigned (u_min + u_sz); u++)
-	for (unsigned v = unsigned (v_min + 1); v < unsigned(v_min + v_sz); v++)
-	  if (u > unsigned (u_min + u_sz * 0.75)
-	      && v > unsigned (v_min + v_sz * 0.75))
-	    image.put (u, image.height - v - 1,
-		       radiance * scale / (u_sz * v_sz));
+      for (unsigned x = x_min; x < x_lim; x++)
+	for (unsigned y = y_min; y < y_lim; y++)
+	  if (x > (x_min + 3 * x_lim) / 4 && y > (y_min + 3 * y_lim) / 4)
+	    image.put (x, image.height - y - 1, intensity);
 	  else
-	    image.put (u, image.height - v - 1, orig_image (u, v) * scale);
-      break;
+	    image.put (x, image.height - y - 1, orig_image (x, y));
+    }
+  else
+    {
+      sub_region_0->dump (orig_image, image);
+      sub_region_1->dump (orig_image, image);
+
+      // Draw divider lines (overwriting part of the image).
+      //
+      if (kind == U_SPLIT)
+	{
+	  unsigned x_split
+	    = unsigned (float (image.width) * sub_region_1->u_min + 0.5f);
+	  for (unsigned y = y_min; y < y_lim; y++)
+	    image.put (x_split, image.height - y - 1, Color (1, 0, 0));
+	}
+      else
+	{
+	  unsigned y_split
+	    = unsigned (float (image.height) * sub_region_1->v_min + 0.5f);
+	  for (unsigned x = x_min; x < x_lim; x++)
+	    image.put (x, image.height - y_split - 1, Color (1, 0, 0));
+	}
     }
 }
 

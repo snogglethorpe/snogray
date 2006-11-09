@@ -42,11 +42,11 @@ public:
   //
   virtual Color map (const Vec &dir) const;
 
-  // Return a "radiance-map" -- a lat-long format spheremap image
-  // containing radiance values of the environment map -- for this
+  // Return a "light-map" -- a lat-long format spheremap image
+  // containing light values of the environment map -- for this
   // environment map.
   //
-  virtual Ref<Image> radiance_map () const;
+  virtual Ref<Image> light_map () const;
 
 private:
 

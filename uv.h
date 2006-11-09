@@ -12,17 +12,23 @@
 #ifndef __UV_H__
 #define __UV_H__
 
-#include "tex2.h"
-
 
 namespace Snogray {
 
 
-struct UV
+// Pair of values
+//
+template<typename T>
+class TUV
 {
-  UV (tparam_t _u, tparam_t _v) : u (_u), v (_v) { }
-  tparam_t u, v;
+public:
+
+  TUV (T _u, T _v) : u (_u), v (_v) { }
+
+  T u, v;
 };
+
+typedef TUV<float> UV;
 
 
 }

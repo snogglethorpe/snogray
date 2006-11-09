@@ -10,95 +10,74 @@
 //
 
 #include "intersect.h"
-#include "rand.h"
-#include "scene.h"
+#include "grid-iter.h"
 
 #include "far-light.h"
 
 using namespace Snogray;
 
-void
-FarLight::init ()
-{
-  u = dir.perpendicular().unit () * radius;
-  v = cross (dir, u).unit ()  * radius;
+
 
-  u_inc = u * 2 / JITTER_STEPS;
-  v_inc = v * 2 / JITTER_STEPS;
-
-  dist_t r_sq = steps_radius * steps_radius;
-  dist_t v_offs = -steps_radius;
-
-  // Pre-scale the brightness so that each sublight contributes 1 / NUM_LIGHTS
-  // to the total brightness.  We have to count the number of lights
-  // that actually contribute.
-
-  dist_t num_lights = 0;
-
-  for (unsigned i = 0; i < JITTER_STEPS; i++)
-    {
-      dist_t u_offs = -steps_radius;
-
-      for (unsigned j = 0; j < JITTER_STEPS; j++)
-	{
-	  if ((u_offs + 0.5) * (u_offs + 0.5) + (v_offs + 0.5) * (v_offs + 0.5)
-	      <= r_sq)
-	    num_lights++;
-
-	  u_offs += 1;
-	}
-
-      v_offs += 1;
-    }
-
-  num_lights_scale = 1.0 / num_lights;
-}
-
-// Generate (up to) NUM samples of this light and add them to SAMPLES.
-// For best results, they should be distributed according to the light's
-// intensity.
+// Generate around NUM samples of this light and add them to SAMPLES.
+// Return the actual number of samples (NUM is only a suggestion).
 //
-void
-FarLight::gen_samples (const Intersect &isec, SampleRayVec &samples)
+unsigned
+FarLight::gen_samples (const Intersect &isec, unsigned num,
+		       IllumSampleVec &samples)
   const
 {
-  // First detect cases where the light isn't visible at all, by
-  // examining the dot product of the surface normal with rays to the
-  // four corners of the light.
+  // First detect cases where the light isn't visible at all given the
+  // ISEC's surface normal.
   //
-  if (dot (isec.n, dir + u) > 0 || dot (isec.n, dir - u) > 0
-      || dot (isec.n, dir + v) > 0 || dot (isec.n, dir - v) > 0)
+  float cos_n_dir_angle = isec.cos_n (dir);
+  float n_dir_angle = acos (cos_n_dir_angle);
+  float min_angle = n_dir_angle - angle / 2;
+  if (min_angle >= 2 * M_PIf)
+    return 0;
+
+  GridIter grid_iter (num);
+
+  float u, v;
+  while (grid_iter.next (u, v))
     {
-      Color samp_color = color * num_lights_scale;
-      dist_t r_sq = steps_radius * steps_radius;
-      dist_t v_offs = -steps_radius;
-
-      for (unsigned i = 0; i < JITTER_STEPS; i++)
-	{
-	  dist_t u_offs = -steps_radius;
-
-	  for (unsigned j = 0; j < JITTER_STEPS; j++)
-	    if ((u_offs + 0.5) * (u_offs + 0.5)
-		+ (v_offs + 0.5) * (v_offs + 0.5)
-		<= r_sq)
-	      {
-		const Vec jitter
-		  = u_inc * (u_offs + random (1.0))
-		  + v_inc * (v_offs + random (1.0));
-
-		const Vec l = (dir + jitter).unit();
-		float nl = dot (isec.n, l);
-
-		if (nl > 0)
-		  samples.add_light (samp_color, l, Scene::DEFAULT_HORIZON,
-				     this);
-
-		u_offs += 1;
-	      }
-
-	  v_offs += 1;
-	}
+      // Sample onto the upper part of a cylinder.  The total height of
+      // the cylinder is 2 (from -1 to 1), and the height of the sample
+      // area correponds to ANGLE (so that if ANGLE is 4*PI, the entire
+      // cylinder surface, from z -1 to 1, will be sampled).
+      //
+      float z = 1 - u * angle * 0.5f * M_1_PIf;
+      float r = sqrt (1 - z * z);
+      float phi = v * 2 * M_PIf;
+      float x = r * cos (phi), y = r * sin (phi);
+      Vec s_dir = Vec (x, y, z).from_basis (ox, oy, dir);
+      
+      if (dot (s_dir, isec.n) > 0)
+	samples.push_back (IllumSample (s_dir, intensity, pdf, 0, this));
     }
+
+  return grid_iter.num_samples ();
+}
+
+
+
+// For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
+// light, and where light is closer than the sample's previously recorded
+// light distance (or the previous distance is zero), overwrite the
+// sample's light-related fields with information from this light.
+//
+void
+FarLight::filter_samples (const Intersect &, 
+			  const IllumSampleVec::iterator &beg_sample,
+			  const IllumSampleVec::iterator &end_sample)
+  const
+{
+  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
+    if (s->dist == 0 && dot (dir, s->dir) <= max_cos)
+      {
+	s->val = intensity;
+	s->light_pdf = pdf;
+	s->light = this;
+      }
 }
 
 

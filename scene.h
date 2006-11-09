@@ -69,8 +69,8 @@ public:
   // surface and makes no guarantees about the properties of further
   // intersections.
   //
-  const Surface *shadow_caster (const Ray &light_ray, const Light &light,
-				const Intersect &isec, Trace &trace)
+  const Surface *shadow_caster (const Ray &light_ray, const Intersect &isec,
+				Trace &trace, const Light *light)
     const;
 
   // Add various items to a scene.  All of the following "give" the
@@ -139,10 +139,10 @@ public:
 };
 
 inline const Surface *
-Trace::shadow_caster (const Ray &light_ray, const Light &light,
-		      const Intersect &isec)
+Trace::shadow_caster (const Ray &light_ray, const Intersect &isec,
+		      const Light *light)
 {
-  return scene.shadow_caster (light_ray, light, isec, *this);
+  return scene.shadow_caster (light_ray, isec, *this, light);
 }
 
 }

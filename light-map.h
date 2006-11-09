@@ -1,4 +1,4 @@
-// radiance-map.h -- An image-based map of radiance for RmapAnalyzer to analyze
+// light-map.h -- An image-based map of light for LmapAnalyzer to analyze
 //
 //  Copyright (C) 2006  Miles Bader <miles@gnu.org>
 //
@@ -9,8 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RADIANCE_MAP_H__
-#define __RADIANCE_MAP_H__
+#ifndef __LIGHT_MAP_H__
+#define __LIGHT_MAP_H__
 
 
 #include "image.h"
@@ -20,14 +20,14 @@
 namespace Snogray {
 
 
-class RadianceMap
+class LightMap
 {
 public:
   
-  RadianceMap (Ref<Image> _map)
+  LightMap (Ref<Image> _map)
     : map (_map), width (map->width), height (map->height)
   { }
-  virtual ~RadianceMap () { }
+  virtual ~LightMap () { }
 
   virtual bool too_small (float, float, float w, float h) const
   {
@@ -53,6 +53,6 @@ public:
 }
 
 
-#endif // __RADIANCE_MAP_H__
+#endif // __LIGHT_MAP_H__
 
 // arch-tag: 7cccd114-cb70-43a0-91e1-7b451d43a899

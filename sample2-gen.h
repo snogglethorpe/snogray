@@ -15,11 +15,11 @@
 #include <vector>
 #include <algorithm>
 
-#include "sample2.h"
+#include "uv.h"
 
 namespace Snogray {
 
-class Sample2Gen : public std::vector<Sample2>
+class Sample2Gen : public std::vector<UV>
 {
 public:
 
@@ -30,7 +30,7 @@ public:
   virtual void generate () = 0;
 
   void clear () { cur_sample = 0; }
-  void add (float u, float v) { (*this)[cur_sample++] = Sample2 (u, v); }
+  void add (float u, float v) { (*this)[cur_sample++] = UV (u, v); }
 
   void shuffle () { random_shuffle (begin (), end ()); }
 
@@ -38,7 +38,7 @@ protected:
 
   Sample2Gen (unsigned num_samples)
     : cur_sample (0)
-  { resize (num_samples, Sample2 (0, 0)); }
+  { resize (num_samples, UV (0, 0)); }
 
 private:
 

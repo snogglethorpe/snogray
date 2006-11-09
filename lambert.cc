@@ -8,9 +8,11 @@
 //
 // Written by Miles Bader <miles@gnu.org>
 //
+#include<iostream>
 
 #include "intersect.h"
-#include "excepts.h"
+#include "cos-dist.h"
+#include "grid-iter.h"
 
 #include "lambert.h"
 
@@ -24,31 +26,44 @@ const Lambert *Snogray::lambert = new Lambert;
 // For best results, they should be distributed according to the BRDF's
 // importance function.
 //
-void
-Lambert::gen_samples (const Intersect &, SampleRayVec &)
+unsigned
+Lambert::gen_samples (const Intersect &isec, unsigned num,
+		      IllumSampleVec &samples)
   const
 {
-  throw std::runtime_error ("Lambert::gen_samples");
+  CosDist dist;
+
+  GridIter grid_iter (num);
+
+  float u, v;
+  while (grid_iter.next (u, v))
+    {
+      float pdf;
+      Vec z_norm_dir = dist.sample (u, v, pdf);
+      Vec s_dir = isec.z_normal_to_world (z_norm_dir);
+      if (isec.cos_n (s_dir) > 0)
+	samples.push_back (IllumSample (s_dir, isec.color * pdf, pdf));
+    }
+
+  return grid_iter.num_samples ();
 }
 
-// Modify the value of each of the light-samples in SAMPLES according to
-// the BRDF's reflectivity in the sample's direction.
+// Add reflectance information for this BRDF to samples from BEG_SAMPLE
+// to END_SAMPLE.
 //
 void
-Lambert::filter_samples (const Intersect &isec, SampleRayVec &,
-			 SampleRayVec::iterator from,
-			 SampleRayVec::iterator to)
+Lambert::filter_samples (const Intersect &isec, 
+			 const IllumSampleVec::iterator &beg_sample,
+			 const IllumSampleVec::iterator &end_sample)
   const
 {
-  for (SampleRayVec::iterator s = from; s != to; s++)
-    if (s->val != 0)
+  CosDist dist;
+
+  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
+    if (! s->invalid)
       {
-	const Vec &l = s->dir;
-	float nl = dot (isec.n, l);
-
-	float diffuse = nl * M_1_PI; // standard lambertian diffuse term
-
-	s->set_refl (isec.color * diffuse);
+	s->brdf_pdf = dist.pdf (isec.cos_n (s->dir));
+	s->refl = isec.color * s->brdf_pdf;
       }
 }
 
