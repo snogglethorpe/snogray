@@ -1744,7 +1744,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     = scene.add (new Material (Color (0.2, 0.2, 0.2),
 			       cook_torrance (0.8, 0.5, 5)));
   const Material *gloss_neutral_grey
-    = scene.add (new Material (0.1, cook_torrance (0.9, 0.03, 2)));
+    = scene.add (new Material (0.3, cook_torrance (0.7, 0.03, 2)));
   const Material *semigloss_off_white
     = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
   const Material *gloss_blue_green
