@@ -31,7 +31,7 @@ public:
   // Returns a sample distributed around the y axis accordign to this
   // distribution.
   //
-  Vec sample (float u, float v)
+  Vec sample (float u, float v) const
   {
     return z_normal_symm_vec (pow (u, inv_exp_plus_1), v);
   }
@@ -39,7 +39,7 @@ public:
   // Returns a sample distributed around the y axis accordign to this
   // distribution, and also the corresponding pdf.
   //
-  Vec sample (float u, float v, float &_pdf)
+  Vec sample (float u, float v, float &_pdf) const
   {
     float cos_theta = pow (u, inv_exp_plus_1);
     _pdf = pdf (cos_theta);
@@ -49,7 +49,7 @@ public:
   // Returns the pdf of a sample, if COS_THETA is the cosine between it and
   // the normal.
   //
-  float pdf (float cos_theta)
+  float pdf (float cos_theta) const
   {
     return (exp + 1) * M_1_PIf * 0.5f * pow (cos_theta, exp);
   }
