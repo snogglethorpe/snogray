@@ -1747,8 +1747,10 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     = scene.add (new Material (0.3, cook_torrance (0.7, 0.03, 2)));
   const Material *semigloss_off_white
     = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
-  const Material *gloss_blue_green
+  const Material *gloss_dark_blue_green
     = scene.add (new Material (Color(0, .08, .1), cook_torrance (.9, .02, 2)));
+  const Material *gloss_medium_blue_green
+    = scene.add (new Material (Color(0, .2, .3), cook_torrance (.7, .02, 2)));
   const Material *moss
     = scene.add (new Material (Color (0.1, 0.2, 0.05),
 			       cook_torrance (0.8, 0.1, 2)));
@@ -1773,13 +1775,13 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 5:
       obj_mat = dull_grey; break;
     case 6:
-      obj_mat = mirror; break;
+      obj_mat = gloss_medium_blue_green; break;
     case 7:
       obj_mat = semigloss_off_white; break;
     case 8:
       obj_mat = gloss_neutral_grey; break;
     case 9:
-      obj_mat = gloss_blue_green; break;
+      obj_mat = gloss_dark_blue_green; break;
     }
 
   Xform xform;
