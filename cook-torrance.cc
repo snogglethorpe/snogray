@@ -49,12 +49,11 @@ Snogray::cook_torrance (const Color &spec_col, float m, const Ior &ior)
 struct CtCalc
 {
   CtCalc (const CookTorrance &_ct, const Intersect &_isec)
-    // If NV == 0, then the eye-ray is perpendicular to the normal, which
-    // basically means we can't see anything (but it's a rare case so don't
-    // bother to optimize it, just protect against division by zero).
-    //
     : ct (_ct), isec (_isec),
       spec_dist (ct.m), diff_dist (),
+      diff_weight (isec.color.intensity ()),
+      inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
+      inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.trace.medium ? isec.trace.medium->ior : 1, ct.ior),
       nv (isec.nv), inv_pi_nv (nv == 0 ? 0 : M_1_PIf / nv)
   { }
@@ -121,7 +120,7 @@ struct CtCalc
     float diff = diff_dist.pdf (nl);
     float diff_pdf = diff;	// identical
 
-    pdf = 0.5f * (spec_pdf + diff_pdf);
+    pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
 
     return isec.color * diff + ct.specular_color * spec;
   }
@@ -129,14 +128,16 @@ struct CtCalc
   void gen_sample (float u, float v, IllumSampleVec &samples)
   {
     Vec l, h;
-    if (u < 0.5)
+    if (u < diff_weight)
       {
-	l = isec.z_normal_to_world (diff_dist.sample (u * 2, v));
+	float scaled_u = u * inv_diff_weight;
+	l = isec.z_normal_to_world (diff_dist.sample (scaled_u, v));
 	h = (isec.v + l).unit ();
       }
     else
       {
-	h = isec.z_normal_to_world (spec_dist.sample (u * 2 - 1, v));
+	float scaled_u = (u - diff_weight) * inv_spec_weight;
+	h = isec.z_normal_to_world (spec_dist.sample (scaled_u, v));
 	if (isec.cos_v (h) < 0)
 	  h = -h;
 	l = isec.v.mirror (h);
@@ -166,6 +167,16 @@ struct CtCalc
   //
   const WardDist spec_dist;
   const CosDist diff_dist;
+
+  // Weight used for sampling diffuse component (0 = don't sample
+  // diffuse at all, 1 = only sample diffuse).  The "specular" component
+  // has a weight of (1 - DIFF_WEIGHT).
+  //
+  float diff_weight;
+
+  // 1 / DIFF_WEIGHT, and 1 / (1 - DIFF_WEIGHT).
+  //
+  float inv_diff_weight, inv_spec_weight;
 
   // Info for calculating the Fresnel term.
   //
