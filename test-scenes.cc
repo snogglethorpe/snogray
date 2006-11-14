@@ -1919,8 +1919,12 @@ def_scene_xsph (unsigned, const string &, Scene &scene, Camera &camera)
   camera.move (Pos (6, 6, 6));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
 
+  const Material *gloss_black
+    = scene.add (new Material (0, cook_torrance (.9, .02, 2)));
+#if 0
   const Material *ct_black
     = scene.add (new Material (0.02, cook_torrance (0.8, 0.1, 2)));
+#endif
   const Material *ct_grey
     = scene.add (new Material (0.2, cook_torrance (0.8, 0.05, 2)));
   const Material *mirror
@@ -1938,7 +1942,7 @@ def_scene_xsph (unsigned, const string &, Scene &scene, Camera &camera)
   add_rect (scene, gray, Pos (-10, -1, -10), Vec (20, 0, 0), Vec (0, 0, 20));
 
   // spheres	
-  scene.add (new Sphere (ct_black, Pos (0, 2, 0), 1));
+  scene.add (new Sphere (gloss_black, Pos (0, 2, 0), 1));
   scene.add (new Sphere (ct_grey, Pos (0, 0, 2.5), 1));
   scene.add (new Sphere (mirror, Pos (2.5, 0, 0), 1));
 }
