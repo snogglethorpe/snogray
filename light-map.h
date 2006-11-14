@@ -44,6 +44,11 @@ public:
     return w / h;
   }
 
+  virtual float area (float, float, float w, float h) const
+  {
+    return w * h;
+  }
+
   Ref<Image> map;
 
   float width, height;

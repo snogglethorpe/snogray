@@ -29,7 +29,7 @@ using namespace Snogray;
 // for a completely featureless input image.  Real scenes varied light
 // intensities will roughly double this number.
 //
-#define NOMINAL_NUM_REGIONS 	150
+#define NOMINAL_NUM_REGIONS 	1000
 
 
 // minimum angle for a envap light region, measured in terms of a
@@ -55,6 +55,11 @@ public:
   {
     w *= cos ((y + h  / 2) / height * M_PIf - M_PI_2f);
     return w / h;
+  }
+
+  virtual float area (float, float y, float w, float h) const
+  {
+    return w * h * cos ((y + h  / 2) / height * M_PIf - M_PI_2f);
   }
 };
 

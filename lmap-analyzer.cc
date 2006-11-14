@@ -44,19 +44,18 @@ LmapAnalyzer::should_split (float x, float y, float w, float h)
     return true;
   else
     {
-      float area = w * h;
-
       float intens_dev = mean (x, y, w, h).intensity() * inv_mean_intensity;
       float ar = maybe_inv (lmap.aspect_ratio (x, y, w, h));
 
       if (intens_dev == 0)
 	return false;
 
+      float region_area = lmap.area (x, y, w, h);
       float desired_area = nominal_region_area;
       desired_area *= ar;
       desired_area /= intens_dev;
 
-      return area > desired_area;
+      return region_area > desired_area;
     }
 }
 
