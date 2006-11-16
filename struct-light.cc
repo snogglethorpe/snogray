@@ -9,6 +9,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+
 #include <algorithm>
 
 #include "scene.h"
@@ -19,7 +20,7 @@
 
 using namespace Snogray;
 
-
+
 
 void
 StructLight::analyze (const Analyzer &analyzer)
@@ -28,11 +29,12 @@ StructLight::analyze (const Analyzer &analyzer)
 
   root_region = analyzer.analyze (*this);
 
-  if (! leaf_regions.empty ())
-    {
-      num_leaf_regions = float (leaf_regions.size ());
-      inv_num_leaf_regions = 1 / num_leaf_regions;
-    }
+  num_sample_regions = float (sample_regions.size ());
+
+  if (num_sample_regions != 0)
+    inv_num_sample_regions = 1 / num_sample_regions;
+  else
+    inv_num_sample_regions = 0;
 }
 
 
@@ -40,20 +42,31 @@ StructLight::analyze (const Analyzer &analyzer)
 // Get some statistics about this light.
 //
 void
-StructLight::get_stats (unsigned &num_regions, Color &mean_intensity) const
+StructLight::get_stats (unsigned &num_sample_regions,
+			unsigned &num_leaf_regions,
+			Color &mean_intensity)
+  const
 {
   if (root_region)
     {
-      num_regions = leaf_regions.size ();
+      num_sample_regions = sample_regions.size ();
 
       mean_intensity = 0;
-      for (std::vector<Region *>::const_iterator r = leaf_regions.begin ();
-	   r != leaf_regions.end (); ++r)
-	mean_intensity += (*r)->intensity * (*r)->area;
+      num_leaf_regions = 0;
+
+      for (std::vector<Region *>::const_iterator r = sample_regions.begin ();
+	   r != sample_regions.end (); ++r)
+	{
+	  mean_intensity += (*r)->intensity / (*r)->pdf_weight;
+
+	  if (r == sample_regions.begin() || *r != *(r-1))
+	    num_leaf_regions++;
+	}
     }
   else
     {
-      num_regions = 0;
+      num_sample_regions = 0;
+      num_leaf_regions = 0;
       mean_intensity = 0;
     }    
 }
@@ -67,10 +80,10 @@ StructLight::Analyzer::analyze (float u, float v, float u_sz, float v_sz,
 				StructLight &slight)
   const
 {
-  float split_point;
+  float split_point, leaf_weight;
   SplitDim split_dim;
 
-  if (find_split_point (u, v, u_sz, v_sz, split_point, split_dim))
+  if (find_split_point (u, v, u_sz, v_sz, split_dim, split_point, leaf_weight))
     //
     // Try splitting
     {
@@ -90,7 +103,8 @@ StructLight::Analyzer::analyze (float u, float v, float u_sz, float v_sz,
 
   // We're not splitting this region, so add it as a leaf
   //
-  return slight.add_region (intensity (u, v, u_sz, v_sz), u, v, u_sz, v_sz);
+  return slight.add_region (intensity (u, v, u_sz, v_sz), leaf_weight,
+			    u, v, u_sz, v_sz);
 }
 
 

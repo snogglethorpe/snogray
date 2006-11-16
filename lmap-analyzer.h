@@ -32,24 +32,31 @@ public:
 
   // Return the light of the entire region (U, V) - (U+U_SZ, V+V_SZ)
   //
-  Color intensity (float u, float v, float u_sz, float v_sz) const
+  virtual Color intensity (float u, float v, float u_sz, float v_sz) const
   {
     return mean (u*width, v*height, u_sz*width, v_sz*height);
   }
 
   // Return true if the region (U, V) - (U+U_SZ, V+V_SZ) should be
-  // split.  If true is returned, then the size and axis on which to
-  // split are returned in SPLIT_POINT and SPLIT_DIM respectively.
+  // split.  If true is returned, then the axis and size on which to
+  // split are returned in SPLIT_DIM and SPLIT_POINT respectively.  If
+  // false is returned, then LEAF_WEIGHT is the "weight" of the
+  // resulting region, indicating that it's LEAF_WEIGHT times as bright
+  // as the region size would indicate.
   //
   virtual bool find_split_point (float u, float v, float u_sz, float v_sz,
-				 float &split_point, SplitDim &split_dim)
+				 SplitDim &split_dim, float &split_point,
+				 float &leaf_weight)
     const;
 
 private:
 
   // Return true if the region (X, Y) - (X+W, Y+W) should be split.
+  // LEAF_WEIGHT is the amount to weight the resulting leaf region if
+  // false is returned.
   //
-  bool should_split (float x, float y, float w, float h) const;
+  bool should_split (float x, float y, float w, float h, float &leaf_weight)
+    const;
 
   float find_dim_split_point (SplitDim split_dim,
 			      float x, float y, float w, float h,

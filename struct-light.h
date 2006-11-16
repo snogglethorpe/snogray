@@ -12,6 +12,7 @@
 #ifndef __STRUCT_LIGHT_V_SZ__
 #define __STRUCT_LIGHT_V_SZ__
 
+
 #include <string>
 
 #include "image.h"
@@ -40,7 +41,7 @@ public:
   // Basic constructor.
   //
   StructLight ()
-    : root_region (0), num_leaf_regions (0), inv_num_leaf_regions (0)
+    : root_region (0), num_sample_regions (0), inv_num_sample_regions (0)
   { }
 
   // Construct-and-analyze at the same time.
@@ -64,7 +65,7 @@ public:
 
     const Region *r = smallest_enclosing_region (u, v);
 
-    pdf = inv_num_leaf_regions * r->inv_area;
+    pdf = inv_num_sample_regions * r->pdf_weight;
 
     return r->intensity;
   }
@@ -96,16 +97,16 @@ public:
     // (smaller) regions where the intensity is high, this will
     // result in a rough distribution according to intensity.
     //
-    float scaled_u = u * num_leaf_regions;
+    float scaled_u = u * num_sample_regions;
 
     unsigned region_index = unsigned (scaled_u);
-    Region *r = leaf_regions[region_index];
+    Region *r = sample_regions[region_index];
 
     // Set the intensity and pdf (all points in a region have the
     // same values).
     //
     intens = r->intensity;
-    pdf = inv_num_leaf_regions * r->inv_area;
+    pdf = inv_num_sample_regions * r->pdf_weight;
 
     // Use U, V to choose a specific point within R.  We discard
     // the information from U which was used to choose the region.
@@ -124,7 +125,9 @@ public:
 
   // Get some statistics about this light.
   //
-  void get_stats (unsigned &num_regions, Color &mean_intensity) const;
+  void get_stats (unsigned &num_sample_regions, unsigned &num_leaf_regions,
+		  Color &mean_intensity)
+    const;
 
 private:
 
@@ -138,14 +141,13 @@ private:
 
     // Make a leaf region.
     //
-    Region (const Color &_intensity,
+    Region (const Color &_intensity, float leaf_weight,
 	    float _u_min, float _v_min, float _u_sz, float _v_sz,
 	    const StructLight *_light)
       : intensity (_intensity),
 	u_min (_u_min), v_min (_v_min), u_sz (_u_sz), v_sz (_v_sz),
-	area (u_sz * v_sz), inv_area (1 / area),
-	kind (LEAF),
-	sub_region_0 (0), sub_region_1 (0), light (_light)
+	pdf_weight (leaf_weight / (u_sz * v_sz)),
+	kind (LEAF), sub_region_0 (0), sub_region_1 (0), light (_light)
     { }
 
     // Make a split region.
@@ -155,8 +157,7 @@ private:
 	u_min (sub0->u_min), v_min (sub0->v_min),
 	u_sz (_kind == U_SPLIT ? sub0->u_sz + sub1->u_sz : sub0->u_sz),
 	v_sz (_kind == V_SPLIT ? sub0->v_sz + sub1->v_sz : sub0->v_sz),
-	area (u_sz * v_sz), inv_area (1 / area),
-	kind (_kind),
+	pdf_weight (0), kind (_kind),
 	sub_region_0 (sub0), sub_region_1 (sub1), light (_light)
     { }
 
@@ -165,8 +166,7 @@ private:
     Region (const Region &src)
       : intensity (src.intensity),
 	u_min (src.u_min), v_min (src.v_min), u_sz (src.u_sz), v_sz (src.v_sz),
-	area (src.area), inv_area (src.inv_area),
-	kind (src.kind),
+	pdf_weight (src.pdf_weight), kind (src.kind),
 	sub_region_0 (src.sub_region_0), sub_region_1 (src.sub_region_1)
     { }
 
@@ -181,9 +181,10 @@ private:
     //
     float u_min, v_min, u_sz, v_sz;
 
-    // The region's area, (U_SZ * V_SZ), and its inverse, (1 / AREA).
+    // A multiplier to get a leaf region's pdf.  A leaf's pdf is equal
+    // to PDF_WEIGHT / NUM_SAMPLE_REGIONS.
     //
-    float area, inv_area;
+    float pdf_weight;
 
     // What kind of region this is.
     //
@@ -201,12 +202,35 @@ private:
 
   // Add a new leaf region.
   //
-  Region *add_region (const Color &intensity,
+  Region *add_region (const Color &intensity, float leaf_weight,
 		      float u_min, float v_min, float u_sz, float v_sz)
   {
+    // To correctly sample this region, choosing it from all leaf regions
+    // with approximate probability (LEAF_WEIGHT / TOTAL_LEAF_WEIGHTS), we
+    // make duplicate entries into the SAMPLE_REGIONS vector.  This only
+    // works with integer values of LEAF_WEIGHT, so we round it here.
+    //
+    leaf_weight = floor (leaf_weight + 0.5f);
+
+    // Always add to SAMPLE_REGIONS at least once.
+    //
+    if (leaf_weight == 0)
+      leaf_weight = 1;
+
     Region *r
-      = new (regions) Region (intensity, u_min, v_min, u_sz, v_sz, this);
-    leaf_regions.push_back (r);
+      = new (regions) Region (intensity, leaf_weight,
+			      u_min, v_min, u_sz, v_sz, this);
+
+    // Make LEAF_WEIGHT entries in SAMPLE_REGIONS pointing to R.  Since we
+    // choose regions randomly from SAMPLE_REGIONS, this means R will be
+    // chosen with probability LEAF_WEIGHT / NUM_SAMPLE_REGIONS.
+    //
+    while (leaf_weight > 0)
+      {
+	sample_regions.push_back (r);
+	leaf_weight -= 1.f;
+      }
+
     return r;
   }
 
@@ -243,15 +267,18 @@ private:
   //
   Region *root_region;
 
-  // A vector of (pointers to) all leaf regions.
+  // A vector of (pointers to) all leaf regions.  There may be
+  // duplicates, as some leaf-regions can be counted more than once.
   //
-  std::vector<Region *> leaf_regions;
+  std::vector<Region *> sample_regions;
 
   // Floating point count of leaf regions (to avoid the need for
-  // conversion), and its inverse, 1 / NUM_LEAF_REGIONS.  Used in
-  // calculating pdf etc.
+  // conversion), and its inverse, 1 / NUM_SAMPLE_REGIONS.  Used in
+  // calculating pdf etc.  These correspond to the number of entries in the
+  // SAMPLE_REGIONS vector, including duplicates, not the number of unique
+  // leaf regions.
   //
-  float num_leaf_regions, inv_num_leaf_regions;
+  float num_sample_regions, inv_num_sample_regions;
 };
 
 
@@ -290,11 +317,15 @@ public:
     const = 0;
 
   // Return true if the region (U, V) - (U+U_SZ, V+V_SZ) should be
-  // split.  If true is returned, then the size and axis on which to
-  // split are returned in SPLIT_POINT and SPLIT_DIM respectively.
+  // split.  If true is returned, then the axis and size on which to
+  // split are returned in SPLIT_DIM and SPLIT_POINT respectively.  If
+  // false is returned, then LEAF_WEIGHT is the "weight" of the
+  // resulting region, indicating that it's LEAF_WEIGHT times as bright
+  // as the region size would indicate.
   //
   virtual bool find_split_point (float u, float v, float u_sz, float v_sz,
-				 float &split_point, SplitDim &split_dim)
+				 SplitDim &split_dim, float &split_point,
+				 float &leaf_weight)
     const = 0;
 };
 

@@ -90,11 +90,12 @@ EnvmapLight::EnvmapLight (const Envmap &envmap)
 
   if (! quiet)
     {
-      unsigned num_regions;
+      unsigned num_sample_regions, num_leaf_regions;
       Color mean_intensity;
-      get_stats (num_regions, mean_intensity);
+      get_stats (num_sample_regions, num_leaf_regions, mean_intensity);
       std::cout << "done" << std::endl
-		<< "* envmap-light: " << num_regions << " regions"
+		<< "* envmap-light: " << num_leaf_regions
+		<< "+" << (num_sample_regions - num_leaf_regions) << " regions"
 		<< ", mean intensity = " << mean_intensity
 		<< std::endl;
       std::cout.flush ();

@@ -33,30 +33,37 @@ LmapAnalyzer::LmapAnalyzer (const LightMap &_lmap, float nominal_num_regions)
 
 
 // Return true if the region (X, Y) - (X+W, Y+W) should be split.
+// LEAF_WEIGHT is the amount to weight the resulting leaf region if
+// false is returned.
 //
 bool
-LmapAnalyzer::should_split (float x, float y, float w, float h)
+LmapAnalyzer::should_split (float x, float y, float w, float h,
+			    float &leaf_weight)
   const
 {
+  if (lmap.too_big (x, y, w, h))
+    return true;
+
+  float intens_dev = mean (x, y, w, h).intensity() * inv_mean_intensity;
+  float ar = maybe_inv (lmap.aspect_ratio (x, y, w, h));
+
+  if (intens_dev == 0)
+    {
+      leaf_weight = 1;
+      return false;
+    }
+
+  float region_area = lmap.area (x, y, w, h);
+  float desired_area = nominal_region_area;
+  desired_area *= ar;
+  desired_area /= intens_dev;
+
+  leaf_weight = region_area / desired_area;
+
   if (lmap.too_small (x, y, w, h))
     return false;
-  else if (lmap.too_big (x, y, w, h))
-    return true;
   else
-    {
-      float intens_dev = mean (x, y, w, h).intensity() * inv_mean_intensity;
-      float ar = maybe_inv (lmap.aspect_ratio (x, y, w, h));
-
-      if (intens_dev == 0)
-	return false;
-
-      float region_area = lmap.area (x, y, w, h);
-      float desired_area = nominal_region_area;
-      desired_area *= ar;
-      desired_area /= intens_dev;
-
-      return region_area > desired_area;
-    }
+    return leaf_weight > 1;
 }
 
 
@@ -151,17 +158,21 @@ LmapAnalyzer::find_dim_split_point (SplitDim split_dim,
 }
 
 // Return true if the region (U, V) - (U+U_SZ, V+V_SZ) should be
-// split.  If true is returned, then the size and axis on which to
-// split are returned in SPLIT_POINT and SPLIT_DIM respectively.
+// split.  If true is returned, then the axis and size on which to
+// split are returned in SPLIT_DIM and SPLIT_POINT respectively.  If
+// false is returned, then LEAF_WEIGHT is the "weight" of the
+// resulting region, indicating that it's LEAF_WEIGHT times as bright
+// as the region size would indicate.
 //
 bool
 LmapAnalyzer::find_split_point (float u, float v, float u_sz, float v_sz,
-				float &split_point, SplitDim &split_dim)
+				SplitDim &split_dim, float &split_point,
+				float &leaf_weight)
   const
 {
   float x = u * width, y = v * height, w = u_sz * width, h = v_sz * height;
 
-  if (should_split (x, y, w, h))
+  if (should_split (x, y, w, h, leaf_weight))
     {
       float x_goodness, y_goodness;
       float x_split = find_dim_split_point (U_DIM, x, y, w, h, x_goodness);
