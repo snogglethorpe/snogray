@@ -1036,7 +1036,7 @@ def_scene_cornell_box (unsigned num, const string &,
   // Floor
   //
   if (floor == 0)
-    add_rect (scene, wall_mat, LBF, LBR, RBR);
+    add_cube (scene, wall_mat, LBF, RBF - LBF, LBR - LBF, Vec (0, -10, 0));
   else
     add_chessboard (scene, 1.2 * max (width, depth) / 8, (num / 10 - 1) % 10);
 
@@ -1745,8 +1745,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 			       cook_torrance (0.8, 0.5, 5)));
   const Material *gloss_neutral_grey
     = scene.add (new Material (0.3, cook_torrance (0.7, 0.03, 2)));
-  const Material *semigloss_off_white
-    = scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
+  const Material *gloss_off_white
+    = scene.add (new Material (Color (0.8, 0.8, 0.7), cook_torrance (0.2, 0.02, 2)));
   const Material *gloss_dark_blue_green
     = scene.add (new Material (Color(0, .08, .1), cook_torrance (.9, .02, 2)));
   const Material *gloss_medium_blue_green
@@ -1777,7 +1777,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 6:
       obj_mat = gloss_medium_blue_green; break;
     case 7:
-      obj_mat = semigloss_off_white; break;
+      obj_mat = gloss_off_white; break;
     case 8:
       obj_mat = gloss_neutral_grey; break;
     case 9:
