@@ -1949,6 +1949,25 @@ def_scene_xsph (unsigned, const string &, Scene &scene, Camera &camera)
 
 
 
+// Lambertian ball (R = 0.5) on lambertian square.  Useful for testing
+// environmental lighting.
+//
+static void
+def_scene_lball (unsigned, const string &, Scene &scene, Camera &camera)
+{
+  camera.move (Pos (-6, 4, -4));
+  camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
+
+  const Material *l5 = scene.add (new Material (0.5));
+	
+  add_cube (scene, l5, Pos (-2, -2, -2),
+	    Vec (4, 0, 0), Vec (0, 2, 0), Vec (0, 0, 4));
+
+  scene.add (new Sphere (l5, Pos (0, 1, 0), 1));
+}
+
+
+
 // This scene is from the paper "Efficient BRDF Importance Sampling
 // Using a Factored Representation", by Jason Lawrence, Szymon
 // Rusinkiewicz, and Ravi Ramamoorthi.  They kindly provide models for
@@ -2165,6 +2184,8 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
     def_scene_tessel (num, arg, scene, camera);
   else if (name == "xsph")
     def_scene_xsph (num, arg, scene, camera);
+  else if (name == "lball")
+    def_scene_lball (num, arg, scene, camera);
   else if (name == "frep")
     def_scene_frep (num, arg, scene, camera);
   else if (name == "trep")
