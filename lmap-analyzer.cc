@@ -82,6 +82,9 @@ LmapAnalyzer::judge_split (float split, SplitDim split_dim,
   float h1 = (split_dim == V_DIM) ? split : h;
   float h2 = (split_dim == V_DIM) ? h - split : h;
 
+  if (h1 < 1 || w1 < 1 || h2 < 1 || w2 < 1)
+    return 0;
+
   // We mainly judge the split based on the average goodness of our
   // childrens' aspect ratios.  This may seem a bit simplistic, but it's
   // important to get even coverage in the case that the (rectangular)
