@@ -65,7 +65,10 @@ Color
 Intersect::illum () const
 {
   trace.global.stats.illum_calls++;
-  return trace.illuminator().illum (*this);
+  if (nv > Eps)
+    return trace.illuminator().illum (*this);
+  else
+    return 0;
 }  
 
 
