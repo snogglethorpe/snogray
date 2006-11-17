@@ -72,7 +72,7 @@ private:
   Color mean (float x, float y, float w, float h) const
   {
     return lmap_sum.average (unsigned (x), unsigned (y),
-			     unsigned (w), unsigned (h));
+			     unsigned (w + 0.5f), unsigned (h + 0.5f));
   }
 
   float width, height;
