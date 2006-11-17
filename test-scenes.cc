@@ -1899,6 +1899,35 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       add_bulb (scene, Pos (-1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
       add_bulb (scene, Pos ( 1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
       break;
+
+    case 7:
+      // surrounding area lights
+      //
+      {
+	// Lights
+
+	float b = 10;			// brightness
+	dist_t ld = 12, lh = 6, lw = 8; // distance (from origin), height, width
+	Vec lhv (0, lh, 0);		// height vector
+
+	add_rect_bulb (scene, Pos(-ld,     0, -lw / 2), Vec(0,  0, lw), lhv, b);
+	add_rect_bulb (scene, Pos( ld,     0, -lw / 2), Vec(0,  0, lw), lhv, b);
+	add_rect_bulb (scene, Pos(-lw / 2, 0,      ld), Vec(lw, 0,  0), lhv, b);
+
+	// Light bezels
+
+	dist_t bd = ld + 0.1, bh = 1 + lh + 1, bw = lw + 2;;
+	Vec bhv (0, bh, 0);
+
+	const Material *grey
+	  = scene.add (new Material (Color (0.3, 0.2, 0.2),
+				     cook_torrance (0.5, 0.2, Ior (1, 1))));
+
+	add_rect (scene, grey, Pos(-bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
+	add_rect (scene, grey, Pos( bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
+	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
+      }
+      break;
     }
 }
 
