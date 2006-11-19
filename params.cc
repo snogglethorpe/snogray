@@ -161,23 +161,33 @@ void
 Params::parse (const std::string &input)
 {
   unsigned inp_len = input.length ();
-  unsigned p_start = 0;
   unsigned p_assn = input.find_first_of ("=");
 
-  while (p_assn < inp_len)
-    {
-      unsigned next_assn = input.find_first_of ("=", p_assn + 1);
-      unsigned p_end = input.find_last_of (",/ \t", next_assn - 1);
-      if (p_end < inp_len)
-	p_end = input.find_last_not_of (",/ \t", p_end);
-
-      set (input.substr (p_start, p_assn - p_start),
-	   input.substr (p_assn + 1, p_end));
-
-      p_start = p_end;
-      p_assn = next_assn;
-    }
+  if (p_assn < inp_len)
+    set (input.substr (0, p_assn), input.substr (p_assn + 1));
 }
 
+void
+Params::parse (const std::string &input, const std::string &multiple_seps)
+{
+  unsigned p_end = input.find_first_of (multiple_seps);
+
+  if (p_end == std::string::npos)
+    {
+      parse (input);
+    }
+  else
+    {
+      unsigned p_start = 0;
+      do
+	{
+	  parse (input.substr (p_start, p_end - p_start));
+
+	  p_start = input.find_first_not_of (multiple_seps, p_end);
+	  p_end = input.find_first_of (multiple_seps, p_start);
+	}
+      while (p_end != std::string::npos);
+    }
+}
 
 // arch-tag: e5ca6fdf-8e80-4541-b5fd-1bdea3214ef3

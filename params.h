@@ -109,6 +109,7 @@ public:
   }
 
   void parse (const std::string &input);
+  void parse (const std::string &input, const std::string &multiple_seps);
 };
 
 }
