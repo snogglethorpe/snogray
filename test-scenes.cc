@@ -172,7 +172,7 @@ def_scene_miles (unsigned num, const string &, Scene &scene, Camera &camera)
   const Material *silver = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
   const Material *mat1 = crystal, *mat2 = silver;
   const Material *mat3
-    = scene.add (new Material (Color (0.8, 0, 0), phong (0.2, 400)));
+    = scene.add (new Material (Color (0.8, 0, 0), cook_torrance (0.2, 0.1)));
   const Material *mat4
     = scene.add (new Material (Color (0.2, 0.5, 0.1)));
 
@@ -248,10 +248,17 @@ def_scene_miles (unsigned num, const string &, Scene &scene, Camera &camera)
   for (unsigned i = 0; i < gsize; i++)
     for (unsigned j = 0; j < gsize; j++)
       {
-	Color color (0, float (j) / float (gsize), float (i) / float (gsize));
+	float comps[Color::TUPLE_LEN];
+	for (unsigned c = 0; c < Color::TUPLE_LEN; c++)
+	  if ((i + j) % Color::TUPLE_LEN == c
+	      || abs (int (i) - int (j)) % Color::TUPLE_LEN == c)
+	    comps[c] = 0.5f + float (i) / float (gsize) / 2;
+	  else
+	    comps[c] = float (j) / float (gsize) / 2;
+	Color color (comps);
 	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
 	const Material *mat
-	  = scene.add (new Material (color * 0.5, phong (0.5, 500)));
+	  = scene.add (new Material (color * 0.5, cook_torrance (0.5, 0.01)));
 	scene.add (new Sphere (mat, pos, 0.5));
 	scene.add (new Tripar (mat, pos + Vec (1.5, -0.2, 0),
 			       Vec (-2, 0, -1.1), Vec (-2, 0, 1.1)));
@@ -806,7 +813,7 @@ def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *orange
-    = scene.add (new Material (Color (0.6, 0.5, 0.05), phong (0.4, 250)));
+    = scene.add (new Material (Color (0.6, 0.5, 0.05), cook_torrance (0.4, .1)));
   const Material *glass = scene.add (new Glass (1.5));
 
   add_chessboard (scene);
