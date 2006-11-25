@@ -89,6 +89,114 @@ add_bulb (Scene &scene, const Pos &pos, float radius,
 }
 
 
+// Lamp colors (data from "lamp.tab" in radiance)
+
+inline Color
+deluxe_warm_white (float intens)
+{
+  // x=.440 y=.403 m=.85
+  return Color (1.320, 1.209, 0.471) * intens;
+}
+
+inline Color
+deluxe_cool_white (float intens)
+{
+  // x=.376 y=.368 m=.85
+  return Color (1.128, 1.104, 0.768) * intens;
+}
+
+inline Color
+warm_white (float intens)
+{
+  // x=.436 y=.406 m=.85
+  return Color (1.308, 1.218, 0.474) * intens;
+}
+
+inline Color
+cool_white (float intens)
+{
+  // x=.373 y=.385 m=.85
+  return Color (1.119, 1.155, 0.726) * intens;
+}
+
+inline Color
+white_fluor (float intens)
+{
+  // x=.41 y=.398 m=.85
+  return Color (1.230, 1.194, 0.576) * intens;
+}
+
+inline Color
+daylight_fluor (float intens)
+{
+  // x=.316 y=.345 m=.85
+  return Color (0.948, 1.035, 1.017) * intens;
+}
+
+inline Color
+clear_mercury (float intens)
+{
+  // x=.326 y=.39 m=.8
+  return Color (0.978, 1.170, 0.852) * intens;
+}
+
+inline Color
+phosphor_mercury (float intens)
+{
+  // x=.373 y=.415 m=.8
+  return Color (1.119, 1.245, 0.636) * intens;
+}
+
+inline Color
+clear_metal_halide (float intens)
+{
+  // x=.396 y=.390 m=.8
+  return Color (1.188, 1.170, 0.642) * intens;
+}
+
+inline Color
+xenon (float intens)
+{
+  // x=.324 y=.324 m=1
+  return Color (0.972, 0.972, 1.056) * intens;
+}
+
+inline Color
+high_pressure_sodium (float intens)
+{
+  // x=.519 y=.418 m=.9
+  return Color (1.557, 1.254, 0.189) * intens;
+}
+
+inline Color
+low_pressure_sodium (float intens)
+{
+  // x=.569 y=.421 m=.93
+  return Color (1.707, 1.263, 0.030) * intens;
+}
+
+inline Color
+halogen (float intens)
+{
+  // x=.424 y=.399 m=1
+  return Color (1.272, 1.197, 0.531) * intens;
+}
+
+inline Color
+incandescent (float intens)
+{
+  // x=.453 y=.405 m=.95
+  return Color (1.359, 1.215, 0.426) * intens;
+}
+
+inline Color
+d65white (float intens)
+{
+  // x=.313 y=.329 m=1
+  return Color (0.939, 0.987, 1.074) * intens;
+}
+
+
 
 static void
 add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
