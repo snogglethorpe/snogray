@@ -17,7 +17,7 @@
 
 #include "snogmath.h"
 #include "color.h"
-#include "params.h"
+#include "val-table.h"
 
 
 namespace Snogray {
@@ -65,7 +65,7 @@ public:
   // otherwise if FILENAME has a recognized extension from which we can
   // guess its format, return it (converted to lower-case).
   //
-  static std::string find_format (const Params &params,
+  static std::string find_format (const ValTable &params,
 				  const std::string &filename);
 
 
@@ -98,7 +98,7 @@ public:
 
   static ImageSink *open (const std::string &filename,
 			  unsigned width, unsigned height,
-			  const Params &params = Params::NONE);
+			  const ValTable &params = ValTable::NONE);
 
   virtual ~ImageSink () = 0;
 
@@ -119,7 +119,7 @@ public:
 protected:
 
   ImageSink (const std::string &filename, unsigned width, unsigned height,
-	     const Params &)
+	     const ValTable &)
     : ImageIo (filename, width, height)
   { }
 };
@@ -132,7 +132,7 @@ class ImageSource : public ImageIo
 public:
 
   static ImageSource *open (const std::string &filename,
-			    const Params &params = Params::NONE);
+			    const ValTable &params = ValTable::NONE);
 
   virtual ~ImageSource ();
 
@@ -143,7 +143,7 @@ public:
 
 protected:
 
-  ImageSource (const std::string &filename, const Params &)
+  ImageSource (const std::string &filename, const ValTable &)
     : ImageIo (filename, 0, 0)
   { }
 };

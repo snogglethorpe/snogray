@@ -13,7 +13,7 @@
 #define __TRACE_PARAMS_H__
 
 #include "coords.h"
-#include "params.h"
+#include "val-table.h"
 
 namespace Snogray {
 
@@ -31,7 +31,7 @@ public:
   TraceParams ()
     : max_depth (DEFAULT_MAX_DEPTH), min_trace (DEFAULT_MIN_TRACE)
   { }
-  TraceParams (const Params &params)
+  TraceParams (const ValTable &params)
     : num_brdf_samples (
 	params.get_uint ("brdf-samples", DEFAULT_BRDF_SAMPLES)),
       num_light_samples (

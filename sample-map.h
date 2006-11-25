@@ -53,7 +53,7 @@ public:
 
   // Save this map to a file.
   //
-  void save (const std::string &filename, const Params &params) const
+  void save (const std::string &filename, const ValTable &params) const
   {
     map.save (filename, params);
   }

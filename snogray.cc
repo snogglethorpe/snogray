@@ -194,7 +194,7 @@ enable_fp_exceptions ()
 
 
 static void
-print_params (const Params &params, const string &name_pfx,
+print_params (const ValTable &params, const string &name_pfx,
 	      unsigned col1, unsigned col2)
 {
   string pfx (col1, ' ');
@@ -202,10 +202,10 @@ print_params (const Params &params, const string &name_pfx,
   pfx += " ";
   unsigned pfx_len =  pfx.length ();
 
-  for (Params::const_iterator p = params.begin(); p != params.end(); p++)
-    cout << pfx << p->name << ": "
-	 << setw (col2 - pfx_len - p->name.length() - 2)
-	 << p->string_val() << endl;
+  for (ValTable::const_iterator p = params.begin(); p != params.end(); p++)
+    cout << pfx << p->first << ": "
+	 << setw (col2 - pfx_len - p->first.length() - 2)
+	 << p->second.as_string() << endl;
 }
 
 // Print useful scene info
@@ -247,7 +247,7 @@ print_scene_info (const Scene &scene, const SceneDef &scene_def)
 // Print image info
 //
 static void
-print_image_info (const Params &image_params, const Params &render_params,
+print_image_info (const ValTable &image_params, const ValTable &render_params,
 		  unsigned width, unsigned height,
 		  unsigned limit_x, unsigned limit_y,
 		  unsigned limit_width, unsigned limit_height)
@@ -527,7 +527,7 @@ int main (int argc, char *const *argv)
   bool recover = false;
   Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
-  Params image_params, render_params;
+  ValTable image_params, render_params;
   SceneDef scene_def;
 
 

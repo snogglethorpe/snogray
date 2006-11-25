@@ -33,7 +33,7 @@ public:
       x_exp (exp (-alpha * x_width * x_width)),
       y_exp (exp (-alpha * y_width * y_width))
   { }
-  GaussFilt (const Params &params)
+  GaussFilt (const ValTable &params)
     : Filter (params, DEFAULT_WIDTH),
       alpha (params.get_float ("alpha", DEFAULT_ALPHA)),
       x_exp (exp (-alpha * x_width * x_width)),

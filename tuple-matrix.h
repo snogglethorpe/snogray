@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "ref.h"
-#include "params.h"
+#include "val-table.h"
 #include "color.h"
 
 
@@ -38,7 +38,7 @@ public:
   TupleMatrixData (unsigned _tuple_len, const std::string &filename,
 		   unsigned border = 0);
   TupleMatrixData (unsigned _tuple_len, const std::string &filename,
-		   const Params &params, unsigned border = 0);
+		   const ValTable &params, unsigned border = 0);
 
   // Constructor for extracting a sub-matrix of BASE.  If W or H are 0,
   // the maximum available width or height is used.  Note that because
@@ -74,13 +74,13 @@ public:
   // tuple-format-specific parameters that might be needed.  The loaded
   // tuple is surrounded by a black border BORDER pixels wide.
   //
-  void load (const std::string &filename, const Params &params,
+  void load (const std::string &filename, const ValTable &params,
 	     unsigned border = 0);
 
   // Save the tuple matrix to the file FILENAME.  PARAMS contains
   // various tuple-format-specific parameters that might be needed.
   //
-  void save (const std::string &filename, const Params &params = Params::NONE)
+  void save (const std::string &filename, const ValTable &params = ValTable::NONE)
     const;
 
   // Store a value of type T into a tuple (assuming the tuple length is
@@ -182,7 +182,7 @@ public:
   TupleMatrix (const std::string &filename, unsigned border = 0)
     : TupleMatrixData (type_tuple_len<T> (), filename, border)
   { }
-  TupleMatrix (const std::string &filename, const Params &params,
+  TupleMatrix (const std::string &filename, const ValTable &params,
 	       unsigned border = 0)
     : TupleMatrixData (type_tuple_len<T> (), filename, params, border)
   { }

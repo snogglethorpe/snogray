@@ -103,7 +103,7 @@ int main (int argc, char *const *argv)
   // Parameters set from the command line
   //
   unsigned dst_width = 0, dst_height = 0; // zero means copy from source image
-  Params src_params, dst_params;
+  ValTable src_params, dst_params;
 
   // Parse command-line options
   //
@@ -152,7 +152,7 @@ int main (int argc, char *const *argv)
 
   // If the user didn't specify a filter, maybe pick a default
   //
-  if (! dst_params.get ("filter"))
+  if (! dst_params.contains ("filter"))
     {
       if (dst_width == src.width || dst_height == src.height)
 	//

@@ -15,7 +15,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "params.h"
+#include "val-table.h"
 #include "test-scenes.h"
 
 #define SCENE_DEF_OPTIONS_HELP "\
@@ -147,7 +147,7 @@ public:
 
   // General scene parameters.
   //
-  Params params;
+  ValTable params;
 
   // A list of scene specs to load.
   //

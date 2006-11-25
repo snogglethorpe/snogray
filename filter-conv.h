@@ -13,7 +13,7 @@
 #define __FILTER_CONV_H__
 
 #include "snogmath.h"
-#include "params.h"
+#include "val-table.h"
 #include "color.h"
 #include "filter.h"
 
@@ -31,7 +31,7 @@ public:
   static const float DEFAULT_NEG_CLAMP = -0.1;
   static const float MAX_FILTER_WIDTH_SCALE = 2.f;
 
-  FilterConvBase (const Params &params = Params::NONE)
+  FilterConvBase (const ValTable &params = ValTable::NONE)
     : filter (Filter::make (params)),
       filter_radius (filter ? int (ceil (filter->max_width() - 1.0001)) : 0),
       neg_clamp (-abs (params.get_float ("neg-clamp", DEFAULT_NEG_CLAMP)))
@@ -83,7 +83,7 @@ class FilterConv : public FilterConvBase
 {
 public:
 
-  FilterConv (const Params &params) : FilterConvBase (params) { }
+  FilterConv (const ValTable &params) : FilterConvBase (params) { }
 
   // Add a sample with value COLOR at floating point position SX, SY.
   // COLOR's contribution to adjacent pixels is determined by the

@@ -92,7 +92,7 @@ JpegErrState::libjpeg_msg_handler (j_common_ptr cinfo)
 
 JpegImageSink::JpegImageSink (const std::string &filename,
 			      unsigned width, unsigned height,
-			      const Params &params)
+			      const ValTable &params)
   : ByteVecImageSink (filename, width, height, params), jpeg_err (filename)
 {
   int quality = params.get_int ("quality", DEFAULT_QUALITY);
@@ -169,7 +169,7 @@ JpegImageSink::flush ()
 // Input
 
 JpegImageSource::JpegImageSource (const std::string &filename,
-				  const Params &params)
+				  const ValTable &params)
   : ByteVecImageSource (filename, params), jpeg_err (filename)
 {
   // Open input file

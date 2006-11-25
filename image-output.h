@@ -48,7 +48,7 @@ public:
   };
 
   ImageOutput (const std::string &filename, unsigned _width, unsigned _height,
-	       const Params &params = Params::NONE);
+	       const ValTable &params = ValTable::NONE);
   ~ImageOutput ();
 
   // Add a sample with value COLOR at floating point position SX, SY.

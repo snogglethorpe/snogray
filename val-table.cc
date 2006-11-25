@@ -1,4 +1,4 @@
-// params.cc -- General parameter lists
+// val-table.cc -- General value lists
 //
 //  Copyright (C) 2006  Miles Bader <miles@gnu.org>
 //
@@ -15,16 +15,17 @@
 
 #include "excepts.h"
 
-#include "params.h"
+#include "val-table.h"
 
 using namespace Snogray;
 
 
-Params Params::NONE;
+ValTable ValTable::NONE;
 
+
 
 std::string
-Param::string_val () const
+Val::as_string () const
 {
   if (type == STRING)
     return _string_val;
@@ -44,26 +45,28 @@ Param::string_val () const
     }
 }
 
+
+
 void
-Param::type_err (const char *msg) const
+Val::type_err (const char *msg) const
 {
-  std::string text = name;
-  text += ": ";
-  text += string_val ();
+  std::string text = as_string ();
   text += msg;
   throw bad_format (text);
 }
 
 void
-Param::invalid (const char *type_name) const
+Val::invalid (const char *type_name) const
 {
   std::string msg = "invalid ";
   msg += type_name;
   type_err (msg.c_str ());
 }
 
+
+
 int
-Param::int_val () const
+Val::as_int () const
 {
   switch (type)
     {
@@ -90,7 +93,7 @@ Param::int_val () const
 }
 
 unsigned
-Param::uint_val () const
+Val::as_uint () const
 {
   switch (type)
     {
@@ -117,7 +120,7 @@ Param::uint_val () const
 }
 
 float
-Param::float_val () const
+Val::as_float () const
 {
   switch (type)
     {
@@ -139,26 +142,36 @@ Param::float_val () const
   return 0;	    // gcc can't seem to detect that this is unreachable?!
 }
 
-Param *
-Params::get (const std::string &name)
+
+
+Val *
+ValTable::get (const std::string &name)
 {
-  for (iterator p = begin(); p != end(); p++)
-    if (p->name == name)
-      return &(*p);
-  return 0;
+  iterator i = find (name);
+  return i == end () ? 0 : &i->second;
 }
 
-const Param *
-Params::get (const std::string &name) const
+const Val *
+ValTable::get (const std::string &name) const
 {
-  for (const_iterator p = begin(); p != end(); p++)
-    if (p->name == name)
-      return &(*p);
-  return 0;
+  const_iterator i = find (name);
+  return i == end () ? 0 : &i->second;
 }
 
 void
-Params::parse (const std::string &input)
+ValTable::set (const std::string &name, const Val &val)
+{
+  iterator i = find (name);
+  if (i == end ())
+    insert (value_type (name, val));
+  else
+    i->second = val;
+}
+
+
+
+void
+ValTable::parse (const std::string &input)
 {
   unsigned inp_len = input.length ();
   unsigned p_assn = input.find_first_of ("=");
@@ -168,7 +181,7 @@ Params::parse (const std::string &input)
 }
 
 void
-Params::parse (const std::string &input, const std::string &multiple_seps)
+ValTable::parse (const std::string &input, const std::string &multiple_seps)
 {
   unsigned p_end = input.find_first_of (multiple_seps);
 
@@ -189,5 +202,6 @@ Params::parse (const std::string &input, const std::string &multiple_seps)
       while (p_end != std::string::npos);
     }
 }
+
 
 // arch-tag: e5ca6fdf-8e80-4541-b5fd-1bdea3214ef3

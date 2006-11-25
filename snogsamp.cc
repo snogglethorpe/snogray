@@ -163,7 +163,7 @@ int main (int argc, char *const *argv)
   // Parameters set from the command line
   //
   SceneDef scene_def;			      // scene to be probed
-  Params image_params, render_params;
+  ValTable image_params, render_params;
   unsigned width = 640, height = 480; // virtual "camera image"
   unsigned map_width = 800, map_height = 400; // sample map size
   bool no_normalize = false, intensity = false;

@@ -24,7 +24,7 @@ class ImageInput
 public:
 
   ImageInput (const std::string &filename,
-	      const Params &params = Params::NONE)
+	      const ValTable &params = ValTable::NONE)
     : source (ImageSource::open (filename, params)),
       width (source->width), height (source->height)
   { }

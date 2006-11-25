@@ -13,7 +13,7 @@
 #define __FILTER_H__
 
 #include "snogmath.h"
-#include "params.h"
+#include "val-table.h"
 
 
 namespace Snogray {
@@ -27,7 +27,7 @@ public:
 
   // Return a new a filter depending on the parameters in PARAMS.
   //
-  static Filter *make (const Params &params);
+  static Filter *make (const ValTable &params);
 
   virtual ~Filter ();
 
@@ -50,7 +50,7 @@ protected:
       inv_x_width (1 / x_width), inv_y_width (1 / y_width)
   { }
 
-  Filter (const Params &params, float def_width)
+  Filter (const ValTable &params, float def_width)
     : x_width (params.get_float ("x-width", def_width)),
       y_width (params.get_float ("y-width", def_width)),
       inv_x_width (1 / x_width), inv_y_width (1 / y_width)

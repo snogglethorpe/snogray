@@ -27,7 +27,7 @@ public:
   BoxFilt (float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
     : Filter (_x_width, _y_width)
   { }
-  BoxFilt (const Params &params)
+  BoxFilt (const ValTable &params)
     : Filter (params, DEFAULT_WIDTH)
   { }
 

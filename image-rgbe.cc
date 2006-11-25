@@ -58,7 +58,7 @@ using namespace std;
 
 RgbeImageSink::RgbeImageSink (const std::string &filename,
 			      unsigned width, unsigned height,
-			      const Params &params)
+			      const ValTable &params)
   : ImageSink (filename, width, height, params),
     outf (filename.c_str(), ios_base::out|ios_base::binary|ios_base::trunc),
     row_buf (width)
@@ -160,7 +160,7 @@ RgbeImageSink::write_row (const ImageRow &row)
 // Input
 
 RgbeImageSource::RgbeImageSource (const std::string &filename,
-				  const Params &params)
+				  const ValTable &params)
   : ImageSource (filename, params),
     inf (filename.c_str(), ios_base::binary)
 {

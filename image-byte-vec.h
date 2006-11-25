@@ -30,7 +30,7 @@ public:
 
   ByteVecImageSink (const std::string &filename,
 		    unsigned width, unsigned height,
-		    const Params &params = Params::NONE);
+		    const ValTable &params = ValTable::NONE);
 
   // We define these
   //
@@ -91,7 +91,7 @@ public:
 
   static const float DEFAULT_SOURCE_GAMMA = 2.2;
  
-  ByteVecImageSource (const std::string &filename, const Params &params);
+  ByteVecImageSource (const std::string &filename, const ValTable &params);
 
   // We define this
   //

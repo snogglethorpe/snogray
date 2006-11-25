@@ -20,7 +20,7 @@ using namespace Snogray;
 
 PpmImageSink::PpmImageSink (const std::string &filename,
 			    unsigned width, unsigned height,
-			    const Params &params)
+			    const ValTable &params)
   : ImageSink (filename, width, height, params),
     output_row (ppm_allocrow (width)),
     //
@@ -70,7 +70,7 @@ PpmImageSink::write_row (const ImageRow &row)
 // Input
 
 PpmImageSource::PpmImageSource (const std::string &filename,
-				const Params &params)
+				const ValTable &params)
   : ImageSource (filename, params)
 {
   // Open input file

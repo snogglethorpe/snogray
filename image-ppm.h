@@ -44,7 +44,7 @@ class PpmImageSink : public ImageSink
 public:
 
   PpmImageSink (const std::string &filename, unsigned width, unsigned height,
-		const Params &params = Params::NONE);
+		const ValTable &params = ValTable::NONE);
   ~PpmImageSink ();
 
   virtual void write_row (const ImageRow &row);
@@ -96,7 +96,7 @@ class PpmImageSource : public ImageSource
 public:
 
   PpmImageSource (const std::string &filename,
-		  const Params &params = Params::NONE);
+		  const ValTable &params = ValTable::NONE);
   ~PpmImageSource ();
 
   virtual void read_row (ImageRow &row);

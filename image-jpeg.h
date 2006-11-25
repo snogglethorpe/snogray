@@ -81,7 +81,7 @@ public:
 
   JpegImageSink (const std::string &filename,
 		 unsigned width, unsigned height,
-		 const Params &params = Params::NONE);
+		 const ValTable &params = ValTable::NONE);
   ~JpegImageSink ();
 
   virtual void write_row (const ByteVec &rgb_bytes);
@@ -107,7 +107,7 @@ class JpegImageSource : public ByteVecImageSource
 public:
 
   JpegImageSource (const std::string &filename,
-		   const Params &params = Params::NONE);
+		   const ValTable &params = ValTable::NONE);
   ~JpegImageSource ();
 
   virtual void read_row (ByteVec &rgb_bytes);

@@ -10,7 +10,7 @@
 //
 
 #include "excepts.h"
-#include "params.h"
+#include "val-table.h"
 #include "mitchell-filt.h"
 #include "gauss-filt.h"
 #include "box-filt.h"
@@ -24,7 +24,7 @@ using namespace Snogray;
 // Return a new a filter depending on the parameters in PARAMS.
 //
 Filter *
-Filter::make (const Params &params)
+Filter::make (const ValTable &params)
 {
   std::string filter_type = params.get_string ("filter");
 
@@ -32,7 +32,7 @@ Filter::make (const Params &params)
     return new MitchellFilt ();
   else
     {
-      Params filter_params;
+      ValTable filter_params;
 
       unsigned type_end = filter_type.find_first_of ("/");
       if (type_end < filter_type.length ())

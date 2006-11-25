@@ -24,7 +24,7 @@ using namespace Snogray;
 
 ByteVecImageSink::ByteVecImageSink (const std::string &filename,
 				    unsigned width, unsigned height,
-				    const Params &params)
+				    const ValTable &params)
   : ImageSink (filename, width, height, params),
     target_gamma (params.get_float ("gamma", DEFAULT_TARGET_GAMMA)),
     gamma_correction (1 / target_gamma),
@@ -58,7 +58,7 @@ ByteVecImageSink::max_intens () const
 // Input
 
 ByteVecImageSource::ByteVecImageSource (const std::string &filename,
-					const Params &params)
+					const ValTable &params)
   : ImageSource (filename, params),
     gamma_correction (params.get_float ("gamma", DEFAULT_SOURCE_GAMMA)),
     //

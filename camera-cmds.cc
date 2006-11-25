@@ -14,7 +14,7 @@
 #include <iomanip>
 
 #include "excepts.h"
-#include "params.h"
+#include "val-table.h"
 #include "scene.h"
 #include "camera.h"
 #include "trace-params.h"
@@ -196,7 +196,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
 {
   // Dummy values to make renderer happy
   //
-  Params render_params;
+  ValTable render_params;
   TraceParams trace_params (render_params);
   GlobalTraceState global_tstate (trace_params);
 

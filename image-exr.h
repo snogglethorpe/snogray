@@ -24,12 +24,12 @@ class ExrImageSink : public ImageSink
 public:
 
   ExrImageSink (const std::string &filename, unsigned width, unsigned height,
-		const Params &params = Params::NONE)
+		const ValTable &params = ValTable::NONE)
     : ImageSink (filename, width, height, params),
       outf (filename.c_str(), width, height),
       row_buf (width), cur_y (0)
   {
-    if (params.get ("gamma"))
+    if (params.contains ("gamma"))
       open_err ("OpenEXR format does not use gamma correction");
   }
 
@@ -49,7 +49,7 @@ class ExrImageSource : public ImageSource
 public:
 
   ExrImageSource (const std::string &filename,
-		  const Params &params = Params::NONE)
+		  const ValTable &params = ValTable::NONE)
     : ImageSource (filename, params), outf (filename.c_str()), cur_y (0)
   {
     const Imf::Header &hdr = outf.header ();

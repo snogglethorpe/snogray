@@ -14,7 +14,7 @@
 
 #include <ostream>
 
-#include "params.h"
+#include "val-table.h"
 
 namespace Snogray {
 
@@ -27,7 +27,7 @@ extern void
 render (const Scene &scene, const Camera &camera,
 	unsigned width, unsigned height,
 	ImageOutput &output, unsigned offs_x, unsigned offs_y,
-	const Params &render_params, TraceStats &stats,
+	const ValTable &render_params, TraceStats &stats,
 	std::ostream &progress_stream, Progress::Verbosity verbosity);
 
 }

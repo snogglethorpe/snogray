@@ -27,7 +27,7 @@ using namespace Snogray;
 
 ImageOutput::ImageOutput (const std::string &filename,
 			  unsigned _width, unsigned _height,
-			  const Params &params)
+			  const ValTable &params)
   : width (_width), height (_height),
     min_y (0),
     exposure (params.get_float ("exposure", 0)),

@@ -26,12 +26,12 @@ TupleMatrixData::TupleMatrixData (unsigned _tuple_len,
 				  const std::string &filename, unsigned border)
   : tuple_len (_tuple_len)
 {
-  load (filename, Params::NONE, border);
+  load (filename, ValTable::NONE, border);
 }
 
 TupleMatrixData::TupleMatrixData (unsigned _tuple_len,
 				  const std::string &filename,
-				  const Params &params, unsigned border)
+				  const ValTable &params, unsigned border)
   : tuple_len (_tuple_len)
 {
   load (filename, params, border);
@@ -79,7 +79,7 @@ TupleMatrixData::set_pixel (unsigned x, unsigned y, const Color &col)
 // Input loading
 
 void
-TupleMatrixData::load (const std::string &filename, const Params &params,
+TupleMatrixData::load (const std::string &filename, const ValTable &params,
 		       unsigned border)
 {
   ImageInput src (filename, params);
@@ -133,7 +133,7 @@ TupleMatrixData::load (const std::string &filename, const Params &params,
 }
 
 void
-TupleMatrixData::save (const std::string &filename, const Params &params) const
+TupleMatrixData::save (const std::string &filename, const ValTable &params) const
 {
   ImageOutput out (filename, width, height, params);
 

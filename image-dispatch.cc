@@ -58,7 +58,7 @@ ImageIo::filename_format (const std::string &filename)
 // guess its format, return it (converted to lower-case).
 //
 std::string
-ImageIo::find_format (const Params &params, const std::string &filename)
+ImageIo::find_format (const ValTable &params, const std::string &filename)
 {
   std::string fmt = params.get_string ("format");
 
@@ -101,7 +101,7 @@ ImageIo::recognized_filename (const std::string &filename)
 
 ImageSink *
 ImageSink::open (const std::string &filename, unsigned width, unsigned height,
-		 const Params &params)
+		 const ValTable &params)
 {
   std::string fmt = find_format (params, filename);
 
@@ -137,7 +137,7 @@ ImageSink::open (const std::string &filename, unsigned width, unsigned height,
 
 
 ImageSource *
-ImageSource::open (const std::string &filename, const Params &params)
+ImageSource::open (const std::string &filename, const ValTable &params)
 {
   std::string fmt = find_format (params, filename);
 

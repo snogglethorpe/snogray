@@ -79,7 +79,7 @@ int main (int argc, char *const *argv)
 
   // Parameters set from the command line
   //
-  Params src_params, dst_params;
+  ValTable src_params, dst_params;
 
   // Parse command-line options
   //

@@ -117,7 +117,7 @@ render_by_blocks (unsigned block_width, unsigned block_height,
 // Return an appropriate sample generator for anti-aliasing.
 //
 static Sample2Gen *
-make_aa_sample_gen (const Params &params)
+make_aa_sample_gen (const ValTable &params)
 {
   unsigned oversample = params.get_uint ("oversample", 1);
   unsigned jitter = params.get_uint ("jitter", 1);
@@ -128,7 +128,7 @@ void
 Snogray::render (const Scene &scene, const Camera &camera,
 		 unsigned width, unsigned height,
 		 ImageOutput &output, unsigned offs_x, unsigned offs_y,
-		 const Params &params, TraceStats &stats,
+		 const ValTable &params, TraceStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
   std::auto_ptr<Sample2Gen> sample_gen (make_aa_sample_gen (params));

@@ -66,7 +66,7 @@ class RgbeImageSink : public ImageSink
 public:
 
   RgbeImageSink (const std::string &filename, unsigned width, unsigned height,
-		 const Params &params = Params::NONE);
+		 const ValTable &params = ValTable::NONE);
 
   virtual void write_row (const ImageRow &row);
 
@@ -91,7 +91,7 @@ class RgbeImageSource : public ImageSource
 public:
 
   RgbeImageSource (const std::string &filename,
-		   const Params &params = Params::NONE);
+		   const ValTable &params = ValTable::NONE);
 
   virtual void read_row (ImageRow &row);
 

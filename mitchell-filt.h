@@ -32,7 +32,7 @@ public:
 		float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
     : Filter (_x_width, _y_width), b (_b), c (_c)
   { }
-  MitchellFilt (const Params &params)
+  MitchellFilt (const ValTable &params)
     : Filter (params, DEFAULT_WIDTH),
       b (params.get_float ("b", DEFAULT_B)),
       c (params.get_float ("c", DEFAULT_C))

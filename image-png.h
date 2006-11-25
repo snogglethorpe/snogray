@@ -46,7 +46,7 @@ public:
 
   PngImageSink (const std::string &filename,
 		unsigned width, unsigned height,
-		const Params &params = Params::NONE);
+		const ValTable &params = ValTable::NONE);
   ~PngImageSink ();
 
   virtual void write_row (const ByteVec &byte_vec);
@@ -71,7 +71,7 @@ class PngImageSource : public ByteVecImageSource, PngErrState
 public:
 
   PngImageSource (const std::string &filename,
-		  const Params &params = Params::NONE);
+		  const ValTable &params = ValTable::NONE);
   ~PngImageSource ();
 
   virtual void read_row (ByteVec &byte_vec);

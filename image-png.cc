@@ -44,7 +44,7 @@ PngErrState::libpng_err_handler (png_structp libpng_struct, const char *msg)
 
 PngImageSink::PngImageSink (const std::string &_filename,
 			    unsigned width, unsigned height,
-			    const Params &params)
+			    const ValTable &params)
   : ByteVecImageSink (_filename, width, height, params),
     PngErrState (filename)
 {
@@ -135,7 +135,7 @@ PngImageSink::flush ()
 // Input
 
 PngImageSource::PngImageSource (const std::string &_filename,
-				const Params &params)
+				const ValTable &params)
   : ByteVecImageSource (_filename, params),
     PngErrState (filename)
 {

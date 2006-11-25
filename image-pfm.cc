@@ -51,12 +51,12 @@ little_endian ()
 
 PfmImageSink::PfmImageSink (const std::string &filename,
 			    unsigned width, unsigned height,
-			    const Params &params)
+			    const ValTable &params)
   : ImageSink (filename, width, height, params),
     outf (filename.c_str(), ios_base::out|ios_base::binary|ios_base::trunc),
     raster (width * height * 3), next_y (0)
 {
-  if (params.get ("gamma"))
+  if (params.contains ("gamma"))
     open_err ("PFM format does not use gamma correction");
 
   outf << "PF\n" << width << " " << height << "\n";
@@ -89,7 +89,7 @@ PfmImageSink::write_row (const ImageRow &row)
 // Input
 
 PfmImageSource::PfmImageSource (const std::string &filename,
-				const Params &params)
+				const ValTable &params)
   : ImageSource (filename, params),
     inf (filename.c_str(), ios_base::binary), next_y (0)
 {
