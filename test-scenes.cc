@@ -991,74 +991,222 @@ add_scene_descs_orange (vector<TestSceneDesc> &descs)
 
 
 
+struct Cbox
+{
+  Cbox (float scale = 1, float light_size = .3)
+    :  rear (2    * scale), front ( -3 * scale),
+       left (-1.2 * scale), right (1.2 * scale),
+       bottom (0  * scale), top   (2   * scale),
+       width  (right - left),
+       depth  (max (abs (rear), abs (front)) * 2),
+       height (top - bottom),
+       mid_x  (left + width / 2),
+       mid_z  (0),
+       light_width (width * light_size),
+       light_inset (0.01 * scale),
+       light_x     (left + width / 2),
+       light_z     (0),
+       LBR (left, bottom, rear),   RBR (right, bottom, rear),
+       RTR (right, top, rear),     LTR (left, top, rear),
+       RBF (right, bottom, front), RTF (right, top, front),
+       LBF (left, bottom, front),  LTF (left, top, front)
+  { }
+
+  coord_t rear, front;
+  coord_t left, right;
+  coord_t bottom, top;
+
+  dist_t  width;
+  dist_t  depth;
+  dist_t  height;
+
+  coord_t mid_x;
+  coord_t mid_z;
+
+  dist_t  light_width;
+  dist_t  light_inset;
+  coord_t light_x;
+  coord_t light_z;
+
+  // Corners of room (Left/Right + Bottom/Top + Rear/Front)
+  //
+  const Pos LBR, RBR, RTR, LTR, RBF, RTF, LBF, LTF;
+};
+
+static void
+def_cbox_room (const Cbox &cbox,
+	       unsigned floor, unsigned walls,
+	       unsigned light_col, unsigned open,
+	       Scene &scene)
+{
+  float light_intens = 2.25;
+
+  const Material *wall_mat = scene.add (new Material (1));
+
+  // Appearance of left and right walls; set in ifs below
+  //
+  const Material *left_wall_mat, *right_wall_mat;
+  switch (walls)
+    {
+    case 0:
+      left_wall_mat = scene.add (new Material (Color (1, 0.35, 0.35)));
+      right_wall_mat = scene.add (new Material (Color (0.35, 1, 0.35)));
+      break;
+      
+    case 1:
+      left_wall_mat = scene.add (new Material (Color (0.6, 0.1, 0.1)));
+      right_wall_mat = scene.add (new Material (Color (0.1, 0.1, 0.6)));
+      break;
+
+    default:
+      left_wall_mat = right_wall_mat = wall_mat;
+    }
+
+
+  // light
+
+  const coord_t light_left  = cbox.light_x - cbox.light_width / 2;
+  const coord_t light_right = cbox.light_x + cbox.light_width / 2;
+  const coord_t light_front = cbox.light_z - cbox.light_width / 2;
+  const coord_t light_back  = cbox.light_z + cbox.light_width / 2;
+
+  if (!open && !scene.env_map)
+    {
+      Color col;
+
+      switch (light_col)
+	{
+	case 0:
+	  col = incandescent (light_intens); break;
+	case 1:
+	default:
+	  col = d65white (light_intens); break;
+	case 2:
+	  col = deluxe_warm_white (light_intens); break;
+	case 3:
+	  col = deluxe_cool_white (light_intens); break;
+	case 4:
+	  col = white_fluor (light_intens); break;
+	case 5:
+	  col = daylight_fluor (light_intens); break;
+	case 6:
+	  col = clear_mercury (light_intens); break;
+	case 7:
+	  col = xenon (light_intens); break;
+	case 8:
+	  col = high_pressure_sodium (light_intens); break;
+	case 9:
+	  col = halogen (light_intens); break;
+	}
+
+      float inv_light_size = cbox.width / cbox.light_width;
+      col *= inv_light_size * inv_light_size;
+
+      add_rect_bulb (scene,
+		     Pos (light_left, cbox.top + cbox.light_inset, light_front),
+		     Vec (cbox.light_width, 0, 0), Vec (0, 0, cbox.light_width),
+		     col);
+    }
+
+  // Back wall
+  //
+  if (! open)
+    add_rect (scene, wall_mat, cbox.LBR, cbox.LTR, cbox.RTR);
+
+  // Right wall
+  //
+  if (open <= 1)
+    add_rect (scene, right_wall_mat, cbox.RBR, cbox.RTR, cbox.RTF);
+
+  // Left wall
+  //
+  if (open <= 1)
+    add_rect (scene, left_wall_mat, cbox.LBR, cbox.LTR, cbox.LTF);
+
+  // Ceiling
+  //
+  if (! open)
+    {
+      add_rect (scene, wall_mat,
+		cbox.LTF, cbox.LTR, Pos (light_left, cbox.top, cbox.rear));
+      add_rect (scene, wall_mat,
+		cbox.RTR, cbox.RTF, Pos (light_right, cbox.top, cbox.front));
+      add_rect (scene, wall_mat,
+		Pos (light_left, cbox.top, cbox.front),
+		Pos (light_left, cbox.top, light_front),
+		Pos (light_right, cbox.top, light_front));
+      add_rect (scene, wall_mat,
+		Pos (light_left, cbox.top, light_back),
+		Pos (light_left, cbox.top, cbox.rear),
+		Pos (light_right, cbox.top, cbox.rear));
+    }
+
+  // Floor
+  //
+  if (floor == 0)
+    add_cube (scene, wall_mat,
+	      cbox.LBF, cbox.RBF - cbox.LBF, cbox.LBR - cbox.LBF,
+	      Vec (0, -10, 0));
+  else
+    add_chessboard (scene,
+		    1.2 * max (cbox.width, cbox.depth) / 8,
+		    floor - 1);
+}
+
+static void
+def_cbox_camera (const Cbox &cbox, Camera &camera)
+{
+  camera.move (Pos (cbox.mid_x,
+		    0.525 * cbox.height + cbox.bottom,
+		    -2.75 * cbox.width));
+  camera.point (Pos (cbox.mid_x, 0.475 * cbox.height + cbox.bottom, 0),
+		Vec (0, 1, 0));
+  camera.set_horiz_fov (M_PI_4 * 0.7);
+}
+
 static void
 def_scene_cornell_box (unsigned num, const string &,
 		       Scene &scene, Camera &camera)
 {
-  float light_intens = 15;
-  bool fill_light = true;
+  unsigned scn		= num % 10;
+  unsigned floor	= (num / 10) % 10;
+  unsigned walls	= (num / 100) % 10;
+  unsigned light_col	= (num / 1000) % 10;
+  unsigned light_config = (num / 10000) % 10;
+  unsigned open		= (num / 100000) % 10;
+
   float scale = 1;
 
-  unsigned scn = num % 10;
-  unsigned floor = (num / 10) % 10;
-  unsigned walls = (num / 100) % 10;
-
-  coord_t rear   =  2   * scale, front = -3   * scale;
-  coord_t left   = -1.2 * scale, right =  1.2 * scale;
-  coord_t bottom =  0   * scale, top   =  2   * scale;
-
-  if (walls > 0)
-    front = -1;			// "half open"
-
-  // If true, omit the light, the back wall, and the ceiling.
-  //
-  bool open = walls > 1;
-  bool really_open = walls > 2;
-
-  dist_t width   = right - left;
-  dist_t depth	 = max (abs (rear), abs (front)) * 2;
-  dist_t height  = top - bottom;
-  coord_t mid_x  = left + width / 2;
-  coord_t mid_z  = 0;
-
-  dist_t light_width = width / 3;
-  dist_t light_inset = 0.01 * scale;
-  coord_t light_x    = left + width / 2;
-  coord_t light_z    = 0;
+  float light_size;
+  switch (light_config)
+    {
+    default:
+    case 0: light_size = .3; break;
+    case 1: light_size = .9; break;
+    case 2: light_size = .1; break;
+    }
 
   // Various spheres use this radius
   //
   dist_t rad = 0.4 * scale;
 
-  // Appearance of left and right walls; set in ifs below
-  //
-  const Material *left_wall_mat, *right_wall_mat;
+  Cbox cbox (scale, light_size);
 
-  // Corners of room (Left/Right + Bottom/Top + Rear/Front)
-  //
-  const Pos LBR (left, bottom, rear),   RBR (right, bottom, rear);
-  const Pos RTR (right, top, rear),     LTR (left, top, rear);
-  const Pos RBF (right, bottom, front), RTF (right, top, front);
-  const Pos LBF (left, bottom, front),  LTF (left, top, front);
-
-  const Material *wall_mat = scene.add (new Material (1));
+  def_cbox_room (cbox, floor, walls, light_col, open, scene);
 
   if (scn >= 1)
     {
-      fill_light = false;
-      light_intens *= 1.5;
-      light_z += scale * 0.2;
-
       const Material *glass, *metal;
 
       switch (scn)
 	{
 	default:
 	case 1:
-	  // Default: metal with slightly non-perfect reflection, and
-	  // yellow-green glass.
-	  //
-	  glass = new Glass (Medium (1.5, Color (0.3, 0.3, 0.9)));
+// 	  // Default: metal with slightly non-perfect reflection, and
+// 	  // yellow-green glass.
+// 	  //
+// 	  glass = new Glass (Medium (1.5, Color (0.3, 0.3, 0.9)));
+	  glass = new Glass (1.5);
 	  metal = new Mirror (Ior (0.25, 3), 0.9, 0,
 			      cook_torrance (1, 0.1, Ior (0.25, 3)));
 	  break;
@@ -1074,11 +1222,10 @@ def_scene_cornell_box (unsigned num, const string &,
       scene.add (metal);
       scene.add (glass);
 
-      scene.add (new Sphere (metal, LBR + Vec (rad*1.55, rad, -rad*3), rad));
-      scene.add (new Sphere (glass, Pos (right - rad*1.5, rad, -rad), rad));
-
-      left_wall_mat = scene.add (new Material (Color (0.6, 0.1, 0.1)));
-      right_wall_mat = scene.add (new Material (Color (0.1, 0.1, 0.6)));
+      scene.add (
+	      new Sphere (metal, cbox.LBR + Vec (rad*1.55, rad, -rad*3), rad));
+      scene.add (
+	      new Sphere (glass, Pos (cbox.right - rad*1.5, rad, -rad), rad));
     }
   else // default
     {
@@ -1091,82 +1238,22 @@ def_scene_cornell_box (unsigned num, const string &,
 	= scene.add (new Material (0.8, cook_torrance (0.2, 0.5, 2)));
 
       // blue sphere
-      scene.add (new Sphere (gloss_blue, RBR + Vec (-rad*1.7, rad, -rad*4), rad));
-      left_wall_mat = scene.add (new Material (Color (1, 0.35, 0.35)));
-      right_wall_mat = scene.add (new Material (Color (0.35, 1, 0.35)));
+      scene.add (new Sphere (gloss_blue,
+			     cbox.RBR + Vec (-rad*1.7, rad, -rad*4), rad));
 
-      dist_t cube_sz = height * 0.4;
+      dist_t cube_sz = cbox.height * 0.4;
       float cube_angle = 50 * (M_PIf / 180);
       Vec cube_up (0, cube_sz, 0);
       Vec cube_right (cube_sz * cos(cube_angle), 0, cube_sz * sin(cube_angle));
       Vec cube_fwd (cube_sz * -sin(cube_angle), 0, cube_sz * cos(cube_angle));
       add_cube (scene, white,
-		Pos (mid_x - width / 4.5, bottom, mid_z - width / 3),
+		Pos (cbox.mid_x - cbox.width / 4.5,
+		     cbox.bottom,
+		     cbox.mid_z - cbox.width / 3),
 		cube_up, cube_right, cube_fwd);
     }
 
-  // light
-
-  const coord_t light_left  = light_x - light_width / 2;
-  const coord_t light_right = light_x + light_width / 2;
-  const coord_t light_front = light_z - light_width / 2;
-  const coord_t light_back  = light_z + light_width / 2;
-
-  if (!open && !scene.env_map)
-    add_rect_bulb (scene, Pos (light_left, top + light_inset, light_front),
-		   Vec (light_width, 0, 0), Vec (0, 0, light_width),
-		   light_intens);
-
-  // Back wall
-  //
-  if (! open)
-    add_rect (scene, wall_mat, LBR, LTR, RTR);
-
-  // Right wall
-  //
-  if (! really_open)
-    add_rect (scene, right_wall_mat, RBR, RTR, RTF);
-
-  // Left wall
-  //
-  if (! really_open)
-    add_rect (scene, left_wall_mat, LBR, LTR, LTF);
-
-  // Ceiling
-  //
-  if (! open)
-    {
-      add_rect (scene, wall_mat, LTF, LTR, Pos (light_left, top, rear));
-      add_rect (scene, wall_mat, RTR, RTF, Pos (light_right, top, front));
-      add_rect (scene, wall_mat,
-		Pos (light_left, top, front),
-		Pos (light_left, top, light_front),
-		Pos (light_right, top, light_front));
-      add_rect (scene, wall_mat,
-		Pos (light_left, top, light_back),
-		Pos (light_left, top, rear),
-		Pos (light_right, top, rear));
-    }
-
-  // Floor
-  //
-  if (floor == 0)
-    add_cube (scene, wall_mat, LBF, RBF - LBF, LBR - LBF, Vec (0, -10, 0));
-  else
-    add_chessboard (scene, 1.2 * max (width, depth) / 8, (num / 10 - 1) % 10);
-
-  if (scene.env_map)
-    fill_light = false;
-
-  // for debugging
-  //
-  if (fill_light)
-    scene.add (new PointLight (Pos (left + 0.1, bottom + 0.1, front + 0.1),
-			       light_intens / 5));
-
-  camera.move (Pos  (mid_x, 0.525 * height + bottom, -6.6 * scale));
-  camera.point (Pos (mid_x, 0.475 * height + bottom, 0), Vec (0, 1, 0));
-  camera.set_horiz_fov (M_PI_4 * 0.7);
+  def_cbox_camera (cbox, camera);
 }
 
 static void
@@ -1830,10 +1917,11 @@ normalize (Mesh *mesh, const Xform &xform = Xform::identity)
 static void
 def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
-  unsigned csys  = (num / 10000) % 10;
-  unsigned rot  = (num / 1000) % 10;
-  unsigned base  = (num / 100) % 10;
-  unsigned lighting  = (num / 10) % 10;
+  unsigned cbox_light_config = (num / 100000) % 10;
+  unsigned csys		     = (num / 10000) % 10;
+  unsigned rot		     = (num / 1000) % 10;
+  unsigned base		     = (num / 100) % 10;
+  unsigned lighting	     = (num / 10) % 10;
   num %= 10;
 
   camera.move (Pos (1, 1, 0.5));
@@ -1869,8 +1957,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   const Material *moss
     = scene.add (new Material (Color (0.1, 0.2, 0.05),
 			       cook_torrance (0.8, 0.1, 2)));
-  const Material *mirror
-    = scene.add (new Mirror (Ior (0.25, 3), 0.95));
+//   const Material *mirror
+//     = scene.add (new Mirror (Ior (0.25, 3), 0.95));
     
 
   const Material *obj_mat;
@@ -1932,6 +2020,16 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 
   float floor_level = -0.2;	// default
 
+  float cbox_light_size;
+  switch (cbox_light_config)
+    {
+    default:
+    case 0: cbox_light_size = .3; break;
+    case 1: cbox_light_size = .9; break;
+    case 2: cbox_light_size = .1; break;
+    }
+  Cbox cbox (.7, cbox_light_size);
+
   switch (base)
     {
     case 0:			// platform + chessboard floor
@@ -1958,13 +2056,20 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       floor_level = 0; // platform is floor
       break;
 
-    case 4:			// glass platform + chessboard floor
+    case 4:
+      def_cbox_room (cbox, 0, 0, lighting, 0, scene);
+      def_cbox_camera (cbox, camera);
+      lighting = 9;
+      floor_level = 0;
+      break;
+
+    case 5:			// glass platform + chessboard floor
       add_cube (scene, glass, Pos (-0.5, 0, -0.5),
 		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
       add_chessboard (scene, Vec (0, floor_level, 0));
       break;
 
-    case 5:			// glass platform only
+    case 6:			// glass platform only
       add_cube (scene, glass, Pos (-0.5, 0, -0.5),
 		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
       break;
@@ -2043,6 +2148,9 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 	add_rect (scene, grey, Pos(-bw / 2, -1,  bd),     Vec(bw, 0,  0), bhv);
       }
       break;
+
+    case 9:
+      break;			// none
     }
 }
 
