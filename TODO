@@ -1,98 +1,58 @@
 Todo list for snogray
 
 
+ + Split illumination into DirectIllum and IndirIllum superclasses
 
- [DONE]
- + Switch to proper filtering for anti-aliasing, taking jitter etc into account:
-
-     Add a Filter class, which takes a simple x,y offset and returns a
-     filter value at that point (relative to origin).  Add a "SampleGen"
-     class will will generate a series of samples (stratified etc) in a
-     unit square.  For each output pixel, generate samples, render them,
-     and then get the filter value for the samples offset from the pixel
-     center, and combine them using the formula
-
-        Sum(filt(samp) light(samp)) / Sum(filt(samp))
-
-     Get rid of wacky scan-line-based filtering I guess.
-
-     For the problem of doing post-processing of HDR images, an idea is:
-
-	When converting from an HDR representation to a limited-gamut
-	representation, use filtering even if the image resolution is
-	the same; make sure the filter support is wide enough so that a
-	high-intensity pixel adjacent to a low-intensity pixel will
-	"bleed" into it via the tail of the filter (but make the tail
-	amplitude small enough so that the bleeding in normal cases is
-	negligible).
+     The current SampleIllum class should probably just be renamed to
+     DirectIllum.  IndirIllum would be a superclass for photon-mapping
+     or hemisphere-sampling indirect illumination algorithms.
 
 
- [DONE]
- + Optimize triangle intersection calculation.
+ + Add system for sharing sample generation info among different levels
+   of sampling
 
-     (Accounts for a huge proportion of tracing time)
-
-
- [DONE]
- + Simple support for shadows of transparent/translucent objects
-
-     Real support (bending of light rays) is too hard, but for a simple
-     straight light ray, it should be easy and better than nothing.
-     [For real support, caustics etc., use photon transport]
+     For instance, if using 3x3 eye-rays and 25 light samples, the final
+     stratification of light samples should be done using 225 (3 x 3 x 25)
+     total samples, and the light-sample stratification state maintained
+     across multiple eye-rays.  This should allow better stratification
+     even when using a high eye-ray:light-sample ratio (e.g. for DOF).
 
 
- + Implement better light-model
+ + Add alternative types of sample generation
 
-     Ashikhmin
-     Cook-Torrance	[DONE]
-     Ward
-     Schick
-     LaFortune
-     Oren-Nayar
+     E.g., quasi Monte Carlo
 
 
- + Implement more elegant material framework
+ + Global Illumination.
 
-     Pbrt has a nice system:
-
-       * A generalization of the BRDF, the BxDF ("Bidirectional
-       	 reflection/transmission Distribution Function") handles either
-       	 hemisphere (ordinary BRDFs only handle the reflection hemisphere).
-
-       * BxDFs are separable, and a container, the BSDF ("Bidirectional
-         Sphere Distribution Function") can hold a set of them, which are
-         combined to form the entire lighting calculation for a point.
-         [This seems to be done dynamically, at intersection time?!?]
-
-	 For instance, instead of every BRDF calculating its own diffuse
-	 term, one can just add a standard Lambertian BRDF to whatever more
-	 specialized BxDFs are being used for a material.
-
-       * Ideal specular reflection/transmission are defined as BxDFs (in
-         terms of the Dirac delta function), not special materials.
+     Probably use "photon mapping", as described by Henrik Wann Jensen.
+     See http://graphics.ucsd.edu/~henrik/papers/ewr7/
 
 
- [DONE]
- + Use Fresnel equations to calculate reflectance/transmittance
+ + Clean up environment-map region-splitting code.
 
-     http://scienceworld.wolfram.com/physics/FresnelEquations.html
+     Instead of weird iterative searching for the best split point for
+     splitting regions, just add a LightMap method to return a split
+     point (the current code ends up more or less just splitting as
+     evenly as possible taking mapping distortion into account).
 
 
- + Get rid of seams at corners of cube-maps.  This is caused by the fact
-   that the face textures run from edge to edge, and there is no
-   interpolation at the edge of two adjoining faces.
+ + Use single-precision floating-point uniformly
 
-   A simple fix is to simply add a 1-pixel border to each face image,
-   and fill them with pixels from the adjacent face.  Then, the mapping
-   from cube coordinates into texture coordinate can be slightly
-   perturbed such that the face parameter range [-1, 1] maps into the
-   texture parameter range [PIXW/2, 1 - PIXW/2], where "PIXW" is the
-   width of one pixel in the texture's source image.
+     Currently double-precision is used widely (e.g. the Vec and Pos
+     classes).  Just switching completely to single-precision mostly
+     works fine, but causes problems with reflected/transmitted rays
+     after sphere-intersection -- so debug those errors, and make sphere
+     intersection work with single-precision floating point.  Probably
+     just needs some kind of error margin when tracing recursive rays.
 
-   Maybe to maintain the texture abstraction, a texture "adjoin" method
-   can take care of filling in the pixels and tweaking the texture's own
-   scaling factors so that the texture input parameters are still in the
-   range [0, 1].
+
+ + Implement system for generating (and preserving, in snogcvt) image meta-data
+
+     Simple EXIF support is added by exif-20061030-1.patch, but probably
+     it's better to use a more general abstraction (e.g., just keep
+     meta-data in a ValTable until output time), so that other meta-data
+     formats like XMP and IPTC can be supported.
 
 
  + Texture support
@@ -138,17 +98,73 @@ Todo list for snogray
    coordinate transform.
 
 
+ + Implement instancing
+
+
+ + Add a real scene definition language
+
+     Some possibilities:
+
+       * PBRT-style simple textual language
+
+       * XML format (maybe use Cornell XML format?)
+
+       * Add Lua integration, and allow defining scenes using Lua programs
+
+         Lua integration issues:
+	   . How to embed snogray objects as opaque lua objects
+	   . Adding syntax extensions for efficient parsing of very
+             large literal objects like meshes (allowing Lua to parse
+	      these 
+
+       * Loaders for proprietary scene formats:
+           . Cinema 4D (there is a published spec for version 5 of the
+	     C4D format, which is not current, but apparently designated
+	     as a sort of "exchange format" for C4d)
+	   . 3ds Max (different from 3ds)
+	   . Bryce ...
+
+
  + Maybe separate the notion of "Shape" from Surface, so that we can
    have multiple surfaces with different materials [etc.] sharing a
    single shape (only really important when the shape consumes a lot of
    memory, for instance a large mesh).
 
 
- [DONE]
- + Abstract octree into a more generic "space division" data-type
+ + Implement "Lightcuts" algorithm for optimizing (quite dramatically)
+   _huge_ numbers of lights:
 
-     Allow experimenting with different implementations, e.g., KD-trees.
-     [This might fit well with the octree generalization below.]
+     http://www.cs.cornell.edu/~kb/publications/SIG05lightcuts.pdf
+
+ + Implement "Reconstruction cuts" (further optimizes lightcuts algorithm)
+
+     (same paper)
+
+
+ [*** This is needed for "traditional" rendering; something like
+      "lightcuts" is an alternative approach ***]
+ + Better light management to handle huge numbers of lights.
+
+     * Keep list of lights ordered in terms of "apparent strength"
+       (e.g. intensity * solid angle); this varies per pixel, but is a
+       good candidate for caching as it will change slowly for nearby
+       points.
+
+     * Use the "apparent strength" of lights to influence sample allocation
+
+     * The cached ordered list of lights can have two categories: nearby
+       lights and far-away lights (based on given point/bounding-box).
+       When moving to a new point, we (1) see if any far-away lights
+       have become "nearby", in which case we recalculate the whole
+       list, and otherwise (2) reorder lights in the "nearby" list
+       according to their current apparent strengths.
+
+       Note that "nearby" lights are _not_ necessarily stronger than
+       faraway lights, merely more likely to change in strength (the sun
+       for instance, is probably always at the front of the "apparent
+       strength" list, yet always in the faraway list).  For typical
+       scenes, the number of nearby lights is probably much smaller than
+       faraway lights.
 
 
  + Make octree smarter
@@ -184,12 +200,135 @@ Todo list for snogray
 	  search_subnode (subnodes[ray_start_index ^ index_mask]);
 
 
+ + Implement KD-trees as an alternative to octrees
+
+     Maybe they're better?  They certainly seem simpler.
+
+
+ + Maybe try to use ray-marching instead of tree-searching when
+   searching in octree (or KD-tree)
+
+
+ + Make mirror reflections use light-model
+
+     Importance sampling + indirect illumination
+
+
+ + Implement new BRDFs
+
+     Ashikhmin
+     Cook-Torrance	[DONE]
+     Ward
+     Schick
+     LaFortune
+     Oren-Nayar
+
+
+ + Implement more elegant material framework
+
+     Pbrt has a nice system:
+
+       * A generalization of the BRDF, the BxDF ("Bidirectional
+       	 reflection/transmission Distribution Function") handles either
+       	 hemisphere (ordinary BRDFs only handle the reflection hemisphere).
+
+       * BxDFs are separable, and a container, the BSDF ("Bidirectional
+         Sphere Distribution Function") can hold a set of them, which are
+         combined to form the entire lighting calculation for a point.
+         [This seems to be done dynamically, at intersection time?!?]
+
+	 For instance, instead of every BRDF calculating its own diffuse
+	 term, one can just add a standard Lambertian BRDF to whatever more
+	 specialized BxDFs are being used for a material.
+
+       * Ideal specular reflection/transmission are defined as BxDFs (in
+         terms of the Dirac delta function), not special materials.
+
+
+ + Get rid of seams at corners of cube-maps.  This is caused by the fact
+   that the face textures run from edge to edge, and there is no
+   interpolation at the edge of two adjoining faces.
+
+   A simple fix is to simply add a 1-pixel border to each face image,
+   and fill them with pixels from the adjacent face.  Then, the mapping
+   from cube coordinates into texture coordinate can be slightly
+   perturbed such that the face parameter range [-1, 1] maps into the
+   texture parameter range [PIXW/2, 1 - PIXW/2], where "PIXW" is the
+   width of one pixel in the texture's source image.
+
+   Maybe to maintain the texture abstraction, a texture "adjoin" method
+   can take care of filling in the pixels and tweaking the texture's own
+   scaling factors so that the texture input parameters are still in the
+   range [0, 1].
+
+
+ + Use a better scheme for specifying test-image parameters.
+
+
+
+----------------------------------------------------------------
+
+Completed items:
+
+ [DONE]
+ + Switch to proper filtering for anti-aliasing, taking jitter etc into account:
+
+     Add a Filter class, which takes a simple x,y offset and returns a
+     filter value at that point (relative to origin).  Add a "SampleGen"
+     class will will generate a series of samples (stratified etc) in a
+     unit square.  For each output pixel, generate samples, render them,
+     and then get the filter value for the samples offset from the pixel
+     center, and combine them using the formula
+
+        Sum(filt(samp) light(samp)) / Sum(filt(samp))
+
+     Get rid of wacky scan-line-based filtering I guess.
+
+     For the problem of doing post-processing of HDR images, an idea is:
+
+	When converting from an HDR representation to a limited-gamut
+	representation, use filtering even if the image resolution is
+	the same; make sure the filter support is wide enough so that a
+	high-intensity pixel adjacent to a low-intensity pixel will
+	"bleed" into it via the tail of the filter (but make the tail
+	amplitude small enough so that the bleeding in normal cases is
+	negligible).
+
+
+ [DONE]
+ + Optimize triangle intersection calculation.
+
+     (Accounts for a huge proportion of tracing time)
+
+
+ [DONE]
+ + Simple support for shadows of transparent/translucent objects
+
+     Real support (bending of light rays) is too hard, but for a simple
+     straight light ray, it should be easy and better than nothing.
+     [For real support, caustics etc., use photon transport]
+
+
+ [DONE]
+ + Use Fresnel equations to calculate reflectance/transmittance
+
+     http://scienceworld.wolfram.com/physics/FresnelEquations.html
+
+
+ [DONE]
+ + Abstract octree into a more generic "space division" data-type
+
+     Allow experimenting with different implementations, e.g., KD-trees.
+     [This might fit well with the octree generalization below.]
+
+
  [DONE]
  + Soft shadows
 
      RectLight, FarLight.
 
 
+ [DONE]
  + Importance sampling
 
      Add method to Material class to supply a jittered set of rays
@@ -198,11 +337,6 @@ Todo list for snogray
      of rays (e.g. ~1000) so it can be re-sampled to combine it with
      another importance function, so each element in the set should just
      be something like <reflectance, direction> (the origin is implied). 
-
-
- + Make mirror reflections use light-model
-
-     Use importance sampling.
 
 
  [DONE, though in a simplistic way]
@@ -214,53 +348,6 @@ Todo list for snogray
 
      See "Bidirectional Importance Sampling for Direct Illumination",
      http://www.cs.ubc.ca/~dburke/downloads/EGSR05-Bidir_Importance.pdf
-
-
- + Global Illumination.
-
-     Probably use "photon mapping", as described by Henrik Wann Jensen.
-     See http://graphics.ucsd.edu/~henrik/papers/ewr7/
-
-
- + Implement "Lightcuts" algorithm for optimizing (quite dramatically)
-   _huge_ numbers of lights:
-
-     http://www.cs.cornell.edu/~kb/publications/SIG05lightcuts.pdf
-
- + Implement "Reconstruction cuts" (further optimizes lightcuts algorithm)
-
-     (same paper)
-
-
- [*** This is old, probably "lightcuts" above is better ***]
- + Better light management to handle huge numbers of lights.
-
-     [** This is kind of half-way done: we still generate samples from
-     all lights, but then sort the samples before shadow-testing
-     (shadow-testing is the slowest operation by far). **]
-
-     * Keep list of lights ordered in terms of "apparent strength";
-       this varies per pixel, but is a good candidate for caching as it
-       will change slowly for nearby points.
-
-     * For a given point, stop calculating when the contribution from
-       further lights would be negligible (radiance also adds an
-       estimated term to represent lights which weren't actually
-       calculated).
-
-     * The cached ordered list of lights can have two categories: nearby
-       lights and far-away lights (based on given point/bounding-box).
-       When moving to a new point, we (1) see if any far-away lights
-       have become "nearby", in which case we recalculate the whole
-       list, and otherwise (2) reorder lights in the "nearby" list
-       according to their current apparent strengths.
-
-       Note that "nearby" lights are _not_ necessarily stronger than
-       faraway lights, merely more likely to change in strength (the sun
-       for instance, is probably always at the front of the "apparent
-       strength" list, yet always in the faraway list).  For typical
-       scenes, the number of nearby lights is probably much smaller than
-       faraway lights.
 
 
  [DONE]
@@ -277,9 +364,6 @@ Todo list for snogray
      user will usually specify the image type indirectly via the output
      file extension, it could assume a "=" before the first ":" meant that
      the first element was a parameter rather than a type).
-
-
- + Use a similar scheme (same parser?) for test-image parameters.
 
 
 
