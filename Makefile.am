@@ -150,9 +150,10 @@ endif
 # Snogray utility library, libsnogmisc.a
 #
 
-libsnogmisc_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
-	color.h freelist.cc freelist.h llist.h ref.h rusage.h		\
-	string-funs.cc string-funs.h val-table.cc val-table.h
+libsnogmisc_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	 \
+	color.h file-funs.cc file-funs.h freelist.cc freelist.h llist.h	 \
+	recover.cc recover.h ref.h rusage.h string-funs.cc string-funs.h \
+	val-table.cc val-table.h
 
 
 ################################################################
