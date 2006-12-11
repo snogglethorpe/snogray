@@ -475,15 +475,15 @@ def_teapot_mat (Scene &scene, unsigned num)
       return
 	scene.add (new Material (0, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
 
-    case 2: // gloss_blue
-      return scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
-				    cook_torrance (0.4, 0.3, 4)));
+    case 2: // gloss_blue-green
+      return scene.add (new Material (Color(0, .2, .3),
+				      cook_torrance (.7, .02, 2)));
 
     case 3: // glass
       return scene.add (new Glass (1.5));
 
     case 4: // gloss_neutral_grey
-      return scene.add (new Material (0.5, cook_torrance (0.5, 0.03, 2)));
+      return scene.add (new Material (0.5, cook_torrance (0.5, 0.01, 2)));
 
     case 5: // semigloss_white
       return scene.add (new Material (0.9, cook_torrance (0.1, 0.05, 2)));
@@ -2108,16 +2108,16 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
 
     case 6:
-      add_bulb (scene, Pos ( 2.0, fby,   1.0), fbr, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos ( 1.0, fby,  -2.0), fbr, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos ( 2.0, fby,  -1.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos ( 2.0, fby,   1.0), fbr, incandescent (8));
+      add_bulb (scene, Pos ( 1.0, fby,  -2.0), fbr, incandescent (8));
+      add_bulb (scene, Pos ( 2.0, fby,  -1.0), fbr, incandescent (8));
       // fallthrough
     case 5:
-      add_bulb (scene, Pos (-2.0, fby,  -1.0), fbr, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos (-1.0, fby,  -2.0), fbr, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos (-2.0, fby,   1.0), fbr, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos (-1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
-      add_bulb (scene, Pos ( 1.0, fby,   2.0), fbr, Color (1, 1, 0.5) * 8);
+      add_bulb (scene, Pos (-2.0, fby,  -1.0), fbr, incandescent (8));
+      add_bulb (scene, Pos (-1.0, fby,  -2.0), fbr, incandescent (8));
+      add_bulb (scene, Pos (-2.0, fby,   1.0), fbr, incandescent (8));
+      add_bulb (scene, Pos (-1.0, fby,   2.0), fbr, incandescent (8));
+      add_bulb (scene, Pos ( 1.0, fby,   2.0), fbr, incandescent (8));
       break;
 
     case 7:
