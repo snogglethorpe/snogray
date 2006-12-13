@@ -88,7 +88,7 @@ public:
     // (likely due to precision problems in conversion), so tweak it in
     // that case.
     //
-    if (u == 1)
+    if (u >= 1)
       u = 0.99999f;
 
     // Map each input UV to a region by treating the U coordinate as
