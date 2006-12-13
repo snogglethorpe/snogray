@@ -205,14 +205,15 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
   const Material *gloss_black
     = scene.add (new Mirror (1.5, 0.4, 0.02, cook_torrance (0.9, 0.2)));
   const Material *black
-    = scene.add (new Material (0.02, cook_torrance (0.9, 0.005)));
+    = scene.add (new Material (0.02, cook_torrance (0.9, 0.05)));
   const Material *phong_black
     = scene.add (new Material (0.02, phong (0.9, 1000)));
   const Material *gloss_ivory
     = scene.add (new Mirror (1.5, 0.4, Color (1, 0.8, 0.5),
 			     cook_torrance (0.1, 0.2)));
   const Material *ivory
-    = scene.add (new Material (Color (0.8, 0.7, 0.3)));
+    = scene.add (new Material (Color (0.7, 0.6, 0.2),
+			       cook_torrance (0.3, 0.1)));
 
   const Material *brown
     = scene.add (new Material (Color (0.3, 0.2, 0.05),
@@ -1673,8 +1674,7 @@ def_scene_pretty_dancer (unsigned num, const string &,
 			     cook_torrance (0.2, 0.2)));
   const Material *stage_mat = (stage == 1) ? gloss_ivory : gloss_black;
 
-  add_rect (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10));
-  add_rect (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, -2, 0));
+  add_cube (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10), Vec (0, -10, 0));
 
   if (birthday_card)
     {
@@ -1917,6 +1917,7 @@ normalize (Mesh *mesh, const Xform &xform = Xform::identity)
 static void
 def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
+  unsigned cbox_wall_config  = (num / 1000000) % 10;
   unsigned cbox_light_config = (num / 100000) % 10;
   unsigned csys		     = (num / 10000) % 10;
   unsigned rot		     = (num / 1000) % 10;
@@ -1931,9 +1932,11 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   const Material *jade
     = scene.add (new Material (Color (0.3, 0.6, 0.3),
 			       cook_torrance (0.4, 0.1, 2)));
-  const Material *blue
-    = scene.add (new Material (Color (0.3, 0.3, 0.6),
-			       cook_torrance (0.4, 0.3, 4)));
+//   const Material *blue
+//     = scene.add (new Material (Color (0.3, 0.3, 0.6),
+// 			       cook_torrance (0.4, 0.3, 4)));
+  const Material *matte_peach
+    = scene.add (new Material (Color (0.9, 0.7, 0.2)));
   const Material *glass = scene.add (new Glass (1.5));
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
@@ -1959,7 +1962,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 			       cook_torrance (0.8, 0.1, 2)));
 //   const Material *mirror
 //     = scene.add (new Mirror (Ior (0.25, 3), 0.95));
-    
+  const Material *dark_green
+    = scene.add (new Material (Color (0.02, 0.2, 0.04)));
 
   const Material *obj_mat;
   switch (num)
@@ -1974,7 +1978,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 3:
       obj_mat = moss; break;
     case 4:
-      obj_mat = blue; break;
+      obj_mat = matte_peach; break;
     case 5:
       obj_mat = dull_grey; break;
     case 6:
@@ -2057,7 +2061,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
 
     case 4:
-      def_cbox_room (cbox, 0, 0, lighting, 0, scene);
+      def_cbox_room (cbox, 0, (cbox_wall_config % 2) * 2,
+		     lighting, cbox_wall_config / 2, scene);
       def_cbox_camera (cbox, camera);
       lighting = 9;
       floor_level = 0;
@@ -2072,6 +2077,12 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 6:			// glass platform only
       add_cube (scene, glass, Pos (-0.5, 0, -0.5),
 		Vec (1, 0, 0), Vec (0, 0, 1), Vec (0, floor_level, 0));
+      break;
+
+    case 7:
+      floor_level = 0;
+      add_rect (scene, dark_green,
+		Pos (-500, 0, -500), Vec (1000, 0, 0), Vec (0, 0, 1000));
       break;
 
     case 9:
