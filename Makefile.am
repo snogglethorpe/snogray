@@ -72,8 +72,8 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 
 libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		\
 	camera-cmds.cc camera-cmds.h cook-torrance.cc cook-torrance.h	\
-	coords.h cos-dist.h cubemap.cc cubemap.h envmap.cc envmap.h	\
-	envmap-light.cc envmap-light.h excepts.h far-light.cc		\
+	coords.h cos-dist.h cubemap.cc cubemap.h dist.h envmap.cc	\
+	envmap.h envmap-light.cc envmap-light.h excepts.h far-light.cc	\
 	far-light.h fresnel.h glass.cc glass.h globals.cc globals.h	\
 	global-tstate.cc global-tstate.h glow.cc glow.h grid.cc grid.h	\
 	grid-iter.h illum.h illum-sample.h image-sum.h intersect.cc	\
@@ -86,15 +86,15 @@ libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		\
 	progress.cc progress.h rand.h ray.cc ray.h rect-light.cc	\
 	rect-light.h render.cc render.h render-cmdline.h renderer.cc	\
 	renderer.h sample-disk.h sample-illum.cc sample-illum.h		\
-	sample2-gen.h sample2.h scene.cc scene.h scene-def.cc		\
-	scene-def.h scene-load-aff.cc scene-load.cc snogmath.h space.cc	\
-	space.h sphere.cc sphere.h sphere-isec.h sphere-light.cc	\
-	sphere-light.h spheremap.cc spheremap.h struct-light.cc		\
-	struct-light.h surface.cc surface.h tessel.cc tessel.h		\
-	tessel-param.cc tessel-param.h test-scenes.cc test-scenes.h	\
-	tex2.h timeval.cc timeval.h trace.cc trace.h trace-params.h	\
-	trace-stats.cc trace-stats.h tripar.cc tripar.h tripar-isec.h	\
-	tuple3.h uv.h vec.h ward-dist.h wire-frame.h xform.h
+	sample2-gen.h scene.cc scene.h scene-def.cc scene-def.h		\
+	scene-load-aff.cc scene-load.cc snogmath.h space.cc space.h	\
+	sphere.cc sphere.h sphere-isec.h sphere-light.cc sphere-light.h	\
+	spheremap.cc spheremap.h struct-light.cc struct-light.h		\
+	surface.cc surface.h tessel.cc tessel.h tessel-param.cc		\
+	tessel-param.h test-scenes.cc test-scenes.h tex2.h timeval.cc	\
+	timeval.h trace.cc trace.h trace-params.h trace-stats.cc	\
+	trace-stats.h tripar.cc tripar.h tripar-isec.h tuple3.h uv.h	\
+	vec.h ward-dist.h wire-frame.h xform.h
 
 # Library dependencies of libsnogrender.a
 #
