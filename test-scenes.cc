@@ -2402,7 +2402,7 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
   string name (_name);		// make a local copy
 
   string arg;
-  unsigned arg_start = name.find_first_of (":");
+  string::size_type arg_start = name.find_first_of (":");
   if (arg_start < name.length ())
     {
       arg = name.substr (arg_start + 1);
@@ -2412,7 +2412,7 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
   // Devide the name into a "base name" and "scene number" if possible
   //
   unsigned num = 0;
-  unsigned base_end = name.find_last_not_of ("0123456789");
+  string::size_type base_end = name.find_last_not_of ("0123456789");
   if (base_end < name.length ())
     {
       istringstream idiots (name.substr (base_end + 1));

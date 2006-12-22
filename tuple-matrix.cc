@@ -95,7 +95,7 @@ TupleMatrixData::load (const std::string &filename, const ValTable &params,
   if (emit_size_note)
     {
       std::string bn = filename;
-      unsigned last_slash = bn.find_last_of ("/");
+      std::string::size_type last_slash = bn.find_last_of ("/");
 
       if (last_slash != std::string::npos)
 	bn.erase (0, last_slash + 1);

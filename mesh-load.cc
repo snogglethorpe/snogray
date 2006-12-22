@@ -37,7 +37,7 @@ Mesh::load (const string &file_name, const Xform &xform, const Material *mat,
 {
   try
     {
-      unsigned ext_pos = file_name.find_last_of (".");
+      string::size_type ext_pos = file_name.find_last_of (".");
 
       if (ext_pos == std::string::npos)
 	throw runtime_error ("No filename extension to determine mesh format");

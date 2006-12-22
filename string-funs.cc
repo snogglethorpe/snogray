@@ -80,7 +80,7 @@ Snogray::strip (const string &str, const string &rem_chars)
 string
 Snogray::strip_prefix (string &str, const string &sep_chars)
 {
-  unsigned pfx_end = str.find_first_of (sep_chars);
+  string::size_type pfx_end = str.find_first_of (sep_chars);
 
   if (pfx_end == string::npos)
     return "";

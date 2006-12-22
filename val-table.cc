@@ -173,8 +173,8 @@ ValTable::set (const std::string &name, const Val &val)
 void
 ValTable::parse (const std::string &input)
 {
-  unsigned inp_len = input.length ();
-  unsigned p_assn = input.find_first_of ("=");
+  std::string::size_type inp_len = input.length ();
+  std::string::size_type p_assn = input.find_first_of ("=");
 
   if (p_assn < inp_len)
     set (input.substr (0, p_assn), input.substr (p_assn + 1));
@@ -183,7 +183,7 @@ ValTable::parse (const std::string &input)
 void
 ValTable::parse (const std::string &input, const std::string &multiple_seps)
 {
-  unsigned p_end = input.find_first_of (multiple_seps);
+  std::string::size_type p_end = input.find_first_of (multiple_seps);
 
   if (p_end == std::string::npos)
     {
@@ -191,7 +191,7 @@ ValTable::parse (const std::string &input, const std::string &multiple_seps)
     }
   else
     {
-      unsigned p_start = 0;
+      std::string::size_type p_start = 0;
       do
 	{
 	  parse (input.substr (p_start, p_end - p_start));
