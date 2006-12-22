@@ -275,7 +275,7 @@ if test "$GXX" = yes; then
    
     [case "$host_cpu" in
       i?86|x86[-_]64)
-	cpuinfo=[`$AWK '
+	cpuinfo=`$AWK '
           /^cpu family[ \t]*:/ { family = $NF; next }
 	  /^model[ \t]*:/ { model = $NF; next }
 	  /^model name[ \t]*:/ {
@@ -283,7 +283,7 @@ if test "$GXX" = yes; then
 	    next
 	  }
           END { print family "/" model "/" name }
-	' /proc/cpuinfo`]
+	' /proc/cpuinfo`
 
 	cpuinfo_name=`basename "$cpuinfo"`
 	cpuinfo_note=" ($cpuinfo_name)"
