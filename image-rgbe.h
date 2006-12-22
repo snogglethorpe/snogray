@@ -37,9 +37,9 @@ struct RgbeColor
 	int iexp;
 	float adj = frexp (max_comp, &iexp) * 255.9999 / max_comp;
 
-	r = byte (adj * _r);
-	g = byte (adj * _g);
-	b = byte (adj * _b);
+	r = byte (adj * max (_r, 0.f));
+	g = byte (adj * max (_g, 0.f));
+	b = byte (adj * max (_b, 0.f));
 	exp = iexp + exp_offs;
       }
   }
