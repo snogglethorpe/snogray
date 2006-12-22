@@ -273,8 +273,8 @@ if test "$GXX" = yes; then
     cpuinfo_cpu=unknown
     cpuinfo_note=''
    
-    case "$host_cpu" in
-      i?86)
+    [case "$host_cpu" in
+      i?86|x86[-_]64)
 	cpuinfo=[`$AWK '
           /^cpu family[ \t]*:/ { family = $NF; next }
 	  /^model[ \t]*:/ { model = $NF; next }
@@ -295,13 +295,17 @@ if test "$GXX" = yes; then
 	    cpuinfo_cpu=pentium4 ;;
 	  *"Pentium M"*)
 	    cpuinfo_cpu=pentium-m ;;
+	  *"Opteron"*)
+	    cpuinfo_cpu=opteron ;;
+	  15/65/*)
+	    cpuinfo_cpu=opteron ;;
 	  15/*)
 	    cpuinfo_cpu=pentium4 ;;
 	  6/9/*)
 	    cpuinfo_cpu=pentium4 ;;
 	esac
 	;;
-    esac
+    esac]
 
     AC_MSG_RESULT([$cpuinfo_cpu$cpuinfo_note])
 
@@ -340,6 +344,10 @@ if test "$GXX" = yes; then
       CXX_MACH_FLAGS="-march=pentium4 -mfpmath=sse -msse2" ;;
     pentium-m)
       CXX_MACH_FLAGS="-march=pentium-m -mfpmath=sse -msse2" ;;
+    x86[-_]64)
+      CXX_MACH_FLAGS="-march=k8 -mfpmath=sse -msse2" ;;
+    opteron)
+      CXX_MACH_FLAGS="-march=opteron -mfpmath=sse -msse2" ;;
     *)
       CXX_MACH_FLAGS="";;
   esac
@@ -347,7 +355,9 @@ if test "$GXX" = yes; then
   # Check machine options for validity; note that we check them all
   # together, not individually, as some may depend on others.
   #
-  SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MACH_FLAGS])
+  if test x"$CXX_MACH_FLAGS" != x; then
+    SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MACH_FLAGS])
+  fi
 
 else
 
