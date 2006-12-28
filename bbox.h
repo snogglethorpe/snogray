@@ -1,6 +1,6 @@
 // bbox.h -- Bounding boxes
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -20,6 +20,13 @@ namespace Snogray {
 class BBox
 {
 public:
+
+  // An empty bounding box contains
+  //
+  BBox ()
+    : min (Pos (MAX_COORD, MAX_COORD, MAX_COORD)),
+      max (Pos (MIN_COORD, MIN_COORD, MIN_COORD))
+  { }
 
   // Be careful that every component of _MAX is greater than that of _MIN!
   BBox (const Pos &_min, const Pos &_max)
