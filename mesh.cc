@@ -553,12 +553,19 @@ Mesh::add_to_space (Space &space)
 BBox
 Mesh::bbox () const
 {
-  BBox bbox = vertex (0);
+  unsigned num_verts = vertices.size ();
 
-  for (vert_index_t v = 1; v < vertices.size (); v++)
-    bbox.include (vertex (v));
+  if (num_verts > 0)
+    {
+      BBox bbox = vertex (0);
 
-  return bbox;
+      for (vert_index_t v = 1; v < num_verts; v++)
+	bbox.include (vertex (v));
+
+      return bbox;
+    }
+  else
+    return BBox (); // empty
 }
 
 void
