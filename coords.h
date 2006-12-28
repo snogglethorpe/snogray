@@ -12,6 +12,8 @@
 #ifndef __COORDS_H__
 #define __COORDS_H__
 
+#include <limits>
+
 namespace Snogray {
 
 // This value should be comfortably smaller than the smallest possible
@@ -33,6 +35,12 @@ typedef dcoord_t ddist_t;
 //
 typedef dcoord_t coord_t;
 typedef ddist_t dist_t;
+
+// We'll probably never hit these limits, so just use the smaller float
+// values for both scoord_t and coord_t.
+//
+#define MAX_COORD std::numeric_limits<float>::max()
+#define MIN_COORD std::numeric_limits<float>::min()
 
 template<typename T>
 inline T lim (T v) { return (v < Eps && v > -Eps) ? 0 : v; }
