@@ -208,31 +208,41 @@ SampleIllum::distribute_light_samples (unsigned num,
   //
   if (num > num_lights)
     {
-      num -= num_point_lights;
+      if (num_area_lights == 0)
+	{
+	  for (std::vector<LightParams>::iterator lp = light_params.begin ();
+	       lp != light_params.end (); ++lp)
+	    lp->num_samples = 1;
+	}
+      else
+	{
+	  num -= num_point_lights;
 
-      unsigned num_per_area_light = num / num_area_lights;
-      unsigned num_left_over = num - num_area_lights * num_per_area_light;
-      float left_over_frac = float (num_left_over) / float (num_per_area_light);
+	  unsigned num_per_area_light = num / num_area_lights;
+	  unsigned num_left_over = num - num_area_lights * num_per_area_light;
+	  float left_over_frac
+	    = float (num_left_over) / float (num_per_area_light);
 
-      // Generate samples from each area light.
-      //
-      for (std::vector<LightParams>::iterator lp = light_params.begin ();
-	   lp != light_params.end (); ++lp)
-	if (lp->is_point_light)
-	  lp->num_samples = 1;
-	else
-	  {
-	    lp->num_samples = num_per_area_light;
+	  // Generate samples from each area light.
+	  //
+	  for (std::vector<LightParams>::iterator lp = light_params.begin ();
+	       lp != light_params.end (); ++lp)
+	    if (lp->is_point_light)
+	      lp->num_samples = 1;
+	    else
+	      {
+		lp->num_samples = num_per_area_light;
 
-	    if (num_left_over > 0)
-	      if (lp + 1 == light_params.end ())
-		lp->num_samples += num_left_over;
-	      else if (random (1.f) < left_over_frac)
-		{
-		  lp->num_samples++;
-		  num_left_over--;
-		}
-	  }
+		if (num_left_over > 0)
+		  if (lp + 1 == light_params.end ())
+		    lp->num_samples += num_left_over;
+		  else if (random (1.f) < left_over_frac)
+		    {
+		      lp->num_samples++;
+		      num_left_over--;
+		    }
+	      }
+	}
     }
   else
     {
