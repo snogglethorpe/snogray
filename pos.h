@@ -38,11 +38,16 @@ public:
 
   TPos operator+ (const TVec<T> &v) const
   {
-    return TPos(x + v.x, y + v.y, z + v.z);
+    return TPos (x + v.x, y + v.y, z + v.z);
   }
-  Vec operator- (const TPos &p2) const
+  TPos operator- (const TVec<T> &v) const
   {
-    return Vec(x - p2.x, y - p2.y, z - p2.z);
+    return TPos (x - v.x, y - v.y, z - v.z);
+  }
+
+  TVec<T> operator- (const TPos &p2) const
+  {
+    return TVec<T> (x - p2.x, y - p2.y, z - p2.z);
   }
 
   TPos operator* (T scale) const
