@@ -66,6 +66,10 @@ using namespace std;
 //
 #define AFF_MIRROR_IOR			Ior (0.25, 3)
 
+// How many sides cones have
+//
+#define AFF_CONE_SIDES			64
+#define AFF_CONE_MAX_CIRC_DIFF		0.2
 
 
 // Low-level input functions
@@ -126,6 +130,101 @@ read_color (istream &stream)
   Color::component_t g = read_float (stream);
   Color::component_t b = read_float (stream);
   return Color (r, g, b);
+}
+
+
+// Cone/cylinder creation
+
+// Returns the position of a point on a disk's edge at rotation THETA
+// (0 - 2*PI).  AXIS1 and AXIS2 are two perpendicular axes of the disk.
+//
+static Pos
+disk_edge_point (float theta, const Pos &center,
+		 const Vec &axis1, const Vec &axis2)
+{
+  return center + axis1 * cos (theta) + axis2 * sin (theta);
+}
+
+static void
+add_cone_sides (Mesh *mesh,
+	       const Pos &base_pos, dist_t base_radius,
+	       const Pos &apex_pos, dist_t apex_radius)
+{
+  float base_circ = 2 * M_PIf * base_radius;
+  float apex_circ = 2 * M_PIf * apex_radius;
+
+  Vec axis = apex_pos - base_pos;
+
+  if (abs (base_circ - apex_circ) / base_circ > AFF_CONE_MAX_CIRC_DIFF)
+    {
+      Pos mid_pos = base_pos + axis / 2;
+      dist_t mid_radius = (base_radius + apex_radius) / 2;
+      add_cone_sides (mesh, base_pos, base_radius, mid_pos, mid_radius);
+      add_cone_sides (mesh, mid_pos, mid_radius, apex_pos, apex_radius);
+      return;
+    }
+
+  float theta_step = 2 * M_PIf / AFF_CONE_SIDES;
+
+  Vec base_axis1 = base_radius * axis.perpendicular().unit ();
+  Vec base_axis2 = base_radius * cross (axis, base_axis1).unit ();
+  Vec apex_axis1 = apex_radius * axis.perpendicular().unit ();
+  Vec apex_axis2 = apex_radius * cross (axis, apex_axis1).unit ();
+
+  Mesh::vert_index_t prev_base_vert = 0, first_base_vert = 0;
+  Mesh::vert_index_t prev_apex_vert = 0, first_apex_vert = 0;
+
+  for (float i = 0; i < AFF_CONE_SIDES; i++)
+    {
+      float theta = i * theta_step;
+
+      Pos base_point
+	= disk_edge_point (theta, base_pos, base_axis1, base_axis2);
+      Pos apex_point
+	= disk_edge_point (theta, // + theta_step / 2,
+			   apex_pos, apex_axis1, apex_axis2);
+
+      Vec surf_vec = apex_point - base_point;
+
+      Vec base_vec = base_point - base_pos;
+      Vec base_tangent = cross (surf_vec, base_vec).unit ();
+      Vec base_normal = cross (surf_vec, base_tangent).unit ();
+
+      Mesh::vert_index_t base_vert = mesh->add_vertex (base_point, base_normal);
+
+      Vec apex_vec = apex_point - apex_pos;
+      Vec apex_tangent = cross (surf_vec, apex_vec).unit ();
+      Vec apex_normal = cross (surf_vec, apex_tangent).unit ();
+
+      Mesh::vert_index_t apex_vert = mesh->add_vertex (apex_point, apex_normal);
+
+      if (i == 0)
+	{
+	  first_base_vert = base_vert;
+	  first_apex_vert = apex_vert;
+	}
+      else
+	{
+	  mesh->add_triangle (prev_base_vert, base_vert, prev_apex_vert);
+	  mesh->add_triangle (base_vert, apex_vert, prev_apex_vert);
+	}
+
+      prev_base_vert = base_vert;
+      prev_apex_vert = apex_vert;
+    }
+
+  mesh->add_triangle (prev_base_vert, first_base_vert, prev_apex_vert);
+  mesh->add_triangle (first_base_vert, first_apex_vert, prev_apex_vert);
+}
+
+static Mesh *
+make_cone (const Material *mat,
+	       const Pos &base_pos, dist_t base_radius,
+	       const Pos &apex_pos, dist_t apex_radius)
+{
+  Mesh *mesh = new Mesh (mat);
+  add_cone_sides (mesh, base_pos, base_radius, apex_pos, apex_radius);
+  return mesh;
 }
 
 
@@ -395,6 +494,17 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	//
 	{
 	  barf_if_no_material (cur_material, cmd_buf);
+
+	  // Ugh... make a cylinder...
+
+	  Pos base_pos = read_pos (stream);
+	  float base_radius = read_float (stream);
+	  Pos apex_pos = read_pos (stream);
+	  float apex_radius = read_float (stream);
+
+	  if (base_radius > Eps && apex_radius > Eps)
+	    add (make_cone (cur_material,
+			    base_pos, base_radius, apex_pos, apex_radius));
 	}
 
       else if (strcmp (cmd_buf, "s") == 0)
