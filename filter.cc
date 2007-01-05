@@ -1,6 +1,6 @@
 // filter.cc -- Filter datatype
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -40,7 +40,7 @@ Filter::make (const ValTable &params)
 	  unsigned params_start
 	    = filter_type.find_first_not_of ("/ \t", type_end + 1);
 
-	  filter_params.parse (filter_type.substr (params_start));
+	  filter_params.parse (filter_type.substr (params_start), "/,");
 
 	  filter_type = filter_type.substr (0, type_end);
 	}
