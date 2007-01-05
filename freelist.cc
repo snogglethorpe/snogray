@@ -1,6 +1,6 @@
 // freelist.h -- Object freelists
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -13,7 +13,7 @@
 
 static const size_t MAX_ALLOC_SIZE = 16*1024*1024;
 
-using namespace Snogray;
+using namespace snogray;
 
 void
 BlockFreelist::refill ()

@@ -1,6 +1,6 @@
 // recover.h -- Recovery of partial output images
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -19,7 +19,7 @@
 #include "image-output.h"
 
 
-namespace Snogray {
+namespace snogray {
 
 
 // The number of rows at the end of a recovered image file that we throw

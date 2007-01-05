@@ -1,6 +1,6 @@
 // freelist.h -- Memory freelists
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -14,7 +14,7 @@
 
 #include <new>
 
-namespace Snogray {
+namespace snogray {
 
 // A list of fixed-size blocks of memory.
 //
@@ -139,7 +139,7 @@ public:
 // returned to the freelist using "FREELIST.put(OBJ)".
 //
 template<class T>
-inline void *operator new (size_t, Snogray::Freelist<T> &fl)
+inline void *operator new (size_t, snogray::Freelist<T> &fl)
 {
   return static_cast<void *>(fl.get ());
 }
@@ -148,7 +148,7 @@ inline void *operator new (size_t, Snogray::Freelist<T> &fl)
 // during exception handling.
 //
 template<class T>
-inline void operator delete (void *m, Snogray::Freelist<T> &fl)
+inline void operator delete (void *m, snogray::Freelist<T> &fl)
 {
   fl.put (static_cast<T *>(m));
 }

@@ -18,7 +18,7 @@
 #include "filter.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 
 
 // Return a new a filter depending on the parameters in PARAMS.

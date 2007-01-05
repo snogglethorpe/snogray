@@ -1,6 +1,6 @@
 // phog.cc -- Phong reflectance function
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -20,13 +20,13 @@
 #include "phong.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 
 
 // Source of "constant" (not-to-be-freed) Phong BRDFs
 //
 const Phong *
-Snogray::phong (const Color &spec_col, float exp)
+snogray::phong (const Color &spec_col, float exp)
 {
   static std::list<Phong> phongs;
 

@@ -1,6 +1,6 @@
 // load-3ds.cc -- Load 3ds scene file
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -38,7 +38,7 @@
 
 #include "load-3ds.h"
 
-using namespace Snogray;
+using namespace snogray;
 using namespace std;
 
 // The index of refraction we use for reflective objects.
@@ -403,7 +403,7 @@ TdsLoader::load (const string &filename)
 // scene, including lights and the first camera position.
 //
 void
-Snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
+snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 {
   TdsLoader l (&scene);
 
@@ -434,7 +434,7 @@ Snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 // MESH.  Geometry is first transformed by XFORM.
 //
 void
-Snogray::load_3ds_file (const string &filename, Mesh &mesh, const Xform &xform)
+snogray::load_3ds_file (const string &filename, Mesh &mesh, const Xform &xform)
 {
   TdsLoader l (&mesh);
 

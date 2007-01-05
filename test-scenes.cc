@@ -1,6 +1,6 @@
 // test-scenes.cc -- Test scenes for snogray ray tracer
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -32,7 +32,7 @@
 #include "tessel-param.h"
 #include "string-funs.h"
 
-using namespace Snogray;
+using namespace snogray;
 using namespace std;
 
 
@@ -1792,8 +1792,8 @@ add_scene_descs_pretty_dancer (vector<TestSceneDesc> &descs)
 
 // Blerg
 //
-float Snogray::tessel_accur = 0.001;
-bool Snogray::tessel_smooth = true;
+float snogray::tessel_accur = 0.001;
+bool snogray::tessel_smooth = true;
 
 static void
 def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
@@ -2397,7 +2397,7 @@ def_scene_mis (unsigned num, const string &, Scene &scene, Camera &camera)
 
 
 void
-Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
+snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 {
   string name (_name);		// make a local copy
 
@@ -2460,7 +2460,7 @@ Snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
 }
 
 vector<TestSceneDesc>
-Snogray::list_test_scenes ()
+snogray::list_test_scenes ()
 {
   vector<TestSceneDesc> descs;
 

@@ -1,6 +1,6 @@
 // llist.h -- Linked-list wrapper type
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -12,7 +12,7 @@
 #ifndef __LLIST_H__
 #define __LLIST_H__
 
-namespace Snogray {
+namespace snogray {
 
 // This simple linked list class implements "direct linked" objects,
 // where the objects in the list each have their own prev/next pointers

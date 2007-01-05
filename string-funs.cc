@@ -1,6 +1,6 @@
 // string-funs.cc -- Random string helper functions
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -16,14 +16,14 @@
 #include "string-funs.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 using namespace std;
 
 
 // Return a string version of NUM
 //
 string 
-Snogray::stringify (unsigned num)
+snogray::stringify (unsigned num)
 {
   string str = (num > 9) ? stringify (num / 10) : "";
   char ch = (num % 10) + '0';
@@ -34,7 +34,7 @@ Snogray::stringify (unsigned num)
 // Return a string version of NUM, with commas added every 3rd place
 //
 string 
-Snogray::commify (unsigned long long num, unsigned sep_count)
+snogray::commify (unsigned long long num, unsigned sep_count)
 {
   string str = (num > 9) ? commify (num / 10, sep_count % 3 + 1) : "";
   char ch = (num % 10) + '0';
@@ -47,7 +47,7 @@ Snogray::commify (unsigned long long num, unsigned sep_count)
 // Return a lower-case version of STR.
 //
 string
-Snogray::downcase (const string &str)
+snogray::downcase (const string &str)
 {
   string rval = str;
   transform (rval.begin(), rval.end(), rval.begin(), tolower);
@@ -57,7 +57,7 @@ Snogray::downcase (const string &str)
 // Return a copy of STR with any character in REM_CHARS removed.
 //
 string
-Snogray::strip (const string &str, const string &rem_chars)
+snogray::strip (const string &str, const string &rem_chars)
 {
   string rval = str;  
 
@@ -78,7 +78,7 @@ Snogray::strip (const string &str, const string &rem_chars)
 // unmodified
 //
 string
-Snogray::strip_prefix (string &str, const string &sep_chars)
+snogray::strip_prefix (string &str, const string &sep_chars)
 {
   string::size_type pfx_end = str.find_first_of (sep_chars);
 

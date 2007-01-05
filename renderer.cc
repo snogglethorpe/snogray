@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -16,7 +16,7 @@
 
 #include "renderer.h"
 
-using namespace Snogray;
+using namespace snogray;
 
 Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned _width, unsigned _height,

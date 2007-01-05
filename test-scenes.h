@@ -1,6 +1,6 @@
 // test-scenes.h -- Test scenes for snogray ray tracer
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -18,7 +18,7 @@
 #include "scene.h"
 #include "camera.h"
 
-namespace Snogray {
+namespace snogray {
 
 extern void def_test_scene (const std::string &name,
 			    Scene &scene, Camera &camera);

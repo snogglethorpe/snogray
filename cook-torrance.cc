@@ -1,6 +1,6 @@
 // cook-torrance.cc -- Cook-Torrance reflectance function
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -22,13 +22,13 @@
 #include "cook-torrance.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 
 
 // Source of "constant" (not-to-be-freed) CookTorrance BRDFs
 //
 const CookTorrance *
-Snogray::cook_torrance (const Color &spec_col, float m, const Ior &ior)
+snogray::cook_torrance (const Color &spec_col, float m, const Ior &ior)
 {
   static std::list<CookTorrance> brdfs;
 

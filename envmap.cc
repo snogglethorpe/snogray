@@ -1,6 +1,6 @@
 // envmap.cc -- Environment maps
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -21,7 +21,7 @@
 #include "envmap.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 using namespace std;
 
 
@@ -34,7 +34,7 @@ using namespace std;
 // an attempt will be made to guess the format based on the image size.
 //
 Envmap *
-Snogray::load_envmap (const string &spec, const string &_fmt)
+snogray::load_envmap (const string &spec, const string &_fmt)
 {
   string filename = spec;
   string fmt = _fmt;
@@ -70,7 +70,7 @@ Snogray::load_envmap (const string &spec, const string &_fmt)
 // attempt will be made to guess the format based on the image size.
 //
 Envmap *
-Snogray::make_envmap (const Ref<Image> &image, const string &_fmt)
+snogray::make_envmap (const Ref<Image> &image, const string &_fmt)
 {
   string fmt = _fmt;
 

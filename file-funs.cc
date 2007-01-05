@@ -1,6 +1,6 @@
 // file-funs.cc -- Functions for operating on files
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -18,14 +18,14 @@
 #include "file-funs.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 using namespace std;
 
 
 // Return true if a file called FILE_NAME is readable.
 //
 bool 
-Snogray::file_exists (const string &file_name)
+snogray::file_exists (const string &file_name)
 {
   ifstream test (file_name.c_str ());
   bool exists = !!test;
@@ -37,7 +37,7 @@ Snogray::file_exists (const string &file_name)
 // is returned.  If this cannot be done an exception is thrown.
 //
 string
-Snogray::rename_to_backup_file (const string &file_name, unsigned backup_limit)
+snogray::rename_to_backup_file (const string &file_name, unsigned backup_limit)
 {
   string backup_name;
 

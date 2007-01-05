@@ -1,6 +1,6 @@
 // plastic.h -- Plastic (thin, transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -15,7 +15,7 @@
 #include "material.h"
 #include "medium.h"
 
-namespace Snogray {
+namespace snogray {
 
 // "Plastic" is like our Glass material, but doesn't contain a medium, so
 // all filtering effects take place during the surface transition.  This is

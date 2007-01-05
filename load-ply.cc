@@ -1,6 +1,6 @@
 // load-ply.cc -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -24,7 +24,7 @@ extern "C" {
 # include "load-ply.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 
 
 // Error handling
@@ -151,7 +151,7 @@ face_cb (p_ply_argument arg)
 // triangles loaded (otherwise MESH's default material will be used).
 //
 void
-Snogray::load_ply_file (const std::string &filename, Mesh &mesh,
+snogray::load_ply_file (const std::string &filename, Mesh &mesh,
 			const Xform &xform, const Material *mat)
 {
   volatile p_ply ply = 0;

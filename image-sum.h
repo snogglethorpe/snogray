@@ -1,6 +1,6 @@
 // image-sum.h -- Quick calculation of the sum of regions in an image
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -15,7 +15,7 @@
 #include "image.h"
 
 
-namespace Snogray {
+namespace snogray {
 
 
 // A class for quickly calculating the sum of any sub-region of an

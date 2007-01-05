@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording scene-ray intersection result
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -17,7 +17,7 @@
 #include "trace.h"
 #include "material.h"
 
-namespace Snogray {
+namespace snogray {
 
 class Surface;
 class Brdf;

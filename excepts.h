@@ -1,6 +1,6 @@
 // excepts.h -- Snogray exceptions
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -15,7 +15,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace Snogray {
+namespace snogray {
 
 struct bad_format : public std::runtime_error
 {

@@ -1,6 +1,6 @@
 // lambert.cc -- Lambertian reflectance function
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -16,11 +16,11 @@
 
 #include "lambert.h"
 
-using namespace Snogray;
+using namespace snogray;
 
 // There's only one possible lambert object so create it here.
 //
-const Lambert *Snogray::lambert = new Lambert;
+const Lambert *snogray::lambert = new Lambert;
 
 // Generate (up to) NUM samples of this BRDF and add them to SAMPLES.
 // For best results, they should be distributed according to the BRDF's

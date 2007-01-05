@@ -1,6 +1,6 @@
 // scene.cc -- Scene description datatype
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -15,7 +15,7 @@
 #include "scene.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 using namespace std;
 
 // The scene "owns" all its components, so frees them when it is destroyed

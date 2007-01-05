@@ -1,6 +1,6 @@
 // recover.cc -- Recovery of partial output images
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -14,7 +14,7 @@
 #include "recover.h"
 
 
-using namespace Snogray;
+using namespace snogray;
 
 
 // Initialize the output by reading as many image rows as possible from
@@ -25,7 +25,7 @@ using namespace Snogray;
 // SRC is closed and deleted after recovering it.
 //
 unsigned
-Snogray::recover_image (ImageInput *src, ImageOutput &dst)
+snogray::recover_image (ImageInput *src, ImageOutput &dst)
 {
   ImageRow src_row (src->width);
 

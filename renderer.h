@@ -1,6 +1,6 @@
 // renderer.h -- Outer rendering loop
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -16,7 +16,7 @@
 
 #include "global-tstate.h"
 
-namespace Snogray {
+namespace snogray {
 
 class Scene;
 class Camera;

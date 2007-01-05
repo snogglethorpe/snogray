@@ -1,6 +1,6 @@
 // sample-disk.h -- Disk sample distribution
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -15,7 +15,7 @@
 #include "snogmath.h"
 
 
-namespace Snogray {
+namespace snogray {
 
 
 // Convert uniformly distributed (U, V) parameters with a range of 0-1

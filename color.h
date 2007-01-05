@@ -1,6 +1,6 @@
 // color.h -- Color datatype
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -17,7 +17,7 @@
 #include "rand.h"
 #include "snogmath.h"
 
-namespace Snogray {
+namespace snogray {
 
 class ColorOnly;
 
@@ -277,7 +277,7 @@ inline Color min (const ColorOnly &c1, const ColorOnly &c2)
 }
 
 extern std::ostream& operator<< (std::ostream &os,
-				 const Snogray::ColorOnly &col);
+				 const snogray::ColorOnly &col);
 
 }
 

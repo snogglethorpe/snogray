@@ -1,6 +1,6 @@
 // light.h -- Light object
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -15,7 +15,7 @@
 #include "illum-sample.h"
 
 
-namespace Snogray {
+namespace snogray {
 
 
 class Intersect;

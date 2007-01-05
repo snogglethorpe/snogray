@@ -1,6 +1,6 @@
 // globals.h -- Global variables
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -13,7 +13,7 @@
 #define __GLOBALS_H__
 
 
-namespace Snogray {
+namespace snogray {
 
 
 // If true, don't output random informational notes to std::cout.

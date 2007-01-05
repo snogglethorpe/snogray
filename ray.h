@@ -1,6 +1,6 @@
 // ray.h -- Datatype describing a directional, positioned, line-segment
 //
-//  Copyright (C) 2005  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -17,7 +17,7 @@
 #include "pos.h"
 #include "vec.h"
 
-namespace Snogray {
+namespace snogray {
 
 // A ray is a vector with a position and a length; we include various other
 // fields for handy test.

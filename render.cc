@@ -1,6 +1,6 @@
 // render.cc -- Main rendering loop
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -18,7 +18,7 @@
 
 #include "render.h"
 
-using namespace Snogray;
+using namespace snogray;
 
 
 static void
@@ -125,7 +125,7 @@ make_aa_sample_gen (const ValTable &params)
 }
 
 void
-Snogray::render (const Scene &scene, const Camera &camera,
+snogray::render (const Scene &scene, const Camera &camera,
 		 unsigned width, unsigned height,
 		 ImageOutput &output, unsigned offs_x, unsigned offs_y,
 		 const ValTable &params, TraceStats &stats,

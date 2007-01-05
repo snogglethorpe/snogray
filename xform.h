@@ -1,6 +1,6 @@
 // xform.h -- Transformation matrices
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -17,7 +17,7 @@
 #include "pos.h"
 #include "vec.h"
 
-namespace Snogray {
+namespace snogray {
 
 template<typename T>
 class TXform : public Matrix4<T>

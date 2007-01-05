@@ -1,6 +1,6 @@
 // sphere-light.h -- Spherical light
 //
-//  Copyright (C) 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main disphereory of this
@@ -16,7 +16,7 @@
 #include "color.h"
 #include "pos.h"
 
-namespace Snogray {
+namespace snogray {
 
 class SphereLight : public Light
 {

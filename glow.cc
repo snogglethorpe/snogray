@@ -1,6 +1,6 @@
 // glow.cc -- Constant-color reflectance function
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -14,7 +14,7 @@
 #include "glow.h"
 #include "scene.h"		// for inlined Trace::shadow method
 
-using namespace Snogray;
+using namespace snogray;
 
 Color
 Glow::render (const Intersect &) const

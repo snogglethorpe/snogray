@@ -1,6 +1,6 @@
 // tripar-isec.h -- Triangle/parallelogram intersection  -*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -15,7 +15,7 @@
 #include "pos.h"
 #include "vec.h"
 
-namespace Snogray {
+namespace snogray {
 
 // If a ray from RAY_ORIGIN in direction RAY_DIR intersects the triangle
 // or parallelogram defined by the points CORNER, CORNER+EDGE1, and

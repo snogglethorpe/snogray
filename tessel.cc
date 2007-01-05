@@ -20,7 +20,7 @@
 
 #include "tessel.h"
 
-using namespace Snogray;
+using namespace snogray;
 
 // A tessellation of FUN, where MAX_ERR_CALC is used to calculate the
 // permissible error at a given location.
