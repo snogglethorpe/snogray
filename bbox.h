@@ -1,4 +1,4 @@
-// bbox.h -- Bounding boxes
+// bbox.h -- Axis-aligned bounding boxes
 //
 //  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
@@ -15,13 +15,19 @@
 #include "pos.h"
 #include "vec.h"
 
+
 namespace snogray {
 
+
+// An axis-aligned bounding box.
+//
 class BBox
 {
 public:
 
-  // An empty bounding box contains
+  // An empty bounding box contains reversed bounds, so that any point or
+  // bounding box added to it will initialize it to contain exactly that
+  // point/bbox.
   //
   BBox ()
     : min (Pos (MAX_COORD, MAX_COORD, MAX_COORD)),
@@ -29,18 +35,22 @@ public:
   { }
 
   // Be careful that every component of _MAX is greater than that of _MIN!
+  //
   BBox (const Pos &_min, const Pos &_max)
     : min (_min), max (_max)
   { }
   BBox (const Pos &_pos)
     : min (_pos), max (_pos)
   { }
-  // Returns a bounding box with a given size
+
+  // Return a bounding box with a given size
+  //
   BBox (const Pos &_min, dist_t size)
     : min (_min), max (_min.x + size, _min.y + size, _min.z + size)
   { }
 
   // Grows the bbox as necessary to include POS
+  //
   void include (const Pos &pos)
   {
     if (pos.x < min.x)
@@ -57,12 +67,16 @@ public:
       max.z = pos.z;
   }
 
+  // Return a vector holding the sizes of this bounding box along all three
+  // axes.
+  
   Vec extent () const
   {
     return Vec (max.x - min.x, max.y - min.y, max.z - min.z);
   }
 
   // The greatest component of its extent
+  //
   dist_t max_size () const
   {
     Vec ext = extent ();
@@ -75,6 +89,7 @@ public:
   }
 
   // The least component of its extent
+  //
   dist_t min_size () const
   {
     Vec ext = extent ();
@@ -87,19 +102,33 @@ public:
   }
 
   // The average dimension
+  //
   dist_t avg_size () const
   {
     Vec ext = extent ();
     return (ext.x + ext.y + ext.z) / 3;
   }
 
+  // The median dimension
+  //
+  dist_t median_size () const
+  {
+    Vec ext = extent ();
+    dist_t min_xy = snogray::min (ext.x, ext.y);
+    dist_t max_xy = snogray::max (ext.x, ext.y);
+    return min_xy > ext.z ? min_xy : snogray::min (max_xy, ext.z);
+  }    
+
   // Every component of MAX is greater than or equal to the
   // corresponding component of MIN.
+  //
   Pos min, max;
 };
+
 
 }
 
 #endif /* __BBOX_H__ */
+
 
 // arch-tag: 598693e3-61e0-4b84-b80c-fe37d3c5fea6
