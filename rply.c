@@ -16,6 +16,25 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#ifdef HAVE_STDINT_H
+# include <stdint.h>
+typedef int32_t rply_int32;
+typedef uint32_t rply_uint32;
+# define RPLY_INT32_MAX INT32_MAX
+# define RPLY_INT32_MIN INT32_MIN
+# define RPLY_UINT32_MAX UINT32_MAX
+#else
+typedef long rply_int32;
+typedef unsigned long rply_uint32;
+# define RPLY_INT32_MAX LONG_MAX
+# define RPLY_INT32_MIN LONG_MIN
+# define RPLY_UINT32_MAX ULONG_MAX
+#endif
+
 #include "rply.h"
 
 /* ----------------------------------------------------------------------
@@ -1185,16 +1204,16 @@ static int ply_type_check(void) {
     assert(sizeof(unsigned char) == 1);
     assert(sizeof(short) == 2);
     assert(sizeof(unsigned short) == 2);
-    assert(sizeof(long) == 4);
-    assert(sizeof(unsigned long) == 4);
+    assert(sizeof(rply_int32) == 4);
+    assert(sizeof(rply_uint32) == 4);
     assert(sizeof(float) == 4);
     assert(sizeof(double) == 8);
     if (sizeof(char) != 1) return 0;
     if (sizeof(unsigned char) != 1) return 0;
     if (sizeof(short) != 2) return 0;
     if (sizeof(unsigned short) != 2) return 0;
-    if (sizeof(long) != 4) return 0;
-    if (sizeof(unsigned long) != 4) return 0;
+    if (sizeof(rply_int32) != 4) return 0;
+    if (sizeof(rply_uint32) != 4) return 0;
     if (sizeof(float) != 4) return 0;
     if (sizeof(double) != 8) return 0;
     return 1;
@@ -1224,12 +1243,12 @@ static int oascii_uint16(p_ply ply, double value) {
 }
 
 static int oascii_int32(p_ply ply, double value) {
-    if (value > LONG_MAX || value < LONG_MIN) return 0;
+    if (value > RPLY_INT32_MAX || value < RPLY_INT32_MIN) return 0;
     return fprintf(ply->fp, "%d ", (int) value) > 0;
 }
 
 static int oascii_uint32(p_ply ply, double value) {
-    if (value > ULONG_MAX || value < 0) return 0;
+    if (value > RPLY_UINT32_MAX || value < 0) return 0;
     return fprintf(ply->fp, "%d ", (unsigned int) value) > 0;
 }
 
@@ -1268,14 +1287,14 @@ static int obinary_uint16(p_ply ply, double value) {
 }
 
 static int obinary_int32(p_ply ply, double value) {
-    long int32 = (long) value;
-    if (value > LONG_MAX || value < LONG_MIN) return 0;
+    rply_int32 int32 = (rply_int32) value;
+    if (value > RPLY_INT32_MAX || value < RPLY_INT32_MIN) return 0;
     return ply->odriver->ochunk(ply, &int32, sizeof(int32));
 }
 
 static int obinary_uint32(p_ply ply, double value) {
-    unsigned long uint32 = (unsigned long) value;
-    if (value > ULONG_MAX || value < 0) return 0;
+    rply_uint32 uint32 = (rply_uint32) value;
+    if (value > RPLY_UINT32_MAX || value < 0) return 0;
     return ply->odriver->ochunk(ply, &uint32, sizeof(uint32));
 }
 
@@ -1328,7 +1347,7 @@ static int iascii_int32(p_ply ply, double *value) {
     char *end;
     if (!ply_read_word(ply)) return 0;
     *value = strtol(BWORD(ply), &end, 10);
-    if (*end || *value > LONG_MAX || *value < LONG_MIN) return 0;
+    if (*end || *value > RPLY_INT32_MAX || *value < RPLY_INT32_MIN) return 0;
     return 1;
 }
 
@@ -1385,14 +1404,14 @@ static int ibinary_uint16(p_ply ply, double *value) {
 }
 
 static int ibinary_int32(p_ply ply, double *value) {
-    long int32;
+    rply_int32 int32;
     if (!ply->idriver->ichunk(ply, &int32, sizeof(int32))) return 0;
     *value = int32;
     return 1;
 }
 
 static int ibinary_uint32(p_ply ply, double *value) {
-    unsigned long uint32;
+    rply_uint32 uint32;
     if (!ply->idriver->ichunk(ply, &uint32, sizeof(uint32))) return 0;
     *value = uint32;
     return 1;

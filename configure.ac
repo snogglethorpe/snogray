@@ -110,6 +110,9 @@ SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra -std=c++98])
 ##
 
 
+AC_CHECK_HEADERS([stdint.h])
+
+
 # Allow point exceptions to be enabled (which can make debugging much easier).
 
 AC_ARG_ENABLE([fp-exceptions],
