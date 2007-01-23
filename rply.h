@@ -13,8 +13,8 @@
 extern "C" {
 #endif
 
-#define RPLY_VERSION   "RPly 1.01"
-#define RPLY_COPYRIGHT "Copyright (C) 2003-2005 Diego Nehab"
+#define RPLY_VERSION   "RPly 1.1"
+#define RPLY_COPYRIGHT "Copyright (C) 2003-2007 Diego Nehab"
 #define RPLY_AUTHORS   "Diego Nehab"
 
 /* ----------------------------------------------------------------------
@@ -48,17 +48,19 @@ typedef enum e_ply_type {
  *
  * message: error message
  * ---------------------------------------------------------------------- */
-typedef void (*p_ply_error_cb)(const char *message);
+typedef void (*p_ply_error_cb)(p_ply ply, const char *message);
 
 /* ----------------------------------------------------------------------
  * Opens a ply file for reading (fails if file is not a ply file)
  *
  * error_cb: error callback function
  * name: file name
+ * idata,pdata: contextual information available to users
  *
  * Returns 1 if successful, 0 otherwise
  * ---------------------------------------------------------------------- */
-p_ply ply_open(const char *name, p_ply_error_cb error_cb);
+p_ply ply_open(const char *name, p_ply_error_cb error_cb, long idata, 
+        void *pdata);
 
 /* ----------------------------------------------------------------------
  * Reads and parses the header of a ply file returned by ply_open
@@ -232,7 +234,7 @@ int ply_get_property_info(p_ply_property property, const char** name,
  * Returns handle to ply file if successfull, NULL otherwise
  * ---------------------------------------------------------------------- */
 p_ply ply_create(const char *name, e_ply_storage_mode storage_mode, 
-        p_ply_error_cb error_cb);
+        p_ply_error_cb error_cb, long idata, void *pdata);
 
 /* ----------------------------------------------------------------------
  * Adds a new element to the ply file created by ply_create
@@ -335,6 +337,16 @@ int ply_write(p_ply ply, double value);
  * ---------------------------------------------------------------------- */
 int ply_close(p_ply ply);
 
+/* ----------------------------------------------------------------------
+ * Returns user data associated with the main ply object
+ *
+ * pdata: receives a copy of user custom data pointer (if non-null)
+ * idata: receives a copy of user custom data integer (if non-null)
+ *
+ * Returns 1 if successfull, 0 otherwise
+ * ---------------------------------------------------------------------- */
+int ply_get_user_data(p_ply ply, void **pdata, long *idata);
+
 #ifdef __cplusplus
 }
 #endif
@@ -364,4 +376,5 @@ int ply_close(p_ply ply);
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * ---------------------------------------------------------------------- */
 
-// arch-tag: 55a66159-9b7e-4505-8e4b-82f77af06bd9
+/* arch-tag: 55a66159-9b7e-4505-8e4b-82f77af06bd9
+   (do not change this comment) */

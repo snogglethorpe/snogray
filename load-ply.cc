@@ -21,25 +21,10 @@ extern "C" {
 #include "rply.h"
 }
 
-# include "load-ply.h"
+#include "load-ply.h"
 
 
 using namespace snogray;
-
-
-// Error handling
-
-static jmp_buf err_jmpbuf;
-static const char *err_str = 0;
-
-static void
-rply_error_cb (const char *str)
-{
-  // We can't use c++ exceptions as this is used by a C file
-  //
-  err_str = str;
-  longjmp (err_jmpbuf, 1);
-}
 
 
 
@@ -66,7 +51,28 @@ struct RplyState
   double vals[3];
 
   Mesh::vert_index_t last_vert_index;
+
+  // Set if an error occurs in the rply library.
+  //
+  std::string err_str;
 };
+
+
+// Error callback for rply library
+
+static void
+error_cb (p_ply ply, const char *str)
+{
+  // We can't use c++ exceptions as this is used by a C file, so just save
+  // the msg and rely on the rest of the code to fail gracefully.
+
+  void *pdata;
+  if (ply_get_user_data (ply, &pdata, 0))
+    {
+      RplyState *s = (RplyState *)pdata;
+      s->err_str = str;
+    }
+}
 
 
 // RPly callbacks
@@ -112,7 +118,10 @@ norm_cb (p_ply_argument arg)
 			      * s->norm_xform);
 
       if (norm_index != s->last_vert_index)
-	rply_error_cb ("Normal consistency error");
+	{
+	  s->err_str = "Normal consistency error";
+	  return 0;
+	}
     }
 
   return 1;
@@ -130,8 +139,12 @@ face_cb (p_ply_argument arg)
   ply_get_argument_property (arg, NULL, 0, &n);
 
   if (n >= 3)
-    rply_error_cb ("Invalid number of indices in face");
-  else if (n >= 0)
+    {
+      s->err_str = "Invalid number of indices in face";
+      return 0;
+    }
+
+  if (n >= 0)
     s->vals[n] = ply_get_argument_value (arg);
 
   if (n == 2)
@@ -154,39 +167,43 @@ void
 snogray::load_ply_file (const std::string &filename, Mesh &mesh,
 			const Xform &xform, const Material *mat)
 {
-  volatile p_ply ply = 0;
-
-  if (setjmp (err_jmpbuf) != 0)
-    {
-      if (ply)
-	ply_close (ply);
-
-      throw std::runtime_error (err_str);
-    }
-
-  ply = ply_open (filename.c_str(), rply_error_cb);
-
-  ply_read_header (ply);
-
+  // State used by all our call back functions.
+  //
   RplyState state (mesh, xform, mat);
+
+  // The rply library uses a void* value to store client state, so keep a
+  // pointer to STATE in that form.
+  //
   void *cookie = (void *)&state;
 
-  unsigned nverts
-    = ply_set_read_cb (ply, "vertex", "x", vert_cb, cookie, 0);
-  ply_set_read_cb(ply, "vertex", "y", vert_cb, cookie, 1);
-  ply_set_read_cb(ply, "vertex", "z", vert_cb, cookie, 2);
-  ply_set_read_cb(ply, "vertex", "nx", norm_cb, cookie, 0);
-  ply_set_read_cb(ply, "vertex", "ny", norm_cb, cookie, 1);
-  ply_set_read_cb(ply, "vertex", "nz", norm_cb, cookie, 2);
+  p_ply ply = ply_open (filename.c_str(), error_cb, 0, cookie);
 
-  unsigned ntris
-    = ply_set_read_cb (ply, "face", "vertex_indices", face_cb, cookie, 0);
+  if (ply)
+    {
+      if (ply_read_header (ply))
+	{
+	  unsigned nverts
+	    = ply_set_read_cb (ply, "vertex", "x", vert_cb, cookie, 0);
+	  ply_set_read_cb (ply, "vertex", "y", vert_cb, cookie, 1);
+	  ply_set_read_cb (ply, "vertex", "z", vert_cb, cookie, 2);
+	  ply_set_read_cb (ply, "vertex", "nx", norm_cb, cookie, 0);
+	  ply_set_read_cb (ply, "vertex", "ny", norm_cb, cookie, 1);
+	  ply_set_read_cb (ply, "vertex", "nz", norm_cb, cookie, 2);
 
-  mesh.reserve (nverts, ntris);
+	  unsigned ntris
+	    = ply_set_read_cb (ply, "face", "vertex_indices",
+			       face_cb, cookie, 0);
 
-  ply_read (ply);
+	  mesh.reserve (nverts, ntris);
 
-  ply_close (ply);
+	  ply_read (ply);
+	}
+
+      ply_close (ply);
+    }
+
+  if (! state.err_str.empty ())
+    throw std::runtime_error (state.err_str);
 }
 
 // arch-tag: c40c2ae8-576b-4985-ad52-2582b3bb2fa0
