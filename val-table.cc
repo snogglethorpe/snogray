@@ -200,6 +200,9 @@ ValTable::parse (const std::string &input, const std::string &multiple_seps)
 	  p_end = input.find_first_of (multiple_seps, p_start);
 	}
       while (p_end != std::string::npos);
+
+      if (p_start != std::string::npos)
+	parse (input.substr (p_start));
     }
 }
 
