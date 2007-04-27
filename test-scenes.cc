@@ -894,7 +894,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
       else if (brdf == 0)
 	mat = new Material (col * 0.7, cook_torrance (0.3, ct_m));
       else if (brdf == 1)
-	mat = new Material (col * 0.7, phong (0.3, phong_exp));
+	mat = new Material (col * 0.7, cook_torrance (0.3, ct_m, Ior (0.25,3)));
       else
 	mat = new Material (col * 0.7);
 
@@ -1957,6 +1957,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     = scene.add (new Material (Color(0, .08, .1), cook_torrance (.9, .02, 2)));
   const Material *gloss_medium_blue_green
     = scene.add (new Material (Color(0, .2, .3), cook_torrance (.7, .02, 2)));
+  const Material *gloss_medium_red
+    = scene.add (new Material (Color(0.3, .05, .05), cook_torrance (.7, .02, 2)));
   const Material *moss
     = scene.add (new Material (Color (0.1, 0.2, 0.05),
 			       cook_torrance (0.8, 0.1, 2)));
@@ -1978,7 +1980,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 3:
       obj_mat = moss; break;
     case 4:
-      obj_mat = matte_peach; break;
+      obj_mat = gloss_medium_red; break;
     case 5:
       obj_mat = dull_grey; break;
     case 6:
