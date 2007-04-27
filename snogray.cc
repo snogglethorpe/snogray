@@ -353,6 +353,8 @@ s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 s "  -w, --width=WIDTH          Set image width to WIDTH pixels"
 s "  -h, --height=HEIGHT        Set image height to HEIGHT lines"
 n
+s "  -n, --samples=NUM          Use NUM lighting samples per eye-ray (default 16)"
+n
 s RENDER_OPTIONS_HELP
 n
 s SCENE_DEF_OPTIONS_HELP
@@ -391,6 +393,7 @@ int main (int argc, char *const *argv)
     { "width",		required_argument, 0, 'w' },
     { "height",		required_argument, 0, 'h' },
     { "limit",		required_argument, 0, 'l' },
+    { "samples",	required_argument, 0, 'n' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
@@ -405,7 +408,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:w:h:l:qpP"
+    "s:w:h:l:n:qpP"
     SCENE_DEF_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
@@ -453,6 +456,14 @@ int main (int argc, char *const *argv)
 	break;
       case 'h':
 	height = clp.unsigned_opt_arg ();
+	break;
+
+      case 'n':
+	{
+	  unsigned num_samples = clp.unsigned_opt_arg ();
+	  render_params.set ("light-samples", num_samples);
+	  render_params.set ("brdf-samples", num_samples);
+	}
 	break;
 
       case 'l':
