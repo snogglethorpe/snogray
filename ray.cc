@@ -14,7 +14,7 @@
 using namespace snogray;
 
 std::ostream&
-operator<< (std::ostream &os, const Ray &ray)
+snogray::operator<< (std::ostream &os, const Ray &ray)
 {
   const Pos &o = ray.origin;
   const Vec &d = ray.dir;
