@@ -39,6 +39,14 @@ mis_sample_weight (float pdf, float num_samples,
   float term = num_samples * pdf;
   float other_term = num_other_samples * other_pdf;
 
+  // Handle near-degenerate cases that cause problems because of
+  // floating-point overflow.
+  //
+  if (term > 1e10)
+    return 1;
+  else if (other_term > 1e10)
+    return 0;
+
   // Raise the terms to a power of 2.
   //
   term *= term;
