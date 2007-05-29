@@ -7,8 +7,10 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_CC
 AC_PROG_CXX
+
 AC_PROG_RANLIB
 
+AC_CHECK_PROG([SWIG], [swig], [swig])
 
 # We use C++ for everything, so do all our tests using that too.
 #
@@ -174,6 +176,17 @@ m4_define_default([PKG_CHECK_MODULES],
 ##
 
 
+# Check for lua library
+#
+PKG_CHECK_MODULES([liblua], [lua5.1],
+  [have_liblua=yes],
+  [have_liblua=no
+   AC_MSG_RESULT([no])])
+if test $have_liblua = yes; then
+  AC_DEFINE([HAVE_LIBLUA], [1], [Define if liblua is installed])
+fi
+AM_CONDITIONAL([have_liblua], [test $have_liblua = yes])
+
 # Check for PNG image library
 #
 PKG_CHECK_MODULES([libpng], [libpng],
@@ -255,6 +268,19 @@ if test $have_lib3ds = yes; then
 
   CFLAGS="$_OLD_CFLAGS"
 fi
+
+
+##
+## ----------------------------------------------------------------
+## Some configuration options
+##
+
+lua_scene_def=no
+if test -n "$SWIG" && test "$have_liblua" = yes; then
+  lua_scene_def=yes
+  AC_DEFINE([LUA_SCENE_DEF], [1], [Define if allowing lua scene definition files])
+fi
+AM_CONDITIONAL([lua_scene_def], [test $lua_scene_def = yes])
 
 
 ##

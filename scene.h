@@ -110,6 +110,7 @@ public:
   //
   void load_aff_file (std::istream &stream, Camera &camera);
 
+  unsigned num_surfaces () const { return surfaces.size (); }
   unsigned num_lights () const { return lights.size (); }
 
   void set_background (const Color &col);

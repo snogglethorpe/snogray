@@ -165,6 +165,12 @@ public:
     return *this;
   }
 
+  TXform &invert ()
+  {
+    Matrix4<T>::invert ();
+    return *this;
+  }
+
   // Return true if this transform reverses the "handedness" of a
   // coordinate system.
   //

@@ -19,8 +19,12 @@
 #include "scene.h"
 #include "excepts.h"
 
-#ifdef HAVE_LIB3DS
+#if HAVE_LIB3DS
 # include "load-3ds.h"
+#endif
+
+#if LUA_SCENE_DEF
+# include "load-lua.h"
 #endif
 
 using namespace snogray;
@@ -51,6 +55,11 @@ Scene::load (const string &file_name, const string &fmt, Camera &camera)
 #ifdef HAVE_LIB3DS
   if (load_fmt == "3ds")
     load_3ds_file (file_name, *this, camera);
+  else
+#endif
+#ifdef LUA_SCENE_DEF
+  if (load_fmt == "lua")
+    load_lua_file (file_name, *this, camera);
   else
 #endif
     // Try to open the stream, and then look for formats that want a stream.

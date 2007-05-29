@@ -1,6 +1,6 @@
 # Automake Makefile template for snogray
 #
-#  Copyright (C) 2005, 2006  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 #
 # This file is subject to the terms and conditions of the GNU General
 # Public License.  See the file COPYING in the main directory of this
@@ -18,6 +18,10 @@ noinst_PROGRAMS = hemint
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogrender.a libsnogimage.a libsnogmisc.a
+
+if lua_scene_def
+  noinst_LIBRARIES += libsnograw.a
+endif
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -62,7 +66,7 @@ AM_LDFLAGS = $(PG) $(MUDFLAP)
 # automake's implementation has annoying side-effects).
 #
 AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
-	$(libnetpbm_CFLAGS) $(LIB3DS_CFLAGS)
+	$(libnetpbm_CFLAGS) $(LIB3DS_CFLAGS) $(liblua_CFLAGS)
 
 
 ################################################################
@@ -105,6 +109,13 @@ libsnogrender_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
 if have_lib3ds
   libsnogrender_a_SOURCES += load-3ds.cc load-3ds.h
   RENDER_LIBS += $(LIB3DS_LIBS)
+endif
+
+if lua_scene_def
+  libsnogrender_a_SOURCES += load-lua.cc load-lua.h
+  RENDER_LIBS += libsnograw.a $(liblua_LIBS)
+
+load-lua.o : swigluarun.h
 endif
 
 
@@ -185,6 +196,28 @@ snogdiff_LDADD = libsnogimage.a libsnogmisc.a $(IMAGE_LIBS) $(LIBS)
 
 hemint_SOURCES = hemint.cc
 hemint_LDADD = libsnogmisc.a
+
+
+###############################################################
+#
+# "Raw" swig interface to snogray.
+#
+
+%_wrap.cc : %.i
+	$(SWIG) -o $@ -c++ -lua $<
+
+swigluarun.h:
+	$(SWIG) -lua -c++ -external-runtime $@
+
+libsnograw_a_SOURCES = snograw_wrap.cc
+libsnograw_a_CXXFLAGS = -fno-strict-aliasing
+
+# Make automake suck slightly less
+libsnograw_a_SHORTNAME = sl
+
+## XXX
+snograw.so : libsnogrender.a libsnogmisc.a
+	$(CXX) -o $@ --shared -Wl,-uluaopen_snograw libsnograw.a $^ $(RENDER_LIBS)
 
 
 ## arch-tag: cfcae754-60d5-470f-b3ea-248fbf0a01c8
