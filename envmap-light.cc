@@ -78,7 +78,8 @@ EnvmapLight::EnvmapLight (const Envmap &envmap)
 
   if (!quiet)
     {
-      std::cout << "analyzing...";
+      std::cout << lmap.map->width << " x " << lmap.map->height
+		<< "; analyzing...";
       std::cout.flush ();
     }
 
