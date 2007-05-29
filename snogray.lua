@@ -265,14 +265,7 @@ local function filename_ext (filename)
    return string.match (filename, "[.][^./]*$")
 end
 
-
--- Load FILENAME evaluated the current environment.  FILENAME is
--- searched for using the path in the "include_path" variable; while it
--- is being evaluating, the directory FILENAME was actually loaded from
--- is prepended to "include_path", so that any recursive includes may
--- come from the same directory.
---
-function include (filename)
+function load_include (filename)
    local loaded, loaded_filename, err_msg
 
    if not filename_ext (filename) then
@@ -303,9 +296,10 @@ function include (filename)
       end
    end
 
-   -- If we successfully loaded a file, evalute the contents with the
-   -- environment setup appropriately.
-   --
+   return loaded, loaded_filename, err_msg
+end
+
+function eval_include (loaded, loaded_filename, err_msg)
    if loaded then
       local old_cur_filename = cur_filename
       cur_filename = loaded_filename
@@ -317,6 +311,32 @@ function include (filename)
    else
       error (err_msg)
    end
+end
+
+-- Load FILENAME evaluated the current environment.  FILENAME is
+-- searched for using the path in the "include_path" variable; while it
+-- is being evaluating, the directory FILENAME was actually loaded from
+-- is prepended to "include_path", so that any recursive includes may
+-- come from the same directory.
+--
+function include (filename)
+   local loaded, loaded_filename, err_msg = load_include (filename)
+   eval_include (loaded, loaded_filename, err_msg)
+   return loaded_filename
+end
+
+local used = {}
+
+-- use is like include, but only includes the file if that hasn't
+-- already been done.
+--
+function use (filename)
+   local loaded, loaded_filename, err_msg = load_include (filename)
+   if not used[loaded_filename] then
+      eval_include (loaded, loaded_filename, err_msg)
+      used[loaded_filename] = true
+   end
+   return loaded_filename
 end
 
 
