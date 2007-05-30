@@ -292,7 +292,7 @@ def_scene_miles (unsigned num, const string &, Scene &scene, Camera &camera)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -432,7 +432,7 @@ def_scene_pretty_bunny (unsigned num, const string &arg,
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -564,7 +564,7 @@ def_teapot_lighting (Scene &scene, unsigned num)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -775,7 +775,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -935,7 +935,7 @@ def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -1071,7 +1071,7 @@ def_cbox_room (const Cbox &cbox,
   const coord_t light_front = cbox.light_z - cbox.light_width / 2;
   const coord_t light_back  = cbox.light_z + cbox.light_width / 2;
 
-  if (!open && !scene.env_map)
+  if (!open && !scene.light_map)
     {
       Color col;
 
@@ -1287,7 +1287,7 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   scene.add (new Sphere (mat2, Pos (1, 0, 0.866), 1));
   scene.add (new Sphere (mat3, Pos (-1, 0, 0.866), 1));
 
-  if (! scene.env_map)		// defer to environmental lighting
+  if (! scene.light_map)	// defer to environmental lighting
     add_bulb (scene, Pos (0, 5, 0), 1, 25);
 //     scene.add (new PointLight (Pos (0, 5, 0), 25));
 }
@@ -1311,7 +1311,7 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
   // ground
   add_rect (scene, grey, Pos (-10, -1, -10), Vec (20, 0, 0), Vec (0, 0, 20));
 
-  if (! scene.env_map)		// defer to environmental lighting
+  if (! scene.light_map)		// defer to environmental lighting
     {
       // Small Area type light
       scene.add (new PointLight (Pos (5, 5, 0), 8));
@@ -1368,7 +1368,7 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   scene.add (new Sphere (shinyGray, Pos (0, 0, 2.5), 1));
   scene.add (new Sphere (shinyWhite, Pos (2.5, 0, 0), 1));
 
-  if (! scene.env_map)		// defer to environmental lighting
+  if (! scene.light_map)	// defer to environmental lighting
     {
       scene.add (new PointLight (Pos (0, 10, 5), Color (50, 30, 30)));
       scene.add (new PointLight (Pos (5, 10, 0), Color (30, 30, 50)));
@@ -1426,7 +1426,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -1692,7 +1692,7 @@ def_scene_pretty_dancer (unsigned num, const string &,
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       if (! birthday_card)
@@ -1870,7 +1870,7 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -2099,7 +2099,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through
@@ -2290,7 +2290,7 @@ def_scene_frep (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 0:
       // default
       //
-      if (scene.env_map)
+      if (scene.light_map)
 	break;
 
       // otherwise, fall through

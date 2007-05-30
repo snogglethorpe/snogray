@@ -102,6 +102,21 @@ SceneDef::load (Scene &scene, Camera &camera)
       else
 	scene.set_background (load_envmap (bg_spec, fmt));
     }
+  string lmap_spec = params.get_string ("light-map");
+  if (! lmap_spec.empty ())
+    {
+      string fmt = strip_prefix (lmap_spec, ":");
+
+      if (fmt == "envmap")
+	scene.set_light_map (load_envmap (lmap_spec));
+      else
+	scene.set_light_map (load_envmap (lmap_spec, fmt));
+    }
+
+  // By default, use an environment map as a light-map too.
+  //
+  if (scene.env_map && !scene.light_map)
+    scene.set_light_map (scene.env_map);
 
   // Read in scene file (or built-in test scene)
   //
@@ -124,15 +139,15 @@ SceneDef::load (Scene &scene, Camera &camera)
 	throw runtime_error (tag + ": Error reading scene: " + err.what ());
       }
 
-  if (scene.env_map)
+  if (scene.light_map)
     {
-      EnvmapLight *env_light = new EnvmapLight (*scene.env_map);
+      EnvmapLight *env_light = new EnvmapLight (*scene.light_map);
 
       scene.add (env_light);
 
       string env_light_dump_file = params.get_string ("envlight-dump-file");
       if (! env_light_dump_file.empty ())
-	env_light->dump (env_light_dump_file, *scene.env_map);
+	env_light->dump (env_light_dump_file, *scene.light_map);
     }
 
   // Correct for bogus "gamma correction in lighting"

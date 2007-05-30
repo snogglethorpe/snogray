@@ -41,7 +41,7 @@ public:
   static const int DEFAULT_ASSUMED_GAMMA = 1;
 
   Scene ()
-    : horizon (DEFAULT_HORIZON), env_map (0), bg_set (false),
+    : horizon (DEFAULT_HORIZON), env_map (0), bg_set (false), light_map (0),
       assumed_gamma (DEFAULT_ASSUMED_GAMMA)
   { }
   ~Scene ();
@@ -116,6 +116,8 @@ public:
   void set_background (const Color &col);
   void set_background (const Envmap *env_map);
 
+  void set_light_map (const Envmap *lmap);
+
   void set_assumed_gamma (float g) { assumed_gamma = g; }
 
   std::list<Surface *> surfaces;
@@ -133,6 +135,12 @@ public:
   Color bg_color;
   const Envmap *env_map;
   bool bg_set;			// true if background is non-default
+
+  // Environment map used for lighting; currently this is only a
+  // convenient storage place -- the actual light creation is done
+  // outside the scene code.
+  //
+  const Envmap *light_map;
 
   Octree space;
 

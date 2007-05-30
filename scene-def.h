@@ -20,8 +20,10 @@
 
 #define SCENE_DEF_OPTIONS_HELP "\
  Scene options:\n\
-  -b, --background=BG        Use BG as a background; BG may be a color or a\n\
-                               cube-map specification\n\
+  -b, --background=BG        Use BG as a background and light-source;\n\
+                               BG may be a color or a cube-map specification\n\
+  -l, --light-map=LMAP       Use LMAP as an environmental light-source\n\
+                               (overriding any light-source from --background)\n\
   -I, --scene-options=OPTS   Set scene options; OPTS has the format\n\
                                OPT1=VAL1[,...]; current options include:\n\
                                  \"format\"    -- scene file type\n\
@@ -46,6 +48,7 @@
 //
 #define SCENE_DEF_LONG_OPTIONS						\
     { "background",     required_argument, 0, 'b' },			\
+    { "light-map",	required_argument, 0, 'l' },			\
     { "scene-options", 	required_argument, 0, 'I' },			\
     { "camera",		required_argument, 0, 'c' },			\
     { "list-test-scenes", no_argument,     0, SCENE_DEF_OPT_LIST_TEST_SCENES }
@@ -64,6 +67,9 @@ For a full list of test-scenes, use the `--list-test-scenes' option."
 #define SCENE_DEF_OPTION_CASES(clp, scene_def)				      \
   case 'b':								      \
     scene_def.params.set ("background", clp.opt_arg ());		      \
+    break;								      \
+  case 'l':								      \
+    scene_def.params.set ("light-map", clp.opt_arg ());			      \
     break;								      \
 									      \
   case 'I':								      \

@@ -30,6 +30,9 @@ Scene::~Scene ()
     delete *mi;
 
   delete env_map;
+
+  if (light_map != env_map)
+    delete light_map;
 }
 
 
@@ -251,7 +254,9 @@ Scene::set_background (const Color &col)
 {
   if (env_map)
     {
-      delete env_map;
+      if (env_map != light_map)
+	delete env_map;
+
       env_map = 0;
     }
 
@@ -262,10 +267,21 @@ Scene::set_background (const Color &col)
 void
 Scene::set_background (const Envmap *map)
 {
-  delete env_map;
+  if (env_map != light_map)
+    delete env_map;
 
   env_map = map;
   bg_set = true;
 }
+
+void
+Scene::set_light_map (const Envmap *lmap)
+{
+  if (light_map && light_map != env_map)
+    delete light_map;
+
+  light_map = lmap;
+}
+
 
 // arch-tag: ecdd27ee-862e-436b-b0c6-357007955558
