@@ -363,7 +363,7 @@ s IMAGE_OUTPUT_OPTIONS_HELP
 n
 s "  -C, --continue             Continue a previously aborted render"
 n
-s "  -l, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
+s "  -L, --limit=LIMIT_SPEC     Limit output to area defined by LIMIT_SPEC"
 n
 s "  -q, --quiet                Do not output informational or progress messages"
 s "  -P, --no-progress          Do not output progress indicator"
@@ -392,7 +392,7 @@ int main (int argc, char *const *argv)
     { "size",		required_argument, 0, 's' },
     { "width",		required_argument, 0, 'w' },
     { "height",		required_argument, 0, 'h' },
-    { "limit",		required_argument, 0, 'l' },
+    { "limit",		required_argument, 0, 'L' },
     { "samples",	required_argument, 0, 'n' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
@@ -466,7 +466,7 @@ int main (int argc, char *const *argv)
 	}
 	break;
 
-      case 'l':
+      case 'L':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
 			     limit_max_x_spec, limit_max_y_spec);
 	break;
