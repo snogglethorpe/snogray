@@ -181,6 +181,31 @@ private:
   using Matrix4<T>::el;
 };
 
+
+template<typename T>
+static std::ostream&
+operator<< (std::ostream &os, const TXform<T> &xform)
+{
+  os << "xform<";
+
+  for (int j = 0; j < 4; j++)
+    {
+      if (j > 0)
+	os << "; ";
+      for (int i = 0; i < 4; i++)
+	{
+	  if (i > 0)
+	    os << ", ";
+	  os << std::setprecision (5) << lim (xform (i, j));
+	}
+    }
+
+  os << ">";
+
+  return os;
+}
+
+
 typedef TXform<dist_t>  Xform;
 typedef TXform<sdist_t> SXform;
 

@@ -140,25 +140,7 @@ namespace snogray {
   };
   %extend TXform<dist_t>
   {
-    const char* __str__()
-    {
-      std::ostringstream s;
-      s << "xform<";
-      for (int j = 0; j < 4; j++)
-	{
-	  if (j > 0)
-	    s << "; ";
-	  for (int i = 0; i < 4; i++)
-	    {
-	      if (i > 0)
-		s << ", ";
-	      s << $self->el (i, j);
-	    }
-	}
-      s << ">";
-      strcpy (static_rep_buf, s.str().c_str());
-      return static_rep_buf;
-    }
+    const char* __str__() { return static_rep (*$self); }
   }
   %template(Xform) TXform<dist_t>;
   typedef TXform<dist_t> Xform;
