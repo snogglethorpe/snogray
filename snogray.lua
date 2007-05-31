@@ -193,6 +193,12 @@ end
 --
 xform = raw.Xform
 
+function is_xform (val)
+   local t = swig_type (val)
+   return t == "_p_snogray__TXformTdouble_t"
+      or t == "_p_snogray__TXformTfloat_t"
+end
+
 -- Various simple transformations
 --
 translation = raw.Xform_translation
