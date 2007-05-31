@@ -20,6 +20,13 @@
 #include "mesh.h"
 #include "scene.h"
 #include "camera.h"
+#include "tripar.h"
+#include "sphere.h"
+#include "glow.h"
+#include "glass.h"
+#include "mirror.h"
+#include "rect-light.h"
+#include "sphere-light.h"
 #include "cook-torrance.h"
 
   static char static_rep_buf[255];
@@ -258,9 +265,59 @@ namespace snogray {
   const snogray::CookTorrance *cook_torrance (const snogray::Color &spec_col, float m, const snogray::Ior &ior);
   const snogray::CookTorrance *cook_torrance (const snogray::Color &spec_col, float m, const float ior = 1.5);
 
+  class Medium
+  {
+  public:
+
+    Medium (float _ior = 1, const Color &_absorb = 0);
+  };
+
+  class Glass : public Material
+  {
+  public:
+
+    Glass (Medium _medium);
+  };
+
+  class Mirror : public Material
+  {
+  public:
+
+    Mirror (const Ior &_ior, const Color &_reflectance,
+	    const Color &col, const Brdf *underlying_brdf);
+    Mirror (const Ior &_ior, const Color &_reflectance,
+	    const Color &col = Color::black);
+    Mirror (float _ior, const Color &_reflectance,
+	    const Color &col, const Brdf *underlying_brdf);
+    Mirror (float _ior, const Color &_reflectance,
+	    const Color &col = Color::black);
+  };
+
+  class Glow : public Material
+  {
+  public:
+
+    Glow (const Color &_color);
+  };
+
   %ignore Surface;
   class Surface
   {
+  };
+
+  class Sphere : public Surface
+  {
+  public:
+
+    Sphere (const Material *mat, const Pos &_center, dist_t _radius);
+  };
+
+  class Tripar : public Surface
+  {
+  public:
+
+    Tripar (const Material *mat, const Pos &_v0, const Vec &_e1, const Vec &_e2,
+	    bool _parallelogram = false);
   };
 
   class Mesh : public Surface
@@ -373,6 +430,21 @@ namespace snogray {
   %ignore Light;
   class Light
   {
+  };
+
+  class RectLight : public Light
+  {
+  public:
+
+    RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
+	       const Color &_intensity);
+  };
+
+  class SphereLight : public Light
+  {
+  public:
+
+    SphereLight (const Pos &_pos, float _radius, const Color &_intensity);
   };
 
   class Scene

@@ -185,6 +185,74 @@ function cook_torrance (params)
    return material (diff, raw.cook_torrance (spec, m, i))
 end
 
+-- Return a mirror material.
+-- PARAMS can be:
+--   REFLECTANCE
+--   {ior=IOR, reflect=REFLECTANCE, color=COLOR}
+--   {REFLECTANCE, ior=IOR, color=COLOR}
+-- etc
+--
+function mirror (params)
+   local _ior = 1.5
+   local _reflect = white
+   local _col = black
+
+   if type (params) == "number" then
+      _reflect = params
+   elseif type (params) == "table"
+      and (params.ior or params.reflect or params.reflectance or params.color)
+   then
+      _reflect = params.reflect or params.reflectance or params[1] or _reflect
+      _ior = params.ior or params[2] or _ior
+      _col = params.color or params[3] or _col
+   elseif type (params) == "table" and (params.n or params.k) then
+      _ior = params
+   else
+      _reflect = params
+   end
+
+   local m = raw.Mirror (ior (_ior), color (_reflect), color (_col));
+   scene:add (m)		-- protect against GC
+
+   return m
+end
+
+-- Return a glass material.
+-- PARAMS can be:
+--   IOR
+--   {ior=IOR, absorb=ABSORPTION}
+--   {ABSORPTION, ior=IOR}
+-- etc
+--
+function glass (params)
+   local _ior = 1.5
+   local _absorb = black
+
+   if type (params) == "number" then
+      _ior = params
+   elseif type (params) == "table"
+      and (params.ior or params.absorb or params.absorption)
+   then
+      _ior = params.ior or params[1] or _ior
+      _absorb = params.absorb or params.absorption or params[2] or _absorb
+   elseif type (params) == "table" and (params.n or params.k) then
+      _ior = params
+   else
+      _absorb = params
+   end
+
+   local gl = raw.Glass (raw.Medium (ior (_ior), color (_absorb)));
+   scene:add (gl)		-- protect against GC
+
+   return gl;
+end
+
+function glow (col)
+   local gl = raw.Glow (color (col))
+   scene:add (gl)		-- protect against GC
+   return gl;
+end   
+
 ----------------------------------------------------------------
 --
 -- transforms
@@ -255,6 +323,24 @@ function normalize (mesh, xf)
 
    mesh:transform (norm)
 end
+
+
+----------------------------------------------------------------
+--
+-- Misc surface types
+
+sphere = raw.Sphere
+
+tripar = raw.Tripar
+
+
+----------------------------------------------------------------
+--
+-- Lights
+
+sphere_light = raw.SphereLight
+
+rect_light = raw.RectLight
 
 
 ----------------------------------------------------------------
