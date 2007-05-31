@@ -64,6 +64,9 @@ help (CmdLineParser &clp, ostream &os)
 n
 s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 n
+s "  -p, --pad-bottom=NUM_ROWS  Add NUM_ROWS black rows at the bottom of the image"
+s "                               (before doing any size conversion)"
+n
 s IMAGE_INPUT_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
@@ -87,13 +90,14 @@ int main (int argc, char *const *argv)
   //
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
+    { "pad-bottom",	required_argument, 0, 'p' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "s:"
+    "s:p:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -103,6 +107,7 @@ int main (int argc, char *const *argv)
   // Parameters set from the command line
   //
   unsigned dst_width = 0, dst_height = 0; // zero means copy from source image
+  unsigned pad_bottom = 0;		  // rows of padding to add to src img
   ValTable src_params, dst_params;
 
   // Parse command-line options
@@ -113,6 +118,9 @@ int main (int argc, char *const *argv)
       {
       case 's':
 	parse_size_opt_arg (clp, dst_width, dst_height);
+	break;
+      case 'p':
+	pad_bottom = clp.unsigned_opt_arg ();
 	break;
 
 	IMAGE_OUTPUT_OPTION_CASES (clp, dst_params);
@@ -132,6 +140,8 @@ int main (int argc, char *const *argv)
   //
   ImageInput src (clp.get_arg(), src_params);
 
+  unsigned padded_src_height = src.height + pad_bottom;
+
   // Default the output image's size from the input image.  If only one
   // dimension was specified, we scale the other to maintain the source
   // image's aspect ratio.
@@ -139,22 +149,22 @@ int main (int argc, char *const *argv)
   if (dst_width == 0 && dst_height == 0)
     {
       dst_width = src.width;
-      dst_height = src.height;
+      dst_height = padded_src_height;
     }
   else if (dst_width == 0)
     dst_width
-      = unsigned (src.width * (float (dst_height) / src.height)
+      = unsigned (src.width * (float (dst_height) / padded_src_height)
 		  + 0.5);
   else if (dst_height == 0)
     dst_height
-      = unsigned (src.height * (float (dst_width) / src.width)
+      = unsigned (padded_src_height * (float (dst_width) / src.width)
 		  + 0.5);
 
   // If the user didn't specify a filter, maybe pick a default
   //
   if (! dst_params.contains ("filter"))
     {
-      if (dst_width == src.width || dst_height == src.height)
+      if (dst_width == src.width || dst_height == padded_src_height)
 	//
 	// If the image size is not being changed, force no filtering
 	//
@@ -168,7 +178,7 @@ int main (int argc, char *const *argv)
   // The scaling we apply during image conversion.
   //
   float x_scale = float (dst_width) / float (src.width);
-  float y_scale = float (dst_height) / float (src.height);
+  float y_scale = float (dst_height) / float (padded_src_height);
 
   // Copy input image to output image, doing any processing
   //
