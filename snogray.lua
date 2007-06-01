@@ -338,9 +338,13 @@ tripar = raw.Tripar
 --
 -- Lights
 
-sphere_light = raw.SphereLight
+function sphere_light (pos, radius, intens)
+   return raw.SphereLight (pos, radius, color (intens))
+end
 
-rect_light = raw.RectLight
+function rect_light (corner, side1, side2, intens)
+   return raw.RectLight (corner, side1, side2, color (intens))
+end
 
 
 ----------------------------------------------------------------
