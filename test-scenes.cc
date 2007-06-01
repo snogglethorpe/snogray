@@ -1521,13 +1521,11 @@ def_scene_pretty_dancer (unsigned num, const string &,
     { 0, 0 }
   };
 
-  const string msh_file_base = "+pretty-dancer";
-  const string msh_file_ext = ".msh";
-
+  // Set up the material maps
+  //
+  MaterialMap mat_map;
   for (const SimpleNamedMat *sm = materials; sm->name; sm++)
     {
-      const string msh_file = msh_file_base + "-" + sm->name + msh_file_ext;
-
       const Brdf *brdf
 	= (sm->m != 0
 	   ? static_cast<const Brdf *> (
@@ -1537,14 +1535,15 @@ def_scene_pretty_dancer (unsigned num, const string &,
 
       const Material *mat = scene.add (new Material (sm->diff, brdf));
 
-      scene.add (new Mesh (mat, msh_file, Xform::identity, sm->name));
+      mat_map.add (sm->name, mat);
     }
   for (const NamedMat *nm = material_refs; nm->name; nm++)
-    {
-      const string msh_file = msh_file_base + "-" + nm->name + msh_file_ext;
-      scene.add (nm->mat);
-      scene.add (new Mesh (nm->mat, msh_file, Xform::identity, nm->name));
-    }
+    mat_map.add (nm->name, scene.add (nm->mat));
+
+  // Load the scene meshes.
+  //
+  const string msh_file = "+pretty-dancer.msh";
+  scene.add (new Mesh (msh_file, mat_map));
 
   bool birthday_card = (num / 1000) > 0;
   unsigned stage     = (num / 100) % 10;
@@ -2227,11 +2226,11 @@ def_scene_trep (unsigned num, const string &arg, Scene &scene, Camera &camera)
   flip_z.scale (1, 1, -1);	// flip z-axis
 
   Mesh *pot = new Mesh ();
-  pot->load (pfx + "teapot_body.ply", flip_z, body_mat);
-  pot->load (pfx + "teapot_handle.ply", flip_z, brown_plastic);
-  pot->load (pfx + "teapot_top.ply", flip_z, metallic_blue);
-  pot->load (pfx + "teapot_wire.ply", flip_z, nickel);
-  pot->load (pfx + "teapot_bird.ply", flip_z, red_plastic);
+  pot->load (pfx + "teapot_body.ply", body_mat, flip_z);
+  pot->load (pfx + "teapot_handle.ply", brown_plastic, flip_z);
+  pot->load (pfx + "teapot_top.ply", metallic_blue, flip_z);
+  pot->load (pfx + "teapot_wire.ply", nickel, flip_z);
+  pot->load (pfx + "teapot_bird.ply", red_plastic, flip_z);
   pot->compute_vertex_normals ();
 
   SXform pot_xform;

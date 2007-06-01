@@ -23,6 +23,7 @@
 #include "tessel.h"
 #include "pos.h"
 #include "xform.h"
+#include "material-map.h"
 
 namespace snogray {
 
@@ -55,21 +56,15 @@ public:
 	const Xform &xform = Xform::identity, bool smooth = true)
     : Surface (mat), left_handed (true)
   {
-    load (file_name, xform);
+    load (file_name, MaterialMap (mat), xform);
     if (smooth)
       compute_vertex_normals ();
   }
-  Mesh (const Material *mat, const std::string &file_name,
-	const Xform &xform, const std::string &mat_name)
-    : Surface (mat), left_handed (true)
+  Mesh (const std::string &file_name, const MaterialMap &mat_map,
+	const Xform &xform = Xform::identity)
+    : Surface (0), left_handed (true)
   {
-    load (file_name, xform, 0, mat_name);
-  }
-  Mesh (const Material *mat, const std::string &file_name,
-	const Xform &xform, const char *mat_name)
-    : Surface (mat), left_handed (true)
-  {
-    load (file_name, xform, 0, mat_name);
+    load (file_name, mat_map, xform);
   }
 
   // All-in-one constructor for a tessellated mesh.
@@ -117,16 +112,18 @@ public:
   // For loading mesh from any file-type (automatically determined)
   //
   void load (const std::string &file_name,
-	     const Xform &xform = Xform::identity,
-	     const Material *mat = 0,
-	     const std::string &mat_name = "");
+	     const MaterialMap &mat_map = MaterialMap (),
+	     const Xform &xform = Xform::identity);
+  void load (const std::string &file_name, const Xform &xform)
+  {
+    load (file_name, MaterialMap (), xform);
+  }
 
   // For loading mesh from .msh file
   //
   void load_msh_file (std::istream &stream,
-		      const Xform &xform = Xform::identity,
-		      const Material *mat = 0,
-		      const std::string &mat_name = "");
+		      const MaterialMap &mat_map = MaterialMap (),
+		      const Xform &xform = Xform::identity);
 
   // Add this (or some other ...) surfaces to SPACE
   //

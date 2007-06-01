@@ -32,8 +32,8 @@ using namespace std;
 // Generic mesh-file loading
 
 void
-Mesh::load (const string &file_name, const Xform &xform, const Material *mat,
-	    const string &mat_name)
+Mesh::load (const string &file_name, const MaterialMap &mat_map,
+	    const Xform &xform)
 {
   try
     {
@@ -48,12 +48,12 @@ Mesh::load (const string &file_name, const Xform &xform, const Material *mat,
       //
 #ifdef HAVE_LIB3DS
       if (fmt == "3ds")
-	load_3ds_file (file_name, *this, xform);
+	load_3ds_file (file_name, *this, mat_map, xform);
       else
 #endif
 
 	if (fmt == "ply")
-	  load_ply_file (file_name, *this, xform, mat);
+	  load_ply_file (file_name, *this, mat_map.map (material), xform);
 
 	else
 	  // Try to open the stream, and then look for formats that want
@@ -66,7 +66,7 @@ Mesh::load (const string &file_name, const Xform &xform, const Material *mat,
 	      throw file_error (string (": ") + strerror (errno));
 
 	    if (fmt == "msh" || fmt == "mesh")
-	      load_msh_file (stream, xform, mat, mat_name);
+	      load_msh_file (stream, mat_map, xform);
 	    else
 	      throw (runtime_error ("Unknown mesh file format: " + fmt));
 	  }
@@ -81,14 +81,10 @@ Mesh::load (const string &file_name, const Xform &xform, const Material *mat,
 // .msh mesh-file format
 
 void
-Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
-		     const string &mat_name)
+Mesh::load_msh_file (istream &stream, const MaterialMap &mat_map,
+		     const Xform &xform)
 {
   char kw[50];
-  bool skip = false;
-
-  if (mat_name.length() > 0)
-    stream >> kw;
 
   // .msh files use a right-handed coordinate system by convention, so
   // the mesh will be left-handed only if XFORM reverses the handedness.
@@ -97,17 +93,36 @@ Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
 
   do
     {
-      if (mat_name.length() > 0)
-	skip = (mat_name != kw);
-
       unsigned base_vert = vertices.size ();
 
+      const Material *mat;
       unsigned num_vertices, num_triangles;
-      stream >> num_vertices;
+
+      // See whether a named material or the number of vertices follows.
+      //
+      stream >> kw;
+      if (isdigit (kw[0]))
+	{
+	  // No, it must be the number of vertices.  Just use a default
+	  // material in this case.
+	  
+	  mat = mat_map.map (material);
+	  num_vertices = atoi (kw);
+	}
+      else
+	{
+	  // Yes, KW is a material name; map it to a material, and read the
+	  // number of vertices from the next line.
+
+	  mat = mat_map.map (kw, material);
+	  stream >> num_vertices;
+	}
+
+      // The next line should be a triangle count.
+      //
       stream >> num_triangles;
 
-      if (! skip)
-	reserve (num_vertices, num_triangles);
+      reserve (num_vertices, num_triangles);
 
       stream >> kw;
       if (strcmp (kw, "vertices") != 0)
@@ -121,8 +136,7 @@ Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
 	  stream >> pos.y;
 	  stream >> pos.z;
 
-	  if (! skip)
-	    add_vertex (pos * xform);
+	  add_vertex (pos * xform);
 	}
 
       stream >> kw;
@@ -137,9 +151,7 @@ Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
 	  stream >> v1i;
 	  stream >> v2i;
 
-	  if (! skip)
-	    add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i,
-			  mat);
+	  add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i, mat);
 	}
 
       stream >> kw;
@@ -159,8 +171,7 @@ Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
 
       if (strcmp (kw, "normals") == 0)
 	{
-	  if (! skip)
-	    vertex_normals.reserve (base_vert + num_vertices);
+	  vertex_normals.reserve (base_vert + num_vertices);
 
 	  // Calculate a variant of XFORM suitable for transforming
 	  // normals.
@@ -175,8 +186,7 @@ Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
 	      stream >> norm.y;
 	      stream >> norm.z;
 
-	      if (! skip)
-		vertex_normals.push_back (MVec (norm * norm_xform).unit ());
+	      vertex_normals.push_back (MVec (norm * norm_xform).unit ());
 	    }
 
 	  stream >> kw;
@@ -184,5 +194,6 @@ Mesh::load_msh_file (istream &stream, const Xform &xform, const Material *mat,
     }
   while (! stream.eof ());
 }
+
 
 // arch-tag: 50a45108-0f51-4377-9246-7b0bcedf4135

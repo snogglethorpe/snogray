@@ -49,11 +49,15 @@ using namespace std;
 
 struct TdsLoader
 {
-  TdsLoader (Scene *_scene)
-    : scene (_scene), single_mesh (0), file (0)
+  TdsLoader (Scene *_scene,
+	     const MaterialMap &_user_materials = MaterialMap ())
+    : scene (_scene), single_mesh (0), file (0),
+      user_materials (_user_materials)
   { }
-  TdsLoader (Mesh *_dest_mesh = 0)
-    : scene (0), single_mesh (_dest_mesh), file (0)
+  TdsLoader (Mesh *_dest_mesh,
+	     const MaterialMap &_user_materials = MaterialMap ())
+    : scene (0), single_mesh (_dest_mesh), file (0),
+      user_materials (_user_materials)
   { }
   ~TdsLoader () { if (file) lib3ds_file_free (file); }
 
@@ -105,11 +109,15 @@ struct TdsLoader
   //
   Lib3dsFile *file;
 
-  typedef map<const string, const Material *> MatMap;
-
-  // A mapping from 3ds material names to snogray materials.
+  // A mapping from material names to snogray materials, for materials
+  // loaded from the 3ds file.
   //
-  MatMap materials;
+  MaterialMap loaded_materials;
+
+  // A mapping from material names to materials specified by the user;
+  // these override materials from the 3ds file.
+  //
+  const MaterialMap &user_materials;
 };
 
 
@@ -176,32 +184,47 @@ const Material *
 TdsLoader::lookup_material (const char *name)
 {
   string sname (name);
-  MatMap::iterator entry = materials.find (sname);
 
-  if (entry != materials.end ())
-    return entry->second;
-  else if (! *name)
+  // Process named materials.
+  //
+  if (! sname.empty ())
     {
-      // "Default" material
+      // If the user specified something, always use that first.
+      //
+      if (user_materials.contains (sname))
+	return user_materials.get (sname);
 
-      const Material *mat = new Material (0.5);
-      materials.insert (entry, MatMap::value_type (sname, mat));
-      return mat;
-    }
-  else
-    {
+      // If we already loaded something with this name, just use that.
+      //
+      if (loaded_materials.contains (sname))
+	return loaded_materials.get (sname);
+
+      // Try to load a material from the file.
+      //
       Lib3dsMaterial *m = lib3ds_file_material_by_name (file, name);
 
       if (m)
 	{
 	  const Material *mat = convert_material (m);
-	  materials.insert (entry, MatMap::value_type (sname, mat));
+	  loaded_materials.add (sname, mat);
 	  return mat;
 	}
-      else
-	throw bad_format (string ("Unknown material in 3ds scene file: ")
-			  + sname);
+
+      // If we can't find a named material, fall through and treat it as
+      // unnamed.
     }
+
+  // Unnamed materials
+
+  const Material *mat = user_materials.get_default ();
+
+  if (!mat && single_mesh)
+    mat = single_mesh->material;
+
+  if (! mat)
+    throw bad_format (string ("Unknown material in 3ds scene file: ") + sname);
+
+  return mat;
 }
 
 
@@ -431,12 +454,14 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 }
 
 // Load meshes (and any materials they use) from a 3ds scene file into
-// MESH.  Geometry is first transformed by XFORM.
+// MESH.  Geometry is first transformed by XFORM, and materials filtered
+// through MAT_MAP.
 //
 void
-snogray::load_3ds_file (const string &filename, Mesh &mesh, const Xform &xform)
+snogray::load_3ds_file (const string &filename, Mesh &mesh,
+			const MaterialMap &mat_map, const Xform &xform)
 {
-  TdsLoader l (&mesh);
+  TdsLoader l (&mesh, mat_map);
 
   l.load (filename);
 

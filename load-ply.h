@@ -27,8 +27,8 @@ class Material;
 // triangles loaded (otherwise MESH's default material will be used).
 //
 extern void load_ply_file (const std::string &filename, Mesh &mesh,
-			   const Xform &xform = Xform::identity,
-			   const Material *mat = 0);
+			   const Material *mat = 0,
+			   const Xform &xform = Xform::identity);
 
 }
 

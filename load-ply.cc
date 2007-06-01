@@ -30,7 +30,7 @@ using namespace snogray;
 
 struct RplyState
 {
-  RplyState (Mesh &_mesh, const Xform &_xform, const Material *_mat = 0)
+  RplyState (Mesh &_mesh, const Material *_mat, const Xform &_xform)
     : mesh (_mesh), base_vert_index (mesh.num_vertices ()),
       xform (_xform), norm_xform (xform.inverse().transpose()), mat (_mat),
       last_vert_index (0)
@@ -165,11 +165,11 @@ face_cb (p_ply_argument arg)
 //
 void
 snogray::load_ply_file (const std::string &filename, Mesh &mesh,
-			const Xform &xform, const Material *mat)
+			const Material *mat, const Xform &xform)
 {
   // State used by all our call back functions.
   //
-  RplyState state (mesh, xform, mat);
+  RplyState state (mesh, mat, xform);
 
   // The rply library uses a void* value to store client state, so keep a
   // pointer to STATE in that form.

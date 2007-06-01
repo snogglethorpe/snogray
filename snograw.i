@@ -107,7 +107,7 @@ namespace snogray {
   {
   public:
 
-    static const Matrix4<T> identity;
+    static const TXform identity;
 
     TXform (T scale = 1);
     TXform (const TXform &src);
@@ -320,14 +320,49 @@ namespace snogray {
 	    bool _parallelogram = false);
   };
 
+  class MaterialMap
+  {
+  public:
+
+    MaterialMap (const Material *default_material = 0);
+
+    const Material *get (const std::string &name) const;
+    void add (const std::string &name, const Material *mat);
+    bool contains (const std::string &name) const;
+
+    const Material *get_default () const;
+    void set_default (const Material *mat);
+  };
+  %extend MaterialMap
+  {
+    const Material *__getitem__ (const char *name) const
+    {
+      return $self->get (name);
+    }
+    void __setitem__ (const char *name, const Material *mat)
+    {
+      $self->add (name, mat);
+    }
+    const char* __str__()
+    {
+      snprintf (static_rep_buf, sizeof static_rep_buf,
+		"material<nentries=%d%s>",
+		$self->num_entries(),
+		$self->get_default() ? "+1" : "");
+      return static_rep_buf;
+    }
+  }
+
   class Mesh : public Surface
   {
   public:
 
     Mesh (const snogray::Material *mat = 0);
     Mesh (const snogray::Material *mat, const std::string &file_name,
-	  const snogray::Xform &xform = snogray::Xform::identity,
+	  const snogray::Xform &xform = Xform::identity,
 	  bool smooth = true);
+    Mesh (const std::string &file_name, const MaterialMap &mat_map,
+	  const Xform &xform = Xform::identity);
 
     typedef unsigned vert_index_t;
     class VertexGroup;
@@ -350,9 +385,9 @@ namespace snogray {
     vert_index_t add_normal (vert_index_t vert_index, const Vec &normal);
 
     void load (const char *file_name,
-	       const snogray::Xform &xform = snogray::Xform::identity,
-	       const snogray::Material *mat = 0,
-	       const char *mat_name = "");
+	       const MaterialMap &mat_map = MaterialMap (),
+	       const Xform &xform = Xform::identity);
+    void load (const char *file_name, const Xform &xform);
 
     void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
 

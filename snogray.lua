@@ -267,6 +267,18 @@ function glow (col)
    return gl;
 end   
 
+
+----------------------------------------------------------------
+--
+-- material maps
+
+function is_material_map (val)
+   return swig_type (val) == "_p_snogray__MaterialMap"
+end
+
+material_map = raw.MaterialMap
+
+
 ----------------------------------------------------------------
 --
 -- transforms
