@@ -65,6 +65,10 @@ function color (val)
       elseif t == "table" then
 	 local r,g,b
 
+	 if not next (val) then
+	    return white      -- default to white if _nothing_ specified
+	 end
+
 	 if type (val[1]) == "number" then
 	    r, g, b = val[1], val[2], val[3]
 	 elseif val[1] then
@@ -126,6 +130,7 @@ define_color ("cyan",	{blue=1, green=1})
 define_color ("magenta",{blue=1, red=1})
 define_color ("yellow",	{red=1, green=1})
 
+
 ----------------------------------------------------------------
 --
 -- materials
@@ -142,12 +147,19 @@ local function material (color, brdf)
    return mat
 end
 
+function is_ior (val)
+   return swig_type (val) == "_p_snogray__Ior"
+end
+
 -- Index of Refraction:  { n = REAL_IOR, k = IMAG_IOR }
 --
-function ior (params)
-   if type (params) == "number" then
-      return params
+function ior (n, k)
+   if (type (n) == "number" or  is_ior (n)) and not k then
+      return n
+   elseif n and k then
+      return raw.Ior (n, k)
    else
+      local params = n
       return raw.Ior (params.n or params[1], params.k or params[2])
    end
 end
@@ -185,6 +197,8 @@ function cook_torrance (params)
    return material (diff, raw.cook_torrance (spec, m, i))
 end
 
+local default_mirror_ior = ior (0.25, 3)
+
 -- Return a mirror material.
 -- PARAMS can be:
 --   REFLECTANCE
@@ -193,7 +207,7 @@ end
 -- etc
 --
 function mirror (params)
-   local _ior = 1.5
+   local _ior = default_mirror_ior
    local _reflect = white
    local _col = black
 
@@ -260,6 +274,8 @@ end
 -- Make a transform.
 --
 xform = raw.Xform
+
+identity_xform = raw.Xform_identity
 
 function is_xform (val)
    local t = swig_type (val)
