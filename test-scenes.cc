@@ -267,122 +267,6 @@ tobj (tobj_type type, const Material *mat, const Pos &pos, dist_t radius,
 
 
 
-static void
-def_scene_miles (unsigned num, const string &, Scene &scene, Camera &camera)
-{
-//  Material *mat1 = scene.add (new Lambert (Color (1, 0.5, 0.2)));
-//  Material *mat2 = scene.add (new Lambert (Color (0.5, 0.5, 0)));
-//  Material *mat3 = scene.add (new Lambert (Color (1, 0.5, 1)));
-//  Material *mat4 = scene.add (new Lambert (Color (1, 0.5, 1)));
-//   Material *mat3 = scene.add (Material::phong (Color (0.1, 0.1, 0.1),  400));
-//   const Material *mat1
-//     = scene.add (new Mirror (0.5, Color (1, 0.5, 0.2) * 0.5, 5));
-  const Material *crystal = scene.add (new Glass (1.8));
-  const Material *silver = scene.add (new Mirror (Ior (0.25, 3), 0.9, 0.05));
-  const Material *mat1 = crystal, *mat2 = silver;
-  const Material *mat3
-    = scene.add (new Material (Color (0.8, 0, 0), cook_torrance (0.2, 0.1)));
-  const Material *mat4
-    = scene.add (new Material (Color (0.2, 0.5, 0.1)));
-
-  // First test scene
-
-  switch ((num / 10) % 10)
-    {
-    case 0:
-      // default
-      //
-      if (scene.light_map)
-	break;
-
-      // otherwise, fall through
-
-    case 1:
-      add_bulb (scene, Pos (0, 15, 0), 0.06, 90);
-      add_bulb (scene, Pos (0, 0, -5), 0.06, 90);
-      add_bulb (scene, Pos (-5, 10, 0), 0.06, 120 * Color (0, 0, 1));
-      add_bulb (scene, Pos (-40, 15, -40), 0.06, 3000);
-      add_bulb (scene, Pos (-40, 15,  40), 0.06, 3000);
-      add_bulb (scene, Pos ( 40, 15, -40), 0.06, 3000);
-      add_bulb (scene, Pos ( 40, 15,  40), 0.06, 3000);
-      break;
-
-    case 2:
-      add_rect_bulb (scene, Pos(-80, 0, -80), Vec(0, 80, 0), Vec(0, 0, 160),
-		     10);
-      break;
-
-    case 3:
-      add_rect_bulb (scene, Pos(-40, 0, 0), Vec(40, 0, 40), Vec(0, 5, 0), 15);
-      add_rect_bulb (scene, Pos(0, 0, -40), Vec(40, 0, 40), Vec(0, 5, 0), 15);
-      break;
-
-    case 4:
-      add_rect_bulb (scene, Pos(-20, -3, 0), Vec(20, 0, 20), Vec(0, 1, 0), 150);
-      add_rect_bulb (scene, Pos(0, -3, -20), Vec(20, 0, 20), Vec(0, 1, 0), 150);
-      break;
-    }
-
-  scene.add (new Sphere (mat1, Pos (0, 2, 7), 5));
-  scene.add (new Sphere (mat2, Pos (-8, 0, 3), 3));
-  scene.add (new Sphere (mat3, Pos (-6, 5, 2), 1));
-
-  add_rect (scene, mat4, Pos (-100, -3, -100), Vec(200, 0, 0), Vec(0, 0, 200));
-
-  switch (num % 10)
-    {
-    case 0:
-    default:
-      camera.move (Pos (-6.5, -0.4, -19));
-      camera.point (Pos (0, -2, 5));
-      break;
-
-    case 2:			// overhead
-      camera.move (Pos (0, 50, 30));
-      camera.point (Pos (0, 5, 0));
-      break;
-
-    case 1:
-      camera.move (Pos (-3, 2, -18));
-      break;
-    case 3:
-      camera.move (Pos (-3, 1.5, -25));
-      break;
-    }
-
-  
-  const unsigned gsize = 10;
-  const unsigned gsep = 4;
-  const Pos gpos (-20, -1, -20);
-  for (unsigned i = 0; i < gsize; i++)
-    for (unsigned j = 0; j < gsize; j++)
-      {
-	float comps[Color::TUPLE_LEN];
-	for (unsigned c = 0; c < Color::TUPLE_LEN; c++)
-	  if ((i + j) % Color::TUPLE_LEN == c
-	      || abs (int (i) - int (j)) % Color::TUPLE_LEN == c)
-	    comps[c] = 0.5f + float (i) / float (gsize) / 2;
-	  else
-	    comps[c] = float (j) / float (gsize) / 2;
-	Color color (comps);
-	Pos pos = gpos + Vec (i * gsep, 0, j * gsep);
-	const Material *mat
-	  = scene.add (new Material (color * 0.5, cook_torrance (0.5, 0.01)));
-	scene.add (new Sphere (mat, pos, 0.5));
-	scene.add (new Tripar (mat, pos + Vec (1.5, -0.2, 0),
-			       Vec (-2, 0, -1.1), Vec (-2, 0, 1.1)));
-      }
-}
-
-static void
-add_scene_descs_miles (vector<TestSceneDesc> &descs)
-{
-  descs.push_back (TestSceneDesc ("miles0", "Lots of spheres and triangles, low angle"));
-  descs.push_back (TestSceneDesc ("miles1", "Lots of spheres and triangles, square angle"));
-  descs.push_back (TestSceneDesc ("miles2", "Lots of spheres and triangles, high angle"));
-  descs.push_back (TestSceneDesc ("miles3", "Lots of spheres and triangles, slightly wider angle"));
-}
-
 static void 
 def_scene_pretty_bunny (unsigned num, const string &arg,
 			Scene &scene, Camera &camera)
@@ -2425,9 +2309,7 @@ snogray::def_test_scene (const string &_name, Scene &scene, Camera &camera)
       name = name.substr (0, base_end + 1);
     }
 
-  if (name == "miles")
-    def_scene_miles (num, arg, scene, camera);
-  else if (name == "mesh")
+  if (name == "mesh")
     def_scene_mesh (num, arg, scene, camera);
   else if (name == "teapot")
     def_scene_teapot (num, arg, scene, camera);
@@ -2466,7 +2348,6 @@ snogray::list_test_scenes ()
 {
   vector<TestSceneDesc> descs;
 
-  add_scene_descs_miles (descs);
   add_scene_descs_teapot (descs);
   add_scene_descs_balls (descs);
   add_scene_descs_orange (descs);
