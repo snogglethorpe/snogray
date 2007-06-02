@@ -251,8 +251,8 @@ AM_CONDITIONAL([have_lib3ds], [test $have_lib3ds = yes])
 #
 if test $have_lib3ds = yes; then
 
-  _OLD_CFLAGS="$CFLAGS"
-  CFLAGS="$CFLAGS $LIB3DS_CFLAGS"
+  _OLD_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CFLAGS $LIB3DS_CFLAGS"
 
   AC_MSG_CHECKING([whether lib3ds supports obj_flags extension])
   AC_TRY_COMPILE([#include <lib3ds/mesh.h>],
@@ -266,7 +266,7 @@ if test $have_lib3ds = yes; then
               [Define if lib3ds has "obj_flags" support])
   fi  
 
-  CFLAGS="$_OLD_CFLAGS"
+  CPPFLAGS="$_OLD_CPPFLAGS"
 fi
 
 
