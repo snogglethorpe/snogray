@@ -434,12 +434,6 @@ int main (int argc, char *const *argv)
   ios::sync_with_stdio (false);
 
 
-  // Enable floating-point exceptions if possible, which can help
-  // debugging.
-  //
-  enable_fp_exceptions ();
-
-
   // Parse command-line options
   //
   int opt;
@@ -536,6 +530,15 @@ int main (int argc, char *const *argv)
   // Read in the scene/camera definitions
   //
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
+
+
+  // Enable floating-point exceptions if possible, which can help debugging.
+  // Note that we do this _after_ reading the scene which helps avoid
+  // problems with libraries that are not expecting floating-point exceptions
+  // to be enabled (code must be compiled with -ftrapping-math to inform the
+  // compiler that floating-point operations may trap).
+  //
+  enable_fp_exceptions ();
 
 
   // If the user specified both a width and a height, set the camera aspect
