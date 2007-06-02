@@ -218,6 +218,10 @@ namespace snogray {
 
     Pos min, max;
   };
+  %extend BBox
+  {
+    const char* __str__() { return static_rep (*$self); }
+  }
 
   %ignore Brdf;
   class Brdf

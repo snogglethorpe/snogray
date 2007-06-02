@@ -125,6 +125,20 @@ public:
   Pos min, max;
 };
 
+inline std::ostream&
+operator<< (std::ostream &os, const BBox &bbox)
+{
+  os << "bbox<"
+     << std::setprecision (5) << lim (bbox.min.x) << ", "
+     << std::setprecision (5) << lim (bbox.min.y) << ", "
+     << std::setprecision (5) << lim (bbox.min.z) << " - "
+     << std::setprecision (5) << lim (bbox.max.x) << ", "
+     << std::setprecision (5) << lim (bbox.max.y) << ", "
+     << std::setprecision (5) << lim (bbox.max.z)
+     << ">";
+  return os;
+}
+
 
 }
 
