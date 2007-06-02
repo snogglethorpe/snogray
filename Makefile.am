@@ -54,7 +54,7 @@ CXXFLAGS = $(CFLAGS) $(CXX_CHECK_FLAGS)
 
 # Other flags we pass via AM_CXXFLAGS
 #
-AM_CXXFLAGS = $(PG) $(MUDFLAP)
+AM_CXXFLAGS = $(PG) $(MUDFLAP) $(CXX_EXTRA_REQ_FLAGS)
 AM_LDFLAGS = $(PG) $(MUDFLAP)
 
 # Add compiler flags (nominally "cflags", but in practice always
@@ -211,7 +211,7 @@ swigluarun.h:
 	$(SWIG) -lua -c++ -external-runtime $@
 
 libsnograw_a_SOURCES = snograw_wrap.cc
-libsnograw_a_CXXFLAGS = -fno-strict-aliasing
+libsnograw_a_CXXFLAGS = -fno-strict-aliasing $(AM_CXXFLAGS)
 
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl

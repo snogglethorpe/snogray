@@ -354,15 +354,20 @@ if test "$GXX" = yes; then
   # exceptions.
   #
   if test "$use_fp_exceptions" = yes; then
-    CXX_MATH_FLAGS="-ffast-math -ftrapping-math"
+    CXX_MATH_OPT_FLAGS="-ffast-math"
+    CXX_MATH_REQ_FLAGS="-ftrapping-math"
   else
-    CXX_MATH_FLAGS="-ffast-math"
+    CXX_MATH_OPT_FLAGS="-ffast-math"
+    CXX_MATH_REQ_FLAGS=""
   fi
 
   # Validate extra optimization flags.
   #
-  CXX_EXTRA_OPT_FLAGS="$CXX_MATH_FLAGS"
+  CXX_EXTRA_OPT_FLAGS="$CXX_MATH_OPT_FLAGS"
   SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_OPT_FLAGS], [$CXX_EXTRA_OPT_FLAGS])
+
+  CXX_EXTRA_REQ_FLAGS="$CXX_MATH_REQ_FLAGS"
+  SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_REQ_FLAGS], [$CXX_EXTRA_REQ_FLAGS])
 
   # Guess machine-specific options based on cpu type.
   #
