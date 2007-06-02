@@ -176,12 +176,26 @@ m4_define_default([PKG_CHECK_MODULES],
 ##
 
 
-# Check for lua library
+# Check for lua library.  First, try using pkg-config (as present on
+# e.g. debian).
 #
 PKG_CHECK_MODULES([liblua], [lua5.1],
   [have_liblua=yes],
   [have_liblua=no
    AC_MSG_RESULT([no])])
+#
+# If we couldn't find it using pkg-config, try without (the default lua
+# distribution doesn't support pkg-config).
+#
+if test $have_liblua = no; then
+   AC_LANG_PUSH(C)
+   AC_CHECK_LIB([lua], [lua_close], [have_liblua=yes], [have_liblua=no], [-lm])
+   if test $have_liblua = yes; then
+     AC_SUBST([liblua_CFLAGS], [])
+     AC_SUBST([liblua_LIBS], [-llua])
+   fi
+   AC_LANG_POP(C)
+fi
 if test $have_liblua = yes; then
   AC_DEFINE([HAVE_LIBLUA], [1], [Define if liblua is installed])
 fi
