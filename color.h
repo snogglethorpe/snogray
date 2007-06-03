@@ -147,7 +147,24 @@ public:
     _r = r; _g = g; _b = b;
   }
 
-  component_t _r, _g, _b;
+  // Array access to color components.
+  //
+  component_t &operator[] (unsigned c) { return _components[c]; }
+  const component_t &operator[] (unsigned c) const { return _components[c]; }
+
+  // We use an anonymous union to allow both "array" and "named
+  // component" access to the color components.
+  //
+  union
+  {
+    // Named components.
+    //
+    struct { component_t _r, _g, _b; };
+
+    // Array components.
+    //
+    component_t _components[TUPLE_LEN];
+  };
 };
 
 
