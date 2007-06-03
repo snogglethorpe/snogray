@@ -355,6 +355,16 @@ namespace snogray {
     {
       $self->add (name, mat);
     }
+
+    // Since a "nil" table value in lua conventionally means "no entry",
+    // support true/false for use with "negative" entries (an entry
+    // mapping to a zero pointer in the native MaterialMap type).
+    //
+    void __setitem__ (const char *name, bool flag)
+    {
+      $self->add (name, 0);
+    }
+
     const char* __str__()
     {
       snprintf (static_rep_buf, sizeof static_rep_buf,
