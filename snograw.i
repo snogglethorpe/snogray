@@ -43,6 +43,14 @@
 
 %}
 
+//
+// Note: for function arguments with a type of "const std::string &", we
+// use "const char *" in the declarations below (and rely on the
+// automatic C++ conversion to translate), because swig is more
+// functional with char pointers (e.g. it automatically converts to/from
+// the client language's string type).
+//
+
 %include "coords.h"
 
 namespace snogray {
@@ -330,9 +338,9 @@ namespace snogray {
 
     MaterialMap (const Material *default_material = 0);
 
-    const Material *get (const std::string &name) const;
-    void add (const std::string &name, const Material *mat);
-    bool contains (const std::string &name) const;
+    const Material *get (const char *name) const;
+    void add (const char *name, const Material *mat);
+    bool contains (const char *name) const;
 
     const Material *get_default () const;
     void set_default (const Material *mat);
@@ -362,10 +370,10 @@ namespace snogray {
   public:
 
     Mesh (const snogray::Material *mat = 0);
-    Mesh (const snogray::Material *mat, const std::string &file_name,
+    Mesh (const snogray::Material *mat, const char *file_name,
 	  const snogray::Xform &xform = Xform::identity,
 	  bool smooth = true);
-    Mesh (const std::string &file_name, const MaterialMap &mat_map,
+    Mesh (const char *file_name, const MaterialMap &mat_map,
 	  const Xform &xform = Xform::identity);
 
     typedef unsigned vert_index_t;
@@ -494,8 +502,7 @@ namespace snogray {
     Light *add (Light *light);
     Material *add (Material *mat);
 
-    void load (const std::string &file_name, const std::string &fmt,
-	       Camera &camera);
+    void load (const char *file_name, const char *fmt, Camera &camera);
   };
   %extend Scene
   {
