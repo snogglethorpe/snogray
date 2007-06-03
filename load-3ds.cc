@@ -43,7 +43,11 @@ using namespace std;
 
 // The index of refraction we use for reflective objects.
 //
-#define TDS_METAL_IOR			Ior (0.25, 3)
+#define TDS_METAL_IOR		Ior (0.25, 3)
+
+// A node name which should be ignored.
+//
+#define DUMMY_NODE_NAME		"$$$DUMMY"
 
 
 
@@ -61,6 +65,22 @@ struct TdsLoader
   { }
   ~TdsLoader () { if (file) lib3ds_file_free (file); }
 
+  // A single entry in a linked list of names (used for tracking the
+  // 3ds named node hierarchy).
+  //
+  struct Name
+  {
+    Name (const char *_name, const Name *_next)
+      : name ((_name && strcmp (_name, DUMMY_NODE_NAME) != 0) ? _name : ""),
+	next (_next)
+    { }
+
+    bool valid () const { return !name.empty (); }
+
+    string name;
+    const Name *next;
+  };
+
   // Load 3ds scene file FILENAME into memory.
   //
   void load (const string &filename);
@@ -72,16 +92,28 @@ struct TdsLoader
 
   // Import 3ds scene objects underneath NODE, transformed by XFORM,
   // into the snogray scene or mesh associated with this loader.
+  // ENCLOSING_NAMES is a list of the names of parent nodes.
   //
-  void convert (Lib3dsNode *node, const Xform &xform = Xform::identity);
+  void convert (Lib3dsNode *node, const Xform &xform = Xform::identity,
+		const Name *enclosing_names = 0);
 
   void set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform);
 
-  // Return a snogray material corresponding to the 3ds material called NAME.
-  // If this loader has a scene associated with it, the material will be
-  // added to it.
+  // Return a snogray material for a material reference to a material
+  // called NAME (may be zero for "default") in the geometric context
+  // specified by the hierarchy of names in HIER_NAMES (innermost first).
   //
-  const Material *lookup_material (const char *name);
+  // See the function documentation of TdsLoader::lookup_material for a
+  // more detailed description of how exactly this is done.
+  //
+  const Material *lookup_material (const char *name, const Name *hier_names=0);
+
+  // Return a snogray material corresponding to the 3ds material loaded
+  // with the file called NAME.  If this loader has a scene associated
+  // with it, the material will be added to it.  Does not consider user
+  // materials.
+  //
+  const Material *lookup_file_material (const char *name);
 
   // Return a snogray material corresponding to the 3ds material M.
   // If this loader has a scene associated with it, the material will be
@@ -121,6 +153,7 @@ struct TdsLoader
 };
 
 
+// TdsLoader::convert_material
 
 // Return a snogray material corresponding to the 3ds material M.
 // If this loader has a scene associated with it, the material will be
@@ -176,53 +209,141 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
   return mat;
 }
 
-// Return a snogray material corresponding to the 3ds material called NAME.
-// If this loader has a scene associated with it, the material will be
-// added to it.
+
+// TdsLoader::lookup_file_material
+
+// Return a snogray material corresponding to the 3ds material loaded
+// with the file called NAME.  If this loader has a scene associated
+// with it, the material will be added to it.  Does not consider user
+// materials.
 //
 const Material *
-TdsLoader::lookup_material (const char *name)
+TdsLoader::lookup_file_material (const char *name)
 {
-  string sname (name);
+  string mat_name (name);
 
-  // Process named materials.
+  // If we already loaded something with this name, just use that.
   //
-  if (! sname.empty ())
+  if (loaded_materials.contains (mat_name))
+    return loaded_materials.get (mat_name);
+
+  // Try to load a material from the file.
+  //
+  Lib3dsMaterial *m = lib3ds_file_material_by_name (file, name);
+
+  if (m)
     {
-      // If the user specified something, always use that first.
-      //
-      if (user_materials.contains (sname))
-	return user_materials.get (sname);
-
-      // If we already loaded something with this name, just use that.
-      //
-      if (loaded_materials.contains (sname))
-	return loaded_materials.get (sname);
-
-      // Try to load a material from the file.
-      //
-      Lib3dsMaterial *m = lib3ds_file_material_by_name (file, name);
-
-      if (m)
-	{
-	  const Material *mat = convert_material (m);
-	  loaded_materials.add (sname, mat);
-	  return mat;
-	}
-
-      // If we can't find a named material, fall through and treat it as
-      // unnamed.
+      const Material *mat = convert_material (m);
+      loaded_materials.add (mat_name, mat);
+      return mat;
     }
 
-  // Unnamed materials
+  return 0;
+}
 
-  const Material *mat = user_materials.get_default ();
+
+// TdsLoader::lookup_material
 
+// Return a snogray material for a material reference to a material
+// called NAME (may be zero for "default") in the geometric context
+// specified by the hierarchy of names in HIER_NAMES (innermost first).
+//
+// The resulting material can come from either user specified names or
+// names loaded with the 3ds file.  The search order is (where GN0
+// ... GNn are the node names, from innermost to outermost, and MAT_NAME
+// is the name used in the material reference):
+//
+//   step1:
+//     user_materials[GN0 + "." + MAT_NAME]
+//     user_materials[GN1 + "." + MAT_NAME]
+//       ...
+//     user_materials[GNn + "." + MAT_NAME]
+//   step2:
+//     user_materials[MAT_NAME]
+//   step3:
+//     loaded_materials[MAT_NAME]
+//   step4:
+//     user_materials[GN0]
+//     user_materials[GN1]
+//       ...
+//     user_materials[GNn]
+//   step5:
+//     default_user_material
+//
+// A user name->material mapping ("user_materials" above) may be a
+// "negative" entry where the material mapped to is NULL; finding such a
+// NULL material mapping in step1 or step2 causes the search to stop and
+// skip directly to step4 without considering materials loaded with the
+// file ("loaded_materials" in step3).  This behavior is intended to
+// make it easy to override useless "boring default" material references
+// that exist in many 3ds files.
+//
+const Material *
+TdsLoader::lookup_material (const char *name, const Name *hier_names)
+{
+  string mat_name (name);
+  const Material *mat = 0;
+
+  // If this is a named material reference, first lookup materials by
+  // name.
+  //
+  if (! mat_name.empty ())
+    {
+      bool found_user_mapping = false;
+
+      // Step 1:  Look for a user material mapping with a combined
+      // geometry + material name.
+      //
+      for (const Name *hn = hier_names;
+	   hn && !found_user_mapping; hn = hn->next)
+	if (hn->valid ())
+	  {
+	    string geom_mat_name (hn->name);
+	    geom_mat_name += '.';
+	    geom_mat_name += mat_name;
+
+	    if (user_materials.contains (geom_mat_name))
+	      {
+		mat = user_materials.get (geom_mat_name);
+		found_user_mapping = true;
+	      }
+	  }
+
+      // Step 2:  Look for a user material mapping using only a material
+      // name.
+      //
+      if (!found_user_mapping && user_materials.contains (mat_name))
+	{
+	  mat = user_materials.get (mat_name);
+	  found_user_mapping = true;
+	}
+
+      // Step 3:  Look for a named material definition loaded from the
+      // file.
+      //
+      if (! found_user_mapping)
+	mat = lookup_file_material (name);
+    }
+
+  // Now consider unnamed materials if necessary
+
+  // Step 4:  Look for a user material mapping with a combined
+  // geometry + material name.
+  //
+  if (! mat)
+    for (const Name *hn = hier_names; hn && !mat; hn = hn->next)
+      if (hn->valid () && user_materials.contains (hn->name))
+	mat = user_materials.get (hn->name);
+
+  // Step 5:  As a last-ditch effort, try a default material.
+  //
+  if (! mat)
+    mat = user_materials.get_default ();
   if (!mat && single_mesh)
     mat = single_mesh->material;
 
   if (! mat)
-    throw bad_format (string ("Unknown material in 3ds scene file: ") + sname);
+    throw bad_format ("Unknown material in 3ds scene file: " + mat_name);
 
   return mat;
 }
@@ -255,14 +376,19 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 
 // Import 3ds scene objects underneath NODE, transformed by XFORM,
 // into the snogray scene or mesh associated with this loader.
+// ENCLOSING_NAMES is a list of the names of parent nodes.
 //
 void
-TdsLoader::convert (Lib3dsNode *node, const Xform &xform)
+TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
+		    const Name *enclosing_names)
 {
-  for (Lib3dsNode *child = node->childs; child; child = child->next)
-    convert (child, xform);
+  const Name hier_names (node->name, enclosing_names);
 
-  if (node->type == LIB3DS_OBJECT_NODE && strcmp (node->name,"$$$DUMMY") != 0)
+  for (Lib3dsNode *child = node->childs; child; child = child->next)
+    convert (child, xform, &hier_names);
+
+  if (node->type == LIB3DS_OBJECT_NODE
+      && strcmp (node->name, DUMMY_NODE_NAME) != 0)
     {
       Lib3dsMesh *m = lib3ds_file_mesh_by_name (file, node->name);
 
@@ -318,6 +444,11 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform)
 		  vert_face_counts[m->faceL[t].points[i]]++;
 	    }
 
+	  // Simple cache to avoid the most repetitive material lookups.
+	  //
+	  const Material *cached_mat = 0;
+	  char cached_mat_name[64]; // 64 is from the 3DS file standard
+
 	  // Add all faces to the mesh.
 	  //
 	  for (unsigned t = 0; t < m->faces; t++)
@@ -352,8 +483,13 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform)
 		      vind[i] = mesh->add_vertex (mesh->vertex (vind[i]));
 		    }
 
-	      mesh->add_triangle (vind[0], vind[1], vind[2],
-				  lookup_material (f->material));
+	      if (!cached_mat || strcmp (f->material, cached_mat_name) != 0)
+		{
+		  strcpy (cached_mat_name, f->material);
+		  cached_mat = lookup_material (f->material, &hier_names);
+		}
+
+	      mesh->add_triangle (vind[0], vind[1], vind[2], cached_mat);
 	    }
 
 	  // If smoothing, compute vertex normals.  This turns on smoothign
