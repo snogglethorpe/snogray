@@ -32,13 +32,22 @@ class Material;
 //   4) "Global" default (e.g. from a mesh being loaded into)
 //   5) Error
 //
-class MaterialMap
+class MaterialMap : std::map<std::string, const Material *>
 {
+private:
+
+  typedef std::map<std::string, const Material *> super;
+
 public:
 
   MaterialMap (const Material *default_material = 0)
     : _default_material (default_material)
   { }
+
+  using super::iterator;
+  using super::const_iterator;
+  using super::begin;
+  using super::end;
 
   // Map NAME to a material.  GLOBAL_DEFAULT corresponds
   // to steps (4) from the list above, and is used if there is
@@ -80,13 +89,9 @@ public:
   const Material *get_default () const { return _default_material; }
   void set_default (const Material *mat) { _default_material = mat; }
 
-  unsigned num_entries () const { return _named_materials.size (); }
+  unsigned num_entries () const { return size (); }
 
 private:
-
-  typedef std::map<std::string, const Material *> NamedMap;
-
-  NamedMap _named_materials;
 
   const Material *_default_material;
 };

@@ -21,8 +21,8 @@ using namespace snogray;
 const Material *
 MaterialMap::get (const std::string &name) const
 {
-  NamedMap::const_iterator iter = _named_materials.find (name);
-  if (iter != _named_materials.end())
+  const_iterator iter = find (name);
+  if (iter != end())
     return iter->second;
   else
     return 0;
@@ -33,8 +33,7 @@ MaterialMap::get (const std::string &name) const
 void
 MaterialMap::add (const std::string &name, const Material *mat)
 {
-  std::pair<NamedMap::iterator, bool> ins_result
-    = _named_materials.insert (std::make_pair (name, mat));
+  std::pair<iterator, bool> ins_result = insert (std::make_pair (name, mat));
 
   if (! ins_result.second)
     ins_result.first->second = mat;
@@ -45,8 +44,8 @@ MaterialMap::add (const std::string &name, const Material *mat)
 bool
 MaterialMap::contains (const std::string &name) const
 {
-  NamedMap::const_iterator iter = _named_materials.find (name);
-  return iter != _named_materials.end();
+  const_iterator iter = find (name);
+  return iter != end();
 }
 
 // arch-tag: 96d32d83-5f0d-4834-868a-f2f8702b6517
