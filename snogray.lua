@@ -276,7 +276,25 @@ function is_material_map (val)
    return swig_type (val) == "_p_snogray__MaterialMap"
 end
 
-material_map = raw.MaterialMap
+function material_map (init)
+   local mmap = raw.MaterialMap ()
+
+   if init then
+      if type (init) == "table" then
+	 for name, mat in pairs (init) do
+	    if type (name) == "boolean" then
+	       mmap:set_default (mat)
+	    else
+	       mmap[name] = mat
+	    end
+	 end
+      elseif is_material (init) then
+	 mmap:set_default (init)
+      end
+   end
+
+   return mmap
+end
 
 
 ----------------------------------------------------------------
