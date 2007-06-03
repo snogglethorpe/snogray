@@ -244,10 +244,49 @@ Color
 Scene::background (const Ray &ray) const
 {
   if (env_map)
-    return env_map->map (ray.dir);
+    {
+      Color bg = env_map->map (ray.dir);
+
+      // If there are separate environment and light-maps, it's likely that
+      // the latter is HDR and the former LDR, so try to add highlight
+      // information to the environment-map using the HDR light-map.
+      //
+      // This is done by detecting a "saturated" LDR background color --
+      // within epsilon of 1.0 -- and using the corresponding light-map
+      // color instead if it is greater than 1.0.  This is done
+      // separately for each color component.
+      //
+      if (light_map && light_map != env_map)
+	{
+	  // "Saturation epsilon" -- if a color component is within this
+	  // amount of 1.0, it is considered a possible "saturated" LDR
+	  // pixel.
+	  //
+	  static const float SAT_EPS = 0.005;
+
+	  // First we test the maximum component to see if it's possibly
+	  // saturated; if not, there's no point in fetching the
+	  // light-map color.
+	  //
+	  Color::component_t max = bg.max_component ();
+
+	  if (max > 1-SAT_EPS && max < 1+SAT_EPS)
+	    {
+	      Color lmap_bg = light_map->map (ray.dir);
+
+	      for (unsigned c = 0; c < Color::TUPLE_LEN; c++)
+		if (bg[c] > 1-SAT_EPS && lmap_bg[c] > 1)
+		  bg[c] = lmap_bg[c];
+	    }
+	}
+
+      return bg;
+    }
   else
     return bg_color;
 }
+
+
 
 void
 Scene::set_background (const Color &col)
