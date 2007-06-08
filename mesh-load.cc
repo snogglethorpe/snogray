@@ -91,6 +91,7 @@ Mesh::load_msh_file (istream &stream, const MaterialMap &mat_map,
   //
   left_handed = xform.reverses_handedness ();
 
+  stream >> kw;
   do
     {
       unsigned base_vert = vertices.size ();
@@ -100,7 +101,6 @@ Mesh::load_msh_file (istream &stream, const MaterialMap &mat_map,
 
       // See whether a named material or the number of vertices follows.
       //
-      stream >> kw;
       if (isdigit (kw[0]))
 	{
 	  // No, it must be the number of vertices.  Just use a default
