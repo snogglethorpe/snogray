@@ -15,6 +15,7 @@
 #include "color.h"
 #include "medium.h"
 #include "illum.h"
+#include "isec-cache.h"
 #include "global-tstate.h"
 
 namespace snogray {
@@ -146,6 +147,10 @@ public:
   // The surface this trace originated from (or zero for spontaneous)
   //
   const Surface *origin;
+
+  // A cache of "negative" intersections.
+  //
+  IsecCache negative_isec_cache;
 
   // If non-zero, the last surface we found as the closest intersection.
   // When we do a new trace, we first test that surface for intersection;

@@ -64,12 +64,17 @@ struct SceneClosestIntersectCallback : Space::IntersectCallback
 };
 
 void
-SceneClosestIntersectCallback::operator () (Surface *surface)
+SceneClosestIntersectCallback::operator () (Surface *surf)
 {
-  if (surface != trace.horizon_hint)
+  if (surf != trace.horizon_hint)
     {
-      if (surface->intersect (ray, isec_params, trace.origin_count (surface)))
-	closest = surface;
+      if (! trace.negative_isec_cache.contains (surf))
+	{
+	  if (surf->intersect (ray, isec_params, trace.origin_count (surf)))
+	    closest = surf;
+	  else
+	    trace.negative_isec_cache.add (surf);
+	}
 
       num_calls++;
     }
@@ -105,6 +110,8 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
       else
 	trace.global.stats.horizon_hint_misses++;
     }
+
+  trace.negative_isec_cache.clear ();
 
   space.for_each_possible_intersector (ray, closest_isec_cb);
 
@@ -158,21 +165,26 @@ SceneShadowCallback::operator () (Surface *surface)
     {
       num_tests++;
 
-      if (surface->shadows (light_ray, isec))
+      if (! trace.negative_isec_cache.contains (surface))
 	{
-	  shadower = surface;
+	  if (surface->shadows (light_ray, isec))
+	    {
+	      shadower = surface;
 
-	  // Remember which surface we found, so we can try it first
-	  // next time.
-	  //
-	  if (light)
-	    trace.shadow_hints[light->num] = surface;
+	      // Remember which surface we found, so we can try it first
+	      // next time.
+	      //
+	      if (light)
+		trace.shadow_hints[light->num] = surface;
 
-	  if (shadow_type == Material::SHADOW_OPAQUE)
-	    //
-	    // A simple opaque surface blocks everything; we can
-	    // immediately return it; stop looking any further.
-	    stop_iteration ();
+	      if (shadow_type == Material::SHADOW_OPAQUE)
+		//
+		// A simple opaque surface blocks everything; we can
+		// immediately return it; stop looking any further.
+		stop_iteration ();
+	    }
+	  else
+	    trace.negative_isec_cache.add (surface);
 	}
     }
 }
@@ -228,6 +240,8 @@ Scene::shadow_caster (const Ray &light_ray, const Intersect &isec,
     }
 
   SceneShadowCallback shadow_cb (light_ray, isec, trace, light);
+
+  trace.negative_isec_cache.clear ();
 
   space.for_each_possible_intersector (light_ray, shadow_cb);
 
