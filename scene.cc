@@ -256,13 +256,17 @@ Scene::background (const Ray &ray) const
       // color instead if it is greater than 1.0.  This is done
       // separately for each color component.
       //
+      // Essentially it switches to the low-res lightmap in very bright
+      // areas; this can give much nicer reflections in some cases, and
+      // the lower-res image tends to be unobjectional in such areas.
+      //
       if (light_map && light_map != env_map)
 	{
 	  // "Saturation epsilon" -- if a color component is within this
 	  // amount of 1.0, it is considered a possible "saturated" LDR
 	  // pixel.
 	  //
-	  static const float SAT_EPS = 0.005;
+	  static const float SAT_EPS = 0.05;
 
 	  // First we test the maximum component to see if it's possibly
 	  // saturated; if not, there's no point in fetching the
