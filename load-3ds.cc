@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <string>
+#include <vector>
 #include <map>
 
 #include <lib3ds/types.h>
@@ -278,19 +279,31 @@ TdsLoader::lookup_file_material (const char *name)
 // make it easy to override useless "boring default" material references
 // that exist in many 3ds files.
 //
+// If any user mapping is found, even NULL, step5 (the final default) is
+// skipped.
+//
+// Even if a non-material is found in steps 1-3, step4 is still
+// performed, but only negative (NULL) mappings are considered; if one
+// is found, then that overrides the material found.  This behavior is
+// intended to make it easy to suppress rendering of an entire object
+// even if it's composed of many materials (some of which may be shared
+// with other objects).
+//
+// The final material returned may be NULL, in which case no surface is
+// rendered.
+//
 const Material *
 TdsLoader::lookup_material (const char *name, const Name *hier_names)
 {
   string mat_name (name);
   const Material *mat = 0;
+  bool found_user_mapping = false;
 
   // If this is a named material reference, first lookup materials by
   // name.
   //
   if (! mat_name.empty ())
     {
-      bool found_user_mapping = false;
-
       // Step 1:  Look for a user material mapping with a combined
       // geometry + material name.
       //
@@ -299,7 +312,7 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
 	if (hn->valid ())
 	  {
 	    string geom_mat_name (hn->name);
-	    geom_mat_name += '.';
+	    geom_mat_name += ':';
 	    geom_mat_name += mat_name;
 
 	    if (user_materials.contains (geom_mat_name))
@@ -327,23 +340,31 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
 
   // Now consider unnamed materials if necessary
 
-  // Step 4:  Look for a user material mapping with a combined
-  // geometry + material name.
+  // Step 4:  Look for a user material mapping using only the object name.
   //
-  if (! mat)
-    for (const Name *hn = hier_names; hn && !mat; hn = hn->next)
-      if (hn->valid () && user_materials.contains (hn->name))
-	mat = user_materials.get (hn->name);
+  for (const Name *hn = hier_names; hn; hn = hn->next)
+    if (hn->valid () && user_materials.contains (hn->name))
+      {
+	const Material *obj_mat = user_materials.get (hn->name);
+	
+	// If we already found some material in steps 1-3, OBJ_MAT
+	// overrides it only if it's NULL (providing the ability to
+	// suppress earlier mappings).
+	//
+	if (!mat || !obj_mat)
+	  {
+	    mat = obj_mat;
+	    found_user_mapping = true;
+	    break;
+	  }
+      }
 
   // Step 5:  As a last-ditch effort, try a default material.
   //
-  if (! mat)
+  if (!found_user_mapping && !mat)
     mat = user_materials.get_default ();
-  if (!mat && single_mesh)
+  if (!found_user_mapping && !mat && single_mesh)
     mat = single_mesh->material;
-
-  if (! mat)
-    throw bad_format ("Unknown material in 3ds scene file: " + mat_name);
 
   return mat;
 }
@@ -373,6 +394,36 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 }
 
 
+
+// A structure to keep track of per-vertex information while loading in
+// a 3ds mesh.
+//
+struct VertInfo
+{
+  VertInfo (int _smoothing = 0, bool _used = false)
+    : used (_used), smoothing (_smoothing), next_split_vertex (0)
+  { }
+
+  // True if this vertex has already been used for at least one
+  // triangle.  Note that we can't use (smoothing != 0) to keep track
+  // of this information, because a face may have its smoothing flags
+  // set to zero (which would mean never share vertices).
+  //
+  bool used;
+
+  // The vertex index in our mesh.  Only valid if USED is true.
+  //
+  Mesh::vert_index_t index;
+
+  // Smoothing flags for this vertex.
+  //
+  int smoothing;
+
+  // Either the vertex-info index of the next vertex (with different
+  // smoothing flags) which was split from this one, or zero.
+  //
+  int next_split_vertex;
+};
 
 // Import 3ds scene objects underneath NODE, transformed by XFORM,
 // into the snogray scene or mesh associated with this loader.
@@ -413,41 +464,19 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	  if (! mesh)
 	    mesh = new Mesh ();
 
-	  // Add vertices without normals
+	  // Keep track of smoothing flags applied to each vertex; we
+	  // must split vertices in case two faces with different
+	  // smoothing flags initially share a vertex.  This algorithm
+	  // doesn't support overlapping sets of smoothing flags, but
+	  // those seem to be rare anyway.
 	  //
-	  Mesh::vert_index_t base_vertex = mesh->num_vertices ();
-	  for (unsigned v = 0; v < m->points; v++)
-	    mesh->add_vertex (pos (m->pointL[v]) * vert_xform);
-
-	  // See if the mesh has _any_ smoothed faces.
-	  //
-	  bool smoothing = false;
-	  for (unsigned t = 0; t < m->faces; t++)
-	    if (m->faceL[t].smoothing)
-	      {
-		smoothing = true;
-		break;
-	      }
-
-	  // If smoothing, calculate the number of faces adjacent to each
-	  // vertex.
-	  //
-	  unsigned char *vert_face_counts = 0;
-	  if (smoothing)
-	    {
-	      vert_face_counts = new unsigned char[m->points];
-
-	      for (unsigned v = 0; v < m->points; v++)
-		vert_face_counts[v] = 0;
-	      for (unsigned t = 0; t < m->faces; t++)
-		for (unsigned i = 0; i < 3; i++)
-		  vert_face_counts[m->faceL[t].points[i]]++;
-	    }
+	  vector<VertInfo> vert_info (m->points);
 
 	  // Simple cache to avoid the most repetitive material lookups.
 	  //
 	  const Material *cached_mat = 0;
 	  char cached_mat_name[64]; // 64 is from the 3DS file standard
+	  cached_mat_name[0] = '\0';
 
 	  // Add all faces to the mesh.
 	  //
@@ -455,52 +484,103 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	    {
 	      Lib3dsFace *f = &m->faceL[t];
 
-	      // Vertex indices of this face.
+	      // Find a material to use.  Faces _without_ materials are
+	      // ignored (not added to the mesh); in general 3ds files
+	      // define all their materials, so this should only occur
+	      // if the user has overridden some of the materials.
 	      //
-	      unsigned vind[3] = {
-		base_vertex + f->points[0],
-		base_vertex + f->points[1],
-		base_vertex + f->points[2]
-	      };
-
-	      // If the triangle is non-smoothed but the mesh has some
-	      // smoothed faces, then the triangle must have its own
-	      // vertices, so make sure it does.
-	      //
-	      if (smoothing && !f->smoothing)
-		for (unsigned i = 0; i < 3; i++)
-		  if (vert_face_counts[vind[i] - base_vertex] > 1)
-		    //
-		    // This vertex is shared, but we need our own, so
-		    // copy it, and use the copy instead.
-		    {
-		      // Remember that we're not sharing the old vertex.
-		      //
-		      vert_face_counts[vind[i] - base_vertex]--;
-
-		      // Make the new vertex
-		      //
-		      vind[i] = mesh->add_vertex (mesh->vertex (vind[i]));
-		    }
-
-	      if (!cached_mat || strcmp (f->material, cached_mat_name) != 0)
+	      if (strcmp (f->material, cached_mat_name) != 0)
 		{
 		  strcpy (cached_mat_name, f->material);
 		  cached_mat = lookup_material (f->material, &hier_names);
 		}
+	      if (! cached_mat)
+		continue;	// No material, don't use this face
 
-	      mesh->add_triangle (vind[0], vind[1], vind[2], cached_mat);
+	      // Indices into vert_info for the vertices in this face.
+	      //
+	      unsigned vind[3] = { f->points[0], f->points[1], f->points[2] };
+
+	      // For each triangle vertex, see if the currently active
+	      // smoothing flags for that vertex are compatible with the
+	      // face's smoothing flags.  If not, we need to either
+	      // change it to be a previously split-off vertex with
+	      // compatible smoothing flags, or split-off a new vertex
+	      // with the face's smoothing flags.
+	      //
+	      for (unsigned i = 0; i < 3; i++)
+		{
+		  unsigned vi = vind[i];
+
+		  while (! (vert_info[vi].smoothing & f->smoothing))
+		    if (vert_info[vi].next_split_vertex)
+		      {
+			// Try the next previously split-off vertex.
+
+			vi = vert_info[vi].next_split_vertex;
+		      }
+		    else
+		      {
+			// No more previously split-off vertices, so we
+			// must stop the loop.
+
+			// If the vertex at VI has already been used, we
+			// must add a new vertex to the end of VERT_INFO.
+			//
+			if (vert_info[vi].used)
+			  {
+			    // Index of the new entry.
+			    //
+			    unsigned new_vi = vert_info.size ();
+
+			    // Make the new entry.
+			    //
+			    vert_info.push_back (VertInfo ());
+
+			    // Make the previous entry point to it.
+			    //
+			    vert_info[vi].next_split_vertex = new_vi;
+
+			    vi = new_vi;
+			  }
+
+			// This vertex gets our smoothing bits.
+			//
+			vert_info[vi].smoothing = f->smoothing;
+
+			break;
+		      }
+
+		  // If this vertex has never been used before, add it
+		  // to the final mesh.
+		  //
+		  if (! vert_info[vi].used)
+		    {
+		      vert_info[vi].index
+			= mesh->add_vertex (pos (m->pointL[f->points[i]])
+					    * vert_xform);
+		      vert_info[vi].used = true;
+		    }
+
+		  // Update VIND
+		  //
+		  vind[i] = vi;
+		}
+
+	      // Add the triangle!
+	      //
+	      Mesh::vert_index_t v0 = vert_info[vind[0]].index;
+	      Mesh::vert_index_t v1 = vert_info[vind[1]].index;
+	      Mesh::vert_index_t v2 = vert_info[vind[2]].index;
+
+	      mesh->add_triangle (v0, v1, v2, cached_mat);
 	    }
 
-	  // If smoothing, compute vertex normals.  This turns on smoothign
-	  // for the whole mesh, but we made sure that only faces which
-	  // should be smoothed share vertices.
+	  // Compute vertex normals.  This turns on smoothing for the
+	  // whole mesh, but we made sure that only faces which should
+	  // be smoothed share vertices.
 	  //
-	  if (smoothing)
-	    {
-	      mesh->compute_vertex_normals ();
-	      delete vert_face_counts;
-	    }
+	  mesh->compute_vertex_normals ();
 
 	  if (scene && !single_mesh)
 	    scene->add (mesh);
