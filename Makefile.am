@@ -52,9 +52,17 @@ DEBUG = -g
 CFLAGS = $(OPT) $(DEBUG)
 CXXFLAGS = $(CFLAGS) $(CXX_CHECK_FLAGS)
 
+# These options are required for correctness, and _must_ come _after_
+# any optimization options (gcc isn't very bright about parsing options:
+# later options always override earlier ones, even if the earlier one
+# was more specific).  Since we are forced to used CXXFLAGS to pass
+# optimizations options by automake, we munge it here... Ugh!
+#
+CXXFLAGS += $(CXX_EXTRA_REQ_FLAGS)
+
 # Other flags we pass via AM_CXXFLAGS
 #
-AM_CXXFLAGS = $(PG) $(MUDFLAP) $(CXX_EXTRA_REQ_FLAGS)
+AM_CXXFLAGS = $(PG) $(MUDFLAP)
 AM_LDFLAGS = $(PG) $(MUDFLAP)
 
 # Add compiler flags (nominally "cflags", but in practice always
