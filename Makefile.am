@@ -89,11 +89,11 @@ libsnogrender_a_SOURCES = bbox.h brdf.h camera.cc camera.h		 \
 	far-light.h fresnel.h glass.cc glass.h globals.cc globals.h	 \
 	global-tstate.cc global-tstate.h glow.cc glow.h grid.cc grid.h	 \
 	grid-iter.h illum.h illum-sample.h image-sum.h intersect.cc	 \
-	intersect.h lambert.cc lambert.h light.h light-map.h		 \
-	lmap-analyzer.cc lmap-analyzer.h material.cc material.h		 \
-	material-map.cc material-map.h matrix4.h matrix-tex2.cc		 \
-	matrix-tex2.h matrix-tex2.tcc medium.h mesh.cc mesh.h		 \
-	mesh-load.cc mirror.cc mirror.h mis-illum.cc mis-illum.h	 \
+	intersect.h isec-cache.h lambert.cc lambert.h light.h		 \
+	light-map.h lmap-analyzer.cc lmap-analyzer.h material.cc	 \
+	material.h material-map.cc material-map.h matrix4.h		 \
+	matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc medium.h mesh.cc	 \
+	mesh.h mesh-load.cc mirror.cc mirror.h mis-illum.cc mis-illum.h	 \
 	octree.cc octree.h phong.cc phong.h phong-dist.h plastic.cc	 \
 	plastic.h point-light.cc point-light.h pos.h progress.cc	 \
 	progress.h rand.h ray.cc ray.h rect-light.cc rect-light.h	 \
