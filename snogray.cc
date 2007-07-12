@@ -572,13 +572,6 @@ int main (int argc, char *const *argv)
   Rusage scene_end_ru;		// stop timing scene definition
 
 
-  // To avoid annoying artifacts in cases where the camera is looking
-  // exactly along an axis, always perturb the camera position just a
-  // litttle bit.
-  //
-  camera.move (Vec (Eps, Eps, Eps));
-
-
   // Set our drawing limits based on the scene size
   //
   unsigned limit_x = limit_x_spec.apply (clp, width);
