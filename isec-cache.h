@@ -41,13 +41,16 @@ public:
     return mbox.gen == gen && mbox.surf == surf;
   }
 
-  // Add an up-to-date entry for SURF.
+  // Add an up-to-date entry for SURF.  Return true if a collision occurred
+  // (the new entry removed an old one).
   //
-  void add (const Surface *surf)
+  bool add (const Surface *surf)
   {
     Mbox &mbox = lookup (surf);
+    bool collision = (mbox.gen == gen);
     mbox.surf = surf;
     mbox.gen = gen;
+    return collision;
   }
 
 private:

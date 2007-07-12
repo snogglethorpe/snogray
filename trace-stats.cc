@@ -40,14 +40,13 @@ static float fraction (long long num, long long den)
 void
 TraceStats::print (ostream &os, const Scene &scene)
 {
-  const Space::IsecStats &tistats1 = space_intersect;
-  const Space::IsecStats &tistats2 = space_shadow;
+  const Space::IsecStats &tistats1 = intersect.space;
+  const Space::IsecStats &tistats2 = shadow.space;
 
   const Space::Stats tstats = scene.space.stats ();
 
   long long sc  = scene_intersect_calls;
   long long tnc = tistats1.node_intersect_calls;
-  long long ocic = surface_intersect_calls;
   long long hhh = horizon_hint_hits;
   long long hhm = horizon_hint_misses;
 
@@ -64,9 +63,20 @@ TraceStats::print (ostream &os, const Scene &scene)
        << " (" << setw(2) << percent (tnc, sc * tstats.num_nodes) << "%)"
        << endl;
   if (tstats.num_surfaces != 0)
-    os << "     surface tests:   " << setw (16) << commify (ocic)
-       << " (" << setw(2) << percent (ocic, sc * tstats.num_surfaces) << "%)"
-       << endl;
+    {
+      long long surf_tests = intersect.surface_intersects_tests;
+      long long neg_cache_hits = intersect.neg_cache_hits;
+      long long neg_cache_colls = intersect.neg_cache_collisions;
+      long long tot_tries = surf_tests + neg_cache_hits;
+      long long pos_tries = intersect.surface_intersects_hits;
+
+      os << "     surface tests:   " << setw (16) << commify (tot_tries)
+	 << " (success = " << setw(2) << percent (pos_tries, tot_tries)
+	 << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
+	 << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
+	 << "%)"
+	 << endl;
+    }
 
   long long sst = scene_shadow_tests;
 
@@ -77,7 +87,6 @@ TraceStats::print (ostream &os, const Scene &scene)
       long long sss = scene_slow_shadow_traces;
       long long oss = surface_slow_shadow_traces;
       long long tnt = tistats2.node_intersect_calls;
-      long long ot  = surface_intersects_tests;
 
       os << "  shadow:" << endl;
       os << "     rays:            " << setw (16) << commify (sst)
@@ -96,16 +105,26 @@ TraceStats::print (ostream &os, const Scene &scene)
 	   << " (" << setw(2) << percent (tnt, tstats.num_nodes * (sst - shh))
 	   << "%)" << endl;
       if (tstats.num_surfaces != 0)
-	os << "     surface tests:   " << setw (16) << commify (ot)
-	   << " (" << setw(2) << percent (ot, tstats.num_surfaces * (sst - shh))
-	   << "%)" << endl;
+	{
+	  long long surf_tests  = shadow.surface_intersects_tests;
+	  long long neg_cache_hits = shadow.neg_cache_hits;
+	  long long neg_cache_colls = shadow.neg_cache_collisions;
+	  long long tot_tries = surf_tests + neg_cache_hits;
+	  long long pos_tries = shadow.surface_intersects_hits;
+
+	  os << "     surface tests:   " << setw (16) << commify (tot_tries)
+	     << " (success = " << setw(2) << percent (pos_tries, tot_tries)
+	     << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
+	     << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
+	     << "%)"
+	     << endl;
+	}
     }
 
   long long ic = illum_calls;
 
   if (ic != 0)
     {
-      long long is = illum_samples;
       long long isi = illum_samples - illum_specular_samples;
       long long iss = illum_specular_samples;
 

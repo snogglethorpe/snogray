@@ -43,9 +43,11 @@ struct SceneClosestIntersectCallback : Space::IntersectCallback
 {
   SceneClosestIntersectCallback (Ray &_ray, IsecParams &_isec_params,
 				 Trace &_trace)
-    : IntersectCallback (&_trace.global.stats.space_intersect),
+    : IntersectCallback (&_trace.global.stats.intersect.space),
       ray (_ray), isec_params (_isec_params),
-      closest (0), trace (_trace), num_calls (0)
+      closest (0), trace (_trace),
+      surf_isec_tests (0), surf_isec_hits (0),
+      neg_cache_hits (0), neg_cache_collisions (0)
   { }
 
   virtual void operator() (Surface *);
@@ -60,7 +62,8 @@ struct SceneClosestIntersectCallback : Space::IntersectCallback
 
   Trace &trace;
 
-  unsigned num_calls;
+  unsigned surf_isec_tests, surf_isec_hits;
+  unsigned neg_cache_hits, neg_cache_collisions;
 };
 
 void
@@ -71,12 +74,21 @@ SceneClosestIntersectCallback::operator () (Surface *surf)
       if (! trace.negative_isec_cache.contains (surf))
 	{
 	  if (surf->intersect (ray, isec_params, trace.origin_count (surf)))
-	    closest = surf;
+	    {
+	      closest = surf;
+	      surf_isec_hits++;
+	    }
 	  else
-	    trace.negative_isec_cache.add (surf);
-	}
+	    {
+	      bool collision = trace.negative_isec_cache.add (surf);
+	      if (collision)
+		neg_cache_collisions++;
+	    }
 
-      num_calls++;
+	  surf_isec_tests++;
+	}
+      else
+	neg_cache_hits++;
     }
 }
 
@@ -115,7 +127,14 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
 
   space.for_each_possible_intersector (ray, closest_isec_cb);
 
-  trace.global.stats.surface_intersect_calls += closest_isec_cb.num_calls;
+  trace.global.stats.intersect.surface_intersects_tests
+    += closest_isec_cb.surf_isec_tests;
+  trace.global.stats.intersect.surface_intersects_hits
+    += closest_isec_cb.surf_isec_hits;
+  trace.global.stats.intersect.neg_cache_hits
+    += closest_isec_cb.neg_cache_hits;
+  trace.global.stats.intersect.neg_cache_collisions
+    += closest_isec_cb.neg_cache_collisions;
 
   // Update the horizon hint to reflect what we found (0 if nothing).
   //
@@ -131,10 +150,11 @@ struct SceneShadowCallback : Space::IntersectCallback
 {
   SceneShadowCallback (const Ray &_light_ray, const Intersect &_isec,
 		       Trace &_trace, const Light *_light)
-    : IntersectCallback (&_trace.global.stats.space_shadow), 
+    : IntersectCallback (&_trace.global.stats.shadow.space), 
       light_ray (_light_ray), isec (_isec),
       shadower (0), trace (_trace), light (_light),
-      num_tests (0)
+      surf_isec_tests (0), surf_isec_hits (0),
+      neg_cache_hits (0), neg_cache_collisions (0)
   { }
 
   virtual void operator() (Surface *);
@@ -153,7 +173,8 @@ struct SceneShadowCallback : Space::IntersectCallback
 
   const Light *light;
 
-  unsigned num_tests;
+  unsigned surf_isec_tests, surf_isec_hits;
+  unsigned neg_cache_hits, neg_cache_collisions;
 };
 
 void
@@ -163,8 +184,6 @@ SceneShadowCallback::operator () (Surface *surface)
 
   if (surface != isec.surface && shadow_type != Material::SHADOW_NONE)
     {
-      num_tests++;
-
       if (! trace.negative_isec_cache.contains (surface))
 	{
 	  if (surface->shadows (light_ray, isec))
@@ -182,10 +201,20 @@ SceneShadowCallback::operator () (Surface *surface)
 		// A simple opaque surface blocks everything; we can
 		// immediately return it; stop looking any further.
 		stop_iteration ();
+
+	      surf_isec_hits++;
 	    }
 	  else
-	    trace.negative_isec_cache.add (surface);
+	    {
+	      bool collision = trace.negative_isec_cache.add (surface);
+	      if (collision)
+		neg_cache_collisions++;
+	    }
+
+	  surf_isec_tests++;
 	}
+      else
+	neg_cache_hits++;
     }
 }
 
@@ -245,7 +274,14 @@ Scene::shadow_caster (const Ray &light_ray, const Intersect &isec,
 
   space.for_each_possible_intersector (light_ray, shadow_cb);
 
-  trace.global.stats.surface_intersects_tests += shadow_cb.num_tests;
+  trace.global.stats.shadow.surface_intersects_tests
+    += shadow_cb.surf_isec_tests;
+  trace.global.stats.shadow.surface_intersects_hits
+    += shadow_cb.surf_isec_hits;
+  trace.global.stats.shadow.neg_cache_hits
+    += shadow_cb.neg_cache_hits;
+  trace.global.stats.shadow.neg_cache_collisions
+    += shadow_cb.neg_cache_collisions;
 
   return shadow_cb.shadower;
 }
