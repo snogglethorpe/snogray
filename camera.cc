@@ -36,8 +36,8 @@ Camera::Camera (const Format &fmt, float _scene_unit, float focal_len)
   : format (fmt),
     user_up (Vec (0, 1, 0)),
     forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
-    target_dist (1), aperture (0), focus (0), scene_unit (_scene_unit),
-    z_mode (Z_INCREASES_FORWARD)
+    handedness_reversed (false),
+    target_dist (1), aperture (0), focus (0), scene_unit (_scene_unit)
 {
   // By default, set the focal length proportional to a 50mm lens for 35mm film
   //
@@ -55,6 +55,9 @@ Camera::Camera (const Format &fmt, float _scene_unit, float focal_len)
 void
 Camera::rotate (const Xform &rot_xform)
 {
+  if (rot_xform.reverses_handedness ())
+    handedness_reversed = !handedness_reversed;
+
   _point (forward * rot_xform, up * rot_xform);
 }
 

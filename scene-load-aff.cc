@@ -341,7 +341,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
   const Material *cur_material = 0;
 
   set_assumed_gamma (AFF_ASSUMED_GAMMA);
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  camera.transform (Xform::scaling (1, 1, -1));
 
   while (! stream.eof ())
     {

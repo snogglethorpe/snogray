@@ -62,12 +62,6 @@ public:
     float film_width, film_height;
   };
 
-  // Whether the (camera-relative) Z-axis increases when we move forward
-  // (into the image), or decreases.  Our native mode is "increases forward",
-  // but imported scenes may use a different convention.
-  //
-  enum z_mode { Z_INCREASES_FORWARD, Z_DECREASES_FORWARD };
-
   enum orient_t { ORIENT_VERT, ORIENT_HORIZ };
 
   // Various pre-defined camera formats
@@ -123,8 +117,8 @@ public:
     right = cross (_user_up, forward).unit ();
     up = cross (forward, right).unit ();
 
-    if (z_mode == Z_DECREASES_FORWARD)
-      right = -right;
+    if (handedness_reversed)
+      right = -right;		// right is really left
   }
 
   // Change the current camera direction according to the rotational
@@ -370,24 +364,23 @@ public:
   }
 
 
-  // Set whether the Z axis increases into the image or decreases
-  //
-  void set_z_mode (enum z_mode _z_mode)
-  {
-    if (_z_mode != z_mode)
-      {
-	right = -right;
-	z_mode = _z_mode;
-      }
-  }
-
-
   Format format;
 
   Pos pos;
+
+  // User-supplied verticle axis.
+  //
   Vec user_up;
 
+  // Camera basis vectors.  UP and RIGHT are derived (from FORWARD and
+  // USER_UP).
+  //
   Vec forward, up, right;
+
+  // True if camera transforms have reversed the orientation of the camera
+  // coordinate system.
+  // 
+  bool handedness_reversed;
 
   // How far it is to the "target".
   //
@@ -406,10 +399,6 @@ public:
   // use for focal-length, aperture etc, nominally mm).
   //
   float scene_unit;
-
-  // How the Z axis behaves with respect to the camera
-  //
-  enum z_mode z_mode;
 
   float tan_half_fov_x, tan_half_fov_y;
 

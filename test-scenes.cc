@@ -276,7 +276,7 @@ def_scene_pretty_bunny (unsigned num, const string &arg,
   camera.move (Pos (-1, 1.35, 2.3)); // y=0.5
   camera.point (Pos (-0.75, 0.58, 0), Vec (0, 1, 0));
   camera.set_vert_fov (M_PI_4);
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  camera.transform (Xform::scaling (1, 1, -1));
 
   const Material *red
     = scene.add (new Material (Color (0.5, 0, 0),
@@ -1266,7 +1266,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
 {
   // Low resolution Stanford Bunny Mesh.
 
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  camera.transform (Xform::scaling (1, 1, -1));
 
   switch (variant % 10)
     {
@@ -1362,7 +1362,7 @@ add_scene_descs_cs465 (vector<TestSceneDesc> &descs)
 void 
 def_scene_cs665_test1 (Scene &scene, Camera &camera)
 {
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  camera.transform (Xform::scaling (1, 1, -1));
   camera.move (Pos (0, 2, 5));
   camera.point (Pos (0,0,0), Vec(0,1,0));
   camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
@@ -1389,7 +1389,7 @@ def_scene_cs665_test1 (Scene &scene, Camera &camera)
 void 
 def_scene_cs665_test10 (Scene &scene, Camera &camera)
 {
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  camera.transform (Xform::scaling (1, 1, -1));
   camera.move (Pos (0, 2, 5));
   camera.point (Pos (0,0,0), Vec(0,1,0));
   camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
@@ -1471,7 +1471,8 @@ def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &
   add_rect_bulb (scene, Pos (15, -5, -5), Vec (0, 10, 0), Vec (0, 0, 10), 1.5);
   add_rect_bulb (scene, Pos (-5, -5, -20), Vec (10, 0, 0), Vec (0, 10, 0), 1.5);
 
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  camera.transform (Xform::scaling (1, 1, -1));
+
   //camera.move (Pos (9.7, 9.7, 5.8));
   camera.move (Pos (0, 7, 25));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
@@ -1628,7 +1629,7 @@ def_scene_pretty_dancer (unsigned num, const string &,
       scene.add (new Sphere (glass, Pos (-3.5, -2.2 + 0.2, 2), 0.2));
     }
 
-  camera.set_z_mode (Camera::Z_DECREASES_FORWARD);
+  camera.transform (Xform::scaling (1, 1, -1));
 
   switch (num)
     {
