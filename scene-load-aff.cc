@@ -106,21 +106,21 @@ read_float (istream &stream)
 }
 
 static Pos
-read_pos (istream &stream)
+read_pos (istream &stream, const Xform &xform)
 {
   coord_t x = read_float (stream);
   coord_t y = read_float (stream);
   coord_t z = read_float (stream);
-  return Pos (x, y, z);
+  return Pos (x, y, z) * xform;
 }
 
 static Vec
-read_vec (istream &stream)
+read_vec (istream &stream, const Xform &xform)
 {
   dist_t x = read_float (stream);
   dist_t y = read_float (stream);
   dist_t z = read_float (stream);
-  return Vec (x, y, z);
+  return Vec (x, y, z) * xform;
 }
 
 static Color
@@ -234,7 +234,11 @@ make_cone (const Material *mat,
 //
 struct MeshState
 {
-  MeshState (Scene &_scene) : scene (_scene), mesh (0) { }
+  MeshState (Scene &_scene, Xform &_geom_xform)
+    : scene (_scene), mesh (0),
+      geom_xform (_geom_xform),
+      norm_xform (_geom_xform.inverse().transpose())
+  { }
   ~MeshState () { finish (); }
 
   void read_polygon (istream &stream, const Material *material,
@@ -242,14 +246,14 @@ struct MeshState
 
   unsigned read_vertex (istream &stream)
   {
-    Pos pos = read_pos (stream);
+    Pos pos = read_pos (stream, geom_xform);
     return mesh->add_vertex (pos, vertex_group);
   }
 
   unsigned read_vertex_and_normal (istream &stream)
   {
-    Pos pos = read_pos (stream);
-    Vec normal = read_vec (stream);
+    Pos pos = read_pos (stream, geom_xform);
+    Vec normal = read_vec (stream, norm_xform);
     return mesh->add_vertex (pos, normal, vertex_and_normals_group);
   }
 
@@ -258,6 +262,8 @@ struct MeshState
   Scene &scene;
 
   Mesh *mesh;
+
+  Xform geom_xform, norm_xform;
 
   Mesh::VertexGroup vertex_group;
   Mesh::VertexNormalGroup vertex_and_normals_group;
@@ -268,11 +274,15 @@ MeshState::read_polygon (istream &stream, const Material *mat,
 			 unsigned num_vertices, bool read_normals)
 {
   if (! mesh)
-    mesh = new Mesh ();
+    {
+      mesh = new Mesh ();
 
-  // NFF files use a right-handed coordinate system.
-  //
-  mesh->left_handed = false;
+      // NFF files use a right-handed coordinate system by convention, so
+      // the mesh will be left-handed only if GEOM_XFORM reverses the
+      // handedness.
+      //
+      mesh->left_handed = geom_xform.reverses_handedness ();
+    }
 
   vector<Mesh::vert_index_t> verts;
 
@@ -337,11 +347,20 @@ barf_if_no_material (const Material *mat, const char *op)
 void
 Scene::load_aff_file (istream &stream, Camera &camera)
 {
-  MeshState cur_mesh (*this);
-  const Material *cur_material = 0;
-
   set_assumed_gamma (AFF_ASSUMED_GAMMA);
   camera.transform (Xform::scaling (1, 1, -1));
+
+  // Transform vertical Z axis into our preferred vertical Y axis to
+  // interact better with any external geometry/transforms.
+  //
+  Xform geom_xform;
+  geom_xform.rotate_x (-M_PI_2);
+  geom_xform.scale (-1, 1, 1);
+
+  camera.transform (geom_xform);
+
+  MeshState cur_mesh (*this, geom_xform);
+  const Material *cur_material = 0;
 
   while (! stream.eof ())
     {
@@ -372,13 +391,13 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	//
 	{
 	  read_required_kw (stream, "from");
-	  Pos pos = read_pos (stream);
+	  Pos pos = read_pos (stream, geom_xform);
 
 	  read_required_kw (stream, "at");
-	  Pos targ = read_pos (stream);
+	  Pos targ = read_pos (stream, geom_xform);
 
 	  read_required_kw (stream, "up");
-	  Vec up = read_vec (stream);
+	  Vec up = read_vec (stream, geom_xform);
 
 	  read_required_kw (stream, "angle");
 	  float fov_y = read_float (stream) * M_PI / 180;
@@ -414,7 +433,7 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	//     "l" X Y Z [R G B]
 	//
 	{
-	  Pos pos = read_pos (stream);
+	  Pos pos = read_pos (stream, geom_xform);
 
 	  Color intens (AFF_LIGHT_INTENS);
 	  if (stream.peek () != '\n')
@@ -497,9 +516,9 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 
 	  // Ugh... make a cylinder...
 
-	  Pos base_pos = read_pos (stream);
+	  Pos base_pos = read_pos (stream, geom_xform);
 	  float base_radius = read_float (stream);
-	  Pos apex_pos = read_pos (stream);
+	  Pos apex_pos = read_pos (stream, geom_xform);
 	  float apex_radius = read_float (stream);
 
 	  if (base_radius > Eps && apex_radius > Eps)
@@ -514,7 +533,8 @@ Scene::load_aff_file (istream &stream, Camera &camera)
 	//
 	{
 	  barf_if_no_material (cur_material, cmd_buf);
-	  add (new Sphere (cur_material, read_pos(stream), read_float(stream)));
+	  add (new Sphere (cur_material, read_pos (stream, geom_xform),
+			   read_float(stream)));
 	}
 
       else if (strcmp (cmd_buf, "p") == 0)
