@@ -58,7 +58,7 @@ private:
   typedef unsigned hash_t;
   typedef unsigned gen_t;
 
-  static const unsigned TABLE_SIZE = 512;
+  static const unsigned TABLE_SIZE = 1024;
 
   struct Mbox
   {
@@ -68,7 +68,7 @@ private:
 
   hash_t hash (const Surface *surf) const
   {
-    return ((unsigned long)surf) >> 4;
+    return ((unsigned long)surf) >> 3;
   }
 
   Mbox &lookup (const Surface *surf)
