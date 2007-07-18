@@ -208,34 +208,30 @@ Mesh::add (const Tessel::Function &tessel_fun,
 
 // Mesh triangles
 
-// Return the distance from RAY's origin to the closest intersection
-// of this surface with RAY, or 0 if there is none.  RAY is considered
-// to be unbounded.
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
+// to reflect the point of intersection, and return true; otherwise
+// return false.  ISEC_PARAMS maybe used to pass information to a later
+// call to Surface::intersect_info.
 //
-// If intersection succeeds, then ISEC_PARAMS is updated with other
-// (surface-specific) intersection parameters calculated.
-//
-// NUM is which intersection to return, for non-flat surfaces that may
-// have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-// (flat surfaces will return failure for anything except 0).
-//
-dist_t
-Mesh::Triangle::intersection_distance (const Ray &ray, IsecParams &isec_params,
-				       unsigned num)
-  const
+bool
+Mesh::Triangle::intersect (Ray &ray, IsecParams &isec_params) const
 {
-  if (num != 0)
-    return 0;
-
   // We have to convert the types to match that of RAY first.
   //
   Pos corner = v(0);
   Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
 
-  return triangle_intersect (corner, edge1, edge2, ray.origin, ray.dir,
-			     isec_params.u, isec_params.v);
+  return triangle_intersect (corner, edge1, edge2,
+			     ray, isec_params.u, isec_params.v);
 }
 
+// Return an Intersect object containing details of the intersection of RAY
+// with this surface; it is assumed that RAY does actually hit the surface,
+// and RAY's maximum bound (Ray::t1) gives the exact point of intersection
+// (the `intersect' method modifies RAY so that this is true).  ISEC_PARAMS
+// contains other surface-specific parameters calculated by the previous
+// call to Surface::intersects method.
+//
 Intersect
 Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params,
 				Trace &trace)

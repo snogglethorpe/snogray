@@ -59,8 +59,7 @@ barf ()
   throw std::runtime_error ("tried to render abstract surface");
 }
 
-dist_t
-Surface::intersection_distance (const Ray &, IsecParams &, unsigned) const { barf (); }
+bool Surface::intersect (Ray &, IsecParams &) const { barf (); }
 Intersect Surface::intersect_info (const Ray &, const IsecParams &, Trace &) const { barf (); }
 
 BBox Surface::bbox () const { barf (); }

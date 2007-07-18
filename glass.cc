@@ -134,7 +134,7 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
   // Use the straight-through angle.
   //
   float xmit = refr.transmittance (dot (light_ray.dir, -isec.n));
-      
+
   if (xmit > Eps)
     {
       Trace::Type subtrace_type

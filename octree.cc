@@ -39,7 +39,7 @@ Octree::for_each_possible_intersector (const Ray &ray,
       coord_t z_max = origin.z + size;
 
       // First make sure RAY is conceivably within the top-most node
-      const Pos &rbeg = ray.origin, &rend = ray.end();
+      const Pos &rbeg = ray.begin(), &rend = ray.end();
       if ((rbeg.x <= x_max || rend.x <= x_max)
 	  && (rbeg.x >= x_min || rend.x >= x_min)
 	  && (rbeg.y <= y_max || rend.y <= y_max)
@@ -184,7 +184,7 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 	  const coord_t x_mid = x_mid_isec.x;
 	  const coord_t y_mid = y_mid_isec.y;
 	  const coord_t z_mid = z_mid_isec.z;
-	  const Pos &rbeg = ray.origin, &rend = ray.end();
+	  const Pos &rbeg = ray.begin(), &rend = ray.end();
 
 	  // Note that although RAY can actually change during the
 	  // recursive calls below, it never will do so in a way that

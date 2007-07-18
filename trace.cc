@@ -97,9 +97,7 @@ Trace::render (const Ray &ray)
   if (depth > global.params.max_depth)
     return scene.background (ray);
 
-  const Pos biased_origin = ray.origin + global.params.min_trace * ray.dir;
-
-  Ray intersected_ray (biased_origin, ray.dir, scene.horizon);
+  Ray intersected_ray (ray, ray.t0 + global.params.min_trace, scene.horizon);
 
   IsecParams isec_params;
   const Surface *closest
@@ -119,7 +117,7 @@ Trace::render (const Ray &ray)
       // medium.
       //
       if (medium)
-	radiance = medium->attenuate (radiance, intersected_ray.len);
+	radiance = medium->attenuate (radiance, intersected_ray.t1);
 
       return radiance;
     }
@@ -153,7 +151,8 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
     //
     return light_color;
 
-  Ray intersected_ray = light_ray;
+  Ray intersected_ray (light_ray,
+		       light_ray.t0 + global.params.min_trace, light_ray.t1);
 
   IsecParams isec_params;
   const Surface *closest
@@ -166,24 +165,26 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
       Intersect isec
 	= closest->intersect_info (intersected_ray, isec_params, *this);
 
-      const Vec &dir = intersected_ray.dir;
+      // The distance traversed to hit CLOSEST.
+      //
+      dist_t dist = intersected_ray.length ();
 
-      dist_t bias = global.params.min_trace;
-      const Pos biased_origin = intersected_ray.end() + bias * dir;
-
-      Ray continued_light_ray (biased_origin, dir,
-			       light_ray.len - intersected_ray.len - bias);
+      // Limited our continued search to the portion of INTERSECTED_RAY
+      // which is past the closest intersection.
+      //
+      intersected_ray.t0 = intersected_ray.t1 + global.params.min_trace;
+      intersected_ray.t1 = light_ray.t1;
 
       // Calculate the shadowing effect of the surface we hit
       //
-      Color irradiance = isec.shadow (continued_light_ray, light_color, light);
+      Color irradiance = isec.shadow (intersected_ray, light_color, light);
 
       // If we are looking through something other than air, attentuate
       // the surface appearance due to transmission through the current
       // medium.
       //
       if (medium)
-	irradiance = medium->attenuate (irradiance, intersected_ray.len);
+	irradiance = medium->attenuate (irradiance, dist);
 
       return irradiance;
     }

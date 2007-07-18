@@ -18,27 +18,31 @@
 using namespace snogray;
 
 
-// Return the distance from RAY's origin to the closest intersection
-// of this surface with RAY, or 0 if there is none.  RAY is considered
-// to be unbounded.
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
+// to reflect the point of intersection, and return true; otherwise
+// return false.  ISEC_PARAMS maybe used to pass information to a later
+// call to Surface::intersect_info.
 //
-// If intersection succeeds, then ISEC_PARAMS is updated with other
-// (surface-specific) intersection parameters calculated.
-//
-// NUM is which intersection to return, for non-flat surfaces that may
-// have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-// (flat surfaces will return failure for anything except 0).
-//
-dist_t
-Sphere::intersection_distance (const Ray &ray, IsecParams &, unsigned num)
-  const
+bool
+Sphere::intersect (Ray &ray, IsecParams &) const
 {
-  if (num > 1)
-    return 0;
-
-  return sphere_intersect (center, radius, ray.origin, ray.dir, num == 1);
+  dist_t t = sphere_intersect (center, radius, ray.origin, ray.dir, ray.t0);
+  if (t > ray.t0 && t < ray.t1)
+    {
+      ray.t1 = t;
+      return true;
+    }
+  else
+    return false;
 }
 
+// Return an Intersect object containing details of the intersection of
+// RAY with this surface; it is assumed that RAY does actually hit the
+// surface, and RAY's maximum bound (Ray::t1) gives the exact point of
+// intersection (the `intersect' method modifies RAY so that this is
+// true).  ISEC_PARAMS contains other surface-specific parameters
+// calculated by the previous call to Surface::intersects method.
+//
 Intersect
 Sphere::intersect_info (const Ray &ray, const IsecParams &, Trace &trace)
   const

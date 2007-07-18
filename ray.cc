@@ -18,9 +18,16 @@ snogray::operator<< (std::ostream &os, const Ray &ray)
 {
   const Pos &o = ray.origin;
   const Vec &d = ray.dir;
-  os << "ray<(" << o.x << ", " << o.y << ", " << o.z
-     << ") + (" << d.x << ", " << d.y << ", " << d.z << ") * " << ray.len
-     << ">";
+  if (ray.t0 == 0)
+    os << "ray<(" << o.x << ", " << o.y << ", " << o.z
+       << ") + (" << d.x << ", " << d.y << ", " << d.z
+       << ") * " << ray.t1
+       << ">";
+  else
+    os << "ray<(" << o.x << ", " << o.y << ", " << o.z
+       << ") + (" << d.x << ", " << d.y << ", " << d.z
+       << ") * (" << ray.t0 << " - " << ray.t1 << ")"
+       << ">";
   return os;
 }
 

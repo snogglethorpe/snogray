@@ -82,11 +82,12 @@ RectLight::filter_samples (const Intersect &isec,
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
     {
       double u, v;		// double to agree with
-      dist_t dist
-	= parallelogram_intersect (pos, side1, side2, isec.pos, s->dir, u, v);
+      Ray ray (isec.pos, s->dir, s->dist);
 
-      if (dist > 0 && (dist < s->dist || s->dist == 0))
+      if (parallelogram_intersect (pos, side1, side2, ray, u, v))
 	{
+	  dist_t dist = ray.t1;
+
 	  // Area to solid-angle conversion, dw/dA
 	  //   = cos (light_normal, -sample_dir) / distance^2
 	  //

@@ -20,7 +20,6 @@
 
 namespace snogray {
 
-class Ray;
 class Surface;
 class Brdf;
 class Light;
@@ -93,22 +92,6 @@ public:
   //
   Color shadow (const Ray &light_ray, const Color &light_color,
 		const Light &light);
-
-  // Return the "origin count" of SURFACE:  this is 0 if SURFACE is not the
-  // origin of this trace, 1 if this trace originated from SURFACE, but
-  // prior traces did not, and 2 if both this trace and its progenitor both
-  // originated from SURFACE (depths greater than 2 are not supported).
-  // This is used to avoid precision errors when intersecting a ray.
-  //
-  unsigned origin_count (const Surface *surface) const
-  {
-    if (origin != surface)
-      return 0;
-    else if (parent && parent->origin == surface)
-      return 2;
-    else
-      return 1;
-  }
 
   // The following are convenience methods that just call the equivalent
   // method in the scene.

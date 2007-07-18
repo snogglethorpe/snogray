@@ -15,10 +15,10 @@
 #include "color.h"
 #include "brdf.h"
 #include "lambert.h"
+#include "ray.h"
 
 namespace snogray {
 
-class Ray;
 class Light;
 class Surface;
 class Intersect;

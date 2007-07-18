@@ -21,52 +21,61 @@ namespace snogray {
 
 // A ray is a vector with a position and a length; we include various other
 // fields for handy test.
-class Ray
+//
+template<typename T>
+class TRay
 {
 public:
 
-  Ray (Pos _origin, Vec _extent)
-    : origin (_origin), dir (_extent.unit ()), len (_extent.length ()),
-      _end (_origin + _extent)
+  TRay (TPos<T> _origin, TVec<T> _extent)
+    : origin (_origin), dir (_extent.unit ()), t0 (0), t1 (_extent.length ())
   {
   }
-  Ray (Pos _origin, Vec _dir, dist_t _len)
-    : origin (_origin), dir (_dir), len (_len),
-      _end (_origin + _dir * _len)
+  TRay (TPos<T> _origin, TVec<T> _dir, T _t1)
+    : origin (_origin), dir (_dir), t0 (0), t1 (_t1)
   {
   }
-  Ray (Pos _origin, Pos _targ)
+  TRay (TPos<T> _origin, TVec<T> _dir, T _t0, T _t1)
+    : origin (_origin), dir (_dir), t0 (_t0), t1 (_t1)
+  {
+  }
+  TRay (TPos<T> _origin, TPos<T> _targ)
     : origin (_origin), dir ((_targ - _origin).unit ()),
-      len ((_targ - _origin).length ()), _end (_targ)
+      t0 (0), t1 ((_targ - _origin).length ())
   {
   }
-  Ray (const Ray &ray)
-    : origin (ray.origin), dir (ray.dir), len (ray.len), _end (ray._end)
+  TRay (const TRay &ray)
+    : origin (ray.origin), dir (ray.dir), t0 (ray.t0), t1 (ray.t1)
   {
   }
-  Ray (const Ray &ray, dist_t length)
-    : origin (ray.origin), dir (ray.dir), len (length),
-      _end (ray.origin + ray.dir * length)
+  TRay (const TRay &ray, T _t1)
+    : origin (ray.origin), dir (ray.dir), t0 (ray.t0), t1 (_t1)
+  {
+  }
+  TRay (const TRay &ray, T _t0, T _t1)
+    : origin (ray.origin), dir (ray.dir), t0 (_t0), t1 (_t1)
   {
   }
 
-  /* Returns an end point of the ray izzf it is extended to length LEN.  */
-  Pos extension (float _len) const { return origin + dir * _len; }
+  /* Returns an end point of the ray if it was extended to length LEN.  */
+  TPos<T> extension (float _len) const { return origin + dir * _len; }
 
-  Pos end () const { return _end; }
+  TPos<T> begin () const { return origin+dir*t0; }
+  TPos<T> end () const { return  origin+dir*t1; }
 
-  void set_len (dist_t _len) { len = _len; _end = origin + dir*len; }
+  T length () const { return t1 - t0; }
 
-  Pos origin;
+  // The ray starts at ORIGIN, and points in the direction DIR.
+  //
+  TPos<T> origin;
+  TVec<T> dir;
 
-  Vec dir;			// should always be a unit vector
-  dist_t len;
-
-private:
-
-  // This is a pre-computed copy of (ORIGIN + DIR * LEN)
-  Pos _end;
+  // The "extent" of the ray:  from ORIGIN+T0*DIR to ORIGIN+T1*DIR.
+  //
+  T t0, t1;
 };
+
+typedef TRay<dist_t> Ray;
 
 extern std::ostream& operator<< (std::ostream &os, const Ray &ray);
 

@@ -200,26 +200,19 @@ private:
 				 const Intersect &isec)
       const;
 
-    // Return the distance from RAY's origin to the closest intersection
-    // of this surface with RAY, or 0 if there is none.  RAY is considered
-    // to be unbounded.
+    // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
+    // to reflect the point of intersection, and return true; otherwise
+    // return false.  ISEC_PARAMS maybe used to pass information to a later
+    // call to Surface::intersect_info.
     //
-    // If intersection succeeds, then ISEC_PARAMS is updated with other
-    // (surface-specific) intersection parameters calculated.
-    //
-    // NUM is which intersection to return, for non-flat surfaces that may
-    // have multiple intersections -- 0 for the first, 1 for the 2nd, etc
-    // (flat surfaces will return failure for anything except 0).
-    //
-    virtual dist_t intersection_distance (const Ray &ray,
-					  IsecParams &isec_params,
-					  unsigned num)
-      const;
+    virtual bool intersect (Ray &ray, IsecParams &isec_params) const;
 
-    // Return more information about the intersection of RAY with this
-    // surface; it is assumed that RAY does actually hit the surface, and
-    // RAY's length gives the exact point of intersection (the `intersect'
-    // method modifies RAY so that this is true).
+    // Return an Intersect object containing details of the intersection of
+    // RAY with this surface; it is assumed that RAY does actually hit the
+    // surface, and RAY's maximum bound (Ray::t1) gives the exact point of
+    // intersection (the `intersect' method modifies RAY so that this is
+    // true).  ISEC_PARAMS contains other surface-specific parameters
+    // calculated by the previous call to Surface::intersects method.
     //
     virtual Intersect intersect_info (const Ray &ray,
 				      const IsecParams &isec_params,

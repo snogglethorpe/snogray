@@ -14,6 +14,7 @@
 
 #include "pos.h"
 #include "vec.h"
+#include "ray.h"
 
 namespace snogray {
 
@@ -24,15 +25,12 @@ namespace snogray {
 // parametric values of the intersection point.  If the ray doesn't
 // intersect, return 0.
 //
-// Note that U and V may be modified even if there is no intersection.
-//
 template<typename T>
-inline T
+inline bool
 tripar_intersect (const TPos<T> &corner,
 		  const TVec<T> &edge1, const TVec<T> &edge2,
 		  bool parallelogram,
-		  const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-		  T &u, T &v)
+		  TRay<T> &ray, T &u, T &v)
 {
   /*
     This algorithm from:
@@ -52,26 +50,26 @@ tripar_intersect (const TPos<T> &corner,
 
   // Begin calculating the determinant (also used to calculate U parameter).
   //
-  TVec<T> pvec = cross (ray_dir, edge2);
+  TVec<T> pvec = cross (ray.dir, edge2);
 
   // If the determinant is near zero, the ray lies in the plane of the triangle.
   //
   T det = dot (edge1, pvec);
 
   if (det > -Eps && det < Eps)
-    return 0;
+    return false;
 
   T inv_det = 1.0 / det;
 
   // Calculate distance from the corner to ray origin.
   //
-  TVec<T> tvec = ray_origin - corner;
+  TVec<T> tvec = ray.origin - corner;
 
   // Calculate U parameter and test bounds.
   //
-  u = dot (tvec, pvec) * inv_det;
-  if (u < 0.0 || u > 1.0)
-    return 0;
+  T _u = dot (tvec, pvec) * inv_det;
+  if (_u < 0.0 || _u > 1.0)
+    return false;
 
   // Prepare to test V parameter.
   //
@@ -79,7 +77,7 @@ tripar_intersect (const TPos<T> &corner,
 
   // Calculate V parameter.
   //
-  v = dot (ray_dir, qvec) * inv_det;
+  T _v = dot (ray.dir, qvec) * inv_det;
 
   // Test V parameter bounds.
   //
@@ -89,18 +87,30 @@ tripar_intersect (const TPos<T> &corner,
   //
   if (parallelogram)
     {
-      if (v < 0.0 || v > 1.0)
-	return 0;
+      if (_v < 0.0 || _v > 1.0)
+	return false;
     }
   else
     {
-      if (v < 0.0 || u + v > 1.0)
-	return 0;
+      if (_v < 0.0 || _u + _v > 1.0)
+	return false;
     }
 
-  // The ray intersects the triangle/parallelogram; return the distance.
+  // The ray intersects the triangle/parallelogram; see if the intersection
+  // point lies within the ray bounds.
   //
-  return dot (edge2, qvec) * inv_det;
+  T t = dot (edge2, qvec) * inv_det;
+  if (t > ray.t0 && t < ray.t1)
+    {
+      ray.t1 = t;
+      u = _u;
+      v = _v;
+      return true;
+    }
+
+  // Nope...
+  //
+  return false;
 }
 
 // If a ray from RAY_ORIGIN in direction RAY_DIR intersects the triangle
@@ -112,14 +122,12 @@ tripar_intersect (const TPos<T> &corner,
 // Note that U and V may be modified even if there is no intersection.
 //
 template<typename T>
-inline T
+inline bool
 triangle_intersect (const TPos<T> &corner,
 		    const TVec<T> &edge1, const TVec<T> &edge2,
-		    const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-		    T &u, T &v)
+		    TRay<T> &ray, T &u, T &v)
 {
-  return
-    tripar_intersect (corner, edge1, edge2, false, ray_origin, ray_dir, u, v);
+  return tripar_intersect (corner, edge1, edge2, false, ray, u, v);
 }
 
 // If a ray from RAY_ORIGIN in direction RAY_DIR intersects the
@@ -131,14 +139,12 @@ triangle_intersect (const TPos<T> &corner,
 // Note that U and V may be modified even if there is no intersection.
 //
 template<typename T>
-inline T
+inline bool
 parallelogram_intersect (const TPos<T> &corner,
 			 const TVec<T> &edge1, const TVec<T> &edge2,
-			 const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-			 T &u, T &v)
+			 TRay<T> &ray, T &u, T &v)
 {
-  return
-    tripar_intersect (corner, edge1, edge2, true, ray_origin, ray_dir, u, v);
+  return tripar_intersect (corner, edge1, edge2, true, ray, u, v);
 }
 
 }

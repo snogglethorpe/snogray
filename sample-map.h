@@ -19,7 +19,6 @@
 namespace snogray {
 
 class Scene;
-class Ray;
 class TraceParams;
 
 // An image that holds a visual representation, in the form of a

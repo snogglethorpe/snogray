@@ -73,7 +73,7 @@ SceneClosestIntersectCallback::operator () (Surface *surf)
     {
       if (! trace.negative_isec_cache.contains (surf))
 	{
-	  if (surf->intersect (ray, isec_params, trace.origin_count (surf)))
+	  if (surf->intersect (ray, isec_params))
 	    {
 	      closest = surf;
 	      surf_isec_hits++;
@@ -114,7 +114,7 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
   const Surface *hint = trace.horizon_hint;
   if (hint)
     {
-      if (hint->intersect (ray, isec_params, trace.origin_count (hint)))
+      if (hint->intersect (ray, isec_params))
 	{
 	  closest_isec_cb.closest = hint;
 	  trace.global.stats.horizon_hint_hits++;

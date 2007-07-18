@@ -151,7 +151,7 @@ private:
 
 	Ray ray (camera_ray, Scene::DEFAULT_HORIZON);
 
-	if (surf && (!prev_surf || prev_surf->intersects (ray)))
+	if (surf && (!prev_surf || prev_surf->intersect (ray)))
 	  //
 	  // SURF is "on top" of PREV_SURF, or there is no PREV_SURF;
 	  // Make the "wire" part of SURF.
@@ -176,7 +176,7 @@ private:
 	    if (surf && surf->material != prev_surf->material)
 	      {
 		Ray prev_ray (prev_camera_ray, Scene::DEFAULT_HORIZON);
-		if (! surf->intersects (prev_ray))
+		if (! surf->intersect (prev_ray))
 		  draw = true;
 	      }
 	  }

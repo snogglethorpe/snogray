@@ -9,8 +9,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <iostream>
-
 #include "glow.h"
 #include "scene.h"		// for inlined Trace::shadow method
 

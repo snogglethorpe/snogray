@@ -13,11 +13,13 @@
 #define __SPACE_H__
 
 
+#include "ray.h"
+
+
 namespace snogray {
 
 class Surface;
 class BBox;
-class Ray;
 
 
 class Space
