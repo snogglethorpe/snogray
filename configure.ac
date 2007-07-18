@@ -17,6 +17,26 @@ AC_CHECK_PROG([SWIG], [swig], [swig])
 AC_LANG(C++)
 
 
+# Enable/disable single-precision floating-point coordinates
+#
+# Using single-precision coordinates is much faster, but can present
+# problems with precision errors (typically, though, this can be worked
+# around at runtime by increasing the value of the "min-trace" rendering
+# parameter).
+#
+AC_ARG_ENABLE([float-coords],
+    AS_HELP_STRING([--enable-float-coords],
+		   [Enable single-precision coordinates]),
+    [enable_float_coords="$enableval"],
+    [enable_float_coords=yes])
+AC_MSG_CHECKING([whether to use single-precision coordinates])
+AC_MSG_RESULT([$enable_float_coords])
+if test "$enable_float_coords" = yes; then
+  AC_DEFINE([USE_FLOAT_COORDS], [1],
+  	    [Define if using single-precision coordinates])
+fi
+
+
 ##
 ## --------------------------------
 ## Language feature tests
@@ -143,6 +163,8 @@ if test "$enable_fp_exceptions" = yes; then
 
 fi
 
+AC_MSG_CHECKING([whether to enable floating-point exceptions])
+AC_MSG_RESULT([$enable_fp_exceptions])
 if test "$use_fp_exceptions" = yes; then
   AC_DEFINE([USE_FP_EXCEPTIONS], [1],
   	    [Define if enabling floating-point exceptions])

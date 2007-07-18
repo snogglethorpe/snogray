@@ -24,9 +24,21 @@ public:
   static const unsigned DEFAULT_BRDF_SAMPLES = 16;
   static const unsigned DEFAULT_LIGHT_SAMPLES = 16;
   static const unsigned DEFAULT_MAX_DEPTH = 6;
-  static const dist_t DEFAULT_MIN_TRACE = 1e-10;
   static const float DEFAULT_SPECULAR_THRESHOLD = 50;
   static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
+
+  // The minimum ray-length that will be accepted when tracing a ray; any
+  // intersection closer than this to the ray origin will be ignored.
+  //
+  // If we're using single-precision coordinates, we have to allow a lot of
+  // margin for imprecision to avoid self-intersection problems.  We do
+  // this by bumping up the minimum trace distance to something fairly large.
+  //
+#if USE_FLOAT_COORDS
+  static const dist_t DEFAULT_MIN_TRACE = 1e-3;
+#else
+  static const dist_t DEFAULT_MIN_TRACE = 1e-10;
+#endif
 
   TraceParams ()
     : max_depth (DEFAULT_MAX_DEPTH), min_trace (DEFAULT_MIN_TRACE)

@@ -13,10 +13,13 @@
 #
 %module snograw
 
+%include "config.h"
+
 %{
 #include <sstream>
 #include <cstring>
 
+#include "coords.h"
 #include "mesh.h"
 #include "scene.h"
 #include "camera.h"

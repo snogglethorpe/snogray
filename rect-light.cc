@@ -81,7 +81,7 @@ RectLight::filter_samples (const Intersect &isec,
 {
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
     {
-      double u, v;		// double to agree with
+      dist_t u, v;		// double to agree with
       Ray ray (isec.pos, s->dir, s->dist);
 
       if (parallelogram_intersect (pos, side1, side2, ray, u, v))

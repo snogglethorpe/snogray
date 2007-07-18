@@ -14,6 +14,9 @@
 
 #include <limits>
 
+#include "config.h"
+
+
 namespace snogray {
 
 // This value should be comfortably smaller than the smallest possible
@@ -33,8 +36,13 @@ typedef dcoord_t ddist_t;
 
 // Normal coordinates
 //
-typedef dcoord_t coord_t;
-typedef ddist_t dist_t;
+#if USE_FLOAT_COORDS
+  typedef scoord_t coord_t;
+  typedef sdist_t dist_t;
+#else
+  typedef dcoord_t coord_t;
+  typedef ddist_t dist_t;
+#endif  
 
 // We'll probably never hit these limits, so just use the smaller float
 // values for both scoord_t and coord_t.
