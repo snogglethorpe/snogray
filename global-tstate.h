@@ -15,6 +15,7 @@
 
 #include "trace-stats.h"
 #include "trace-params.h"
+#include "mempool.h"
 
 
 namespace snogray {
@@ -31,6 +32,12 @@ public:
   const TraceParams &params;
 
   IllumGlobalState *illum_global_state;
+
+  // This mempool is reset every time control returns to the top level
+  // of a trace tree, so should not be used for anything longer-lived
+  // that that.
+  //
+  Mempool mempool;
 
   TraceStats stats;
 };

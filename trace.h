@@ -176,6 +176,29 @@ private:
 
 }
 
+
+// The user can use this via placement new: "new (TRACE) T (...)".
+// The resulting object cannot be deleted using delete, but should be
+// destructed (if necessary) explicitly:  "OBJ->~T()".
+//
+// All memory allocated from a trace object is automatically freed at some
+// appropriate point, and should not be used after the trace has completed.
+//
+inline void *operator new (size_t size, snogray::Trace &trace)
+{
+  return operator new (size, trace.global.mempool);
+}
+
+// There's no syntax for user to use this, but the compiler may call it
+// during exception handling.
+//
+inline void operator delete (void *mem, snogray::Trace &trace)
+{
+  operator delete (mem, trace.global.mempool);
+}
+
+
 #endif /* __TRACE_H__ */
+
 
 // arch-tag: 7ae04357-d63f-4119-9e79-a63d0e5a5e7f

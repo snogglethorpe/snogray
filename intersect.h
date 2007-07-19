@@ -165,6 +165,29 @@ public:
 
 }
 
+
+// The user can use this via placement new: "new (ISEC) T (...)".
+// The resulting object cannot be deleted using delete, but should be
+// destructed (if necessary) explicitly:  "OBJ->~T()".
+//
+// All memory allocated from an intersection is automatically freed at
+// some appropriate point, and should not be used after the intersection
+// is destroyed.
+//
+inline void *operator new (size_t size, snogray::Intersect &isec)
+{
+  return operator new (size, isec.trace);
+}
+
+// There's no syntax for user to use this, but the compiler may call it
+// during exception handling.
+//
+inline void operator delete (void *mem, snogray::Intersect &isec)
+{
+  operator delete (mem, isec.trace);
+}
+
+
 #endif /* __INTERSECT_H__ */
 
 // arch-tag: cce437f9-75b6-42e5-bb0f-ee18693d6799
