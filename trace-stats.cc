@@ -40,13 +40,10 @@ static float fraction (long long num, long long den)
 void
 TraceStats::print (ostream &os, const Scene &scene)
 {
-  const Space::IsecStats &tistats1 = intersect.space;
-  const Space::IsecStats &tistats2 = shadow.space;
-
-  const Space::Stats tstats = scene.space.stats ();
+  const Space::Stats tstats = scene.space->stats ();
 
   long long sc  = scene_intersect_calls;
-  long long tnc = tistats1.node_intersect_calls;
+  long long tnc = intersect.space_node_intersect_calls;
   long long hhh = horizon_hint_hits;
   long long hhm = horizon_hint_misses;
 
@@ -86,7 +83,7 @@ TraceStats::print (ostream &os, const Scene &scene)
       long long shm = shadow_hint_misses;
       long long sss = scene_slow_shadow_traces;
       long long oss = surface_slow_shadow_traces;
-      long long tnt = tistats2.node_intersect_calls;
+      long long tnt = shadow.space_node_intersect_calls;
 
       os << "  shadow:" << endl;
       os << "     rays:            " << setw (16) << commify (sst)

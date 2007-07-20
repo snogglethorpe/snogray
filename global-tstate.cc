@@ -22,4 +22,5 @@ GlobalTraceState::GlobalTraceState (const TraceParams &_params)
     illum_global_state (new MisIllumGlobalState)
 { }
 
+
 // arch-tag: bacb1ae7-4350-408b-8746-cbcf77debc30

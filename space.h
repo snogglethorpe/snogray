@@ -14,19 +14,17 @@
 
 
 #include "ray.h"
+#include "surface.h"
 
 
 namespace snogray {
 
-class Surface;
 class BBox;
 
 
 class Space
 {
 public:
-
-  class IntersectCallback; // fwd decl
 
   virtual ~Space () { }
 
@@ -35,13 +33,27 @@ public:
   void add (Surface *surface);
   virtual void add (Surface *surface, const BBox &surface_bbox) = 0;
 
-  // Call CALLBACK for each surface in the voxel tree that _might_
-  // intersect RAY (any further intersection testing needs to be done
-  // directly on the resulting surfaces).
+  // Return the closest surface in this space which intersects the
+  // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
+  // to reflect the point of intersection.
   //
-  virtual void for_each_possible_intersector (const Ray &ray,
-					      IntersectCallback &callback)
-    const = 0;
+  const Surface::IsecInfo *intersect (Ray &ray, Trace &trace) const;
+
+  // Return some surface shadowing LIGHT_RAY from LIGHT, or 0 if there
+  // is no shadowing surface.  If a surface is returned, and it is _not_
+  // an "opaque" surface (shadow-type Material::SHADOW_OPAQUE), then it
+  // is guaranteed there are no opaque surfaces casting a shadow.
+  //
+  // ISEC is the intersection for which we are searching for shadow-casters.
+  //
+  // This is similar, but not identical to the behavior of the
+  // `intersect' method -- `intersect' always returns the closest
+  // surface and makes no guarantees about the properties of further
+  // intersections.
+  //
+  const Surface *shadow_caster (const Ray &light_ray, const Intersect &isec,
+				Trace &trace, const Light *light)
+    const;
     
   // Statistics for a space
   //
@@ -61,14 +73,9 @@ public:
     float avg_depth;
   };
 
-  // Statistics for runtime intersections
+  // Return various statistics about this space
   //
-  struct IsecStats
-  {
-    IsecStats () : node_intersect_calls (0) { }
-
-    unsigned long long node_intersect_calls;
-  };
+  virtual Stats stats () const = 0;
 
   // A callback for `for_each_possible_intersector'.  Users of
   // `for_each_possible_intersector' must subclass this, providing their
@@ -76,9 +83,7 @@ public:
   //
   struct IntersectCallback
   {
-    IntersectCallback (IsecStats *_stats)
-      : stop (false), stats (_stats)
-    { }
+    IntersectCallback () : stop (false), node_intersect_calls (0) { }
 
     virtual ~IntersectCallback () { }
 
@@ -87,15 +92,21 @@ public:
     void stop_iteration () { stop = true; }
 
     // If set to true, return from iterator immediately
+    //
     bool stop;
 
-    // This is used for stats gathering
-    IsecStats *stats;
+    // Keep track of some intersection statistics.
+    //
+    unsigned long node_intersect_calls;
   };
 
-  // Return various statistics about this space
+  // Call CALLBACK for each surface in the voxel tree that _might_
+  // intersect RAY (any further intersection testing needs to be done
+  // directly on the resulting surfaces).
   //
-  virtual Stats stats () const = 0;
+  virtual void for_each_possible_intersector (const Ray &ray,
+					      IntersectCallback &callback)
+    const = 0;
 };
 
 

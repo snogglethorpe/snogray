@@ -17,11 +17,14 @@
 #include "trace.h"
 #include "material.h"
 
+
 namespace snogray {
+
 
 class Surface;
 class Brdf;
 class Material;
+
 
 // This just packages up the result of a scene intersection search and
 // some handy values calculated from it.  It is passed to rendering

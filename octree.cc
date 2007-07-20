@@ -112,13 +112,13 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 					      const Pos &z_max_isec)
   const
 {
+  callback.node_intersect_calls++;
+
   // The boundaries of our volume
+  //
   const coord_t x_min = x_min_isec.x, x_max = x_max_isec.x;
   const coord_t y_min = y_min_isec.y, y_max = y_max_isec.y;
   const coord_t z_min = z_min_isec.z, z_max = z_max_isec.z;
-
-  if (callback.stats)
-    callback.stats->node_intersect_calls++;
 
   // Check to see if RAY intersects any of our faces.  Because we
   // already have the boundary-plane intersection points of RAY in the
@@ -309,7 +309,7 @@ Octree::add (Surface *surface, const BBox &surface_bbox)
   else
     // SURFACE will be the first node
     {
-      root = new Node ();
+      root = new Node;
       origin = surface_bbox.min;
       size = surface_bbox.max_size ();
 
@@ -335,7 +335,7 @@ Octree::grow_to_include (Surface *surface, const BBox &surface_bbox)
 {
   // New root node
   //
-  Node *new_root = new Node ();
+  Node *new_root = new Node;
 
   // Decide which directions to grow our volume
   //

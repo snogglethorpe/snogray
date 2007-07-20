@@ -16,6 +16,7 @@
 #include "color.h"
 #include "ray.h"
 #include "bbox.h"
+#include "trace.h"
 #include "intersect.h"
 #include "material.h"
 

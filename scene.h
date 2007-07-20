@@ -25,9 +25,13 @@
 #include "trace.h"
 #include "camera.h"
 
+
 namespace snogray {
 
+
 class Envmap;
+class Space;
+
 
 class Scene
 {
@@ -40,10 +44,7 @@ public:
   static const unsigned DEFAULT_HORIZON = 1000000;
   static const int DEFAULT_ASSUMED_GAMMA = 1;
 
-  Scene ()
-    : horizon (DEFAULT_HORIZON), env_map (0), bg_set (false), light_map (0),
-      assumed_gamma (DEFAULT_ASSUMED_GAMMA)
-  { }
+  Scene ();
   ~Scene ();
 
   // Returns the background color in the direction pointed to by RAY
@@ -80,7 +81,7 @@ public:
   Surface *add (Surface *surface)
   {
     surfaces.push_back (surface);
-    surface->add_to_space (space);
+    surface->add_to_space (*space);
     return surface;
   }
 
@@ -141,10 +142,13 @@ public:
   //
   const Envmap *light_map;
 
-  Octree space;
+  // Acceleration structure for doing ray-surface intersection testing.
+  //
+  Space *space;
 
   float assumed_gamma;
 };
+
 
 inline const Surface *
 Trace::shadow_caster (const Ray &light_ray, const Intersect &isec,
@@ -153,7 +157,9 @@ Trace::shadow_caster (const Ray &light_ray, const Intersect &isec,
   return scene.shadow_caster (light_ray, isec, *this, light);
 }
 
+
 }
+
 
 #endif /* __SCENE_H__ */
 

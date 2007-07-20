@@ -147,10 +147,10 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
     //
     return light_color;
 
+  global.stats.surface_slow_shadow_traces++;
+
   Ray intersected_ray (light_ray,
 		       light_ray.t0 + global.params.min_trace, light_ray.t1);
-
-  global.stats.surface_slow_shadow_traces++;
 
   const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, *this);
   if (isec_info)

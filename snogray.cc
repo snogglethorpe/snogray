@@ -108,7 +108,7 @@ print_params (const ValTable &params, const string &name_pfx,
 static void
 print_scene_info (const Scene &scene, const SceneDef &scene_def)
 {
-  Space::Stats tstats = scene.space.stats ();
+  Space::Stats tstats = scene.space->stats ();
 
   cout << "Scene:" << endl;
       

@@ -14,9 +14,9 @@
 
 #include <ostream>
 
-#include "space.h"
 
 namespace snogray {
+
 
 class Scene;
 
@@ -34,15 +34,15 @@ struct TraceStats
   {
     IsecStats ()
       : surface_intersects_tests (0), surface_intersects_hits (0),
-	neg_cache_hits (0), neg_cache_collisions (0)
+	neg_cache_hits (0), neg_cache_collisions (0),
+	space_node_intersect_calls (0)
     { }
 
     unsigned long long surface_intersects_tests;
     unsigned long long surface_intersects_hits;
     unsigned long long neg_cache_hits;
     unsigned long long neg_cache_collisions;
-
-    Space::IsecStats space;
+    unsigned long long space_node_intersect_calls;
   };
 
   unsigned long long scene_intersect_calls;

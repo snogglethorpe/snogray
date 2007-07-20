@@ -12,13 +12,16 @@
 #ifndef __TRACE_H__
 #define __TRACE_H__
 
+#include "ray.h"
 #include "color.h"
 #include "medium.h"
 #include "illum.h"
 #include "isec-cache.h"
 #include "global-tstate.h"
 
+
 namespace snogray {
+
 
 class Surface;
 class Brdf;
@@ -27,6 +30,7 @@ class Scene;
 class Illum;
 class Intersect;
 class GlobalTraceState;
+
 
 class Trace
 {

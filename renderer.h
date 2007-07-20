@@ -13,10 +13,11 @@
 #define __RENDERER_H__
 
 #include "image-output.h"
-
 #include "global-tstate.h"
 
+
 namespace snogray {
+
 
 class Scene;
 class Camera;
@@ -24,6 +25,7 @@ class ImageSink;
 class Filter;
 class Sample2Gen;
 class Trace;
+
 
 class Renderer
 {

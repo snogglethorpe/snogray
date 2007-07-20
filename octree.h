@@ -105,7 +105,7 @@ private:
     {
       if (! node)
 	{
-	  node = new Node ();
+	  node = new Node;
 	  has_subnodes = true;
 	}
 
