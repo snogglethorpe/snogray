@@ -37,17 +37,6 @@ Surface::smoothing_group () const
   return 0;
 }
 
-// Confirm that this surfaces blocks RAY, which emanates from the
-// intersection ISEC.  DIST is the distance between ISEC and the position
-// where RAY intersects this surface.
-//
-bool
-Surface::confirm_shadow (const Ray &, dist_t, const Intersect &)
-  const
-{
-  return true;
-}
-
 // Stubs -- these should be abstract methods, but C++ doesn't allow a
 // class with abstract methods to be used in a list/vector, so we just
 // signal a runtime error if they're ever called.
@@ -59,9 +48,8 @@ barf ()
   throw std::runtime_error ("tried to render abstract surface");
 }
 
-bool Surface::intersect (Ray &, IsecParams &) const { barf (); }
-Intersect Surface::intersect_info (const Ray &, const IsecParams &, Trace &) const { barf (); }
-
+Surface::IsecInfo *Surface::intersect (Ray &, IsecCtx &) const { barf (); }
+bool Surface::shadows (const Ray &, const Intersect &) const { barf (); }
 BBox Surface::bbox () const { barf (); }
 
 

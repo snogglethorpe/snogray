@@ -41,11 +41,9 @@ Scene::~Scene ()
 
 struct SceneClosestIntersectCallback : Space::IntersectCallback
 {
-  SceneClosestIntersectCallback (Ray &_ray, IsecParams &_isec_params,
-				 Trace &_trace)
+  SceneClosestIntersectCallback (Ray &_ray, Trace &_trace)
     : IntersectCallback (&_trace.global.stats.intersect.space),
-      ray (_ray), isec_params (_isec_params),
-      closest (0), trace (_trace),
+      ray (_ray), closest (0), isec_ctx (_trace), trace (_trace),
       surf_isec_tests (0), surf_isec_hits (0),
       neg_cache_hits (0), neg_cache_collisions (0)
   { }
@@ -54,11 +52,11 @@ struct SceneClosestIntersectCallback : Space::IntersectCallback
 
   Ray &ray;
 
-  IsecParams &isec_params;
-
-  // The the closest intersecting surface we've found
+  // Information about the closest intersection we've found
   //
-  const Surface *closest;
+  const Surface::IsecInfo *closest;
+
+  Surface::IsecCtx isec_ctx;
 
   Trace &trace;
 
@@ -73,9 +71,11 @@ SceneClosestIntersectCallback::operator () (Surface *surf)
     {
       if (! trace.negative_isec_cache.contains (surf))
 	{
-	  if (surf->intersect (ray, isec_params))
+	  Surface::IsecInfo *isec_info = surf->intersect (ray, isec_ctx);
+	  if (isec_info)
 	    {
-	      closest = surf;
+	      closest = isec_info;
+	      trace.horizon_hint = surf;
 	      surf_isec_hits++;
 	    }
 	  else
@@ -96,16 +96,15 @@ SceneClosestIntersectCallback::operator () (Surface *surf)
 // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
 // to reflect the point of intersection.
 //
-const Surface *
-Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
-  const
+const Surface::IsecInfo *
+Scene::intersect (Ray &ray, Trace &trace) const
 {
   trace.global.stats.scene_intersect_calls++;
 
   // Make a callback, and call it for each surface that may intersect
   // the ray.
 
-  SceneClosestIntersectCallback closest_isec_cb (ray, isec_params, trace);
+  SceneClosestIntersectCallback closest_isec_cb (ray, trace);
 
   // If there's a horizon hint, try to use it to reduce the horizon
   // before searching -- space searching can dramatically improve given
@@ -114,13 +113,18 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
   const Surface *hint = trace.horizon_hint;
   if (hint)
     {
-      if (hint->intersect (ray, isec_params))
+      Surface::IsecInfo *isec_info
+	= hint->intersect (ray, closest_isec_cb.isec_ctx);
+      if (isec_info)
 	{
-	  closest_isec_cb.closest = hint;
+	  closest_isec_cb.closest = isec_info;
 	  trace.global.stats.horizon_hint_hits++;
 	}
       else
-	trace.global.stats.horizon_hint_misses++;
+	{
+	  trace.horizon_hint = 0; // clear the hint
+	  trace.global.stats.horizon_hint_misses++;
+	}
     }
 
   trace.negative_isec_cache.clear ();
@@ -135,10 +139,6 @@ Scene::intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
     += closest_isec_cb.neg_cache_hits;
   trace.global.stats.intersect.neg_cache_collisions
     += closest_isec_cb.neg_cache_collisions;
-
-  // Update the horizon hint to reflect what we found (0 if nothing).
-  //
-  trace.horizon_hint = closest_isec_cb.closest;
 
   return closest_isec_cb.closest;
 }

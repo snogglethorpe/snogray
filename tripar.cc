@@ -14,32 +14,42 @@
 
 #include "intersect.h"
 
+
 using namespace snogray;
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-// to reflect the point of intersection, and return true; otherwise
-// return false.  ISEC_PARAMS maybe used to pass information to a later
-// call to Surface::intersect_info.
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with ISEC_CTX); otherwise return zero.
 //
-bool
-Tripar::intersect (Ray &ray, IsecParams &isec_params) const
+Surface::IsecInfo *
+Tripar::intersect (Ray &ray, IsecCtx &isec_ctx) const
 {
-  return tripar_intersect (v0, e1, e2, parallelogram, ray,
-			   isec_params.u, isec_params.v);
+  dist_t u, v;
+  if (tripar_intersect (v0, e1, e2, parallelogram, ray, u, v))
+    return new (isec_ctx) IsecInfo (this);
+  else
+    return 0;
 }
 
-// Return an Intersect object containing details of the intersection of RAY
-// with this surface; it is assumed that RAY does actually hit the surface,
-// and RAY's maximum bound (Ray::t1) gives the exact point of intersection
-// (the `intersect' method modifies RAY so that this is true).  ISEC_PARAMS
-// contains other surface-specific parameters calculated by the previous
-// call to Surface::intersects method.
+// Create an Intersect object for this intersection.
 //
 Intersect
-Tripar::intersect_info (const Ray &ray, const IsecParams &, Trace &trace)
-  const
+Tripar::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
-  return Intersect (ray, this, ray.end (), cross (e1, e2), trace);
+  return
+    Intersect (ray, tripar, ray.end (), cross (tripar->e1, tripar->e2), trace);
+}
+
+// Return true if this surface blocks RAY coming from ISEC.  This
+// should be somewhat lighter-weight than Surface::intersect (and can
+// handle special cases for some surface types).
+//
+bool
+Tripar::shadows (const Ray &ray, const Intersect &) const
+{
+  return tripar_intersect (v0, e1, e2, parallelogram, ray);
 }
 
 // Return a bounding box for this surface.

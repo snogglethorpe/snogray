@@ -204,10 +204,10 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
 
   Trace trace (scene, global_tstate);
 
-  IsecParams isec_params;
-  const Surface *surf = scene.intersect (probe, isec_params, trace);
-
-  return surf ? probe.dir * probe.length() : Vec (0,0,0);
+  if (scene.intersect (probe, trace))
+    return probe.dir * probe.length ();
+  else
+    return Vec (0,0,0);
 }
 
 static void

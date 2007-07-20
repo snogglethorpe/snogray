@@ -99,14 +99,10 @@ Trace::render (const Ray &ray)
 
   Ray intersected_ray (ray, ray.t0 + global.params.min_trace, scene.horizon);
 
-  IsecParams isec_params;
-  const Surface *closest
-    = scene.intersect (intersected_ray, isec_params, *this);
-
-  if (closest)
+  const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, *this);
+  if (isec_info)
     {
-      Intersect isec
-	= closest->intersect_info (intersected_ray, isec_params, *this);
+      Intersect isec = isec_info->make_intersect (intersected_ray, *this);
 
       // Calculate the appearance of the point on the surface we hit
       //
@@ -154,16 +150,12 @@ Trace::shadow (const Ray &light_ray, const Color &light_color,
   Ray intersected_ray (light_ray,
 		       light_ray.t0 + global.params.min_trace, light_ray.t1);
 
-  IsecParams isec_params;
-  const Surface *closest
-    = scene.intersect (intersected_ray, isec_params, *this);
-
   global.stats.surface_slow_shadow_traces++;
 
-  if (closest)
+  const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, *this);
+  if (isec_info)
     {
-      Intersect isec
-	= closest->intersect_info (intersected_ray, isec_params, *this);
+      Intersect isec = isec_info->make_intersect (intersected_ray, *this);
 
       // The distance traversed to hit CLOSEST.
       //

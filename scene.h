@@ -54,8 +54,7 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface *intersect (Ray &ray, IsecParams &isec_params, Trace &trace)
-    const;
+  const Surface::IsecInfo *intersect (Ray &ray, Trace &trace) const;
 
   // Return some surface shadowing LIGHT_RAY from LIGHT, or 0 if there
   // is no shadowing surface.  If a surface is returned, and it is _not_

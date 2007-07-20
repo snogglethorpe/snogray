@@ -33,14 +33,10 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
   GlobalTraceState global_tstate (trace_params);
   Trace trace (scene, global_tstate);
 
-  IsecParams isec_params;
-  const Surface *surf = scene.intersect (intersected_ray, isec_params, trace);
-
-  if (surf)
+  const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, trace);
+  if (isec_info)
     {
-      Intersect isec
-	= surf->intersect_info (intersected_ray, isec_params, trace);
-
+      Intersect isec = isec_info->make_intersect (intersected_ray, trace);
       MisIllum mis_illum (trace);
 
       mis_illum.distribute_light_samples (trace_params.num_light_samples,

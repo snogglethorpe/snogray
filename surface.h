@@ -19,19 +19,12 @@
 #include "intersect.h"
 #include "material.h"
 
+
 namespace snogray {
 
 class Material;
 class Space;
 
-// This class is used to record the "parameters" of a ray-surface
-// intersection.  In particular for triangles, u and v are the barycentric
-// coordinates of the intersection.
-//
-struct IsecParams
-{
-  dist_t u, v;
-};
 
 // A surface is the basic object scenes are constructed of.
 // Surfaces exist in 3D space, but are basically 2D -- volumetric
@@ -44,54 +37,52 @@ public:
   Surface (const Material *mat) : material (mat) { }
   virtual ~Surface () { }
 
-  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return true; otherwise
-  // return false.  ISEC_PARAMS maybe used to pass information to a later
-  // call to Surface::intersect_info.
+  // A lightweight object used to return infomation from the
+  // Surface::intersect method.  If that intersection ends up being used
+  // for rendering, its IsecInfo::make_intersect method will be called
+  // to create a (more heavyweight) Intersect object for doing
+  // rendering.
   //
-  virtual bool intersect (Ray &ray, IsecParams &isec_params) const;
-
-  // Return an Intersect object containing details of the intersection of
-  // RAY with this surface; it is assumed that RAY does actually hit the
-  // surface, and RAY's maximum bound (Ray::t1) gives the exact point of
-  // intersection (the `intersect' method modifies RAY so that this is
-  // true).  ISEC_PARAMS contains other surface-specific parameters
-  // calculated by the previous call to Surface::intersects method.
+  // These objects should be allocated using placement new with the
+  // IsecCtx object passed to Surface::intersect.
   //
-  virtual Intersect intersect_info (const Ray &ray,
-				    const IsecParams &isec_params,
-				    Trace &trace)
-    const;
-
-  // Like `intersects', but rejects an intersection if this object is in
-  // the smoothing-group SMOOTH_GROUP, and RAY is hitting the back-face of
-  // the object; FROM_REVERSE inverts the sense of the smoothing-group face test
-  // (if true, shadows from the _front_ of an object in the same
-  // smoothing-group are rejected).
-  //
-  bool shadows (const Ray &ray, const Intersect &isec) const
+  class IsecInfo
   {
-    IsecParams isec_params;	// not used
-    Ray temp_ray (ray);
+  public:
 
-    if (intersect (temp_ray, isec_params))
-      {
-	if (isec.smoothing_group)
-	  return confirm_shadow (ray, temp_ray.t1, isec);
+    virtual ~IsecInfo () { }
 
-	return true;
-      }
+    // Create an Intersect object for this intersection.
+    //
+    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const = 0;
+  };
 
-    return false;
-  }
-
-  // Confirm that this surfaces blocks RAY, which emanates from the
-  // intersection ISEC.  DIST is the distance between ISEC and the position
-  // where RAY intersects this surface.
+  // A special object passed into the Surface::intersect method, which
+  // can be used with placement new to allocate a IsecInfo object.
   //
-  virtual bool confirm_shadow (const Ray &ray, dist_t dist,
-			       const Intersect &isec)
-  const;
+  class IsecCtx
+  {
+  public:
+
+    IsecCtx (Trace &_trace) : trace (_trace) { }
+
+    // Trace object representing global context of intersection.
+    //
+    Trace &trace;
+  };
+
+  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
+  // to reflect the point of intersection, and return a Surface::IsecInfo
+  // object describing the intersection (which should be allocated using
+  // placement-new with ISEC_CTX); otherwise return zero.
+  //
+  virtual IsecInfo *intersect (Ray &ray, IsecCtx &isec_ctx) const;
+
+  // Return true if this surface blocks RAY coming from ISEC.  This should
+  // be somewhat lighter-weight than Surface::intersect (and can handle
+  // special cases for some surface types).
+  //
+  virtual bool shadows (const Ray &ray, const Intersect &isec) const;
 
   // Return a bounding box for this surface.
   //
@@ -112,8 +103,32 @@ public:
   const Material *material;
 };
 
+
 }
 
+
+// The user can use this via placement new: "new (ISEC_CTX) T (...)".
+// The resulting object cannot be deleted using delete, but should be
+// destructed (if necessary) explicitly:  "OBJ->~T()".
+//
+// All memory allocated from an Surface::IsecCtx object is automatically
+// freed at some appropriate point.
+//
+inline void *operator new (size_t size, snogray::Surface::IsecCtx &isec_ctx)
+{
+  return operator new (size, isec_ctx.trace);
+}
+
+// There's no syntax for user to use this, but the compiler may call it
+// during exception handling.
+//
+inline void operator delete (void *mem, snogray::Surface::IsecCtx &isec_ctx)
+{
+  operator delete (mem, isec_ctx.trace);
+}
+
+
 #endif /* __SURFACE_H__ */
+
 
 // arch-tag: 85997b65-c9ab-4542-80be-0c3a114593ba

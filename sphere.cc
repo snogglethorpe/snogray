@@ -18,37 +18,42 @@
 using namespace snogray;
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-// to reflect the point of intersection, and return true; otherwise
-// return false.  ISEC_PARAMS maybe used to pass information to a later
-// call to Surface::intersect_info.
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with ISEC_CTX); otherwise return zero.
 //
-bool
-Sphere::intersect (Ray &ray, IsecParams &) const
+Surface::IsecInfo *
+Sphere::intersect (Ray &ray, IsecCtx &isec_ctx) const
 {
   dist_t t = sphere_intersect (center, radius, ray.origin, ray.dir, ray.t0);
   if (t > ray.t0 && t < ray.t1)
     {
       ray.t1 = t;
-      return true;
+      return new (isec_ctx) IsecInfo (this);
     }
   else
     return false;
 }
 
-// Return an Intersect object containing details of the intersection of
-// RAY with this surface; it is assumed that RAY does actually hit the
-// surface, and RAY's maximum bound (Ray::t1) gives the exact point of
-// intersection (the `intersect' method modifies RAY so that this is
-// true).  ISEC_PARAMS contains other surface-specific parameters
-// calculated by the previous call to Surface::intersects method.
+// Create an Intersect object for this intersection.
 //
 Intersect
-Sphere::intersect_info (const Ray &ray, const IsecParams &, Trace &trace)
-  const
+Sphere::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
   Pos point = ray.end ();
-  return Intersect (ray, this, point, point - center, trace);
+  return Intersect (ray, sphere, point, point - sphere->center, trace);
+}
+
+// Return true if this surface blocks RAY coming from ISEC.  This
+// should be somewhat lighter-weight than Surface::intersect (and can
+// handle special cases for some surface types).
+//
+bool
+Sphere::shadows (const Ray &ray, const Intersect &) const
+{
+  dist_t t = sphere_intersect (center, radius, ray.origin, ray.dir, ray.t0);
+  return (t > ray.t0 && t < ray.t1);
 }
 
 // Return a bounding box for this surface.

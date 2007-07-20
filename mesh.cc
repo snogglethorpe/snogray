@@ -208,41 +208,37 @@ Mesh::add (const Tessel::Function &tessel_fun,
 
 // Mesh triangles
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-// to reflect the point of intersection, and return true; otherwise
-// return false.  ISEC_PARAMS maybe used to pass information to a later
-// call to Surface::intersect_info.
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with ISEC_CTX); otherwise return zero.
 //
-bool
-Mesh::Triangle::intersect (Ray &ray, IsecParams &isec_params) const
+Surface::IsecInfo *
+Mesh::Triangle::intersect (Ray &ray, IsecCtx &isec_ctx) const
 {
   // We have to convert the types to match that of RAY first.
   //
   Pos corner = v(0);
   Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
 
-  return triangle_intersect (corner, edge1, edge2,
-			     ray, isec_params.u, isec_params.v);
+  dist_t u, v;
+  if (triangle_intersect (corner, edge1, edge2, ray, u, v))
+    return new (isec_ctx) IsecInfo (this, u, v);
+  else
+    return 0;
 }
 
-// Return an Intersect object containing details of the intersection of RAY
-// with this surface; it is assumed that RAY does actually hit the surface,
-// and RAY's maximum bound (Ray::t1) gives the exact point of intersection
-// (the `intersect' method modifies RAY so that this is true).  ISEC_PARAMS
-// contains other surface-specific parameters calculated by the previous
-// call to Surface::intersects method.
+// Create an Intersect object for this intersection.
 //
 Intersect
-Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params,
-				Trace &trace)
-  const
+Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
   // We first use the real "raw" normal to determine if this is a back
   // face or not (for back-face determination the normal doesn't need
   // to be a unit vector, so it is only made a unit vector later,
   // perhaps after replacing it w ith the interpolated normal).
   //
-  Vec norm = raw_normal_unscaled ();
+  Vec norm = triangle->raw_normal_unscaled ();
   bool back = dot (norm, ray.dir) > 0;
 
   // Point of intersection.
@@ -252,11 +248,11 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params,
   // Now if we're using normal interpolation, calculate the
   // interpolated normal.
   //
-  if (! mesh.vertex_normals.empty ())
+  if (! triangle->mesh.vertex_normals.empty ())
     {
-      norm =  vnorm(0) * (1 - isec_params.u - isec_params.v);
-      norm += vnorm(1) * isec_params.u;
-      norm += vnorm(2) * isec_params.v;
+      norm =  triangle->vnorm(0) * (1 - u - v);
+      norm += triangle->vnorm(1) * u;
+      norm += triangle->vnorm(2) * v;
 
       // If the interpolated normal is pointing in (roughly) the same
       // direction as RAY, it means normal interpolation has
@@ -280,8 +276,72 @@ Mesh::Triangle::intersect_info (const Ray &ray, const IsecParams &isec_params,
 	}
     }
 
-  return Intersect (ray, this, point, norm, back, trace,
-		    static_cast<const void *>(&mesh));
+  return Intersect (ray, triangle, point, norm, back, trace,
+		    static_cast<const void *>(&triangle->mesh));
+}
+
+// Return true if this surface blocks RAY coming from ISEC.  This
+// should be somewhat lighter-weight than Surface::intersect (and can
+// handle special cases for some surface types).
+//
+bool
+Mesh::Triangle::shadows (const Ray &ray, const Intersect &isec) const
+{
+  // We have to convert the types to match that of RAY first.
+  //
+  Pos corner = v(0);
+  Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
+
+  if (triangle_intersect (corner, edge1, edge2, ray))
+    {
+      if (isec.smoothing_group == static_cast<const void *>(&mesh))
+	{    
+	  bool real_back = dot (raw_normal_unscaled(), ray.dir) > 0;
+
+	  // We only get suspicious about the validity of the shadow if RAY is
+	  // coming from a difference surface when we compare the virtual
+	  // smoothed normal with the real surface normal.
+	  //
+	  if (real_back != isec.back)
+	    {
+	      const Triangle *other_tri
+		= static_cast<const Triangle *>(isec.surface);
+	      bool other_back
+		= dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
+
+	      return real_back == other_back;
+
+#if 0
+	      // Vertex indices of this and the other triangle
+	      //
+	      vert_index_t v0i = vi[0];
+	      vert_index_t v1i = vi[1];
+	      vert_index_t v2i = vi[2];
+	      vert_index_t ov0i = other_tri->vi[0];
+	      vert_index_t ov1i = other_tri->vi[1];
+	      vert_index_t ov2i = other_tri->vi[2];
+
+	      // We check to see if this triangle shares any vertices with
+	      // the other triangle; if so, then if the source intersection
+	      // was on the front/back of OTHER_TRI, we reject shadows if
+	      // RAY hit the same surface (front/back) of this triangle.
+	      // Doing this eliminates the most common false shadowing
+	      // cases in smooth meshes.
+
+	      if (v0i == ov0i || v0i == ov1i || v0i == ov2i
+		  || v1i == ov0i || v1i == ov1i || v1i == ov2i
+		  || v2i == ov0i || v2i == ov1i || v2i == ov2i)
+		return isec.back == other_back;
+#endif
+	    }
+	}
+
+      // By default, say the shadow's OK
+      //
+      return true;
+    }
+  else
+    return false;
 }
 
 // Return a bounding box for this surface.
@@ -309,60 +369,6 @@ Mesh::Triangle::smoothing_group () const
     return static_cast<const void *>(&mesh);
   else
     return 0;
-}
-
-// Confirm that this surfaces blocks RAY, which emanates from the
-// intersection ISEC.  DIST is the distance between ISEC and the position
-// where RAY intersects this surface.
-//
-bool
-Mesh::Triangle::confirm_shadow (const Ray &ray, dist_t, const Intersect &isec)
-  const
-{
-  if (isec.smoothing_group == static_cast<const void *>(&mesh))
-    {    
-      bool real_back = dot (raw_normal_unscaled(), ray.dir) > 0;
-
-      // We only get suspicious about the validity of the shadow if RAY is
-      // coming from a difference surface when we compare the virtual
-      // smoothed normal with the real surface normal.
-      //
-      if (real_back != isec.back)
-	{
-	  const Triangle *other_tri
-	    = static_cast<const Triangle *>(isec.surface);
-	  bool other_back
-	    = dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
-
-	  return real_back == other_back;
-
-#if 0
-	  // Vertex indices of this and the other triangle
-	  //
-	  vert_index_t v0i = vi[0];
-	  vert_index_t v1i = vi[1];
-	  vert_index_t v2i = vi[2];
-	  vert_index_t ov0i = other_tri->vi[0];
-	  vert_index_t ov1i = other_tri->vi[1];
-	  vert_index_t ov2i = other_tri->vi[2];
-
-	  // We check to see if this triangle shares any vertices with the
-	  // other triangle; if so, then if the source intersection was on the
-	  // front/back of OTHER_TRI, we reject shadows if RAY hit the same
-	  // surface (front/back) of this triangle.  Doing this eliminates the
-	  // most common false shadowing cases in smooth meshes.
-
-	  if (v0i == ov0i || v0i == ov1i || v0i == ov2i
-	      || v1i == ov0i || v1i == ov1i || v1i == ov2i
-	      || v2i == ov0i || v2i == ov1i || v2i == ov2i)
-	    return isec.back == other_back;
-#endif
-	}
-    }
-
-  // By default, say the shadow's OK
-  //
-  return true;
 }
 
 

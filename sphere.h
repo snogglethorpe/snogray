@@ -14,7 +14,9 @@
 
 #include "surface.h"
 
+
 namespace snogray {
+
 
 class Sphere : public Surface
 {
@@ -25,29 +27,30 @@ public:
   { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return true; otherwise
-  // return false.  ISEC_PARAMS maybe used to pass information to a later
-  // call to Surface::intersect_info.
+  // to reflect the point of intersection, and return a Surface::IsecInfo
+  // object describing the intersection (which should be allocated using
+  // placement-new with ISEC_CTX); otherwise return zero.
   //
-  virtual bool intersect (Ray &ray, IsecParams &isec_params) const;
+  virtual IsecInfo *intersect (Ray &ray, IsecCtx &isec_ctx) const;
 
-  // Return an Intersect object containing details of the intersection of
-  // RAY with this surface; it is assumed that RAY does actually hit the
-  // surface, and RAY's maximum bound (Ray::t1) gives the exact point of
-  // intersection (the `intersect' method modifies RAY so that this is
-  // true).  ISEC_PARAMS contains other surface-specific parameters
-  // calculated by the previous call to Surface::intersects method.
+  // Return true if this surface blocks RAY coming from ISEC.  This should
+  // be somewhat lighter-weight than Surface::intersect (and can handle
+  // special cases for some surface types).
   //
-  virtual Intersect intersect_info (const Ray &ray,
-				    const IsecParams &isec_params,
-				    Trace &trace)
-    const;
+  virtual bool shadows (const Ray &ray, const Intersect &isec) const;
 
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;
 
 private:
+
+  struct IsecInfo : public Surface::IsecInfo
+  {
+    IsecInfo (const Sphere *_sphere) : sphere (_sphere) { }
+    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    const Sphere *sphere;
+  };
 
   Pos center;
   dist_t radius;
