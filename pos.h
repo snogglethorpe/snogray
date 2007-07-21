@@ -13,6 +13,7 @@
 #define __POS_H__
 
 #include "vec.h"
+#include "matrix4.h"
 
 namespace snogray {
 
@@ -70,8 +71,23 @@ public:
 
   TPos operator* (const Matrix4<T> &xform) const
   {
-    return TPos (Tuple3<T>::operator* (xform));
+    return
+      TPos (
+	(  x * xform (0, 0)
+	 + y * xform (1, 0)
+	 + z * xform (2, 0)
+	 +     xform (3, 0)),
+	(  x * xform (0, 1)
+	 + y * xform (1, 1)
+	 + z * xform (2, 1)
+	 +     xform (3, 1)),
+	(  x * xform (0, 2)
+	 + y * xform (1, 2)
+	 + z * xform (2, 2)
+	 +     xform (3, 2))
+	);
   }
+
   const TPos &operator*= (const Matrix4<T> &xform)
   {
     TPos temp = *this * xform;

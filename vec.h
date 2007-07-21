@@ -17,6 +17,7 @@
 
 #include "snogmath.h"
 #include "tuple3.h"
+#include "matrix4.h"
 
 namespace snogray {
 
@@ -75,8 +76,20 @@ public:
 
   TVec operator* (const Matrix4<T> &xform) const
   {
-    return TVec (Tuple3<T>::operator* (xform));
+    return
+      TVec (
+	(  x * xform (0, 0)
+	 + y * xform (1, 0)
+	 + z * xform (2, 0)),
+	(  x * xform (0, 1)
+	 + y * xform (1, 1)
+	 + z * xform (2, 1)),
+	(  x * xform (0, 2)
+	 + y * xform (1, 2)
+	 + z * xform (2, 2))
+	);
   }
+
   const TVec &operator*= (const Matrix4<T> &xform)
   {
     TVec temp = *this * xform;

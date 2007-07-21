@@ -13,7 +13,6 @@
 #define __TUPLE3_H__
 
 #include "coords.h"
-#include "matrix4.h"
 
 namespace snogray {
 
@@ -52,32 +51,6 @@ public:
   void operator/= (T denom)
   {
     operator*= (1 / denom);
-  }
-
-  Tuple3<T> operator* (const Matrix4<T> &xform) const
-  {
-    return
-      Tuple3<T> (
-	(  x * xform (0, 0)
-	 + y * xform (1, 0)
-	 + z * xform (2, 0)
-	 +     xform (3, 0)),
-	(  x * xform (0, 1)
-	 + y * xform (1, 1)
-	 + z * xform (2, 1)
-	 +     xform (3, 1)),
-	(  x * xform (0, 2)
-	 + y * xform (1, 2)
-	 + z * xform (2, 2)
-	 +     xform (3, 2))
-	);
-  }
-
-  const Tuple3<T> &operator*= (const Matrix4<T> &xform)
-  {
-    Tuple3<T> temp = *this * xform;
-    *this = temp;
-    return *this;
   }
 
   T x, y, z;

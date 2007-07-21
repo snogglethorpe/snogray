@@ -89,9 +89,8 @@ Camera::orbit (const Xform &xform)
 void
 Camera::transform (const Xform &xform)
 {
-  const Xform rot_xform = xform.inverse().transpose();
   pos *= xform;
-  rotate (rot_xform);
+  rotate (xform);
 }
 
 
