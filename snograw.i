@@ -485,6 +485,16 @@ namespace snogray {
 
     float f_stop () const;
     void set_f_stop (float f_stop);
+
+    // Fields
+    //
+    Pos pos;
+    Vec forward, up, right;
+    bool handedness_reversed;
+    dist_t target_dist;
+    float aperture;
+    float focus;
+    float scene_unit;
   };
 
   %ignore Light;
