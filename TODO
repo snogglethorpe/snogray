@@ -37,16 +37,6 @@ Todo list for snogray
      evenly as possible taking mapping distortion into account).
 
 
- + Use single-precision floating-point uniformly
-
-     Currently double-precision is used widely (e.g. the Vec and Pos
-     classes).  Just switching completely to single-precision mostly
-     works fine, but causes problems with reflected/transmitted rays
-     after sphere-intersection -- so debug those errors, and make sphere
-     intersection work with single-precision floating point.  Probably
-     just needs some kind of error margin when tracing recursive rays.
-
-
  + Implement system for generating (and preserving, in snogcvt) image meta-data
 
      Simple EXIF support is added by exif-20061030-1.patch, but probably
@@ -109,6 +99,7 @@ Todo list for snogray
 
        * XML format (maybe use Cornell XML format?)
 
+       [DONE]
        * Add Lua integration, and allow defining scenes using Lua programs
 
          Lua integration issues:
@@ -364,6 +355,17 @@ Completed items:
      user will usually specify the image type indirectly via the output
      file extension, it could assume a "=" before the first ":" meant that
      the first element was a parameter rather than a type).
+
+
+ [DONE]
+ + Use single-precision floating-point uniformly
+
+     Currently double-precision is used widely (e.g. the Vec and Pos
+     classes).  Just switching completely to single-precision mostly
+     works fine, but causes problems with reflected/transmitted rays
+     after sphere-intersection -- so debug those errors, and make sphere
+     intersection work with single-precision floating point.  Probably
+     just needs some kind of error margin when tracing recursive rays.
 
 
 
