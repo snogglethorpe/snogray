@@ -70,7 +70,11 @@ function color (val)
 	 end
 
 	 if type (val[1]) == "number" then
-	    r, g, b = val[1], val[2], val[3]
+	    if #val == 1 then
+	       r, g, b = val[1], val[1], val[1]
+	    else
+	       r, g, b = val[1], val[2], val[3]
+	    end
 	 elseif val[1] then
 	    local inherit = color (val[1])
 	    r, g, b = inherit:r(), inherit:g(), inherit:b()
@@ -180,17 +184,20 @@ function cook_torrance (params)
    local diff, spec, m, i
 
    if type (params) == "table"
-      and (params.diffuse or params.color
-	   or params.specular or params.spec or params.m or params.ior)
+      and (params.diffuse or params.diff or params.d or params.color
+	   or params.specular or params.spec or params.s
+	   or params.m or params.ior)
    then
-       diff = color (params.diffuse or params.color or params[1] or 1)
-       spec = color (params.specular or params.spec or params[2] or 1)
+       diff = color (params.diffuse or params.diff or params.d
+		     or params.color or params[1] or 1)
+       spec = color (params.specular or params.spec or params.s
+		     or params[2] or 1)
        m = params.m or params[3] or 1
        i = ior (params.ior or params[4] or 1.5)
    else
       diff = color (params)
       spec = white
-      m = 1
+      m = 0.1
       i = 1.5
    end
    
