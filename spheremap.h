@@ -191,7 +191,7 @@ private:
 // LatLongMapping, as it can be done more efficiently.
 //
 template<>
-extern Ref<Image> Spheremap<LatLongMapping>::light_map () const;
+Ref<Image> Spheremap<LatLongMapping>::light_map () const;
 
 
 }

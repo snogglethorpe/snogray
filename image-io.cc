@@ -10,8 +10,9 @@
 //
 
 #include <string>
-#include <cerrno>
 #include <stdexcept>
+#include <cerrno>
+#include <cstring>
 
 #include "image-io.h"
 

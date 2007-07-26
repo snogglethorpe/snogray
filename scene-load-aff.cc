@@ -23,6 +23,7 @@
 
 #include <fstream>
 #include <string>
+#include <cstring>
 
 #include "snogmath.h"
 #include "excepts.h"

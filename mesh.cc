@@ -258,7 +258,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
       // direction as RAY, it means normal interpolation has
       // interpolated past a virtual tangent point on the surface.
       //
-      if (back != dot (norm, ray.dir) > 0)
+      if (back != (dot (norm, ray.dir) > 0))
 	{
 	  // In this case there's not much we can do -- it will look
 	  // ugly no matter what -- but try to keep things as sane as

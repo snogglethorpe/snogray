@@ -9,10 +9,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <cerrno>
-#include <cctype>
 #include <fstream>
 #include <algorithm>
+#include <cerrno>
+#include <cctype>
+#include <cstring>
 
 #include "config.h"
 

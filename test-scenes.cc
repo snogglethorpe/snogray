@@ -38,7 +38,7 @@ using namespace std;
 
 // Helper functions
 
-const void
+void
 add_rect (Scene &scene, const Material *mat,
 	  const Pos &corner_0, const Pos &mid_corner_0, const Pos &corner_1)
 {
@@ -46,14 +46,14 @@ add_rect (Scene &scene, const Material *mat,
 			 corner_1 - mid_corner_0, true));
 }
 
-const void
+void
 add_rect (Scene &scene, const Material *mat,
 	  const Pos &corner, const Vec &side1, const Vec &side2)
 {
   scene.add (new Tripar (mat, corner, side1, side2, true));
 }
 
-const void
+void
 add_cube (Scene &scene, const Material *mat,
 	  const Pos &corner, const Vec &up, const Vec &right, const Vec &fwd)
 {
@@ -66,7 +66,7 @@ add_cube (Scene &scene, const Material *mat,
   add_rect (scene, mat, corner + fwd, right, up);
 }
 
-const void
+void
 add_rect_bulb (Scene &scene,
 	       const Pos &corner, const Vec &side1, const Vec &side2,
 	       const Color &col = Color::white)

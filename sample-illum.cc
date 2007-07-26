@@ -234,13 +234,15 @@ SampleIllum::distribute_light_samples (unsigned num,
 		lp->num_samples = num_per_area_light;
 
 		if (num_left_over > 0)
-		  if (lp + 1 == light_params.end ())
-		    lp->num_samples += num_left_over;
-		  else if (random (1.f) < left_over_frac)
-		    {
-		      lp->num_samples++;
-		      num_left_over--;
-		    }
+		  {
+		    if (lp + 1 == light_params.end ())
+		      lp->num_samples += num_left_over;
+		    else if (random (1.f) < left_over_frac)
+		      {
+			lp->num_samples++;
+			num_left_over--;
+		      }
+		  }
 	      }
 	}
     }

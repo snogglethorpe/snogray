@@ -17,8 +17,9 @@
 // iteration is only done over dimension.
 
 #include <iostream>
-#include <cmath>
 #include <string>
+#include <cmath>
+#include <cstring>
 
 #include <cmdlineparser.h>
 

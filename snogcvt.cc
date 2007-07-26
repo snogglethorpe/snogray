@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <memory>		// auto_ptr
+#include <cstring>
 
 #include "cmdlineparser.h"
 #include "image-input.h"

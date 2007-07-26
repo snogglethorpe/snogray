@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cstring>
 
 #include <lib3ds/types.h>
 #include <lib3ds/file.h>

@@ -14,6 +14,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <cstdlib>
 
 #include <getopt.h>
 

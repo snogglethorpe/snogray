@@ -91,7 +91,7 @@ public:
     const Val *v = get (name);
     return v ? v->as_int () : default_val;
   }
-  uint get_uint (const std::string &name, unsigned default_val = 0) const
+  unsigned get_uint (const std::string &name, unsigned default_val = 0) const
   {
     const Val *v = get (name);
     return v ? v->as_uint () : default_val;
