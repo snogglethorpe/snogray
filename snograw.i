@@ -65,14 +65,20 @@ namespace snogray {
   %template(Matrix4d) Matrix4<dist_t>;
 
   template<typename T>
-  class TVec
+  class Tuple3
+  {
+  };
+  %template(Tuple3d) Tuple3<dist_t>;
+
+  template<typename T>
+  class TVec : public Tuple3<T>
   {
   public:
 
-    T x, y, z;
-
-    TVec (T _x, T _y, T _z) : Tuple3<T> (_x, _y, _z) { }
+    TVec (T _x, T _y, T _z);
     TVec () { }
+
+    TVec (const Tuple3<T> &t);
   };
   %extend TVec<dist_t>
   {
@@ -82,14 +88,14 @@ namespace snogray {
   typedef TVec<dist_t> Vec;
 
   template<typename T>
-  class TPos
+  class TPos : public Tuple3<T>
   {
   public:
 
-    T x, y, z;
-
-    TPos (T _x, T _y, T _z) : Tuple3<T> (_x, _y, _z) { }
+    TPos (T _x, T _y, T _z);
     TPos () { }
+
+    TPos (const Tuple3<T> &t);
 
     TPos operator+ (const TVec<T> &v) const;
     TPos operator- (const TVec<T> &v) const;
