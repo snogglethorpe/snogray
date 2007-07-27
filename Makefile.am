@@ -165,11 +165,11 @@ libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
 
 # Library dependencies of libsnogload.a
 #
-LOAD_LIBS =
+libsnogload_LIBS =
 
 if lua_scene_def
   libsnogload_a_SOURCES += load-lua.cc load-lua.h
-  LOAD_LIBS += libsnograw.a $(liblua_LIBS)
+  libsnogload_LIBS += libsnograw.a $(liblua_LIBS)
 
 load-lua.o : swigluarun.h
 endif
@@ -185,13 +185,13 @@ libsnogload2_a_SOURCES = mesh-load.cc scene-load-aff.cc
 
 # Library dependencies of libsnogload2.a
 #
-LOAD2_LIBS =
+libsnogload2_LIBS =
 
 libsnogload2_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
 
 if have_lib3ds
   libsnogload2_a_SOURCES += load-3ds.cc load-3ds.h
-  LOAD2_LIBS += $(LIB3DS_LIBS)
+  libsnogload2_LIBS += $(LIB3DS_LIBS)
 endif
 
 
@@ -209,26 +209,26 @@ libsnogimage_a_SOURCES = box-filt.h filter.cc filter.h filter-conv.h	 \
 
 # Library dependencies of libsnogimage.a
 #
-IMAGE_LIBS =
+libsnogimage_LIBS =
 
 if have_libpng
   libsnogimage_a_SOURCES += image-png.cc image-png.h
-  IMAGE_LIBS += $(libpng_LIBS)
+  libsnogimage_LIBS += $(libpng_LIBS)
 endif
 
 if have_libexr
   libsnogimage_a_SOURCES += image-exr.cc image-exr.h
-  IMAGE_LIBS += $(libexr_LIBS)
+  libsnogimage_LIBS += $(libexr_LIBS)
 endif
 
 if have_libjpeg
   libsnogimage_a_SOURCES += image-jpeg.cc image-jpeg.h
-  IMAGE_LIBS += $(libjpeg_LIBS)
+  libsnogimage_LIBS += $(libjpeg_LIBS)
 endif
 
 if have_libnetpbm
   libsnogimage_a_SOURCES += image-ppm.cc image-ppm.h
-  IMAGE_LIBS += $(libnetpbm_LIBS)
+  libsnogimage_LIBS += $(libnetpbm_LIBS)
 endif
 
 
@@ -252,28 +252,36 @@ libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
 LIBS += $(MUDFLAP:-f%=-l%)
 
 
+################################################################
+#
+# Groups of associated libraries
+#
+CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogscene.a	\
+	libsnogrender.a
+LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogload2.a	\
+	$(libsnogload2_LIBS)
+IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS)
+MISC_LIBS = libsnogutil.a $(LIBS)
+
+
 ###############################################################
 #
 # Programs
 #
 
 snogray_SOURCES = snogray.cc
-snogray_LDADD = libsnogcli.a libsnogrdrive.a libsnogload.a $(LOAD_LIBS)	\
-	libsnogload2.a $(LOAD2_LIBS) libsnogmat.a libsnogsurf.a		\
-	libsnoglight.a libsnogscene.a libsnogrender.a libsnogimage.a	\
-	libsnogutil.a $(IMAGE_LIBS) $(LIBS)
+snogray_LDADD = libsnogcli.a libsnogrdrive.a $(LOAD_LIBS) $(CORE_LIBS)	\
+	$(IMAGE_LIBS) $(MISC_LIBS)
 
 snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
-snogsamp_LDADD = libsnogcli.a libsnogload.a $(LOAD_LIBS) libsnogload2.a	\
-	$(LOAD2_LIBS) libsnogmat.a libsnogsurf.a libsnoglight.a		\
-	libsnogscene.a libsnogrender.a libsnogimage.a libsnogutil.a	\
-	$(IMAGE_LIBS) $(LIBS)
+snogsamp_LDADD = libsnogcli.a $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS)	\
+	$(MISC_LIBS)
 
 snogcvt_SOURCES = snogcvt.cc
-snogcvt_LDADD = libsnogimage.a libsnogutil.a $(IMAGE_LIBS) $(LIBS)
+snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogdiff_SOURCES = snogdiff.cc
-snogdiff_LDADD = libsnogimage.a libsnogutil.a $(IMAGE_LIBS) $(LIBS)
+snogdiff_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 
 hemint_SOURCES = hemint.cc
 hemint_LDADD = libsnogutil.a
