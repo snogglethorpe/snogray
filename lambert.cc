@@ -8,7 +8,6 @@
 //
 // Written by Miles Bader <miles@gnu.org>
 //
-#include<iostream>
 
 #include "intersect.h"
 #include "cos-dist.h"
