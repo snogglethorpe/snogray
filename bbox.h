@@ -53,17 +53,23 @@ public:
   //
   void include (const Pos &pos)
   {
+    // Note that minimum/maximum adjusting cases may not be mutually
+    // exclusive in the case of a degenerate (uninitialized) bounding box,
+    // so we need to check both.
+
     if (pos.x < min.x)
       min.x = pos.x;
-    else if (pos.x > max.x)
+    if (pos.x > max.x)
       max.x = pos.x;
+
     if (pos.y < min.y)
       min.y = pos.y;
-    else if (pos.y > max.y)
+    if (pos.y > max.y)
       max.y = pos.y;
+
     if (pos.z < min.z)
       min.z = pos.z;
-    else if (pos.z > max.z)
+    if (pos.z > max.z)
       max.z = pos.z;
   }
 
