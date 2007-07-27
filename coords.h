@@ -45,10 +45,14 @@ typedef dcoord_t ddist_t;
 #endif  
 
 // We'll probably never hit these limits, so just use the smaller float
-// values for both scoord_t and coord_t.
+// values for both scoord_t and dcoord_t.
+//
+// Note that we define MIN_COORD as -MAX_COORD; we can't use
+// "std::numeric_limits<float>::min()" because that's actually the minimum
+// _positive_ value of a float.
 //
 #define MAX_COORD std::numeric_limits<float>::max()
-#define MIN_COORD std::numeric_limits<float>::min()
+#define MIN_COORD (-MAX_COORD)
 
 template<typename T>
 inline T lim (T v) { return (v < Eps && v > -Eps) ? 0 : v; }
