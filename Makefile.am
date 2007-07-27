@@ -17,7 +17,9 @@ noinst_PROGRAMS = hemint
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogrender.a libsnogimage.a libsnogmisc.a
+noinst_LIBRARIES = libsnogcli.a libsnogimage.a libsnoglight.a		\
+	libsnogload.a libsnogload2.a libsnogmat.a libsnogrdrive.a	\
+	libsnogrender.a libsnogscene.a libsnogsurf.a libsnogutil.a
 
 if lua_scene_def
   noinst_LIBRARIES += libsnograw.a
@@ -79,52 +81,117 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 
 ################################################################
 #
-# Snogray rendering library, libsnogrender.a
+# Snogray core rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = bbox.h brdf.h camera-cmds.cc camera-cmds.h	 \
-	camera.cc camera.h cook-torrance.cc cook-torrance.h coords.h	 \
-	cos-dist.h cubemap.cc cubemap.h dist.h envmap-light.cc		 \
-	envmap-light.h envmap.cc envmap.h excepts.h far-light.cc	 \
-	far-light.h fresnel.h glass.cc glass.h global-tstate.cc		 \
-	global-tstate.h globals.cc globals.h glow.cc glow.h grid-iter.h	 \
-	grid.cc grid.h illum-sample.h illum.h image-sum.h intersect.cc	 \
-	intersect.h isec-cache.h lambert.cc lambert.h light-map.h	 \
-	light.h lmap-analyzer.cc lmap-analyzer.h material-map.cc	 \
-	material-map.h material.cc material.h matrix-tex2.cc		 \
-	matrix-tex2.h matrix-tex2.tcc matrix4.h medium.h mesh-load.cc	 \
-	mesh.cc mesh.h mirror.cc mirror.h mis-illum.cc mis-illum.h	 \
-	octree.cc octree.h phong-dist.h phong.cc phong.h plastic.cc	 \
-	plastic.h point-light.cc point-light.h pos.h progress.cc	 \
-	progress.h rand.h ray.cc ray.h rect-light.cc rect-light.h	 \
-	render-cmdline.h render.cc render.h renderer.cc renderer.h	 \
-	sample-disk.h sample-illum.cc sample-illum.h sample2-gen.h	 \
-	scene-def.cc scene-def.h scene-load-aff.cc scene-load.cc	 \
-	scene.cc scene.h snogmath.h space.cc space.h sphere-isec.h	 \
-	sphere-light.cc sphere-light.h sphere.cc sphere.h spheremap.cc	 \
-	spheremap.h struct-light.cc struct-light.h surface.cc surface.h	 \
-	tessel-param.cc tessel-param.h tessel.cc tessel.h test-scenes.cc \
-	test-scenes.h tex2.h timeval.cc timeval.h trace-params.h	 \
-	trace-stats.cc trace-stats.h trace.cc trace.h tripar-isec.h	 \
-	tripar.cc tripar.h tuple3.h uv.h vec.h ward-dist.h wire-frame.h	 \
-	xform.h
+libsnogrender_a_SOURCES = global-tstate.cc global-tstate.h grid-iter.h	\
+	grid.cc grid.h illum-sample.h illum.h intersect.cc intersect.h	\
+	isec-cache.h mis-illum.cc mis-illum.h ray.cc ray.h		\
+	sample-disk.h sample-illum.cc sample-illum.h sample2-gen.h	\
+	trace-params.h trace-stats.cc trace-stats.h trace.cc trace.h
 
-# Library dependencies of libsnogrender.a
+
+################################################################
 #
-RENDER_LIBS =
+# Snogray rendering driver library, libsnogrdrive.a
+#
 
-libsnogrender_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
+libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
+	render.cc render.h renderer.cc renderer.h wire-frame.h
 
-if have_lib3ds
-  libsnogrender_a_SOURCES += load-3ds.cc load-3ds.h
-  RENDER_LIBS += $(LIB3DS_LIBS)
-endif
+
+################################################################
+#
+# Snogray scene-representation library, libsnogscene.a
+#
+
+libsnogscene_a_SOURCES = bbox.h brdf.h camera.cc camera.h coords.h	\
+	cubemap.cc cubemap.h dist.h envmap.cc envmap.h material-map.cc	\
+	material-map.h material.cc material.h matrix-tex2.cc		\
+	matrix-tex2.h matrix-tex2.tcc matrix4.h medium.h octree.cc	\
+	octree.h pos.h scene.cc scene.h space.cc space.h sphere-isec.h	\
+	spheremap.cc spheremap.h surface.cc surface.h tex2.h		\
+	tripar-isec.h tuple3.h uv.h vec.h xform.h
+
+
+################################################################
+#
+# Snogray command-line-interface library, libsnogcli.a
+#
+
+libsnogcli_a_SOURCES = recover.cc recover.h test-scenes.cc test-scenes.h
+
+
+################################################################
+#
+# Snogray light library, libsnoglight.a
+#
+
+libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
+	far-light.h image-sum.h light-map.h light.h lmap-analyzer.cc	\
+	lmap-analyzer.h point-light.cc point-light.h rect-light.cc	\
+	rect-light.h sphere-light.cc sphere-light.h struct-light.cc	\
+	struct-light.h
+
+
+################################################################
+#
+# Snogray material library, libsnogmat.a
+#
+
+libsnogmat_a_SOURCES = cook-torrance.cc cook-torrance.h cos-dist.h	\
+	fresnel.h glass.cc glass.h glow.cc glow.h lambert.cc lambert.h	\
+	mirror.cc mirror.h phong-dist.h phong.cc phong.h plastic.cc	\
+	plastic.h ward-dist.h
+
+
+################################################################
+#
+# Snogray surface library, libsnogsurf.a
+#
+
+libsnogsurf_a_SOURCES = mesh.cc mesh.h sphere.cc sphere.h		\
+	tessel-param.cc tessel-param.h tessel.cc tessel.h tripar.cc	\
+	tripar.h
+
+
+################################################################
+#
+# Snogray scene-loading library, libsnogload.a
+#
+
+libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
+	scene-def.h scene-load.cc
+
+# Library dependencies of libsnogload.a
+#
+LOAD_LIBS =
 
 if lua_scene_def
-  libsnogrender_a_SOURCES += load-lua.cc load-lua.h
-  RENDER_LIBS += libsnograw.a $(liblua_LIBS)
+  libsnogload_a_SOURCES += load-lua.cc load-lua.h
+  LOAD_LIBS += libsnograw.a $(liblua_LIBS)
 
 load-lua.o : swigluarun.h
+endif
+
+
+################################################################
+#
+# Snogray scene-loading library #2 (we need two because of link-order
+# issues), libsnogload2.a
+#
+
+libsnogload2_a_SOURCES = mesh-load.cc scene-load-aff.cc
+
+# Library dependencies of libsnogload2.a
+#
+LOAD2_LIBS =
+
+libsnogload2_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
+
+if have_lib3ds
+  libsnogload2_a_SOURCES += load-3ds.cc load-3ds.h
+  LOAD2_LIBS += $(LIB3DS_LIBS)
 endif
 
 
@@ -167,13 +234,14 @@ endif
 
 ################################################################
 #
-# Snogray utility library, libsnogmisc.a
+# Snogray general utility library, libsnogutil.a
 #
 
-libsnogmisc_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	 \
-	color.h file-funs.cc file-funs.h freelist.cc freelist.h llist.h	 \
-	mempool.cc mempool.h recover.cc recover.h ref.h rusage.h	 \
-	string-funs.cc string-funs.h val-table.cc val-table.h
+libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
+	color.h excepts.h file-funs.cc file-funs.h freelist.cc		\
+	freelist.h globals.cc globals.h llist.h mempool.cc mempool.h	\
+	rand.h ref.h rusage.h snogmath.h string-funs.cc string-funs.h	\
+	timeval.cc timeval.h val-table.cc val-table.h
 
 
 ################################################################
@@ -190,21 +258,25 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 
 snogray_SOURCES = snogray.cc
-snogray_LDADD = libsnogrender.a libsnogimage.a libsnogmisc.a \
-	$(RENDER_LIBS) $(IMAGE_LIBS) $(LIBS)
+snogray_LDADD = libsnogcli.a libsnogrdrive.a libsnogload.a $(LOAD_LIBS)	\
+	libsnogload2.a $(LOAD2_LIBS) libsnogmat.a libsnogsurf.a		\
+	libsnoglight.a libsnogscene.a libsnogrender.a libsnogimage.a	\
+	libsnogutil.a $(IMAGE_LIBS) $(LIBS)
 
 snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
-snogsamp_LDADD = libsnogrender.a libsnogimage.a libsnogmisc.a \
-	$(RENDER_LIBS) $(IMAGE_LIBS) $(LIBS)
+snogsamp_LDADD = libsnogcli.a libsnogload.a $(LOAD_LIBS) libsnogload2.a	\
+	$(LOAD2_LIBS) libsnogmat.a libsnogsurf.a libsnoglight.a		\
+	libsnogscene.a libsnogrender.a libsnogimage.a libsnogutil.a	\
+	$(IMAGE_LIBS) $(LIBS)
 
 snogcvt_SOURCES = snogcvt.cc
-snogcvt_LDADD = libsnogimage.a libsnogmisc.a $(IMAGE_LIBS) $(LIBS)
+snogcvt_LDADD = libsnogimage.a libsnogutil.a $(IMAGE_LIBS) $(LIBS)
 
 snogdiff_SOURCES = snogdiff.cc
-snogdiff_LDADD = libsnogimage.a libsnogmisc.a $(IMAGE_LIBS) $(LIBS)
+snogdiff_LDADD = libsnogimage.a libsnogutil.a $(IMAGE_LIBS) $(LIBS)
 
 hemint_SOURCES = hemint.cc
-hemint_LDADD = libsnogmisc.a
+hemint_LDADD = libsnogutil.a
 
 
 ###############################################################
@@ -225,7 +297,7 @@ libsnograw_a_CXXFLAGS = -fno-strict-aliasing $(AM_CXXFLAGS)
 libsnograw_a_SHORTNAME = sl
 
 ## XXX
-snograw.so : libsnogrender.a libsnogmisc.a
+snograw.so : libsnogrender.a libsnogutil.a
 	$(CXX) -o $@ --shared -Wl,-uluaopen_snograw libsnograw.a $^ $(RENDER_LIBS)
 
 
