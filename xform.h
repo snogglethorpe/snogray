@@ -51,7 +51,7 @@ public:
   {
     return TXform (offs);
   }
-  static TXform translation (dist_t x, dist_t y, dist_t z)
+  static TXform translation (T x, T y, T z)
   {
     return TXform (TVec<T> (x, y, z));
   }
@@ -122,7 +122,7 @@ public:
     return xform;
   }
 
-  TXform &translate (dist_t x, dist_t y, dist_t z)
+  TXform &translate (T x, T y, T z)
   {
     *this *= translation (x, y, z);
     return *this;
