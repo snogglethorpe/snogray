@@ -67,6 +67,9 @@ namespace snogray {
   template<typename T>
   class Tuple3
   {
+  public:
+
+    T x, y, z;
   };
   %template(Tuple3d) Tuple3<dist_t>;
 
