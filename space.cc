@@ -11,6 +11,7 @@
 
 #include "surface.h"
 #include "light.h"
+#include "shadow-ray.h"
 
 #include "space.h"
 
@@ -90,9 +91,9 @@ ClosestIntersectCallback::operator () (Surface *surf)
 const Surface::IsecInfo *
 Space::intersect (Ray &ray, Trace &trace) const
 {
-  // Make a callback, and call it for each surface that may intersect
-  // the ray.
-
+  // A callback which is called for each surface in this space
+  // that may intersect RAY.
+  //
   ClosestIntersectCallback closest_isec_cb (ray, trace);
 
   // If there's a horizon hint, try to use it to reduce the horizon
@@ -104,6 +105,7 @@ Space::intersect (Ray &ray, Trace &trace) const
     {
       Surface::IsecInfo *isec_info
 	= hint->intersect (ray, closest_isec_cb.isec_ctx);
+
       if (isec_info)
 	{
 	  closest_isec_cb.closest = isec_info;
@@ -135,29 +137,26 @@ Space::intersect (Ray &ray, Trace &trace) const
 
 struct ShadowCallback : Space::IntersectCallback
 {
-  ShadowCallback (const Ray &_light_ray, const Intersect &_isec,
-		  Trace &_trace, const Light *_light)
-    : light_ray (_light_ray), isec (_isec),
-      shadower (0), trace (_trace), light (_light),
+  ShadowCallback (const ShadowRay &_ray, Trace &_trace,
+		  const Light *_hint_light)
+    : ray (_ray),
+      shadow_type (Material::SHADOW_NONE),
+      trace (_trace), hint_light (_hint_light),
       surf_isec_tests (0), surf_isec_hits (0),
       neg_cache_hits (0), neg_cache_collisions (0)
   { }
 
   virtual void operator() (Surface *);
 
-  const Ray &light_ray;
+  const ShadowRay &ray;
 
-  // Intersection which is possibly shadowed.
+  // Strongest type of shadow discovered.
   //
-  const Intersect &isec;
-
-  // Shadowing surface discovered.
-  //
-  const Surface *shadower;
+  Material::ShadowType shadow_type;
 
   Trace &trace;
 
-  const Light *light;
+  const Light *hint_light;
 
   unsigned surf_isec_tests, surf_isec_hits;
   unsigned neg_cache_hits, neg_cache_collisions;
@@ -166,97 +165,69 @@ struct ShadowCallback : Space::IntersectCallback
 void
 ShadowCallback::operator () (Surface *surface)
 {
-  Material::ShadowType shadow_type = surface->material->shadow_type;
-
-  if (surface != isec.surface && shadow_type != Material::SHADOW_NONE)
+  if (! trace.negative_isec_cache.contains (surface))
     {
-      if (! trace.negative_isec_cache.contains (surface))
-	{
-	  if (surface->shadows (light_ray, isec))
-	    {
-	      shadower = surface;
+      Material::ShadowType stype = surface->shadow (ray);
 
+      if (stype > shadow_type)
+	{
+	  shadow_type = stype;
+
+	  if (stype == Material::SHADOW_OPAQUE)
+	    {
 	      // Remember which surface we found, so we can try it first
 	      // next time.
 	      //
-	      if (light)
-		trace.shadow_hints[light->num] = surface;
+	      if (hint_light)
+		trace.shadow_hints[hint_light->num] = surface;
 
-	      if (shadow_type == Material::SHADOW_OPAQUE)
-		//
-		// A simple opaque surface blocks everything; we can
-		// immediately return it; stop looking any further.
-		stop_iteration ();
-
-	      surf_isec_hits++;
+	      // A simple opaque surface blocks everything; we can
+	      // immediately return it; stop looking any further.
+	      //
+	      stop_iteration ();
 	    }
-	  else
-	    {
-	      bool collision = trace.negative_isec_cache.add (surface);
-	      if (collision)
-		neg_cache_collisions++;
-	    }
-
-	  surf_isec_tests++;
 	}
+
+      if (stype != Material::SHADOW_NONE)
+	surf_isec_hits++;
       else
-	neg_cache_hits++;
+	{
+	  bool collision = trace.negative_isec_cache.add (surface);
+	  if (collision)
+	    neg_cache_collisions++;
+	}
+
+      surf_isec_tests++;
     }
+  else
+    neg_cache_hits++;
 }
 
-// Return some surface shadowing LIGHT_RAY from LIGHT, or 0 if there is
-// no shadowing surface.  If an surface it is returned, and it is _not_ an 
-// "opaque" surface (shadow-type Material::SHADOW_OPAQUE), then it is
-// guaranteed there are no opaque surfaces casting a shadow.
+
+// Return the strongest type of shadowing effect any object in this space
+// has on RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
+// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
+// returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
-// ISEC is the intersection for which we are searching for shadow-casters.
+// If HINT_LIGHT is non-zero, then the shadow-hint entry for HINT_LIGHT
+// should be updated to hold the first object which results in an opaque
+// shadow.
 //
-// This is similar, but not identical to the behavior of the `intersect'
-// method -- `intersect' always returns the closest surface and makes no
-// guarantees about the properties of further intersections.
-//
-const Surface *
-Space::shadow_caster (const Ray &light_ray, const Intersect &isec,
-		      Trace &trace, const Light *light)
+Material::ShadowType
+Space::shadow (const ShadowRay &ray, Trace &trace, const Light *hint_light)
   const
 {
-  // See if this light has a shadow hint (the last surface that cast a shadow
-  // from it); if it does, then try that surface first, as it stands a better
-  // chance of hitting than usual (because nearby points are often obscured
-  // from a given light by the same surface).
-  //
-  // Note that in the case where the hint refers to non-opaque surface,
-  // we will return it immediately, just like an opaque surface.  This
-  // will not cause errors, because the shadow-tracing "slow path"
-  // (which will get used if a non-opaque surface is returned) still
-  // does the right thing in this case, simply more slowly; in the case
-  // where a new opaque surface is found, the hint will be updated
-  // elsewhere (in Material::shadow actually).
-  //
-  if (light)
-    {
-      const Surface *hint = trace.shadow_hints[light->num];
-      if (hint && hint != trace.origin)
-	{
-	  if (hint->shadows (light_ray, isec))
-	    {
-	      trace.global.stats.shadow_hint_hits++;
-	      return hint;
-	    }
-	  else
-	    // It didn't work; clear this hint out.
-	    {
-	      trace.global.stats.shadow_hint_misses++;
-	      trace.shadow_hints[light->num] = 0;
-	    }
-	}
-    }
-
-  ShadowCallback shadow_cb (light_ray, isec, trace, light);
-
   trace.negative_isec_cache.clear ();
 
-  for_each_possible_intersector (light_ray, shadow_cb);
+  // If possible, prime the negative intersect cache with the current
+  // surface, to avoid wasting time test it for intersection.
+  //
+  if (ray.isec.no_self_shadowing)
+    trace.negative_isec_cache.add (ray.isec.surface);
+
+  ShadowCallback shadow_cb (ray, trace, hint_light);
+
+  for_each_possible_intersector (ray, shadow_cb);
 
   TraceStats::IsecStats &isec_stats = trace.global.stats.shadow;
   isec_stats.surface_intersects_tests	+= shadow_cb.surf_isec_tests;
@@ -265,7 +236,7 @@ Space::shadow_caster (const Ray &light_ray, const Intersect &isec,
   isec_stats.neg_cache_collisions	+= shadow_cb.neg_cache_collisions;
   isec_stats.space_node_intersect_calls += shadow_cb.node_intersect_calls;
 
-  return shadow_cb.shadower;
+  return shadow_cb.shadow_type;
 }
 
 

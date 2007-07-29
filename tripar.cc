@@ -9,10 +9,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "tripar.h"
+#include "intersect.h"
+#include "shadow-ray.h"
 #include "tripar-isec.h"
 
-#include "intersect.h"
+#include "tripar.h"
 
 
 using namespace snogray;
@@ -38,18 +39,26 @@ Tripar::intersect (Ray &ray, IsecCtx &isec_ctx) const
 Intersect
 Tripar::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
-  return
-    Intersect (ray, tripar, ray.end (), cross (tripar->e1, tripar->e2), trace);
+  Intersect isec (ray, tripar, ray.end(), cross (tripar->e1, tripar->e2),
+		  trace);
+
+  isec.no_self_shadowing = true;
+
+  return isec;
 }
 
-// Return true if this surface blocks RAY coming from ISEC.  This
-// should be somewhat lighter-weight than Surface::intersect (and can
-// handle special cases for some surface types).
+// Return the strongest type of shadowing effect this surface has on
+// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
+// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
+// returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
-bool
-Tripar::shadows (const Ray &ray, const Intersect &) const
+Material::ShadowType
+Tripar::shadow (const ShadowRay &ray) const
 {
-  return tripar_intersect (v0, e1, e2, parallelogram, ray);
+  if (tripar_intersect (v0, e1, e2, parallelogram, ray))
+    return material->shadow_type;
+  else
+    return Material::SHADOW_NONE;
 }
 
 // Return a bounding box for this surface.

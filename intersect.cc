@@ -31,7 +31,8 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
     v (-_ray.dir), nv (dot (n, v)), back (_back),
     material (*_surface->material),
     brdf (material.brdf), color (material.color),
-    smoothing_group (_smoothing_group), trace (_trace)
+    smoothing_group (_smoothing_group), no_self_shadowing (false),
+    trace (_trace)
 { }
 
 // For surfaces with non-interpolated normals, we can calculate
@@ -47,7 +48,8 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
     back (nv < 0),
     material (*_surface->material),
     brdf (material.brdf), color (material.color),
-    smoothing_group (0), trace (_trace)
+    smoothing_group (0), no_self_shadowing (false),
+    trace (_trace)
 {
   // We want to flip the sign on `normal' if `back' is true, but we've
   // declared `normal' const to avoid anybody mucking with it...

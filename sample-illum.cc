@@ -13,6 +13,7 @@
 
 #include "trace.h"
 #include "scene.h"
+#include "shadow-ray.h"
 
 #include "sample-illum.h"
 
@@ -145,21 +146,24 @@ SampleIllum::eval_samples (const Intersect &isec, IllumSampleVec &samples)
 	      }
 #endif
 
+	    dist_t min_dist = trace.global.params.min_trace;
 	    dist_t max_dist = s->dist ? s->dist : trace.scene.horizon;
-	    const Ray shadow_ray (isec.pos, s->dir, max_dist);
+
+	    const ShadowRay shadow_ray (isec, s->dir, min_dist, max_dist,
+					s->light);
 
 	    // Find any surface that's shadowing LIGHT_RAY.
 	    //
-	    const Surface *shadower
-	      = shadow_sub_trace.shadow_caster (shadow_ray, isec, s->light);
+	    Material::ShadowType shadow_type
+	      = shadow_sub_trace.shadow (shadow_ray);
 
-	    if (! shadower)
+	    if (shadow_type == Material::SHADOW_NONE)
 	      //
 	      // The surface is not shadowed at all, just add the light.
 	      //
 	      radiance += s->val;
 
-	    else if (shadower->material->shadow_type != Material::SHADOW_OPAQUE)
+	    else if (shadow_type != Material::SHADOW_OPAQUE)
 	      //
 	      // There's a shadower, but it's not opaque, so give it (and
 	      // any further surfaces) a chance to attentuate the color.

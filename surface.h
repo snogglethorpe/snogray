@@ -79,11 +79,12 @@ public:
   //
   virtual IsecInfo *intersect (Ray &ray, IsecCtx &isec_ctx) const;
 
-  // Return true if this surface blocks RAY coming from ISEC.  This should
-  // be somewhat lighter-weight than Surface::intersect (and can handle
-  // special cases for some surface types).
+  // Return the strongest type of shadowing effect this surface has on
+  // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
+  // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
+  // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  virtual bool shadows (const Ray &ray, const Intersect &isec) const;
+  virtual Material::ShadowType shadow (const ShadowRay &ray) const;
 
   // Return a bounding box for this surface.
   //

@@ -28,7 +28,10 @@ class Material
 {
 public:
 
-  enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
+  // Types of shadow, from none to completely opaque.  Greater values
+  // are "stronger" (block more).
+  //
+  enum ShadowType { SHADOW_NONE, SHADOW_MEDIUM, SHADOW_OPAQUE };
 
   Material (const Color &col, const Brdf *brdf = lambert,
 	    ShadowType _shadow_type = SHADOW_OPAQUE)

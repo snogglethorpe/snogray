@@ -15,6 +15,7 @@
 #include "ray.h"
 #include "color.h"
 #include "medium.h"
+#include "material.h"
 #include "illum.h"
 #include "isec-cache.h"
 #include "global-tstate.h"
@@ -29,6 +30,7 @@ class Light;
 class Scene;
 class Illum;
 class Intersect;
+class ShadowRay;
 class GlobalTraceState;
 
 
@@ -100,8 +102,7 @@ public:
   // The following are convenience methods that just call the equivalent
   // method in the scene.
   //
-  const Surface *shadow_caster (const Ray &light_ray, const Intersect &isec,
-				const Light *light);
+  Material::ShadowType shadow (const ShadowRay &ray);
 
   // Searches back through the trace history to find the enclosing medium.
   //

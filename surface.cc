@@ -49,7 +49,7 @@ barf ()
 }
 
 Surface::IsecInfo *Surface::intersect (Ray &, IsecCtx &) const { barf (); }
-bool Surface::shadows (const Ray &, const Intersect &) const { barf (); }
+Material::ShadowType Surface::shadow (const ShadowRay &) const { barf (); }
 BBox Surface::bbox () const { barf (); }
 
 

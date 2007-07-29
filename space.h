@@ -39,20 +39,17 @@ public:
   //
   const Surface::IsecInfo *intersect (Ray &ray, Trace &trace) const;
 
-  // Return some surface shadowing LIGHT_RAY from LIGHT, or 0 if there
-  // is no shadowing surface.  If a surface is returned, and it is _not_
-  // an "opaque" surface (shadow-type Material::SHADOW_OPAQUE), then it
-  // is guaranteed there are no opaque surfaces casting a shadow.
+  // Return the strongest type of shadowing effect any object in this space
+  // has on RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
+  // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
+  // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  // ISEC is the intersection for which we are searching for shadow-casters.
+  // If HINT_LIGHT is non-zero, then the shadow-hint entry for HINT_LIGHT
+  // should be updated to hold the first object which results in an opaque
+  // shadow.
   //
-  // This is similar, but not identical to the behavior of the
-  // `intersect' method -- `intersect' always returns the closest
-  // surface and makes no guarantees about the properties of further
-  // intersections.
-  //
-  const Surface *shadow_caster (const Ray &light_ray, const Intersect &isec,
-				Trace &trace, const Light *light)
+  Material::ShadowType shadow (const ShadowRay &ray, Trace &trace,
+			       const Light *hint_light = 0)
     const;
     
   // Statistics for a space

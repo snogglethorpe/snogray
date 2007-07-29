@@ -9,10 +9,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "sphere.h"
+#include "intersect.h"
+#include "shadow-ray.h"
 #include "sphere-isec.h"
 
-#include "intersect.h"
+#include "sphere.h"
 
 
 using namespace snogray;
@@ -42,18 +43,25 @@ Intersect
 Sphere::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
   Pos point = ray.end ();
-  return Intersect (ray, sphere, point, point - sphere->center, trace);
+  Intersect isec (ray, sphere, point, point - sphere->center, trace);
+
+  isec.no_self_shadowing = !isec.back;
+
+  return isec;
 }
 
-// Return true if this surface blocks RAY coming from ISEC.  This
-// should be somewhat lighter-weight than Surface::intersect (and can
-// handle special cases for some surface types).
+// Return the strongest type of shadowing effect this surface has on
+// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
+// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
+// returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
-bool
-Sphere::shadows (const Ray &ray, const Intersect &) const
+Material::ShadowType Sphere::shadow (const ShadowRay &ray) const
 {
   dist_t t = sphere_intersect (center, radius, ray.origin, ray.dir, ray.t0);
-  return (t > ray.t0 && t < ray.t1);
+  if (t > ray.t0 && t < ray.t1)
+    return material->shadow_type;
+  else
+    return Material::SHADOW_NONE;
 }
 
 // Return a bounding box for this surface.

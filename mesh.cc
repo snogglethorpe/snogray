@@ -16,6 +16,7 @@
 #include "excepts.h"
 #include "string-funs.h"
 
+#include "shadow-ray.h"
 #include "tripar-isec.h"
 #include "tessel.h"
 
@@ -276,16 +277,27 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 	}
     }
 
-  return Intersect (ray, triangle, point, norm, back, trace,
-		    static_cast<const void *>(&triangle->mesh));
+  // Make the intersect object.
+  //
+  Intersect isec (ray, triangle, point, norm, back, trace,
+		  static_cast<const void *>(&triangle->mesh));
+
+  isec.no_self_shadowing = true;
+
+  return isec;
 }
 
-// Return true if this surface blocks RAY coming from ISEC.  This
-// should be somewhat lighter-weight than Surface::intersect (and can
-// handle special cases for some surface types).
+// Return the strongest type of shadowing effect this surface has on
+// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
+// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
+// returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
-bool
-Mesh::Triangle::shadows (const Ray &ray, const Intersect &isec) const
+// ISEC is the intersection from which RAY emanates; only "absolute"
+// elements of ISEC should be used (positions and vectors in ISEC may
+// have a different coordinate system than RAY).
+//
+Material::ShadowType
+Mesh::Triangle::shadow (const ShadowRay &ray) const
 {
   // We have to convert the types to match that of RAY first.
   //
@@ -294,7 +306,8 @@ Mesh::Triangle::shadows (const Ray &ray, const Intersect &isec) const
 
   if (triangle_intersect (corner, edge1, edge2, ray))
     {
-      if (isec.smoothing_group == static_cast<const void *>(&mesh))
+#if 1
+      if (ray.isec.smoothing_group == static_cast<const void *>(&mesh))
 	{    
 	  bool real_back = dot (raw_normal_unscaled(), ray.dir) > 0;
 
@@ -302,14 +315,15 @@ Mesh::Triangle::shadows (const Ray &ray, const Intersect &isec) const
 	  // coming from a difference surface when we compare the virtual
 	  // smoothed normal with the real surface normal.
 	  //
-	  if (real_back != isec.back)
+	  if (real_back != ray.isec.back)
 	    {
 	      const Triangle *other_tri
-		= static_cast<const Triangle *>(isec.surface);
+		= static_cast<const Triangle *>(ray.isec.surface);
 	      bool other_back
 		= dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
 
-	      return real_back == other_back;
+	      if (real_back != other_back)
+		return Material::SHADOW_NONE;
 
 #if 0
 	      // Vertex indices of this and the other triangle
@@ -331,17 +345,16 @@ Mesh::Triangle::shadows (const Ray &ray, const Intersect &isec) const
 	      if (v0i == ov0i || v0i == ov1i || v0i == ov2i
 		  || v1i == ov0i || v1i == ov1i || v1i == ov2i
 		  || v2i == ov0i || v2i == ov1i || v2i == ov2i)
-		return isec.back == other_back;
+		return ray.isec.back == other_back;
 #endif
 	    }
 	}
+#endif
 
-      // By default, say the shadow's OK
-      //
-      return true;
+      return material->shadow_type;
     }
-  else
-    return false;
+
+  return Material::SHADOW_NONE;
 }
 
 // Return a bounding box for this surface.

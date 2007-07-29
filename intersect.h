@@ -161,6 +161,12 @@ public:
   const Color &color;
   const void *smoothing_group;
 
+  // If true, SURFACE cannot shadow itself (for non-planar objects, this
+  // applies to the current side of SURFACE -- the one corresponding to
+  // the normal N).  This is only used for optimization.
+  //
+  bool no_self_shadowing;
+
   // Trace this intersection came from.
   //
   Trace &trace;
