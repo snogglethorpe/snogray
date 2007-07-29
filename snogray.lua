@@ -320,21 +320,28 @@ function is_xform (val)
       or t == "_p_snogray__TXformTfloat_t"
 end
 
--- Various simple transformations
+-- Various transform constructors.
 --
-translation = raw.Xform_translation
-scaling = raw.Xform_scaling
-x_rotation = raw.Xform_x_rotation
-y_rotation = raw.Xform_y_rotation
-z_rotation = raw.Xform_z_rotation
-rotation = raw.Xform_rotation
+scale = raw.Xform_scaling
+translate = raw.Xform_translation
+rotate = raw.Xform_rotation
+rotate_x = raw.Xform_x_rotation
+rotate_y = raw.Xform_y_rotation
+rotate_z = raw.Xform_z_rotation
+
+-- ... and some abbreviations for them (a bit silly, but composed
+-- transforms can get rather long...).
+--
+trans = translate
+rot = rotate
+rot_x = rotate_x
+rot_y = rotate_y
+rot_z = rotate_z
 
 -- Transform which converts the z-axis to the y-axis; this is useful
 -- because many scene files are set up that way.
 --
-xform_z_to_y = xform ()
-xform_z_to_y:rotate_x (-math.pi / 2);
-xform_z_to_y:scale (-1, 1, 1);
+xform_z_to_y = rotate_x (-math.pi / 2) * scale (-1, 1, 1)
 
 
 ----------------------------------------------------------------
