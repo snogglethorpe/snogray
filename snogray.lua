@@ -140,7 +140,14 @@ define_color ("yellow",	{red=1, green=1})
 -- materials
 
 function is_material (val)
-   return swig_type (val) == "_p_snogray__Material"
+   local t = swig_type (val)
+
+   -- ugh; isn't there some way in swig to do a sub-class test?
+   --
+   return (t == "_p_snogray__Material"
+	   or t == "_p_snogray__Mirror"
+	   or t == "_p_snogray__Glass"
+	   or t == "_p_snogray__Plastic")
 end
 
 -- Allocate a material, and also remember it to avoid garbage collection.
