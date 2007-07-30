@@ -122,7 +122,6 @@ function grey (level)
 end
 gray = grey
 
-print("snogray environ = "..tostring(getfenv()))
 white = grey (1)
 black = grey (0)
 
@@ -270,12 +269,6 @@ function glass (params)
       _absorb = params
    end
 
-   print ("ior="..tostring(ior(_ior)))
-   table.foreach(_absorb,print)
-   print ("color="..tostring(_absorb).."=>"..tostring(color(_absorb)))
-   print("white="..tostring(color("white")))
-   print("xx="..tostring(color{}))
-   print("type(xx)="..tostring(swig_type(color{})))
    local gl = raw.Glass (raw.Medium (ior (_ior), color (_absorb)));
    scene:add (gl)		-- protect against GC
 
