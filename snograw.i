@@ -82,6 +82,28 @@ namespace snogray {
     TVec () { }
 
     TVec (const Tuple3<T> &t);
+
+    bool null () const;
+
+    TVec operator+ (const TVec &v2) const;
+    TVec operator- (const TVec &v2) const;
+    TVec operator- () const;
+
+    TVec operator* (T scale) const;
+    TVec operator/ (T denom) const;
+
+    TVec operator* (const Matrix4<T> &xform) const;
+
+    T length_squared () const;
+    T length () const;
+
+    TVec unit () const;
+
+    TVec perpendicular () const;
+
+    T latitude () const;
+    T colatitude () const;
+    T longitude () const;
   };
   %extend TVec<dist_t>
   {
