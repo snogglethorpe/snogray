@@ -36,6 +36,7 @@ public:
       filter_radius (filter ? int (ceil (filter->max_width() - 1.0001)) : 0),
       neg_clamp (-abs (params.get_float ("neg-clamp", DEFAULT_NEG_CLAMP)))
   { }
+  ~FilterConvBase () { delete filter; }
 
   // Anti-aliasing filter.
   //

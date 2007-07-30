@@ -28,6 +28,7 @@ class GlobalTraceState
 public:
 
   GlobalTraceState (const TraceParams &_params);
+  ~GlobalTraceState ();
 
   const TraceParams &params;
 

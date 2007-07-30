@@ -24,6 +24,7 @@ class Octree : public Space
 public:
 
   Octree () : root (0), num_real_surfaces (0) { }
+  ~Octree () { delete root; }
 
   // Add SURFACE to the octree
   //
