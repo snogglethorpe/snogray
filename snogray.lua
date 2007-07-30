@@ -349,7 +349,7 @@ rot_z = rotate_z
 -- because many scene files are set up that way.
 --
 xform_z_to_y = rotate_x (-math.pi / 2) * scale (-1, 1, 1)
-
+xform_y_to_z = xform_z_to_y:inverse ()
 
 ----------------------------------------------------------------
 --
