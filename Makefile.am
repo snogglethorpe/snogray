@@ -304,9 +304,13 @@ libsnograw_a_CXXFLAGS = -fno-strict-aliasing $(AM_CXXFLAGS)
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl
 
-## XXX
-snograw.so : libsnogrender.a libsnogutil.a
-	$(CXX) -o $@ --shared -Wl,-uluaopen_snograw libsnograw.a $^ $(RENDER_LIBS)
+## Build a dynamically loadable Lua module, for debugging.
+##
+snograw_so_LIBS = $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
+snograw_so_DEPS = $(filterout, -l%, $(snograw_so_LIBS)
+snograw.so: $(snograw_DEPS)
+	$(CXX) -o $@ --shared -Wl,-uluaopen_snograw libsnograw.a \
+		$(snograw_so_LIBS)
 
 
 ## arch-tag: cfcae754-60d5-470f-b3ea-248fbf0a01c8
