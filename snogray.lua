@@ -112,7 +112,7 @@ function color (val)
 	 return raw.Color (r, g, b)
 	 
       else
-	 error ("invalid color specification: "..val)
+	 error ("invalid color specification: "..tostring(val))
       end
    end
 end
@@ -122,6 +122,7 @@ function grey (level)
 end
 gray = grey
 
+print("snogray environ = "..tostring(getfenv()))
 white = grey (1)
 black = grey (0)
 
@@ -269,6 +270,12 @@ function glass (params)
       _absorb = params
    end
 
+   print ("ior="..tostring(ior(_ior)))
+   table.foreach(_absorb,print)
+   print ("color="..tostring(_absorb).."=>"..tostring(color(_absorb)))
+   print("white="..tostring(color("white")))
+   print("xx="..tostring(color{}))
+   print("type(xx)="..tostring(swig_type(color{})))
    local gl = raw.Glass (raw.Medium (ior (_ior), color (_absorb)));
    scene:add (gl)		-- protect against GC
 
@@ -462,12 +469,12 @@ function load_include (filename)
    return loaded, loaded_filename, err_msg
 end
 
-function eval_include (loaded, loaded_filename, err_msg)
+function eval_include (loaded, fenv, loaded_filename, err_msg)
    if loaded then
       local old_cur_filename = cur_filename
       cur_filename = loaded_filename
 
-      setfenv (loaded, getfenv ())
+      setfenv (loaded, fenv)
       loaded ()
 
       cur_filename = old_cur_filename
@@ -484,7 +491,8 @@ end
 --
 function include (filename)
    local loaded, loaded_filename, err_msg = load_include (filename)
-   eval_include (loaded, loaded_filename, err_msg)
+   local callers_fenv = getfenv (2)
+   eval_include (loaded, callers_fenv, loaded_filename, err_msg)
    return loaded_filename
 end
 
@@ -496,7 +504,8 @@ local used = {}
 function use (filename)
    local loaded, loaded_filename, err_msg = load_include (filename)
    if not used[loaded_filename] then
-      eval_include (loaded, loaded_filename, err_msg)
+      local callers_fenv = getfenv (2)
+      eval_include (loaded, callers_fenv, loaded_filename, err_msg)
       used[loaded_filename] = true
    end
    return loaded_filename
