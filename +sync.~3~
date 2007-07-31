@@ -1,5 +1,0 @@
-#!/bin/sh
-BRANCH="miles@gnu.org/snogray--devo--0"
-REPO="$HOME/git/snogray.git"
-git-archimport "$BRANCH" &&
-git push "$REPO" "$BRANCH"
