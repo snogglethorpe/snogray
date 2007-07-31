@@ -33,6 +33,11 @@ EXTRA_DIST = autogen.sh					\
 	stats.txt spd.txt
 
 
+# Some extra stuff that needs cleaning up
+#
+CLEANFILES = snograw_wrap.cc snograw.so
+
+
 ################################################################
 #
 # General compilation flags.  "OPT" and "DEBUG" intentionally have short
