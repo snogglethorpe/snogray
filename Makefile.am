@@ -89,10 +89,10 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 # Snogray core rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = global-tstate.cc global-tstate.h grid-iter.h	\
-	grid.cc grid.h illum-sample.h illum.h intersect.cc intersect.h	\
-	isec-cache.h mis-illum.cc mis-illum.h ray.cc ray.h		\
-	sample-disk.h sample-illum.cc sample-illum.h sample2-gen.h	\
+libsnogrender_a_SOURCES = global-tstate.cc global-tstate.h grid-iter.h	 \
+	grid.cc grid.h illum-sample.h illum.h intersect.cc intersect.h	 \
+	isec-cache.h mis-illum.cc mis-illum.h ray.cc ray.h sample-disk.h \
+	sample-illum.cc sample-illum.h sample2-gen.h shadow-ray.h	 \
 	trace-params.h trace-stats.cc trace-stats.h trace.cc trace.h
 
 
