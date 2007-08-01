@@ -52,14 +52,14 @@ function is_color (val)
    return swig_type (val) == "_p_snogray__Color"
 end
 
-function color (val)
+function color (val, ...)
    if is_color (val) then
       return val
    else
       local t = type (val)
 
       if t == "number" then
-	 return raw.Color (val)
+	 return raw.Color (val, ...)
       elseif t == "string" then
 	 return colors[val] or error ("unknown color name: "..val)
       elseif t == "table" then
@@ -399,6 +399,14 @@ end
 sphere = raw.Sphere
 
 tripar = raw.Tripar
+
+function triangle (mat, v0, e1, e2)
+   return tripar (mat, v0, e1, e2, false)
+end
+
+function rectangle (mat, v0, e1, e2)
+   return tripar (mat, v0, e1, e2, true)
+end
 
 
 ----------------------------------------------------------------
