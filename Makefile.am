@@ -114,9 +114,10 @@ libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
 	coords.h cubemap.cc cubemap.h dist.h envmap.cc envmap.h		\
 	material-map.cc material-map.h material.cc material.h		\
 	matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc matrix4.h medium.h	\
-	octree.cc octree.h pos.h scene.cc scene.h space.cc space.h	\
-	sphere-isec.h spheremap.cc spheremap.h surface.cc surface.h	\
-	tex2.h tripar-isec.h tuple3.h uv.h vec.h xform.h xform-base.h
+	octree.cc octree.h pos.h quadratic-isec.h scene.cc scene.h	\
+	space.cc space.h sphere-isec.h spheremap.cc spheremap.h		\
+	surface.cc surface.h tex2.h tripar-isec.h tuple3.h uv.h vec.h	\
+	xform.h xform-base.h
 
 
 ################################################################
