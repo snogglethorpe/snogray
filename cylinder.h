@@ -41,10 +41,6 @@ public:
   //
   virtual Material::ShadowType shadow (const ShadowRay &ray) const;
 
-  // Return a bounding box for this surface.
-  //
-  virtual BBox bbox () const;
-
 private:
 
   struct IsecInfo : public Surface::IsecInfo

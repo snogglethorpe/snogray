@@ -21,3 +21,16 @@ LocalSurface::LocalSurface (const Material *mat,
     local_to_world (local_to_world_xform),
     world_to_local (local_to_world_xform.inverse ())
 { }
+
+
+// Return a bounding box for this surface.
+//
+// This just returns a bounding box surrounding a 2x2x2 cube from
+// (-1,-1,-1) to (1,1,1) in the local coordinate system, as that is
+// an appropriate bounding box for many subclasses of LocalSurface.
+//
+BBox
+LocalSurface::bbox () const
+{
+  return local_to_world (BBox (Pos (-1, -1, -1), Pos (1, 1, 1)));
+}

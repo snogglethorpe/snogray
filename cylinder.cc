@@ -110,13 +110,5 @@ Cylinder::shadow (const ShadowRay &ray) const
     return Material::SHADOW_NONE;
 }
 
-// Return a bounding box for this surface.
-//
-BBox
-Cylinder::bbox () const
-{
-  return local_to_world (BBox (Pos (-1, -1, -1), Pos (1, 1, 1)));
-}
-
 
 // arch-tag: 1a4758de-f640-4ea6-abf2-2626070847e5

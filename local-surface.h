@@ -34,6 +34,14 @@ public:
 
   LocalSurface (const Material *mat, const Xform &local_to_world_xform);
 
+  // Return a bounding box for this surface.
+  //
+  // This just returns a bounding box surrounding a 2x2x2 cube from
+  // (-1,-1,-1) to (1,1,1) in the local coordinate system, as that is
+  // an appropriate bounding box for many subclasses of LocalSurface.
+  //
+  virtual BBox bbox () const;
+
   // Return the local-space normal NORM transformed to world-space.
   //
   Vec normal_to_world (const Vec &norm) const
