@@ -13,9 +13,11 @@
 #define __POS_H__
 
 #include "vec.h"
-#include "matrix4.h"
+#include "xform-base.h"
+
 
 namespace snogray {
+
 
 template<typename T>
 class TPos : public Tuple3<T>
@@ -69,7 +71,7 @@ public:
     x -= p2.x; y -= p2.y; z -= p2.z;
   }
 
-  TPos operator* (const Matrix4<T> &xform) const
+  TPos operator* (const XformBase<T> &xform) const
   {
     return
       TPos (
@@ -88,7 +90,7 @@ public:
 	);
   }
 
-  const TPos &operator*= (const Matrix4<T> &xform)
+  const TPos &operator*= (const XformBase<T> &xform)
   {
     TPos temp = *this * xform;
     *this = temp;
@@ -100,6 +102,7 @@ public:
     return (*this - p2).length ();
   }
 };
+
 
 template<typename T>
 static inline TPos<T>
@@ -133,6 +136,8 @@ typedef TPos<scoord_t> SPos;
 
 }
 
+
 #endif /* __POS_H__ */
+
 
 // arch-tag: b1fbd699-066c-42c8-9d21-587c24b92f8d

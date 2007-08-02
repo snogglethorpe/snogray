@@ -17,9 +17,11 @@
 
 #include "snogmath.h"
 #include "tuple3.h"
-#include "matrix4.h"
+#include "xform-base.h"
+
 
 namespace snogray {
+
 
 template<typename T>
 class TVec : public Tuple3<T>
@@ -74,7 +76,7 @@ public:
     x -= v2.x; y -= v2.y; z -= v2.z;
   }
 
-  TVec operator* (const Matrix4<T> &xform) const
+  TVec operator* (const XformBase<T> &xform) const
   {
     return
       TVec (
@@ -90,7 +92,7 @@ public:
 	);
   }
 
-  const TVec &operator*= (const Matrix4<T> &xform)
+  const TVec &operator*= (const XformBase<T> &xform)
   {
     TVec temp = *this * xform;
     *this = temp;
@@ -191,6 +193,7 @@ public:
   }
 };
 
+
 template<typename T>
 static inline T
 dot (const TVec<T> &vec1, const TVec<T> &vec2)
@@ -266,6 +269,7 @@ operator<< (std::ostream &os, const TVec<T> &vec)
   return os;
 }
 
+
 typedef TVec<sdist_t> SVec;
 
 // XXX Commented out because it causes some weird bloat in generated code,
@@ -275,7 +279,9 @@ typedef TVec<sdist_t> SVec;
 
 typedef TVec<dist_t>  Vec;
 
+
 }
+
 
 #endif /* __VEC_H__ */
 

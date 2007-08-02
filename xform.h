@@ -1,4 +1,4 @@
-// xform.h -- Transformation matrices
+// xform.h -- Affine transformations
 //
 //  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
@@ -12,21 +12,28 @@
 #ifndef __XFORM_H__
 #define __XFORM_H__
 
-#include "matrix4.h"
 #include "coords.h"
 #include "pos.h"
 #include "vec.h"
+#include "ray.h"
+#include "bbox.h"
+
+#include "xform-base.h"
+
 
 namespace snogray {
 
+
+// An affine transformation.
+//
 template<typename T>
-class TXform : public Matrix4<T>
+class TXform : public XformBase<T>
 {
 public:
 
   // Default is identity transformation
   //
-  TXform (T scale = 1) : Matrix4<T> (scale, scale, scale, 1) { }
+  TXform (T scale = 1) : XformBase<T> (scale) { }
 
   // A vector/position yields a translation
   //
@@ -41,12 +48,14 @@ public:
   // Allow easy down-casting from a raw matrix
   //
   template<typename T2>
-  TXform (const Matrix4<T2> &m) : Matrix4<T> (m) { }
+  TXform (const Matrix4<T2> &m) : XformBase<T> (m) { }
   template<typename T2>
-  TXform (const T2 els[4][4]) : Matrix4<T> (els) { }
+  TXform (const T2 els[4][4]) : XformBase<T> (els) { }
   template<typename T2>
-  explicit TXform (const TXform<T2> &xf) : Matrix4<T> (xf) { }
+  explicit TXform (const TXform<T2> &xf) : XformBase<T> (xf) { }
 
+  // Return a transform which translates by the given offset.
+  //
   static TXform translation (const TVec<T> &offs)
   {
     return TXform (offs);
@@ -56,10 +65,16 @@ public:
     return TXform (TVec<T> (x, y, z));
   }
 
+  // Return a transform which scales by a factor of SCALE in all dimensions.
+  //
   static TXform scaling (T scale)
   {
     return TXform (scale);
   }
+
+  // Return a transform which scales by factors of S_X, S_Y, and S_Z in the
+  // corresponding dimensions.
+  //
   static TXform scaling (T s_x, T s_y, T s_z)
   {
     TXform xform;
@@ -69,6 +84,9 @@ public:
     return xform;
   }
 
+  // Return a rotation transform which rotates around the Y-axis by ANGLE
+  // radians.
+  //
   static TXform x_rotation (T angle)
   {
     TXform xform;
@@ -80,6 +98,9 @@ public:
     return xform;
   }
 
+  // Return a rotation transform which rotates around the Y-axis by ANGLE
+  // radians.
+  //
   static TXform y_rotation (T angle)
   {
     TXform xform;
@@ -91,6 +112,9 @@ public:
     return xform;
   }
 
+  // Return a rotation transform which rotates around the Z-axis by ANGLE
+  // radians.
+  //
   static TXform z_rotation (T angle)
   {
     TXform xform;
@@ -102,7 +126,10 @@ public:
     return xform;
   }
 
-  static TXform rotation (TVec<T> axis, T angle)
+  // Return a rotation transform which rotates around AXIS by ANGLE
+  // radians.
+  //
+  static TXform rotation (const TVec<T> &axis, T angle)
   {
     TXform xform;
 
@@ -122,6 +149,8 @@ public:
     return xform;
   }
 
+  // Translate this transformation by the given offset.
+  //
   TXform &translate (T x, T y, T z)
   {
     *this *= translation (x, y, z);
@@ -133,17 +162,26 @@ public:
     return *this;
   }
 
+  // Scale this transform by the scale factor SCALE.
+  //
   TXform &scale (T scale)
   {
     *this *= scaling (scale);
     return *this;
   }
+
+  // Scale this transform by the scale factors S_X, S_Y, and S_Z in the
+  // corresponding dimensions.
+  //
   TXform &scale (T s_x, T s_y, T s_z)
   {
     *this *= scaling (s_x, s_y, s_z);
     return *this;
   }
 
+  // Rotate this transform around the given axis, by the given angle
+  // (expressed in radians).
+  //
   TXform &rotate_x (T angle)
   {
     *this *= x_rotation (angle);
@@ -165,25 +203,62 @@ public:
     return *this;
   }
 
+  // Return the inverse of this transform.
+  //
+  TXform inverse () const { return XformBase<T>::inverse (); }
+
+  // Destructively invert this transform.
+  //
   TXform &invert ()
   {
-    Matrix4<T>::invert ();
+    XformBase<T>::invert ();
     return *this;
   }
 
-  // Return true if this transform reverses the "handedness" of a
-  // coordinate system.
+  // Inherit element-access syntax.
   //
-  bool reverses_handedness () const { return Matrix4<T>::det() < 0; }
+  using XformBase<T>::operator();
+
+  // Various transformations expressed as applying the transfrom to an object.
+  //
+  TXform operator() (const TXform &xform) const { return xform * *this; }
+  Pos operator() (const Pos &pos) const { return pos * *this; }
+  Vec operator() (const Vec &vec) const { return vec * *this; }
+  Ray operator() (const Ray &ray) const { return ray * *this; }
+  BBox operator() (const BBox &bbox) const { return bbox * *this; }
+
+  // Return VEC transformed by the transpose of this transform.  This is
+  // useful for implementing normal transforms (a normal should be
+  // transformed by using the transpose of the inverse of the transform,
+  // compared to transforming a normal vector).
+  //
+  TVec<T> transpose_transform (const TVec<T> &vec) const
+  {
+    return
+      TVec<T> (
+	(  vec.x * el (0, 0)
+	 + vec.y * el (0, 1)
+	 + vec.z * el (0, 2)),
+	(  vec.x * el (1, 0)
+	 + vec.y * el (1, 1)
+	 + vec.z * el (1, 2)),
+	(  vec.x * el (2, 0)
+	 + vec.y * el (2, 1)
+	 + vec.z * el (2, 2))
+	);
+  }
+
 
 private:
 
-  using Matrix4<T>::el;
+  // Inherit the internal element-access syntax from our base-class.
+  //
+  using XformBase<T>::el;
 };
 
 
 template<typename T>
-static std::ostream&
+std::ostream&
 operator<< (std::ostream &os, const TXform<T> &xform)
 {
   os << "xform<";
@@ -209,7 +284,9 @@ operator<< (std::ostream &os, const TXform<T> &xform)
 typedef TXform<dist_t>  Xform;
 typedef TXform<sdist_t> SXform;
 
+
 }
+
 
 #endif /* __XFORM_H__ */
 

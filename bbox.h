@@ -14,6 +14,7 @@
 
 #include "pos.h"
 #include "vec.h"
+#include "xform-base.h"
 
 
 namespace snogray {
@@ -73,9 +74,19 @@ public:
       max.z = pos.z;
   }
 
-  // Return a vector holding the sizes of this bounding box along all three
-  // axes.
-  
+  // Return this bounding-box transformed by XFORM, ensuring that the
+  // result is still axis-aligned.
+  //
+  BBox operator* (const XformBase<dist_t> &xform) const;
+  BBox &operator*= (const XformBase<dist_t> &xform)
+  {
+    *this = *this * xform;
+    return *this;
+  }
+
+  // Return a vector holding the sizes of this bounding box along all
+  // three axes.
+  //
   Vec extent () const
   {
     return Vec (max.x - min.x, max.y - min.y, max.z - min.z);
@@ -131,19 +142,8 @@ public:
   Pos min, max;
 };
 
-inline std::ostream&
-operator<< (std::ostream &os, const BBox &bbox)
-{
-  os << "bbox<"
-     << std::setprecision (5) << lim (bbox.min.x) << ", "
-     << std::setprecision (5) << lim (bbox.min.y) << ", "
-     << std::setprecision (5) << lim (bbox.min.z) << " - "
-     << std::setprecision (5) << lim (bbox.max.x) << ", "
-     << std::setprecision (5) << lim (bbox.max.y) << ", "
-     << std::setprecision (5) << lim (bbox.max.z)
-     << ">";
-  return os;
-}
+
+extern std::ostream& operator<< (std::ostream &os, const BBox &bbox);
 
 
 }

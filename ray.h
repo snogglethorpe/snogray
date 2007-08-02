@@ -16,8 +16,11 @@
 
 #include "pos.h"
 #include "vec.h"
+#include "xform-base.h"
+
 
 namespace snogray {
+
 
 // A ray is a vector with a position and a length; we include various other
 // fields for handy test.
@@ -65,6 +68,13 @@ public:
 
   T length () const { return t1 - t0; }
 
+  // Ray transformation.
+  //
+  TRay operator* (const XformBase<T> &xform) const
+  {
+    return TRay (origin * xform, dir * xform, t0, t1);
+  }
+
   // The ray starts at ORIGIN, and points in the direction DIR.
   //
   TPos<T> origin;
@@ -75,11 +85,14 @@ public:
   T t0, t1;
 };
 
+
 typedef TRay<dist_t> Ray;
 
 extern std::ostream& operator<< (std::ostream &os, const Ray &ray);
 
+
 }
+
 
 #endif /* __RAY_H__ */
 
