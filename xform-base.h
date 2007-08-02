@@ -63,8 +63,10 @@ public:
   //
   bool reverses_handedness () const { return Matrix4<T>::det() < 0; }
 
-private:
+protected:
 
+  // Inherit the internal element-access syntax from our base-class.
+  //
   using Matrix4<T>::el;
 };
 

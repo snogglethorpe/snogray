@@ -248,7 +248,6 @@ public:
 	);
   }
 
-
 private:
 
   // Inherit the internal element-access syntax from our base-class.
