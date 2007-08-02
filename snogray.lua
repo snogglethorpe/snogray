@@ -408,6 +408,8 @@ function rectangle (mat, v0, e1, e2)
    return tripar (mat, v0, e1, e2, true)
 end
 
+cylinder = raw.Cylinder
+
 
 ----------------------------------------------------------------
 --
