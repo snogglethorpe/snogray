@@ -366,6 +366,10 @@ function scene:add (thing)
    raw.Scene_add (raw_scene, thing)
 end
 
+-- The inverse: transform the y-axis to the z-axis.
+--
+xform_y_to_z = xform_z_to_y:inverse ()
+
 
 ----------------------------------------------------------------
 --
