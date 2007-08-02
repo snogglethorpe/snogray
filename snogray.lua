@@ -401,6 +401,7 @@ end
 -- Misc surface types
 
 sphere = raw.Sphere
+sphere2 = raw.Sphere2
 
 tripar = raw.Tripar
 

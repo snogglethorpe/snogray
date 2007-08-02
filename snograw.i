@@ -25,6 +25,7 @@
 #include "camera.h"
 #include "tripar.h"
 #include "sphere.h"
+#include "sphere2.h"
 #include "cylinder.h"
 #include "glow.h"
 #include "glass.h"
@@ -364,6 +365,13 @@ namespace snogray {
   public:
 
     Cylinder (const Material *mat, const Xform &obj_to_world_xform);
+  };
+
+  class Sphere2 : public Surface
+  {
+  public:
+
+    Sphere2 (const Material *mat, const Xform &_xform);
   };
 
   class Tripar : public Surface
