@@ -12,8 +12,10 @@
 #ifndef __SHADOW_RAY_H__
 #define __SHADOW_RAY_H__
 
-#include "ray.h"
+#include "xform-base.h"
 #include "intersect.h"
+
+#include "ray.h"
 
 
 namespace snogray {
@@ -30,7 +32,8 @@ class ShadowRay : public Ray
 {
 public:
 
-  // Make a shadow ray.  Note that the light is optional,
+  // Make a shadow ray.  Note that the light is optional, and is only used
+  // for optimization purposes.
   //
   ShadowRay (const Intersect &_isec, const Vec &light_dir,
 	     dist_t min_dist, dist_t max_dist,
@@ -38,6 +41,19 @@ public:
     : Ray (_isec.pos, light_dir, min_dist, max_dist),
       isec (_isec), light (_light)
   { }
+
+  // Ray-to-shadow-ray conversion.
+  //
+  ShadowRay (const Ray &ray, const Intersect &_isec, const Light *_light = 0)
+    : Ray (ray), isec (_isec), light (_light)
+  { }
+
+  // Ray transformation.
+  //
+  ShadowRay operator* (const XformBase<dist_t> &xform) const
+  {
+    return ShadowRay (as_ray() * xform, isec, light);
+  }
 
   // Return a reference to our Ray base-class.  This is useful for
   // applying transforms where only the Ray result is desired --
