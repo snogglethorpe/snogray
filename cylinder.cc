@@ -100,9 +100,9 @@ Cylinder::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Cylinder::shadow (const ShadowRay &ray) const
+Cylinder::shadow (const ShadowRay &sray) const
 {
-  Ray oray = world_to_local (ray);
+  Ray oray = world_to_local (sray.as_ray ());
 
   if (cylinder_intersect (oray) != 0)
     return material->shadow_type;

@@ -55,9 +55,9 @@ Sphere2::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Sphere2::shadow (const ShadowRay &ray) const
+Sphere2::shadow (const ShadowRay &sray) const
 {
-  Ray oray = world_to_local (ray);
+  Ray oray = world_to_local (sray.as_ray ());
   dist_t t = sphere_intersect (dist_t(1), Vec (oray.origin), oray.dir, oray.t0);
 
   if (t > oray.t0 && t < oray.t1)

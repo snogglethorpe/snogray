@@ -39,6 +39,15 @@ public:
       isec (_isec), light (_light)
   { }
 
+  // Return a reference to our Ray base-class.  This is useful for
+  // applying transforms where only the Ray result is desired --
+  // transforming only the Ray part is more efficient than transforming
+  // the whole ShadowRay and throwing away the unneeded parts of the
+  // result.
+  //
+  Ray &as_ray () { return *this; }
+  const Ray &as_ray () const { return *this; }
+
   // Intersection from which the shadow-ray came.
   //
   const Intersect &isec;

@@ -13,10 +13,7 @@
 #define __XFORM_H__
 
 #include "coords.h"
-#include "pos.h"
 #include "vec.h"
-#include "ray.h"
-#include "bbox.h"
 
 #include "xform-base.h"
 
@@ -219,13 +216,11 @@ public:
   //
   using XformBase<T>::operator();
 
-  // Various transformations expressed as applying the transfrom to an object.
+  // Allow applying a transform to an object using functional notation.
+  // The object should support transformation via operator*.
   //
-  TXform operator() (const TXform &xform) const { return xform * *this; }
-  Pos operator() (const Pos &pos) const { return pos * *this; }
-  Vec operator() (const Vec &vec) const { return vec * *this; }
-  Ray operator() (const Ray &ray) const { return ray * *this; }
-  BBox operator() (const BBox &bbox) const { return bbox * *this; }
+  template<typename OT>
+  OT operator() (const OT &obj) const { return obj * *this; }
 
   // Return VEC transformed by the transpose of this transform.  This is
   // useful for implementing normal transforms (a normal should be
