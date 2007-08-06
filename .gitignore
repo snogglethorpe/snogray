@@ -6,6 +6,7 @@ snogcvt
 snogdiff
 snogsamp
 hemint
+snograw.so
 
 # Ignore mesh files used for test scenes that are too large to put in
 # the repository (this isn't really used any more).
