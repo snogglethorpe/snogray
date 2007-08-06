@@ -42,35 +42,41 @@ CLEANFILES = snograw_wrap.cc snograw.so
 #
 # General compilation flags.  "OPT" and "DEBUG" intentionally have short
 # names so that it's easy for a user to override them from the command
-# line.  CXX_OPT_FLAGS, CXX_MACH_FLAGS and CXX_EXTRA_OPT_FLAGS are set
-# by automake/autoconf.
+# line.  CXX_OPT_FLAGS, CXX_OPT_SIZE_FLAGS, CXX_MACH_FLAGS and
+# CXX_EXTRA_OPT_FLAGS are set by configure.
 #
 OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
+OPT_SIZE = $(CXX_OPT_SIZE_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
 
 #PG = -pg
 #MUDFLAP = -fmudflap
 
-# Even though CFLAGS and CXXFLAGS are the "user flags", automake uses
-# them to define optimization flags, so we must do so as well.  The user
-# can also use them to override our optimization choice.  CXX_CHECK_FLAGS
-# is set by automake/autoconf.
+# Override automake's default values for CFLAGS and CXXFLAGS.  If the
+# user specifies his own values on the command line, his values will
+# override these (make ignores assignments to variables with a value
+# specified by the user on the make command line).
 #
-CFLAGS = $(OPT) $(DEBUG)
-CXXFLAGS = $(CFLAGS) $(CXX_CHECK_FLAGS)
+# Generally the user shouldn't use CFLAGS or CXXFLAGS though -- rather
+#  he should use the OPT and DEBUG variables, which allow similar
+#  control in a more controllable manner.
+#
+CFLAGS =
+CXXFLAGS =
+
+# Set the default compiler options from OPT and DEBUG.  If the user
+# wants to change the optimization or debug settings, he should set one
+# of those on the make command line.
+#
+AM_CFLAGS = $(OPT) $(DEBUG)
+AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS)
 
 # These options are required for correctness, and _must_ come _after_
 # any optimization options (gcc isn't very bright about parsing options:
 # later options always override earlier ones, even if the earlier one
-# was more specific).  Since we are forced to used CXXFLAGS to pass
-# optimizations options by automake, we munge it here... Ugh!
+# was more specific).  Since automake always passes CXXFLAGS last, and even 
 #
 CXXFLAGS += $(CXX_EXTRA_REQ_FLAGS)
-
-# Other flags we pass via AM_CXXFLAGS
-#
-AM_CXXFLAGS = $(PG) $(MUDFLAP)
-AM_LDFLAGS = $(PG) $(MUDFLAP)
 
 # Add compiler flags (nominally "cflags", but in practice always
 # preprocessor options) needed by libraries we use.
@@ -306,7 +312,12 @@ swigluarun.h:
 	$(SWIG) -lua -c++ -external-runtime $@
 
 libsnograw_a_SOURCES = snograw_wrap.cc swigluarun.h
-libsnograw_a_CXXFLAGS = -fno-strict-aliasing $(AM_CXXFLAGS)
+
+# Note that we don't copy AM_CFLAGS -- that's because we want to use a
+# different optimization setting, $(OPT_SIZE) instead of $(OPT)
+#
+libsnograw_a_CXXFLAGS = $(OPT_SIZE) $(DEBUG) $(CXX_CHECK_FLAGS)	\
+			-fno-strict-aliasing -Wno-unused
 
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl
