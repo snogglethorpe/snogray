@@ -21,6 +21,9 @@
 
 namespace snogray {
 
+class ImageInput;
+class ImageOutput;
+
 // This is the low-level storage class for tuple matrices, holding a
 // matrix of floating-point values, grouped into fixed-length tuples.
 //
@@ -39,6 +42,7 @@ public:
 		   unsigned border = 0);
   TupleMatrixData (unsigned _tuple_len, const std::string &filename,
 		   const ValTable &params, unsigned border = 0);
+  TupleMatrixData (unsigned _tuple_len, ImageInput &src, unsigned border = 0);
 
   // Constructor for extracting a sub-matrix of BASE.  If W or H are 0,
   // the maximum available width or height is used.  Note that because
@@ -77,11 +81,20 @@ public:
   void load (const std::string &filename, const ValTable &params,
 	     unsigned border = 0);
 
+  // Load tuple matrix from the image input SRC.  The loaded tuple is
+  // surrounded by a black border BORDER pixels wide.
+  //
+  void load (ImageInput &src, unsigned border = 0);
+
   // Save the tuple matrix to the file FILENAME.  PARAMS contains
   // various tuple-format-specific parameters that might be needed.
   //
   void save (const std::string &filename, const ValTable &params = ValTable::NONE)
     const;
+
+  // Save the tuple matrix to the output OUT.
+  //
+  void save (ImageOutput &out) const;
 
   // Store a value of type T into a tuple (assuming the tuple length is
   // correct).
@@ -185,6 +198,9 @@ public:
   TupleMatrix (const std::string &filename, const ValTable &params,
 	       unsigned border = 0)
     : TupleMatrixData (type_tuple_len<T> (), filename, params, border)
+  { }
+  TupleMatrix (ImageInput &src, unsigned border = 0)
+    : TupleMatrixData (type_tuple_len<T> (), src, border)
   { }
 
   // Constructor for extracting a sub-matrix of BASE.  If W or H are 0, the

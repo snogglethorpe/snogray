@@ -37,6 +37,13 @@ TupleMatrixData::TupleMatrixData (unsigned _tuple_len,
   load (filename, params, border);
 }
 
+TupleMatrixData::TupleMatrixData (unsigned _tuple_len,
+				  ImageInput &src, unsigned border)
+  : tuple_len (_tuple_len)
+{
+  load (src, border);
+}
+
 
 // Color / tuple translation
 
@@ -84,9 +91,6 @@ TupleMatrixData::load (const std::string &filename, const ValTable &params,
 {
   ImageInput src (filename, params);
 
-  width = src.width + border * 2;
-  height = src.height + border * 2;
-
   // Loading a very large image can be slow (largely due to thrashing -- a
   // 6K x 3K image requires 216 MB of memory unpacked!), so tell the user
   // what we're doing.
@@ -107,6 +111,21 @@ TupleMatrixData::load (const std::string &filename, const ValTable &params,
       std::cout.flush ();
     }
 
+  load (src, border);
+
+  if (emit_size_note)
+    {
+      std::cout << "done" << std::endl;
+      std::cout.flush ();
+    }
+}
+
+void
+TupleMatrixData::load (ImageInput &src, unsigned border)
+{
+  width = src.width + border * 2;
+  height = src.height + border * 2;
+
   data.resize (tuple_len * width * height);
 
   ImageRow row (src.width);
@@ -124,19 +143,19 @@ TupleMatrixData::load (const std::string &filename, const ValTable &params,
 	  set_pixel (width - b, y + border, 0);
 	}
     }
-
-  if (emit_size_note)
-    {
-      std::cout << "done" << std::endl;
-      std::cout.flush ();
-    }
 }
 
 void
-TupleMatrixData::save (const std::string &filename, const ValTable &params) const
+TupleMatrixData::save (const std::string &filename, const ValTable &params)
+  const
 {
   ImageOutput out (filename, width, height, params);
+  save (out);
+}
 
+void
+TupleMatrixData::save (ImageOutput &out) const
+{
   for (unsigned y = 0; y < height; y++)
     {
       ImageRow &row = out[y].pixels;
