@@ -63,8 +63,12 @@ public:
   int get_opt ();
 
   const char *opt_arg () const;
+
   float float_opt_arg () const;
+  float float_opt_arg (float default_val) const;
   unsigned unsigned_opt_arg () const;
+  unsigned unsigned_opt_arg (unsigned default_val) const;
+
   void opt_err (const char *phrase) const __attribute__ ((noreturn));
   void opt_err (const std::string &phrase) const __attribute__ ((noreturn));
 

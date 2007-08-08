@@ -113,6 +113,15 @@ CmdLineParser::unsigned_opt_arg () const
     opt_err ("requires a numeric argument");
 }  
 
+unsigned
+CmdLineParser::unsigned_opt_arg (unsigned default_val) const
+{
+  if (optarg)
+    return unsigned_opt_arg ();
+  else
+    return default_val;
+}
+
 float
 CmdLineParser::float_opt_arg () const
 {
@@ -125,5 +134,15 @@ CmdLineParser::float_opt_arg () const
   else
     opt_err ("requires a numeric argument");
 }
+
+float
+CmdLineParser::float_opt_arg (float default_val) const
+{
+  if (optarg)
+    return float_opt_arg ();
+  else
+    return default_val;
+}
+
 
 // arch-tag: 2a1d984b-5816-4d7d-975b-31a39ed3b5d8
