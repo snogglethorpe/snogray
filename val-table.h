@@ -71,15 +71,31 @@ public:
   ValTable (const std::string &init) { parse (init); }
   ValTable (const char *init) { parse (init); }
 
+  // Return the value called NAME, or zero if there is none.  NAME may also
+  // be a comma-separated list of names, in which case the value of the first
+  // name which has one is returned (zero is returned if none does).
+  //
   Val *get (const std::string &name);
-  const Val *get (const std::string &name) const;
+  const Val *get (const std::string &name) const
+  {
+    return const_cast<ValTable *> (this)->get (name);
+  }
+
+  // Set the entry called NAME to VAL (overwriting any old value).
+  //
   void set (const std::string &name, const Val &val);
 
+  // Return true if there's value called NAME.
+  //
   bool contains (const std::string &name) const
   {
     return !! get (name);
   }
   
+  // Return the value called NAME with the given type, or DEFAULT_VAL if
+  // there's no value called NAME.  If the type of NAME's value is not
+  // convertible to the given type, an error is signalled.
+  //
   std::string get_string (const std::string &name, std::string default_val = "")
     const
   {
@@ -117,7 +133,18 @@ public:
     set (name, std::string (val));
   }
 
+  // Parse the named-value specification INPUT using "NAME=VALUE" syntax.
+  // The syntax "NAME:VALUE" is also accepted.  The type of the new value
+  // is always a string (which can be converted to another type when the
+  // value is subsequently requested).
+  //
   void parse (const std::string &input);
+
+  // Parse the multiple-named-value specification INPUT.  Each value has
+  // the syntax "NAME=VALUE" or "NAME:VALUE", and multiple values are
+  // separated by any character in MULTIPLE_SEPS; any whitespace
+  // surrounding a value separator is removed.
+  //
   void parse (const std::string &input, const std::string &multiple_seps);
 };
 

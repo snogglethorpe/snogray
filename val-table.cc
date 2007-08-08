@@ -8,7 +8,7 @@
 //
 // Written by Miles Bader <miles@gnu.org>
 //
-
+#include<iostream>
 #include <sstream>
 #include <cstdlib>
 #include <climits>
@@ -144,20 +144,33 @@ Val::as_float () const
 
 
 
+// Return the value called NAME, or zero if there is none.  NAME may also
+// be a comma-separated list of names, in which case the value of the first
+// name which has one is returned (zero is returned if none does).
+//
 Val *
 ValTable::get (const std::string &name)
 {
-  iterator i = find (name);
+  unsigned name_start = 0;
+
+  std::string::size_type sep;
+  while ((sep = name.find_first_of (",", name_start)) != std::string::npos)
+    {
+      iterator i = find (name.substr (name_start, sep - name_start));
+
+      if (i != end())
+	return &i->second;
+
+      name_start = sep + 1;
+    }
+    
+  iterator i = name_start == 0 ? find (name) : find (name.substr (name_start));
+
   return i == end () ? 0 : &i->second;
 }
 
-const Val *
-ValTable::get (const std::string &name) const
-{
-  const_iterator i = find (name);
-  return i == end () ? 0 : &i->second;
-}
-
+// Set the entry called NAME to VAL (overwriting any old value).
+//
 void
 ValTable::set (const std::string &name, const Val &val)
 {
@@ -174,7 +187,7 @@ void
 ValTable::parse (const std::string &input)
 {
   std::string::size_type inp_len = input.length ();
-  std::string::size_type p_assn = input.find_first_of ("=");
+  std::string::size_type p_assn = input.find_first_of ("=:");
 
   if (p_assn < inp_len)
     set (input.substr (0, p_assn), input.substr (p_assn + 1));

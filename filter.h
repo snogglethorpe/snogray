@@ -51,8 +51,8 @@ protected:
   { }
 
   Filter (const ValTable &params, float def_width)
-    : x_width (params.get_float ("x-width", def_width)),
-      y_width (params.get_float ("y-width", def_width)),
+    : x_width (params.get_float ("x-width,xw,width,w", def_width)),
+      y_width (params.get_float ("y-width,yw,width,w", def_width)),
       inv_x_width (1 / x_width), inv_y_width (1 / y_width)
   { }
 };
