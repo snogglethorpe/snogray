@@ -13,10 +13,8 @@
 #define __SURFACE_H__
 
 #include "vec.h"
-#include "color.h"
 #include "ray.h"
 #include "bbox.h"
-#include "trace.h"
 #include "intersect.h"
 #include "material.h"
 
@@ -25,6 +23,7 @@ namespace snogray {
 
 class Material;
 class Space;
+class Trace;
 
 
 // A surface is the basic object scenes are constructed of.
