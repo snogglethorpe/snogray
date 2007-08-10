@@ -148,7 +148,7 @@ Scene::background (const Ray &ray) const
 	    {
 	      Color lmap_bg = light_map->map (ray.dir);
 
-	      for (unsigned c = 0; c < Color::TUPLE_LEN; c++)
+	      for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
 		if (bg[c] > 1-SAT_EPS && lmap_bg[c] > 1)
 		  bg[c] = lmap_bg[c];
 	    }

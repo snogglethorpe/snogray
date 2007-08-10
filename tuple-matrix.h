@@ -63,14 +63,15 @@ public:
     return &data[(y * width + x) * tuple_len];
   }
 
-  // Return a color from the tuple at location X, Y (if the tuple length is
-  // not three, an appropriate translation is done).  This mapping of
-  // tuples to colors is mainly used for doing I/O to image files.
+  // Return a color from the tuple at location X, Y; if the tuple length is
+  // not the same as a Color, only Color::TUPLE_LEN members are returned,
+  // and any missing components set to zero.
   //
   Color pixel (unsigned x, unsigned y) const;
 
-  // Set the tuple at location X, Y from the color COL (if the tuple
-  // length is not three, an appropriate translation is done).
+  // Set the tuple at location X, Y from the color COL; if the tuple length
+  // is not the same as a Color, only the first TUPLE_LEN members are
+  // copied, and any missing components set to zero.
   //
   void set_pixel (unsigned x, unsigned y, const Color &col);
 

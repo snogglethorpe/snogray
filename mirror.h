@@ -84,8 +84,7 @@ public:
     : Material (col, &mirror_coating),
       mirror_coating (_ior, _reflectance, underlying_brdf)
   { }
-  Mirror (const Ior &_ior, const Color &_reflectance,
-	  const Color &col = Color::black)
+  Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0)
     : Material (col, &mirror_coating),
       mirror_coating (_ior, _reflectance, col < Eps ? 0 : lambert)
   { }

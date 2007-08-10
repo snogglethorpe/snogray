@@ -75,7 +75,7 @@ Glass::render (const Intersect &isec) const
 {
   Refraction refr (*this, isec);
 
-  Color radiance;
+  Color radiance = 0;
 
   // Render transmitted light
 

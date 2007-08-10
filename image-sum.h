@@ -52,7 +52,7 @@ public:
   //
   Color sum (unsigned x, unsigned y, unsigned w, unsigned h) const
   {
-    Color sum;
+    Color sum = 0;
 
     if (w != 0 && h != 0)
       {

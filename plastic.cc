@@ -25,7 +25,7 @@ Plastic::render (const Intersect &isec) const
   float medium_ior = isec.trace.medium ? isec.trace.medium->ior : 1;
   float refl = Fresnel (medium_ior, ior).reflectance (cos_xmit_angle);
 
-  Color radiance;
+  Color radiance = 0;
 
   // Render transmitted light (some light is lost due to fresnel reflection
   // from the back surface).

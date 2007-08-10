@@ -70,7 +70,7 @@ SampleIllum::eval_samples (const Intersect &isec, IllumSampleVec &samples)
   // Compute total possible radiance from all samples.  Also see how many
   // specular samples there are.
   //
-  Color poss_radiance;
+  Color poss_radiance = 0;
   unsigned num_specular_samples = 0;
   for (IllumSampleVec::iterator s = samples.begin (); s != samples.end(); ++s)
     if (! s->invalid)
@@ -83,7 +83,7 @@ SampleIllum::eval_samples (const Intersect &isec, IllumSampleVec &samples)
 
   // Accumulated output radiance
   //
-  Color radiance;
+  Color radiance = 0;
 
   // Trace any specular samples.
   //

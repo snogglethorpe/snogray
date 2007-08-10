@@ -69,7 +69,7 @@ add_cube (Scene &scene, const Material *mat,
 void
 add_rect_bulb (Scene &scene,
 	       const Pos &corner, const Vec &side1, const Vec &side2,
-	       const Color &col = Color::white)
+	       const Color &col = 1)
 {
   const Material *bulb_mat = scene.add (new Glow (col));
   scene.add (new RectLight (corner, side1, side2, col));
@@ -77,8 +77,7 @@ add_rect_bulb (Scene &scene,
 }
 
 static void
-add_bulb (Scene &scene, const Pos &pos, float radius,
-	  const Color &col = Color::white)
+add_bulb (Scene &scene, const Pos &pos, float radius, const Color &col = 1)
 {
   dist_t area = 4 * M_PI * radius * radius;
 

@@ -51,7 +51,7 @@ Material::shadow (const Intersect &isec, const Ray &,
 
   // Return black.
   //
-  return Color (0, 0, 0);
+  return 0;
 }
 
 // arch-tag: 3d971faa-322c-4479-acf0-effb05aca10a

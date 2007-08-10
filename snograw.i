@@ -333,12 +333,10 @@ namespace snogray {
 
     Mirror (const Ior &_ior, const Color &_reflectance,
 	    const Color &col, const Brdf *underlying_brdf);
-    Mirror (const Ior &_ior, const Color &_reflectance,
-	    const Color &col = Color::black);
+    Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0);
     Mirror (float _ior, const Color &_reflectance,
 	    const Color &col, const Brdf *underlying_brdf);
-    Mirror (float _ior, const Color &_reflectance,
-	    const Color &col = Color::black);
+    Mirror (float _ior, const Color &_reflectance, const Color &col = 0);
   };
 
   class Glow : public Material

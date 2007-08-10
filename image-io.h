@@ -29,7 +29,7 @@ class ImageRow : std::vector<Color>
 public:
 
   ImageRow (unsigned _width = 0)
-    : std::vector<Color> (_width), width (_width)
+    : std::vector<Color> (_width, 0), width (_width)
   { }
 
   void clear () { for (unsigned i = 0; i < width; i++) (*this)[i] = 0; }

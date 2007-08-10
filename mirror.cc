@@ -26,7 +26,7 @@ Mirror::render (const Intersect &isec) const
   float fres_refl = fres.reflectance (cos_refl_angle);
   const Color refl = fres_refl * mirror_coating.reflectance;
 
-  Color radiance;
+  Color radiance = 0;
 
   // First see if anything will be specularly reflected at this angle, and
   // if so, cast a reflection ray to find out what it is.

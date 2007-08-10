@@ -148,6 +148,8 @@ StructLight::Region::dump (const Image &orig_image, Image &image)
       sub_region_0->dump (orig_image, image);
       sub_region_1->dump (orig_image, image);
 
+      Color div_color (1, 0, 0);
+
       // Draw divider lines (overwriting part of the image).
       //
       if (kind == U_SPLIT)
@@ -155,14 +157,14 @@ StructLight::Region::dump (const Image &orig_image, Image &image)
 	  unsigned x_split
 	    = unsigned (float (image.width) * sub_region_1->u_min + 0.5f);
 	  for (unsigned y = y_min; y < y_lim; y++)
-	    image.put (x_split, image.height - y - 1, Color (1, 0, 0));
+	    image.put (x_split, image.height - y - 1, div_color);
 	}
       else
 	{
 	  unsigned y_split
 	    = unsigned (float (image.height) * sub_region_1->v_min + 0.5f);
 	  for (unsigned x = x_min; x < x_lim; x++)
-	    image.put (x, image.height - y_split - 1, Color (1, 0, 0));
+	    image.put (x, image.height - y_split - 1, div_color);
 	}
     }
 }

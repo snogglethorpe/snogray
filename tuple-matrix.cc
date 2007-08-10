@@ -10,6 +10,7 @@
 //
 
 #include <iostream>
+#include <algorithm>
 
 #include "globals.h"
 #include "excepts.h"
@@ -47,39 +48,48 @@ TupleMatrixData::TupleMatrixData (unsigned _tuple_len,
 
 // Color / tuple translation
 
-// Return a color from the tuple at location X, Y (if the tuple length
-// is not three, an appropriate translation is done).
+// Return a color from the tuple at location X, Y; if the tuple length
+// is not the same as a Color, only Color::TUPLE_LEN members are returned,
+// and any missing components set to zero.
 //
 Color
 TupleMatrixData::pixel (unsigned x, unsigned y) const
 {
+  Color col;
+
   const float *t = tuple (x, y);
 
-  if (tuple_len >= 3)
-    return Color (t[0], t[1], t[2]);
-  else if (tuple_len == 1)
-    return Color (t[0], t[0], t[0]);
-  else // tuple_len == 2
-    return Color (t[0], t[1], 0);
+  unsigned copy_limit = Color::NUM_COMPONENTS;
+  if (tuple_len < Color::NUM_COMPONENTS)
+    copy_limit = tuple_len;
+
+  unsigned i;
+  for (i = 0; i < copy_limit; i++)
+    col[i] = t[i];
+  for (; i < Color::TUPLE_LEN; i++)
+    col[i] = 0;
+
+  return col;
 }
 
-// Set the tuple at location X, Y from the color COL (if the tuple
-// length is not three, an appropriate translation is done).
+// Set the tuple at location X, Y from the color COL; if the tuple length
+// is not the same as a Color, only the first TUPLE_LEN members are copied,
+// and any missing components set to zero.
 //
 void
 TupleMatrixData::set_pixel (unsigned x, unsigned y, const Color &col)
 {
   float *t = tuple (x, y);
 
-  t[0] = col.r ();
+  unsigned copy_limit = Color::NUM_COMPONENTS;
+  if (tuple_len < Color::NUM_COMPONENTS)
+    copy_limit = tuple_len;
 
-  if (tuple_len > 1)
-    {
-      t[1] = col.g ();
-
-      if (tuple_len > 2)
-	t[2] = col.b ();
-    }
+  unsigned i;
+  for (i = 0; i < copy_limit; i++)
+    t[i] = col[i];
+  for (; i < tuple_len; i++)
+    t[i] = 0;
 }
 
 
