@@ -27,6 +27,8 @@
 #include "sphere.h"
 #include "sphere2.h"
 #include "cylinder.h"
+#include "instance.h"
+#include "subspace.h"
 #include "glow.h"
 #include "glass.h"
 #include "mirror.h"
@@ -378,6 +380,25 @@ namespace snogray {
 
     Tripar (const Material *mat, const Pos &_v0, const Vec &_e1, const Vec &_e2,
 	    bool _parallelogram = false);
+  };
+
+  %ignore LocalSurface;
+  class LocalSurface : public Surface
+  {
+  };
+
+  class Subspace : public Surface
+  {
+  public:
+
+    Subspace (Surface *surf);
+  };
+
+  class Instance : public LocalSurface
+  {
+  public:
+
+    Instance (Subspace *subspace, const Xform &local_to_world_xform);
   };
 
   class MaterialMap

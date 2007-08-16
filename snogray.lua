@@ -351,18 +351,34 @@ rot_z = rotate_z
 xform_z_to_y = rotate_x (-math.pi / 2) * scale (-1, 1, 1)
 xform_y_to_z = xform_z_to_y:inverse ()
 
+
+----------------------------------------------------------------
+--
+-- gc protection
+--
+-- Swig's handling of garbage collection trips us up in various cases
+-- (objects stored in the scene get gced), so this table holds
+-- references to objects we don't want GCed.
+--
+
+no_gc_objs = {}
+
+function no_gc (obj)
+   no_gc_objs[#no_gc_objs + 1] = obj
+end
+
+
 ----------------------------------------------------------------
 --
 -- scene object
 --
--- We don't use the raw scene object directly because swig's bogus
--- handling of garbage collection trips us up (object stored in the
--- scene get gced).
+-- We don't use the raw scene object directly because we need to
+-- gc-protect objects handed to the scene.
 
 scene = {}
 
 function scene:add (thing)
-   self[#self + 1] = thing
+   no_gc (thing)
    raw.Scene_add (raw_scene, thing)
 end
 
@@ -415,6 +431,15 @@ end
 
 cylinder = raw.Cylinder
 
+function subspace (surf)
+   no_gc (surf)
+   return raw.Subspace (surf)
+end
+
+function instance (subspace, xform)
+   no_gc (subspace)
+   return raw.Instance (subspace, xform)
+end
 
 ----------------------------------------------------------------
 --
