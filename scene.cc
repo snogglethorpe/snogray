@@ -52,10 +52,39 @@ Scene::~Scene ()
 // to reflect the point of intersection.
 //
 const Surface::IsecInfo *
-Scene::intersect (Ray &ray, Trace &trace) const
+Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 {
+  Trace &trace = isec_ctx.trace;
+
   trace.global.stats.scene_intersect_calls++;
-  return space->intersect (ray, trace);
+
+  // If there's a horizon hint, try to use it to reduce the horizon
+  // before searching -- space searching can dramatically improve given
+  // a limited search space.
+  //
+  const Surface::IsecInfo *hint_isec_info = 0;
+  const Surface *hint = trace.horizon_hint;
+  if (hint)
+    {
+      hint_isec_info = hint->intersect (ray, isec_ctx);
+
+      if (hint_isec_info)
+	trace.global.stats.horizon_hint_hits++;
+      else
+	{
+	  trace.horizon_hint = 0; // clear the hint
+	  trace.global.stats.horizon_hint_misses++;
+	}
+    }
+
+  const Surface::IsecInfo *isec_info = space->intersect (ray, isec_ctx);
+
+  // If the search didn't work out, use HINT_ISEC_INFO instead (which will
+  // be zero if that didn't work out either).
+  if (! isec_info)
+    isec_info = hint_isec_info;
+
+  return isec_info;
 }
 
 // Return the strongest type of shadowing effect this scene has on

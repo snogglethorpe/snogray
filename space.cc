@@ -34,8 +34,8 @@ Space::add (Surface *surface)
 
 struct ClosestIntersectCallback : Space::IntersectCallback
 {
-  ClosestIntersectCallback (Ray &_ray, Trace &_trace)
-    : ray (_ray), closest (0), isec_ctx (_trace), trace (_trace),
+  ClosestIntersectCallback (Ray &_ray, const Surface::IsecCtx &_isec_ctx)
+    : ray (_ray), closest (0), isec_ctx (_isec_ctx),
       surf_isec_tests (0), surf_isec_hits (0),
       neg_cache_hits (0), neg_cache_collisions (0)
   { }
@@ -48,9 +48,7 @@ struct ClosestIntersectCallback : Space::IntersectCallback
   //
   const Surface::IsecInfo *closest;
 
-  Surface::IsecCtx isec_ctx;
-
-  Trace &trace;
+  const Surface::IsecCtx &isec_ctx;
 
   unsigned surf_isec_tests, surf_isec_hits;
   unsigned neg_cache_hits, neg_cache_collisions;
@@ -59,28 +57,25 @@ struct ClosestIntersectCallback : Space::IntersectCallback
 void
 ClosestIntersectCallback::operator () (Surface *surf)
 {
-  if (surf != trace.horizon_hint)
-    {
-      if (! trace.negative_isec_cache.contains (surf))
-	{
-	  const Surface::IsecInfo *isec_info = surf->intersect (ray, isec_ctx);
-	  if (isec_info)
-	    {
-	      closest = isec_info;
-	      trace.horizon_hint = surf;
-	      surf_isec_hits++;
-	    }
-	  else
-	    {
-	      bool collision = trace.negative_isec_cache.add (surf);
-	      if (collision)
-		neg_cache_collisions++;
-	    }
+  Trace &trace = isec_ctx.trace;
 
-	  surf_isec_tests++;
+  if (! trace.negative_isec_cache.contains (surf))
+    {
+      const Surface::IsecInfo *isec_info = surf->intersect (ray, isec_ctx);
+      if (isec_info)
+	{
+	  closest = isec_info;
+	  trace.horizon_hint = surf;
+	  surf_isec_hits++;
 	}
       else
-	neg_cache_hits++;
+	{
+	  bool collision = trace.negative_isec_cache.add (surf);
+	  if (collision)
+	    neg_cache_collisions++;
+	}
+
+      surf_isec_tests++;
     }
 }
 
@@ -89,34 +84,14 @@ ClosestIntersectCallback::operator () (Surface *surf)
 // to reflect the point of intersection.
 //
 const Surface::IsecInfo *
-Space::intersect (Ray &ray, Trace &trace) const
+Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 {
   // A callback which is called for each surface in this space
   // that may intersect RAY.
   //
-  ClosestIntersectCallback closest_isec_cb (ray, trace);
+  ClosestIntersectCallback closest_isec_cb (ray, isec_ctx);
 
-  // If there's a horizon hint, try to use it to reduce the horizon
-  // before searching -- space searching can dramatically improve given
-  // a limited search space.
-  //
-  const Surface *hint = trace.horizon_hint;
-  if (hint)
-    {
-       const Surface::IsecInfo *isec_info
-	= hint->intersect (ray, closest_isec_cb.isec_ctx);
-
-      if (isec_info)
-	{
-	  closest_isec_cb.closest = isec_info;
-	  trace.global.stats.horizon_hint_hits++;
-	}
-      else
-	{
-	  trace.horizon_hint = 0; // clear the hint
-	  trace.global.stats.horizon_hint_misses++;
-	}
-    }
+  Trace &trace = isec_ctx.trace;
 
   trace.negative_isec_cache.clear ();
 

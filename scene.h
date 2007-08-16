@@ -56,7 +56,9 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, Trace &trace) const;
+  const Surface::IsecInfo *intersect (Ray &ray,
+				      const Surface::IsecCtx &isec_ctx)
+    const;
 
   // Return the strongest type of shadowing effect this scene has on
   // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
