@@ -64,8 +64,8 @@ cylinder_intersect (Ray &ray)
 // describing the intersection (which should be allocated using
 // placement-new with ISEC_CTX); otherwise return zero.
 //
-Surface::IsecInfo *
-Cylinder::intersect (Ray &ray, IsecCtx &isec_ctx) const
+const Surface::IsecInfo *
+Cylinder::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   Ray oray = world_to_local (ray);
   dist_t t = cylinder_intersect (oray);

@@ -76,7 +76,7 @@ public:
   // object describing the intersection (which should be allocated using
   // placement-new with ISEC_CTX); otherwise return zero.
   //
-  virtual IsecInfo *intersect (Ray &ray, IsecCtx &isec_ctx) const;
+  virtual const IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const;
 
   // Return the strongest type of shadowing effect this surface has on
   // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
@@ -115,7 +115,8 @@ public:
 // All memory allocated from an Surface::IsecCtx object is automatically
 // freed at some appropriate point.
 //
-inline void *operator new (size_t size, snogray::Surface::IsecCtx &isec_ctx)
+inline void *
+operator new (size_t size, const snogray::Surface::IsecCtx &isec_ctx)
 {
   return operator new (size, isec_ctx.trace);
 }
@@ -123,7 +124,8 @@ inline void *operator new (size_t size, snogray::Surface::IsecCtx &isec_ctx)
 // There's no syntax for user to use this, but the compiler may call it
 // during exception handling.
 //
-inline void operator delete (void *mem, snogray::Surface::IsecCtx &isec_ctx)
+inline void
+operator delete (void *mem, const snogray::Surface::IsecCtx &isec_ctx)
 {
   operator delete (mem, isec_ctx.trace);
 }

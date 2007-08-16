@@ -24,8 +24,8 @@ using namespace snogray;
 // describing the intersection (which should be allocated using
 // placement-new with ISEC_CTX); otherwise return zero.
 //
-Surface::IsecInfo *
-Sphere2::intersect (Ray &ray, IsecCtx &isec_ctx) const
+const Surface::IsecInfo *
+Sphere2::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   Ray oray = world_to_local (ray);
   

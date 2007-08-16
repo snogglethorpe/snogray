@@ -24,8 +24,8 @@ using namespace snogray;
 // describing the intersection (which should be allocated using
 // placement-new with ISEC_CTX); otherwise return zero.
 //
-Surface::IsecInfo *
-Tripar::intersect (Ray &ray, IsecCtx &isec_ctx) const
+const Surface::IsecInfo *
+Tripar::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   dist_t u, v;
   if (tripar_intersect (v0, e1, e2, parallelogram, ray, u, v))

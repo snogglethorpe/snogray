@@ -48,7 +48,8 @@ barf ()
   throw std::runtime_error ("tried to render abstract surface");
 }
 
-Surface::IsecInfo *Surface::intersect (Ray &, IsecCtx &) const { barf (); }
+const Surface::IsecInfo *
+Surface::intersect (Ray &, const IsecCtx &) const { barf (); }
 Material::ShadowType Surface::shadow (const ShadowRay &) const { barf (); }
 BBox Surface::bbox () const { barf (); }
 

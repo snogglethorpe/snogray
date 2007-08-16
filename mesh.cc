@@ -214,8 +214,8 @@ Mesh::add (const Tessel::Function &tessel_fun,
 // describing the intersection (which should be allocated using
 // placement-new with ISEC_CTX); otherwise return zero.
 //
-Surface::IsecInfo *
-Mesh::Triangle::intersect (Ray &ray, IsecCtx &isec_ctx) const
+const Surface::IsecInfo *
+Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   // We have to convert the types to match that of RAY first.
   //

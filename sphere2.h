@@ -37,7 +37,7 @@ public:
   // object describing the intersection (which should be allocated using
   // placement-new with ISEC_CTX); otherwise return zero.
   //
-  virtual IsecInfo *intersect (Ray &ray, IsecCtx &isec_ctx) const;
+  virtual const IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const;
 
   // Return the strongest type of shadowing effect this surface has on
   // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
