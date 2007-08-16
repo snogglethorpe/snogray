@@ -91,7 +91,7 @@ public:
 
   // Add this (or some other ...) surfaces to SPACE
   //
-  virtual void add_to_space (Space &space);
+  virtual void add_to_space (Space *space);
  
   // The "smoothing group" this surface belongs to, or zero if it belongs
   // to none.  The smoothing group affects shadow-casting: if two objects

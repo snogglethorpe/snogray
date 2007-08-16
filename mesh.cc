@@ -553,12 +553,11 @@ Mesh::compute_vertex_normals (float max_angle)
 // Add this (or some other ...) surfaces to SPACE
 //
 void
-Mesh::add_to_space (Space &space)
+Mesh::add_to_space (Space *space)
 {
   // Shrink the allocated space in the various vectors to the amount
   // actually needed.
   //
-  
 
   if (!quiet && triangles.size () > 50000)
     std::cout << "* adding large mesh: "

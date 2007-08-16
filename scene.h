@@ -73,7 +73,7 @@ public:
   Surface *add (Surface *surface)
   {
     surfaces.push_back (surface);
-    surface->add_to_space (*space);
+    surface->add_to_space (space);
     return surface;
   }
 

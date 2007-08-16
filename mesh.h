@@ -127,7 +127,7 @@ public:
 
   // Add this (or some other ...) surfaces to SPACE
   //
-  virtual void add_to_space (Space &space);
+  virtual void add_to_space (Space *space);
 
   // Compute a normal vector for each vertex that doesn't already have one,
   // by averaging the normals of the triangles that use the vertex.

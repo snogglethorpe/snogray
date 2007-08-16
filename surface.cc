@@ -20,9 +20,9 @@ using namespace snogray;
 // Add this (or some other ...) surfaces to SPACE
 //
 void
-Surface::add_to_space (Space &space)
+Surface::add_to_space (Space *space)
 {
-  space.add (this);
+  space->add (this);
 }
 
 // The "smoothing group" this surface belongs to, or zero if it belongs
