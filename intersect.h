@@ -122,7 +122,7 @@ public:
 
   // Ray which intersected something; its endpoint is the point of intersection.
   //
-  const Ray ray;
+  Ray ray;
 
   // The surface which RAY intersected.  This should always be non-zero
   // (it's not a reference because all uses are as a pointer).
@@ -131,20 +131,20 @@ public:
 
   // Details of the intersection.
   //
-  const Pos pos;		// Point where RAY intersects SURFACE
+  Pos pos;		// Point where RAY intersects SURFACE
 
   // Normalized surface normal at POS.
   //
-  const Vec n;
+  Vec n;
 
   // Vectors which are orthonormal with the surface normal N.
   //
-  const Vec s, t;
+  Vec s, t;
 
   // A unit vector pointing towards the viewer; this is just -RAY.dir; many
   // algorithms use the outgoing formulation, so we provide it explicitly.
   //
-  const Vec v;
+  Vec v;
 
   // (N dot V), aka cos(theta) where theta is the angle between N and V.
   //
@@ -152,7 +152,7 @@ public:
 
   // True if RAY hit the back of SURFACE (relative to the normal).
   //
-  const bool back;
+  bool back;
 
   // Oft-used properties of SURFACE.
   //

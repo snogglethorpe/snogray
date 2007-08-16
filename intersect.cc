@@ -51,13 +51,10 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
     smoothing_group (0), no_self_shadowing (false),
     trace (_trace)
 {
-  // We want to flip the sign on `normal' if `back' is true, but we've
-  // declared `normal' const to avoid anybody mucking with it...
-  //
   if (back)
     {
-      const_cast<Vec&> (n) = -n;
-      const_cast<float&> (nv) = -nv;
+      n = -n;
+      nv = -nv;
     }
 }
 
