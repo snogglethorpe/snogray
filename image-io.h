@@ -32,8 +32,25 @@ public:
     : std::vector<Color> (_width, 0), width (_width)
   { }
 
+  // Set the value of all elements in this row to zero.
+  //
   void clear () { for (unsigned i = 0; i < width; i++) (*this)[i] = 0; }
-  void resize (unsigned w) { std::vector<Color>::resize (w); width = w; }
+
+  // Set the width of this row to W, without initializing any new elements.
+  //
+  void resize (unsigned w)
+  {
+    std::vector<Color>::resize (w);
+    width = w;
+  }
+
+  // Set the width of this row to W, initializing any new elements to INIT_VAL.
+  //
+  void resize (unsigned w, const Color &init_val)
+  {
+    std::vector<Color>::resize (w, init_val);
+    width = w;
+  }
 
   // Inherit some stuff from vector
   //

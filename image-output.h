@@ -33,8 +33,8 @@ public:
 
     void resize (unsigned width)
     {
-      pixels.resize (width);
-      weights.resize (width);
+      pixels.resize (width, 0);
+      weights.resize (width, 0);
     }
 
     void clear ()
