@@ -50,28 +50,24 @@ public:
     : min (_min), max (_min.x + size, _min.y + size, _min.z + size)
   { }
 
-  // Grows the bbox as necessary to include POS
+  // Extend this bbox as necessary to enclose POS.
   //
-  void include (const Pos &pos)
+  BBox &
+  operator+= (const Pos &pos)
   {
-    // Note that minimum/maximum adjusting cases may not be mutually
-    // exclusive in the case of a degenerate (uninitialized) bounding box,
-    // so we need to check both.
+    min = snogray::min (min, pos);
+    max = snogray::max (max, pos);
+    return *this;
+  }
 
-    if (pos.x < min.x)
-      min.x = pos.x;
-    if (pos.x > max.x)
-      max.x = pos.x;
-
-    if (pos.y < min.y)
-      min.y = pos.y;
-    if (pos.y > max.y)
-      max.y = pos.y;
-
-    if (pos.z < min.z)
-      min.z = pos.z;
-    if (pos.z > max.z)
-      max.z = pos.z;
+  // Extend this bbox as necessary to enclose BBOX.
+  //
+  BBox &
+  operator+= (const BBox &bbox)
+  {
+    min = snogray::min (min, bbox.min);
+    max = snogray::max (max, bbox.max);
+    return *this;
   }
 
   // Return this bounding-box transformed by XFORM, ensuring that the
@@ -141,6 +137,29 @@ public:
   //
   Pos min, max;
 };
+
+
+// Adding two bboxes yields the minimum bbox enclosing both.
+//
+inline BBox
+operator+ (const BBox &bbox1, const BBox &bbox2)
+{
+  return BBox (min (bbox1.min, bbox2.min), max (bbox1.max, bbox2.max));
+}
+
+// Adding a bbox and a point yields the bbox extended to also enclose
+// the point.
+//
+inline BBox
+operator+ (const BBox &bbox, const Pos &pos)
+{
+  return BBox (min (bbox.min, pos), max (bbox.max, pos));
+}
+inline BBox
+operator+ (const Pos &pos, const BBox &bbox)
+{
+  return BBox (min (bbox.min, pos), max (bbox.max, pos));
+}
 
 
 extern std::ostream& operator<< (std::ostream &os, const BBox &bbox);

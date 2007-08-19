@@ -25,14 +25,14 @@ BBox::operator* (const XformBase<dist_t> &xform) const
 {
   BBox xformed_bbox (min * xform);
 
-  xformed_bbox.include (Pos (min.x, min.y, max.z) * xform);
-  xformed_bbox.include (Pos (min.x, max.y, min.z) * xform);
-  xformed_bbox.include (Pos (min.x, max.y, max.z) * xform);
-  xformed_bbox.include (Pos (max.x, min.y, min.z) * xform);
-  xformed_bbox.include (Pos (max.x, min.y, max.z) * xform);
-  xformed_bbox.include (Pos (max.x, max.y, min.z) * xform);
+  xformed_bbox += Pos (min.x, min.y, max.z) * xform;
+  xformed_bbox += Pos (min.x, max.y, min.z) * xform;
+  xformed_bbox += Pos (min.x, max.y, max.z) * xform;
+  xformed_bbox += Pos (max.x, min.y, min.z) * xform;
+  xformed_bbox += Pos (max.x, min.y, max.z) * xform;
+  xformed_bbox += Pos (max.x, max.y, min.z) * xform;
 
-  xformed_bbox.include (max * xform);
+  xformed_bbox += max * xform;
 
   return xformed_bbox;
 }

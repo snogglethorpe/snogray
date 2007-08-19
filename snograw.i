@@ -253,7 +253,10 @@ namespace snogray {
     BBox (const Pos &_pos);
     BBox (const Pos &_min, dist_t size);
 
-    void include (const Pos &pos);
+    %rename(add) operator+= (const Pos &pos);
+    BBox &operator+= (const Pos &pos);
+    %rename(add) operator+= (const BBox &bbox);
+    BBox &operator+= (const BBox &bbox);
 
     Vec extent () const;
 
@@ -266,6 +269,9 @@ namespace snogray {
   };
   %extend BBox
   {
+    BBox operator+ (const BBox &bbox) { return *$self + bbox; }
+    BBox operator+ (const Pos &pos) { return *$self + pos; }
+
     const char* __str__() { return static_rep (*$self); }
   }
 

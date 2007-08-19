@@ -362,8 +362,8 @@ BBox
 Mesh::Triangle::bbox () const
 {
   BBox bbox (v (0));
-  bbox.include (v (1));
-  bbox.include (v (2));
+  bbox += v (1);
+  bbox += v (2);
   return bbox;
 }
 
@@ -580,7 +580,7 @@ Mesh::bbox () const
       BBox bbox = vertex (0);
 
       for (vert_index_t v = 1; v < num_verts; v++)
-	bbox.include (vertex (v));
+	bbox += vertex (v);
 
       return bbox;
     }

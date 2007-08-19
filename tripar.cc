@@ -66,10 +66,10 @@ BBox
 Tripar::bbox () const
 {
   BBox bbox (v0);
-  bbox.include (v0 + e1);
-  bbox.include (v0 + e2);
+  bbox += v0 + e1;
+  bbox += v0 + e2;
   if (parallelogram)
-    bbox.include (v0 + e1 + e2);
+    bbox += v0 + e1 + e2;
   return bbox;
 }
 
