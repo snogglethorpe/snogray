@@ -19,6 +19,46 @@ local raw = snograw
 
 ----------------------------------------------------------------
 --
+-- A facility for adding hooks into the swig metatable for an object
+
+-- Return a table attached to OBJ (a userdata object or table), which is
+-- used as to satisfy __index queries on OBJ.  If such a table already
+-- exists for OBJ, it is returned, otherwise a new one is added and
+-- returned.  The added table is consulted before any previously
+-- existing __index hook, and the previous hook called only when a
+-- request is not found in the wrapper table.
+--
+local function index_wrappers (obj)
+   local mt = getmetatable (obj)
+
+   if not mt.__raw_index then
+      mt.__raw_index = mt.__index
+
+      -- Note that we can't just make the old __index function an
+      -- __index for our new __index table, because the first argument
+      -- passed to it would be the wrong thing (the metatable, not the
+      -- underlying object).
+      --
+      mt.__index =
+	 function (obj, key)
+	    local mt = getmetatable (obj)
+	    local rawi = mt.__raw_index
+	    local wraps = mt.__index_wrappers
+	    return (wraps and wraps[key]) or rawi (obj, key)
+	 end
+      mt.__index_wrappers = {}
+   end
+
+   return mt.__index_wrappers
+end
+
+local function has_index_wrappers (obj)
+   return getmetatable(obj).__index_wrappers
+end
+
+
+----------------------------------------------------------------
+--
 -- Vector/position/bounding-box manipulation
 
 pos = raw.Pos
@@ -30,6 +70,7 @@ bbox = raw.BBox
 origin = pos (0, 0, 0)
 
 midpoint = raw.midpoint
+
 
 ----------------------------------------------------------------
 --
@@ -354,17 +395,35 @@ xform_y_to_z = xform_z_to_y:inverse ()
 
 ----------------------------------------------------------------
 --
--- gc protection
+-- GC protection
 --
--- Swig's handling of garbage collection trips us up in various cases
--- (objects stored in the scene get gced), so this table holds
--- references to objects we don't want GCed.
+-- Swig's handling of garbage collection trips us up in various cases:
+-- objects stored in the scene get GCed because the Lua garbage
+-- collector doesn't know that there's a reference from one userdata
+-- object to another.
+--
+-- To prevent this, we keep a table in Lua of external object
+-- references, in a form that the garbage collector can follow.
 --
 
-no_gc_objs = {}
+local gc_refs = {}
 
-function no_gc (obj)
-   no_gc_objs[#no_gc_objs + 1] = obj
+-- Make the keys in GC_REFS weak so that entries don't prevent referring
+-- objects from being garbage collected (if nobody else refers to them).
+--
+setmetatable (gc_refs, { __mode = 'k' })
+
+-- Add a reference from FROM to TO for the garbage-collector to follow.
+-- This is for adding references that the normal gc mechanism cannot
+-- deduce by itself, e.g. in userdata objects.
+--
+function gc_ref (from, to)
+   local refs = gc_refs[from]
+   if refs then
+      refs[#refs + 1] = to
+   else
+      gc_refs[from] = { to }
+   end
 end
 
 
@@ -375,12 +434,19 @@ end
 -- We don't use the raw scene object directly because we need to
 -- gc-protect objects handed to the scene.
 
-scene = {}
+local function init_scene (raw_scene)
+   scene = raw_scene		-- this is exported
 
-function scene:add (thing)
-   no_gc (thing)
-   raw.Scene_add (raw_scene, thing)
+   if not has_index_wrappers (scene) then
+      local wrap = index_wrappers (scene)
+
+      function wrap:add (thing)
+	 gc_ref (self, thing)
+	 raw.Scene_add (self, thing)
+      end
+   end
 end
+
 
 -- The inverse: transform the y-axis to the z-axis.
 --
@@ -431,14 +497,34 @@ end
 
 cylinder = raw.Cylinder
 
+-- Wrap the subspace constructor to record the GC link between a
+-- subspace and the surface in it.
+--
 function subspace (surf)
-   no_gc (surf)
-   return raw.Subspace (surf)
+
+   -- If SURF is actually a table, make a surface-group to hold its
+   -- members, and wrap that instead.
+   --
+   if type (surf) == "table" then
+      surf = surface_group (surfs)
+   end
+
+   local ss = raw.Subspace (surf)
+
+   -- Record the GC link between SS and SURF.
+   --
+   gc_ref (ss, surf)
+
+   return ss
 end
 
+-- Wrap the instance constructor to record the GC link between an
+-- instance and its subspace.
+--
 function instance (subspace, xform)
-   no_gc (subspace)
-   return raw.Instance (subspace, xform)
+   local inst = raw.Instance (subspace, xform)
+   gc_ref (inst, subspace)
+   return inst
 end
 
 ----------------------------------------------------------------
@@ -647,6 +733,8 @@ function start_load (filename, rscene, rcamera)
    -- Let users use the raw camera directly.
    --
    camera = raw_camera
+
+   init_scene (raw_scene)
 end
 
 
