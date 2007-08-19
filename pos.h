@@ -121,6 +121,21 @@ midpoint (const TPos<T> &p1, const TPos<T> &p2)
 
 
 template<typename T>
+TPos<T>
+max (const TPos<T> &t1, const TPos<T> &t2)
+{
+  return TPos<T> (max (t1.x, t2.x), max (t1.y, t2.y), max (t1.z, t2.z));
+}
+
+template<typename T>
+TPos<T>
+min (const TPos<T> &t1, const TPos<T> &t2)
+{
+  return TPos<T> (min (t1.x, t2.x), min (t1.y, t2.y), min (t1.z, t2.z));
+}
+
+
+template<typename T>
 static std::ostream&
 operator<< (std::ostream &os, const TPos<T> &pos)
 {
