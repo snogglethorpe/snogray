@@ -40,12 +40,17 @@ namespace snogray {
 #define M_SQRT1_2f	(_M_F (M_SQRT1_2))	// 1/sqrt(2)
 
 
+// Provide our own definitions of min/max, as the standard defs are very slow.
+//
+inline float min (float x, float y) { return x < y ? x : y; }
+inline double min (double x, double y) { return x < y ? x : y; }
+inline float max (float x, float y) { return x > y ? x : y; }
+inline double max (double x, double y) { return x > y ? x : y; }
+
+
 // Copy the standard scalar definitions of these operators into our
 // namespace, so that they are considered on an equal basis for overloading
 // with our overloads.
-
-using std::min;
-using std::max;
 
 using std::abs;
 using std::div;
