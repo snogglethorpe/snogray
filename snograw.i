@@ -29,6 +29,7 @@
 #include "cylinder.h"
 #include "instance.h"
 #include "subspace.h"
+#include "surface-group.h"
 #include "glow.h"
 #include "glass.h"
 #include "mirror.h"
@@ -405,6 +406,15 @@ namespace snogray {
   public:
 
     Instance (Subspace *subspace, const Xform &local_to_world_xform);
+  };
+
+  class SurfaceGroup : public Surface
+  {
+  public:
+
+    SurfaceGroup ();
+
+    void add (Surface *surface);
   };
 
   class MaterialMap

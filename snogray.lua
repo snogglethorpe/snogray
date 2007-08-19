@@ -527,6 +527,42 @@ function instance (subspace, xform)
    return inst
 end
 
+-- Wrap the surface_group constructor to add some method wrappers to it,
+-- and support adding a table of surfaces as well.
+--
+function surface_group (surfs)
+   local group = raw.SurfaceGroup ()
+
+   -- Initialize wrapper functions if necessary
+   --
+   if not has_index_wrappers (group) then
+      local wrap = index_wrappers (group)
+
+      -- Augment raw add method to (1) record the link between a group
+      -- and the surfaces in it so GC can see it, and (2) support adding
+      -- a table of surfaces all at once.
+      --
+      function wrap:add (surf)
+	 gc_ref (self, surf)
+
+	 if (type (surf) == "table") then
+	    for k,v in pairs (surf) do
+	       self:add (v)
+	    end
+	 else
+	    raw.SurfaceGroup_add (self, surf)
+	 end
+      end
+   end
+
+   if surfs then
+      group:add (surfs)
+   end
+
+   return group
+end
+
+
 ----------------------------------------------------------------
 --
 -- Lights
