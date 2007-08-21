@@ -50,6 +50,7 @@ private:
   {
     IsecInfo (const Sphere *_sphere) : sphere (_sphere) { }
     virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    virtual const Surface *surface () const { return sphere; }
     const Sphere *sphere;
   };
 

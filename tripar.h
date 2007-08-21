@@ -50,6 +50,7 @@ private:
   {
     IsecInfo (const Tripar *_tripar) : tripar (_tripar) { }
     virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    virtual const Surface *surface () const { return tripar; }
     const Tripar *tripar;
   };
 

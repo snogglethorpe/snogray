@@ -65,7 +65,6 @@ ClosestIntersectCallback::operator () (Surface *surf)
       if (isec_info)
 	{
 	  closest = isec_info;
-	  trace.horizon_hint = surf;
 	  surf_isec_hits++;
 	}
       else
@@ -94,6 +93,9 @@ Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
   Trace &trace = isec_ctx.trace;
 
   trace.negative_isec_cache.clear ();
+
+  if (trace.horizon_hint)
+    trace.negative_isec_cache.add (trace.horizon_hint);
 
   for_each_possible_intersector (ray, closest_isec_cb);
 

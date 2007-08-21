@@ -61,6 +61,8 @@ private:
 
     virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
 
+    virtual const Surface *surface () const { return instance; }
+
     const Instance *instance;
 
     const Ray xformed_ray;

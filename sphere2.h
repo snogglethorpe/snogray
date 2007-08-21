@@ -56,6 +56,8 @@ private:
 
     virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
 
+    virtual const Surface *surface () const { return sphere; }
+
     const Sphere2 *sphere;
 
     // Intersection normal in SPHERE's local coordinate system.

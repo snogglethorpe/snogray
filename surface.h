@@ -55,6 +55,10 @@ public:
     // Create an Intersect object for this intersection.
     //
     virtual Intersect make_intersect (const Ray &ray, Trace &trace) const = 0;
+
+    // Return the surface which resulted in this intersection.
+    //
+    virtual const Surface *surface () const = 0;
   };
 
   // A special object passed into the Surface::intersect method, which

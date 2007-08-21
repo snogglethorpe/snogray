@@ -68,6 +68,8 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
     {
       hint_isec_info = hint->intersect (ray, isec_ctx);
 
+      trace.global.stats.intersect.surface_intersects_tests++;
+
       if (hint_isec_info)
 	trace.global.stats.horizon_hint_hits++;
       else
@@ -79,9 +81,13 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 
   const Surface::IsecInfo *isec_info = space->intersect (ray, isec_ctx);
 
-  // If the search didn't work out, use HINT_ISEC_INFO instead (which will
-  // be zero if that didn't work out either).
-  if (! isec_info)
+  // If the search worked (ISEC_INFO is non-zero), update the horizon hint
+  // to reflect the new intersection, otherwise, use HINT_ISEC_INFO instead
+  // (which will be zero if that didn't work out either).
+  //
+  if (isec_info)
+    trace.horizon_hint = isec_info->surface ();
+  else
     isec_info = hint_isec_info;
 
   return isec_info;

@@ -250,6 +250,7 @@ private:
 	: triangle (_triangle), u (_u), v (_v)
       { }
       virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+      virtual const Surface *surface () const { return triangle; }
       const Triangle *triangle;
       dist_t u, v;
     };
