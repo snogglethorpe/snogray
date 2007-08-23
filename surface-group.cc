@@ -15,20 +15,6 @@
 using namespace snogray;
 
 
-// Return a bounding box for this group.
-//
-BBox
-SurfaceGroup::bbox () const
-{
-  BBox bbox;
-  
-  for (std::list<Surface *>::const_iterator si = surfaces.begin();
-       si != surfaces.end(); ++si)
-    bbox += (*si)->bbox ();
-
-  return bbox;
-}
-
 // Add this (or some other ...) surfaces to SPACE
 //
 void

@@ -25,9 +25,11 @@
 #include "xform.h"
 #include "material-map.h"
 
+
 namespace snogray {
 
 class Tessel;
+
 
 class Mesh : public Surface
 {
@@ -76,7 +78,7 @@ public:
     add (tessel_fun, max_err, smooth);
   }
 
-  // Add a triangle to the mesh
+  // Add a triangle to the mesh.
   //
   void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
 		     const Material *mat = 0);
@@ -85,12 +87,12 @@ public:
   void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
 		     VertexGroup &vgroup, const Material *mat = 0);
 
-  // Add a vertex to the mesh
+  // Add a vertex to the mesh (with no normal).
   //
   vert_index_t add_vertex (const Pos &pos);
   vert_index_t add_vertex (const Pos &pos, VertexGroup &vgroup);
 
-  // Add a vertex with normal to the mesh
+  // Add a vertex with normal to the mesh.
   //
   vert_index_t add_vertex (const Pos &pos, const Vec &normal);
   vert_index_t add_vertex (const Pos &pos, const Vec &normal,
@@ -161,12 +163,16 @@ public:
 
   // Return a bounding box for the entire mesh
   //
-  virtual BBox bbox () const;
+  virtual BBox bbox () const { return _bbox; }
 
+  // Transform all vertices in the mesh by XFORM.
+  //
   void transform (Xform &xform);
 
 private:
 
+  // A single triangle in the mesh.
+  //
   class Triangle : public Surface
   {
   public:
@@ -262,6 +268,10 @@ private:
     vert_index_t vi[3];
   };
 
+  // Recalculate this mesh's bounding box.
+  //
+  void recalc_bbox ();
+
   // A list of vertices used in this part.
   //
   std::vector<MPos> vertices;
@@ -270,6 +280,10 @@ private:
   // A vector of Mesh::Triangle surfaces that use this part.
   //
   std::vector<Triangle> triangles;
+
+  // Cached bounding box for the entire mesh.
+  //
+  BBox _bbox;
 
 public:
 
@@ -285,8 +299,10 @@ public:
   bool left_handed;
 };
 
+
 }
 
 #endif /* __MESH_H__ */
+
 
 // arch-tag: e9987003-cf70-4bd5-b30c-90620e2317ad

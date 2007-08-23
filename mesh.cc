@@ -28,13 +28,14 @@ using namespace std;
 
 // Add a vertex to the mesh
 
-// This simple version always adds a new vertex
+// This simple version always adds a new vertex (with no normal).
 //
 Mesh::vert_index_t
 Mesh::add_vertex (const Pos &pos)
 {
   vert_index_t vert_index = vertices.size ();
   vertices.push_back (MPos (pos));
+  _bbox += pos;		   // make sure POS is included in the bounding-box
   return vert_index;
 }
 
@@ -79,6 +80,8 @@ Mesh::add_vertex (const Pos &pos, const Vec &normal)
 
   vertices.push_back (MPos (pos));
   vertex_normals.push_back (MVec (normal));
+
+  _bbox += pos;		   // make sure POS is included in the bounding-box
 
   return vert_index;
 }
@@ -358,6 +361,7 @@ Mesh::Triangle::shadow (const ShadowRay &ray) const
 }
 
 // Return a bounding box for this surface.
+//
 BBox
 Mesh::Triangle::bbox () const
 {
@@ -569,25 +573,26 @@ Mesh::add_to_space (Space *space)
     triangles[i].add_to_space (space);
 }
 
-// Return a bounding box for this surface.
-BBox
-Mesh::bbox () const
+// Recalculate this mesh's bounding box.
+//
+void
+Mesh::recalc_bbox ()
 {
   unsigned num_verts = vertices.size ();
 
   if (num_verts > 0)
     {
-      BBox bbox = vertex (0);
+      _bbox = vertex (0);
 
       for (vert_index_t v = 1; v < num_verts; v++)
-	bbox += vertex (v);
-
-      return bbox;
+	_bbox += vertex (v);
     }
   else
-    return BBox (); // empty
+    _bbox = BBox ();		// empty (degenerate) bbox
 }
 
+// Transform all vertices in the mesh by XFORM.
+//
 void
 Mesh::transform (Xform &xform)
 {
@@ -606,6 +611,15 @@ Mesh::transform (Xform &xform)
       for (vert_index_t v = 0; v < vertex_normals.size (); v++)
 	vertex_normals[v] *= norm_xf;
     }
+
+  // Recalculate the bounding-box based on the transformed vertices.
+  //
+  // We could also just transform the old bounding-box by XFORM, but
+  // recalculating it from scratch will probably give a tighter
+  // bounding box (because transforming the bounding-box has less
+  // information, and so needs to be more conservative).
+  //
+  recalc_bbox ();
 }
 
 

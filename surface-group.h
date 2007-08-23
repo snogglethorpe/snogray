@@ -31,11 +31,15 @@ public:
 
   // Add SURFACE to this group.
   //
-  void add (Surface *surface) { surfaces.push_back (surface); }
+  void add (Surface *surface)
+  {
+    surfaces.push_back (surface);
+    _bbox += surface->bbox ();
+  }
 
   // Return a bounding box for this surface.
   //
-  virtual BBox bbox () const;
+  virtual BBox bbox () const { return _bbox; }
 
   // Add this (or some other ...) surfaces to SPACE
   //
@@ -43,7 +47,13 @@ public:
 
 private:
 
+  // A list of the surfaces in this group.
+  //
   std::list<Surface *> surfaces;
+
+  // Cached bounding box for the entire group.
+  //
+  BBox _bbox;
 };
 
 
