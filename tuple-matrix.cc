@@ -105,7 +105,7 @@ TupleMatrixData::load (const std::string &filename, const ValTable &params,
   // 6K x 3K image requires 216 MB of memory unpacked!), so tell the user
   // what we're doing.
   //
-  bool emit_size_note = (!quiet && width * height > 1024 * 1024);
+  bool emit_size_note = (!quiet && src.width * src.height > 1024 * 1024);
   if (emit_size_note)
     {
       std::string bn = filename;
@@ -115,8 +115,9 @@ TupleMatrixData::load (const std::string &filename, const ValTable &params,
 	bn.erase (0, last_slash + 1);
 
       std::cout << "* loading large image: " << bn
-		<< " (" << width << " x " << height << ", "
-		<< (width * height * tuple_len * sizeof (float) / (1024 * 1024))
+		<< " (" << src.width << " x " << src.height << ", "
+		<< (src.width * src.height * tuple_len * sizeof (float)
+		    / (1024 * 1024))
 		<< " MB" << ")...";
       std::cout.flush ();
     }
