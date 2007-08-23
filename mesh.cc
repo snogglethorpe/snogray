@@ -18,7 +18,6 @@
 
 #include "shadow-ray.h"
 #include "tripar-isec.h"
-#include "tessel.h"
 
 #include "mesh.h"
 
@@ -225,48 +224,6 @@ Mesh::add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
 		    base_vert + tri_vert_indices[tvi_num + 1],
 		    base_vert + tri_vert_indices[tvi_num + 2]);
       tvi_num += 3;
-    }
-}
-
-
-// Tessellation support
-
-// Add the results of tessellating TESSEL_FUN with MAX_ERR.
-//
-void
-Mesh::add (const Tessel::Function &tessel_fun,
-	   const Tessel::MaxErrCalc &max_err,
-	   bool smooth)
-{
-  // Do the tessellation
-  //
-  Tessel tessel (tessel_fun, max_err);
-
-  vert_index_t base_vert = vertices.size ();
-
-  tessel.get_vertices (vertices);
-
-  std::vector<vert_index_t> tri_vert_indices;
-  tessel.get_triangle_vertex_indices (tri_vert_indices);
-
-  unsigned num_tris = tri_vert_indices.size () / 3;
-
-  triangles.reserve (triangles.size() + num_tris);
-
-  unsigned tvi_num = 0;
-  for (unsigned t = 0; t < num_tris; t++)
-    {
-      add_triangle (base_vert + tri_vert_indices[tvi_num + 0],
-		    base_vert + tri_vert_indices[tvi_num + 1],
-		    base_vert + tri_vert_indices[tvi_num + 2]);
-      tvi_num += 3;
-    }
-
-  if (smooth)
-    {
-      tessel.get_vertex_normals (vertex_normals);
-      if (vertex_normals.size() <= base_vert)
-	compute_vertex_normals ();
     }
 }
 

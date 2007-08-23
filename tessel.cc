@@ -18,9 +18,14 @@
 //   DOI=http://doi.acm.org/10.1145/337680.337717
 //
 
+
+#include "mesh.h"
+
 #include "tessel.h"
 
+
 using namespace snogray;
+
 
 // A tessellation of FUN, where MAX_ERR_CALC is used to calculate the
 // permissible error at a given location.
@@ -46,12 +51,20 @@ Tessel::Tessel (const Function &_fun, const MaxErrCalc &_max_err_calc)
     vi->index = index++;
 }
 
+
+// Tessel::Function methods
 
-// Function stubs
+// Tesselate this function and add the results to MESH, using
+// _MAX_ERR_CALC to calculate the maximum allowable error.
+//
+void
+Tessel::Function::tessellate (Mesh *mesh, const MaxErrCalc &_max_err_calc) const
+{
+  Tessel tes (*this, _max_err_calc);
+  tes.add_to_mesh (mesh);
+}
 
-Tessel::Function::~Function () { }
-
-
+
 // MaxErr stuff
 
 Tessel::MaxErrCalc::~MaxErrCalc () { }
@@ -65,32 +78,71 @@ Tessel::ConstMaxErr::max_err (const Pos &) const
 
 // Retrieving results of tessellation
 
-// Add all vertices to VERTICES.
+// Clear out VEC, and deallocate any memory it has reserved.
+//
+template<typename T>
+void
+zero_vec (std::vector<T> &vec)
+{
+  // We make sure VEC is deallocated by using the standard trick of
+  // swapping its contents with an empty temp vector.
+  //
+  std::vector<T> empty;
+  vec.swap (empty);
+}
+
+
+// Add the results of this tessellation to MESH.
 //
 void
-Tessel::get_vertices (std::vector<SPos> &_vertices) const
+Tessel::add_to_mesh (Mesh *mesh)
 {
-  _vertices.reserve (_vertices.size() + vertices.size());
+  //
+  // Add vertices
+  //
+
+  std::vector<Mesh::MPos> mesh_verts;
+
+  mesh_verts.reserve (vertices.size ());
 
   for (LinkedList<Vertex>::iterator vi = vertices.begin();
        vi != vertices.end(); vi++)
-    _vertices.push_back (SPos (vi->pos));
-}
+    mesh_verts.push_back (vi->pos);
 
-// Add triangle vertices to TRI_VERTS as groups of three vertex indices
-// (T0_V0_INDEX, T0_V1_INDEX, T0_V2_INDEX, T1_V0_INDEX, ...).
-//
-void
-Tessel::get_triangle_vertex_indices (std::vector<unsigned> &tri_verts) const
-{
-  tri_verts.reserve (tri_verts.size() + cells.size() * 3);
+  Mesh::vert_index_t base_vert = mesh->add_vertices (mesh_verts);
+
+  zero_vec (mesh_verts);	// reclaim memory used by MESH_VERTS
+
+  //
+  // Add triangles
+  //
+
+  std::vector<Mesh::vert_index_t> tri_vert_indices;
+
+  tri_vert_indices.reserve (cells.size() * 3);
 
   for (LinkedList<Cell>::iterator ci = cells.begin(); ci != cells.end(); ci++)
     {
-      tri_verts.push_back (ci->e1->beg->index);
-      tri_verts.push_back (ci->e2->beg->index);
-      tri_verts.push_back (ci->e3->beg->index);
+      tri_vert_indices.push_back (ci->e1->beg->index);
+      tri_vert_indices.push_back (ci->e2->beg->index);
+      tri_vert_indices.push_back (ci->e3->beg->index);
     }
+
+  mesh->add_triangles (tri_vert_indices, base_vert);
+
+  zero_vec (tri_vert_indices);	// reclaim memory used by TRI_VERT_INDICES
+
+  //
+  // Add normals
+  //
+
+  std::vector<Mesh::MVec> mesh_normals;
+
+  // We know nothing about normals, so FUN must deal with them.
+  //
+  fun.get_vertex_normals (vertices.begin(), vertices.end(), mesh_normals);
+
+  mesh->add_normals (mesh_normals, base_vert);
 }
 
 

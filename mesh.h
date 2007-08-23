@@ -20,15 +20,12 @@
 #include <utility>		// for std::pair
 
 #include "surface.h"
-#include "tessel.h"
 #include "pos.h"
 #include "xform.h"
 #include "material-map.h"
 
 
 namespace snogray {
-
-class Tessel;
 
 
 class Mesh : public Surface
@@ -69,14 +66,6 @@ public:
     load (file_name, mat_map, xform);
   }
 
-  // All-in-one constructor for a tessellated mesh.
-  //
-  Mesh (const Material *mat, const Tessel::Function &tessel_fun,
-	const Tessel::MaxErrCalc &max_err, bool smooth = true)
-    : Surface (mat), left_handed (true)
-  {
-    add (tessel_fun, max_err, smooth);
-  }
 
   // Add a triangle to the mesh.
   //
@@ -128,12 +117,6 @@ public:
   //
   void add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
 		      vert_index_t base_vert);
-
-  // Add the results of tessellating TESSEL_FUN with MAX_ERR.
-  //
-  void add (const Tessel::Function &tessel_fun,
-	    const Tessel::MaxErrCalc &max_err,
-	    bool smooth = true);
 
   // For loading mesh from any file-type (automatically determined)
   //
@@ -192,6 +175,7 @@ public:
   // Transform all vertices in the mesh by XFORM.
   //
   void transform (Xform &xform);
+
 
 private:
 

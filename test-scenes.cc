@@ -244,24 +244,31 @@ static Surface *
 tobj (tobj_type type, const Material *mat, const Pos &pos, dist_t radius,
      dist_t max_err)
 {
+  Mesh *mesh = new Mesh (mat);
+
   switch (type)
     {
     case TOBJ_SPHERE:
-      return new Mesh (mat, SphereTesselFun (pos + Vec (0, radius, 0),
-					     radius, radius * 0.002),
-			  Tessel::ConstMaxErr (max_err), true);
+      SphereTesselFun (pos + Vec (0, radius, 0), radius, radius * 0.002)
+	.tessellate (mesh, max_err);
+      break;
+
     case TOBJ_TORUS:
-      return new Mesh (mat, TorusTesselFun (pos + Vec (0, radius / 3, 0),
-					    radius, radius / 3,
-					    radius * 0.002),
-		       Tessel::ConstMaxErr (max_err), true);
+      TorusTesselFun (pos + Vec (0, radius / 3, 0),
+		      radius, radius / 3, radius * 0.002)
+	.tessellate (mesh, max_err);
+      break;
+
     case TOBJ_SINC:
-      return new Mesh (mat, SincTesselFun (pos + Vec (0, radius * 0.25, 0),
-					   radius * 1.5),
-		       Tessel::ConstMaxErr (max_err), true);
+      SincTesselFun (pos + Vec (0, radius * 0.25, 0), radius * 1.5)
+	.tessellate (mesh, max_err);
+      break;
+
     default:
       throw runtime_error ("unknown tobj type");
     }
+
+  return mesh;
 }
 
 
@@ -857,8 +864,9 @@ def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
     case 2: mat = glass; max_err = 0.001; break;
     }
 
-  scene.add (new Mesh (mat, SphereTesselFun (Pos (0, 3, 0), 3, 0.002),
-		       Tessel::ConstMaxErr (max_err)));
+  Mesh *mesh = new Mesh (mat);
+  SphereTesselFun (Pos (0, 3, 0), 3, 0.002).tessellate (mesh, max_err);
+  scene.add (mesh);
 
   camera.set_vert_fov (M_PI_4 * 0.9);
   camera.move (Pos (4.86, 5.4, 7.2));
@@ -1695,8 +1703,10 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
 			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
   const Material *gloss_blue
-    = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
-			     cook_torrance (0.4, 0.3, 4)));
+    = scene.add (new Material (Color (0.3, 0.3, 0.6),
+			       cook_torrance (0.4, 0.01, 4)));
+//     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
+// 			     cook_torrance (0.4, 0.3, 4)));
   const Material *glass = scene.add (new Glass (1.5));
 
   const Material *mat;
@@ -1716,8 +1726,6 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
       break;
     }
 
-  Tessel::ConstMaxErr max_err (tessel_accur);
-
   // Sphere and torus accept a "perturb" factor
   //
   dist_t perturb = 0;
@@ -1728,18 +1736,24 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
     case 3: perturb = 0.01;  break;
     }
 
+  Mesh *mesh = new Mesh (mat);
+
   if (arg == "sphere")
-    scene.add (new Mesh (mat, SphereTesselFun (Pos (0, height + 1, 0), 1, perturb),
-			 max_err, tessel_smooth));
+    SphereTesselFun (Pos (0, height + 1, 0), 1, perturb)
+      .tessellate (mesh, tessel_accur);
   else if (arg == "sinc")
-    scene.add (new Mesh (mat, SincTesselFun (Pos (0, height + 0.22, 0), 1.5),
-			 max_err, tessel_smooth));
+    SincTesselFun (Pos (0, height + 0.22, 0), 1.5)
+      .tessellate (mesh, tessel_accur);
   else if (arg == "torus")
-    scene.add (new Mesh (mat,
-			 TorusTesselFun (Pos (0, height + 0.35, 0), 1, 0.3, perturb),
-			 max_err, tessel_smooth));
+    TorusTesselFun (Pos (0, height + 0.35, 0), 1, 0.3, perturb)
+      .tessellate (mesh, tessel_accur);
   else
     throw (runtime_error ("Unknown tessellation test scene"));
+
+  if (tessel_smooth)
+    mesh->compute_vertex_normals ();
+
+  scene.add (mesh);
 
   const Material *grey
     = scene.add (new Material (Color (0.3, 0.2, 0.2),

@@ -21,7 +21,11 @@
 #include "llist.h"
 #include "freelist.h"
 
+
 namespace snogray {
+
+class Mesh;
+
 
 // State during tessellation of some function
 //
@@ -59,28 +63,10 @@ public:
     err_t err;
   };
 
-  //
-  // The following methods are for retrieving the results of
-  // tessellation.
-  //
 
-  // Add all vertices to VERTICES.
+  // Add the results of this tessellation to MESH.
   //
-  void get_vertices (std::vector<SPos> &vertices) const;
-
-  // Add triangle vertices to TRI_VERTS as groups of three vertex indices
-  // (T0_V0_INDEX, T0_V1_INDEX, T0_V2_INDEX, T1_V0_INDEX, ...).
-  //
-  void get_triangle_vertex_indices (std::vector<unsigned> &tri_verts) const;
-
-  // Add normal vectors for all vertices to NORMALS; if they are none
-  // known, NORMALS will be unchanged.
-  //
-  void get_vertex_normals (std::vector<SVec> &normals) const
-  {
-    // We know nothing about normals, so the function must deal with them.
-    fun.get_vertex_normals (vertices.begin(), vertices.end(), normals);
-  }
+  void add_to_mesh (Mesh *mesh);
 
 
   // A vertex is a point that's actually on the curve, and can be used
@@ -133,7 +119,20 @@ public:
   {
   public:
 
-    virtual ~Function ();	// make gcc shut up
+    virtual ~Function () { }	// make gcc shut up
+
+    // Tesselate this function and add the results to MESH, using
+    // _MAX_ERR_CALC to calculate the maximum allowable error.
+    //
+    void tessellate (Mesh *mesh, const MaxErrCalc &_max_err_calc) const;
+
+    // Tesselate this function and add the results to MESH, with a maximum
+    // allowable error of MAX_ERR.
+    //
+    void tessellate (Mesh *mesh, err_t max_err) const
+    {
+      tessellate (mesh, ConstMaxErr (max_err));
+    }
 
     // Add normal vectors for the vertices in the list from VERTICES_BEG
     // to VERTICES_END, to NORMALS.
