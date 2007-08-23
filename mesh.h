@@ -105,6 +105,30 @@ public:
   //
   vert_index_t add_normal (vert_index_t vert_index, const Vec &normal);
 
+  // Add all the positions in NEW_VERTS as vertices in this mesh.
+  // The index in the mesh of the first of the new vertices is returned;
+  // it should be passed to any subsequent calls to Mesh::add_triangles
+  // or Mesh::add_normals.
+  //
+  vert_index_t add_vertices (const std::vector<MPos> &new_verts);
+
+  // Add all the normal vectors in NEW_NORMALS as vertex normals in this
+  // mesh, corresponding to all the vertices starting from BASE_VERT
+  // (which should be a value returned from an earlier call to
+  // Mesh::add_vertices).
+  //
+  void add_normals (const std::vector<MVec> &new_normals,
+		    vert_index_t base_vert);
+
+  // Add new triangles to the mesh using vertices from TRI_VERT_INDICES.
+  // TRI_VERT_INDICES should contain three entries for each new triangle;
+  // the indices in TRI_VERT_INDICES are relative to BASE_VERT (which
+  // should be a value returned from an earlier call to
+  // Mesh::add_vertices).
+  //
+  void add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
+		      vert_index_t base_vert);
+
   // Add the results of tessellating TESSEL_FUN with MAX_ERR.
   //
   void add (const Tessel::Function &tessel_fun,

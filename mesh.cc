@@ -168,6 +168,67 @@ Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
 }
 
 
+// Bulk vertex/triangle addition
+
+// Add all the positions in NEW_VERTS as vertices in this mesh.
+// The index in the mesh of the first of the new vertices is returned;
+// it should be passed to any subsequent calls to Mesh::add_triangles
+// or Mesh::add_normals.
+//
+Mesh::vert_index_t
+Mesh::add_vertices (const std::vector<MPos> &new_verts)
+{
+  vert_index_t base_vert = vertices.size ();
+  vertices.insert (vertices.end(), new_verts.begin(), new_verts.end());
+  return base_vert;
+}
+
+// Add all the normal vectors in NEW_NORMALS as vertex normals in this
+// mesh, corresponding to all the vertices starting from BASE_VERT
+// (which should be a value returned from an earlier call to
+// Mesh::add_vertices).
+//
+void
+Mesh::add_normals (const std::vector<MVec> &new_normals, vert_index_t base_vert)
+{
+  // Not sure what to do if normals after BASE_VERT already exist, of
+  // if vertices before BASE_VERT don't have normals yet, so just barf
+  // in those cases.
+  //
+  if (base_vert != vertex_normals.size ())
+    throw runtime_error ("BASE_VERT incorrect in Mesh::add_normals");
+  if (base_vert + new_normals.size() != vertices.size ())
+    throw runtime_error ("Size of NEW_NORMALS incorrect in Mesh::add_normals");
+
+  vertex_normals.insert (vertex_normals.end(),
+			 new_normals.begin(), new_normals.end());
+}
+
+// Add new triangles to the mesh using vertices from TRI_VERT_INDICES.
+// TRI_VERT_INDICES should contain three entries for each new triangle;
+// the indices in TRI_VERT_INDICES are relative to BASE_VERT (which
+// should be a value returned from an earlier call to
+// Mesh::add_vertices).
+//
+void
+Mesh::add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
+		     vert_index_t base_vert)
+{
+  unsigned num_tris = tri_vert_indices.size () / 3;
+
+  triangles.reserve (triangles.size() + num_tris);
+
+  unsigned tvi_num = 0;
+  for (unsigned t = 0; t < num_tris; t++)
+    {
+      add_triangle (base_vert + tri_vert_indices[tvi_num + 0],
+		    base_vert + tri_vert_indices[tvi_num + 1],
+		    base_vert + tri_vert_indices[tvi_num + 2]);
+      tvi_num += 3;
+    }
+}
+
+
 // Tessellation support
 
 // Add the results of tessellating TESSEL_FUN with MAX_ERR.
