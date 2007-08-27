@@ -70,7 +70,8 @@ bbox = raw.BBox
 origin = pos (0, 0, 0)
 
 midpoint = raw.midpoint
-
+dot = raw.dot
+cross = raw.cross
 
 ----------------------------------------------------------------
 --

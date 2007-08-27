@@ -83,7 +83,7 @@ namespace snogray {
   {
   public:
 
-    TVec (T _x, T _y, T _z);
+    TVec (T _x, T _y, T _z = 0);
     TVec () { }
 
     TVec (const Tuple3<T> &t);
@@ -117,12 +117,15 @@ namespace snogray {
   %template(Vec) TVec<dist_t>;
   typedef TVec<dist_t> Vec;
 
+  dist_t dot (const Vec &vec1, const Vec &vec2);
+  Vec cross (const Vec &vec1, const Vec &vec2);
+
   template<typename T>
   class TPos : public Tuple3<T>
   {
   public:
 
-    TPos (T _x, T _y, T _z);
+    TPos (T _x, T _y, T _z = 0);
     TPos () { }
 
     TPos (const Tuple3<T> &t);
