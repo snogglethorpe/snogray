@@ -32,7 +32,7 @@ public:
   using Tuple3<T>::y;
   using Tuple3<T>::z;
 
-  TVec (T _x, T _y, T _z) : Tuple3<T> (_x, _y, _z) { }
+  TVec (T _x, T _y, T _z = 0) : Tuple3<T> (_x, _y, _z) { }
   TVec () { }
 
   // Allow easy down-casting for sharing code
