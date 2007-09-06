@@ -15,7 +15,9 @@
 
 #include "glass.h"
 
+
 using namespace snogray;
+
 
 // Common information used for refraction methods.
 //
@@ -29,22 +31,27 @@ struct Refraction
       new_ior (new_medium ? new_medium->ior : 1)
   { }
 
-  // The proportion of light which will be transmitted towards the viewer.
-  // COS_XMIT_ANGLE is the angle between the surface normal and the ray on
-  // the other side of the interface.
+  // Return the proportion of light which will be transmitted towards the
+  // viewer.  COS_XMIT_ANGLE is the angle between the surface normal and
+  // the ray on the other side of the interface.
+  //
+  // This function does not include light concentration due to the changing
+  // solid angle of transmitted light rays (use Refraction::magnify for that).
   //
   float transmittance (float cos_xmit_angle)
   {
-    // Calculate the amount of transmitted light which would be lost due
-    // to Fresnel reflection from the interface.
+    // The amount transmitted is one minus the amount of transmitted light
+    // which would be lost due to Fresnel reflection from the interface.
     //
-    float lost = Fresnel (new_ior, old_ior).reflectance (cos_xmit_angle);
+    return 1 - Fresnel (new_ior, old_ior).reflectance (cos_xmit_angle);
+  }
 
-    // The amount of transmited light is anything remaining, with its
-    // brightness adjusted to account for the change in solid angle of
-    // the light ray.
-    //
-    return (1 - lost) * (new_ior * new_ior) / (old_ior * old_ior);
+  // Return the amount of "magnification" due to the change in solid angle of
+  // a transmitted the light ray.
+  //
+  float magnification ()
+  {
+    return (new_ior * new_ior) / (old_ior * old_ior);
   }
 
   // The proportion of light which will be reflected towards the viewer
@@ -70,35 +77,88 @@ struct Refraction
   float old_ior, new_ior;
 };
 
+
 Color
 Glass::render (const Intersect &isec) const
 {
   Refraction refr (*this, isec);
 
-  Color radiance = 0;
-
-  // Render transmitted light
-
+  // Direction from which transmitted light comes.
+  //
   Vec xmit_dir = isec.ray.dir.refraction (isec.n, refr.old_ior, refr.new_ior);
 
-  if (! xmit_dir.null ())
-    {
-      float xmit = refr.transmittance (dot (xmit_dir, -isec.n));
+  // Proportion of transmitted light, 0-1.  Note that in the case of total
+  // internal reflection, XMIT_DIR will be a null vector (all zeros).
+  //
+  float xmit = xmit_dir.null() ? 0 : refr.transmittance(dot(xmit_dir, -isec.n));
 
-      if (xmit > Eps)
-	{
-	  Ray xmit_ray (isec.pos, xmit_dir);
-	  Trace::Type subtrace_type
-	    = refr.entering ? Trace::REFRACTION_IN : Trace::REFRACTION_OUT;
-	  Trace &sub_trace = isec.subtrace (subtrace_type, refr.new_medium);
-	  radiance += xmit * sub_trace.render (xmit_ray);
-	}
-    }
-
-  // Render reflected light
-
+  // Proportion of reflected light, 0-1
+  //
   float refl = refr.reflectance (isec.nv);
 
+  // Maybe use a "russian roulette" test to avoid excessive recursion.
+  // This test probabilistically terminates further recursion, and scales
+  // any successful results to avoid bias.  We only do this past a certain
+  // recursion depth, as doing so always gives excessively noisy results.
+  //
+  if (isec.trace.depth >= isec.trace.global.params.spec_rr_depth)
+    {
+      // Bound is the upper bound for our random choice; it is normally 1
+      // except in rare cases where XMIT+REFL is greater than one, in which
+      // case it is XMIT+REFL.
+      //
+      float bound = max (xmit + refl, 1.f);
+
+      // Random  number used to choose transmission, reflection, or
+      // nothing.
+      //
+      float choice = random (bound);
+
+      // We use the value of CHOICE to decide what to do:
+      //
+      //  0 - XMIT:  		recurse to handle transmitted light
+      //  XMIT - XMIT+REFL:	recurse to handle reflected light
+      //  XMIT+REFL - BOUND:	give up and return 0
+      //
+      // We choose only one of transmission or reflection.
+      //
+      // To avoid bias due to cases where we terminate without recursing,
+      // we scale the result of the recursion we choose by an additional
+      // scale factor of 1 / RECURSION_PROBABILITY.  As the probability of
+      // choosing transmission is just XMIT / BOUND, and choosing
+      // reflection is REFL / BOUND, the 1 / RECURSION_PROBABILITY factor
+      // exactly cancels the ordinary scale factor (XMIT or REFL
+      // respectively), so the total scale factor becomes simply BOUND.
+      //
+      if (choice < xmit)
+	{
+	  refl = 0;		// don't recurse for reflection
+	  xmit = bound;		// avoid RR bias in transmission
+	}
+      else if (choice < xmit + refl)
+	{
+	  xmit = 0;		// don't recurse for transmission
+	  refl = bound;		// avoid RR bias in reflection
+	}
+      else
+	return 0;		// don't recurse at all
+    }
+
+  Color radiance = 0;
+
+  // Maybe recurse to render transmitted light.
+  //
+  if (xmit > Eps)
+    {
+      Ray xmit_ray (isec.pos, xmit_dir);
+      Trace::Type subtrace_type
+	= refr.entering ? Trace::REFRACTION_IN : Trace::REFRACTION_OUT;
+      Trace &sub_trace = isec.subtrace (subtrace_type, refr.new_medium);
+      radiance += xmit * refr.magnification() * sub_trace.render (xmit_ray);
+    }
+
+  // Maybe recurse to render reflected light.
+  //
   if (refl > Eps)
     {
       Vec mirror_dir = isec.v.mirror (isec.n);
@@ -109,6 +169,7 @@ Glass::render (const Intersect &isec) const
 
   return radiance;
 }
+
 
 // Shadow LIGHT_RAY, which points to a light with (apparent) color
 // LIGHT_COLOR. and return the shadow color.  This is basically like
@@ -145,5 +206,6 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
   else
     return 0;
 }
+
 
 // arch-tag: a8209bc5-a88c-4f6c-b598-ee89c9587a6f

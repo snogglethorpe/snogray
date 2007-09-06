@@ -21,11 +21,13 @@ class TraceParams
 {
 public:
 
+  // Number of BRDF samples to take, per intersection.
+  //
   static const unsigned DEFAULT_BRDF_SAMPLES = 16;
+
+  // Number of light samples.
+  //
   static const unsigned DEFAULT_LIGHT_SAMPLES = 16;
-  static const unsigned DEFAULT_MAX_DEPTH = 6;
-  static const float DEFAULT_SPECULAR_THRESHOLD = 50;
-  static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
 
   // The minimum ray-length that will be accepted when tracing a ray; any
   // intersection closer than this to the ray origin will be ignored.
@@ -40,33 +42,53 @@ public:
   static const dist_t DEFAULT_MIN_TRACE = 1e-10;
 #endif
 
+  // Recursive tracing depth at which we begin using russian-roulette to
+  // prune recursion due to specular reflection/refraction.
+  //
+  static const unsigned DEFAULT_SPEC_RR_DEPTH = 5;
+
+  // Deepest level of recursive tracing allowed.  Non-opaque shadow rays
+  // use twice this depth.  Because we use russian-roulette to avoid
+  // excessive recursion, this limit should never be hit in practice.
+  //
+  static const unsigned DEFAULT_MAX_DEPTH = 100; // shouldn't ever be hit
+
+  static const float DEFAULT_SPECULAR_THRESHOLD = 50;
+  static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
+
   TraceParams ()
-    : max_depth (DEFAULT_MAX_DEPTH), min_trace (DEFAULT_MIN_TRACE)
+    : num_brdf_samples (DEFAULT_BRDF_SAMPLES),
+      num_light_samples (DEFAULT_LIGHT_SAMPLES),
+      min_trace (DEFAULT_MIN_TRACE),
+      spec_rr_depth (DEFAULT_SPEC_RR_DEPTH),
+      max_depth (DEFAULT_MAX_DEPTH),
+      specular_threshold (DEFAULT_SPECULAR_THRESHOLD),
+      envlight_intens_frac (DEFAULT_ENVLIGHT_INTENS_FRAC)
   { }
   TraceParams (const ValTable &params)
     : num_brdf_samples (
 	params.get_uint ("brdf-samples", DEFAULT_BRDF_SAMPLES)),
       num_light_samples (
 	params.get_uint ("light-samples", DEFAULT_LIGHT_SAMPLES)),
-      max_depth (
-	params.get_uint ("max-depth", DEFAULT_MAX_DEPTH)),
       min_trace (
 	params.get_float ("min-trace", DEFAULT_MIN_TRACE)),
+      spec_rr_depth (
+	params.get_uint ("spec-rr-depth", DEFAULT_SPEC_RR_DEPTH)),
+      max_depth (
+	params.get_uint ("max-depth", DEFAULT_MAX_DEPTH)),
       specular_threshold (
 	params.get_float ("specular-threshold", DEFAULT_SPECULAR_THRESHOLD)),
       envlight_intens_frac (
 	params.get_float ("envlight-intens-frac", DEFAULT_ENVLIGHT_INTENS_FRAC))
   { }
 
+  // Number of BRDF samples to take, per intersection.
+  //
   unsigned num_brdf_samples;
 
-  unsigned num_light_samples;
-
-  // Deepest level of recursive tracing allowed.  Non-opaque shadow rays
-  // use twice this depth (they have purely linear complexity though,
-  // unlike the 2^n complexity of many reflections/refractions).
+  // Number of light samples.
   //
-  unsigned max_depth;
+  unsigned num_light_samples;
 
   // Minimum length of a traced ray; any objects closer than this to the
   // ray origin are ignored.  This doesn't apply to ordinary (opaque)
@@ -79,6 +101,17 @@ public:
   // parts which are all enabled by default).
   //
   dist_t min_trace;
+
+  // Recursive tracing depth at which we begin using russian-roulette to
+  // prune recursion due to specular reflection/refraction.
+  //
+  unsigned spec_rr_depth;
+
+  // Deepest level of recursive tracing allowed.  Non-opaque shadow rays
+  // use twice this depth.  Because we use russian-roulette to avoid
+  // excessive recursion, this limit should never be hit in practice.
+  //
+  unsigned max_depth;
 
   // Threshold of BRDF reflectivity above which the BRDF is treated as
   // "specular" even if it's not truly specular.

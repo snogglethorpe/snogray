@@ -28,16 +28,36 @@ Mirror::render (const Intersect &isec) const
 
   Color radiance = 0;
 
-  // First see if anything will be specularly reflected at this angle, and
-  // if so, cast a reflection ray to find out what it is.
+  // If true, use a "russian roulette" test to avoid excessive recursion.
+  // This test probabilistically terminates further recursion, and scales
+  // any successful results to avoid bias.  We only do this past a certain
+  // recursion depth, as doing so always gives excessively noisy results.
   //
-  if (refl > Eps)
+  bool use_russian_roulette
+    = (isec.trace.depth >= isec.trace.global.params.spec_rr_depth);
+
+  // When using a russian-roulette test for terminating recursion, we
+  // shoot a recursive ray with a probability of REFL (so values of REFL
+  // close to 1 are very likely to recurse).
+  //
+  // The result of a recursive render is always scaled by the reflection
+  // factor, REFL.  When not using russian-roulette, REFL_SCALE = REFL.
+  //
+  // When using russian-roulette, to avoid bias, we use an additional
+  // scale factor of 1 / RECURSION_PROBABILITY = 1 / REFL, so the
+  // complete scale factor when using russian-roulette is simply
+  // REFL_SCALE = REFL * (1 / REFL) = 1.
+  //
+  float refl_test = use_russian_roulette ? random (1.f) : Eps;
+  Color refl_scale  = use_russian_roulette ? 1.f : refl;
+
+  if (refl_test < refl)
     {
       Vec mirror_dir = isec.v.mirror (isec.n);
       Ray mirror_ray (isec.pos, mirror_dir);
       Trace &sub_trace = isec.subtrace (Trace::REFLECTION);
 
-      radiance += refl * sub_trace.render (mirror_ray);
+      radiance += refl_scale * sub_trace.render (mirror_ray);
     }
 
   // Calculate the light from the underlying BRDF (the light supplied to
