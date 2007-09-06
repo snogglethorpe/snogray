@@ -142,7 +142,8 @@ Tessel::add_to_mesh (Mesh *mesh)
   //
   fun.get_vertex_normals (vertices.begin(), vertices.end(), mesh_normals);
 
-  mesh->add_normals (mesh_normals, base_vert);
+  if (! mesh_normals.empty ())
+    mesh->add_normals (mesh_normals, base_vert);
 }
 
 
