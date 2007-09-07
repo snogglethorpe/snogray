@@ -50,7 +50,7 @@ string
 snogray::downcase (const string &str)
 {
   string rval = str;
-  transform (rval.begin(), rval.end(), rval.begin(), tolower);
+  transform (rval.begin(), rval.end(), rval.begin(), ::tolower);
   return rval;
 }
 
