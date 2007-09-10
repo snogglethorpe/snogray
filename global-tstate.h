@@ -16,6 +16,8 @@
 #include "trace-stats.h"
 #include "trace-params.h"
 #include "mempool.h"
+#include "pool.h"
+#include "isec-cache.h"
 
 
 namespace snogray {
@@ -39,6 +41,17 @@ public:
   // that that.
   //
   Mempool mempool;
+
+  // Pool of intersection caches.
+  //
+  // The reason that we keep these in a pool is that we need a separate
+  // cache for each active search (and there be multiple active at once,
+  // e.g. in the case of instancing), and constructing a a cache object
+  // can be fairly expensive, so we don't want to allocate them on the
+  // stack each tim.  Thus, we keep a pool of already-constructed cache
+  // objects ready for use.
+  //
+  Pool<IsecCache> isec_cache_pool;
 
   TraceStats stats;
 };

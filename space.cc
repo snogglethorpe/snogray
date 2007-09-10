@@ -23,7 +23,7 @@ using namespace snogray;
 // include problems (because "space.h" then must include "surface.h").
 //
 void
-Space::add (Surface *surface)
+Space::add (const Surface *surface)
 {
   add (surface, surface->bbox ());
 }
@@ -34,13 +34,26 @@ Space::add (Surface *surface)
 
 struct ClosestIntersectCallback : Space::IntersectCallback
 {
-  ClosestIntersectCallback (Ray &_ray, const Surface::IsecCtx &_isec_ctx)
-    : ray (_ray), closest (0), isec_ctx (_isec_ctx),
-      surf_isec_tests (0), surf_isec_hits (0),
-      neg_cache_hits (0), neg_cache_collisions (0)
+  ClosestIntersectCallback (Ray &_ray, const Surface::IsecCtx &_isec_ctx,
+			    const Surface *_reject = 0)
+    : ray (_ray), closest (0), isec_ctx (_isec_ctx), reject (_reject)
   { }
 
-  virtual void operator() (Surface *);
+  virtual bool operator() (const Surface *surf)
+  {
+    if (surf != reject)
+      {
+	const Surface::IsecInfo *isec_info = surf->intersect (ray, isec_ctx);
+	if (isec_info)
+	  {
+	    closest = isec_info;
+	    return true;
+	  }
+      }
+
+    return false;
+  }
+
 
   Ray &ray;
 
@@ -50,33 +63,11 @@ struct ClosestIntersectCallback : Space::IntersectCallback
 
   const Surface::IsecCtx &isec_ctx;
 
-  unsigned surf_isec_tests, surf_isec_hits;
-  unsigned neg_cache_hits, neg_cache_collisions;
+  // If non-zero, this surface is always immediately rejected.
+  //
+  const Surface *reject;
 };
 
-void
-ClosestIntersectCallback::operator () (Surface *surf)
-{
-  Trace &trace = isec_ctx.trace;
-
-  if (! trace.negative_isec_cache.contains (surf))
-    {
-      const Surface::IsecInfo *isec_info = surf->intersect (ray, isec_ctx);
-      if (isec_info)
-	{
-	  closest = isec_info;
-	  surf_isec_hits++;
-	}
-      else
-	{
-	  bool collision = trace.negative_isec_cache.add (surf);
-	  if (collision)
-	    neg_cache_collisions++;
-	}
-
-      surf_isec_tests++;
-    }
-}
 
 // Return the closest surface in this scene which intersects the
 // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
@@ -85,26 +76,15 @@ ClosestIntersectCallback::operator () (Surface *surf)
 const Surface::IsecInfo *
 Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 {
+  Trace &trace = isec_ctx.trace;
+
   // A callback which is called for each surface in this space
   // that may intersect RAY.
   //
-  ClosestIntersectCallback closest_isec_cb (ray, isec_ctx);
+  ClosestIntersectCallback closest_isec_cb (ray, isec_ctx, trace.horizon_hint);
 
-  Trace &trace = isec_ctx.trace;
-
-  trace.negative_isec_cache.clear ();
-
-  if (trace.horizon_hint)
-    trace.negative_isec_cache.add (trace.horizon_hint);
-
-  for_each_possible_intersector (ray, closest_isec_cb);
-
-  TraceStats::IsecStats &isec_stats = trace.global.stats.intersect;
-  isec_stats.surface_intersects_tests	+= closest_isec_cb.surf_isec_tests;
-  isec_stats.surface_intersects_hits	+= closest_isec_cb.surf_isec_hits;
-  isec_stats.neg_cache_hits		+= closest_isec_cb.neg_cache_hits;
-  isec_stats.neg_cache_collisions	+= closest_isec_cb.neg_cache_collisions;
-  isec_stats.space_node_intersect_calls += closest_isec_cb.node_intersect_calls;
+  for_each_possible_intersector (ray, closest_isec_cb, trace,
+				 trace.global.stats.intersect);
 
   return closest_isec_cb.closest;
 }
@@ -115,15 +95,40 @@ Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 struct ShadowCallback : Space::IntersectCallback
 {
   ShadowCallback (const ShadowRay &_ray, Trace &_trace,
-		  const Light *_hint_light)
+		  const Light *_hint_light, const Surface *_reject = 0)
     : ray (_ray),
       shadow_type (Material::SHADOW_NONE),
-      trace (_trace), hint_light (_hint_light),
-      surf_isec_tests (0), surf_isec_hits (0),
-      neg_cache_hits (0), neg_cache_collisions (0)
+      trace (_trace), hint_light (_hint_light), reject (_reject)
   { }
 
-  virtual void operator() (Surface *);
+  virtual bool operator() (const Surface *surf)
+  {
+    if (surf == reject)
+      return false;
+
+    Material::ShadowType stype = surf->shadow (ray);
+
+    if (stype > shadow_type)
+      {
+	shadow_type = stype;
+
+	if (stype == Material::SHADOW_OPAQUE)
+	  {
+	    // Remember which surface we found, so we can try it first
+	    // next time.
+	    //
+	    if (hint_light)
+	      trace.shadow_hints[hint_light->num] = surf;
+
+	    // A simple opaque surface blocks everything; we can
+	    // immediately return it; stop looking any further.
+	    //
+	    stop_iteration ();
+	  }
+      }
+
+    return stype != Material::SHADOW_NONE;
+  }
 
   const ShadowRay &ray;
 
@@ -135,50 +140,10 @@ struct ShadowCallback : Space::IntersectCallback
 
   const Light *hint_light;
 
-  unsigned surf_isec_tests, surf_isec_hits;
-  unsigned neg_cache_hits, neg_cache_collisions;
+  // If non-zero, this surface is always immediately rejected.
+  //
+  const Surface *reject;
 };
-
-void
-ShadowCallback::operator () (Surface *surface)
-{
-  if (! trace.negative_isec_cache.contains (surface))
-    {
-      Material::ShadowType stype = surface->shadow (ray);
-
-      if (stype > shadow_type)
-	{
-	  shadow_type = stype;
-
-	  if (stype == Material::SHADOW_OPAQUE)
-	    {
-	      // Remember which surface we found, so we can try it first
-	      // next time.
-	      //
-	      if (hint_light)
-		trace.shadow_hints[hint_light->num] = surface;
-
-	      // A simple opaque surface blocks everything; we can
-	      // immediately return it; stop looking any further.
-	      //
-	      stop_iteration ();
-	    }
-	}
-
-      if (stype != Material::SHADOW_NONE)
-	surf_isec_hits++;
-      else
-	{
-	  bool collision = trace.negative_isec_cache.add (surface);
-	  if (collision)
-	    neg_cache_collisions++;
-	}
-
-      surf_isec_tests++;
-    }
-  else
-    neg_cache_hits++;
-}
 
 
 // Return the strongest type of shadowing effect any object in this space
@@ -194,24 +159,15 @@ Material::ShadowType
 Space::shadow (const ShadowRay &ray, Trace &trace, const Light *hint_light)
   const
 {
-  trace.negative_isec_cache.clear ();
-
   // If possible, prime the negative intersect cache with the current
   // surface, to avoid wasting time test it for intersection.
   //
-  if (ray.isec.no_self_shadowing)
-    trace.negative_isec_cache.add (ray.isec.surface);
+  const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  ShadowCallback shadow_cb (ray, trace, hint_light);
+  ShadowCallback shadow_cb (ray, trace, hint_light, reject);
 
-  for_each_possible_intersector (ray, shadow_cb);
-
-  TraceStats::IsecStats &isec_stats = trace.global.stats.shadow;
-  isec_stats.surface_intersects_tests	+= shadow_cb.surf_isec_tests;
-  isec_stats.surface_intersects_hits	+= shadow_cb.surf_isec_hits;
-  isec_stats.neg_cache_hits		+= shadow_cb.neg_cache_hits;
-  isec_stats.neg_cache_collisions	+= shadow_cb.neg_cache_collisions;
-  isec_stats.space_node_intersect_calls += shadow_cb.node_intersect_calls;
+  for_each_possible_intersector (ray, shadow_cb, trace,
+				 trace.global.stats.shadow);
 
   return shadow_cb.shadow_type;
 }

@@ -30,8 +30,8 @@ public:
 
   // Add SURFACE to the space
   //
-  void add (Surface *surface);
-  virtual void add (Surface *surface, const BBox &surface_bbox) = 0;
+  void add (const Surface *surface);
+  virtual void add (const Surface *surface, const BBox &surface_bbox) = 0;
 
   // Return the closest surface in this space which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
@@ -82,30 +82,66 @@ public:
   //
   struct IntersectCallback
   {
-    IntersectCallback () : stop (false), node_intersect_calls (0) { }
+    IntersectCallback () : stop (false) { }
 
     virtual ~IntersectCallback () { }
 
-    virtual void operator() (Surface *) = 0;
+    // Test SURF to see if it really intersects, and return true if so.
+    // Returning true does not necessarily stop the search; to do that,
+    // call the IntersectCallback::stop_intersection method.
+    //
+    virtual bool operator() (const Surface *surf) = 0;
 
     void stop_iteration () { stop = true; }
 
     // If set to true, return from iterator immediately
     //
     bool stop;
-
-    // Keep track of some intersection statistics.
-    //
-    unsigned long node_intersect_calls;
   };
 
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
-  // directly on the resulting surfaces).
+  // directly on the resulting surfaces).  TRACE is used to access
+  // various cache data structures.  ISEC_STATS will be updated.
   //
   virtual void for_each_possible_intersector (const Ray &ray,
-					      IntersectCallback &callback)
+					      IntersectCallback &callback,
+					      Trace &trace,
+					      TraceStats::IsecStats &isec_stats)
     const = 0;
+
+protected:
+
+  // This structure is used to hold state during the search.  It will
+  // probably be subclassed by specific types of accelerator.
+  //
+  struct SearchState
+  {
+    SearchState (IntersectCallback &_callback)
+      : callback (_callback),
+	node_intersect_calls (0), surf_isec_tests (0), surf_isec_hits (0)
+    { }
+
+    // Update the global statistical counters in ISEC_STATS with the
+    // results from this search.
+    //
+    void update_isec_stats (TraceStats::IsecStats &isec_stats)
+    {
+      isec_stats.surface_intersects_tests   += surf_isec_tests;
+      isec_stats.surface_intersects_hits    += surf_isec_hits;
+      isec_stats.space_node_intersect_calls += node_intersect_calls;
+    }
+
+    // Call back to do surface testing.
+    //
+    IntersectCallback &callback;
+
+    // Keep track of some intersection statistics.
+    //
+    unsigned long node_intersect_calls;
+    unsigned surf_isec_tests, surf_isec_hits;
+  };
+  
 };
 
 

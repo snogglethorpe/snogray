@@ -53,6 +53,11 @@ public:
     return collision;
   }
 
+  // Pool object protocol methods.
+  //
+  void acquire () { clear (); }
+  void release () { }
+
 private:
 
   typedef unsigned hash_t;

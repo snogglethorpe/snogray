@@ -136,10 +136,6 @@ public:
   //
   const Surface *origin;
 
-  // A cache of "negative" intersections.
-  //
-  IsecCache negative_isec_cache;
-
   // If non-zero, the last surface we found as the closest intersection.
   // When we do a new trace, we first test that surface for intersection;
   // if it intersects, it is used to set the initial ray horizon, which

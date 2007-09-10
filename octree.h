@@ -28,14 +28,17 @@ public:
 
   // Add SURFACE to the octree
   //
-  virtual void add (Surface *surface, const BBox &surface_bbox);
+  virtual void add (const Surface *surface, const BBox &surface_bbox);
 
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
-  // directly on the resulting surfaces).
+  // directly on the resulting surfaces).  TRACE is used to access
+  // various cache data structures.  ISEC_STATS will be updated.
   //
   virtual void for_each_possible_intersector (const Ray &ray,
-					      IntersectCallback &callback)
+					      IntersectCallback &callback,
+					      Trace &trace,
+					      TraceStats::IsecStats &isec_stats)
     const;
 
   // Return various statistics about this octree
@@ -53,11 +56,40 @@ public:
 
 private:  
 
+  struct SearchState : Space::SearchState
+  {
+    SearchState (IntersectCallback &_callback, IsecCache &_negative_isec_cache)
+      : Space::SearchState (_callback),
+	negative_isec_cache (_negative_isec_cache),
+	neg_cache_hits (0), neg_cache_collisions (0)
+    { }
+
+    // Update the global statistical counters in ISEC_STATS with the
+    // results from this search.
+    //
+    void update_isec_stats (TraceStats::IsecStats &isec_stats)
+    {
+      isec_stats.neg_cache_collisions += neg_cache_collisions;
+      isec_stats.neg_cache_hits	      += neg_cache_hits;
+
+      Space::SearchState::update_isec_stats (isec_stats);
+    }
+    
+    // Cache of negative surface intersection test results, so we can
+    // avoid testing the same object twice.
+    //
+    IsecCache &negative_isec_cache;
+
+    // Keep track of some statics for the negative intersection cache.
+    //
+    unsigned neg_cache_hits, neg_cache_collisions;
+  };
+
   // The current root of this octree is too small to encompass SURFACE;
   // add surrounding levels of nodes until one can hold SURFACE, and make that
   // the new root node.
   //
-  void grow_to_include (Surface *surface, const BBox &surface_bbox);
+  void grow_to_include (const Surface *surface, const BBox &surface_bbox);
 
   // A octree node is one level of the tree, containing a cubic volume
   // (the size is not explicitly stored in the node).  It is divided
@@ -82,7 +114,7 @@ private:
     // ray itself).
     //
     void for_each_possible_intersector (const Ray &ray,
-					IntersectCallback &callback,
+					SearchState &ss,
 					const Pos &x_min_isec,
 					const Pos &x_max_isec,
 					const Pos &y_min_isec,
@@ -95,13 +127,14 @@ private:
     // SURFACE is assumed to fit.  X, Y, Z, and SIZE indicate the volume this
     // node encompasses.
     //
-    void add (Surface *surface, const BBox &surface_bbox,
+    void add (const Surface *surface, const BBox &surface_bbox,
 	      coord_t x, coord_t y, coord_t z, dist_t size);
 
     // A helper method that calls NODE's `add' method, after first
     // making sure that NODE exists (creating it if it does not).
     //
-    void add_or_create (Node* &node, Surface *surface, const BBox &surface_bbox,
+    void add_or_create (Node* &node,
+			const Surface *surface, const BBox &surface_bbox,
 			coord_t x, coord_t y, coord_t z, dist_t size)
     {
       if (! node)
@@ -121,7 +154,7 @@ private:
     // must fit entirely within it.  Any given surface is only present in
     // a single node.
     //
-    std::list<Surface *> surfaces;
+    std::list<const Surface *> surfaces;
 
     // The sub-nodes of this node; each sub-node is exactly half the
     // size of this node in all dimensions, so in total there are eight.

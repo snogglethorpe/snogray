@@ -49,9 +49,6 @@ OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 OPT_SIZE = $(CXX_OPT_SIZE_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
 
-#PG = -pg
-#MUDFLAP = -fmudflap
-
 # Override automake's default values for CFLAGS and CXXFLAGS.  If the
 # user specifies his own values on the command line, his values will
 # override these (make ignores assignments to variables with a value
@@ -68,8 +65,8 @@ CXXFLAGS =
 # wants to change the optimization or debug settings, he should set one
 # of those on the make command line.
 #
-AM_CFLAGS = $(OPT) $(DEBUG)
-AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS)
+AM_CFLAGS = $(OPT) $(DEBUG) $(MISC_COMPILE_FLAGS)
+AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS) $(MISC_COMPILE_FLAGS)
 
 # These options are required for correctness, and _must_ come _after_
 # any optimization options (gcc isn't very bright about parsing options:
@@ -251,11 +248,11 @@ endif
 # Snogray general utility library, libsnogutil.a
 #
 
-libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
-	color.h excepts.h file-funs.cc file-funs.h freelist.cc		\
-	freelist.h globals.cc globals.h llist.h mempool.cc mempool.h	\
-	rand.h ref.h rusage.h snogmath.h string-funs.cc string-funs.h	\
-	timeval.cc timeval.h val-table.cc val-table.h
+libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	 \
+	color.h excepts.h file-funs.cc file-funs.h freelist.cc		 \
+	freelist.h globals.cc globals.h grab.h llist.h mempool.cc	 \
+	mempool.h pool.h rand.h ref.h rusage.h snogmath.h string-funs.cc \
+	string-funs.h timeval.cc timeval.h val-table.cc val-table.h
 
 
 ################################################################
