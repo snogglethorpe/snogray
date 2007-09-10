@@ -76,8 +76,6 @@ ClosestIntersectCallback::operator () (Surface *surf)
 
       surf_isec_tests++;
     }
-  else
-    neg_cache_hits++;
 }
 
 // Return the closest surface in this scene which intersects the

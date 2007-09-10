@@ -49,6 +49,9 @@ OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 OPT_SIZE = $(CXX_OPT_SIZE_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
 
+#PG = -pg
+#MUDFLAP = -fmudflap
+
 # Override automake's default values for CFLAGS and CXXFLAGS.  If the
 # user specifies his own values on the command line, his values will
 # override these (make ignores assignments to variables with a value
