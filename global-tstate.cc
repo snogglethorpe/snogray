@@ -10,6 +10,7 @@
 //
 
 #include "mis-illum.h"
+#include "octree.h"
 
 #include "global-tstate.h"
 
@@ -19,7 +20,8 @@ using namespace snogray;
 
 GlobalTraceState::GlobalTraceState (const TraceParams &_params)
   : params (_params),
-    illum_global_state (new MisIllumGlobalState)
+    illum_global_state (new MisIllumGlobalState),      // hardwired for now
+    space_builder_builder (new Octree::BuilderBuilder) // hardwired for now
 { }
 
 GlobalTraceState::~GlobalTraceState ()

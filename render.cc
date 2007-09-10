@@ -135,6 +135,8 @@ snogray::render (const Scene &scene, const Camera &camera,
   std::auto_ptr<Sample2Gen> focus_sample_gen (sample_gen->clone ());
   TraceParams trace_params (params);
 
+  // Do the actual rendering.
+  //
   if (params.get_int ("render-by-rows", 0))
     render_by_rows (scene, camera, width, height, output, offs_x, offs_y,
 		    *sample_gen, *focus_sample_gen, trace_params, stats,

@@ -15,23 +15,16 @@
 
 #include "ray.h"
 #include "surface.h"
+#include "space-builder.h"
 
 
 namespace snogray {
-
-class BBox;
-
 
 class Space
 {
 public:
 
   virtual ~Space () { }
-
-  // Add SURFACE to the space
-  //
-  void add (const Surface *surface);
-  virtual void add (const Surface *surface, const BBox &surface_bbox) = 0;
 
   // Return the closest surface in this space which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
@@ -53,28 +46,6 @@ public:
   Material::ShadowType shadow (const ShadowRay &ray, Trace &trace,
 			       const Light *hint_light = 0)
     const;
-    
-  // Statistics for a space
-  //
-  struct Stats
-  {
-    Stats ()
-      : num_nodes (0), num_leaf_nodes (0),
-	num_surfaces (0), num_dup_surfaces (0),
-	max_depth (0), avg_depth (0)
-    { }
-
-    unsigned long num_nodes;
-    unsigned long num_leaf_nodes;
-    unsigned long num_surfaces;
-    unsigned long num_dup_surfaces;
-    unsigned max_depth;
-    float avg_depth;
-  };
-
-  // Return various statistics about this space
-  //
-  virtual Stats stats () const = 0;
 
   // A callback for `for_each_possible_intersector'.  Users of
   // `for_each_possible_intersector' must subclass this, providing their

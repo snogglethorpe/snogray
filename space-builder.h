@@ -1,0 +1,71 @@
+// space-builder.h -- Builder for Space objects
+//
+//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//
+// This file is subject to the terms and conditions of the GNU General
+// Public License.  See the file COPYING in the main directory of this
+// archive for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
+#ifndef __SPACE_BUILDER_H__
+#define __SPACE_BUILDER_H__
+
+#include <vector>
+
+
+namespace snogray {
+
+class Space;
+class Surface;
+
+
+// A class used for building a Space object.
+//
+class SpaceBuilder
+{
+public:
+
+  // Add SURFACE to the space being built.
+  //
+  virtual void add (const Surface *surface) = 0;
+
+  // Add the surfaces in SURFACES to the space being built.
+  //
+  virtual void add (const std::vector <const Surface *> &surfaces)
+  {
+    // By default, just call the single-surface method for everything.
+    //
+    for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+	 si != surfaces.end(); ++si)
+      add (*si);
+  }
+
+  // Return a space containing the objects added through this builder.
+  //
+  // Note that this can only be done once; after calling this method, the
+  // builder should be considered "used" (for instance, it may have
+  // transfered some resources to the space object), and the only valid
+  // operation on it is to destroy it.
+  //
+  virtual const Space *make_space () = 0;
+};
+
+
+// This class makes a SpaceBuilder object.
+//
+class SpaceBuilderBuilder
+{
+public:
+
+  // Return a new SpaceBuilder object.
+  //
+  virtual SpaceBuilder *make_space_builder () const = 0;
+};
+
+
+}
+
+
+#endif // __SPACE_BUILDER_H__

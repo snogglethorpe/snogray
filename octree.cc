@@ -639,7 +639,7 @@ Octree::Node::~Node ()
 
 
 // Statistics gathering
-Space::Stats
+Octree::Stats
 Octree::stats () const
 {
   Stats stats;

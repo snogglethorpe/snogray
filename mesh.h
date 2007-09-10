@@ -134,9 +134,10 @@ public:
 		      const MaterialMap &mat_map = MaterialMap (),
 		      const Xform &xform = Xform::identity);
 
-  // Add this (or some other ...) surfaces to SPACE
+  // Add this (or some other) surfaces to the space being built by
+  // SPACE_BUILDER.
   //
-  virtual void add_to_space (Space *space);
+  virtual void add_to_space (SpaceBuilder &space_builder) const;
 
   // Compute a normal vector for each vertex that doesn't already have one,
   // by averaging the normals of the triangles that use the vertex.

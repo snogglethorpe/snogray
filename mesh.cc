@@ -572,10 +572,11 @@ Mesh::compute_vertex_normals (float max_angle)
 
 
 
-// Add this (or some other ...) surfaces to SPACE
+// Add this (or some other) surfaces to the space being built by
+// SPACE_BUILDER.
 //
 void
-Mesh::add_to_space (Space *space)
+Mesh::add_to_space (SpaceBuilder &space_builder) const
 {
   // Shrink the allocated space in the various vectors to the amount
   // actually needed.
@@ -588,7 +589,7 @@ Mesh::add_to_space (Space *space)
 	      << std::endl;
 
   for (unsigned i = 0; i < triangles.size(); i++)
-    triangles[i].add_to_space (space);
+    triangles[i].add_to_space (space_builder);
 }
 
 // Recalculate this mesh's bounding box.

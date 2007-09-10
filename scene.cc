@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <memory>		// for auto_ptr
+
 #include "global-tstate.h"
 #include "octree.h"
 #include "envmap.h"
@@ -22,18 +24,21 @@ using namespace std;
 
 Scene::Scene ()
     : horizon (DEFAULT_HORIZON), env_map (0), bg_set (false), light_map (0),
-      space (new Octree), assumed_gamma (DEFAULT_ASSUMED_GAMMA)
+      space (0), assumed_gamma (DEFAULT_ASSUMED_GAMMA)
   { }
 
 // The scene "owns" all its components, so frees them when it is destroyed
 //
 Scene::~Scene ()
 {
-  for (surface_iterator_t oi = surfaces.begin(); oi != surfaces.end(); oi++)
-    delete *oi;
-  for (light_iterator_t li = lights.begin(); li != lights.end(); li++)
+  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+       si != surfaces.end(); ++si)
+    delete *si;
+  for (std::vector<const Light *>::const_iterator li = lights.begin();
+       li != lights.end(); ++li)
     delete *li;
-  for (material_iterator_t mi = materials.begin(); mi != materials.end(); mi++)
+  for (std::vector<const Material *>::const_iterator mi = materials.begin();
+       mi != materials.end(); ++mi)
     delete *mi;
 
   delete env_map;
@@ -42,6 +47,62 @@ Scene::~Scene ()
     delete light_map;
 
   delete space;
+}
+
+
+// Object adding
+
+
+// Add an surface
+//
+const Surface *
+Scene::add (const Surface *surface)
+{
+  if (space)
+    {
+      delete space;
+      space = 0;
+    }
+
+  surfaces.push_back (surface);
+  return surface;
+}
+
+// Add a light
+const Light *
+Scene::add (Light *light)
+{
+  light->num = num_lights();	// Give LIGHT an index
+  lights.push_back (light);
+  return light;
+}
+
+// Add a material (we actually do nothing with these...)
+//
+const Material *
+Scene::add (const Material *mat)
+{
+  materials.push_back (mat);
+  return mat;
+}
+
+// Construct the search accelerator for this scene.
+// SPACE_BUILDER_BUILDER says how to do it.
+//
+void
+Scene::build_space (const SpaceBuilderBuilder *space_builder_builder)
+{
+  if (! space)
+    {
+      std::auto_ptr<SpaceBuilder> space_builder
+	(space_builder_builder->make_space_builder ());
+
+      for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+	   si != surfaces.end(); ++si)
+	(*si)->add_to_space (*space_builder);
+
+      space =  space_builder->make_space ();
+    }
 }
 
 

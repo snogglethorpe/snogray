@@ -22,7 +22,7 @@
 namespace snogray {
 
 class Material;
-class Space;
+class SpaceBuilder;
 class Trace;
 
 
@@ -93,9 +93,10 @@ public:
   //
   virtual BBox bbox () const;
 
-  // Add this (or some other ...) surfaces to SPACE
+  // Add this (or some other) surfaces to the space being built by
+  // SPACE_BUILDER.
   //
-  virtual void add_to_space (Space *space);
+  virtual void add_to_space (SpaceBuilder &space_builder) const;
  
   // The "smoothing group" this surface belongs to, or zero if it belongs
   // to none.  The smoothing group affects shadow-casting: if two objects

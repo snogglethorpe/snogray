@@ -13,7 +13,7 @@
 #define __SURFACE_GROUP_H__
 
 
-#include <list>
+#include <vector>
 
 #include "surface.h"
 
@@ -41,15 +41,16 @@ public:
   //
   virtual BBox bbox () const { return _bbox; }
 
-  // Add this (or some other ...) surfaces to SPACE
+  // Add this (or some other) surfaces to the space being built by
+  // SPACE_BUILDER.
   //
-  virtual void add_to_space (Space *space);
+  virtual void add_to_space (SpaceBuilder &space_builder) const;
 
 private:
 
   // A list of the surfaces in this group.
   //
-  std::list<Surface *> surfaces;
+  std::vector<const Surface *> surfaces;
 
   // Cached bounding box for the entire group.
   //

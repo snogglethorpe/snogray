@@ -9,18 +9,19 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "space-builder.h"
+
 #include "surface-group.h"
 
 
 using namespace snogray;
 
 
-// Add this (or some other ...) surfaces to SPACE
+// Add this (or some other) surfaces to the space being built by
+// SPACE_BUILDER.
 //
 void
-SurfaceGroup::add_to_space (Space *space)
+SurfaceGroup::add_to_space (SpaceBuilder &space_builder) const
 {
-  for (std::list<Surface *>::const_iterator si = surfaces.begin();
-       si != surfaces.end(); ++si)
-    (*si)->add_to_space (space);
+  space_builder.add (surfaces);
 }

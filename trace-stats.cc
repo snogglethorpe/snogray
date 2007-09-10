@@ -12,7 +12,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include "space.h"
 #include "scene.h"
 #include "string-funs.h"
 
@@ -38,10 +37,8 @@ static float fraction (long long num, long long den)
 // Print post-rendering scene statistics
 //
 void
-TraceStats::print (ostream &os, const Scene &scene)
+TraceStats::print (ostream &os)
 {
-  const Space::Stats tstats = scene.space->stats ();
-
   long long sc  = scene_intersect_calls;
   long long tnc = intersect.space_node_intersect_calls;
   long long hhh = horizon_hint_hits;
@@ -55,25 +52,22 @@ TraceStats::print (ostream &os, const Scene &scene)
      << " (" << setw(2) << percent (hhh, sc) << "%)" << endl;
   os << "     horizon hint misses:" << setw (13) << commify (hhm)
      << " (" << setw(2) << percent (hhm, sc) << "%)" << endl;
-  if (tstats.num_nodes != 0)
-    os << "     tree node tests: " << setw (16) << commify (tnc)
-       << " (" << setw(2) << percent (tnc, sc * tstats.num_nodes) << "%)"
-       << endl;
-  if (tstats.num_surfaces != 0)
-    {
-      long long surf_tests = intersect.surface_intersects_tests;
-      long long neg_cache_hits = intersect.neg_cache_hits;
-      long long neg_cache_colls = intersect.neg_cache_collisions;
-      long long tot_tries = surf_tests + neg_cache_hits;
-      long long pos_tries = intersect.surface_intersects_hits;
+  os << "     tree node tests: " << setw (16) << commify (tnc) << endl;
 
-      os << "     surface tests:   " << setw (16) << commify (tot_tries)
-	 << " (success = " << setw(2) << percent (pos_tries, tot_tries)
-	 << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
-	 << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
-	 << "%)"
-	 << endl;
-    }
+  {
+    long long surf_tests = intersect.surface_intersects_tests;
+    long long neg_cache_hits = intersect.neg_cache_hits;
+    long long neg_cache_colls = intersect.neg_cache_collisions;
+    long long tot_tries = surf_tests + neg_cache_hits;
+    long long pos_tries = intersect.surface_intersects_hits;
+
+    os << "     surface tests:   " << setw (16) << commify (tot_tries)
+       << " (success = " << setw(2) << percent (pos_tries, tot_tries)
+       << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
+       << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
+       << "%)"
+       << endl;
+  }
 
   long long sst = scene_shadow_tests;
 
@@ -97,25 +91,22 @@ TraceStats::print (ostream &os, const Scene &scene)
 	   << " (" << setw(2) << percent (sss, sst) << "%"
 	   << "; average depth = " << fraction (oss, sss) << ")"
 	   << endl;
-      if (tstats.num_nodes != 0)
-	os << "     tree node tests: " << setw (16) << commify (tnt)
-	   << " (" << setw(2) << percent (tnt, tstats.num_nodes * (sst - shh))
-	   << "%)" << endl;
-      if (tstats.num_surfaces != 0)
-	{
-	  long long surf_tests  = shadow.surface_intersects_tests;
-	  long long neg_cache_hits = shadow.neg_cache_hits;
-	  long long neg_cache_colls = shadow.neg_cache_collisions;
-	  long long tot_tries = surf_tests + neg_cache_hits;
-	  long long pos_tries = shadow.surface_intersects_hits;
+      os << "     tree node tests: " << setw (16) << commify (tnt) << endl;
 
-	  os << "     surface tests:   " << setw (16) << commify (tot_tries)
-	     << " (success = " << setw(2) << percent (pos_tries, tot_tries)
-	     << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
-	     << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
-	     << "%)"
-	     << endl;
-	}
+      {
+	long long surf_tests  = shadow.surface_intersects_tests;
+	long long neg_cache_hits = shadow.neg_cache_hits;
+	long long neg_cache_colls = shadow.neg_cache_collisions;
+	long long tot_tries = surf_tests + neg_cache_hits;
+	long long pos_tries = shadow.surface_intersects_hits;
+
+	os << "     surface tests:   " << setw (16) << commify (tot_tries)
+	   << " (success = " << setw(2) << percent (pos_tries, tot_tries)
+	   << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
+	   << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
+	   << "%)"
+	   << endl;
+      }
     }
 
   long long ic = illum_calls;

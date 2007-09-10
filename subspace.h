@@ -52,7 +52,7 @@ private:
 
   // Make sure our acceleration structure is set up.
   //
-  void ensure_space () const;
+  void ensure_space (GlobalTraceState &global) const;
 
   // Top-level surface in our subspace.
   //
@@ -60,7 +60,7 @@ private:
 
   // Space holding everything from SURFACE..
   //
-  mutable Space *space;
+  mutable const Space *space;
 };
 
 

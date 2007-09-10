@@ -59,7 +59,7 @@ struct TraceStats
   
   IsecStats intersect, shadow;
 
-  void print (std::ostream &os, const Scene &scene);
+  void print (std::ostream &os);
 };
 
 }

@@ -267,8 +267,8 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogscene.a	\
-	libsnogrender.a
+CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
+	libsnogscene.a
 LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogload2.a	\
 	$(libsnogload2_LIBS)
 IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS)

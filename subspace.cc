@@ -21,12 +21,16 @@ using namespace snogray;
 // Make sure our acceleration structure is set up.
 //
 inline void
-Subspace::ensure_space () const
+Subspace::ensure_space (GlobalTraceState &global) const
 {
   if (! space)
     {
-      space = new Octree;
-      surface->add_to_space (space);
+      std::auto_ptr<SpaceBuilder> space_builder
+	(global.space_builder_builder->make_space_builder ());
+
+      surface->add_to_space (*space_builder);
+
+      space =  space_builder->make_space ();
     }
 }
 
@@ -39,7 +43,7 @@ Subspace::ensure_space () const
 const Surface::IsecInfo *
 Subspace::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
-  ensure_space ();
+  ensure_space (isec_ctx.trace.global);
   return space->intersect (ray, isec_ctx);
 }
 
@@ -51,8 +55,9 @@ Subspace::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 Material::ShadowType
 Subspace::shadow (const ShadowRay &sray) const
 {
-  ensure_space ();
-  return space->shadow (sray, sray.isec.trace);
+  Trace &trace = sray.isec.trace;
+  ensure_space (trace.global);
+  return space->shadow (sray, trace);
 }
 
 // Return a bounding box for this surface.

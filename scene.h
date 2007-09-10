@@ -13,7 +13,6 @@
 #define __SCENE_H__
 
 #include <fstream>
-#include <list>
 #include <vector>
 #include <string>
 
@@ -37,10 +36,6 @@ class Space;
 class Scene
 {
 public:
-
-  typedef std::vector<const Light *>::const_iterator light_iterator_t;
-  typedef std::list<Surface *>::const_iterator surface_iterator_t;
-  typedef std::list<const Material *>::const_iterator material_iterator_t;
 
   static const unsigned DEFAULT_HORIZON = 1000000;
   static const int DEFAULT_ASSUMED_GAMMA = 1;
@@ -72,27 +67,19 @@ public:
 
   // Add an surface
   //
-  Surface *add (Surface *surface)
-  {
-    surfaces.push_back (surface);
-    surface->add_to_space (space);
-    return surface;
-  }
+  const Surface *add (const Surface *surface);
 
   // Add a light
-  Light *add (Light *light)
-  {
-    light->num = num_lights();	// Give LIGHT an index
-    lights.push_back (light);
-    return light;
-  }
+  const Light *add (Light *light);
 
   // Add a material (we actually do nothing with these...)
   //
-  const Material *add (const Material *mat)
-  {
-    materials.push_back (mat); return mat;
-  }
+  const Material *add (const Material *mat);
+
+  // Construct the search accelerator for this scene.
+  // SPACE_BUILDER_BUILDER says how to do it.
+  //
+  void build_space (const SpaceBuilderBuilder *space_builder_builder);
 
   // Scene input
   //
@@ -114,11 +101,11 @@ public:
 
   void set_assumed_gamma (float g) { assumed_gamma = g; }
 
-  std::list<Surface *> surfaces;
+  std::vector<const Surface *> surfaces;
 
   std::vector<const Light *> lights;
 
-  std::list<const Material *> materials;
+  std::vector<const Material *> materials;
 
   // A distance which is further than the furthest surface from any point.
   //
@@ -138,7 +125,7 @@ public:
 
   // Acceleration structure for doing ray-surface intersection testing.
   //
-  Space *space;
+  const Space *space;
 
   float assumed_gamma;
 };

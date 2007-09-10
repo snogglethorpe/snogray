@@ -17,12 +17,13 @@
 using namespace snogray;
 
 
-// Add this (or some other ...) surfaces to SPACE
+// Add this (or some other) surfaces to the space being built by
+// SPACE_BUILDER.
 //
 void
-Surface::add_to_space (Space *space)
+Surface::add_to_space (SpaceBuilder &space_builder) const
 {
-  space->add (this);
+  space_builder.add (this);
 }
 
 // The "smoothing group" this surface belongs to, or zero if it belongs

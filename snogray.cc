@@ -108,8 +108,6 @@ print_params (const ValTable &params, const string &name_pfx,
 static void
 print_scene_info (const Scene &scene, const SceneDef &scene_def)
 {
-  Space::Stats tstats = scene.space->stats ();
-
   cout << "Scene:" << endl;
       
   cout << "   scene:   " << setw (20) << scene_def.specs_rep() << endl;
@@ -122,19 +120,6 @@ print_scene_info (const Scene &scene, const SceneDef &scene_def)
 
   cout << "   materials:       "
        << setw (12) << commify (scene.materials.size ()) << endl;
-
-  cout << "   tree surfaces:     "
-       << setw (10) << commify (tstats.num_surfaces)
-       << " (" << (tstats.num_dup_surfaces * 100 / tstats.num_surfaces)
-       << "% duplicates)" << endl;
-  cout << "   tree nodes:      "
-       << setw (12) << commify (tstats.num_nodes)
-       << " (" << (tstats.num_leaf_nodes * 100 / tstats.num_nodes)
-       << "% leaves)" << endl;
-  cout << "   tree avg depth:      "
-       << setw (8) << int (tstats.avg_depth) << endl;
-  cout << "   tree max depth:     "
-       << setw (9) << tstats.max_depth << endl;
 }
 
 
@@ -531,6 +516,11 @@ int main (int argc, char *const *argv)
   //
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
 
+  // Make sure the space acceleration structures are built.
+  //
+  Octree::BuilderBuilder octree_builder_builder; // hardwired for now
+  scene.build_space (&octree_builder_builder);
+
 
   // Enable floating-point exceptions if possible, which can help debugging.
   // Note that we do this _after_ reading the scene which helps avoid
@@ -671,7 +661,7 @@ int main (int argc, char *const *argv)
   //
   if (! quiet)
     {
-      trace_stats.print (cout, scene);
+      trace_stats.print (cout);
 
       long num_eye_rays = limit_width * limit_height;
 

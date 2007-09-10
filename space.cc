@@ -18,16 +18,6 @@
 
 using namespace snogray;
 
-
-// This is located here because putting it in "space.h" causes recursive
-// include problems (because "space.h" then must include "surface.h").
-//
-void
-Space::add (const Surface *surface)
-{
-  add (surface, surface->bbox ());
-}
-
 
 // "Closest" intersection testing (tests all surfaces for intersection
 // with a ray, returns the distance to the closest intersection)

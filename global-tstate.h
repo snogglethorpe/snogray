@@ -15,6 +15,7 @@
 
 #include "trace-stats.h"
 #include "trace-params.h"
+#include "space-builder.h"
 #include "mempool.h"
 #include "pool.h"
 #include "isec-cache.h"
@@ -54,6 +55,8 @@ public:
   Pool<IsecCache> isec_cache_pool;
 
   TraceStats stats;
+
+  SpaceBuilderBuilder *space_builder_builder;
 };
 
 

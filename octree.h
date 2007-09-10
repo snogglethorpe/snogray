@@ -17,18 +17,64 @@
 #include "pos.h"
 #include "space.h"
 
+
 namespace snogray {
+
 
 class Octree : public Space
 {
 public:
+
+  // A class used for building a Space object.
+  //
+  class Builder : public SpaceBuilder
+  {
+  public:
+
+    Builder () : octree (new Octree) { }
+
+    using SpaceBuilder::add; // inherit all variants of add method
+
+    // Add SURFACE to the space being built.
+    //
+    virtual void add (const Surface *surface)
+    {
+      octree->add (surface, surface->bbox ());
+    }
+
+    // Make the final space.  Note that this can only be done once.
+    //
+    virtual const Space *make_space ()
+    {
+      return octree;
+    }
+
+  private:
+
+    Octree *octree;
+  };
+
+  // Subclass of SpaceBuilderBuilder for making octree builders.
+  //
+  class BuilderBuilder : public SpaceBuilderBuilder
+  {
+  public:
+
+    // Return a new SpaceBuilder object.
+    //
+    virtual SpaceBuilder *make_space_builder () const
+    {
+      return new Octree::Builder ();
+    }
+  };
+
 
   Octree () : root (0), num_real_surfaces (0) { }
   ~Octree () { delete root; }
 
   // Add SURFACE to the octree
   //
-  virtual void add (const Surface *surface, const BBox &surface_bbox);
+  void add (const Surface *surface, const BBox &surface_bbox);
 
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
@@ -40,10 +86,28 @@ public:
 					      Trace &trace,
 					      TraceStats::IsecStats &isec_stats)
     const;
+    
+  // Octree statistics.
+  //
+  struct Stats
+  {
+    Stats ()
+      : num_nodes (0), num_leaf_nodes (0),
+	num_surfaces (0), num_dup_surfaces (0),
+	max_depth (0), avg_depth (0)
+    { }
+
+    unsigned long num_nodes;
+    unsigned long num_leaf_nodes;
+    unsigned long num_surfaces;
+    unsigned long num_dup_surfaces;
+    unsigned max_depth;
+    float avg_depth;
+  };
 
   // Return various statistics about this octree
   //
-  virtual Stats stats () const;
+  Stats stats () const;
 
   // One corner of the octree
   //
@@ -176,8 +240,10 @@ private:
   unsigned long num_real_surfaces;
 };
 
+
 }
 
 #endif /* __OCTREE_H__ */
+
 
 // arch-tag: 0b44a400-1a03-4967-ac84-a8984a4f2752
