@@ -776,7 +776,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
 	}
 
       float ct_m = powf (1.5f, float (i) - float (num_balls * 0.75));
-      float phong_exp = 1000 * float (i*i) / float (num_balls*num_balls);
+//       float phong_exp = 1000 * float (i*i) / float (num_balls*num_balls);
 
       const Material *mat;
       if (i % 3 == 1)
@@ -1832,8 +1832,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 //   const Material *blue
 //     = scene.add (new Material (Color (0.3, 0.3, 0.6),
 // 			       cook_torrance (0.4, 0.3, 4)));
-  const Material *matte_peach
-    = scene.add (new Material (Color (0.9, 0.7, 0.2)));
+//   const Material *matte_peach
+//     = scene.add (new Material (Color (0.9, 0.7, 0.2)));
   const Material *glass = scene.add (new Glass (1.5));
   const Material *silver
     = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
