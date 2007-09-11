@@ -53,6 +53,20 @@ public:
     operator*= (1 / denom);
   }
 
+  // Indexed access to tuple elements.
+  //
+  // This uses the hack of treating the address of the "x" field as an
+  // array and indexing off of it to access the "y" and "z" fields as
+  // well.
+  //
+  // It would be much prettier to instead put those fields inside an
+  // anonymous union along with an array of size three, but that causes
+  // gcc to generate significantly worse code (I suppose the union
+  // causes it to pessimize alias analysis).
+  //
+  T &operator[] (unsigned i) { return (&x)[i]; }
+  const T &operator[] (unsigned i) const { return (&x)[i]; }
+
   T x, y, z;
 };
 
