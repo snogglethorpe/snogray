@@ -309,11 +309,10 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 }
 
 
-
-
 // Octree construction
 
-// Add SURFACE to the octree
+// Add SURFACE to the octree.  SURFACE_BBOX should be SURFACE's
+// bounding-box.
 //
 void
 Octree::add (const Surface *surface, const BBox &surface_bbox)
@@ -639,6 +638,9 @@ Octree::Node::~Node ()
 
 
 // Statistics gathering
+
+// Return various statistics about this octree.
+//
 Octree::Stats
 Octree::stats () const
 {
@@ -710,5 +712,6 @@ Octree::Node::upd_stats (Stats &stats) const
     stats.avg_depth /= num_subnodes;
   stats.avg_depth += 1 + sibling_avg_depth;
 }
+
 
 // arch-tag: ec7b70cc-3cf6-40f3-9ec6-0ce71dbd20c5

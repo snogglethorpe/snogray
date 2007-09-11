@@ -12,13 +12,12 @@
 #ifndef __SPACE_H__
 #define __SPACE_H__
 
-
 #include "ray.h"
 #include "surface.h"
-#include "space-builder.h"
 
 
 namespace snogray {
+
 
 class Space
 {
@@ -80,6 +79,7 @@ public:
 					      Trace &trace,
 					      TraceStats::IsecStats &isec_stats)
     const = 0;
+
 
 protected:
 

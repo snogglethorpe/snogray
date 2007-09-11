@@ -65,11 +65,12 @@ public:
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.
 
-  // Add an surface
+  // Add a surface.
   //
   const Surface *add (const Surface *surface);
 
-  // Add a light
+  // Add a light.
+  //
   const Light *add (Light *light);
 
   // Add a material (we actually do nothing with these...)
@@ -142,7 +143,7 @@ Trace::shadow (const ShadowRay &ray)
 
 }
 
-
 #endif /* __SCENE_H__ */
+
 
 // arch-tag: 113d6236-471b-4184-92f5-9a03cf3a5221

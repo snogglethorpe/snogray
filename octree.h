@@ -72,7 +72,8 @@ public:
   Octree () : root (0), num_real_surfaces (0) { }
   ~Octree () { delete root; }
 
-  // Add SURFACE to the octree
+  // Add SURFACE to the octree.  SURFACE_BBOX should be SURFACE's
+  // bounding-box.
   //
   void add (const Surface *surface, const BBox &surface_bbox);
 
@@ -105,15 +106,15 @@ public:
     float avg_depth;
   };
 
-  // Return various statistics about this octree
+  // Return various statistics about this octree.
   //
   Stats stats () const;
 
-  // One corner of the octree
+  // One corner of the octree.
   //
   Pos origin;
 
-  // The size of the octree (in all dimensions)
+  // The size of the octree (in all dimensions).
   //
   dist_t size;
 
@@ -150,8 +151,8 @@ private:
   };
 
   // The current root of this octree is too small to encompass SURFACE;
-  // add surrounding levels of nodes until one can hold SURFACE, and make that
-  // the new root node.
+  // add surrounding levels of nodes until one can hold SURFACE, and
+  // make that the new root node.
   //
   void grow_to_include (const Surface *surface, const BBox &surface_bbox);
 

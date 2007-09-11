@@ -1,6 +1,6 @@
 // space-builder.h -- Builder for Space objects
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -66,6 +66,5 @@ public:
 
 
 }
-
 
 #endif // __SPACE_BUILDER_H__

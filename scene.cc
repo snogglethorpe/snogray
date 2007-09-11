@@ -53,7 +53,7 @@ Scene::~Scene ()
 // Object adding
 
 
-// Add an surface
+// Add a surface.
 //
 const Surface *
 Scene::add (const Surface *surface)
@@ -68,7 +68,8 @@ Scene::add (const Surface *surface)
   return surface;
 }
 
-// Add a light
+// Add a light.
+//
 const Light *
 Scene::add (Light *light)
 {
@@ -77,7 +78,7 @@ Scene::add (Light *light)
   return light;
 }
 
-// Add a material (we actually do nothing with these...)
+// Add a material (we actually do nothing with these...).
 //
 const Material *
 Scene::add (const Material *mat)
@@ -203,6 +204,7 @@ Scene::shadow (const ShadowRay &ray, Trace &trace) const
 }
 
 
+// Scene background rendering
 
 // Returns the background color in the direction pointed to by RAY
 //
