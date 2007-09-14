@@ -27,6 +27,8 @@ class SpaceBuilder
 {
 public:
 
+  virtual ~SpaceBuilder() { }
+
   // Add SURFACE to the space being built.
   //
   virtual void add (const Surface *surface) = 0;
@@ -58,6 +60,8 @@ public:
 class SpaceBuilderBuilder
 {
 public:
+
+  virtual ~SpaceBuilderBuilder () { }
 
   // Return a new SpaceBuilder object.
   //
