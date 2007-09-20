@@ -493,7 +493,9 @@ end
 -- the bottom at y=0).
 --
 function normalize (mesh, xf)
-   mesh:transform (y_base_normalize_xform (mesh) * xf)
+   local norm = y_base_normalize_xform (mesh)
+   if xf then norm = norm * xf end
+   mesh:transform (norm)
 end
 
 
