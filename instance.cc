@@ -63,6 +63,11 @@ Instance::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
   isec.t   = instance->normal_to_world (isec.t).unit ();
   isec.v   = -ray.dir.unit ();
 
+  // Self-shadowing is detected via object identity, and object identity is
+  // a murky concept for anything in an instance.
+  //
+  isec.no_self_shadowing = false;
+
   return isec;
 }
 
