@@ -33,17 +33,6 @@ public:
   //
   virtual void add (const Surface *surface) = 0;
 
-  // Add the surfaces in SURFACES to the space being built.
-  //
-  virtual void add (const std::vector <const Surface *> &surfaces)
-  {
-    // By default, just call the single-surface method for everything.
-    //
-    for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
-	 si != surfaces.end(); ++si)
-      add (*si);
-  }
-
   // Return a space containing the objects added through this builder.
   //
   // Note that this can only be done once; after calling this method, the

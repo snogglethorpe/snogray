@@ -23,5 +23,7 @@ using namespace snogray;
 void
 SurfaceGroup::add_to_space (SpaceBuilder &space_builder) const
 {
-  space_builder.add (surfaces);
+  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+       si != surfaces.end(); ++si)
+    (*si)->add_to_space (space_builder);
 }

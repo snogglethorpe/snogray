@@ -33,8 +33,6 @@ public:
 
     Builder () : octree (new Octree) { }
 
-    using SpaceBuilder::add; // inherit all variants of add method
-
     // Add SURFACE to the space being built.
     //
     virtual void add (const Surface *surface)
