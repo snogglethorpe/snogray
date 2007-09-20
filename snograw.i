@@ -358,9 +358,15 @@ namespace snogray {
     Glow (const Color &_color);
   };
 
-  %ignore Surface;
   class Surface
   {
+  private:
+
+    Surface (); // inhibit swig constructor generation
+
+  public:
+
+    virtual BBox bbox () const;
   };
 
   class Sphere : public Surface
@@ -500,8 +506,6 @@ namespace snogray {
     void load (const char *file_name, const Xform &xform);
 
     void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
-
-    virtual BBox bbox () const;
 
     void transform (Xform &xform);
   };
