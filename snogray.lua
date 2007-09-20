@@ -568,13 +568,12 @@ function surface_group (surfs)
       -- a table of surfaces all at once.
       --
       function wrap:add (surf)
-	 gc_ref (self, surf)
-
 	 if (type (surf) == "table") then
 	    for k,v in pairs (surf) do
 	       self:add (v)
 	    end
 	 else
+	    gc_ref (self, surf)
 	    raw.SurfaceGroup_add (self, surf)
 	 end
       end
