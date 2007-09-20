@@ -507,7 +507,7 @@ function subspace (surf)
    -- members, and wrap that instead.
    --
    if type (surf) == "table" then
-      surf = surface_group (surfs)
+      surf = surface_group (surf)
    end
 
    local ss = raw.Subspace (surf)
