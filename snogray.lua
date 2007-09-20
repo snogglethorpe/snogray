@@ -460,22 +460,40 @@ xform_y_to_z = xform_z_to_y:inverse ()
 
 mesh = raw.Mesh
 
+-- Return a transform which will warp SURF to be in a 2x2x2 box centered
+-- at the origin.  Only a single scale factor is used for all
+-- dimensions, so that a transformed object isn't distorted, merely
+-- resized/translated.
+--
+function normalize_xform (surf)
+   local bbox = surf:bbox ()
+   local center = midpoint (bbox.max, bbox.min)
+   local max_size = bbox:max_size ()
+
+   return translate (-center.x, -center.y, -center.z) * scale (2 / max_size)
+end
+
+-- Return a transform which will warp SURF to be in a 2x2x2 box centered
+-- at the origin in the x and z dimensions, but with a minimum y value
+-- of zero (so it has a "zero y base").  Only a single scale factor is
+-- used for all dimensions, so that a transformed object isn't
+-- distorted, merely resized/translated.
+--
+function y_base_normalize_xform (surf)
+   local bbox = surf:bbox ()
+   local center = midpoint (bbox.max, bbox.min)
+   local size = bbox.max - bbox.min
+   local max_size = bbox:max_size ()
+
+   return translate (-center.x, size.y / 2 - center.y, -center.z)
+      * scale (2 / max_size)
+end
+
 -- Resize a mesh to fit in a 1x1x1 box, centered at the origin (but with
 -- the bottom at y=0).
 --
 function normalize (mesh, xf)
-   local bbox = mesh:bbox ()
-   local center = midpoint (bbox.max, bbox.min)
-   local size = bbox.max - bbox.min
-
-   local norm = xform ()
-   norm:translate (-center.x, size.y / 2 - center.y, -center.z)
-   norm:scale (2 / bbox:max_size ())
-   if xf then
-      norm:transform (xf)
-   end
-
-   mesh:transform (norm)
+   mesh:transform (y_base_normalize_xform (mesh) * xf)
 end
 
 
