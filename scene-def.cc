@@ -156,6 +156,11 @@ SceneDef::load (Scene &scene, Camera &camera)
   if (assumed_gamma != 1)
     scene.set_assumed_gamma (assumed_gamma);
 
+  // Make sure the space acceleration structures are built.
+  //
+  Octree::BuilderBuilder octree_builder_builder; // hardwired for now
+  scene.build_space (&octree_builder_builder);
+
   if (camera_cmds.length () > 0)
     interpret_camera_cmds (camera_cmds, camera, scene);
 }

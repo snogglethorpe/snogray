@@ -516,11 +516,6 @@ int main (int argc, char *const *argv)
   //
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
 
-  // Make sure the space acceleration structures are built.
-  //
-  Octree::BuilderBuilder octree_builder_builder; // hardwired for now
-  scene.build_space (&octree_builder_builder);
-
 
   // Enable floating-point exceptions if possible, which can help debugging.
   // Note that we do this _after_ reading the scene which helps avoid
