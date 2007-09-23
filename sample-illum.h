@@ -72,7 +72,7 @@ public:
   //
   Color eval_samples (const Intersect &isec, IllumSampleVec &samples);
 
-  const std::vector<const Light *> lights;
+  const std::vector<const Light *> &lights;
   unsigned num_lights;
 
 //private:
