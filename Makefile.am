@@ -28,7 +28,9 @@ endif
 
 # Various files to include in distribution not covered by automatic rules
 #
-EXTRA_DIST = autogen.sh					\
+EXTRA_DIST =						\
+	snograw.i					\
+	autogen.sh					\
 	board1.msh board2.msh board3.msh bunny500.msh	\
 	stats.txt spd.txt
 
