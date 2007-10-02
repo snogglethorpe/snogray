@@ -116,7 +116,7 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
     AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
     AC_MSG_RESULT([$opt_ok])
     if test "$opt_ok" = yes; then
-      AC_SUBST([$1], [$2])
+      AC_SUBST([$1], ["$2"])
     fi
     CXXFLAGS="$_SAVED_CXXFLAGS"
 ])
@@ -326,57 +326,6 @@ AM_CONDITIONAL([lua_scene_def], [test $lua_scene_def = yes])
 
 if test "$GXX" = yes; then
 
-  # We try to use the host type to set optimization flags
-  #
-  AC_CANONICAL_HOST
-  
-  # If this is a linux system with /proc/cpuinfo we can be a bit more specific
-  #
-  if test -r /proc/cpuinfo; then
-    AC_MSG_CHECKING([CPU type in /proc/cpuinfo])
-
-    cpuinfo_cpu=unknown
-    cpuinfo_note=''
-   
-    [case "$host_cpu" in
-      i?86|x86[-_]64)
-	cpuinfo=`$AWK '
-          /^cpu family[ \t]*:/ { family = $NF; next }
-	  /^model[ \t]*:/ { model = $NF; next }
-	  /^model name[ \t]*:/ {
-	    sub (/^.*: */, ""); gsub (/ *\([^)]*\)/, ""); name = $0
-	    next
-	  }
-          END { print family "/" model "/" name }
-	' /proc/cpuinfo`
-
-	cpuinfo_name=`basename "$cpuinfo"`
-	cpuinfo_note=" ($cpuinfo_name)"
-
-	case "$cpuinfo" in
-	  *"Pentium III"*)
-	    cpuinfo_cpu=pentium3 ;;
-	  *"Pentium 4"*)
-	    cpuinfo_cpu=pentium4 ;;
-	  *"Pentium M"*)
-	    cpuinfo_cpu=pentium-m ;;
-	  *"Opteron"*)
-	    cpuinfo_cpu=opteron ;;
-	  15/65/*)
-	    cpuinfo_cpu=opteron ;;
-	  15/*)
-	    cpuinfo_cpu=pentium4 ;;
-	  6/9/*)
-	    cpuinfo_cpu=pentium4 ;;
-	esac
-	;;
-    esac]
-
-    AC_MSG_RESULT([$cpuinfo_cpu$cpuinfo_note])
-
-    test "$cpuinfo_cpu" = unknown || host_cpu="$cpuinfo_cpu"
-  fi
-
   # These flags should always be accepted by g++
   #
   # The following settings are based on g++ 4.1 compiling for the pentium 4:
@@ -414,28 +363,96 @@ if test "$GXX" = yes; then
   CXX_EXTRA_REQ_FLAGS="$CXX_MATH_REQ_FLAGS"
   SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_REQ_FLAGS], [$CXX_EXTRA_REQ_FLAGS])
 
-  # Guess machine-specific options based on cpu type.
-  #
-  case "$host_cpu" in
-    i686|pentium3)
-      CXX_MACH_FLAGS="-march=pentium3 -mfpmath=sse -msse" ;;
-    i786|pentium4)
-      CXX_MACH_FLAGS="-march=pentium4 -mfpmath=sse -msse2" ;;
-    pentium-m)
-      CXX_MACH_FLAGS="-march=pentium-m -mfpmath=sse -msse2" ;;
-    x86[-_]64)
-      CXX_MACH_FLAGS="-march=k8 -mfpmath=sse -msse2" ;;
-    opteron)
-      CXX_MACH_FLAGS="-march=opteron -mfpmath=sse -msse2" ;;
-    *)
-      CXX_MACH_FLAGS="";;
-  esac
 
-  # Check machine options for validity; note that we check them all
-  # together, not individually, as some may depend on others.
+  # First try the "-march=native" option
+  #
+  SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [-march=native])
+
+  # See if -march=native worked.
   #
   if test x"$CXX_MACH_FLAGS" != x; then
-    SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MACH_FLAGS])
+    #
+    # It did, so try to turn on -mfpmath=sse, which is generally better
+    # for machines that support it.
+
+    SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MACH_FLAGS -mfpmath=sse])
+  else
+    #
+    # -march=native didn't work, so try to set machine-specific options
+    # based on what we think the cpu type is.
+
+    # We try to use the host type to set optimization flags
+    #
+    AC_CANONICAL_HOST
+
+    # If this is a linux system with /proc/cpuinfo we can be a bit more specific
+    #
+    if test -r /proc/cpuinfo; then
+      AC_MSG_CHECKING([CPU type in /proc/cpuinfo])
+
+      cpuinfo_cpu=unknown
+      cpuinfo_note=''
+
+      [case "$host_cpu" in
+	i?86|x86[-_]64)
+	  cpuinfo=`$AWK '
+	    /^cpu family[ \t]*:/ { family = $NF; next }
+	    /^model[ \t]*:/ { model = $NF; next }
+	    /^model name[ \t]*:/ {
+	      sub (/^.*: */, ""); gsub (/ *\([^)]*\)/, ""); name = $0
+	      next
+	    }
+	    END { print family "/" model "/" name }
+	  ' /proc/cpuinfo`
+
+	  cpuinfo_name=`basename "$cpuinfo"`
+	  cpuinfo_note=" ($cpuinfo_name)"
+
+	  case "$cpuinfo" in
+	    *"Pentium III"*)
+	      cpuinfo_cpu=pentium3 ;;
+	    *"Pentium 4"*)
+	      cpuinfo_cpu=pentium4 ;;
+	    *"Pentium M"*)
+	      cpuinfo_cpu=pentium-m ;;
+	    *"Opteron"*)
+	      cpuinfo_cpu=opteron ;;
+	    15/65/*)
+	      cpuinfo_cpu=opteron ;;
+	    15/*)
+	      cpuinfo_cpu=pentium4 ;;
+	    6/9/*)
+	      cpuinfo_cpu=pentium4 ;;
+	  esac
+	  ;;
+      esac]
+
+      AC_MSG_RESULT([$cpuinfo_cpu$cpuinfo_note])
+
+      test "$cpuinfo_cpu" = unknown || host_cpu="$cpuinfo_cpu"
+    fi
+
+    case "$host_cpu" in
+      i686|pentium3)
+	CXX_MACH_FLAGS="-march=pentium3 -mfpmath=sse" ;;
+      i786|pentium4)
+	CXX_MACH_FLAGS="-march=pentium4 -mfpmath=sse" ;;
+      pentium-m)
+	CXX_MACH_FLAGS="-march=pentium-m -mfpmath=sse" ;;
+      x86[-_]64)
+	CXX_MACH_FLAGS="-march=k8 -mfpmath=sse" ;;
+      opteron)
+	CXX_MACH_FLAGS="-march=opteron -mfpmath=sse" ;;
+      *)
+	CXX_MACH_FLAGS="";;
+    esac
+
+    # Check machine options for validity; note that we check them all
+    # together, not individually, as some may depend on others.
+    #
+    if test x"$CXX_MACH_FLAGS" != x; then
+      SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MACH_FLAGS])
+    fi
   fi
 
 else
