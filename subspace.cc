@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <memory>
+
 #include "octree.h"
 #include "shadow-ray.h"
 
