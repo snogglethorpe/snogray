@@ -18,6 +18,7 @@
 #include "string-funs.h"
 #include "camera-cmds.h"
 #include "cmdlineparser.h"
+#include "octree.h"
 
 #include "scene-def.h"
 

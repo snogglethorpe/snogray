@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "octree.h"
+#include "space.h"
 #include "shadow-ray.h"
 
 #include "subspace.h"

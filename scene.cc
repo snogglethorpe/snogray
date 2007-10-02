@@ -12,7 +12,7 @@
 #include <memory>		// for auto_ptr
 
 #include "global-tstate.h"
-#include "octree.h"
+#include "space.h"
 #include "envmap.h"
 
 #include "scene.h"

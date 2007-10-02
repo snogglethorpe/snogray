@@ -20,7 +20,6 @@
 #include "light.h"
 #include "intersect.h"
 #include "material.h"
-#include "octree.h"
 #include "trace.h"
 #include "camera.h"
 #include "shadow-ray.h"

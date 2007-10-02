@@ -8,10 +8,9 @@
 //
 // Written by Miles Bader <miles@gnu.org>
 //
-#include<iostream>
+
 #include "intersect.h"
 #include "space.h"
-#include "octree.h"
 #include "shadow-ray.h"
 #include "subspace.h"
 
