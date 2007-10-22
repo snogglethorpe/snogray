@@ -25,7 +25,6 @@ if lua_scene_def
   noinst_LIBRARIES += libsnograw.a
 endif
 
-
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =						\
@@ -34,10 +33,18 @@ EXTRA_DIST =						\
 	board1.msh board2.msh board3.msh bunny500.msh	\
 	stats.txt spd.txt
 
+# Allow specifying a Lua distribution to be included.  If we're already
+# building using a local copy of Lua, it is distributed by default.
+#
+dist-hook:
+	if test x"$(LUA_DIST)" != x; then			\
+	  cp -pR "$(LUA_DIST)" $(distdir)/lua;			\
+	  find $(distdir)/lua -name '*.[oa]' -exec rm {} \; ;	\
+	fi
 
 # Some extra stuff that needs cleaning up
 #
-CLEANFILES = snograw_wrap.cc snograw.so
+CLEANFILES = snograw_wrap.cc liblua.a snograw.so
 
 
 ################################################################
@@ -302,6 +309,25 @@ hemint_LDADD = libsnogutil.a
 
 ###############################################################
 #
+# Local copy of lua distribution (optional)
+#
+
+if build_lua
+
+liblua.a:
+	(cd $(LUA_SRC); $(MAKE) $(AM_MAKEFLAGS) liblua.a)
+	cp -p $(LUA_SRC)/liblua.a .
+
+clean-local:
+	-rm -rf $(LUA_SRC)/liblua.a
+mostlyclean-local:
+	-rm -rf $(LUA_SRC)/*.o
+
+endif
+
+
+###############################################################
+#
 # "Raw" swig interface to snogray.
 #
 
@@ -321,6 +347,12 @@ libsnograw_a_CXXFLAGS = $(OPT_SIZE) $(DEBUG) $(CXX_CHECK_FLAGS)	\
 
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl
+
+# This makes sure that liblua.a gets built when necessary.
+#
+if build_lua
+libsnograw_a_DEPENDENCIES = liblua.a
+endif
 
 ## Build a dynamically loadable Lua module, for debugging.
 ##

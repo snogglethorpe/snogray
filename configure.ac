@@ -73,6 +73,36 @@ fi
 
 ##
 ## --------------------------------
+## Optional addons
+##
+
+
+# --with-lua-src=DIR option
+
+lua_src_specified=no
+AC_ARG_WITH([lua-src],
+    AS_HELP_STRING([--with-lua-src], [Specify Lua source directory]),
+    [lua_src_specified=yes], [with_lua_src=$srcdir/lua])
+
+AC_MSG_CHECKING([for Lua source directory])
+lua_src=none
+for dir in "$with_lua_src" "$with_lua_src/src"; do
+    if test -r "$dir/lapi.c"; then
+       lua_src="$dir"
+       break
+    fi
+done
+AC_MSG_RESULT([$lua_src])
+
+if test "$lua_src" != none; then
+  AC_SUBST([LUA_DIST], [$with_lua_src])
+  AC_SUBST([LUA_SRC], [$lua_src])
+fi
+AM_CONDITIONAL([build_lua], [test x"$lua_src" != xnone])
+
+
+##
+## --------------------------------
 ## Compiler tests
 ##
 
@@ -198,13 +228,25 @@ m4_define_default([PKG_CHECK_MODULES],
 ##
 
 
-# Check for lua library.  First, try using pkg-config (as present on
-# e.g. debian).
+# Check for lua library.
 #
-PKG_CHECK_MODULES([liblua], [lua5.1],
-  [have_liblua=yes],
-  [have_liblua=no
-   AC_MSG_RESULT([no])])
+# First see if we're using our own builtin copy of Lua
+#
+have_liblua=no
+if test x"$lua_src" != xnone; then
+  have_liblua=yes
+  AC_SUBST([liblua_CFLAGS], ['-I$(LUA_SRC)'])
+  AC_SUBST([liblua_LIBS], [liblua.a])
+fi
+#
+# Next, try using pkg-config (as present on e.g. debian).
+#
+if test $have_liblua = no; then
+  PKG_CHECK_MODULES([liblua], [lua5.1],
+    [have_liblua=yes],
+    [have_liblua=no
+     AC_MSG_RESULT([no])])
+fi
 #
 # If we couldn't find it using pkg-config, try without (the default lua
 # distribution doesn't support pkg-config).
