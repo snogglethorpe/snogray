@@ -33,6 +33,7 @@
 #include "glow.h"
 #include "glass.h"
 #include "mirror.h"
+#include "point-light.h"
 #include "rect-light.h"
 #include "sphere-light.h"
 #include "cook-torrance.h"
@@ -589,6 +590,13 @@ namespace snogray {
   %ignore Light;
   class Light
   {
+  };
+
+  class PointLight : public Light
+  {
+  public:
+
+    PointLight (const Pos &_pos, const Color &col);
   };
 
   class RectLight : public Light

@@ -591,6 +591,10 @@ end
 --
 -- Lights
 
+function point_light (pos, intens)
+   return raw.PointLight (pos, color (intens))
+end
+
 function sphere_light (pos, radius, intens)
    return raw.SphereLight (pos, radius, color (intens))
 end
