@@ -31,6 +31,7 @@
 #include "subspace.h"
 #include "surface-group.h"
 #include "glow.h"
+#include "norm-glow.h"
 #include "glass.h"
 #include "mirror.h"
 #include "point-light.h"
@@ -357,6 +358,13 @@ namespace snogray {
   public:
 
     Glow (const Color &_color);
+  };
+
+  class NormGlow : public Material
+  {
+  public:
+
+    NormGlow (Color::component_t intens);
   };
 
   class Surface

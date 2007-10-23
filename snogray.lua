@@ -323,6 +323,12 @@ function glow (col)
    return gl;
 end   
 
+function norm_glow (intens)
+   local ng = raw.NormGlow (intens or 1)
+   scene:add (ng)		-- protect against GC
+   return ng;
+end   
+
 
 ----------------------------------------------------------------
 --
