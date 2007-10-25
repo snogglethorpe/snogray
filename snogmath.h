@@ -41,11 +41,16 @@ namespace snogray {
 
 
 // Provide our own definitions of min/max, as the standard defs are very slow.
-//
+
 inline float min (float x, float y) { return x < y ? x : y; }
 inline double min (double x, double y) { return x < y ? x : y; }
+inline int min (int x, int y) { return x < y ? x : y; }
+inline unsigned min (unsigned x, unsigned y) { return x < y ? x : y; }
+
 inline float max (float x, float y) { return x > y ? x : y; }
 inline double max (double x, double y) { return x > y ? x : y; }
+inline int max (int x, int y) { return x > y ? x : y; }
+inline unsigned max (unsigned x, unsigned y) { return x > y ? x : y; }
 
 
 // Copy the standard scalar definitions of these operators into our
