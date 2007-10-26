@@ -24,12 +24,8 @@ public:
 
   static const float DEFAULT_WIDTH = 0.5;
 
-  BoxFilt (float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
-    : Filter (_x_width, _y_width)
-  { }
-  BoxFilt (const ValTable &params)
-    : Filter (params, DEFAULT_WIDTH)
-  { }
+  BoxFilt (float _width = DEFAULT_WIDTH) : Filter (_width) { }
+  BoxFilt (const ValTable &params) : Filter (params, DEFAULT_WIDTH) { }
 
   virtual float val (float, float) const
   {

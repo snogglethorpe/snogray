@@ -29,8 +29,8 @@ public:
   static const float DEFAULT_WIDTH = 2;
 
   MitchellFilt (float _b = DEFAULT_B, float _c = DEFAULT_C,
-		float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
-    : Filter (_x_width, _y_width), b (_b), c (_c)
+		float _width = DEFAULT_WIDTH)
+    : Filter (_width), b (_b), c (_c)
   { }
   MitchellFilt (const ValTable &params)
     : Filter (params, DEFAULT_WIDTH),
@@ -40,12 +40,12 @@ public:
 
   virtual float val (float x, float y) const
   {
-    return mitchell1 (x * inv_x_width) * mitchell1 (y * inv_y_width);
+    return mitchell1 (x) * mitchell1 (y);
   }
 
   float mitchell1 (float x) const
   {
-    x = abs (2.f * x);
+    x = abs (2.f * x * inv_width);
 
     // This formula is from the PBRT book
     //

@@ -31,29 +31,21 @@ public:
 
   virtual ~Filter ();
 
-  float max_width () const
-  {
-    return max (x_width, y_width);
-  }
-
   virtual float val (float x, float y) const = 0;
 
   float operator() (float x, float y) const { return val (x, y); }
 
-  float x_width, y_width;
-  float inv_x_width, inv_y_width;
+  float width;
+  float inv_width;
 
 protected:
 
-  Filter (float _x_width, float _y_width)
-    : x_width (_x_width), y_width (_y_width),
-      inv_x_width (1 / x_width), inv_y_width (1 / y_width)
-  { }
+  Filter (float _width)
+    : width (_width), inv_width (1 / width)
+  { } 
 
   Filter (const ValTable &params, float def_width)
-    : x_width (params.get_float ("x-width,xw,width,w", def_width)),
-      y_width (params.get_float ("y-width,yw,width,w", def_width)),
-      inv_x_width (1 / x_width), inv_y_width (1 / y_width)
+    : width (params.get_float ("width,w", def_width)), inv_width (1 / width)
   { }
 };
 

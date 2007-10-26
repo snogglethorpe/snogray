@@ -33,7 +33,7 @@ public:
 
   FilterConvBase (const ValTable &params = ValTable::NONE)
     : filter (Filter::make (params)),
-      filter_radius (filter ? int (ceil (filter->max_width() - 1.0001)) : 0),
+      filter_radius (filter ? int (ceil (filter->width - 1.0001)) : 0),
       neg_clamp (-abs (params.get_float ("neg-clamp", DEFAULT_NEG_CLAMP)))
   { }
   ~FilterConvBase () { delete filter; }

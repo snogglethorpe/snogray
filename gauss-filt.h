@@ -27,32 +27,31 @@ public:
   static const float DEFAULT_ALPHA = 2;
   static const float DEFAULT_WIDTH = 2;
 
-  GaussFilt (float _alpha = DEFAULT_ALPHA,
-	     float _x_width = DEFAULT_WIDTH, float _y_width = DEFAULT_WIDTH)
-    : Filter (_x_width, _y_width), alpha (_alpha),
-      x_exp (exp (-alpha * x_width * x_width)),
-      y_exp (exp (-alpha * y_width * y_width))
+  GaussFilt (float _alpha = DEFAULT_ALPHA, float _width = DEFAULT_WIDTH)
+    : Filter (_width), alpha (_alpha),
+      _exp (exp (-alpha * width * width))
   { }
   GaussFilt (const ValTable &params)
     : Filter (params, DEFAULT_WIDTH),
       alpha (params.get_float ("alpha,a", DEFAULT_ALPHA)),
-      x_exp (exp (-alpha * x_width * x_width)),
-      y_exp (exp (-alpha * y_width * y_width))
+      _exp (exp (-alpha * width * width))
   { }
 
   virtual float val (float x, float y) const
   {
-    return gauss1 (x, x_exp) * gauss1 (y, y_exp);
+    return gauss1 (x) * gauss1 (y);
   }
 
-  float gauss1 (float offs, float ex) const
+  float gauss1 (float offs) const
   {
-    return max (exp (-alpha * offs * offs) - ex, 0.f);
+    return max (exp (-alpha * offs * offs) - _exp, 0.f);
   }
 
   float alpha;
 
-  float x_exp, y_exp;
+private:
+
+  float _exp;
 };
 
 
