@@ -129,7 +129,7 @@ Val::as_float () const
 	char *end;
 	float val = strtof (_string_val.c_str(), &end);
 	if (end && *end)
-	  invalid ("integer");
+	  invalid ("float");
 	return val;
       }
     case INT:
