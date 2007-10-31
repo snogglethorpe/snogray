@@ -410,7 +410,42 @@ if test "$GXX" = yes; then
   #
   SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [-march=native])
 
-  # See if -march=native worked.
+  # If -march=native seemed to work, test for a gcc bug that makes using
+  # it a bad idea.
+  #
+  # Some versions of gcc, on some platforms, will accept -march=native,
+  # but don't set the compiler tuning parameters according to the
+  # selected native architecture.  This results in really crappy code,
+  # so it's better just not to use -march=native at all in such cases.
+  #
+  if test x"$CXX_MACH_FLAGS" != x && test "$GCC" = yes; then
+
+    # Gcc defines some predefined macros reflecting compiler tuning
+    # choices.  In the buggy case described above, there are none, so we
+    # basically just look for _any_ defined macros matching the pattern
+    # "__tune_".  To do this, however, we use the gcc "-dD" option,
+    # which outputs a list of all defined macros.  We also explicitly
+    # add -march=native to CPPFLAGS (normally it's added to CFLAGS or
+    # CXXFLAGS instead).
+
+    _OLD_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS -dD -march=native"
+
+    buggy_march_native=yes
+    AC_MSG_CHECKING([whether gcc -march=native is buggy])
+    AC_EGREP_CPP([__tune_], [], [buggy_march_native=no])
+    AC_MSG_RESULT([$buggy_march_native])
+
+    CPPFLAGS="$_OLD_CPPFLAGS"
+
+    # If we found the bug, just don't use -march=native
+    #
+    if test $buggy_march_native = yes; then
+      CXX_MACH_FLAGS=""
+    fi
+  fi
+
+  # If -march=native worked (and isn't buggy), then just use that.
   #
   if test x"$CXX_MACH_FLAGS" != x; then
     #
