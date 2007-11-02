@@ -45,8 +45,14 @@ dist-hook:
 
 # Some extra stuff that needs cleaning up
 #
-CLEANFILES = snograw_wrap.cc liblua.a snograw.so
+CLEANFILES = liblua.a snograw.so
 
+# We only clean up "snograw_wrap.cc" and "swigluarun.h" if it's possible
+# to regenerate them.
+#
+if have_swig
+MAINTAINERCLEANFILES = snograw_wrap.cc swigluarun.h
+endif
 
 ################################################################
 #
@@ -332,11 +338,28 @@ endif
 # "Raw" swig interface to snogray.
 #
 
+# If the swig interface generator is available, we can update the C++
+# interface when snograw.i changes; otherwise we need to use
+# pregenerated copies.
+#
+if have_swig
+
 %_wrap.cc : %.i
 	$(SWIG) -o $@ -c++ -lua $<
-
 swigluarun.h:
 	$(SWIG) -lua -c++ -external-runtime $@
+
+else
+
+%_wrap.cc : %.i
+	@if test -r "$@"; then						       \
+	  echo '** Warning: $< is newer than $@, but cannot run swig interface generator'; \
+	else								       \
+	  echo '** Error: cannot run swig interface generator to generate $@'; \
+	  exit 1;							       \
+	fi
+
+endif
 
 libsnograw_a_SOURCES = snograw_wrap.cc swigluarun.h
 

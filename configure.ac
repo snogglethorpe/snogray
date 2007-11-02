@@ -353,11 +353,46 @@ fi
 ## Some configuration options
 ##
 
+# Whether we have "swig", which is the interface generator we use to
+# generate the Lua-to-C++ interface.
+#
+have_swig=no
+test -n "$SWIG" && have_swig=yes
+AM_CONDITIONAL([have_swig], [test $have_swig = yes])
+
+# Whether we have a pre-generated Lua-C++ interface "snograw_wrap.cc",
+# or have the ability to generate it.
+#
+# "snograw_wrap.cc" is normally generated from "snograw.i" by running
+# the "swig" interface generator, and "swigluarun.h" is also generated
+# by swig (with no input), but if we don't have swig, we can still use
+# any existing copies of those files (however changes in snograw.i won't
+# be used).
+#
+have_snograw_wrap=$have_swig
+test -r "snograw_wrap.cc" && test -r "swigluarun.h" && have_snograw_wrap=yes
+
+# Whether we can support Lua scene definition.
+#
+AC_MSG_CHECKING([whether to enable Lua scene definition])
 lua_scene_def=no
-if test -n "$SWIG" && test "$have_liblua" = yes; then
+lua_scene_def_pretty=no
+if test $have_snograw_wrap = no; then
+  lua_scene_def_pretty='no (swig not installed)'
+elif test "$have_liblua" = no; then
+  lua_scene_def_pretty='no (no Lua library)'
+else
   lua_scene_def=yes
-  AC_DEFINE([LUA_SCENE_DEF], [1], [Define if allowing lua scene definition files])
+
+  if test "$have_swig" = yes; then
+    lua_scene_def_pretty=yes
+  else
+    lua_scene_def_pretty='yes (using pre-generated interface)'
+  fi
+
+  AC_DEFINE([LUA_SCENE_DEF], [1], [Define if lua scene definition is enabled])
 fi
+AC_MSG_RESULT([$lua_scene_def_pretty])
 AM_CONDITIONAL([lua_scene_def], [test $lua_scene_def = yes])
 
 
