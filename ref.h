@@ -52,6 +52,8 @@ public:
   T &operator* () const { return *obj; }
   T *operator-> () const { return obj; }
 
+  operator bool () const { return !!obj; }
+
   //operator T* () const { return obj; }
 
   Ref &operator= (T *new_obj)
