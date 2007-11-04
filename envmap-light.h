@@ -24,7 +24,7 @@ class EnvmapLight : public StructLight
 {
 public:
 
-  EnvmapLight (const Ref<Envmap> &envmap);
+  EnvmapLight (const Ref<Envmap> &_envmap);
 
   // Dump a picture of the generated light regions to a file called
   // FILENAME.  ENVMAP should be the original environment map with which
@@ -51,6 +51,10 @@ public:
 			       const IllumSampleVec::iterator &beg_sample,
 			       const IllumSampleVec::iterator &end_sample)
     const;
+
+private:
+
+  Ref<Envmap> envmap;
 };
 
 
