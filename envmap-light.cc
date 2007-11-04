@@ -64,7 +64,7 @@ public:
 };
 
 
-EnvmapLight::EnvmapLight (const Envmap &envmap)
+EnvmapLight::EnvmapLight (const Ref<Envmap> &envmap)
 {
   if (!quiet)
     {
@@ -74,7 +74,7 @@ EnvmapLight::EnvmapLight (const Envmap &envmap)
 
   // An image holding light from envmap.
   //
-  LatLongLmap lmap (envmap.light_map ());
+  LatLongLmap lmap (envmap->light_map ());
 
   if (!quiet)
     {

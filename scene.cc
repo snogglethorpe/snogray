@@ -42,11 +42,6 @@ Scene::~Scene ()
        mi != materials.end(); ++mi)
     delete *mi;
 
-  delete env_map;
-
-  if (light_map != env_map)
-    delete light_map;
-
   delete space;
 }
 
@@ -265,33 +260,22 @@ void
 Scene::set_background (const Color &col)
 {
   if (env_map)
-    {
-      if (env_map != light_map)
-	delete env_map;
-
-      env_map = 0;
-    }
+    env_map = 0;
 
   bg_color = col;
   bg_set = true;
 }
 
 void
-Scene::set_background (const Envmap *map)
+Scene::set_background (const Ref<Envmap> &map)
 {
-  if (env_map != light_map)
-    delete env_map;
-
   env_map = map;
   bg_set = true;
 }
 
 void
-Scene::set_light_map (const Envmap *lmap)
+Scene::set_light_map (const Ref<Envmap> &lmap)
 {
-  if (light_map && light_map != env_map)
-    delete light_map;
-
   light_map = lmap;
 }
 

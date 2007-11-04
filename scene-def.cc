@@ -142,7 +142,7 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   if (scene.light_map)
     {
-      EnvmapLight *env_light = new EnvmapLight (*scene.light_map);
+      EnvmapLight *env_light = new EnvmapLight (scene.light_map);
 
       scene.add (env_light);
 

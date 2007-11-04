@@ -14,13 +14,16 @@
 
 #include <string>
 
+#include "ref.h"
 #include "color.h"
 #include "vec.h"
 #include "image.h"
 
+
 namespace snogray {
 
-class Envmap
+
+class Envmap : public RefCounted
 {
 public:
 
@@ -54,8 +57,10 @@ Envmap *load_envmap (const std::string &spec, const std::string &fmt = "");
 //
 Envmap *make_envmap (const Ref<Image> &image, const std::string &fmt = "");
 
+
 }
 
 #endif /* __ENVMAP_H__ */
+
 
 // arch-tag: 9695753e-771b-4555-83c4-593486374642

@@ -24,7 +24,7 @@ class EnvmapLight : public StructLight
 {
 public:
 
-  EnvmapLight (const Envmap &envmap);
+  EnvmapLight (const Ref<Envmap> &envmap);
 
   // Dump a picture of the generated light regions to a file called
   // FILENAME.  ENVMAP should be the original environment map with which
