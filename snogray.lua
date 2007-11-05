@@ -496,12 +496,13 @@ function y_base_normalize_xform (surf)
 end
 
 -- Resize a mesh to fit in a 1x1x1 box, centered at the origin (but with
--- the bottom at y=0).
+-- the bottom at y=0).  Returns MESH.
 --
 function normalize (mesh, xf)
    local norm = y_base_normalize_xform (mesh)
    if xf then norm = norm * xf end
    mesh:transform (norm)
+   return mesh
 end
 
 
