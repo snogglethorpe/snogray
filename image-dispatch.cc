@@ -37,22 +37,6 @@ using namespace snogray;
 
 // Filename format deduction
 
-// If FILENAME has a recognized extension from which we can guess its
-// format, return it (converted to lower-case).
-//
-std::string
-ImageIo::filename_format (const std::string &filename)
-{
-  unsigned dot = filename.find_last_of (".");
-
-  if (dot == filename.length ())
-    return "";
-
-  std::string ext = filename.substr (dot + 1);
-
-  return downcase (ext);
-}
-
 // If PARAMS contains an explicit "format" entry, return its value,
 // otherwise if FILENAME has a recognized extension from which we can
 // guess its format, return it (converted to lower-case).
@@ -65,7 +49,7 @@ ImageIo::find_format (const ValTable &params, const std::string &filename)
   if (fmt.empty ())
     // No explicitly specified format, try looking at the file name
     //
-    fmt = filename_format (filename);
+    fmt = filename_ext (filename);
 
   if (fmt.empty ())
     throw std::runtime_error ("Cannot determine file type");
@@ -78,7 +62,7 @@ ImageIo::find_format (const ValTable &params, const std::string &filename)
 bool
 ImageIo::recognized_filename (const std::string &filename)
 {
-  std::string fmt = filename_format (filename);
+  std::string fmt = filename_ext (filename);
 
   return
     fmt == "pfm" || fmt == "rgbe" || fmt == "hdr" || fmt == "pic"

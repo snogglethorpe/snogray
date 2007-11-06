@@ -40,6 +40,10 @@ extern std::string strip (const std::string &str, const std::string &chars);
 //
 std::string strip_prefix (std::string &str, const std::string &sep_chars);
 
+// Return FILENAME's extension, converted to lower-case.
+//
+extern std::string filename_ext (const std::string &filename);
+
 static inline bool
 ends_in (const std::string &str, const std::string &sfx)
 {

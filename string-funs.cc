@@ -93,4 +93,19 @@ snogray::strip_prefix (string &str, const string &sep_chars)
 }
 
 
+// Return FILENAME's extension, converted to lower-case.
+//
+std::string
+snogray::filename_ext (const std::string &filename)
+{
+  unsigned dot = filename.find_last_of (".");
+
+  if (dot == filename.length ())
+    return "";
+
+  std::string ext = filename.substr (dot + 1);
+
+  return downcase (ext);
+}
+
 // arch-tag: c8a36b93-7176-431a-b46b-6cf51c7eff55
