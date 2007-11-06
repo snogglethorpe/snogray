@@ -14,18 +14,38 @@
 
 #include <string>
 
+#include "xform.h"
+
+
 namespace snogray {
+
 
 class Scene;
 class Camera;
 class Mesh;
+class MaterialMap;
 
-// Load a lua scene file into SCENE and CAMERA.
+
+// If FILENAME is a format that has a Lua scene loader, load the file named
+// FILENAME into SCENE and CAMERA using Lua, and return true; if FILENAME
+// is unrecogized, return false.  If an error occurs during loading, an
+// exception is thrown.  Loads all parts of the scene, including lights and
+// the first camera position.
 //
-extern void load_lua_file (const std::string &filename,
+extern bool load_lua_file (const std::string &filename, const std::string &fmt,
 			   Scene &scene, Camera &camera);
 
+// If FILENAME is a format that has a Lua mesh loader, load the file named
+// FILENAME into MESH using Lua, and return true; if FILENAME is
+// unrecogized, return false.  If an error occurs during loading, an
+// exception is thrown.
+//
+extern bool load_lua_file (const std::string &filename, const std::string &fmt,
+			   Mesh &mesh,
+			   const MaterialMap &mat_map, const Xform &xform);
+
 }
+
 
 #endif /* __LOAD_LUA_H__ */
 

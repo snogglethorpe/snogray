@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iostream>
+
 #include "config.h"
 
 #include "excepts.h"
@@ -31,6 +33,8 @@ using namespace std;
 void
 Scene::load (const string &file_name, const string &_fmt, Camera &camera)
 {
+  std::cout << "* loading scene: " << file_name << std::endl;
+
   // Default to using the filename extension to determine the file format.
   //
   string fmt = _fmt.empty() ? filename_ext (file_name) : _fmt;
@@ -44,8 +48,8 @@ Scene::load (const string &file_name, const string &_fmt, Camera &camera)
 #endif
 
 #ifdef LUA_SCENE_DEF
-  else if (fmt == "lua")
-    load_lua_file (file_name, *this, camera);
+  else if (load_lua_file (file_name, fmt, *this, camera))
+      { /* loaded */ }
 #endif
 
   else

@@ -73,12 +73,6 @@ midpoint = raw.midpoint
 dot = raw.dot
 cross = raw.cross
 
-----------------------------------------------------------------
---
--- global scene parameters, set up by automagic call to "start_load"
-
-local raw_scene, raw_camera
-
 
 ----------------------------------------------------------------
 --
@@ -622,7 +616,7 @@ local function filename_dir (filename)
    return string.match (filename, "^(.*)/[^/]*$")
 end
 local function filename_ext (filename)
-   return string.match (filename, "[.][^./]*$")
+   return string.match (filename, "[.]([^./]*)$")
 end
 
 function load_include (filename)
@@ -791,22 +785,150 @@ end
 
 ----------------------------------------------------------------
 --
--- initialization
+-- Autoloading
 
-function start_load (filename, rscene, rcamera)
-   print ("* loading scene: " .. filename)
+-- Add a stub for file-extension EXT to LOADER_TABLE that will load
+-- LOADER_FILE and call the function named LOADER_NAME (which
+-- LOADER_FILE must define); the stub will also install that function
+-- into LOADER_TABLE so that it can be called directly for subsequent
+-- files of the same type.
+--
+local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
+   loader_table[ext]
+      = function (...)
+	   print ("* autoloading: "..loader_file)
 
-   cur_filename = filename
+	   local contents, err = loadfile (loader_file)
 
-   raw_scene = rscene
-   raw_camera = rcamera
+	   if contents then
+	      local environ = {}
+	      setmetatable (environ, inherit_snogray_metatable)
+	      setfenv (contents, environ)
 
-   -- Let users use the raw camera directly.
-   --
-   camera = raw_camera
+	      contents ()	-- Finish loading
 
-   init_scene (raw_scene)
+	      local loader = environ[loader_name]
+	      if loader then
+		 loader_table[ext] = load_func
+		 return loader (...)
+	      else
+		 error ("loading "..loader_file.." didn't define "..loader_name)
+	      end
+	   else
+	      error (err)
+	   end
+	end
 end
+
+
+----------------------------------------------------------------
+--
+-- Scene loading
+
+-- Table of scene loaders for various file extensions.
+--
+local scene_loader = {}
+
+
+-- Load a scene from FILENAME into RSCENE and RCAMERA (the "raw" scene
+-- and camera objects).
+--
+-- Return true for a successful load, false if FILENAME is not
+-- recognized as loadable, or an error string if an error occured during
+-- loading.
+--
+function load_scene (filename, fmt, ...)
+   local loader = scene_loader[fmt]
+   if loader then
+      return loader (filename, ...)
+   else
+      return false
+   end
+end
+
+
+----------------------------------------------------------------
+--
+-- Mesh loading
+
+-- Table of mesh loaders for various file extensions.
+--
+local mesh_loader = {}
+
+
+-- Load a mesh from FILENAME into MESH.
+--
+-- Return true for a successful load, false if FILENAME is not
+-- recognized as loadable, or an error string if an error occured during
+-- loading.
+--
+function load_mesh (filename, fmt, ...)
+   local loader = mesh_loader[fmt]
+   if loader then
+      return loader (filename, ...)
+   else
+      return false
+   end
+end
+
+
+add_autoload_stub (mesh_loader, "obj", "load-obj.lua", "load_obj")
+
+
+----------------------------------------------------------------
+--
+-- Lua scene description loader
+
+-- Load Lua scene description from FILENAME into RSCENE and RCAMERA.
+-- Return true if the scene was loaded successfully, or an error string.
+--
+function scene_loader.lua (filename, rscene, rcamera)
+
+   -- Load the user's file!  This just constructs a function from the
+   -- loaded file, but doesn't actually evaluate it.
+   --
+   local contents, err = loadfile (filename)
+
+   if contents then
+
+      -- Make a new environment to evaluate the file contents in; it will
+      -- inherit from "snogray" for convenience.  There are no global
+      -- pointers to this table so it and its contents will be garbage
+      -- collected after loading.
+      --
+      local environ = {}
+      setmetatable (environ, inherit_snogray_metatable)
+      setfenv (contents, environ)
+
+      -- Remember filename being loaded, so we can find other files in
+      -- the same location.
+      --
+      cur_filename = filename
+
+      -- Set up the scene object for the user code to use.
+      --
+      init_scene (rscene)
+
+      -- Let users use the raw camera directly.
+      --
+      camera = rcamera
+
+      -- Finally, evaluate the loaded file!
+      --
+      local ok, result = pcall (contents)
+
+      if not ok then
+	 err = result
+      end
+   end
+
+   return err or true
+end
+
+-- Other types of Lua file.
+--
+scene_loader.luac = scene_loader.lua
+scene_loader.luo = scene_loader.lua
 
 
 -- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b

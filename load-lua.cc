@@ -34,105 +34,139 @@ using namespace std;
 //
 lua_State *L = 0;
 
-// Load a lua scene file into SCENE and CAMERA; loads all parts of the
-// scene, including lights and the first camera position.
+
+
+// Does a Lua "pcall" and if an error is returned, throws a C++ exception.
+// Otherwise, the pcall results are left on the stack.
 //
-void
-snogray::load_lua_file (const string &filename, Scene &scene, Camera &camera)
+static void
+do_call (lua_State *L, int nargs, int nres)
 {
-  int err = 0;
-  string err_str;
+  int err = lua_pcall (L, nargs, nres, 0);
+  if (err)
+    {
+      string err_str = lua_tostring (L, -1);
+      throw file_error (err_str);
+    }
+}
+
+
+
+// Setup Lua environment, and initialze the global variable L.
+//
+static void
+setup_lua ()
+{
+  // Do one-time setup of lua environment.
+
+  L = lua_open();
+
+  luaL_openlibs (L);		// load standard libraries
+  luaopen_snograw (L);		// load the wrapped module
+
+  // Mark the low-level "snograw" module as loaded.
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "package");
+  lua_getfield (L, -1, "loaded");
+  lua_getfield (L, LUA_GLOBALSINDEX, "snograw");
+  lua_setfield (L, -2, "snograw");
+  lua_pop (L, 1);
+
+  // require ("snogray")
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
+  lua_pushstring (L, "snogray");		 // arg 0
+  do_call (L, 1, 0);
+}
+
+
+// Lua scene loading
+
+// If FILENAME is a format that has a Lua scene loader, load the file named
+// FILENAME into SCENE and CAMERA using Lua, and return true; if FILENAME
+// is unrecogized, return false.  If an error occurs during loading, an
+// exception is thrown.  Loads all parts of the scene, including lights and
+// the first camera position.
+//
+bool
+snogray::load_lua_file (const string &filename, const std::string &fmt,
+			Scene &scene, Camera &camera)
+{
+  bool loaded = false;
 
   if (! L)
-    {
-      // Do one-time setup of lua environment.
+    setup_lua ();
 
-      L = lua_open();
+  // Swig types for the stuff we're gonna pass into lua.
+  //
+  swig_type_info *scene_swig_type = SWIG_TypeQuery (L, "snogray::Scene *");
+  swig_type_info *camera_swig_type = SWIG_TypeQuery (L, "snogray::Camera *");
 
-      luaL_openlibs (L);		// load standard libraries
-      luaopen_snograw (L);		// load the wrapped module
+  // Call "snogray.load_scene (filename, scene, camera)" with our
+  // scene and camera pointers.
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
+  lua_getfield (L, -1, "load_scene");			// function
+  lua_pushstring (L, filename.c_str ());		// arg 0
+  lua_pushstring (L, fmt.c_str ());			// arg 1
+  SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 2
+  SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 3
 
-      // Mark the low-level "snograw" module as loaded.
-      //
-      lua_getfield (L, LUA_GLOBALSINDEX, "package");
-      lua_getfield (L, -1, "loaded");
-      lua_getfield (L, LUA_GLOBALSINDEX, "snograw");
-      lua_setfield (L, -2, "snograw");
-      lua_pop (L, 1);
-
-      // require ("snogray")
-      //
-      lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-      lua_pushstring (L, "snogray");		     // arg 0
-      err = lua_pcall (L, 1, 1, 0);		     // call it
-      if (err)
-	err_str = lua_tostring (L, -1);
-      else
-	lua_pop (L, 1);
-    }
-
-  if (! err)
-    {
-      // Load the file.
-
-      // Swig types for the stuff we're gonna pass into lua.
-      //
-      swig_type_info *scene_swig_type
-	= SWIG_TypeQuery (L, "snogray::Scene *");
-      swig_type_info *camera_swig_type
-	= SWIG_TypeQuery (L, "snogray::Camera *");
-
-      // Call "snogray.start_load (filename, scene, camera)" with our
-      // scene and camera pointers.
-      //
-      lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
-      lua_getfield (L, -1, "start_load");		    // function
-      lua_pushstring (L, filename.c_str ());		    // arg 0
-      SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 1
-      SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 2
-      err = lua_pcall (L, 3, 0, 0);			    // call it
-      if (err)
-	err_str = lua_tostring (L, -1);
-
-      if (! err)
-	{
-	  // Load the user's file!  This just constructs a function from the
-	  // loaded file, but doesn't actually evaluate it.
-	  //
-	  err = luaL_loadfile (L, filename.c_str());
-
-	  // Make a new environment to evaluate the file contents in; it
-	  // will inherit from "snogray" for convenience.  There are no global
-	  // pointers to this table so it and its contents will be garbage
-	  // collected after loading.
-	  //
-	  lua_newtable (L);		    // environ
-	  lua_newtable (L);		    // metatable
-	  lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
-	  lua_setfield (L, -2, "__index");  // metatable.__index = snogray
-	  lua_setmetatable (L, -2);	    // setmetatable(environ, metatable)
-	  lua_setfenv (L, -2);
-
-	  // After loading, we need to execute the loaded object.
-	  //
-	  if (err)
-	    err_str = "file error";
-	  else
-	    {
-	      err = lua_pcall (L, 0, 0, 0);
-	      if (err)
-		err_str = lua_tostring (L, -1);
-	    }
-	}
-    }
+  do_call (L, 4, 1);					// do the call
+  loaded = lua_toboolean (L, -1);			// get result
 
   // Run the garbage collector to free up any data left around from the
   // user's calculations.
   //
   lua_gc (L, LUA_GCCOLLECT, 0);
 
-  if (err)
-    throw file_error (err_str);
+  return loaded;
+}
+
+
+// Lua mesh loading
+
+// If FILENAME is a format that has a Lua mesh loader, load the file named
+// FILENAME into MESH using Lua, and return true; if FILENAME is
+// unrecogized, return false.  If an error occurs during loading, an
+// exception is thrown.
+//
+bool
+snogray::load_lua_file (const string &filename, const std::string &fmt,
+			Mesh &mesh,
+			const MaterialMap &mat_map, const Xform &xform)
+{
+  bool loaded = false;
+
+  if (! L)
+    setup_lua ();
+
+  // Swig types for the stuff we're gonna pass into lua.
+  //
+  swig_type_info *mesh_swig_type = SWIG_TypeQuery (L, "snogray::Mesh *");
+  swig_type_info *matm_swig_type = SWIG_TypeQuery (L, "snogray::MaterialMap *");
+  swig_type_info *xform_swig_type = SWIG_TypeQuery (L, "snogray::Xform *");
+
+  // Call "snogray.load_mesh (filename, mesh, camera)" with our
+  // mesh and camera pointers.
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
+  lua_getfield (L, -1, "load_mesh");			// function
+  lua_pushstring (L, filename.c_str ());		// arg 0
+  lua_pushstring (L, fmt.c_str ());			// arg 1
+  SWIG_NewPointerObj (L, &mesh, mesh_swig_type, 0);	// arg 2
+  SWIG_NewPointerObj (L, &mat_map, matm_swig_type, 0);	// arg 3
+  SWIG_NewPointerObj (L, &xform, xform_swig_type, 0);	// arg 4
+
+  do_call (L, 5, 1);					// do the call
+  loaded = lua_toboolean (L, -1);			// get result
+
+  // Run the garbage collector to free up any data left around from the
+  // user's calculations.
+  //
+  lua_gc (L, LUA_GCCOLLECT, 0);
+
+  return loaded;
 }
 
 
