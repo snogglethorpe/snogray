@@ -318,7 +318,7 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] [SCENE_FILE... [OUTPUT_IMAGE_FILE]]" << endl;
+     << " [OPTION...] SCENE_FILE... OUTPUT_IMAGE_FILE" << endl;
 }
 
 static void
@@ -486,6 +486,12 @@ int main (int argc, char *const *argv)
 	//
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
+
+  if (clp.num_remaining_args() < 2)
+    {
+      usage (clp, cerr);
+      exit (1);
+    }
 
   // Parse scene spec (filename or test-scene name)
   //

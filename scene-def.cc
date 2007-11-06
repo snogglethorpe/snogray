@@ -29,18 +29,6 @@ using namespace std;
 
 // Command-line parsing
 
-SceneDef::Spec
-SceneDef::cin_spec ()
-{
-  string explicit_fmt = params.get_string ("format");
-  if (explicit_fmt == "test")
-    throw runtime_error ("No test-scene name specified");
-  else if (explicit_fmt.empty ())
-    throw runtime_error ("Scene format must be specified for stream input");
-
-  return Spec ("", "", explicit_fmt);
-}
-
 // Parse any scene-definition arguments necessary from CLP.
 // At most MAX_SPECS scene specifications will be consumed from CLP.
 // The exact aguments required may vary depending on previous options.
@@ -53,31 +41,22 @@ SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
   if (num > max_specs)
     num = max_specs;
 
-  if (num == 0)
-    specs.push_back (cin_spec ());
-  else
-    while (num > 0)
-      {
-	string user_name = clp.get_arg ();
+  while (num > 0)
+    {
+      string user_name = clp.get_arg ();
+      string name = user_name;
+      string fmt = params.get_string ("format");
 
-	if (user_name == "-")
-	  specs.push_back (cin_spec ());
-	else
-	  {
-	    string name = user_name;
-	    string fmt = params.get_string ("format");
+      if (fmt.empty() && name.substr (0, 5) == "test:")
+	{
+	  fmt = "test";
+	  name = name.substr (5);
+	}
 
-	    if (fmt.empty() && name.substr (0, 5) == "test:")
-	      {
-		fmt = "test";
-		name = name.substr (5);
-	      }
+      specs.push_back (Spec (user_name, name, fmt));
 
-	    specs.push_back (Spec (user_name, name, fmt));
-	  }
-
-	num--;
-      }
+      num--;
+    }
 }
 
 
@@ -127,17 +106,13 @@ SceneDef::load (Scene &scene, Camera &camera)
       {
 	if (spec->scene_fmt == "test")
 	  def_test_scene (spec->name, scene, camera);
-	else if (spec->name.empty ())
-	  scene.load (cin, spec->scene_fmt, camera);
 	else
 	  scene.load (spec->name, spec->scene_fmt, camera);
       }
     catch (runtime_error &err)
       {
-	string tag = spec->user_name;
-	if (tag.empty ())
-	  tag = "<standard input>";
-	throw runtime_error (tag + ": Error reading scene: " + err.what ());
+	throw runtime_error (spec->user_name + ": Error reading scene: "
+			     + err.what ());
       }
 
   if (scene.light_map)
