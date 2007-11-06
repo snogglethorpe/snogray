@@ -24,6 +24,7 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <cerrno>
 
 #include "snogmath.h"
 #include "excepts.h"
@@ -346,8 +347,12 @@ barf_if_no_material (const Material *mat, const char *op)
 }
 
 void
-Scene::load_aff_file (istream &stream, Camera &camera)
+Scene::load_aff_file (const std::string &file_name, Camera &camera)
 {
+  ifstream stream (file_name.c_str());
+  if (! stream)
+    throw file_error (string ("Cannot open scene file: ") + strerror (errno));
+
   set_assumed_gamma (AFF_ASSUMED_GAMMA);
   camera.transform (Xform::scaling (1, 1, -1));
 
