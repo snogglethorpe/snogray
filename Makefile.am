@@ -209,12 +209,12 @@ endif
 #
 
 libsnogload2_a_SOURCES = mesh-load.cc scene-load-aff.cc
+libsnogload2_a_SOURCES += load-msh.cc load-msh.h
+libsnogload2_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
 
 # Library dependencies of libsnogload2.a
 #
 libsnogload2_LIBS =
-
-libsnogload2_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
 
 if have_lib3ds
   libsnogload2_a_SOURCES += load-3ds.cc load-3ds.h

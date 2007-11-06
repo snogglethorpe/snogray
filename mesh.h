@@ -17,7 +17,6 @@
 #include <istream>
 #include <vector>
 #include <map>
-#include <utility>		// for std::pair
 
 #include "surface.h"
 #include "pos.h"
@@ -128,12 +127,6 @@ public:
     load (file_name, MaterialMap (), xform);
   }
 
-  // For loading mesh from .msh file
-  //
-  void load_msh_file (std::istream &stream,
-		      const MaterialMap &mat_map = MaterialMap (),
-		      const Xform &xform = Xform::identity);
-
   // Add this (or some other) surfaces to the space being built by
   // SPACE_BUILDER.
   //
@@ -167,6 +160,14 @@ public:
     triangles.reserve (num_triangles() + num_tris);
     if (with_normals)
       vertex_normals.reserve (num_vertices() + num_verts);
+  }
+
+  // Resize the internal data structures so that room is reserved for as
+  // as many vertex normals as there are currently vertices.
+  //
+  void reserve_normals ()
+  {
+    vertex_normals.reserve (num_vertices ());
   }
 
   // Return a bounding box for the entire mesh
