@@ -11,6 +11,7 @@
 
 #include <fstream>
 #include <cerrno>
+#include <cstring>
 
 #include "config.h"
 
