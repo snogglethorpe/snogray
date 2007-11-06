@@ -34,7 +34,7 @@ Mesh::load (const string &file_name, const MaterialMap &mat_map,
 {
   try
     {
-      string ext = filename_ext (filename);
+      string ext = filename_ext (file_name);
 
       if (ext == "ply")
 	load_ply_file (file_name, *this, mat_map.map (material), xform);
