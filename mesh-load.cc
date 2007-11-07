@@ -19,7 +19,7 @@
 #ifdef HAVE_LIB3DS
 # include "load-3ds.h"
 #endif
-#if LUA_SCENE_DEF
+#if USE_LUA
 # include "load-lua.h"
 #endif
 
@@ -50,7 +50,7 @@ Mesh::load (const string &file_name, const MaterialMap &mat_map,
 	load_3ds_file (file_name, *this, mat_map, xform);
 #endif
 
-#ifdef LUA_SCENE_DEF
+#ifdef USE_LUA
       else if (load_lua_file (file_name, ext, *this, mat_map, xform))
 	{ /* loaded */ }
 #endif

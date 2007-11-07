@@ -21,7 +21,7 @@ noinst_LIBRARIES = libsnogcli.a libsnogimage.a libsnoglight.a		\
 	libsnogload.a libsnogload2.a libsnogmat.a libsnogrdrive.a	\
 	libsnogrender.a libsnogscene.a libsnogsurf.a libsnogutil.a
 
-if lua_scene_def
+if use_lua
   noinst_LIBRARIES += libsnograw.a
 endif
 
@@ -194,7 +194,7 @@ libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
 #
 libsnogload_LIBS =
 
-if lua_scene_def
+if use_lua
   libsnogload_a_SOURCES += load-lua.cc load-lua.h
   libsnogload_LIBS += libsnograw.a $(liblua_LIBS)
 

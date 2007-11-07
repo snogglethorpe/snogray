@@ -372,28 +372,28 @@ AM_CONDITIONAL([have_swig], [test $have_swig = yes])
 have_snograw_wrap=$have_swig
 test -r "snograw_wrap.cc" && test -r "swigluarun.h" && have_snograw_wrap=yes
 
-# Whether we can support Lua scene definition.
+# Whether we can use Lua.
 #
-AC_MSG_CHECKING([whether to enable Lua scene definition])
-lua_scene_def=no
-lua_scene_def_pretty=no
+AC_MSG_CHECKING([whether to use Lua])
+use_lua=no
+use_lua_pretty=no
 if test $have_snograw_wrap = no; then
-  lua_scene_def_pretty='no (swig not installed)'
+  use_lua_pretty='no (swig not installed)'
 elif test "$have_liblua" = no; then
-  lua_scene_def_pretty='no (no Lua library)'
+  use_lua_pretty='no (no Lua library)'
 else
-  lua_scene_def=yes
+  use_lua=yes
 
   if test "$have_swig" = yes; then
-    lua_scene_def_pretty=yes
+    use_lua_pretty=yes
   else
-    lua_scene_def_pretty='yes (using pre-generated interface)'
+    use_lua_pretty='yes (using pre-generated interface)'
   fi
 
-  AC_DEFINE([LUA_SCENE_DEF], [1], [Define if lua scene definition is enabled])
+  AC_DEFINE([USE_LUA], [1], [Define if lua scene definition is enabled])
 fi
-AC_MSG_RESULT([$lua_scene_def_pretty])
-AM_CONDITIONAL([lua_scene_def], [test $lua_scene_def = yes])
+AC_MSG_RESULT([$use_lua_pretty])
+AM_CONDITIONAL([use_lua], [test $use_lua = yes])
 
 
 ##

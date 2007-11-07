@@ -19,7 +19,7 @@
 #if HAVE_LIB3DS
 # include "load-3ds.h"
 #endif
-#if LUA_SCENE_DEF
+#if USE_LUA
 # include "load-lua.h"
 #endif
 
@@ -47,7 +47,7 @@ Scene::load (const string &file_name, const string &_fmt, Camera &camera)
     load_3ds_file (file_name, *this, camera);
 #endif
 
-#ifdef LUA_SCENE_DEF
+#ifdef USE_LUA
   else if (load_lua_file (file_name, fmt, *this, camera))
       { /* loaded */ }
 #endif
