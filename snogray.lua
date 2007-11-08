@@ -12,9 +12,7 @@
 
 module ("snogray", package.seeall)
 
-require ("snograw")
-
-local raw = snograw
+local raw = require "snograw"
 
 
 ----------------------------------------------------------------
