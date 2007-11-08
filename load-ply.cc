@@ -14,7 +14,6 @@
 #include <csetjmp>
 
 #include "excepts.h"
-#include "xform.h"
 #include "mesh.h"
 
 extern "C" {
@@ -30,21 +29,14 @@ using namespace snogray;
 
 struct RplyState
 {
-  RplyState (Mesh &_mesh, const Material *_mat, const Xform &_xform)
-    : mesh (_mesh), base_vert_index (mesh.num_vertices ()),
-      xform (_xform), norm_xform (xform.inverse().transpose()), mat (_mat),
+  RplyState (Mesh &_mesh, const Material *_mat)
+    : mesh (_mesh), base_vert_index (mesh.num_vertices ()), mat (_mat),
       last_vert_index (0)
   { }
 
   Mesh &mesh;
 
   Mesh::vert_index_t base_vert_index;
-
-  Xform xform;
-
-  // A variant of XFORM suitable for transforming normals.
-  //
-  Xform norm_xform;
 
   const Material *mat;
 
@@ -90,8 +82,7 @@ vert_cb (p_ply_argument arg)
 
   if (n == 2)
     s->last_vert_index
-      = s->mesh.add_vertex (Pos (s->vals[0], s->vals[1], s->vals[2])
-			    * s->xform);
+      = s->mesh.add_vertex (Pos (s->vals[0], s->vals[1], s->vals[2]));
 
   return 1;
 }
@@ -114,8 +105,7 @@ norm_cb (p_ply_argument arg)
     {
       Mesh::vert_index_t norm_index
 	= s->mesh.add_normal (s->last_vert_index,
-			      Vec (s->vals[0], s->vals[1], s->vals[2])
-			      * s->norm_xform);
+			      Vec (s->vals[0], s->vals[1], s->vals[2]));
 
       if (norm_index != s->last_vert_index)
 	{
@@ -159,17 +149,17 @@ face_cb (p_ply_argument arg)
 
 // Main loading function
 
-// Load mesh from a .ply format mesh file into MESH.  Geometry is first
-// transformed by XFORM.  If non-zero the material MAT will be used for
-// triangles loaded (otherwise MESH's default material will be used).
+// Load mesh from a .ply format mesh file into MESH.  If non-zero the
+// material MAT will be used for triangles loaded (otherwise MESH's
+// default material will be used).
 //
 void
 snogray::load_ply_file (const std::string &filename, Mesh &mesh,
-			const Material *mat, const Xform &xform)
+			const Material *mat)
 {
   // State used by all our call back functions.
   //
-  RplyState state (mesh, mat, xform);
+  RplyState state (mesh, mat);
 
   // The rply library uses a void* value to store client state, so keep a
   // pointer to STATE in that form.

@@ -14,8 +14,6 @@
 
 #include <string>
 
-#include "xform.h"
-
 
 namespace snogray {
 
@@ -41,8 +39,7 @@ extern bool load_lua_file (const std::string &filename, const std::string &fmt,
 // exception is thrown.
 //
 extern bool load_lua_file (const std::string &filename, const std::string &fmt,
-			   Mesh &mesh,
-			   const MaterialMap &mat_map, const Xform &xform);
+			   Mesh &mesh, const MaterialMap &mat_map);
 
 }
 

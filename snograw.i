@@ -487,10 +487,8 @@ namespace snogray {
 
     Mesh (const snogray::Material *mat = 0);
     Mesh (const snogray::Material *mat, const char *file_name,
-	  const snogray::Xform &xform = Xform::identity,
 	  bool smooth = true);
-    Mesh (const char *file_name, const MaterialMap &mat_map,
-	  const Xform &xform = Xform::identity);
+    Mesh (const char *file_name, const MaterialMap &mat_map);
 
     typedef unsigned vert_index_t;
     class VertexGroup;
@@ -517,9 +515,7 @@ namespace snogray {
     void reserve_normals ();
 
     void load (const char *file_name,
-	       const MaterialMap &mat_map = MaterialMap (),
-	       const Xform &xform = Xform::identity);
-    void load (const char *file_name, const Xform &xform);
+	       const MaterialMap &mat_map = MaterialMap ());
 
     void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
 
@@ -553,27 +549,6 @@ namespace snogray {
 			     float nx, float ny, float nz)
     {
       return $self->add_normal (vert_index, snogray::Vec (nx, ny, nz));
-    }
-
-    // Similarly, variants with a built-in transform.
-    //
-    vert_index_t add_vertex (float x, float y, float z, const Xform &xform)
-    {
-      return $self->add_vertex (snogray::Pos (x, y, z) * xform);
-    }
-    vert_index_t add_vertex (float x, float y, float z,
-			     float nx, float ny, float nz,
-			     const Xform &xform, const Xform &norm_xform)
-    {
-      return $self->add_vertex (snogray::Pos (x, y, z) * xform,
-				snogray::Vec (nx, ny, nz) * norm_xform);
-    }
-    vert_index_t add_normal (vert_index_t vert_index,
-			     float nx, float ny, float nz,
-			     const Xform &norm_xform)
-    {
-      return $self->add_normal (vert_index,
-				snogray::Vec (nx, ny, nz) * norm_xform);
     }
   }
 

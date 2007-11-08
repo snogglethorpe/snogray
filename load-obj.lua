@@ -28,21 +28,13 @@ local p_ws_int = p_opt_ws * p_int
 -- obj-file comment
 local p_comment = P"#" * (1 - p_nl)^0
 
-function load_obj (filename, mesh, mat_map, xform)
+function load_obj (filename, mesh, mat_map)
    local s = io.open (filename, "r")
 
    local mat = mat_map:get_default ()
 
---    -- It's relatively expensive to create position objects and do matrix
---    -- transforms (this is largely overhead of the swig-generated
---    -- interface I think), so avoid doing so if we can.
---    --
---    if xform and xform:is_identity () then
---       xform = nil
---    end
-
    local function add_vert (x, y, z)
-      mesh:add_vertex (x, y, z, xform)
+      mesh:add_vertex (x, y, z)
    end
 
    local function add_poly (v1, v2, v3, ...)

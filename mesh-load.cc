@@ -32,26 +32,25 @@ using namespace std;
 // Generic mesh-file loading
 
 void
-Mesh::load (const string &file_name, const MaterialMap &mat_map,
-	    const Xform &xform)
+Mesh::load (const string &file_name, const MaterialMap &mat_map)
 {
   try
     {
       string ext = filename_ext (file_name);
 
       if (ext == "ply")
-	load_ply_file (file_name, *this, mat_map.map (material), xform);
+	load_ply_file (file_name, *this, mat_map.map (material));
  
       else if (ext == "msh" || ext == "mesh")
-	load_msh_file (file_name, *this, mat_map, xform);
+	load_msh_file (file_name, *this, mat_map);
 
 #ifdef HAVE_LIB3DS
       else if (ext == "3ds")
-	load_3ds_file (file_name, *this, mat_map, xform);
+	load_3ds_file (file_name, *this, mat_map);
 #endif
 
 #ifdef USE_LUA
-      else if (load_lua_file (file_name, ext, *this, mat_map, xform))
+      else if (load_lua_file (file_name, ext, *this, mat_map))
 	{ /* loaded */ }
 #endif
 

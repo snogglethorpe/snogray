@@ -87,6 +87,16 @@ add_bulb (Scene &scene, const Pos &pos, float radius, const Color &col = 1)
   scene.add (new Sphere (scene.add (new Glow (intens)), pos, radius));
 }
 
+static void
+add_mesh (Scene &scene, const std::string &filename, const Material *mat,
+	  const Xform &xform = Xform::identity)
+{
+  Mesh *mesh = new Mesh (mat, filename);
+  if (! xform.is_identity ())
+    mesh->transform (xform);
+  scene.add (mesh);
+}
+
 
 // Lamp colors (data from "lamp.tab" in radiance)
 
@@ -231,9 +241,9 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
       b1_mat = phong_black; b2_mat = ivory; break;
     }
 
-  scene.add (new Mesh (b1_mat, "board1.msh", mesh_xform));
-  scene.add (new Mesh (b2_mat, "board2.msh", mesh_xform));
-  scene.add (new Mesh (brown, "board3.msh", mesh_xform));
+  add_mesh (scene, "board1.msh", b1_mat, mesh_xform);
+  add_mesh (scene, "board2.msh", b2_mat, mesh_xform);
+  add_mesh (scene, "board3.msh", brown, mesh_xform);
 }
 
 
@@ -303,9 +313,15 @@ def_scene_pretty_bunny (unsigned num, const string &arg,
 
   Mesh *bunny = new Mesh (goldbunny ? gold : glass);
   if (num / 10 == 1)
-    bunny->load ("+bunny69451.msh", Xform().scale(10).translate(0,-0.35,0));
+    {
+      bunny->load ("+bunny69451.msh");
+      bunny->transform (Xform().scale(10).translate(0,-0.35,0));
+    }
   else
-    bunny->load ("bunny500.msh", Xform().translate(0, 0.65, 0));
+    {
+      bunny->load ("bunny500.msh");
+      bunny->transform (Xform::translation (0, 0.65, 0));
+    }
   bunny->compute_vertex_normals ();
   scene.add (bunny);
 
@@ -614,7 +630,7 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
   const Material *mat = def_teapot_mat (scene, (num / 1000) % 10);
 
   Xform teapot_xform = mesh_xform * Xform::translation (Vec (0, -0.1, 0));
-  scene.add (new Mesh (mat, mesh_file, teapot_xform, true));
+  add_mesh (scene, mesh_file, mat, teapot_xform);
 
   def_teapot_stand (scene, (num / 100) % 10);
   def_teapot_lighting (scene, (num / 10) % 10);
@@ -1308,7 +1324,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
   // Add bunny.  For variant 0, we use the original unsmoothed appearance;
   // for everythign else we do smoothing.
   //
-  scene.add (new Mesh (red, "bunny500.msh", Xform::identity, (variant > 0)));
+  scene.add (new Mesh (red, "bunny500.msh", (variant > 0)));
   
   add_chessboard (scene, Xform::translation (Vec (0, -0.65, 0)));
   
@@ -1917,7 +1933,8 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
       xform.rotate_y (rot * M_PI_2);
     }
 
-  Mesh *mesh = new Mesh (obj_mat, arg, xform, true);
+  Mesh *mesh = new Mesh (obj_mat, arg);
+  mesh->transform (xform);
   normalize (mesh, 0.4);
   scene.add (mesh);
 
@@ -2112,17 +2129,18 @@ def_scene_frep (unsigned num, const string &arg, Scene &scene, Camera &camera)
     pfx += "/";
 
   Xform xform;
-  
-  xform.scale (1, 1, -1);	// flip z-axis
 
-  scene.add (new Mesh (table,		pfx + "table.ply", 	  xform, true));
-  scene.add (new Mesh (vase_red, 	pfx + "vase.ply", 	  xform, true));
-  scene.add (new Mesh (metallic_blue, 	pfx + "bowl.ply", 	  xform, true));
-  scene.add (new Mesh (nickel, 		pfx + "teapot_body.ply",  xform, true));
-  scene.add (new Mesh (brown_plastic, 	pfx + "teapot_handle.ply",xform, true));
-  scene.add (new Mesh (metallic_blue, 	pfx + "teapot_top.ply",   xform, true));
-  scene.add (new Mesh (nickel, 		pfx + "teapot_wire.ply",  xform, true));
-  scene.add (new Mesh (red_plastic, 	pfx + "teapot_bird.ply",  xform, true));
+  Xform flip_z;
+  flip_z.scale (1, 1, -1);	// flip z-axis
+
+  add_mesh (scene, pfx + "table.ply", table, flip_z);
+  add_mesh (scene, pfx + "vase.ply", vase_red, flip_z);
+  add_mesh (scene, pfx + "bowl.ply", metallic_blue, flip_z);
+  add_mesh (scene, pfx + "teapot_body.ply", nickel, flip_z);
+  add_mesh (scene, pfx + "teapot_handle.ply", brown_plastic, flip_z);
+  add_mesh (scene, pfx + "teapot_top.ply", metallic_blue, flip_z);
+  add_mesh (scene, pfx + "teapot_wire.ply", nickel, flip_z);
+  add_mesh (scene, pfx + "teapot_bird.ply", red_plastic, flip_z);
 
   switch (num)
     {
@@ -2178,21 +2196,20 @@ def_scene_trep (unsigned num, const string &arg, Scene &scene, Camera &camera)
   if (!pfx.empty () && pfx[pfx.length () - 1] != '/')
     pfx += "/";
 
-  Xform flip_z;
-  flip_z.scale (1, 1, -1);	// flip z-axis
-
   Mesh *pot = new Mesh ();
-  pot->load (pfx + "teapot_body.ply", body_mat, flip_z);
-  pot->load (pfx + "teapot_handle.ply", brown_plastic, flip_z);
-  pot->load (pfx + "teapot_top.ply", metallic_blue, flip_z);
-  pot->load (pfx + "teapot_wire.ply", nickel, flip_z);
-  pot->load (pfx + "teapot_bird.ply", red_plastic, flip_z);
-  pot->compute_vertex_normals ();
+  pot->load (pfx + "teapot_body.ply", body_mat);
+  pot->load (pfx + "teapot_handle.ply", brown_plastic);
+  pot->load (pfx + "teapot_top.ply", metallic_blue);
+  pot->load (pfx + "teapot_wire.ply", nickel);
+  pot->load (pfx + "teapot_bird.ply", red_plastic);
 
   SXform pot_xform;
+  pot_xform.scale (1, 1, -1);	// flip z-axis
   pot_xform.scale (2);
   pot_xform.rotate_y (M_PIf * .75f);
   normalize (pot, pot_xform);
+
+  pot->compute_vertex_normals ();
 
   scene.add (pot);
 

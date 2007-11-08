@@ -165,8 +165,7 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
 //
 bool
 snogray::load_lua_file (const string &filename, const std::string &fmt,
-			Mesh &mesh,
-			const MaterialMap &mat_map, const Xform &xform)
+			Mesh &mesh, const MaterialMap &mat_map)
 {
   bool loaded = false;
 
@@ -177,7 +176,6 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   //
   swig_type_info *mesh_swig_type = SWIG_TypeQuery (L, "snogray::Mesh *");
   swig_type_info *matm_swig_type = SWIG_TypeQuery (L, "snogray::MaterialMap *");
-  swig_type_info *xform_swig_type = SWIG_TypeQuery (L, "snogray::Xform *");
 
   // Call "snogray.load_mesh (filename, mesh, camera)" with our
   // mesh and camera pointers.
@@ -188,9 +186,8 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   lua_pushstring (L, fmt.c_str ());			// arg 1
   SWIG_NewPointerObj (L, &mesh, mesh_swig_type, 0);	// arg 2
   SWIG_NewPointerObj (L, &mat_map, matm_swig_type, 0);	// arg 3
-  SWIG_NewPointerObj (L, &xform, xform_swig_type, 0);	// arg 4
 
-  do_call (L, 5, 1);					// do the call
+  do_call (L, 4, 1);					// do the call
   loaded = lua_toboolean (L, -1);			// get result
 
   // Run the garbage collector to free up any data left around from the

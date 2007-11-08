@@ -15,20 +15,17 @@
 
 #include <string>
 
-#include "xform.h"
-
 namespace snogray {
 
 class Mesh;
 class Material;
 
-// Load mesh from a .ply format mesh file into MESH.  Geometry is first
-// transformed by XFORM.  If non-zero the material MAT will be used for
-// triangles loaded (otherwise MESH's default material will be used).
+// Load mesh from a .ply format mesh file into MESH.  If non-zero the
+// material MAT will be used for triangles loaded (otherwise MESH's
+// default material will be used).
 //
 extern void load_ply_file (const std::string &filename, Mesh &mesh,
-			   const Material *mat = 0,
-			   const Xform &xform = Xform::identity);
+			   const Material *mat = 0);
 
 }
 

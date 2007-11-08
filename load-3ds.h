@@ -14,8 +14,6 @@
 
 #include <string>
 
-#include "xform.h"
-
 namespace snogray {
 
 class Scene;
@@ -30,12 +28,10 @@ extern void load_3ds_file (const std::string &filename,
 			   Scene &scene, Camera &camera);
 
 // Load meshes (and any materials they use) from a 3ds scene file into
-// MESH.  Geometry is first transformed by XFORM, and materials filtered
-// through MAT_MAP.
+// MESH.  Materials are filtered through MAT_MAP.
 //
 extern void load_3ds_file (const std::string &filename,
-			   Mesh &mesh, const MaterialMap &mat_map,
-			   const Xform &xform);
+			   Mesh &mesh, const MaterialMap &mat_map);
 
 }
 

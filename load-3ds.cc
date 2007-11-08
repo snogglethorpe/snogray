@@ -671,12 +671,11 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 }
 
 // Load meshes (and any materials they use) from a 3ds scene file into
-// MESH.  Geometry is first transformed by XFORM, and materials filtered
-// through MAT_MAP.
+// MESH.  Materials are filtered through MAT_MAP.
 //
 void
 snogray::load_3ds_file (const string &filename, Mesh &mesh,
-			const MaterialMap &mat_map, const Xform &xform)
+			const MaterialMap &mat_map)
 {
   TdsLoader l (&mesh, mat_map);
 
@@ -687,7 +686,6 @@ snogray::load_3ds_file (const string &filename, Mesh &mesh,
   Xform file_xform;
   file_xform.rotate_x (-M_PI_2);
   file_xform.scale (1, 1, -1);
-  file_xform *= xform;
 
   l.convert (file_xform);
 }

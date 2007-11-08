@@ -25,21 +25,20 @@
 using namespace snogray;
 
 
-// Load mesh from a .msh format mesh file into MESH.  Geometry is first
-// transformed by XFORM, and materials filtered through MAT_MAP.
+// Load mesh from a .msh format mesh file into MESH.  Materials are
+// filtered through MAT_MAP.
 //
 void
 snogray::load_msh_file (const std::string &filename, Mesh &mesh,
-			const MaterialMap &mat_map, const Xform &xform)
+			const MaterialMap &mat_map)
 {
   std::ifstream stream (filename.c_str());
   if (! stream)
     throw file_error (std::string (": ") + strerror (errno));
 
-  // .msh files use a right-handed coordinate system by convention, so
-  // the mesh will be left-handed only if XFORM reverses the handedness.
+  // .msh files use a right-handed coordinate system by convention.
   //
-  mesh.left_handed = xform.reverses_handedness ();
+  mesh.left_handed = false;
 
   char kw[50];
 
@@ -88,7 +87,7 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
 	  stream >> pos.y;
 	  stream >> pos.z;
 
-	  mesh.add_vertex (pos * xform);
+	  mesh.add_vertex (pos);
 	}
 
       stream >> kw;
@@ -126,11 +125,6 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
 	{
 	  mesh.reserve_normals ();
 
-	  // Calculate a variant of XFORM suitable for transforming
-	  // normals.
-	  //
-	  Xform norm_xform = xform.inverse().transpose();
-
 	  for (unsigned i = 0; i < num_vertices; i++)
 	    {
 	      Vec norm;
@@ -139,7 +133,7 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
 	      stream >> norm.y;
 	      stream >> norm.z;
 
-	      mesh.add_normal (base_vert + i, (norm * norm_xform).unit ());
+	      mesh.add_normal (base_vert + i, norm.unit ());
 	    }
 
 	  stream >> kw;

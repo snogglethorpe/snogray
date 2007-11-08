@@ -15,18 +15,16 @@
 
 #include <string>
 
-#include "xform.h"
-
 namespace snogray {
 
 class Mesh;
 class MaterialMap;
 
-// Load mesh from a .msh format mesh file into MESH.  Geometry is first
-// transformed by XFORM, and materials filtered through MAT_MAP.
+// Load mesh from a .msh format mesh file into MESH.  Materials are
+// filtered through MAT_MAP.
 //
 extern void load_msh_file (const std::string &filename, Mesh &mesh,
-			   const MaterialMap &mat_map, const Xform &xform);
+			   const MaterialMap &mat_map);
 
 }
 
