@@ -40,6 +40,7 @@ config.h.in
 depcomp
 install-sh
 missing
+compile
 mkinstalldirs
 config.guess
 config.sub
