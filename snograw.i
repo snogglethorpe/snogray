@@ -512,6 +512,10 @@ namespace snogray {
 
     vert_index_t add_normal (vert_index_t vert_index, const Vec &normal);
 
+    void reserve (unsigned num_verts, unsigned num_tris,
+		  bool with_normals = false);
+    void reserve_normals ();
+
     void load (const char *file_name,
 	       const MaterialMap &mat_map = MaterialMap (),
 	       const Xform &xform = Xform::identity);
