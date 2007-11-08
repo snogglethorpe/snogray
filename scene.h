@@ -42,9 +42,10 @@ public:
   Scene ();
   ~Scene ();
 
-  // Returns the background color in the direction pointed to by RAY
+  // Returns the background color in the given direction.
   //
-  Color background (const Ray &ray) const;
+  Color background (const Vec &dir) const;
+  Color background (const Ray &ray) const { return background (ray.dir); }
 
   // Return the closest surface in this scene which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened

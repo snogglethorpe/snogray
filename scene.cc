@@ -202,14 +202,14 @@ Scene::shadow (const ShadowRay &ray, Trace &trace) const
 
 // Scene background rendering
 
-// Returns the background color in the direction pointed to by RAY
+// Returns the background color in the given direction.
 //
 Color
-Scene::background (const Ray &ray) const
+Scene::background (const Vec &dir) const
 {
   if (env_map)
     {
-      Color bg = env_map->map (ray.dir);
+      Color bg = env_map->map (dir);
 
       // If there are separate environment and light-maps, it's likely that
       // the latter is HDR and the former LDR, so try to add highlight
@@ -240,7 +240,7 @@ Scene::background (const Ray &ray) const
 
 	  if (max > 1-SAT_EPS && max < 1+SAT_EPS)
 	    {
-	      Color lmap_bg = light_map->map (ray.dir);
+	      Color lmap_bg = light_map->map (dir);
 
 	      for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
 		if (bg[c] > 1-SAT_EPS && lmap_bg[c] > 1)
