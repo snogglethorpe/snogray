@@ -613,9 +613,9 @@ Mesh::recalc_bbox ()
 // Transform all vertices in the mesh by XFORM.
 //
 void
-Mesh::transform (Xform &xform)
+Mesh::transform (const Xform &xform)
 {
-  SXform xf = SXform (xform);
+  const SXform xf = SXform (xform);
 
   for (vert_index_t v = 0; v < vertices.size (); v++)
     vertices[v] *= xf;

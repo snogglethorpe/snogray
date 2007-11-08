@@ -176,7 +176,7 @@ public:
 
   // Transform all vertices in the mesh by XFORM.
   //
-  void transform (Xform &xform);
+  void transform (const Xform &xform);
 
 
 private:
