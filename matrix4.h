@@ -226,6 +226,19 @@ public:
     return adjoint () * (1 / det ());
   }
 
+  bool is_identity () const
+  {
+    for (unsigned j = 0; j < 4; j++)
+      for (unsigned i = 0; i < 4; i++)
+	{
+	  T goal = (i == j) ? T(1) : T(0);
+	  T delta = abs (els[i][j] - goal);
+	  if (delta > 0.000001)
+	    return false;
+	}
+    return true;
+  }
+
 private:
 
   T els[4][4];
