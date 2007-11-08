@@ -22,7 +22,7 @@ noinst_LIBRARIES = libsnogcli.a libsnogimage.a libsnoglight.a		\
 	libsnogrender.a libsnogscene.a libsnogsurf.a libsnogutil.a
 
 if use_lua
-  noinst_LIBRARIES += libsnograw.a
+  noinst_LIBRARIES += libsnograw.a libluaexts.a
 endif
 
 # Various files to include in distribution not covered by automatic rules
@@ -31,6 +31,7 @@ EXTRA_DIST =						\
 	snogray.lua load-obj.lua			\
 	snograw.i					\
 	autogen.sh					\
+	lpeg.html					\
 	board1.msh board2.msh board3.msh bunny500.msh	\
 	stats.txt spd.txt
 
@@ -196,10 +197,24 @@ libsnogload_LIBS =
 
 if use_lua
   libsnogload_a_SOURCES += load-lua.cc load-lua.h
-  libsnogload_LIBS += libsnograw.a $(liblua_LIBS)
+  libsnogload_LIBS += libsnograw.a libluaexts.a $(liblua_LIBS)
 
 load-lua.o : swigluarun.h
 endif
+
+
+################################################################
+#
+# Library of statically-linked lua extensions.  These could also be
+# dynamically loaded, but that needs more infrastructure work.
+#
+
+libluaexts_a_SOURCES = lpeg.c
+
+libluaexts_a_CFLAGS = $(AM_CFLAGS) -DNDEBUG
+
+# Make automake suck slightly less
+libluaexts_a_SHORTNAME = le
 
 
 ################################################################

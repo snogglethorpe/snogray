@@ -51,6 +51,27 @@ do_call (lua_State *L, int nargs, int nres)
 }
 
 
+// Module "pre-loading"
+
+extern "C" int luaopen_lpeg (lua_State *L);
+
+struct preload_module
+{
+  const char *name;
+  lua_CFunction loader;
+};
+
+// A list of modules which are statically linked into our executable and
+// should be preloaded (which allows Lua's require mechanism to find
+// them).
+//
+static preload_module preloaded_modules[] = {
+  { "lpeg", luaopen_lpeg },
+  { 0, 0 }
+};
+
+
+// Lua initialization
 
 // Setup Lua environment, and initialze the global variable L.
 //
@@ -63,6 +84,17 @@ setup_lua ()
 
   luaL_openlibs (L);		// load standard libraries
   luaopen_snograw (L);		// load the wrapped module
+
+  // register preloaded modules
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "package");
+  lua_getfield (L, -1, "preload");
+  for (preload_module *pm = preloaded_modules; pm->name; pm++)
+    {
+      lua_pushcfunction (L, pm->loader);
+      lua_setfield (L, -2, pm->name);
+    }
+  lua_pop (L, 1);		// pop package.preload table
 
   // Mark the low-level "snograw" module as loaded.
   //
