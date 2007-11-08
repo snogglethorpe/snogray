@@ -631,6 +631,9 @@ Mesh::transform (Xform &xform)
 	vertex_normals[v] *= norm_xf;
     }
 
+  if (xform.reverses_handedness ())
+    left_handed = !left_handed;
+
   // Recalculate the bounding-box based on the transformed vertices.
   //
   // We could also just transform the old bounding-box by XFORM, but
