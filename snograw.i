@@ -534,6 +534,47 @@ namespace snogray {
 		$self->num_vertices(), $self->num_triangles());
       return static_rep_buf;
     }
+
+    // Variants of real methods that take the individual components of
+    // position/vertex arguments (as creating a Pos/Vec object is much 
+    // more expensive in scripting languages than in C++).
+    //
+    vert_index_t add_vertex (float x, float y, float z)
+    {
+      return $self->add_vertex (snogray::Pos (x, y, z));
+    }
+    vert_index_t add_vertex (float x, float y, float z,
+			     float nx, float ny, float nz)
+    {
+      return $self->add_vertex (snogray::Pos (x, y, z),
+				snogray::Vec (nx, ny, nz));
+    }
+    vert_index_t add_normal (vert_index_t vert_index,
+			     float nx, float ny, float nz)
+    {
+      return $self->add_normal (vert_index, snogray::Vec (nx, ny, nz));
+    }
+
+    // Similarly, variants with a built-in transform.
+    //
+    vert_index_t add_vertex (float x, float y, float z, const Xform &xform)
+    {
+      return $self->add_vertex (snogray::Pos (x, y, z) * xform);
+    }
+    vert_index_t add_vertex (float x, float y, float z,
+			     float nx, float ny, float nz,
+			     const Xform &xform, const Xform &norm_xform)
+    {
+      return $self->add_vertex (snogray::Pos (x, y, z) * xform,
+				snogray::Vec (nx, ny, nz) * norm_xform);
+    }
+    vert_index_t add_normal (vert_index_t vert_index,
+			     float nx, float ny, float nz,
+			     const Xform &norm_xform)
+    {
+      return $self->add_normal (vert_index,
+				snogray::Vec (nx, ny, nz) * norm_xform);
+    }
   }
 
   class Camera
