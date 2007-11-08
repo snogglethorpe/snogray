@@ -98,8 +98,6 @@ n
 s "      --brdf                 Only sample the BRDF"
 s "      --lights               Only sample the lights"
 n
-s "  -n, --num-samples=NUM      Set the number of samples"
-n
 s "  -i, --intensity            Indicate sample intensity too"
 n
 s "  -N, --no-normalize         Don't normalize sample values"
@@ -138,7 +136,6 @@ int main (int argc, char *const *argv)
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
     { "map-size",	required_argument, 0, 'm' },
-    { "num-samples",	required_argument, 0, 'n' },
     { "no-normalize",	no_argument, 	   0, 'N' },
     { "brdf",		no_argument,	   0, OPT_BRDF },
     { "lights",		no_argument,	   0, OPT_LIGHTS },
@@ -152,7 +149,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:m:n:Nr:"
+    "s:m:Nr:"
     SCENE_DEF_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
