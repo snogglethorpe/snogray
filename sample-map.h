@@ -28,58 +28,25 @@ class SampleMap
 {
 public:
 
-  // What sort of map to output: either raw brdf samples, raw light
-  // samples, or the product of the two (the last is what is normally
-  // used for rendering).
-  //
-  enum type { BRDF, LIGHTS, FILTERED };
-
-  SampleMap (unsigned width, unsigned height, enum type _type)
-    : map (width, height), map_type (_type), num_samples (0)
-  { }
-
-  void set_type (type _type) { map_type = _type; }
+  SampleMap () : num_samples (0) { }
 
   // Add NUM samples from the first intersection reached by tracing EYE_RAY
   // into SCENE.
   //
   unsigned sample (const Ray &eye_ray, Scene &scene,
-		   const TraceParams &trace_params, bool intensity = false);
+		   const TraceParams &trace_params);
 
   // Normalize samples (so that the maximum sample has value 1)
   //
   void normalize ();
 
-  // Save this map to a file.
+  // Draw a picture of the samples to MAP.  RADIUS is how wide a circle to
+  // use for drawing each sample; if RADIUS is zero then each sample is drawn
+  // with a single pixel in MAP.  COLOR is a color in which to draw the
+  // samples; if omitted (or negative), the actual color of the sample will
+  // be used.
   //
-  void save (const std::string &filename, const ValTable &params) const
-  {
-    map.save (filename, params);
-  }
-
-  // Return the map pixel in direction DIR.
-  //
-  Color get (const Vec &dir)
-  {
-    unsigned x = unsigned (map.width * (dir.longitude() + M_PI) / (M_PI * 2));
-    unsigned y = unsigned (map.height * (-dir.latitude() + M_PI_2) / M_PI);
-    return map (x, y);
-  }
-
-  // Set the map pixel in direction DIR to COL.
-  //
-  void put (const Vec &dir, const Color &col)
-  {
-    unsigned x = unsigned (map.width * (dir.longitude() + M_PI) / (M_PI * 2));
-    unsigned y = unsigned (map.height * (-dir.latitude() + M_PI_2) / M_PI);
-    map.put (x, y, col);
-  }
-
-  // The actual image map.
-  //
-  Image map;
-
-  type map_type;
+  void draw (Image &map, unsigned radius = 2, Color color = -1);
 
   // Various statistics
   //

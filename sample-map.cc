@@ -26,7 +26,7 @@ using namespace std;
 //
 unsigned
 SampleMap::sample (const Ray &eye_ray, Scene &scene,
-		   const TraceParams &trace_params, bool intensity)
+		   const TraceParams &trace_params)
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
@@ -47,18 +47,11 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
       for (IllumSampleVec::iterator s = samples.begin() + num_samples;
 	   s != samples.end(); ++s)
 	{	
-	  Color val = intensity ? s->val : 5;
-
-	  put (s->dir, get (s->dir) + val);
-
-	  if (intensity)
-	    {
-	      sum += val;
-	      if (num_samples == 0 || val < min)
-		min = val;
-	      if (val > max)
-		max = val;
-	    }
+	  sum += s->val;
+	  if (num_samples == 0 || s->val < min)
+	    min = s->val;
+	  if (s->val > max)
+	    max = s->val;
 
 	  num_samples++;
 	}
@@ -93,9 +86,46 @@ SampleMap::normalize ()
 {
   float scale = 1 / max.intensity ();
 
-  for (IllumSampleVec::const_iterator s = samples.begin ();
-       s != samples.end (); s++)
-    put (s->dir, get (s->dir) * scale);
+  for (IllumSampleVec::iterator s = samples.begin (); s != samples.end (); s++)
+    s->val *= scale;
+}
+
+// Draw a picture of the samples to MAP.  RADIUS is how wide a circle to use
+// for drawing each sample; if RADIUS is zero then each sample is drawn with
+// a single pixel in MAP.  COLOR is a color in which to draw the samples; if
+// omitted (or negative), the actual color of the sample will be used.
+//
+void
+SampleMap::draw (Image &map, unsigned radius, Color color)
+{
+  unsigned w = map.width, h = map.height;
+  int rsq = radius * radius;
+
+  bool use_sample_color = (color < 0);
+
+  // We do two passes, the first to clear the samples (in case there's
+  // already a background image in MAP), and the second to draw them.
+  //
+  for (unsigned pass = 0; pass < 2; pass++)
+    for (IllumSampleVec::const_iterator s = samples.begin ();
+	 s != samples.end (); s++)
+      {  
+	unsigned x = unsigned (w * (s->dir.longitude() + M_PI) / (M_PI * 2));
+	unsigned y = unsigned (h * (-s->dir.latitude() + M_PI_2) / M_PI);
+
+	Color col = use_sample_color ? s->val : color;
+
+	for (int yi = -radius; yi <= int (radius); yi++)
+	  for (int xi = -radius; xi <= int (radius); xi++)
+	    if (xi*xi + yi*yi <= rsq)
+	      {
+		unsigned ox = (x + xi + w) % w, oy = (y + yi + h) % h;
+		if (pass == 0)
+		  map.put (ox, oy, 0);
+		else
+		  map.put (ox, oy, map.get (ox, oy) + col);
+	      }
+      }
 }
 
 

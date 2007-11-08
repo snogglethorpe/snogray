@@ -98,7 +98,9 @@ n
 s "      --brdf                 Only sample the BRDF"
 s "      --lights               Only sample the lights"
 n
-s "  -i, --intensity            Indicate sample intensity too"
+s "  -i, --show-intensity       Indicate sample intensity too"
+s "  -x, --show-background      Overlay sample indicators on scene background"
+s "  -r, --radius=RADIUS        Draw samples with radius RADIUS"
 n
 s "  -N, --no-normalize         Don't normalize sample values"
 n
@@ -135,12 +137,14 @@ int main (int argc, char *const *argv)
   //
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
-    { "map-size",	required_argument, 0, 'm' },
+    { "show-background",no_argument,	   0, 'x' },
+    { "show-intensity",	no_argument,	   0, 'i' },
     { "no-normalize",	no_argument, 	   0, 'N' },
+    { "map-size",	required_argument, 0, 'm' },
     { "brdf",		no_argument,	   0, OPT_BRDF },
     { "lights",		no_argument,	   0, OPT_LIGHTS },
-    { "intensity",	no_argument,	   0, 'i' },
-    { "size",		required_argument, 0, 'r' },
+    { "color",		required_argument, 0, 'C' },
+    { "radius",		required_argument, 0, 'r' },
     SCENE_DEF_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     RENDER_LONG_OPTIONS,
@@ -149,7 +153,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:m:Nr:"
+    "s:m:Nr:iC:x"
     SCENE_DEF_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
@@ -163,9 +167,11 @@ int main (int argc, char *const *argv)
   ValTable image_params, render_params;
   unsigned width = 640, height = 480; // virtual "camera image"
   unsigned map_width = 800, map_height = 400; // sample map size
-  bool no_normalize = false, intensity = false;
-  SampleMap::type map_type = SampleMap::FILTERED;
-  unsigned sample_width = 5;	// default
+  bool no_normalize = false, show_intensity = false, show_background = false;
+  // the following is the default, and is treated as "show both"
+  bool use_light_samples = false, use_brdf_samples = false;
+  unsigned sample_radius = 2;	// default
+  Color sample_color (1, 0.2, 0.1);	// default
 
   // This speeds up I/O on cin/cout by not syncing with C stdio.
   //
@@ -186,17 +192,25 @@ int main (int argc, char *const *argv)
       case 'N':
 	no_normalize = true;
 	break;
-      case 'i':
-	intensity = true;
+      case 'x':
+	show_background = true;
 	break;
+      case 'i':
+	show_intensity = true;
+	break;
+#if 0
+      case 'C':
+	sample_color = parse_color (clp.opt_arg ());
+	break;
+#endif
       case OPT_LIGHTS: 		// sample lights only
-	map_type = SampleMap::LIGHTS;
+	use_light_samples = true;
 	break;
       case OPT_BRDF: 		// sample brdf only
-	map_type = SampleMap::BRDF;
+	use_brdf_samples = true;
 	break;
       case 'r':			// set sample size
-	sample_width = clp.unsigned_opt_arg ();
+	sample_radius = clp.unsigned_opt_arg ();
 	break;
 
 	SCENE_DEF_OPTION_CASES (clp, scene_def);
@@ -213,6 +227,13 @@ int main (int argc, char *const *argv)
 
   std::string filename = clp.get_arg();
 
+  if (!use_light_samples && !use_brdf_samples)
+    use_light_samples = use_brdf_samples = true;
+  if (! use_light_samples)
+    render_params.set ("light-samples", 0);
+  if (! use_brdf_samples)
+    render_params.set ("brdf-samples", 0);
+
   // Define the scene.
 
   Scene scene;
@@ -226,38 +247,47 @@ int main (int argc, char *const *argv)
 
   TraceParams trace_params (render_params);
 
-  SampleMap map (map_width, map_height, map_type);
+  SampleMap smap;
 
   float u = float (x) / float (width);
   float v = float (y) / float (height);
-  unsigned num
-    = map.sample (camera.eye_ray (u, v), scene, trace_params, intensity);
+  unsigned num = smap.sample (camera.eye_ray (u, v), scene, trace_params);
 
-  if (intensity && !no_normalize)
-    map.normalize ();
+  if (show_intensity && !no_normalize)
+    smap.normalize ();
 
-//   if (sample_width > 0)
-//     {
-//       // We use the image backend's image-smoothing to make circular
-//       // "smears" for each sample.  The relationship between size,
-//       // brightness, and perceived size, is very ad-hoc, but this works
-//       // well enough.
-//
-//       image_params.aa_overlap = sample_width;
-//       image_params.exposure += log (float (sample_width)) / 2 + 3;
-//     }
+  cout << "sample map has " << smap.num_samples
+       << " / " << num << " samples" << endl;
+
+  if (show_intensity)
+    {
+      cout << "   min intensity = " << smap.min << endl;
+      cout << "   max intensity = " << smap.max << endl;
+      cout << "   avg intensity = " << smap.sum / num << endl;
+    }
+
+  Image map (map_width, map_height);
+
+  if (show_background)
+    {
+      float w = float (map_width), h = float (map_height);
+      float iw = 1 / w, ih = 1 / h;
+      for (float y = 0; y < h; y++)
+	for (float x = 0; x < w; x++)
+	  {
+	    dist_t colat = -(y * ih * M_PI - M_PI_2);
+	    dist_t lng = x * iw * M_PI * 2 - M_PI;
+	    Vec dir = y_axis_latlong_to_vec (colat, lng);
+	    map.put (x, y, scene.background (dir));
+	  }
+    }
+
+  smap.draw (map, sample_radius, show_intensity ? -1 : sample_color);
 
   map.save (filename, image_params);
 
-  cout << "sample map has " << map.num_samples
-       << " / " << num << " samples" << endl;
-
-  if (intensity)
-    {
-      cout << "   min intensity = " << map.min << endl;
-      cout << "   max intensity = " << map.max << endl;
-      cout << "   avg intensity = " << map.sum / num << endl;
-    }
+  return 0;
 }
+
 
 // arch-tag: dcd4d4d2-d3b4-43bc-8251-bfa7139ae20c
