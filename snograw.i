@@ -24,6 +24,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "tripar.h"
+#include "ellipse.h"
 #include "sphere.h"
 #include "sphere2.h"
 #include "cylinder.h"
@@ -408,6 +409,14 @@ namespace snogray {
 
     Tripar (const Material *mat, const Pos &_v0, const Vec &_e1, const Vec &_e2,
 	    bool _parallelogram = false);
+  };
+
+  class Ellipse : public Surface
+  {
+  public:
+
+    Ellipse (const Material *mat,
+	     const Pos &center, const Vec &radius1, const Vec &radius2);
   };
 
   %ignore LocalSurface;

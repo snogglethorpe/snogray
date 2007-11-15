@@ -515,6 +515,8 @@ function rectangle (mat, v0, e1, e2)
    return tripar (mat, v0, e1, e2, true)
 end
 
+ellipse = raw.Ellipse
+
 cylinder = raw.Cylinder
 
 -- Wrap the subspace constructor to record the GC link between a
