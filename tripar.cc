@@ -11,7 +11,6 @@
 
 #include "intersect.h"
 #include "shadow-ray.h"
-#include "tripar-isec.h"
 
 #include "tripar.h"
 
@@ -27,11 +26,14 @@ using namespace snogray;
 const Surface::IsecInfo *
 Tripar::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
-  dist_t u, v;
-  if (tripar_intersect (v0, e1, e2, parallelogram, ray, u, v))
-    return new (isec_ctx) IsecInfo (this);
-  else
-    return 0;
+  dist_t t, u, v;
+  if (intersects (ray, t, u, v))
+    {
+      ray.t1 = t;
+      return new (isec_ctx) IsecInfo (this);
+    }
+
+  return 0;
 }
 
 // Create an Intersect object for this intersection.
@@ -55,13 +57,15 @@ Tripar::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 Material::ShadowType
 Tripar::shadow (const ShadowRay &ray) const
 {
-  if (tripar_intersect (v0, e1, e2, parallelogram, ray))
+  dist_t t, u, v;
+  if (intersects (ray, t, u, v))
     return material->shadow_type;
   else
     return Material::SHADOW_NONE;
 }
 
 // Return a bounding box for this surface.
+//
 BBox
 Tripar::bbox () const
 {
@@ -72,5 +76,6 @@ Tripar::bbox () const
     bbox += v0 + e1 + e2;
   return bbox;
 }
+
 
 // arch-tag: 962df04e-4c0a-4754-ac1a-f506d4e77c4e

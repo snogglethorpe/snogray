@@ -243,11 +243,14 @@ Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   Pos corner = v(0);
   Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
 
-  dist_t u, v;
-  if (triangle_intersect (corner, edge1, edge2, ray, u, v))
-    return new (isec_ctx) IsecInfo (this, u, v);
-  else
-    return 0;
+  dist_t t, u, v;
+  if (triangle_intersect (corner, edge1, edge2, ray, t, u, v))
+    {
+      ray.t1 = t;
+      return new (isec_ctx) IsecInfo (this, u, v);
+    }
+
+  return 0;
 }
 
 // Create an Intersect object for this intersection.
@@ -325,7 +328,8 @@ Mesh::Triangle::shadow (const ShadowRay &ray) const
   Pos corner = v(0);
   Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
 
-  if (triangle_intersect (corner, edge1, edge2, ray))
+  dist_t t, u, v;
+  if (triangle_intersect (corner, edge1, edge2, ray, t, u, v))
     {
 #if 1
       if (ray.isec.smoothing_group == static_cast<const void *>(&mesh))

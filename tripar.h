@@ -12,6 +12,8 @@
 #ifndef __TRIPAR_H__
 #define __TRIPAR_H__
 
+#include "tripar-isec.h"
+
 #include "surface.h"
 
 namespace snogray {
@@ -54,8 +56,17 @@ private:
     const Tripar *tripar;
   };
 
+  // Return true if this surface intersects RAY; if true is returned, the
+  // intersection parameters are return in T, U, and V.
+  //
+  bool intersects (const Ray &ray, dist_t &t, dist_t &u, dist_t &v) const
+  {
+    return tripar_intersect (v0, e1, e2, parallelogram, ray, t, u, v);
+  }
+
   Pos v0;
   Vec e1, e2;
+
   bool parallelogram;
 };
 
