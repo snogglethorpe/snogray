@@ -21,6 +21,7 @@
 #include "image-cmdline.h"
 #include "render-cmdline.h"
 #include "trace-params.h"
+#include "envmap-light.h"
 
 using namespace snogray;
 using namespace std;
@@ -69,6 +70,55 @@ parse_coord (CmdLineParser &clp, const char *what, unsigned size)
 }
 
 
+// dump_bg
+
+enum DumpBgKind { DUMP_BG_NONE, DUMP_BG_ENV_MAP, DUMP_BG_LIGHT_MAP, DUMP_BG_DIFF };
+
+static void
+dump_bg (const Scene &scene, Image &map, DumpBgKind what)
+{
+  const EnvmapLight *eml = 0;
+
+  for (std::vector<const Light *>::const_iterator li = scene.lights.begin();
+       !eml && li != scene.lights.end(); ++li)
+    eml = dynamic_cast<const EnvmapLight *> (*li);
+
+  float w = float (map.width), h = float (map.height);
+  float iw = 1 / w, ih = 1 / h;
+
+  for (float y = 0; y < h; y++)
+    for (float x = 0; x < w; x++)
+      {
+	Color bg, lm;
+
+	if (what != DUMP_BG_ENV_MAP)
+	  {
+	    float u = x * iw, v = (1 - y * ih);
+	    float pdf;
+	    lm = eml->intensity (u, v, pdf);
+	  }
+
+	if (what != DUMP_BG_LIGHT_MAP)
+	  {
+	    dist_t colat = -(y * ih * M_PI - M_PI_2);
+	    dist_t lng = x * iw * M_PI * 2 - M_PI;
+	    Vec dir = y_axis_latlong_to_vec (colat, lng);
+	    bg = scene.background (dir);
+	  }
+
+	Color col;
+	if (what == DUMP_BG_ENV_MAP)
+	  col = bg;
+	else if (what == DUMP_BG_LIGHT_MAP)
+	  col = lm;
+	else if (what == DUMP_BG_DIFF)
+	  col = abs (bg - lm);
+
+	map.put (x, y, col);
+      }
+}
+
+
 // Main driver
 
 static void
@@ -98,9 +148,13 @@ n
 s "      --brdf                 Only sample the BRDF"
 s "      --lights               Only sample the lights"
 n
-s "  -i, --show-intensity       Indicate sample intensity too"
-s "  -x, --show-background      Overlay sample indicators on scene background"
+s "  -i, --intensity            Indicate sample intensity too"
 s "  -r, --radius=RADIUS        Draw samples with radius RADIUS"
+n
+s "  -x, --background[=WHAT]    Show background image according to WHAT:"
+s "                               env   -- scene environment map (default)"
+s "                               light -- scene light map"
+s "                               diff  -- difference between `env' and `light'"
 n
 s "  -N, --no-normalize         Don't normalize sample values"
 n
@@ -137,8 +191,8 @@ int main (int argc, char *const *argv)
   //
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
-    { "show-background",no_argument,	   0, 'x' },
-    { "show-intensity",	no_argument,	   0, 'i' },
+    { "background",	optional_argument, 0, 'x' },
+    { "intensity",	no_argument,	   0, 'i' },
     { "no-normalize",	no_argument, 	   0, 'N' },
     { "map-size",	required_argument, 0, 'm' },
     { "brdf",		no_argument,	   0, OPT_BRDF },
@@ -153,7 +207,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:m:Nr:iC:x"
+    "s:m:Nr:iC:x::"
     SCENE_DEF_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
@@ -167,7 +221,8 @@ int main (int argc, char *const *argv)
   ValTable image_params, render_params;
   unsigned width = 640, height = 480; // virtual "camera image"
   unsigned map_width = 800, map_height = 400; // sample map size
-  bool no_normalize = false, show_intensity = false, show_background = false;
+  bool no_normalize = false, show_intensity = false;
+  DumpBgKind dump_bg_kind = DUMP_BG_NONE;
   // the following is the default, and is treated as "show both"
   bool use_light_samples = false, use_brdf_samples = false;
   unsigned sample_radius = 2;	// default
@@ -193,7 +248,15 @@ int main (int argc, char *const *argv)
 	no_normalize = true;
 	break;
       case 'x':
-	show_background = true;
+	{
+	  const char *arg = clp.opt_arg ();
+	  if (!arg || strcmp (arg, "env") == 0 || strcmp (arg, "e") == 0)
+	    dump_bg_kind = DUMP_BG_ENV_MAP;
+	  else if (strcmp (arg, "light") == 0 || strcmp (arg, "l") == 0)
+	    dump_bg_kind = DUMP_BG_LIGHT_MAP;
+	  else if (strcmp (arg, "diff") == 0 || strcmp (arg, "d") == 0)
+	    dump_bg_kind = DUMP_BG_DIFF;
+	}
 	break;
       case 'i':
 	show_intensity = true;
@@ -268,19 +331,8 @@ int main (int argc, char *const *argv)
 
   Image map (map_width, map_height);
 
-  if (show_background)
-    {
-      float w = float (map_width), h = float (map_height);
-      float iw = 1 / w, ih = 1 / h;
-      for (float y = 0; y < h; y++)
-	for (float x = 0; x < w; x++)
-	  {
-	    dist_t colat = -(y * ih * M_PI - M_PI_2);
-	    dist_t lng = x * iw * M_PI * 2 - M_PI;
-	    Vec dir = y_axis_latlong_to_vec (colat, lng);
-	    map.put (x, y, scene.background (dir));
-	  }
-    }
+  if (dump_bg_kind != DUMP_BG_NONE)
+    dump_bg (scene, map, dump_bg_kind);
 
   smap.draw (map, sample_radius, show_intensity ? -1 : sample_color);
 
