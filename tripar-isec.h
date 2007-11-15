@@ -51,22 +51,6 @@ tripar_intersect (const TPos<T> &corner,
 		  bool parallelogram,
 		  const TRay<T> &ray, T &t, T &u, T &v)
 {
-  /*
-    This algorithm from:
-
-       Fast, Minimum Storage Ray-Triangle Intersection
-
-       Tomas Möller
-       Prosolvia Clarus AB
-       Sweden
-       tompa@clarus.se
-
-       Ben Trumbore
-       Cornell University
-       Ithaca, New York
-       wbt@graphics.cornell.edu
-  */
-
   // Begin calculating the determinant (also used to calculate U parameter).
   //
   TVec<T> pvec = cross (ray.dir, edge2);
