@@ -447,11 +447,6 @@ local function init_scene (raw_scene)
 end
 
 
--- The inverse: transform the y-axis to the z-axis.
---
-xform_y_to_z = xform_z_to_y:inverse ()
-
-
 ----------------------------------------------------------------
 --
 -- meshes
