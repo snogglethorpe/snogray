@@ -3,8 +3,8 @@
 local lp = require 'lpeg'
 local lu = require 'lpeg-utils'
 
--- obj-file comment
-local p_comment = lp.P"#" * lu.p_line
+-- obj-file comment or ignored command
+local p_comment = lp.S"#g" * lu.p_line
 
 function load_obj (filename, mesh, mat_map)
    local mat = mat_map:get_default ()
