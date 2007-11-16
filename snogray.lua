@@ -822,7 +822,7 @@ end
 
 -- Table of scene loaders for various file extensions.
 --
-local scene_loader = {}
+local scene_loaders = {}
 
 
 -- Load a scene from FILENAME into RSCENE and RCAMERA (the "raw" scene
@@ -833,7 +833,7 @@ local scene_loader = {}
 -- loading.
 --
 function load_scene (filename, fmt, ...)
-   local loader = scene_loader[fmt]
+   local loader = scene_loaders[fmt]
    if loader then
       return loader (filename, ...)
    else
@@ -848,7 +848,7 @@ end
 
 -- Table of mesh loaders for various file extensions.
 --
-local mesh_loader = {}
+local mesh_loaders = {}
 
 
 -- Load a mesh from FILENAME into MESH.
@@ -858,7 +858,7 @@ local mesh_loader = {}
 -- loading.
 --
 function load_mesh (filename, fmt, ...)
-   local loader = mesh_loader[fmt]
+   local loader = mesh_loaders[fmt]
    if loader then
       return loader (filename, ...)
    else
@@ -867,7 +867,7 @@ function load_mesh (filename, fmt, ...)
 end
 
 
-add_autoload_stub (mesh_loader, "obj", "load-obj.lua", "load_obj")
+add_autoload_stub (mesh_loaders, "obj", "load-obj.lua", "load_obj")
 
 
 ----------------------------------------------------------------
@@ -877,7 +877,7 @@ add_autoload_stub (mesh_loader, "obj", "load-obj.lua", "load_obj")
 -- Load Lua scene description from FILENAME into RSCENE and RCAMERA.
 -- Return true if the scene was loaded successfully, or an error string.
 --
-function scene_loader.lua (filename, rscene, rcamera)
+function scene_loaders.lua (filename, rscene, rcamera)
 
    -- Load the user's file!  This just constructs a function from the
    -- loaded file, but doesn't actually evaluate it.
@@ -922,8 +922,8 @@ end
 
 -- Other types of Lua file.
 --
-scene_loader.luac = scene_loader.lua
-scene_loader.luo = scene_loader.lua
+scene_loaders.luac = scene_loaders.lua
+scene_loaders.luo = scene_loaders.lua
 
 
 -- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b
