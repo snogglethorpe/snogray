@@ -95,7 +95,7 @@ function color (val, ...)
       if t == "number" then
 	 return raw.Color (val, ...)
       elseif t == "string" then
-	 return colors[val] or error ("unknown color name: "..val)
+	 return colors[val] or error ("unknown color name: "..val, 2)
       elseif t == "table" then
 	 local r,g,b
 
@@ -146,7 +146,7 @@ function color (val, ...)
 	 return raw.Color (r, g, b)
 	 
       else
-	 error ("invalid color specification: "..tostring(val))
+	 error ("invalid color specification: "..tostring(val), 2)
       end
    end
 end
@@ -815,7 +815,7 @@ local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
 		 error ("loading "..loader_file.." didn't define "..loader_name)
 	      end
 	   else
-	      error (err)
+	      error (err, 0)
 	   end
 	end
 end
