@@ -391,6 +391,17 @@ rot_z = rotate_z
 xform_z_to_y = rotate_x (-math.pi / 2) * scale (-1, 1, 1)
 xform_y_to_z = xform_z_to_y:inverse ()
 
+-- Transform which converts the x-axis to the y-axis.
+--
+xform_x_to_y = rotate_z (-math.pi / 2)
+xform_y_to_x = xform_x_to_y:inverse ()
+
+
+-- Transform which inverts the z-axis (as many models use a different
+-- convention for the z-axis).
+--
+xform_flip_z = scale (1, 1, -1)
+
 
 ----------------------------------------------------------------
 --
