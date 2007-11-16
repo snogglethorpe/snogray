@@ -400,6 +400,8 @@ xform_y_to_x = xform_x_to_y:inverse ()
 -- Transform which inverts the z-axis (as many models use a different
 -- convention for the z-axis).
 --
+xform_flip_x = scale (-1, 1, 1)
+xform_flip_y = scale (1, -1, 1)
 xform_flip_z = scale (1, 1, -1)
 
 
