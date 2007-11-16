@@ -884,40 +884,37 @@ function scene_loaders.lua (filename, rscene, rcamera)
    --
    local contents, err = loadfile (filename)
 
-   if contents then
-
-      -- Make a new environment to evaluate the file contents in; it will
-      -- inherit from "snogray" for convenience.  There are no global
-      -- pointers to this table so it and its contents will be garbage
-      -- collected after loading.
-      --
-      local environ = {}
-      setmetatable (environ, inherit_snogray_metatable)
-      setfenv (contents, environ)
-
-      -- Remember filename being loaded, so we can find other files in
-      -- the same location.
-      --
-      cur_filename = filename
-
-      -- Set up the scene object for the user code to use.
-      --
-      init_scene (rscene)
-
-      -- Let users use the raw camera directly.
-      --
-      camera = rcamera
-
-      -- Finally, evaluate the loaded file!
-      --
-      local ok, result = pcall (contents)
-
-      if not ok then
-	 err = result
-      end
+   if not contents then
+      error (err, 0)		-- propagate the loading error
    end
 
-   return err or true
+   -- Make a new environment to evaluate the file contents in; it will
+   -- inherit from "snogray" for convenience.  There are no global
+   -- pointers to this table so it and its contents will be garbage
+   -- collected after loading.
+   --
+   local environ = {}
+   setmetatable (environ, inherit_snogray_metatable)
+   setfenv (contents, environ)
+
+   -- Remember filename being loaded, so we can find other files in
+   -- the same location.
+   --
+   cur_filename = filename
+
+   -- Set up the scene object for the user code to use.
+   --
+   init_scene (rscene)
+
+   -- Let users use the raw camera directly.
+   --
+   camera = rcamera
+
+   -- Finally, evaluate the loaded file!
+   --
+   contents ()
+
+   return true
 end
 
 -- Other types of Lua file.
