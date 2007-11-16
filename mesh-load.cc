@@ -9,6 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <iostream>
+
 #include "config.h"
 
 #include "excepts.h"
@@ -34,6 +36,8 @@ using namespace std;
 void
 Mesh::load (const string &file_name, const MaterialMap &mat_map)
 {
+  std::cout << "* loading mesh: " << file_name << std::endl;
+
   try
     {
       string ext = filename_ext (file_name);
