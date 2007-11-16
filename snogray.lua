@@ -388,7 +388,7 @@ rot_z = rotate_z
 -- Transform which converts the z-axis to the y-axis; this is useful
 -- because many scene files are set up that way.
 --
-xform_z_to_y = rotate_x (-math.pi / 2) * scale (-1, 1, 1)
+xform_z_to_y = rotate_x (-math.pi / 2)
 xform_y_to_z = xform_z_to_y:inverse ()
 
 -- Transform which converts the x-axis to the y-axis.
