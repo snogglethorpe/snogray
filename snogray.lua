@@ -664,10 +664,10 @@ end
 include_path = { "." }
 
 
-local function filename_dir (filename)
+function filename_dir (filename)
    return string.match (filename, "^(.*)/[^/]*$")
 end
-local function filename_ext (filename)
+function filename_ext (filename)
    return string.match (filename, "[.]([^./]*)$")
 end
 
