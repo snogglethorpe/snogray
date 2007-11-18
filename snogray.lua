@@ -86,6 +86,40 @@ function is_color (val)
    return swig_type (val) == "_p_snogray__Color"
 end
 
+local color_keys = {
+   'r', 'red', 'g', 'green', 'b', 'blue', 'grey', 'gray',
+   'i', 'intens', 'intensity', 'bright', 'brightness',
+   's', 'scale'
+}
+
+function is_color_spec (obj)
+   local ot = type (obj)
+   if is_color (obj) or (ot == 'string' and colors[obj]) then
+      return true
+   elseif ot ~= 'table' then
+      return false
+   end
+   
+   for k,v in pairs (obj) do
+      local kt = type (k)
+      local vt = type (v)
+      local inh = false
+      if kt == 'number' then
+	 if k == 1 and vt == 'string' then
+	    inh = true
+	 elseif k > 1 and inh then
+	    return false
+	 elseif k > 3 or vt ~= 'number' then
+	    return false
+	 end
+      elseif not color_keys[k] or vt ~= 'number' then
+	 return false
+      end
+   end
+
+   return true
+end
+
 function color (val, ...)
    if is_color (val) then
       return val
@@ -196,6 +230,24 @@ function is_ior (val)
    return swig_type (val) == "_p_snogray__Ior"
 end
 
+function is_ior_spec (obj)
+   local ot = type (obj)
+   if is_ior (obj) or ot == 'number' then
+      return true
+   elseif ot == 'table' then
+      for k,v in pairs (obj) do
+	 if type (v) ~= 'number' then
+	    return false
+	 elseif k ~= 1 and k ~= 2 and k ~= 'n' and k ~= 'k' then
+	    return false
+	 end
+      end
+      return true
+   else
+      return false
+   end
+end
+
 -- Index of Refraction:  { n = REAL_IOR, k = IMAG_IOR }
 --
 function ior (n, k)
@@ -213,10 +265,10 @@ end
 --
 function lambert (params)
    local diff
-   if type (params) == "table" and (params.diffuse or params.color) then
-      diff = color (params.diffuse or params.color or params[1] or 1)
-   else
+   if is_color_spec (params) then
       diff = color (params)
+   else
+      diff = color (params.diffuse or params.color or params[1] or 1)
    end
    return material (diff)
 end
@@ -224,22 +276,18 @@ end
 function cook_torrance (params)
    local diff, spec, m, i
 
-   if type (params) == "table"
-      and (params.diffuse or params.diff or params.d or params.color
-	   or params.specular or params.spec or params.s
-	   or params.m or params.ior)
-   then
+   if is_color_spec (params) then
+      diff = color (params)
+      spec = white
+      m = 0.1
+      i = 1.5
+   else
        diff = color (params.diffuse or params.diff or params.d
 		     or params.color or params[1] or 1)
        spec = color (params.specular or params.spec or params.s
 		     or params[2] or 1)
        m = params.m or params[3] or 1
        i = ior (params.ior or params[4] or 1.5)
-   else
-      diff = color (params)
-      spec = white
-      m = 0.1
-      i = 1.5
    end
    
    return material (diff, raw.cook_torrance (spec, m, i))
@@ -259,18 +307,14 @@ function mirror (params)
    local _reflect = white
    local _col = black
 
-   if type (params) == "number" then
+   if type (params) == "number" or is_color_spec (params) then
       _reflect = params
-   elseif type (params) == "table"
-      and (params.ior or params.reflect or params.reflectance or params.color)
-   then
+   elseif is_ior_spec (params) then
+      _ior = params
+   else
       _reflect = params.reflect or params.reflectance or params[1] or _reflect
       _ior = params.ior or params[2] or _ior
       _col = params.color or params[3] or _col
-   elseif type (params) == "table" and (params.n or params.k) then
-      _ior = params
-   else
-      _reflect = params
    end
 
    local m = raw.Mirror (ior (_ior), color (_reflect), color (_col));
