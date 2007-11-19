@@ -45,7 +45,7 @@ function parse_err (text, pos)
       count_pos = p_line_nl:match (text, count_pos)
    end
    error ("parse error on line "..tostring(line_num)..": "
-	  ..p_line_contents:match (text, pos))
+	  ..p_line_contents:match (text, pos), 0)
 end
 
 -- Call the lpeg pattern PATTERN's match function with TEXT and POS, and
