@@ -872,7 +872,7 @@ local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
 
 	      local loader = environ[loader_name]
 	      if loader then
-		 loader_table[ext] = load_func
+		 loader_table[ext] = loader
 		 return loader (...)
 	      else
 		 error ("loading "..loader_file.." didn't define "..loader_name)
