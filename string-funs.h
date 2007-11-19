@@ -24,6 +24,14 @@ extern std::string stringify (unsigned num);
 //
 extern std::string commify (unsigned long long num, unsigned sep_count = 1);
 
+// Return a string version of NUM, with commas added every 3rd place, and
+// either the phrase UNIT_NAME or UNITS_NAME appended, depending on whether
+// NUM has the value 1 or not.
+//
+extern std::string commify_with_units (unsigned long long num,
+				       const std::string &unit_name,
+				       const std::string &units_name);
+
 // Return a lower-case version of STR.
 //
 extern std::string downcase (const std::string &str);

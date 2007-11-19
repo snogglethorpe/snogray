@@ -44,6 +44,24 @@ snogray::commify (unsigned long long num, unsigned sep_count)
   return str;
 }
 
+// Return a string version of NUM, with commas added every 3rd place, and
+// either the phrase UNIT_NAME or UNITS_NAME appended, depending on whether
+// NUM has the value 1 or not.
+//
+std::string
+snogray::commify_with_units (unsigned long long num,
+			     const std::string &unit_name,
+			     const std::string &units_name)
+{
+  std::string out = commify (num);
+  out += ' ';
+  if (num == 1)
+    out += unit_name;
+  else
+    out += units_name;
+  return out;
+}
+
 // Return a lower-case version of STR.
 //
 string
