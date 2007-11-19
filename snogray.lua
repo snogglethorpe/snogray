@@ -54,6 +54,17 @@ local function has_index_wrappers (obj)
    return getmetatable(obj).__index_wrappers
 end
 
+----------------------------------------------------------------
+
+-- Return a table containing every key in KEYS as a key, with value true.
+--
+local function set (keys)
+   local s = {}
+   for i,v in ipairs (keys) do
+      s[v] = true
+   end
+   return s
+end
 
 ----------------------------------------------------------------
 --
@@ -86,7 +97,7 @@ function is_color (val)
    return swig_type (val) == "_p_snogray__Color"
 end
 
-local color_keys = {
+local color_keys = set{
    'r', 'red', 'g', 'green', 'b', 'blue', 'grey', 'gray',
    'i', 'intens', 'intensity', 'bright', 'brightness',
    's', 'scale'
