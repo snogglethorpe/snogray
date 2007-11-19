@@ -48,6 +48,18 @@ function parse_err (text, pos)
 	  ..p_line_contents:match (text, pos))
 end
 
+-- Call the lpeg pattern PATTERN's match function with TEXT and POS, and
+-- return the result if it is non-nil.  If it returns nil (meaning that
+-- there was no match), signal an error using parse_err.
+--
+function match_or_err (pattern, text, pos)
+   local next_pos = pattern:match (text, pos)
+   if not next_pos then
+      parse_err (text, pos)
+   end
+   return next_pos
+end
+
 -- Read and parse FILENAME by repeatedly matching PATTERN (if results
 -- are desired, PATTERN should record them as a side-effect).
 -- Repetition of PATTERN must cover the entire file, otherwise an error
@@ -64,10 +76,6 @@ function parse_file (filename, pattern)
    local len = #text
    local pos = 1
    while pos <= len do
-      local next_pos = pattern:match (text, pos)
-      if not next_pos then
-	 parse_err (text, pos)
-      end
-      pos = next_pos
+      pos = match_or_err (pattern, text, pos)
    end
 end
