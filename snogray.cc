@@ -87,71 +87,6 @@ enable_fp_exceptions ()
 }
 
 
-
-static void
-print_params (const ValTable &params, const string &name_pfx,
-	      unsigned col1, unsigned col2)
-{
-  string pfx (col1, ' ');
-  pfx += name_pfx;
-  pfx += " ";
-  unsigned pfx_len =  pfx.length ();
-
-  for (ValTable::const_iterator p = params.begin(); p != params.end(); p++)
-    cout << pfx << p->first << ": "
-	 << setw (col2 - pfx_len - p->first.length() - 2)
-	 << p->second.as_string() << endl;
-}
-
-// Print useful scene info
-//
-static void
-print_scene_info (const Scene &scene, const SceneDef &scene_def)
-{
-  cout << "Scene:" << endl;
-      
-  cout << "   scene:   " << setw (20) << scene_def.specs_rep() << endl;
-  cout << "   top-level surfaces:  "
-       << setw (8) << commify (scene.surfaces.size ()) << endl;
-  cout << "   lights:          "
-       << setw (12) << commify (scene.lights.size ()) << endl;
-
-  print_params (scene_def.params, "scene", 3, 32);
-
-  cout << "   materials:       "
-       << setw (12) << commify (scene.materials.size ()) << endl;
-}
-
-
-
-// Print image info
-//
-static void
-print_image_info (const ValTable &image_params, const ValTable &render_params,
-		  unsigned width, unsigned height,
-		  unsigned limit_x, unsigned limit_y,
-		  unsigned limit_width, unsigned limit_height)
-{
-  cout << "Image:" << endl;
-
-  cout << "   size:    "
-       << setw (20) << (stringify (width) + " x " + stringify (height))
-       << endl;
-
-  if (limit_x != 0 || limit_y != 0
-      || limit_width != width || limit_height != height)
-    cout << "   limit:  "
-	 << setw (20) << (stringify (limit_x) + "," + stringify (limit_y)
-			  + " - " + stringify (limit_x + limit_width)
-			  + "," + stringify (limit_y + limit_height))
-	 << " (" << limit_width << " x "  << limit_height << ")"
-	 << endl;
-
-  print_params (render_params, "render", 3, 32);
-  print_params (image_params, "output", 3, 32);
-}
-
-
 // LimitSpec datatype
 
 // A "limit spec" represents a user's specification of a single
@@ -622,15 +557,15 @@ int main (int argc, char *const *argv)
 	}
     }
 
-  // Maybe print lots of useful information
-  //
   if (! quiet)
-    {
-      print_scene_info (scene, scene_def);
-      print_image_info (image_params, render_params, width, height,
-			limit_x, limit_y, limit_width, limit_height);
-      cout << endl; // blank line
-    }
+    cout << "* scene: "
+	 << commify_with_units (scene.surfaces.size (),
+				"top-level surface", "top-level surfaces")
+	 << ", " << commify_with_units (scene.lights.size (),
+					"light", "lights")
+	 << ", " << commify_with_units (scene.materials.size (),
+					"material", "materials")
+	 << endl;
 
 
   TraceStats trace_stats;
