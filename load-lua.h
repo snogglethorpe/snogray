@@ -21,7 +21,7 @@ namespace snogray {
 class Scene;
 class Camera;
 class Mesh;
-class MaterialMap;
+class MaterialDict;
 
 
 // If FILENAME is a format that has a Lua scene loader, load the file named
@@ -39,7 +39,7 @@ extern bool load_lua_file (const std::string &filename, const std::string &fmt,
 // exception is thrown.
 //
 extern bool load_lua_file (const std::string &filename, const std::string &fmt,
-			   Mesh &mesh, const MaterialMap &mat_map);
+			   Mesh &mesh, const MaterialDict &mat_dict);
 
 }
 

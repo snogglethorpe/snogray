@@ -379,30 +379,30 @@ end
 
 ----------------------------------------------------------------
 --
--- material maps
+-- material dicts
 
-function is_material_map (val)
-   return swig_type (val) == "_p_snogray__MaterialMap"
+function is_material_dict (val)
+   return swig_type (val) == "_p_snogray__MaterialDict"
 end
 
-function material_map (init)
-   local mmap = raw.MaterialMap ()
+function material_dict (init)
+   local mdict = raw.MaterialDict ()
 
    if init then
       if type (init) == "table" then
 	 for name, mat in pairs (init) do
 	    if type (name) == "boolean" then
-	       mmap:set_default (mat)
+	       mdict:set_default (mat)
 	    else
-	       mmap[name] = mat
+	       mdict[name] = mat
 	    end
 	 end
       elseif is_material (init) then
-	 mmap:set_default (init)
+	 mdict:set_default (init)
       end
    end
 
-   return mmap
+   return mdict
 end
 
 

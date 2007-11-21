@@ -19,7 +19,7 @@ namespace snogray {
 class Scene;
 class Camera;
 class Mesh;
-class MaterialMap;
+class MaterialDict;
 
 // Load a 3ds scene file into SCENE and CAMERA; loads all parts of the
 // scene, including lights and the first camera position.
@@ -28,10 +28,10 @@ extern void load_3ds_file (const std::string &filename,
 			   Scene &scene, Camera &camera);
 
 // Load meshes (and any materials they use) from a 3ds scene file into
-// MESH.  Materials are filtered through MAT_MAP.
+// MESH.  Materials are filtered through MAT_DICT.
 //
 extern void load_3ds_file (const std::string &filename,
-			   Mesh &mesh, const MaterialMap &mat_map);
+			   Mesh &mesh, const MaterialDict &mat_dict);
 
 }
 

@@ -1,4 +1,4 @@
-// material-map.cc -- Named set of materials
+// material-dict.cc -- Named set of materials
 //
 //  Copyright (C) 2007  Miles Bader <miles@gnu.org>
 //
@@ -11,27 +11,27 @@
 
 #include <utility>		// for std::pair
 
-#include "material-map.h"
+#include "material-dict.h"
 
 using namespace snogray;
 
 
-// Get a name->material mapping.
+// Return the material called NAME, or DEF_MAT if there is none.
 //
 const Material *
-MaterialMap::get (const std::string &name) const
+MaterialDict::get (const std::string &name, const Material *def_mat) const
 {
   const_iterator iter = find (name);
   if (iter != end())
     return iter->second;
   else
-    return 0;
+    return def_mat;
 }
 
-// Add a name->material mapping.
+// Add a name->material dictping.
 //
 void
-MaterialMap::add (const std::string &name, const Material *mat)
+MaterialDict::add (const std::string &name, const Material *mat)
 {
   std::pair<iterator, bool> ins_result = insert (std::make_pair (name, mat));
 
@@ -39,10 +39,10 @@ MaterialMap::add (const std::string &name, const Material *mat)
     ins_result.first->second = mat;
 }
 
-// Return true if this map contains a mapping for NAME.
+// Return true if this dict contains a dictping for NAME.
 //
 bool
-MaterialMap::contains (const std::string &name) const
+MaterialDict::contains (const std::string &name) const
 {
   const_iterator iter = find (name);
   return iter != end();

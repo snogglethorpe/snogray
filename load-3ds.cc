@@ -56,12 +56,12 @@ using namespace std;
 struct TdsLoader
 {
   TdsLoader (Scene *_scene,
-	     const MaterialMap &_user_materials = MaterialMap ())
+	     const MaterialDict &_user_materials = MaterialDict ())
     : scene (_scene), single_mesh (0), file (0),
       user_materials (_user_materials)
   { }
   TdsLoader (Mesh *_dest_mesh,
-	     const MaterialMap &_user_materials = MaterialMap ())
+	     const MaterialDict &_user_materials = MaterialDict ())
     : scene (0), single_mesh (_dest_mesh), file (0),
       user_materials (_user_materials)
   { }
@@ -146,12 +146,12 @@ struct TdsLoader
   // A mapping from material names to snogray materials, for materials
   // loaded from the 3ds file.
   //
-  MaterialMap loaded_materials;
+  MaterialDict loaded_materials;
 
   // A mapping from material names to materials specified by the user;
   // these override materials from the 3ds file.
   //
-  const MaterialMap &user_materials;
+  const MaterialDict &user_materials;
 };
 
 
@@ -227,7 +227,7 @@ TdsLoader::lookup_file_material (const char *name)
   // If we already loaded something with this name, just use that.
   //
   if (loaded_materials.contains (mat_name))
-    return loaded_materials.get (mat_name);
+    return loaded_materials.get (mat_name, 0);
 
   // Try to load a material from the file.
   //
@@ -318,7 +318,7 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
 
 	    if (user_materials.contains (geom_mat_name))
 	      {
-		mat = user_materials.get (geom_mat_name);
+		mat = user_materials.get (geom_mat_name, 0);
 		found_user_mapping = true;
 	      }
 	  }
@@ -328,7 +328,7 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
       //
       if (!found_user_mapping && user_materials.contains (mat_name))
 	{
-	  mat = user_materials.get (mat_name);
+	  mat = user_materials.get (mat_name, 0);
 	  found_user_mapping = true;
 	}
 
@@ -346,7 +346,7 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
   for (const Name *hn = hier_names; hn; hn = hn->next)
     if (hn->valid () && user_materials.contains (hn->name))
       {
-	const Material *obj_mat = user_materials.get (hn->name);
+	const Material *obj_mat = user_materials.get (hn->name, 0);
 	
 	// If we already found some material in steps 1-3, OBJ_MAT
 	// overrides it only if it's NULL (providing the ability to
@@ -671,13 +671,13 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 }
 
 // Load meshes (and any materials they use) from a 3ds scene file into
-// MESH.  Materials are filtered through MAT_MAP.
+// MESH.  Materials are filtered through MAT_DICT.
 //
 void
 snogray::load_3ds_file (const string &filename, Mesh &mesh,
-			const MaterialMap &mat_map)
+			const MaterialDict &mat_dict)
 {
-  TdsLoader l (&mesh, mat_map);
+  TdsLoader l (&mesh, mat_dict);
 
   l.load (filename);
 

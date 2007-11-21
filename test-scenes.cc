@@ -1545,9 +1545,9 @@ def_scene_pretty_dancer (unsigned num, const string &,
     { 0, 0 }
   };
 
-  // Set up the material maps
+  // Set up the material dicts
   //
-  MaterialMap mat_map;
+  MaterialDict mat_dict;
   for (const SimpleNamedMat *sm = materials; sm->name; sm++)
     {
       const Brdf *brdf
@@ -1559,15 +1559,15 @@ def_scene_pretty_dancer (unsigned num, const string &,
 
       const Material *mat = scene.add (new Material (sm->diff, brdf));
 
-      mat_map.add (sm->name, mat);
+      mat_dict.add (sm->name, mat);
     }
   for (const NamedMat *nm = material_refs; nm->name; nm++)
-    mat_map.add (nm->name, scene.add (nm->mat));
+    mat_dict.add (nm->name, scene.add (nm->mat));
 
   // Load the scene meshes.
   //
   const string msh_file = "+pretty-dancer.msh";
-  scene.add (new Mesh (msh_file, mat_map));
+  scene.add (new Mesh (msh_file, mat_dict));
 
   bool birthday_card = (num / 1000) > 0;
   unsigned stage     = (num / 100) % 10;

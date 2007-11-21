@@ -140,7 +140,10 @@ void
 Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
 		    const Material *mat)
 {
-  if (!mat && !material)
+  if (! mat)
+    mat = material;
+
+  if (! mat)
     throw std::runtime_error ("Mesh triangle with no material");
 
   Triangle triang (*this, v0i, v1i, v2i, mat);

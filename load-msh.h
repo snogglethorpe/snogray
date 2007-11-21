@@ -18,13 +18,13 @@
 namespace snogray {
 
 class Mesh;
-class MaterialMap;
+class MaterialDict;
 
 // Load mesh from a .msh format mesh file into MESH.  Materials are
-// filtered through MAT_MAP.
+// filtered through MAT_DICT.
 //
 extern void load_msh_file (const std::string &filename, Mesh &mesh,
-			   const MaterialMap &mat_map);
+			   const MaterialDict &mat_dict);
 
 }
 

@@ -1,4 +1,4 @@
-// material-map.h -- Named set of materials
+// material-dict.h -- Named set of materials
 //
 //  Copyright (C) 2007  Miles Bader <miles@gnu.org>
 //
@@ -9,8 +9,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATERIAL_MAP_H__
-#define __MATERIAL_MAP_H__
+#ifndef __MATERIAL_DICT_H__
+#define __MATERIAL_DICT_H__
 
 #include <string>
 #include <map>
@@ -26,13 +26,13 @@ class Material;
 //
 // When loading from a file, the priority in which materials are used is:
 //
-//   1) Named material from material-map (overrides everything)
+//   1) Named material from material-dict (overrides everything)
 //   2) Named material from the file being loaded
-//   3) Default material from material-map
+//   3) Default material from material-dict
 //   4) "Global" default (e.g. from a mesh being loaded into)
 //   5) Error
 //
-class MaterialMap : std::map<std::string, const Material *>
+class MaterialDict : std::map<std::string, const Material *>
 {
 private:
 
@@ -40,7 +40,7 @@ private:
 
 public:
 
-  MaterialMap (const Material *default_material = 0)
+  MaterialDict (const Material *default_material = 0)
     : _default_material (default_material)
   { }
 
@@ -49,44 +49,29 @@ public:
   using super::begin;
   using super::end;
 
-  // Map NAME to a material.  GLOBAL_DEFAULT corresponds
-  // to steps (4) from the list above, and is used if there is
-  // no mapping for NAME, and no default in this material-map.
+  // Return the material called NAME, or DEF_MAT if there is none.
   //
-  const Material *map (const std::string &name, const Material *global_default)
-    const
+  const Material *get (const std::string &name, const Material *def_mat) const;
+
+  // Return the material called NAME, or the default material if there is none.
+  //
+  const Material *get (const std::string &name) const
   {
-    const Material *mat = get (name);
-    if (! mat)
-      {
-	mat = _default_material;
-	if (! mat)
-	  mat = global_default;
-      }
-    return mat;
+    return get (name, _default_material);
   }
 
-  // Return either this material-maps default material, or GLOBAL_DEFAULT
-  // if it has none.
+  // Return the default material.
   //
-  const Material *map (const Material *global_default = 0) const
-  {
-    return _default_material ? _default_material : global_default;
-  }
+  const Material *get_default () const { return _default_material; }
 
-  // Get a name->material mapping.
-  //
-  const Material *get (const std::string &name) const;
-
-  // Add a name->material mapping.
+  // Add a name->material dictping.
   //
   void add (const std::string &name, const Material *mat);
 
-  // Return true if this map contains a mapping for NAME.
+  // Return true if this dict contains a dictping for NAME.
   //
   bool contains (const std::string &name) const;
 
-  const Material *get_default () const { return _default_material; }
   void set_default (const Material *mat) { _default_material = mat; }
 
   unsigned num_entries () const { return size (); }
@@ -100,6 +85,6 @@ private:
 }
 
 
-#endif // __MATERIAL_MAP_H__
+#endif // __MATERIAL_DICT_H__
 
 // arch-tag: 9022ef65-f4b5-4064-885f-75edfb5b99c3

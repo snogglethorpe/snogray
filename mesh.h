@@ -21,7 +21,7 @@
 #include "surface.h"
 #include "pos.h"
 #include "xform.h"
-#include "material-map.h"
+#include "material-dict.h"
 
 
 namespace snogray {
@@ -53,14 +53,14 @@ public:
   Mesh (const Material *mat, const std::string &file_name, bool smooth = true)
     : Surface (mat), left_handed (true)
   {
-    load (file_name, MaterialMap (mat));
+    load (file_name, MaterialDict (mat));
     if (smooth)
       compute_vertex_normals ();
   }
-  Mesh (const std::string &file_name, const MaterialMap &mat_map)
+  Mesh (const std::string &file_name, const MaterialDict &mat_dict)
     : Surface (0), left_handed (true)
   {
-    load (file_name, mat_map);
+    load (file_name, mat_dict);
   }
 
 
@@ -118,7 +118,7 @@ public:
   // For loading mesh from any file-type (automatically determined)
   //
   void load (const std::string &file_name,
-	     const MaterialMap &mat_map = MaterialMap ());
+	     const MaterialDict &mat_dict = MaterialDict ());
 
   // Add this (or some other) surfaces to the space being built by
   // SPACE_BUILDER.

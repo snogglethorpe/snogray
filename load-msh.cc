@@ -17,7 +17,7 @@
 
 #include "excepts.h"
 #include "mesh.h"
-#include "material-map.h"
+#include "material-dict.h"
 
 #include "load-msh.h"
 
@@ -26,11 +26,11 @@ using namespace snogray;
 
 
 // Load mesh from a .msh format mesh file into MESH.  Materials are
-// filtered through MAT_MAP.
+// filtered through MAT_DICT.
 //
 void
 snogray::load_msh_file (const std::string &filename, Mesh &mesh,
-			const MaterialMap &mat_map)
+			const MaterialDict &mat_dict)
 {
   std::ifstream stream (filename.c_str());
   if (! stream)
@@ -57,7 +57,7 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
 	  // No, it must be the number of vertices.  Just use a default
 	  // material in this case.
 	  
-	  mat = mat_map.map (mesh.material);
+	  mat = mat_dict.get_default ();
 	  num_vertices = atoi (kw);
 	}
       else
@@ -65,7 +65,7 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
 	  // Yes, KW is a material name; map it to a material, and read the
 	  // number of vertices from the next line.
 
-	  mat = mat_map.map (kw, mesh.material);
+	  mat = mat_dict.get (kw);
 	  stream >> num_vertices;
 	}
 

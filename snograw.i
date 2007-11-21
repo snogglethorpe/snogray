@@ -447,12 +447,13 @@ namespace snogray {
     void add (Surface *surface);
   };
 
-  class MaterialMap
+  class MaterialDict
   {
   public:
 
-    MaterialMap (const Material *default_material = 0);
+    MaterialDict (const Material *default_material = 0);
 
+    const Material *get (const char *name, const Material *def_mat) const;
     const Material *get (const char *name) const;
     void add (const char *name, const Material *mat);
     bool contains (const char *name) const;
@@ -460,7 +461,7 @@ namespace snogray {
     const Material *get_default () const;
     void set_default (const Material *mat);
   };
-  %extend MaterialMap
+  %extend MaterialDict
   {
     const Material *__getitem__ (const char *name) const
     {
@@ -473,7 +474,7 @@ namespace snogray {
 
     // Since a "nil" table value in lua conventionally means "no entry",
     // support true/false for use with "negative" entries (an entry
-    // mapping to a zero pointer in the native MaterialMap type).
+    // mapping to a zero pointer in the native MaterialDict type).
     //
     void __setitem__ (const char *name, bool flag)
     {
@@ -483,7 +484,7 @@ namespace snogray {
     const char* __str__()
     {
       snprintf (static_rep_buf, sizeof static_rep_buf,
-		"material<nentries=%d%s>",
+		"material-dict<nentries=%d%s>",
 		$self->num_entries(),
 		$self->get_default() ? "+1" : "");
       return static_rep_buf;
@@ -497,7 +498,7 @@ namespace snogray {
     Mesh (const snogray::Material *mat = 0);
     Mesh (const snogray::Material *mat, const char *file_name,
 	  bool smooth = true);
-    Mesh (const char *file_name, const MaterialMap &mat_map);
+    Mesh (const char *file_name, const MaterialDict &mat_dict);
 
     typedef unsigned vert_index_t;
     class VertexGroup;
@@ -524,7 +525,7 @@ namespace snogray {
     void reserve_normals ();
 
     void load (const char *file_name,
-	       const MaterialMap &mat_map = MaterialMap ());
+	       const MaterialDict &mat_dict = MaterialDict ());
 
     void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
 

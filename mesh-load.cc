@@ -34,7 +34,7 @@ using namespace std;
 // Generic mesh-file loading
 
 void
-Mesh::load (const string &file_name, const MaterialMap &mat_map)
+Mesh::load (const string &file_name, const MaterialDict &mat_dict)
 {
   std::cout << "* loading mesh: " << file_name << std::endl;
 
@@ -43,18 +43,18 @@ Mesh::load (const string &file_name, const MaterialMap &mat_map)
       string ext = filename_ext (file_name);
 
       if (ext == "ply")
-	load_ply_file (file_name, *this, mat_map.map (material));
+	load_ply_file (file_name, *this, mat_dict.get_default ());
  
       else if (ext == "msh" || ext == "mesh")
-	load_msh_file (file_name, *this, mat_map);
+	load_msh_file (file_name, *this, mat_dict);
 
 #ifdef HAVE_LIB3DS
       else if (ext == "3ds")
-	load_3ds_file (file_name, *this, mat_map);
+	load_3ds_file (file_name, *this, mat_dict);
 #endif
 
 #ifdef USE_LUA
-      else if (load_lua_file (file_name, ext, *this, mat_map))
+      else if (load_lua_file (file_name, ext, *this, mat_dict))
 	{ /* loaded */ }
 #endif
 
