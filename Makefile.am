@@ -336,14 +336,40 @@ hemint_LDADD = libsnogutil.a
 
 if build_lua
 
+# We use two different methods for building liblua.a, depending on whether
+# we're using a separate build directory or not, and whether the Lua source
+# directory is a subdirectory (and thus is "ours"):
+#
+# + If building in the source dir, and the Lua source directory is a simple
+#   subdirectory of the top-level source dir, we build liblua.a in the Lua
+#   source directory and copy it to our top-level directory.  This avoids
+#   most assumptions about how make works.
+#
+# + If using a separate build dir, or if the Lua source directory is
+#   "somewhere else", we build liblua.a in the current directory, using the
+#   Makefile from the Lua source directory, and VPATH to tell make where to
+#   find the source files. This requires that make support at using VPATH
+#   to find source files, which seems a reasonable assumption in this case.
+#   It also requires that no lua object files have the same name as any of
+#   our object files; that's the case currently (all Lua source/object
+#   files begin with "l").
+#
+if build_lua_in_src_dir
+
 liblua.a:
 	(cd $(LUA_SRC); $(MAKE) $(AM_MAKEFLAGS) liblua.a)
 	cp -p $(LUA_SRC)/liblua.a .
-
 clean-local:
 	-rm -rf $(LUA_SRC)/liblua.a
 mostlyclean-local:
 	-rm -rf $(LUA_SRC)/*.o
+
+else !build_lua_in_src_dir
+
+liblua.a:
+	$(MAKE) -f $(LUA_SRC)/Makefile $(AM_MAKEFLAGS) VPATH=$(LUA_SRC) liblua.a
+
+endif
 
 endif
 

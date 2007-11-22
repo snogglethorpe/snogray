@@ -85,8 +85,9 @@ AC_ARG_WITH([lua-src],
     [lua_src_specified=yes], [with_lua_src=$srcdir/lua])
 
 AC_MSG_CHECKING([for Lua source directory])
+lua_dist=`echo "$with_lua_src" | sed 's@^./@@'`
 lua_src=none
-for dir in "$with_lua_src" "$with_lua_src/src"; do
+for dir in "$lua_dist" "$lua_dist/src"; do
     if test -r "$dir/lapi.c"; then
        lua_src="$dir"
        break
@@ -94,12 +95,45 @@ for dir in "$with_lua_src" "$with_lua_src/src"; do
 done
 AC_MSG_RESULT([$lua_src])
 
+build_lua_in_src_dir=no
 if test "$lua_src" != none; then
-  AC_SUBST([LUA_DIST], [$with_lua_src])
+  AC_SUBST([LUA_DIST], [$lua_dist])
   AC_SUBST([LUA_SRC], [$lua_src])
+  
+  # We use two different methods for building liblua.a, depending on whether
+  # we're using a separate build directory or not, and whether the Lua source
+  # directory is a subdirectory (and thus is "ours"):
+  #
+  # + If building in the source dir, and the Lua source directory is a simple
+  #   subdirectory of the top-level source dir, we build liblua.a in the Lua
+  #   source directory and copy it to our top-level directory.  This avoids
+  #   most assumptions about how make works.
+  #
+  # + If using a separate build dir, or if the Lua source directory is
+  #   "somewhere else", we build liblua.a in the current directory, using the
+  #   Makefile from the Lua source directory, and VPATH to tell make where to
+  #   find the source files. This requires that make support at using VPATH
+  #   to find source files, which seems a reasonable assumption in this case.
+  #   It also requires that no lua object files have the same name as any of
+  #   our object files; that's the case currently (all Lua source/object
+  #   files begin with "l").
+  #
+  # Our test to determine if LUA_SRC is "our" subdirectory is very simple, we
+  # just see if $lua_dist _doesn't_ contain a slash (we use $lua_dist instead
+  # of $lua_src because $lua_src is often a subdirectory of $lua_dist, and so
+  # will have a slash added).
+  #
+  AC_MSG_CHECKING([whether to build Lua in source directory])
+  lua_dist_slash=`echo "$lua_dist" | grep /`
+  if test x"$srcdir" = x. && test x"$lua_dist_slash" != x"$lua_dist"; then
+    build_lua_in_src_dir=yes
+  fi
+  AC_MSG_RESULT([$build_lua_in_src_dir])
 fi
+
 AM_CONDITIONAL([build_lua], [test x"$lua_src" != xnone])
 
+AM_CONDITIONAL([build_lua_in_src_dir], [test $build_lua_in_src_dir = yes])
 
 ##
 ## --------------------------------
