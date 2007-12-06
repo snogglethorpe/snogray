@@ -100,8 +100,8 @@ dump_bg (const Scene &scene, Image &map, DumpBgKind what)
 
 	if (what != DUMP_BG_LIGHT_MAP)
 	  {
-	    dist_t colat = -(y * ih * M_PI - M_PI_2);
-	    dist_t lng = x * iw * M_PI * 2 - M_PI;
+	    dist_t colat = -(y * ih * PI - PI/2);
+	    dist_t lng = x * iw * PI * 2 - PI;
 	    Vec dir = y_axis_latlong_to_vec (colat, lng);
 	    bg = scene.background (dir);
 	  }

@@ -152,8 +152,8 @@ add_cone_sides (Mesh *mesh,
 	       const Pos &base_pos, dist_t base_radius,
 	       const Pos &apex_pos, dist_t apex_radius)
 {
-  float base_circ = 2 * M_PIf * base_radius;
-  float apex_circ = 2 * M_PIf * apex_radius;
+  float base_circ = 2 * PIf * base_radius;
+  float apex_circ = 2 * PIf * apex_radius;
 
   Vec axis = apex_pos - base_pos;
 
@@ -166,7 +166,7 @@ add_cone_sides (Mesh *mesh,
       return;
     }
 
-  float theta_step = 2 * M_PIf / AFF_CONE_SIDES;
+  float theta_step = 2 * PIf / AFF_CONE_SIDES;
 
   Vec base_axis1 = base_radius * axis.perpendicular().unit ();
   Vec base_axis2 = base_radius * cross (axis, base_axis1).unit ();
@@ -360,7 +360,7 @@ Scene::load_aff_file (const std::string &file_name, Camera &camera)
   // interact better with any external geometry/transforms.
   //
   Xform geom_xform;
-  geom_xform.rotate_x (-M_PI_2);
+  geom_xform.rotate_x (-PI/2);
   geom_xform.scale (-1, 1, 1);
 
   camera.transform (geom_xform);
@@ -406,7 +406,7 @@ Scene::load_aff_file (const std::string &file_name, Camera &camera)
 	  Vec up = read_vec (stream, geom_xform);
 
 	  read_required_kw (stream, "angle");
-	  float fov_y = read_float (stream) * M_PI / 180;
+	  float fov_y = read_float (stream) * PI / 180;
 
 	  read_required_kw (stream, "hither");
 	  read_float (stream);
@@ -446,7 +446,7 @@ Scene::load_aff_file (const std::string &file_name, Camera &camera)
 	    intens *= read_color (stream);
 
 	  dist_t radius = 1;
-	  dist_t area = 4 * M_PI * radius * radius;
+	  dist_t area = 4 * PI * radius * radius;
 
 	  intens /= area;
 

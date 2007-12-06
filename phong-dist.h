@@ -51,7 +51,7 @@ public:
   //
   float pdf (float cos_theta) const
   {
-    return (exp + 1) * M_1_PIf * 0.5f * pow (cos_theta, exp);
+    return (exp + 1) * INV_PIf * 0.5f * pow (cos_theta, exp);
   }
 
 private:  

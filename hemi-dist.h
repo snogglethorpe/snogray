@@ -45,7 +45,7 @@ public:
   //
   float pdf () const
   {
-    return 2 * M_1_PIf;
+    return 2 * INV_PIf;
   }
 };
 

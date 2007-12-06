@@ -133,7 +133,7 @@ public:
   // vertices may increase (to prevent this, specify a sufficiently large
   // MAX_ANGLE, e.g. 2 * PI).
   //
-  void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
+  void compute_vertex_normals (float max_angle = 45 * INV_PIf / 180);
 
   Pos vertex (vert_index_t index) const { return Pos (vertices[index]); }
   Vec vertex_normal (vert_index_t index) const

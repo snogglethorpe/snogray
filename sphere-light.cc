@@ -27,7 +27,7 @@ float
 SphereLight::solid_angle (const Pos &observer) const
 {
   float dist = (pos - observer).length ();
-  return 2 * M_PIf * (1 - cos (asin (radius / dist)));
+  return 2 * PIf * (1 - cos (asin (radius / dist)));
 }
 
 
@@ -62,14 +62,14 @@ SphereLight::gen_samples (const Intersect &isec, unsigned num,
       // Walters, et al.
       //
       float r_sqrt_rand1 = radius * sqrt (u);
-      float rand2_ang = v * 2 * M_PIf;
+      float rand2_ang = v * 2 * PIf;
       float x = r_sqrt_rand1 * cos (rand2_ang);
       float y = r_sqrt_rand1 * sin (rand2_ang);
       // Note -- the abs here is just to avoid negative numbers caused by
       // floating-point imprecision.
       float z
 	= (sqrt (abs (radius * radius - x * x - y * y))
-	   * sin (M_PIf * (random(1.f) - 0.5)));
+	   * sin (PIf * (random(1.f) - 0.5)));
 
       // End-point of sample, which is _inside_ the sphere light (not on
       // the surface).

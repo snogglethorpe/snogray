@@ -41,12 +41,12 @@ protected:
   {
     param_t mid = (p1 + p2) / 2;
     param_t diff = p1 - p2;
-    if (diff >= M_PI || diff <= -M_PI)
-      mid += M_PI;
-    if (mid >= M_PI * 2)
-      mid -= M_PI * 2;
-    else if (mid <= -M_PI * 2)
-      mid += M_PI * 2;
+    if (diff >= PI || diff <= -PI)
+      mid += PI;
+    if (mid >= PI * 2)
+      mid -= PI * 2;
+    else if (mid <= -PI * 2)
+      mid += PI * 2;
     return mid;
   }
 

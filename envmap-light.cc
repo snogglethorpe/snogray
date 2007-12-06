@@ -53,13 +53,13 @@ public:
 
   virtual float aspect_ratio (float, float y, float w, float h) const
   {
-    w *= cos ((y + h  / 2) / height * M_PIf - M_PI_2f);
+    w *= cos ((y + h  / 2) / height * PIf - PIf/2);
     return w / h;
   }
 
   virtual float area (float, float y, float w, float h) const
   {
-    return w * h * cos ((y + h  / 2) / height * M_PIf - M_PI_2f);
+    return w * h * cos ((y + h  / 2) / height * PIf - PIf/2);
   }
 };
 
@@ -196,7 +196,7 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
       // The intensity distribution covers the entire sphere, so adjust
       // the pdf to reflect that.
       //
-      intens_pdf *= 0.25f * M_1_PI;
+      intens_pdf *= 0.25f * INV_PIf;
 
       float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
       float pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
@@ -266,7 +266,7 @@ EnvmapLight::filter_samples (const Intersect &isec,
 	// The intensity distribution covers the entire sphere, so adjust
 	// the pdf to reflect that.
 	//
-	intens_pdf *= 0.25f * M_1_PI;
+	intens_pdf *= 0.25f * INV_PIf;
 
 	float hemi_pdf = hemi_dist.pdf (isec.cos_n (s->dir));
 

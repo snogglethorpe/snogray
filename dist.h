@@ -31,7 +31,7 @@ public:
   Vec z_normal_symm_vec (float cos_theta, float v) const
   {
     float sin_theta = sqrt (1 - cos_theta * cos_theta);
-    float lng = v * 2 * M_PIf;
+    float lng = v * 2 * INV_PIf;
     return Vec (sin (lng) * sin_theta, cos (lng) * sin_theta, cos_theta);
   }
 

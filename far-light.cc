@@ -32,7 +32,7 @@ FarLight::gen_samples (const Intersect &isec, unsigned num,
   float cos_n_dir_angle = isec.cos_n (dir);
   float n_dir_angle = acos (cos_n_dir_angle);
   float min_angle = n_dir_angle - angle / 2;
-  if (min_angle >= 2 * M_PIf)
+  if (min_angle >= 2 * PIf)
     return 0;
 
   GridIter grid_iter (num);
@@ -45,9 +45,9 @@ FarLight::gen_samples (const Intersect &isec, unsigned num,
       // area correponds to ANGLE (so that if ANGLE is 4*PI, the entire
       // cylinder surface, from z -1 to 1, will be sampled).
       //
-      float z = 1 - u * angle * 0.5f * M_1_PIf;
+      float z = 1 - u * angle * 0.5f * INV_PIf;
       float r = sqrt (1 - z * z);
-      float phi = v * 2 * M_PIf;
+      float phi = v * 2 * PIf;
       float x = r * cos (phi), y = r * sin (phi);
       Vec s_dir = Vec (x, y, z).from_basis (ox, oy, dir);
       

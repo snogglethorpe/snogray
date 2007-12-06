@@ -377,7 +377,7 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 {
   Vec up (0, 0, 1);
 
-  up *= Xform::z_rotation (c->roll * M_PI / 180);
+  up *= Xform::z_rotation (c->roll * PI / 180);
 
   Xform dir_xform = xform.inverse().transpose();
 
@@ -389,7 +389,7 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 //   cout << "   xform targ: " << pos (c->target) * xform << endl;
 //   cout << "   xform up:   " << up * dir_xform << endl;
 
-  camera.set_vert_fov (c->fov * M_PI / 180);
+  camera.set_vert_fov (c->fov * PI / 180);
   camera.move (pos (c->position) * xform);
   camera.point (pos (c->target) * xform, up * dir_xform);
 }
@@ -603,7 +603,7 @@ TdsLoader::convert (const Xform &xform)
   if (scene)
     {
       dist_t radius = 50;
-      dist_t area_scale = 1 / (4 * M_PI * radius * radius);
+      dist_t area_scale = 1 / (4 * PI * radius * radius);
 
       for (Lib3dsLight *l = file->lights; l; l = l->next)
 #ifdef HAVE_LIB3DS_OBJ_FLAGS
@@ -652,7 +652,7 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
   // Transform vertical Z axis into our preferred vertical Y axis
   //
   Xform xform;
-  xform.rotate_x (-M_PI_2);
+  xform.rotate_x (-PI/2);
   xform.scale (1, 1, -1);
 
   if (l.file->cameras)
@@ -684,7 +684,7 @@ snogray::load_3ds_file (const string &filename, Mesh &mesh,
   // Transform vertical Z axis into our preferred vertical Y axis
   //
   Xform file_xform;
-  file_xform.rotate_x (-M_PI_2);
+  file_xform.rotate_x (-PI/2);
   file_xform.scale (1, 1, -1);
 
   l.convert (file_xform);

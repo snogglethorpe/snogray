@@ -79,7 +79,7 @@ add_rect_bulb (Scene &scene,
 static void
 add_bulb (Scene &scene, const Pos &pos, float radius, const Color &col = 1)
 {
-  dist_t area = 4 * M_PI * radius * radius;
+  dist_t area = 4 * PI * radius * radius;
 
   Color intens = col / area;
 
@@ -228,7 +228,7 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
     = scene.add (new Material (Color (0.3, 0.2, 0.05),
 			       cook_torrance (0.5, 3, 2)));
 
-  Xform mesh_xform = Xform::x_rotation (-M_PI_2).scale (-1, 1, 1) * xform;
+  Xform mesh_xform = Xform::x_rotation (-PI/2).scale (-1, 1, 1) * xform;
 
   const Material *b1_mat, *b2_mat;
   switch (variant)
@@ -291,7 +291,7 @@ def_scene_pretty_bunny (unsigned num, const string &arg,
 
   camera.move (Pos (-1, 1.35, 2.3)); // y=0.5
   camera.point (Pos (-0.75, 0.58, 0), Vec (0, 1, 0));
-  camera.set_vert_fov (M_PI_4);
+  camera.set_vert_fov (PI/4);
   camera.transform (Xform::scaling (1, 1, -1));
 
   const Material *red
@@ -611,7 +611,7 @@ def_teapot_props (Scene &scene, unsigned num)
 static void
 def_teapot_camera (Camera &camera)
 {
-  camera.set_vert_fov (M_PI_4 * 0.9);
+  camera.set_vert_fov (PI/4 * 0.9);
   camera.move (Pos (-4.86, 5.4, -7.2));
   camera.point (Pos (0, 0, 0.2), Vec (0, 1, 0));
 }
@@ -625,7 +625,7 @@ def_scene_teapot (unsigned num, const string &arg, Scene &scene, Camera &camera)
   // the SPD package, which uses Z as the vertical axis.  This transform
   // mutates them into our preferred coordinate system.
   //
-  Xform mesh_xform = Xform::x_rotation (-M_PI_2).scale (-1, 1, 1);
+  Xform mesh_xform = Xform::x_rotation (-PI/2).scale (-1, 1, 1);
 
   const Material *mat = def_teapot_mat (scene, (num / 1000) % 10);
 
@@ -808,7 +808,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
       scene.add (new Sphere (mat, Pos (x, y, z), rad));
     }
 
-  camera.set_vert_fov (M_PI_4 * 0.9);
+  camera.set_vert_fov (PI/4 * 0.9);
   camera.move (Pos (-4.86, 5.4, -7.2));
   camera.point (Pos (0, 0, 0.2), Vec (0, 1, 0));
 }
@@ -884,7 +884,7 @@ def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
   SphereTesselFun (Pos (0, 3, 0), 3, 0.002).tessellate (mesh, max_err);
   scene.add (mesh);
 
-  camera.set_vert_fov (M_PI_4 * 0.9);
+  camera.set_vert_fov (PI/4 * 0.9);
   camera.move (Pos (4.86, 5.4, 7.2));
   camera.point (Pos (0, 0, -0.2), Vec (0, 1, 0));
 }
@@ -1069,7 +1069,7 @@ def_cbox_camera (const Cbox &cbox, Camera &camera)
 		    -2.75 * cbox.width));
   camera.point (Pos (cbox.mid_x, 0.475 * cbox.height + cbox.bottom, 0),
 		Vec (0, 1, 0));
-  camera.set_horiz_fov (M_PI_4 * 0.7);
+  camera.set_horiz_fov (PI/4 * 0.7);
 }
 
 static void
@@ -1150,7 +1150,7 @@ def_scene_cornell_box (unsigned num, const string &,
 			     cbox.RBR + Vec (-rad*1.7, rad, -rad*4), rad));
 
       dist_t cube_sz = cbox.height * 0.4;
-      float cube_angle = 50 * (M_PIf / 180);
+      float cube_angle = 50 * (PIf / 180);
       Vec cube_up (0, cube_sz, 0);
       Vec cube_right (cube_sz * cos(cube_angle), 0, cube_sz * sin(cube_angle));
       Vec cube_fwd (cube_sz * -sin(cube_angle), 0, cube_sz * cos(cube_angle));
@@ -1312,7 +1312,7 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
     }
 
   camera.point (Pos (-0.25, -0.07, 0), Vec (0, 1, 0));
-  camera.set_vert_fov (M_PI_4);
+  camera.set_vert_fov (PI/4);
 
   const Material *red;
   if (variant == 0)
@@ -1391,7 +1391,7 @@ def_scene_cs665_test1 (Scene &scene, Camera &camera)
   camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
 
   float light_radius = 0.001;
-  float light_area = 4 * M_PIf * light_radius * light_radius;
+  float light_area = 4 * PIf * light_radius * light_radius;
 
   add_bulb (scene, Pos (0, 3, 0), light_radius, 2e7 * light_area);
 
@@ -1418,7 +1418,7 @@ def_scene_cs665_test10 (Scene &scene, Camera &camera)
   camera.set_diagonal_fov (0.953); //camera.set_vert_fov (0.7);
 
   float light_radius = 0.001;
-  float light_area = 4 * M_PIf * light_radius * light_radius;
+  float light_area = 4 * PIf * light_radius * light_radius;
 
   add_bulb (scene, Pos (0.5, 3, 10),    light_radius, 2e8 * light_area);
   add_bulb (scene, Pos (0.5, 3, 0),     light_radius, Color (2e7, 0, 0) * light_area);
@@ -1499,7 +1499,7 @@ def_scene_cs465_kdtree (const string &name, unsigned num, Scene &scene, Camera &
   //camera.move (Pos (9.7, 9.7, 5.8));
   camera.move (Pos (0, 7, 25));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
-  camera.set_vert_fov (M_PI_4);
+  camera.set_vert_fov (PI/4);
 }
 #endif
 
@@ -1679,10 +1679,10 @@ def_scene_pretty_dancer (unsigned num, const string &,
   if (birthday_card && num == 0)
     {
       camera.move (Vec (0, -2, 0));
-      camera.set_horiz_fov (55 * M_PI_2 / 90);
+      camera.set_horiz_fov (55 * PI/2 / 90);
     }
   else
-    camera.set_vert_fov (M_PI_4);
+    camera.set_vert_fov (PI/4);
 }
 
 static void
@@ -1840,7 +1840,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 
   camera.move (Pos (1, 1, 0.5));
   camera.point (Pos (0, 0.3, 0), Vec (0, 1, 0));
-  camera.set_horiz_fov (M_PI_4);
+  camera.set_horiz_fov (PI/4);
 
   const Material *jade
     = scene.add (new Material (Color (0.3, 0.6, 0.3),
@@ -1920,7 +1920,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     {
       // Transform vertical Z axis into our preferred vertical Y axis
       //
-      xform.rotate_x (-M_PI_2);
+      xform.rotate_x (-PI/2);
       xform.scale (-1, 1, 1);
     }
 
@@ -1930,7 +1930,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
     {
       // rotate ROT * 90 deg counter-clockwise around y axis
       //
-      xform.rotate_y (rot * M_PI_2);
+      xform.rotate_y (rot * PI/2);
     }
 
   Mesh *mesh = new Mesh (obj_mat, arg);
@@ -2099,7 +2099,7 @@ def_scene_frep (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
   camera.move (Pos (20.736, 3.9952, 0.3));
   camera.point (Pos (0.0, 1.9952, 0.3), Vec (0, 1, 0));
-  camera.set_horiz_fov (M_PI_4f); // 45 deg; original scene used 22.5 deg?
+  camera.set_horiz_fov (PIf/4); // 45 deg; original scene used 22.5 deg?
 
   // Currently snogray does not implement the factored BRDF algorithm
   // (nor can it handle measured BRDFs in anyway), so these materials
@@ -2206,7 +2206,7 @@ def_scene_trep (unsigned num, const string &arg, Scene &scene, Camera &camera)
   SXform pot_xform;
   pot_xform.scale (1, 1, -1);	// flip z-axis
   pot_xform.scale (2);
-  pot_xform.rotate_y (M_PIf * .75f);
+  pot_xform.rotate_y (PIf * .75f);
   normalize (pot, pot_xform);
 
   pot->compute_vertex_normals ();
@@ -2249,7 +2249,7 @@ def_scene_mis (unsigned num, const string &, Scene &scene, Camera &camera)
 
   camera.move (Pos (0, 1.5, -6));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
-  camera.set_horiz_fov (M_PI_4f);
+  camera.set_horiz_fov (PIf/4);
 }
 
 

@@ -32,14 +32,14 @@ struct LatLongMapping
 {
   static UV map (const Vec &dir)
   {
-    return UV ((dir.longitude () + M_PI) * M_1_PI / 2,
-	       (dir.latitude () + M_PI_2) * M_1_PI);
+    return UV ((dir.longitude () + PI) * INV_PI / 2,
+	       (dir.latitude () + PI/2) * INV_PI);
   }
 
   static Vec map (const UV &uv)
   {
-    dist_t colat = (uv.v - 0.5) * M_PI;
-    dist_t lng = (uv.u - 0.5) * M_PI * 2;
+    dist_t colat = (uv.v - 0.5) * PI;
+    dist_t lng = (uv.u - 0.5) * PI * 2;
     return y_axis_latlong_to_vec (colat, lng);
   }
 
@@ -48,7 +48,7 @@ struct LatLongMapping
   //
   static float sphere_area (UV uv)
   {
-    return cos (uv.v * M_PIf - M_PI_2f);
+    return cos (uv.v * PIf - PIf/2);
   }
 };
 
@@ -59,12 +59,12 @@ struct MercatorMapping
 {
   static UV map (const Vec &dir) const
   {
-    return UV ((dir.longitude () + M_PI) * M_1_PI / 2, (dir.y + 1) / 2);
+    return UV ((dir.longitude () + PI) * INV_PI / 2, (dir.y + 1) / 2);
   }
 
   static Vec map (const UV &uv) const
   {
-    float theta = ((uv.u * 2) - 1) * M_PI, phi = uv.v * M_PI;
+    float theta = ((uv.u * 2) - 1) * PI, phi = uv.v * PI;
     float sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
@@ -99,7 +99,7 @@ struct DebevecMapping
   {
     tparam_t x = dir.x, y = dir.y, z = dir.z;
     tparam_t d = sqrt (x * x + y * y);
-    tparam_t rpi = (d == 0) ? 0 : M_1_PIf * acos (z) / 2 / d;
+    tparam_t rpi = (d == 0) ? 0 : INV_PIf * acos (z) / 2 / d;
 
     return UV (x * rpi + 0.5f, y * rpi + 0.5f);
   }
@@ -107,7 +107,7 @@ struct DebevecMapping
   static Vec map (const UV &uv)
   {
     dist_t u = uv.u * 2 - 1, v = uv.v * 2 - 1;
-    dist_t theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
+    dist_t theta = atan2 (v, u), phi = PI * sqrt (u * u + v * v);
     dist_t sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
@@ -134,7 +134,7 @@ struct MirrorBallMapping
   static Vec map (const UV &uv)
   {
     dist_t u = uv.u * 2 - 1, v = uv.v * 2 - 1;
-    dist_t theta = atan2 (v, u), phi = M_PI * sqrt (u * u + v * v);
+    dist_t theta = atan2 (v, u), phi = PI * sqrt (u * u + v * v);
     dist_t sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }

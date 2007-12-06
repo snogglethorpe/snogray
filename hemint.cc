@@ -23,20 +23,14 @@
 
 #include <cmdlineparser.h>
 
+#include "snogmath.h"
 
 using namespace snogray;
 using namespace std;
 
 
-#define PI	M_PI
-#define PI_2	(M_PI / 2)
-#define INV_PI	M_1_PI
-
-#define M_PIf	M_PI
-#define M_1_PIf	M_1_PI
-
-#define LB	(-PI_2)
-#define UB	PI_2
+#define LB	(-PI/2)
+#define UB	(PI/2)
 #define STEPS	10000
 
 
@@ -77,7 +71,7 @@ double f_ward (double cos_theta, double p0)
       double inv_cos2_theta = inv_cos_theta * inv_cos_theta;
       double inv_cos3_theta = inv_cos2_theta * inv_cos_theta;
       double tan2_theta = inv_cos2_theta - 1;
-      return inv_m2 * M_1_PIf * inv_cos3_theta * exp (-tan2_theta * inv_m2);
+      return inv_m2 * INV_PIf * inv_cos3_theta * exp (-tan2_theta * inv_m2);
     }
 }
 

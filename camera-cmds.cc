@@ -127,7 +127,7 @@ read_float (istream &stream, const char *desc)
 static double
 read_angle (istream &stream, const char *desc)
 {
-  return read_float (stream, desc) * M_PI / 180;
+  return read_float (stream, desc) * PI / 180;
 }
 
 static dist_t

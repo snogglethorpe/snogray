@@ -95,11 +95,11 @@ SphereTesselFun::define_basis (Tessel &tessel) const
   // Define our basis.  We use a diamond shape with the pointy ends at the
   // poles.
 
-  const Vertex *p1   = add_vertex (tessel, M_PI_2, 0);
-  const Vertex *p2   = add_vertex (tessel, -M_PI_2, 0);
+  const Vertex *p1   = add_vertex (tessel, PI/2, 0);
+  const Vertex *p2   = add_vertex (tessel, -PI/2, 0);
   const Vertex *mid1 = add_vertex (tessel, 0, 0);
-  const Vertex *mid2 = add_vertex (tessel, 0, 2 * M_PI / 3);
-  const Vertex *mid3 = add_vertex (tessel, 0, 4 * M_PI / 3);
+  const Vertex *mid2 = add_vertex (tessel, 0, 2 * PI / 3);
+  const Vertex *mid3 = add_vertex (tessel, 0, 4 * PI / 3);
   
   add_cell (tessel, p1, mid1, mid2);
   add_cell (tessel, p1, mid2, mid3);
@@ -135,9 +135,9 @@ SphereTesselFun::midpoint (Tessel &tessel,
   // midpoint makes sense (we can freely do this because at a pole, the
   // v-value is meaningless).
   //
-  if (u1 >= M_PI_2 - Eps || u1 <= -M_PI_2 + Eps)
+  if (u1 >= PI/2 - Eps || u1 <= -PI/2 + Eps)
     v1 = v2;
-  else if (u2 >= M_PI_2 - Eps || u2 <= -M_PI_2 + Eps)
+  else if (u2 >= PI/2 - Eps || u2 <= -PI/2 + Eps)
     v2 = v1;
 
   param_t u = angular_midpoint (u1, u2);
@@ -201,8 +201,8 @@ SincTesselFun::define_basis (Tessel &tessel) const
 
   const V *mid  = add_vertex (tessel, 0, 0);
   const V *c1   = add_vertex (tessel, 1, 0);
-  const V *c2   = add_vertex (tessel, 1, 2 * M_PI / 3);
-  const V *c3   = add_vertex (tessel, 1, 4 * M_PI / 3);
+  const V *c2   = add_vertex (tessel, 1, 2 * PI / 3);
+  const V *c3   = add_vertex (tessel, 1, 4 * PI / 3);
 
   add_cell (tessel, c2, mid, c1);
   add_cell (tessel, c3, mid, c2);
@@ -245,7 +245,7 @@ SincTesselFun::midpoint (Tessel &tessel,
   return add_vertex (tessel, u, v);
 }
 
-#define SINC_X_COMP (5.5 * M_PI)
+#define SINC_X_COMP (5.5 * PI)
 #define SINC_Y_COMP (1 / 0.7)
 
 // Return the surface position corresponding to the parameters U, V.
@@ -296,7 +296,7 @@ TorusTesselFun::define_basis (Tessel &tessel) const
 
   for (unsigned r = 0; r < 3; r++)
     for (unsigned v = 0; v < 3; v++)
-      verts[r][v] = add_vertex (tessel, r * 2 * M_PI / 3, v * 2 * M_PI / 3);
+      verts[r][v] = add_vertex (tessel, r * 2 * PI / 3, v * 2 * PI / 3);
   
   for (unsigned r = 0; r < 3; r++)
     for (unsigned v = 0; v < 3; v++)

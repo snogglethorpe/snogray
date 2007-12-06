@@ -55,7 +55,7 @@ public:
 	float inv_cos2_theta = inv_cos_theta * inv_cos_theta;
 	float inv_cos3_theta = inv_cos2_theta * inv_cos_theta;
 	float tan2_theta = inv_cos2_theta - 1;
-	return inv_m2 * M_1_PIf * inv_cos3_theta * exp (-tan2_theta * inv_m2);
+	return inv_m2 * INV_PIf * inv_cos3_theta * exp (-tan2_theta * inv_m2);
       }
   }
 

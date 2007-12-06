@@ -46,7 +46,7 @@ public:
   //
   float pdf (float cos_theta) const
   {
-    return cos_theta * M_1_PIf;
+    return cos_theta * INV_PIf;
   }
 };
 
