@@ -578,27 +578,55 @@ if test "$GXX" = yes; then
       test "$cpuinfo_cpu" = unknown || host_cpu="$cpuinfo_cpu"
     fi
 
+    archs=""
+    extra_arch_opts=""
     case "$host_cpu" in
       i686|pentium3)
-	CXX_MACH_FLAGS="-march=pentium3 -mfpmath=sse" ;;
+        archs="pentium3"
+	extra_arch_opts="-mfpmath=sse" ;;
       i786|pentium4)
-	CXX_MACH_FLAGS="-march=pentium4 -mfpmath=sse" ;;
+        archs="pentium4"
+	extra_arch_opts="-mfpmath=sse" ;;
       pentium-m)
-	CXX_MACH_FLAGS="-march=pentium-m -mfpmath=sse" ;;
+        archs="pentium-m pentium3"
+	extra_arch_opts="-mfpmath=sse" ;;
       x86[-_]64)
-	CXX_MACH_FLAGS="-march=k8 -mfpmath=sse" ;;
+        archs="k8 athlon"
+	extra_arch_opts="-mfpmath=sse" ;;
       opteron)
-	CXX_MACH_FLAGS="-march=opteron -mfpmath=sse" ;;
-      *)
-	CXX_MACH_FLAGS="";;
+        archs="opteron athlon"
+	extra_arch_opts="-mfpmath=sse" ;;
+      athlon)
+        archs="athlon"
+	extra_arch_opts="-mfpmath=sse" ;;
     esac
 
-    # Check machine options for validity; note that we check them all
-    # together, not individually, as some may depend on others.
+    # Try to find an architecture in $archs that the compiler accepts
     #
-    if test x"$CXX_MACH_FLAGS" != x; then
-      SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MACH_FLAGS])
-    fi
+    for arch in $archs; do
+
+      # See if the compiler accepts $arch as an architecture.
+      #
+      SNOGRAY_CHECK_CXX_FLAG([CXX_MARCH], [-march=$arch])
+
+      # If so, use it, possibly supplemented by $extra_arch_opts.
+      #
+      if test x"$CXX_MARCH" != x; then
+
+	# Check machine options for validity; note that we check them all
+	# together, not individually, as some may depend on others.
+	#
+	if test x"$extra_arch_opts" != x; then
+	  SNOGRAY_CHECK_CXX_FLAG([CXX_MACH_FLAGS], [$CXX_MARCH $extra_arch_opts])
+	fi
+
+	# If the above didn't define CXX_MACH_FLAGS, just use CXX_MARCH alone
+	#
+	if test x"$CXX_MACH_FLAGS" = x; then
+	  CXX_MACH_FLAGS="$CXX_MARCH"
+	fi	
+      fi
+    done
   fi
 
 else
