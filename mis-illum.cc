@@ -12,6 +12,7 @@
 
 #include "intersect.h"
 #include "light.h"
+#include "brdf.h"
 
 #include "mis-illum.h"
 
@@ -68,7 +69,7 @@ MisIllum::gen_samples (const Intersect &isec,
 {
   // Generate BRDF samples.
   //
-  num_brdf_samples = isec.brdf.gen_samples (isec, num_brdf_samples, samples);
+  num_brdf_samples = isec.brdf->gen_samples (num_brdf_samples, samples);
   unsigned num_real_brdf_samples = samples.size ();
 
   // We mark any BRDF samples over a certain threshold, as "specular" (even
@@ -158,7 +159,7 @@ MisIllum::gen_samples (const Intersect &isec,
 
 	      // Calculate BRDF response for light samples from this light.
 	      //
-	      isec.brdf.filter_samples (isec, ls_beg, ls_end);
+	      isec.brdf->filter_samples (ls_beg, ls_end);
 
 	      // Amount each sample counts in the final overall illumination
 	      // equation (including all samples from all lights).

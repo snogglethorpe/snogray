@@ -39,6 +39,7 @@
 #include "rect-light.h"
 #include "sphere-light.h"
 #include "cook-torrance.h"
+#include "lambert.h"
 
   static char static_rep_buf[255];
 
@@ -285,19 +286,12 @@ namespace snogray {
     const char* __str__() { return static_rep (*$self); }
   }
 
-  %ignore Brdf;
-  class Brdf
-  {
-  };
-
   class Material
   {
   public:
     enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
 
-    Material (const Color &col, const Brdf *brdf = lambert,
-	      ShadowType _shadow_type = SHADOW_OPAQUE);
-    Material (const Color &col, ShadowType _shadow_type);
+    Material (ShadowType _shadow_type = SHADOW_OPAQUE);
   };
 
   class Ior
@@ -321,15 +315,22 @@ namespace snogray {
     }
   }
 
-  class CookTorrance : public Brdf
+  class CookTorrance : public Material
   {
   public:
 
-    CookTorrance (const Color &_spec_col, float _m, const Ior &_ior);
+    CookTorrance (const Color &col, const Color &spec_col,
+		  float m, const Ior &ior);
+    CookTorrance (const Color &col, const Color &spec_col,
+		  float m, float ior);
   };
 
-  const snogray::CookTorrance *cook_torrance (const snogray::Color &spec_col, float m, const snogray::Ior &ior);
-  const snogray::CookTorrance *cook_torrance (const snogray::Color &spec_col, float m, const float ior = 1.5);
+  class Lambert : public Material
+  {
+  public:
+
+    Lambert (const Color &col) : color (col) { }
+  };
 
   class Medium
   {
@@ -350,10 +351,10 @@ namespace snogray {
   public:
 
     Mirror (const Ior &_ior, const Color &_reflectance,
-	    const Color &col, const Brdf *underlying_brdf);
+	    const Material *underlying_material);
     Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0);
     Mirror (float _ior, const Color &_reflectance,
-	    const Color &col, const Brdf *underlying_brdf);
+	    const Material *underlying_material);
     Mirror (float _ior, const Color &_reflectance, const Color &col = 0);
   };
 

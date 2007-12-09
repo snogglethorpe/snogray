@@ -9,18 +9,14 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <stdexcept>
+#include "intersect.h"
+#include "light.h"
 
 #include "material.h"
 
-#include "scene.h"
-#include "intersect.h"
-#include "lambert.h"
-#include "phong.h"
 
 using namespace snogray;
 
-
 
 Color
 Material::render (const Intersect &isec) const
@@ -53,5 +49,6 @@ Material::shadow (const Intersect &isec, const Ray &,
   //
   return 0;
 }
+
 
 // arch-tag: 3d971faa-322c-4479-acf0-effb05aca10a

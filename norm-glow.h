@@ -21,7 +21,7 @@ class NormGlow : public Material
 public:
 
   NormGlow (Color::component_t _intens)
-    : Material (_intens, Material::SHADOW_OPAQUE), intens (_intens)
+    : Material (Material::SHADOW_OPAQUE), intens (_intens)
   { }
 
   virtual Color render (const Intersect &isec) const;

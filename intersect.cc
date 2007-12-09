@@ -29,11 +29,15 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
     n ((_back ? -_normal : _normal).unit ()),
     s (n.perpendicular ().unit ()), t (cross (s, n).unit ()),
     v (-_ray.dir.unit ()), nv (dot (n, v)), back (_back),
-    material (*_surface->material),
-    brdf (material.brdf), color (material.color),
+    material (_surface->material), brdf (0),
     smoothing_group (_smoothing_group), no_self_shadowing (false),
     trace (_trace)
-{ }
+{
+  // Initialize BRDF last, because we pass this object as argument to
+  // Material::get_brdf, and we want it to be in a consistent state.
+  //
+  brdf = material->get_brdf (*this);
+}
 
 // For surfaces with non-interpolated normals, we can calculate
 // whether it's a backface or not using the normal; they typically
@@ -44,10 +48,8 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
   : ray (_ray), surface (_surface),
     pos (_pos), n (_normal.unit ()),
     s (n.perpendicular ().unit ()), t (cross (s, n).unit ()),
-    v (-_ray.dir.unit ()), nv (dot (n, v)),
-    back (nv < 0),
-    material (*_surface->material),
-    brdf (material.brdf), color (material.color),
+    v (-_ray.dir.unit ()), nv (dot (n, v)), back (nv < 0),
+    material (_surface->material), brdf (0),
     smoothing_group (0), no_self_shadowing (false),
     trace (_trace)
 {
@@ -56,10 +58,14 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
       n = -n;
       nv = -nv;
     }
+
+  // Initialize BRDF last, because we pass this object as argument to
+  // Material::get_brdf, and we want it to be in a consistent state.
+  //
+  brdf = material->get_brdf (*this);
 }
 
-
-
+  
 Color
 Intersect::illum () const
 {
@@ -69,6 +75,15 @@ Intersect::illum () const
   else
     return 0;
 }  
+
+
+Intersect::~Intersect ()
+{
+  // Destroy the BRDF object.  The memory will be implicitly freed later.
+  //
+  if (brdf)
+    brdf->~Brdf ();
+}
 
 
 // arch-tag: 4e2a9676-9a81-4f69-8702-194e8b9158a9

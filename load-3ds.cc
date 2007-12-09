@@ -34,6 +34,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "phong.h"
+#include "lambert.h"
 #include "cook-torrance.h"
 #include "sphere-light.h"
 #include "glow.h"
@@ -174,13 +175,10 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
 //   cout << "   shininess:    " << m->shininess << endl;
 //   cout << "   shin_str:     " << m->shin_strength << endl;
 
-  Color diffuse = color (m->diffuse);
-
   if (m->transparency > 0)
     //
-    // The plastic material we use for transparency has no real color or
-    // BRDF; it only transmits light, or reflects due to Fresnel
-    // reflection.
+    // The plastic material we use for transparency has no real color;
+    // it only transmits light, or reflects due to Fresnel reflection.
     //
     // We use the plastic's index of refraction to try to control
     // shininess: a shininess of 0 means an IOR of 1, so no Fresnel
@@ -190,19 +188,19 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
     mat = new Plastic (m->transparency, 1 + m->shininess);
   else
     {
-      const Brdf *brdf = lambert;
+      Color diffuse = color (m->diffuse);
       Color specular = color (m->specular);
 
       if (m->shading == LIB3DS_PHONG && m->shininess > 0)
-	brdf = cook_torrance (specular, pow (100, -m->shininess));
+	mat = new CookTorrance (diffuse, specular, pow (100, -m->shininess));
       else if (m->shading == LIB3DS_METAL)
-	brdf = cook_torrance (specular, pow (100, -m->shininess),
-			      TDS_METAL_IOR);
-
-      if (m->shading == LIB3DS_METAL)
-	mat = new Mirror (TDS_METAL_IOR, specular, diffuse, brdf);
+	mat = new Mirror (TDS_METAL_IOR, specular,
+			  new CookTorrance (diffuse, specular,
+					    pow (100, -m->shininess),
+					    TDS_METAL_IOR),
+			  true);
       else
-	mat = new Material (diffuse, brdf);
+	mat = new Lambert (diffuse);
     }
 
   if (scene)

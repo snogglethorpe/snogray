@@ -22,7 +22,7 @@ class Glass : public Material
 public:
 
   Glass (Medium _medium)
-    : Material (1, Material::SHADOW_MEDIUM), medium (_medium)
+    : Material (Material::SHADOW_MEDIUM), medium (_medium)
   { }
 
   virtual Color render (const Intersect &isec) const;

@@ -1,4 +1,4 @@
-// cook-torrance.h -- Cook-Torrance reflectance function
+// cook-torrance.h -- Cook-Torrance material
 //
 //  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
 //
@@ -12,35 +12,26 @@
 #ifndef __COOK_TORRANCE_H__
 #define __COOK_TORRANCE_H__
 
-#include "brdf.h"
+#include "material.h"
 #include "fresnel.h"
 
 namespace snogray {
 
-class CookTorrance : public Brdf
+
+class CookTorrance : public Material
 {
 public:
 
-  CookTorrance (const Color &_spec_col, float _m, const Ior &_ior)
-    : specular_color (_spec_col), m (_m), ior (_ior)
+  CookTorrance (const Color &col, const Color &spec_col,
+		float _m, const Ior &_ior = 1.5)
+    : color (col), specular_color (spec_col), m (_m), ior (_ior)
   { }
 
-  // Generate around NUM samples of this BRDF and add them to SAMPLES.
-  // NUM is only a suggestion.
+  // Return a new BRDF object for this material instantiated at ISEC.
   //
-  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
-				IllumSampleVec &samples)
-    const;
+  virtual Brdf *get_brdf (const Intersect &isec) const;
 
-  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
-  // to END_SAMPLE.
-  //
-  virtual void filter_samples (const Intersect &isec, 
-			       const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const;
-
-  Color specular_color;
+  Color color, specular_color;
 
   // Cook Torrance parameters:
 
@@ -54,13 +45,10 @@ public:
   Ior ior;
 };
 
-// Source of "constant" (not-to-be-freed) CookTorrance BRDFs
-//
-extern const CookTorrance *
-cook_torrance (const Color &spec_col, float m, const Ior &ior = 1.5);
 
 }
 
 #endif /* __COOK_TORRANCE_H__ */
+
 
 // arch-tag: 73c818bb-1305-412f-a616-6950b8d9ef39

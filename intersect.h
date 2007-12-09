@@ -20,10 +20,8 @@
 
 namespace snogray {
 
-
 class Surface;
 class Brdf;
-class Material;
 
 
 // This just packages up the result of a scene intersection search and
@@ -45,11 +43,13 @@ public:
   Intersect (const Ray &_ray, const Surface *_surface,
 	     const Pos &_point, const Vec &_normal, Trace &_trace);
 
+  ~Intersect ();
+
   // Calculate the outgoing radiance from this intersection.
   //
   Color render () const
   {
-    return material.render (*this);
+    return material->render (*this);
   }
 
   // Shadow LIGHT_RAY, which points to a light with (apparent) color
@@ -64,7 +64,7 @@ public:
 		const Light &light)
     const
   {
-    return material.shadow (*this, light_ray, light_color, light);
+    return material->shadow (*this, light_ray, light_color, light);
   }
 
   // Returns a pointer to the trace for a subtrace of the given
@@ -154,11 +154,16 @@ public:
   //
   bool back;
 
+  // Material of the surface at this intersection.
+  //
+  const Material *material;
+
+  // BRDF used at this intersection.
+  //
+  const Brdf *brdf;
+
   // Oft-used properties of SURFACE.
   //
-  const Material &material;
-  const Brdf &brdf;
-  const Color &color;
   const void *smoothing_group;
 
   // If true, SURFACE cannot shadow itself (for non-planar objects, this
@@ -183,7 +188,7 @@ public:
 // some appropriate point, and should not be used after the intersection
 // is destroyed.
 //
-inline void *operator new (size_t size, snogray::Intersect &isec)
+inline void *operator new (size_t size, const snogray::Intersect &isec)
 {
   return operator new (size, isec.trace);
 }
@@ -191,7 +196,7 @@ inline void *operator new (size_t size, snogray::Intersect &isec)
 // There's no syntax for user to use this, but the compiler may call it
 // during exception handling.
 //
-inline void operator delete (void *mem, snogray::Intersect &isec)
+inline void operator delete (void *mem, const snogray::Intersect &isec)
 {
   operator delete (mem, isec.trace);
 }

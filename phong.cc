@@ -1,4 +1,4 @@
-// phog.cc -- Phong reflectance function
+// phong.cc -- Phong material
 //
 //  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
@@ -16,42 +16,56 @@
 #include "phong-dist.h"
 #include "cos-dist.h"
 #include "grid-iter.h"
+#include "brdf.h"
 
 #include "phong.h"
 
 
 using namespace snogray;
 
-
-// Source of "constant" (not-to-be-freed) Phong BRDFs
-//
-const Phong *
-snogray::phong (const Color &spec_col, float exp)
-{
-  static std::list<Phong> phongs;
-
-  for (std::list<Phong>::iterator p = phongs.begin (); p != phongs.end (); p++)
-    if (p->exponent == exp && p->specular_color == spec_col)
-      return &(*p);
-
-  phongs.push_front (Phong (spec_col, exp));
-
-  return &phongs.front ();
-}
-
 
 
 // The details of phong evaluation are in this class.
 //
-struct PhongCalc
+class PhongBrdf : public Brdf
 {
-  PhongCalc (const Phong &_phong, const Intersect &_isec)
-    : phong (_phong), isec (_isec),
+public:
+
+  PhongBrdf (const Phong &_phong, const Intersect &_isec)
+    : Brdf (_isec), phong (_phong),
       phong_dist (_phong.exponent), diff_dist (),
-      diff_weight (isec.color.intensity ()),
+      diff_weight (phong.color.intensity ()),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight))
   { }
+
+  // Generate around NUM samples of this BRDF and add them to SAMPLES.
+  // NUM is only a suggestion.
+  //
+  virtual unsigned gen_samples (unsigned num, IllumSampleVec &samples) const
+  {
+    GridIter grid_iter (num);
+
+    float u, v;
+    while (grid_iter.next (u, v))
+      gen_sample (u, v, samples);
+
+    return grid_iter.num_samples ();
+  }
+
+  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
+  // to END_SAMPLE.
+  //
+  virtual void filter_samples (const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
+    const
+  {
+    for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
+      if (! s->invalid)
+	filter_sample (s);
+  }
+
+private:
 
   // Return the phong reflectance for the sample in direction L, where H is
   // the half-vector.  The pdf is returned in PDF.
@@ -80,10 +94,10 @@ struct PhongCalc
 
     pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
 
-    return isec.color * diff + phong.specular_color * spec;
+    return phong.color * diff + phong.specular_color * spec;
   }
 
-  void gen_sample (float u, float v, IllumSampleVec &samples)
+  void gen_sample (float u, float v, IllumSampleVec &samples) const
   {
     Vec l, h;
     if (u < diff_weight)
@@ -110,7 +124,7 @@ struct PhongCalc
       }
   }
 
-  void filter_sample (const IllumSampleVec::iterator &s)
+  void filter_sample (const IllumSampleVec::iterator &s) const
   {
     const Vec &l = s->dir;
     const Vec h = (isec.v + l).unit ();
@@ -118,8 +132,6 @@ struct PhongCalc
   }
 
   const Phong &phong;
-
-  const Intersect &isec;
 
   // Sample distributions for specular and diffuse components.
   //
@@ -137,41 +149,13 @@ struct PhongCalc
   float inv_diff_weight, inv_spec_weight;
 };
 
-
 
-// Generate around NUM samples of this BRDF and add them to SAMPLES.
-// NUM is only a suggestion.
+// Make a BRDF object for this material instantiated at ISEC.
 //
-unsigned
-Phong::gen_samples (const Intersect &isec, unsigned num,
-		    IllumSampleVec &samples)
-  const
+Brdf *
+Phong::get_brdf (const Intersect &isec) const
 {
-  PhongCalc calc (*this, isec);
-
-  GridIter grid_iter (num);
-
-  float u, v;
-  while (grid_iter.next (u, v))
-    calc.gen_sample (u, v, samples);
-
-  return grid_iter.num_samples ();
-}
-
-// Add reflectance information for this BRDF to samples from BEG_SAMPLE
-// to END_SAMPLE.
-//
-void
-Phong::filter_samples (const Intersect &isec, 
-		       const IllumSampleVec::iterator &beg_sample,
-		       const IllumSampleVec::iterator &end_sample)
-  const
-{
-  PhongCalc calc (*this, isec);
-
-  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
-    if (! s->invalid)
-      calc.filter_sample (s);
+  return new (isec) PhongBrdf (*this, isec);
 }
 
 

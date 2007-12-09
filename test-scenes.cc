@@ -212,21 +212,20 @@ add_chessboard (Scene &scene, const Xform &xform = Xform::identity,
 		unsigned variant = 0)
 {
   const Material *gloss_black
-    = scene.add (new Mirror (1.5, 0.4, 0.02, cook_torrance (0.9, 0.2)));
+    = scene.add (new Mirror (1.5, 0.4, new CookTorrance (0.02, 0.9, 0.2), true));
   const Material *black
-    = scene.add (new Material (0.02, cook_torrance (0.9, 0.05)));
+    = scene.add (new CookTorrance (0.02, 0.9, 0.05));
   const Material *phong_black
-    = scene.add (new Material (0.02, phong (0.9, 1000)));
+    = scene.add (new Phong (0.02, 0.9, 1000));
   const Material *gloss_ivory
-    = scene.add (new Mirror (1.5, 0.4, Color (1, 0.8, 0.5),
-			     cook_torrance (0.1, 0.2)));
+    = scene.add (new Mirror (1.5, 0.4,
+			     new CookTorrance (Color (1, 0.8, 0.5), 0.1, 0.2),
+			     true));
   const Material *ivory
-    = scene.add (new Material (Color (0.7, 0.6, 0.2),
-			       cook_torrance (0.3, 0.1)));
+    = scene.add (new CookTorrance (Color (0.7, 0.6, 0.2), 0.3, 0.1));
 
   const Material *brown
-    = scene.add (new Material (Color (0.3, 0.2, 0.05),
-			       cook_torrance (0.5, 3, 2)));
+    = scene.add (new CookTorrance (Color (0.3, 0.2, 0.05), 0.5, 3, 2));
 
   Xform mesh_xform = Xform::x_rotation (-PI/2).scale (-1, 1, 1) * xform;
 
@@ -295,19 +294,17 @@ def_scene_pretty_bunny (unsigned num, const string &arg,
   camera.transform (Xform::scaling (1, 1, -1));
 
   const Material *red
-    = scene.add (new Material (Color (0.5, 0, 0),
-			       cook_torrance (0.5, 0.1)));
+    = scene.add (new CookTorrance (Color (0.5, 0, 0), 0.5, 0.1));
   const Material *yellow
-    = scene.add (new Material (Color (0.5, 0.5, 0),
-			       cook_torrance (0.5, 0.1)));
+    = scene.add (new CookTorrance (Color (0.5, 0.5, 0), 0.5, 0.1));
   const Material *green
-    = scene.add (new Material (Color (0, 0.5, 0),
-			       cook_torrance (0.5, 0.1)));
+    = scene.add (new CookTorrance (Color (0, 0.5, 0), 0.5, 0.1));
   const Material *glass = scene.add (new Glass (1.5));
   const Material *gold
-    = scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
-			     cook_torrance (Color (1, 1, 0.3), 0.01,
-					    Ior (0.25, 3))));
+    = scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12),
+			     new CookTorrance (0, Color (1, 1, 0.3), 0.01,
+					       Ior (0.25, 3)),
+			     true));
 
   bool goldbunny = (arg == "gold");
 
@@ -373,33 +370,34 @@ def_teapot_mat (Scene &scene, unsigned num)
   switch (num)
     {
     case 0: default: // "silver"
-      return scene.add (new Mirror (Ior (0.25, 3), 0.9, 0,
-				    cook_torrance (1, 0.1, Ior (0.25, 3))));
-//     	scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
-// 		  	       cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+      return scene.add (new Mirror (Ior (0.25, 3), 0.9,
+				    new CookTorrance (0, 1, 0.1, Ior (0.25, 3)),
+				    true));
+    	// scene.add (new Mirror (Ior (0.25, 3), 0.5,
+	// 	  	       new CookTorrance (0.1, 0.8, 0.3, Ior (0.25, 3)),
+	// 		       true));
 
     case 1: // "nickel"
       return
-	scene.add (new Material (0, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
+	scene.add (new CookTorrance (0, 0.8, 0.1, Ior (0.25, 3)));
 
     case 2: // gloss_blue-green
-      return scene.add (new Material (Color(0, .2, .3),
-				      cook_torrance (.7, .02, 2)));
+      return scene.add (new CookTorrance (Color(0, .2, .3), .7, .02, 2));
 
     case 3: // glass
       return scene.add (new Glass (1.5));
 
     case 4: // gloss_neutral_grey
-      return scene.add (new Material (0.5, cook_torrance (0.5, 0.01, 2)));
+      return scene.add (new CookTorrance (0.5, 0.5, 0.01, 2));
 
     case 5: // semigloss_white
-      return scene.add (new Material (0.9, cook_torrance (0.1, 0.05, 2)));
+      return scene.add (new CookTorrance (0.9, 0.1, 0.05, 2));
 
     case 6: // semigloss_off_white
-      return scene.add (new Material (0.8, cook_torrance (0.2, 0.05, 2)));
+      return scene.add (new CookTorrance (0.8, 0.2, 0.05, 2));
 
     case 7: // Purely lambertian greenish gray
-      return scene.add (new Material (Color (0.6, 0.9, 0.6)));
+      return scene.add (new Lambert (Color (0.6, 0.9, 0.6)));
     }
 }
 
@@ -410,13 +408,12 @@ def_teapot_stand (Scene &scene, unsigned num)
   // Table/ground
 
   const Material *grey
-    = scene.add (new Material (Color (0.3, 0.2, 0.2),
-			       cook_torrance (0.5, 0.2, Ior (1, 1))));
+    = scene.add (new CookTorrance (Color (0.3, 0.2, 0.2), 0.5, 0.2, Ior (1, 1)));
   const Material *green
-    = scene.add (new Material (Color (0.1, 0.5, 0.1)));
+    = scene.add (new Lambert (Color (0.1, 0.5, 0.1)));
 
   const Material *lambertian_grey
-    = scene.add (new Material (0.5));
+    = scene.add (new Lambert (0.5));
 
   dist_t plinth_width = 16;
 
@@ -543,8 +540,7 @@ def_teapot_lighting (Scene &scene, unsigned num)
 	Vec bhv (0, bh, 0);
 
 	const Material *grey
-	  = scene.add (new Material (Color (0.3, 0.2, 0.2),
-				     cook_torrance (0.5, 0.2, Ior (1, 1))));
+	  = scene.add (new CookTorrance (Color (0.3, 0.2, 0.2), 0.5, 0.2, Ior (1, 1)));
 
 	add_rect (scene, grey, Pos(-bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
 	add_rect (scene, grey, Pos( bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
@@ -560,12 +556,13 @@ def_teapot_props (Scene &scene, unsigned num)
   if (num > 0)
     {
       const Material *orange
-	= scene.add (new Material (Color (0.6,0.5,0.05), cook_torrance (0.4, 0.1)));
+	= scene.add (new CookTorrance (Color (0.6,0.5,0.05), 0.4, 0.1));
       const Material *glass = scene.add (new Glass (1.5));
       const Material *gold
-	= scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
-				 cook_torrance (Color (1, 1, 0.3), 0.01,
-						Ior (0.25, 3))));
+	= scene.add (new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12),
+				 new CookTorrance (0, Color (1, 1, 0.3), 0.01,
+						   Ior (0.25, 3)),
+				 true));
 
       dist_t max_err = 0.0002;
 
@@ -589,17 +586,13 @@ def_teapot_props (Scene &scene, unsigned num)
 	}
 
       const Material *red
-	= scene.add (new Material (Color (0.5, 0, 0),
-				   cook_torrance (0.5, 0.1)));
+	= scene.add (new CookTorrance (Color (0.5, 0, 0), 0.5, 0.1));
       const Material *yellow
-	= scene.add (new Material (Color (0.5, 0.5, 0),
-				   cook_torrance (0.5, 0.1)));
+	= scene.add (new CookTorrance (Color (0.5, 0.5, 0), 0.5, 0.1));
       const Material *green
-	= scene.add (new Material (Color (0, 0.5, 0),
-				   cook_torrance (0.5, 0.1)));
+	= scene.add (new CookTorrance (Color (0, 0.5, 0), 0.5, 0.1));
       const Material *blue
-	= scene.add (new Material (Color (0.1, 0.1, 0.5),
-				   cook_torrance (0.5, 0.1)));
+	= scene.add (new CookTorrance (Color (0.1, 0.1, 0.5), 0.5, 0.1));
 
       scene.add (tobj (TOBJ_SINC,   blue,   Pos (-1.5, 0, -3.3), 0.4, max_err));
       scene.add (tobj (TOBJ_SPHERE, green,  Pos (3, 0, -1.2), 0.4, max_err));
@@ -665,8 +658,7 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
   // Table/ground
 
   const Material *grey
-    = scene.add (new Material (Color (0.3, 0.2, 0.2),
-			       cook_torrance (0.5, 0.2, Ior (1, 1))));
+    = scene.add (new CookTorrance (Color (0.3, 0.2, 0.2), 0.5, 0.2, Ior (1, 1)));
 
   dist_t tw = 16;
   add_cube (scene, grey, Pos (-tw / 2, -1, -tw / 2),
@@ -798,11 +790,11 @@ def_scene_balls (unsigned num, const string &, Scene &scene, Camera &camera)
       if (i % 3 == 1)
 	mat = new Glass (Medium (1.5, (base_col + 0.2) / 1.2));
       else if (brdf == 0)
-	mat = new Material (col * 0.7, cook_torrance (0.3, ct_m));
+	mat = new CookTorrance (col * 0.7, 0.3, ct_m);
       else if (brdf == 1)
-	mat = new Material (col * 0.7, cook_torrance (0.3, ct_m, Ior (0.25,3)));
+	mat = new CookTorrance (col * 0.7, 0.3, ct_m, Ior (0.25,3));
       else
-	mat = new Material (col * 0.7);
+	mat = new Lambert (col * 0.7);
 
       scene.add (mat);
       scene.add (new Sphere (mat, Pos (x, y, z), rad));
@@ -825,10 +817,11 @@ static void
 def_scene_orange (unsigned num, const string &, Scene &scene, Camera &camera)
 {
   const Material *silver
-    = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
-			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+    = scene.add (new Mirror (Ior (0.25, 3), 0.5,
+			     new CookTorrance (0.1, 0.8, 0.3, Ior (0.25, 3)),
+			     true));
   const Material *orange
-    = scene.add (new Material (Color (0.6, 0.5, 0.05), cook_torrance (0.4, .1)));
+    = scene.add (new CookTorrance (Color (0.6, 0.5, 0.05), 0.4, .1));
   const Material *glass = scene.add (new Glass (1.5));
 
   add_chessboard (scene);
@@ -949,7 +942,7 @@ def_cbox_room (const Cbox &cbox,
 {
   float light_intens = 2.25;
 
-  const Material *wall_mat = scene.add (new Material (1));
+  const Material *wall_mat = scene.add (new Lambert (1));
 
   // Appearance of left and right walls; set in ifs below
   //
@@ -957,13 +950,13 @@ def_cbox_room (const Cbox &cbox,
   switch (walls)
     {
     case 0:
-      left_wall_mat = scene.add (new Material (Color (1, 0.35, 0.35)));
-      right_wall_mat = scene.add (new Material (Color (0.35, 1, 0.35)));
+      left_wall_mat = scene.add (new Lambert (Color (1, 0.35, 0.35)));
+      right_wall_mat = scene.add (new Lambert (Color (0.35, 1, 0.35)));
       break;
       
     case 1:
-      left_wall_mat = scene.add (new Material (Color (0.6, 0.1, 0.1)));
-      right_wall_mat = scene.add (new Material (Color (0.1, 0.1, 0.6)));
+      left_wall_mat = scene.add (new Lambert (Color (0.6, 0.1, 0.1)));
+      right_wall_mat = scene.add (new Lambert (Color (0.1, 0.1, 0.6)));
       break;
 
     default:
@@ -1115,8 +1108,9 @@ def_scene_cornell_box (unsigned num, const string &,
 // 	  //
 // 	  glass = new Glass (Medium (1.5, Color (0.3, 0.3, 0.9)));
 	  glass = new Glass (1.5);
-	  metal = new Mirror (Ior (0.25, 3), 0.9, 0,
-			      cook_torrance (1, 0.1, Ior (0.25, 3)));
+	  metal = new Mirror (Ior (0.25, 3), 0.9,
+			      new CookTorrance (0, 1, 0.1, Ior (0.25, 3)),
+			      true);
 	  break;
 
 	case 2:
@@ -1138,12 +1132,14 @@ def_scene_cornell_box (unsigned num, const string &,
   else // default
     {
       const Material *gloss_blue
-	= scene.add (new Material (Color (0.3, 0.3, 0.6),
-				   cook_torrance (0.4, 0.01, 2)));
-// 	= scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
-// 			     cook_torrance (0.4, 0.3, 4)));
+	= scene.add (new CookTorrance (Color (0.3, 0.3, 0.6), 0.4, 0.01, 2));
+	// = scene.add (
+	// 	  new Mirror (4, 0.05,
+	// 		      new CookTorrance (Color (0.3, 0.3, 0.6),
+	// 					0.4, 0.3, 4),
+	// 		      true));
       const Material *white
-	= scene.add (new Material (0.8, cook_torrance (0.2, 0.5, 2)));
+	= scene.add (new CookTorrance (0.8, 0.2, 0.5, 2));
 
       // blue sphere
       scene.add (new Sphere (gloss_blue,
@@ -1182,11 +1178,11 @@ def_scene_cs465_test1 (Scene &scene, Camera &camera)
   // and one light directly above the center of the 3 spheres.
 
   const Material *mat1
-    = scene.add (new Material (Color (1, 0.5, 0.2)));
+    = scene.add (new Lambert (Color (1, 0.5, 0.2)));
   const Material *mat2
-    = scene.add (new Material (Color (0.8, 0.8, 0.8)));
+    = scene.add (new Lambert (Color (0.8, 0.8, 0.8)));
   const Material *mat3
-    = scene.add (new Material (Color (0.8, 0, 0)));
+    = scene.add (new Lambert (Color (0.8, 0, 0)));
 
   camera.move (Pos (0, 3, -4));
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
@@ -1208,10 +1204,9 @@ def_scene_cs465_test2 (Scene &scene, Camera &camera)
   camera.point (Pos (-0.5, 0, 0.5), Vec (0, 1, 0));
 
   const Material *sphereMat
-    = scene.add (new Material (Color (0.249804, 0.218627, 0.0505882),
-			       phong (.3, 100)));
+    = scene.add (new Phong (Color (0.249804, 0.218627, 0.0505882), .3, 100));
   const Material *grey
-    = scene.add (new Material (Color (0.3, 0.3, 0.3)));
+    = scene.add (new Lambert (Color (0.3, 0.3, 0.3)));
 
   scene.add (new Sphere (sphereMat, Pos (0, 0, 0), 1));
 
@@ -1253,15 +1248,15 @@ def_scene_cs465_test3 (Scene &scene, Camera &camera)
   camera.point (Pos (0, 0, 0), Vec (0, 1, 0));
 
   const Material *shinyBlack
-    = scene.add (new Material (Color (0.02, 0.02, 0.02), phong (1, 300)));
+    = scene.add (new Phong (Color (0.02, 0.02, 0.02), 1, 300));
   const Material *shinyWhite
-    = scene.add (new Material (Color (0.6, 0.6, 0.6), phong (1, 300)));
+    = scene.add (new Phong (Color (0.6, 0.6, 0.6), 1, 300));
   const Material *shinyGray
-    = scene.add (new Material (Color (0.2, 0.2, 0.2), phong (2, 300)));
+    = scene.add (new Phong (Color (0.2, 0.2, 0.2), 2, 300));
   const Material *boxMat
-    = scene.add (new Material (Color (0.3, 0.19, 0.09)));
+    = scene.add (new Lambert (Color (0.3, 0.19, 0.09)));
   const Material *gray
-    = scene.add (new Material (Color (0.6, 0.6, 0.6)));
+    = scene.add (new Lambert (Color (0.6, 0.6, 0.6)));
 	
   // box
   add_cube (scene, boxMat, Pos (-1, -1, -1),
@@ -1316,10 +1311,12 @@ def_scene_cs465_test4 (Scene &scene, Camera &camera, unsigned variant)
 
   const Material *red;
   if (variant == 0)
-    red = scene.add (new Material (Color (1, 0, 0))); // original, flat red
+    red = scene.add (new Lambert (Color (1, 0, 0))); // original, flat red
   else
-    red = scene.add (new Mirror (1.5, 0.1, Color (.5, 0, 0),
-				 cook_torrance (0.5, 0.1, 1.5))); // glossy red
+    red = scene.add (
+		  new Mirror (1.5, 0.1,
+			      new CookTorrance (Color (.5, 0, 0), .5, .1, 1.5),
+			      true)); // glossy red
 
   // Add bunny.  For variant 0, we use the original unsmoothed appearance;
   // for everythign else we do smoothing.
@@ -1395,7 +1392,7 @@ def_scene_cs665_test1 (Scene &scene, Camera &camera)
 
   add_bulb (scene, Pos (0, 3, 0), light_radius, 2e7 * light_area);
 
-  const Material *white = scene.add (new Material (1));
+  const Material *white = scene.add (new Lambert (1));
 
   scene.add (new Sphere (white, Pos(0,0,0), 0.5));
 
@@ -1425,10 +1422,9 @@ def_scene_cs665_test10 (Scene &scene, Camera &camera)
   add_bulb (scene, Pos (-0.5, 3, 0.5),  light_radius, Color (0, 2e7, 0) * light_area);
   add_bulb (scene, Pos (-0.5, 3, -0.5), light_radius, Color (0, 0, 2e7) * light_area);
 
-  const Material *white = scene.add (new Material (1));
+  const Material *white = scene.add (new Lambert (1));
   const Material *mat00
-    = scene.add (new Material (Color (0.8, 0, 0),
-			       cook_torrance (1, 0.3, Ior (2.14, 4.0))));
+    = scene.add (new CookTorrance (Color (0.8, 0, 0), 1, 0.3, Ior (2.14, 4.0)));
 
   scene.add (new Sphere (mat00, Pos(0,0,0), 0.5));
 
@@ -1540,8 +1536,9 @@ def_scene_pretty_dancer (unsigned num, const string &,
   struct NamedMat { const char *name; const Material *mat; };
   const NamedMat material_refs[] = {
     { "Material8",		// gold
-      new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12), 0,
-		  cook_torrance (Color (1, 1, 0.3), 0.1, Ior (0.25, 3))) },
+      new Mirror (Ior (0.25, 3), Color (0.852, 0.756, 0.12),
+		  new CookTorrance (0, Color (1, 1, 0.3), 0.1, Ior (0.25, 3)),
+		  true) },
     { 0, 0 }
   };
 
@@ -1550,14 +1547,13 @@ def_scene_pretty_dancer (unsigned num, const string &,
   MaterialDict mat_dict;
   for (const SimpleNamedMat *sm = materials; sm->name; sm++)
     {
-      const Brdf *brdf
-	= (sm->m != 0
-	   ? static_cast<const Brdf *> (
-				 cook_torrance (sm->spec, sm->m,
-						sm->ior == 0 ? 5 : sm->ior))
-	   : static_cast<const Brdf *> (lambert));
-
-      const Material *mat = scene.add (new Material (sm->diff, brdf));
+      const Material *mat;
+      if (sm->m == 0)
+	mat = new Lambert (sm->diff);
+      else
+	mat = new CookTorrance (sm->diff, sm->spec, sm->m,
+			     sm->ior == 0 ? 5 : sm->ior);
+      scene.add (mat);
 
       mat_dict.add (sm->name, mat);
     }
@@ -1575,10 +1571,13 @@ def_scene_pretty_dancer (unsigned num, const string &,
   num %= 10;
 
   const Material *gloss_black
-    = scene.add (new Mirror (1.5, 0.2, 0.02, cook_torrance (0.9, 0.2)));
+    = scene.add (
+	      new Mirror (1.5, 0.2, new CookTorrance (0.02, 0.9, 0.2), true));
   const Material *gloss_ivory
-    = scene.add (new Mirror (1.5, 0.2, Color (0.8, 0.7, 0.5),
-			     cook_torrance (0.2, 0.2)));
+    = scene.add (
+	      new Mirror (1.5, 0.2,
+			  new CookTorrance (Color (0.8, 0.7, 0.5), 0.2, 0.2),
+			  true));
   const Material *stage_mat = (stage == 1) ? gloss_ivory : gloss_black;
 
   add_cube (scene, stage_mat, Pos (-5, -2.2, 5), Vec (10, 0, 0), Vec (0, 0, -10), Vec (0, -10, 0));
@@ -1587,9 +1586,9 @@ def_scene_pretty_dancer (unsigned num, const string &,
     {
       const Material *text_mat
 	= scene.add (new Mirror (Ior (0.25, 3), Color (0.5, 0.6, 0.5)));
-// 	= scene.add (new Mirror (10, 0.2, Color (1.2, 1.2, 0.8), phong (.1, 500)));
-// 	= scene.add (new Mirror (10, 0.3, Color (0.5, 0.6, 0.5), phong (.3, 100)));
-// 	= scene.add (new Mirror (10, 0.3, Color (0.7, 0.8, 0.7), phong (.2, 10 )));
+	// = scene.add (new Mirror (10, 0.2, new Phong (Color (1.2, 1.2, 0.8), .1, 500), true));
+	// = scene.add (new Mirror (10, 0.3, new Phong (Color (0.5, 0.6, 0.5), .3, 100), true));
+	// = scene.add (new Mirror (10, 0.3, new Phong (Color (0.7, 0.8, 0.7), .2, 10 ), true));
 
       scene.add (new Mesh (text_mat, "+eli-birthday.msh"));
     }
@@ -1637,12 +1636,14 @@ def_scene_pretty_dancer (unsigned num, const string &,
 	= scene.add (new Mirror (5, red, red / 12));
       const Material *shiny_green
 	= scene.add (new Mirror (5, green, green / 8));
-//       const Material *shiny_red
-// 	= scene.add (new Mirror (5, Color (0.2, 0.05, 0.05),
-// 				 Color (0.1, 0, 0), phong (0.9, 1000)));
-//       const Material *shiny_green
-// 	= scene.add (new Mirror (5, Color (0.05, 0.2, 0.05),
-// 				 Color (0, 0.1, 0), phong (0.9, 1000)));
+      // const Material *shiny_red
+      // 	= scene.add (new Mirror (5, Color (0.2, 0.05, 0.05),
+      // 				 new Phong (Color (0.1, 0, 0), 0.9, 1000),
+      // 				 true));
+      // const Material *shiny_green
+      // 	= scene.add (new Mirror (5, Color (0.05, 0.2, 0.05),
+      // 				 new Phong (Color (0, 0.1, 0), 0.9, 1000),
+      // 				 true));
       const Material *glass = scene.add (new Glass (1.5));
 
       scene.add (new Sphere (shiny_red, Pos (3.2, -2.2 + 0.3, 4.2), 0.3));
@@ -1716,13 +1717,15 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
   camera.point (Pos (0, -0.5, 0), Vec (0, 1, 0));
 
   const Material *silver
-    = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
-			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+    = scene.add (new Mirror (Ior (0.25, 3), 0.5,
+			     new CookTorrance (0.1, 0.8, 0.3, Ior (0.25, 3)),
+			     true));
   const Material *gloss_blue
-    = scene.add (new Material (Color (0.3, 0.3, 0.6),
-			       cook_torrance (0.4, 0.01, 4)));
-//     = scene.add (new Mirror (4, 0.05, Color (0.3, 0.3, 0.6),
-// 			     cook_torrance (0.4, 0.3, 4)));
+    = scene.add (new CookTorrance (Color (0.3, 0.3, 0.6), 0.4, 0.01, 4));
+    // = scene.add (
+    // 	      new Mirror (4, 0.05,
+    // 			  new CookTorrance (Color (0.3, 0.3, 0.6), 0.4, 0.3, 4),
+    // 			  true));
   const Material *glass = scene.add (new Glass (1.5));
 
   const Material *mat;
@@ -1772,8 +1775,7 @@ def_scene_tessel (unsigned num, const string &arg, Scene &scene, Camera &camera)
   scene.add (mesh);
 
   const Material *grey
-    = scene.add (new Material (Color (0.3, 0.2, 0.2),
-			       cook_torrance (0.7, 0.1, 1)));
+    = scene.add (new CookTorrance (Color (0.3, 0.2, 0.2), 0.7, 0.1, 1));
 
   add_cube (scene, grey, Pos (1, height, 1),
 	    Vec (0, 0, -2), Vec (-2, 0, 0), Vec (0, -1, 0));
@@ -1843,42 +1845,38 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
   camera.set_horiz_fov (PI/4);
 
   const Material *jade
-    = scene.add (new Material (Color (0.3, 0.6, 0.3),
-			       cook_torrance (0.4, 0.1, 2)));
+    = scene.add (new CookTorrance (Color (0.3, 0.6, 0.3), 0.4, 0.1, 2));
 //   const Material *blue
-//     = scene.add (new Material (Color (0.3, 0.3, 0.6),
-// 			       cook_torrance (0.4, 0.3, 4)));
+//     = scene.add (new CookTorrance (Color (0.3, 0.3, 0.6), 0.4, 0.3, 4));
 //   const Material *matte_peach
-//     = scene.add (new Material (Color (0.9, 0.7, 0.2)));
+//     = scene.add (new Lambert (Color (0.9, 0.7, 0.2)));
   const Material *glass = scene.add (new Glass (1.5));
   const Material *silver
-    = scene.add (new Mirror (Ior (0.25, 3), 0.5, 0.1,
-			     cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+    = scene.add (new Mirror (Ior (0.25, 3), 0.5,
+			     new CookTorrance (0.1, 0.8, 0.3, Ior (0.25, 3)),
+			     true));
 //const Material *matte_silver
-//  = scene.add (new Material (0.1, cook_torrance (0.8, 0.3, Ior (0.25, 3))));
+//  = scene.add (new CookTorrance (0.1, 0.8, 0.3, Ior (0.25, 3)));
   const Material *grey
-    = scene.add (new Material (Color (0.3, 0.2, 0.2),
-			       cook_torrance (0.5, 0.2, Ior (1, 1))));
+    = scene.add (new CookTorrance (Color (0.3, 0.2, 0.2), 0.5, 0.2, Ior (1, 1)));
   const Material *dull_grey
-    = scene.add (new Material (Color (0.2, 0.2, 0.2),
-			       cook_torrance (0.8, 0.5, 5)));
+    = scene.add (new CookTorrance (Color (0.2, 0.2, 0.2), 0.8, 0.5, 5));
   const Material *gloss_neutral_grey
-    = scene.add (new Material (0.3, cook_torrance (0.7, 0.03, 2)));
+    = scene.add (new CookTorrance (0.3, 0.7, 0.03, 2));
   const Material *gloss_off_white
-    = scene.add (new Material (Color (0.8, 0.8, 0.7), cook_torrance (0.2, 0.02, 2)));
+    = scene.add (new CookTorrance (Color (0.8, 0.8, 0.7), 0.2, 0.02, 2));
   const Material *gloss_dark_blue_green
-    = scene.add (new Material (Color(0, .08, .1), cook_torrance (.9, .02, 2)));
+    = scene.add (new CookTorrance (Color(0, .08, .1), .9, .02, 2));
   const Material *gloss_medium_blue_green
-    = scene.add (new Material (Color(0, .2, .3), cook_torrance (.7, .02, 2)));
+    = scene.add (new CookTorrance (Color(0, .2, .3), .7, .02, 2));
   const Material *gloss_medium_red
-    = scene.add (new Material (Color(0.3, .05, .05), cook_torrance (.7, .02, 2)));
+    = scene.add (new CookTorrance (Color(0.3, .05, .05), .7, .02, 2));
   const Material *moss
-    = scene.add (new Material (Color (0.1, 0.2, 0.05),
-			       cook_torrance (0.8, 0.1, 2)));
+    = scene.add (new CookTorrance (Color (0.1, 0.2, 0.05), 0.8, 0.1, 2));
 //   const Material *mirror
 //     = scene.add (new Mirror (Ior (0.25, 3), 0.95));
   const Material *dark_green
-    = scene.add (new Material (Color (0.02, 0.2, 0.04)));
+    = scene.add (new Lambert (Color (0.02, 0.2, 0.04)));
 
   const Material *obj_mat;
   switch (num)
@@ -2067,8 +2065,7 @@ def_scene_mesh (unsigned num, const string &arg, Scene &scene, Camera &camera)
 	Vec bhv (0, bh, 0);
 
 	const Material *grey
-	  = scene.add (new Material (Color (0.3, 0.2, 0.2),
-				     cook_torrance (0.5, 0.2, Ior (1, 1))));
+	  = scene.add (new CookTorrance (Color (0.3, 0.2, 0.2), 0.5, 0.2, Ior (1, 1)));
 
 	add_rect (scene, grey, Pos(-bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
 	add_rect (scene, grey, Pos( bd,     -1, -bw / 2), Vec(0,  0, bw), bhv);
@@ -2106,22 +2103,18 @@ def_scene_frep (unsigned num, const string &arg, Scene &scene, Camera &camera)
   // are just ad-hoc replacements.
 
   const Material *table
-    = scene.add (new Material (0.1, cook_torrance (0.7, 0.2, 3)));
+    = scene.add (new CookTorrance (0.1, 0.7, 0.2, 3));
   const Material *vase_red
-    = scene.add (new Material (Color (0.6, 0.1, 0.1),
-			       cook_torrance (0.4, 0.3, 3)));
+    = scene.add (new CookTorrance (Color (0.6, 0.1, 0.1), 0.4, 0.3, 3));
   const Material *metallic_blue
-    = scene.add (new Material (Color (0, 0, 0.05),
-			       cook_torrance (Color (0.05, 0.05, 0.8),
-					      0.2, Ior (0.25, 3))));
+    = scene.add (new CookTorrance (Color (0, 0, 0.05), Color (0.05, 0.05, 0.8),
+				0.2, Ior (0.25, 3)));
   const Material *nickel
-    = scene.add (new Material (0, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
+    = scene.add (new CookTorrance (0, 0.8, 0.1, Ior (0.25, 3)));
   const Material *red_plastic
-    = scene.add (new Material (Color (0.6, 0.1, 0),
-			       cook_torrance (0.6, 0.1, 2)));
+    = scene.add (new CookTorrance (Color (0.6, 0.1, 0), 0.6, 0.1, 2));
   const Material *brown_plastic
-    = scene.add (new Material (Color (0.2, 0.15, 0),
-			       cook_torrance (0.6, 0.1, 2)));
+    = scene.add (new CookTorrance (Color (0.2, 0.15, 0), 0.6, 0.1, 2));
     
 
   string pfx = arg;
@@ -2178,17 +2171,14 @@ static void
 def_scene_trep (unsigned num, const string &arg, Scene &scene, Camera &camera)
 {
   const Material *nickel
-    = scene.add (new Material (0, cook_torrance (0.8, 0.1, Ior (0.25, 3))));
+    = scene.add (new CookTorrance (0, 0.8, 0.1, Ior (0.25, 3)));
   const Material *metallic_blue
-    = scene.add (new Material (Color (0, 0, 0.05),
-			       cook_torrance (Color (0.05, 0.05, 0.8),
-					      0.2, Ior (0.25, 3))));
+    = scene.add (new CookTorrance (Color (0, 0, 0.05), Color (0.05, 0.05, 0.8),
+					      0.2, Ior (0.25, 3)));
   const Material *red_plastic
-    = scene.add (new Material (Color (0.6, 0.1, 0),
-			       cook_torrance (0.6, 0.1, 2)));
+    = scene.add (new CookTorrance (Color (0.6, 0.1, 0), 0.6, 0.1, 2));
   const Material *brown_plastic
-    = scene.add (new Material (Color (0.2, 0.15, 0),
-			       cook_torrance (0.6, 0.1, 2)));
+    = scene.add (new CookTorrance (Color (0.2, 0.15, 0), 0.6, 0.1, 2));
     
   const Material *body_mat = def_teapot_mat (scene, (num / 1000) % 10);
 

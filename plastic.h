@@ -27,7 +27,7 @@ class Plastic : public Material
 public:
 
   Plastic (const Color &col, float _ior = 1.5)
-    : Material (1, Material::SHADOW_MEDIUM), color (col), ior (_ior)
+    : Material (Material::SHADOW_MEDIUM), color (col), ior (_ior)
   { }
 
   virtual Color render (const Intersect &isec) const;

@@ -1,4 +1,4 @@
-// cook-torrance.cc -- Cook-Torrance reflectance function
+// cook-torrance.cc -- Cook-Torrance material
 //
 //  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
@@ -18,45 +18,58 @@
 #include "ward-dist.h"
 #include "cos-dist.h"
 #include "grid-iter.h"
+#include "brdf.h"
 
 #include "cook-torrance.h"
 
 
 using namespace snogray;
 
-
-// Source of "constant" (not-to-be-freed) CookTorrance BRDFs
-//
-const CookTorrance *
-snogray::cook_torrance (const Color &spec_col, float m, const Ior &ior)
-{
-  static std::list<CookTorrance> brdfs;
-
-  for (std::list<CookTorrance>::iterator b = brdfs.begin ();
-       b != brdfs.end (); b++)
-    if (b->m == m && b->ior == ior && b->specular_color == spec_col)
-      return &(*b);
-
-  brdfs.push_front (CookTorrance (spec_col, m, ior));
-
-  return &brdfs.front ();
-}
-
 
 
 // The details of cook-torrance evaluation are in this class.
 //
-struct CtCalc
+class CookTorranceBrdf : public Brdf
 {
-  CtCalc (const CookTorrance &_ct, const Intersect &_isec)
-    : ct (_ct), isec (_isec),
+public:
+
+  CookTorranceBrdf (const CookTorrance &_ct, const Intersect &_isec)
+    : Brdf (_isec), ct (_ct),
       spec_dist (ct.m), diff_dist (),
-      diff_weight (isec.color.intensity ()),
+      diff_weight (ct.color.intensity ()),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.trace.medium ? isec.trace.medium->ior : 1, ct.ior),
       nv (isec.nv), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv)
   { }
+
+  // Generate around NUM samples of this BRDF and add them to SAMPLES.
+  // Return the actual number of samples (NUM is only a suggestion).
+  //
+  virtual unsigned gen_samples (unsigned num, IllumSampleVec &samples) const
+  {
+    GridIter grid_iter (num);
+
+    float u, v;
+    while (grid_iter.next (u, v))
+      gen_sample (u, v, samples);
+
+    return grid_iter.num_samples ();
+  }
+
+  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
+  // to END_SAMPLE.
+  //
+  virtual void filter_samples (const IllumSampleVec::iterator &beg_sample,
+			       const IllumSampleVec::iterator &end_sample)
+    const
+  {
+    for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
+      if (! s->invalid)
+	filter_sample (s);
+  }
+
+private:
 
   // Calculate D (microfacet distribution) term.  Traditionally
   // Cook-torrance uses a Beckmann distribution for this, but we use the
@@ -122,10 +135,10 @@ struct CtCalc
 
     pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
 
-    return isec.color * diff + ct.specular_color * spec;
+    return ct.color * diff + ct.specular_color * spec;
   }
 
-  void gen_sample (float u, float v, IllumSampleVec &samples)
+  void gen_sample (float u, float v, IllumSampleVec &samples) const
   {
     Vec l, h;
     if (u < diff_weight)
@@ -152,7 +165,7 @@ struct CtCalc
       }
   }
 
-  void filter_sample (const IllumSampleVec::iterator &s)
+  void filter_sample (const IllumSampleVec::iterator &s) const
   {
     const Vec &l = s->dir;
     const Vec h = (isec.v + l).unit ();
@@ -160,8 +173,6 @@ struct CtCalc
   }
 
   const CookTorrance &ct;
-
-  const Intersect &isec;
 
   // Sample distributions for specular and diffuse components.
   //
@@ -187,41 +198,13 @@ struct CtCalc
   const float nv, inv_pi_nv;
 };
 
-
 
-// Generate around NUM samples of this BRDF and add them to SAMPLES.
-// NUM is only a suggestion.
+// Return a new BRDF object for this material instantiated at ISEC.
 //
-unsigned
-CookTorrance::gen_samples (const Intersect &isec, unsigned num,
-			   IllumSampleVec &samples)
-  const
+Brdf *
+CookTorrance::get_brdf (const Intersect &isec) const
 {
-  CtCalc calc (*this, isec);
-
-  GridIter grid_iter (num);
-
-  float u, v;
-  while (grid_iter.next (u, v))
-    calc.gen_sample (u, v, samples);
-
-  return grid_iter.num_samples ();
-}
-
-// Add reflectance information for this BRDF to samples from BEG_SAMPLE
-// to END_SAMPLE.
-//
-void
-CookTorrance::filter_samples (const Intersect &isec,
-			      const IllumSampleVec::iterator &beg_sample,
-			      const IllumSampleVec::iterator &end_sample)
-  const
-{
-  CtCalc calc (*this, isec);
-
-  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
-    if (! s->invalid)
-      calc.filter_sample (s);
+  return new (isec) CookTorranceBrdf (*this, isec);
 }
 
 

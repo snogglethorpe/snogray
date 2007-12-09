@@ -1,4 +1,4 @@
-// phog.h -- Phong reflectance function
+// phog.h -- Phong material
 //
 //  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
 //
@@ -12,43 +12,28 @@
 #ifndef __PHONG_H__
 #define __PHONG_H__
 
-#include "brdf.h"
+#include "material.h"
 
 
 namespace snogray {
 
 
-class Phong : public Brdf
+class Phong : public Material
 {
 public:
 
-  Phong (const Color &_spec_col, float _exponent)
-    : specular_color (_spec_col), exponent (_exponent)
+  Phong (const Color &_col, const Color &_spec_col, float _exponent)
+    : color (_col), specular_color (_spec_col), exponent (_exponent)
   { }
 
-  // Generate around NUM samples of this BRDF and add them to SAMPLES.
-  // NUM is only a suggestion.
+  // Return a new BRDF object for this material instantiated at ISEC.
   //
-  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
-				IllumSampleVec &samples)
-    const;
+  virtual Brdf *get_brdf (const Intersect &isec) const;
 
-  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
-  // to END_SAMPLE.
-  //
-  virtual void filter_samples (const Intersect &isec, 
-			       const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const;
-
-  Color specular_color;
+  Color color, specular_color;
 
   float exponent;
 };
-
-// Source of "constant" (not-to-be-freed) Phong BRDFs
-//
-extern const Phong *phong (const Color &spec_col, float exp);
 
 
 }

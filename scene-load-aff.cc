@@ -34,6 +34,7 @@
 #include "sphere.h"
 #include "mesh.h"
 #include "phong.h"
+#include "lambert.h"
 #include "sphere-light.h"
 #include "glow.h"
 
@@ -484,10 +485,6 @@ Scene::load_aff_file (const std::string &file_name, Camera &camera)
 	  float transmittance = read_float (stream);
 	  float ior = read_float (stream);
 
-	  const Brdf *brdf = lambert;
-	  if (phong_exp > Eps && phong_exp < 10000)
-	    brdf = phong (specular * AFF_PHONG_ADJ, phong_exp);
-
 	  if (transmittance > Eps)
 	    cur_material
 	      = new Glass (
@@ -495,10 +492,19 @@ Scene::load_aff_file (const std::string &file_name, Camera &camera)
 			      AFF_MEDIUM_ABSORPTION
 			      * -log (max (0.00001f,
 					   min (transmittance, 1.f)))));
-	  else if (specular.intensity() > Eps)
-	    cur_material = new Mirror (AFF_MIRROR_IOR, specular, diffuse, brdf);
 	  else
-	    cur_material = new Material (diffuse, brdf);
+	    {
+	      if (phong_exp > Eps && phong_exp < 10000)
+		cur_material
+		  = new Phong (diffuse, specular * AFF_PHONG_ADJ, phong_exp);
+	      else
+		cur_material
+		  = new Lambert (diffuse);
+
+	      if (specular.intensity() > Eps)
+		cur_material
+		  = new Mirror (AFF_MIRROR_IOR, specular, cur_material, true);
+	    }
 
 	  add (cur_material);
 	}

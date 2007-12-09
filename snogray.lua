@@ -229,10 +229,9 @@ function is_material (val)
 	   or t == "_p_snogray__Plastic")
 end
 
--- Allocate a material, and also remember it to avoid garbage collection.
+-- Remember MAT to avoid garbage collection.
 --
-local function material (color, brdf)
-   local mat = raw.Material (color, brdf)
+local function material (mat)
    scene:add (mat)
    return mat
 end
@@ -281,7 +280,7 @@ function lambert (params)
    else
       diff = color (params.diffuse or params.color or params[1] or 1)
    end
-   return material (diff)
+   return material (raw.Lambert (diff))
 end
 
 function cook_torrance (params)
@@ -301,7 +300,7 @@ function cook_torrance (params)
        i = ior (params.ior or params[4] or 1.5)
    end
    
-   return material (diff, raw.cook_torrance (spec, m, i))
+   return material (raw.CookTorrance (diff, spec, m, i))
 end
 
 local default_mirror_ior = ior (0.25, 3)
@@ -328,10 +327,7 @@ function mirror (params)
       _col = params.color or params[3] or _col
    end
 
-   local m = raw.Mirror (ior (_ior), color (_reflect), color (_col));
-   scene:add (m)		-- protect against GC
-
-   return m
+   return material (raw.Mirror (ior (_ior), color (_reflect), color (_col)));
 end
 
 -- Return a glass material.

@@ -13,16 +13,15 @@
 #define __MATERIAL_H__
 
 #include "color.h"
-#include "brdf.h"
-#include "lambert.h"
 #include "ray.h"
+
 
 namespace snogray {
 
 class Light;
-class Surface;
 class Intersect;
-class Trace;
+class Brdf;
+
 
 class Material
 {
@@ -33,13 +32,8 @@ public:
   //
   enum ShadowType { SHADOW_NONE, SHADOW_MEDIUM, SHADOW_OPAQUE };
 
-  Material (const Color &col, const Brdf *brdf = lambert,
-	    ShadowType _shadow_type = SHADOW_OPAQUE)
-    : color (col), brdf (* (brdf ? brdf : lambert)), light (0),
-      shadow_type (_shadow_type)
-  { }
-  Material (const Color &col, ShadowType _shadow_type)
-    : color (col), brdf (*lambert), shadow_type (_shadow_type)
+  Material (ShadowType _shadow_type = SHADOW_OPAQUE)
+    : light (0), shadow_type (_shadow_type)
   { }
   virtual ~Material () { }
 
@@ -57,8 +51,9 @@ public:
 			const Color &light_color, const Light &light)
     const;
 
-  Color color;
-  const Brdf &brdf;
+  // Return a new BRDF object for this material instantiated at ISEC.
+  //
+  virtual Brdf *get_brdf (const Intersect &/*isec*/) const { return 0; }
 
   // If this material is bound to a light, the light, otherwise zero.
   //
@@ -70,8 +65,10 @@ public:
   const ShadowType shadow_type;
 };
 
+
 }
 
 #endif /* __MATERIAL_H__ */
+
 
 // arch-tag: 4e4442a2-254d-4635-bcf5-a03508c2057e

@@ -20,7 +20,9 @@ class Glow : public Material
 {
 public:
 
-  Glow (const Color &_color) : Material (_color, Material::SHADOW_NONE) { }
+  Glow (const Color &_color)
+    : Material (Material::SHADOW_NONE), color (_color)
+  { }
 
   virtual Color render (const Intersect &isec) const;
 
@@ -35,6 +37,10 @@ public:
   virtual Color shadow (const Intersect &isec, const Ray &light_ray,
 			const Color &light_color, const Light &light)
     const;
+
+private:
+
+  Color color;
 };
 
 }

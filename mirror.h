@@ -15,42 +15,47 @@
 #include "material.h"
 #include "fresnel.h"
 
+
 namespace snogray {
 
-// This is a BRDF used to eliminate specular reflection before calling a
-// Mirror object's underlying "undercoat" BRDF.
+
+// A Material implementing perfect specular reflection.  It is
+// structured as a specularly reflecting layer on top of another
+// material, which handles any light that gets throught the reflecting
+// layer.  The reflecting layer may be a dielectic (like glass) with a
+// non-complex index of refraction, in which case it will only reflect
+// at some angles, or a conductor (whose index of refraction will also
+// have an an extinction coefficient k), which will reflect at all
+// angles.
 //
-class MirrorCoating : public Brdf
+class Mirror : public Material
 {
 public:
 
-  MirrorCoating (const Ior &_ior, const Color &_reflectance,
-		 const Brdf *_underlying_brdf = 0)
+  Mirror (const Ior &_ior, const Color &_reflectance,
+	  const Material *_underlying_material,
+	  bool _free_underlying_material = false)
     : ior (_ior), reflectance (_reflectance),
-      underlying_brdf (_underlying_brdf)
+      underlying_material (_underlying_material),
+      free_underlying_material (_free_underlying_material)
   { }
 
-  // Generate around NUM samples of this BRDF and add them to SAMPLES.
-  // Return the actual number of samples (NUM is only a suggestion).
+  // A mirror with a simple lambertian underlying material.
   //
-  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
-				IllumSampleVec &samples)
-    const;
+  Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0);
 
-  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
-  // to END_SAMPLE.
-  //
-  virtual void filter_samples (const Intersect &isec, 
-			       const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const;
+  ~Mirror ()
+  {
+    if (free_underlying_material)
+      delete underlying_material;
+  }
 
-  // Remove from SAMPLES any light reflected by perfect specular reflection.
+  virtual Color render (const Intersect &isec) const;
+
+  // Return a new BRDF object for this material instantiated at ISEC.
   //
-  void remove_specular_reflection (const Intersect &isec,
-				   IllumSampleVec::iterator beg_sample,
-				   IllumSampleVec::iterator end_sample)
-    const;
+  virtual Brdf *get_brdf (const Intersect &isec) const;
+
 
   // Index of refraction for calculating fresnel reflection term.
   //
@@ -61,43 +66,20 @@ public:
   //
   Color reflectance;
 
-  // BRDF underlying the mirror coating, which does the real work.
+  // MATERIAL underlying the mirror coating, which does the real work.
   // This may be zero, for perfectly black surfaces.
   //
-  const Brdf *underlying_brdf;
-};
+  const Material *underlying_material;
 
-// A Material implementing perfect specular reflection.  It is structured
-// as a specularly reflecting layer on top of an arbitrary BRDF to handle
-// any light that gets throught the reflecting layer.  The reflecting layer
-// may be a dielectic (like glass) with a non-complex index of refraction,
-// in which case it will only reflect at some angles, or a conductor (whose
-// index of refraction will also have an an extinction coefficient k),
-// which will reflect at all angles.
-//
-class Mirror : public Material
-{
-public:
-
-  Mirror (const Ior &_ior, const Color &_reflectance,
-	  const Color &col, const Brdf *underlying_brdf)
-    : Material (col, &mirror_coating),
-      mirror_coating (_ior, _reflectance, underlying_brdf)
-  { }
-  Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0)
-    : Material (col, &mirror_coating),
-      mirror_coating (_ior, _reflectance, col < Eps ? 0 : lambert)
-  { }
-
-  virtual Color render (const Intersect &isec) const;
-
-  // This is the MirrorCoating BRDF used to filter the underlying BRDF.
+  // If true, free UNDERLYING_MATERIAL when destroyed.
   //
-  MirrorCoating mirror_coating;
+  bool free_underlying_material;
 };
+
 
 }
 
 #endif /* __MIRROR_H__ */
+
 
 // arch-tag: b622d70c-03ff-49ee-a020-2a44ccfcfdb1
