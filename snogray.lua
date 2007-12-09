@@ -54,6 +54,19 @@ local function has_index_wrappers (obj)
    return getmetatable(obj).__index_wrappers
 end
 
+-- Lookup KEY in the wrapped object OBJ without invoking any wrapper.
+--
+local function nowrap_index (obj, key)
+   return getmetatable (obj).__raw_index (obj, key)
+end
+
+-- Call method METH in the wrapped object OBJ without invoking any wrapper.
+--
+local function nowrap_meth_call (obj, meth, ...)
+   return getmetatable (obj).__raw_index (obj, meth) (obj, ...)
+end
+
+
 ----------------------------------------------------------------
 
 -- Return a table containing every key in KEYS as a key, with value true.
@@ -65,6 +78,7 @@ local function set (keys)
    end
    return s
 end
+
 
 ----------------------------------------------------------------
 --
@@ -94,7 +108,8 @@ function define_color (name, val)
 end
 
 function is_color (val)
-   return swig_type (val) == "_p_snogray__Color"
+   local st = swig_type (val)
+   return st == "snogray::Color *" or st == "_p_snogray__Color" 
 end
 
 local color_keys = set{
@@ -218,15 +233,27 @@ define_color ("yellow",	{red=1, green=1})
 --
 -- materials
 
-function is_material (val)
-   local t = swig_type (val)
 
+local material_types = set{
+   "snogray::Material *",
+   "_p_snogray__Material",
+   "snogray::CookTorrance *",
+   "_p_snogray__CookTorrance",
+   "snogray::Lambert *",
+   "_p_snogray__Lambert",
+   "snogray::Phong *",
+   "_p_snogray__Phong",
+   "snogray::Mirror *",
+   "_p_snogray__Mirror",
+   "snogray::Glass *",
+   "_p_snogray__Glass",
+   "snogray::Plastic *",
+   "_p_snogray__Plastic",
+}
+
+function is_material (val)
    -- ugh; isn't there some way in swig to do a sub-class test?
-   --
-   return (t == "_p_snogray__Material"
-	   or t == "_p_snogray__Mirror"
-	   or t == "_p_snogray__Glass"
-	   or t == "_p_snogray__Plastic")
+   return material_types[swig_type (val)]
 end
 
 -- Remember MAT to avoid garbage collection.
@@ -378,7 +405,8 @@ end
 -- material dicts
 
 function is_material_dict (val)
-   return swig_type (val) == "_p_snogray__MaterialDict"
+   local st = swig_type (val)
+   return st == "_p_snogray__MaterialDict" or st == "snogray::MaterialDict *"
 end
 
 function material_dict (init)
@@ -413,9 +441,10 @@ xform = raw.Xform
 identity_xform = raw.Xform_identity
 
 function is_xform (val)
-   local t = swig_type (val)
-   return t == "_p_snogray__TXformTdouble_t"
-      or t == "_p_snogray__TXformTfloat_t"
+   local st = swig_type (val)
+   return st == "snogray::Xform *|snogray::TXform<float > *|snogray::TXform<snogray::dist_t > *"
+      or st == "_p_snogray__TXformTdouble_t"
+      or st == "_p_snogray__TXformTfloat_t"
 end
 
 -- Various transform constructors.
@@ -505,7 +534,7 @@ local function init_scene (raw_scene)
 
       function wrap:add (thing)
 	 gc_ref (self, thing)
-	 raw.Scene_add (self, thing)
+	 return nowrap_meth_call (self, "add", thing)
       end
    end
 end
@@ -634,7 +663,7 @@ function surface_group (surfs)
 	    end
 	 else
 	    gc_ref (self, surf)
-	    raw.SurfaceGroup_add (self, surf)
+	    nowrap_meth_call (self, "add", surf)
 	 end
       end
    end
