@@ -252,6 +252,10 @@ Completed items:
 
 
  [DONE]
+ + Implement instancing
+
+
+ [DONE]
  + Encapsulate space/octree abstraction inside a surface interface, so
    that there can be multiple nested search spaces.  This might help
    speed (or hurt it...) by consolidating logically related surfaces
@@ -261,7 +265,36 @@ Completed items:
 
 
  [DONE]
- + Implement instancing
+ + Use single-precision floating-point uniformly
+
+     Currently double-precision is used widely (e.g. the Vec and Pos
+     classes).  Just switching completely to single-precision mostly
+     works fine, but causes problems with reflected/transmitted rays
+     after sphere-intersection -- so debug those errors, and make sphere
+     intersection work with single-precision floating point.  Probably
+     just needs some kind of error margin when tracing recursive rays.
+
+
+ [DONE]
+ + Importance sampling
+
+     Add method to Material class to supply a jittered set of rays
+     (given a desired number of rays as input) corresponding to the
+     Material's BRDF.  The output should be efficient for large number
+     of rays (e.g. ~1000) so it can be re-sampled to combine it with
+     another importance function, so each element in the set should just
+     be something like <reflectance, direction> (the origin is implied). 
+
+
+ [DONE, though in a simplistic way]
+ + Lighting from environment map
+
+     Use importance resampling to combine the BRDF importance function
+     with an importance function for the whole environment map (one
+     hemisphere?).
+
+     See "Bidirectional Importance Sampling for Direct Illumination",
+     http://www.cs.ubc.ca/~dburke/downloads/EGSR05-Bidir_Importance.pdf
 
 
  [DONE]
@@ -290,17 +323,19 @@ Completed items:
 
 
  [DONE]
- + Optimize triangle intersection calculation.
-
-     (Accounts for a huge proportion of tracing time)
+ + Get rid of weird error handling in image code and just use exceptions
 
 
  [DONE]
- + Simple support for shadows of transparent/translucent objects
+ + Get rid of "Image{Source,Sink}Params" classes and instead just pass
+   user-supplied  "parameter strings" to image backends.
 
-     Real support (bending of light rays) is too hard, but for a simple
-     straight light ray, it should be easy and better than nothing.
-     [For real support, caustics etc., use photon transport]
+     The parameter strings can be appended to the "image type" command-line
+     options, separated by ":", with "=" mean assign value.  So for
+     instance, for jpeg, the user could specify "-Ojpeg:quality=98" (as the
+     user will usually specify the image type indirectly via the output
+     file extension, it could assume a "=" before the first ":" meant that
+     the first element was a parameter rather than a type).
 
 
  [DONE]
@@ -323,52 +358,17 @@ Completed items:
 
 
  [DONE]
- + Importance sampling
+ + Optimize triangle intersection calculation.
 
-     Add method to Material class to supply a jittered set of rays
-     (given a desired number of rays as input) corresponding to the
-     Material's BRDF.  The output should be efficient for large number
-     of rays (e.g. ~1000) so it can be re-sampled to combine it with
-     another importance function, so each element in the set should just
-     be something like <reflectance, direction> (the origin is implied). 
-
-
- [DONE, though in a simplistic way]
- + Lighting from environment map
-
-     Use importance resampling to combine the BRDF importance function
-     with an importance function for the whole environment map (one
-     hemisphere?).
-
-     See "Bidirectional Importance Sampling for Direct Illumination",
-     http://www.cs.ubc.ca/~dburke/downloads/EGSR05-Bidir_Importance.pdf
+     (Accounts for a huge proportion of tracing time)
 
 
  [DONE]
- + Get rid of weird error handling in image code and just use exceptions
+ + Simple support for shadows of transparent/translucent objects
 
-
- [DONE]
- + Get rid of "Image{Source,Sink}Params" classes and instead just pass
-   user-supplied  "parameter strings" to image backends.
-
-     The parameter strings can be appended to the "image type" command-line
-     options, separated by ":", with "=" mean assign value.  So for
-     instance, for jpeg, the user could specify "-Ojpeg:quality=98" (as the
-     user will usually specify the image type indirectly via the output
-     file extension, it could assume a "=" before the first ":" meant that
-     the first element was a parameter rather than a type).
-
-
- [DONE]
- + Use single-precision floating-point uniformly
-
-     Currently double-precision is used widely (e.g. the Vec and Pos
-     classes).  Just switching completely to single-precision mostly
-     works fine, but causes problems with reflected/transmitted rays
-     after sphere-intersection -- so debug those errors, and make sphere
-     intersection work with single-precision floating point.  Probably
-     just needs some kind of error margin when tracing recursive rays.
+     Real support (bending of light rays) is too hard, but for a simple
+     straight light ray, it should be easy and better than nothing.
+     [For real support, caustics etc., use photon transport]
 
 
 
