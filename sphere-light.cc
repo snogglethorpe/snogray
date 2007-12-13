@@ -20,13 +20,13 @@
 using namespace snogray;
 
 
-// Return the solid angle subtended by this sphere from the point of view
-// of an external observer at OBSERVER.
+// Return the solid angle subtended by this light, where LIGHT_CENTER_VEC
+// is a vector from the viewer to the light's center.
 //
 float
-SphereLight::solid_angle (const Pos &observer) const
+SphereLight::solid_angle (const Vec &light_center_vec) const
 {
-  float dist = (pos - observer).length ();
+  float dist = light_center_vec.length ();
   return 2 * PIf * (1 - cos (asin (radius / dist)));
 }
 
@@ -40,16 +40,22 @@ SphereLight::gen_samples (const Intersect &isec, unsigned num,
 			  IllumSampleVec &samples)
   const
 {
-  // Since the sphere intersection calculation uses a sphere centered at
-  // the origin, we offset the sample start point to compensate.
+  // Offset of the center of the light sphere from the intersection origin,
+  // in the intersection's normal frame of reference.
   //
-  const Vec &s_isec_offs = isec.pos - pos;
+  const Vec light_center_vec = isec.normal_frame.to (pos);
+
+  // If this light is "below the horizon", and so can have no effect,
+  // return immediately.
+  //
+  if (light_center_vec.z < -radius)
+    return 0;
 
   // The distribution used here is constant over a solid angle when viewed
   // by an external observer, meaning that it also has a constant pdf equal
   // to 1 / solid_angle.
   //
-  float pdf = 1 / solid_angle (isec.pos);
+  float pdf = 1 / solid_angle (light_center_vec);
 
   GridIter grid_iter (num);
 
@@ -71,11 +77,11 @@ SphereLight::gen_samples (const Intersect &isec, unsigned num,
 	= (sqrt (abs (radius * radius - x * x - y * y))
 	   * sin (PIf * (random(1.f) - 0.5)));
 
-      // End-point of sample, which is _inside_ the sphere light (not on
-      // the surface).
+      // A vector from the intersection origin to the point (X, Y, Z)
+      // within the sphere, in the intersection's normal frame of
+      // reference.
       //
-      const Pos s_end = pos + Vec (x, y, z);
-      const Vec s_vec = s_end - isec.pos;
+      const Vec s_vec = light_center_vec + Vec (x, y, z);
 
       if (isec.cos_n (s_vec) > 0)
 	{
@@ -84,7 +90,7 @@ SphereLight::gen_samples (const Intersect &isec, unsigned num,
 	  // The "real" distance must terminate at the surface of the
 	  // sphere, so we need to do that calculation too...
 	  //
-	  dist_t dist = sphere_intersect (radius, s_isec_offs, s_dir);
+	  dist_t dist = sphere_intersect (radius, -light_center_vec, s_dir);
 
 	  samples.push_back (IllumSample (s_dir, intensity, pdf, dist, this));
 	}
@@ -106,20 +112,26 @@ SphereLight::filter_samples (const Intersect &isec,
 			     const IllumSampleVec::iterator &end_sample)
   const
 {
-  // Since the sphere intersection calculation uses a sphere centered at
-  // the origin, we offset the sample start point to compensate.
+  // Offset of the center of the light sphere from the intersection origin,
+  // in the intersection's normal frame of reference.
   //
-  const Vec &s_isec_offs = isec.pos - pos;
+  const Vec light_center_vec = isec.normal_frame.to (pos);
+
+  // If this light is "below the horizon", and so can have no effect,
+  // return immediately.
+  //
+  if (light_center_vec.z < -radius)
+    return;
 
   // The distribution used here is constant over a solid angle when viewed
   // by an external observer, meaning that it also has a constant pdf equal
   // to 1 / solid_angle.
   //
-  float pdf = 1 / solid_angle (isec.pos);
+  float pdf = 1 / solid_angle (light_center_vec);
 
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
     {
-      float dist = sphere_intersect (radius, s_isec_offs, s->dir);
+      float dist = sphere_intersect (radius, -light_center_vec, s->dir);
 
       if (dist > 0 && (dist < s->dist || s->dist == 0))
 	{

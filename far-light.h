@@ -29,8 +29,7 @@ public:
   // INTENSITY is the amount of light emitted per steradian.
   //
   FarLight (const Vec &_dir, float _angle, const Color &_intensity)
-    : dir (_dir.unit ()), angle (_angle), intensity (_intensity),
-      ox (_dir.perpendicular ().unit ()), oy (cross (dir, ox).unit ()),
+    : intensity (_intensity), angle (_angle), frame (_dir.unit ()),
       pdf (1 / angle), max_cos (cos (_angle / 2))
   { }
 
@@ -51,16 +50,14 @@ public:
 			       const IllumSampleVec::iterator &end_sample)
     const;
 
-  Vec dir;
-  dist_t angle;
-
   Color intensity;
+  dist_t angle;
 
 private:
   
-  // Vectors orthonormal with DIR.
+  // Frame of reference pointing at this light from the origin.
   //
-  const Vec ox, oy;
+  const Frame frame;
 
   // As our light subtends a constant angle, and we sample it uniformly
   // by solid angle, we have a constant pdf.

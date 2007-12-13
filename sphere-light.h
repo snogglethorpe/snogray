@@ -54,10 +54,10 @@ public:
 
 private:
 
-  // Return the solid angle subtended by this sphere from the point of view
-  // of an external observer at OBSERVER.
+  // Return the solid angle subtended by this light, where LIGHT_CENTER_VEC
+  // is a vector from the viewer to the light's center.
   //
-  float solid_angle (const Pos &observer) const;
+  float solid_angle (const Vec &light_center_vec) const;
 };
 
 }

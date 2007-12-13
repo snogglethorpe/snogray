@@ -141,9 +141,7 @@ public:
   TVec to_basis (const TVec &x_axis, const TVec &y_axis, const TVec &z_axis)
     const
   {
-    return TVec (x_axis.x * x + y_axis.x * y + z_axis.x * z,
-		 x_axis.y * x + y_axis.y * y + z_axis.y * z,
-		 x_axis.z * x + y_axis.z * y + z_axis.z * z);
+    return TVec (dot (*this, x_axis), dot (*this, y_axis), dot (*this, z_axis));
   }
 
   // Transform this vector from a coordinate system with (orthonormal)
@@ -153,7 +151,9 @@ public:
   TVec from_basis  (const TVec &x_axis, const TVec &y_axis, const TVec &z_axis)
     const
   {
-    return TVec (dot (*this, x_axis), dot (*this, y_axis), dot (*this, z_axis));
+    return TVec (x_axis.x * x + y_axis.x * y + z_axis.x * z,
+		 x_axis.y * x + y_axis.y * y + z_axis.y * z,
+		 x_axis.z * x + y_axis.z * y + z_axis.z * z);
   }
 
   // Return the "mirror" of this vector around NORMAL

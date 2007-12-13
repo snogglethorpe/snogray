@@ -95,7 +95,8 @@ SampleIllum::eval_samples (const Intersect &isec, IllumSampleVec &samples)
 	   num_specular_samples != 0 && s != samples.end (); ++s)
 	if (!s->invalid && s->specular)
 	  {
-	    Ray spec_ray (isec.pos, s->dir);
+	    Ray spec_ray (isec.normal_frame.origin,
+			  isec.normal_frame.from (s->dir));
 	    Color val = s->refl * spec_sub_trace.render (spec_ray);
 
 	    // For samples which are not truly specular (only "near
@@ -149,7 +150,8 @@ SampleIllum::eval_samples (const Intersect &isec, IllumSampleVec &samples)
 	    dist_t min_dist = trace.global.params.min_trace;
 	    dist_t max_dist = s->dist ? s->dist : trace.scene.horizon;
 
-	    const ShadowRay shadow_ray (isec, s->dir, min_dist, max_dist,
+	    const ShadowRay shadow_ray (isec, isec.normal_frame.from (s->dir),
+					min_dist, max_dist,
 					s->light);
 
 	    // Find any surface that's shadowing LIGHT_RAY.

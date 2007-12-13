@@ -13,6 +13,7 @@
 #define __INTERSECT_H__
 
 #include "ray.h"
+#include "frame.h"
 #include "color.h"
 #include "trace.h"
 #include "material.h"
@@ -88,32 +89,21 @@ public:
   //
   Color illum () const;
 
-  // Transform VEC from a "Z-normal" coordinate system (where the
-  // intersection normal is (0,0,1)) to world coordinates.
-  //
-  Vec z_normal_to_world (const Vec &vec) const
-  {
-    return vec.to_basis (s, t, n);
-  }
-
-  // Transform VEC from world coordinates to the "Z-normal" coordinate
-  // system (where the intersection normal is (0,0,1)).
-  //
-  Vec world_to_z_normal (const Vec &vec) const
-  {
-    return vec.from_basis (s, t, n);
-  }
-
-  // Returns the cosine of the angle between the surface normal and the
-  // normalized vector VEC.
+  // Returns the cosine of the angle between the surface normal and VEC.
+  // VEC must be in this intersection's normal frame, and must be
+  // normalized.
   //
   dist_t cos_n (const Vec &vec) const
   {
-    return min (dot (n, vec), dist_t (1)); // use min to clamp precision errors
+    // As VEC is normalized, cos(theta) is (N dot VEC), and as VEC is in
+    // the normal frame, where N = (0,0,1), (N dot VEC) is just VEC.z.
+    //
+    return vec.z;
   }
 
-  // Returns the cosine of the angle between the viewing direction and the
-  // normalized vector VEC.
+  // Returns the cosine of the angle between the viewing direction and VEC.
+  // VEC must be in this intersection's normal frame, and must be
+  // normalized.
   //
   dist_t cos_v (const Vec &vec) const
   {
@@ -129,26 +119,19 @@ public:
   //
   const Surface *surface;
 
-  // Details of the intersection.
+  // A frame of reference corresponding to the surface-normal.  Most
+  // lighting calculations are done in this frame of reference.
   //
-  Pos pos;		// Point where RAY intersects SURFACE
-
-  // Normalized surface normal at POS.
+  // The position of intersection and the surface normal in world space
+  // are "normal_frame.origin" and "normal_frame.z" respectively;
+  // "normal_frame.x" and "normal_frame.y" are orthogonal surface
+  // tangent vectors.
   //
-  Vec n;
+  Frame normal_frame;
 
-  // Vectors which are orthonormal with the surface normal N.
-  //
-  Vec s, t;
-
-  // A unit vector pointing towards the viewer; this is just -RAY.dir; many
-  // algorithms use the outgoing formulation, so we provide it explicitly.
+  // A unit vector pointing towards the viewer, in the normal frame.
   //
   Vec v;
-
-  // (N dot V), aka cos(theta) where theta is the angle between N and V.
-  //
-  float nv;
 
   // True if RAY hit the back of SURFACE (relative to the normal).
   //

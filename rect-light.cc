@@ -27,15 +27,26 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
 			IllumSampleVec &samples)
   const
 {
+  // The position and edges of the light, converted to the intersection
+  // normal frame of reference.
+  //
+  Vec org = isec.normal_frame.to (pos);
+  Vec s1 = isec.normal_frame.to (side1);
+  Vec s2 = isec.normal_frame.to (side2);
+
   // First detect cases where the light isn't visible at all, by
   // examining the dot product of the surface normal with rays to the
   // four corners of the light.
   //
-  if (isec.cos_n (pos - isec.pos) < 0
-      && isec.cos_n (pos + side1 - isec.pos) < 0
-      && isec.cos_n (pos + side2 - isec.pos) < 0
-      && isec.cos_n (pos + side1 + side2 - isec.pos) < 0)
-    return num;
+  if (isec.cos_n (org) < 0
+      && isec.cos_n (org + s1) < 0
+      && isec.cos_n (org + s2) < 0
+      && isec.cos_n (org + s1 + s2) < 0)
+    return 0;
+
+  // The light normal in the intersection normal frame of reference.
+  //
+  Vec light_norm (isec.normal_frame.to (normal));
 
   GridIter grid_iter (num);
 
@@ -44,8 +55,7 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
     {
       // Compute the position of the sample at U,V within the light.
       //
-      const Pos s_end = pos + side1 * u + side2 * v;
-      const Vec s_vec = s_end - isec.pos;
+      const Vec s_vec = org + s1 * u + s2 * v;
 
       if (isec.cos_n (s_vec) > 0)
 	{
@@ -56,7 +66,7 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
 	  // Area to solid-angle conversion, dw/dA
 	  //   = cos (light_normal, -sample_dir) / distance^2
 	  //
-	  float dw_dA = fabs (dot (normal, s_dir)) * inv_dist * inv_dist;
+	  float dw_dA = abs (dot (light_norm, s_dir)) * inv_dist * inv_dist;
 	  float pdf = 1 / (area * dw_dA);
 
 	  samples.push_back (IllumSample (s_dir, intensity, pdf, dist, this));
@@ -79,10 +89,16 @@ RectLight::filter_samples (const Intersect &isec,
 			   const IllumSampleVec::iterator &end_sample)
   const
 {
+  // The light normal in the intersection normal frame of reference.
+  //
+  Vec light_norm (isec.normal_frame.to (normal));
+
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
     {
       dist_t dist, u, v;
-      Ray ray (isec.pos, s->dir, s->dist);
+      Ray ray (isec.normal_frame.origin,
+	       isec.normal_frame.from (s->dir),
+	       s->dist);
 
       if (parallelogram_intersect (pos, side1, side2, ray, dist, u, v))
 	{
@@ -91,7 +107,7 @@ RectLight::filter_samples (const Intersect &isec,
 	  // Area to solid-angle conversion, dw/dA
 	  //   = cos (light_normal, -sample_dir) / distance^2
 	  //
-	  float dw_dA = fabs (dot (normal, s->dir)) / (dist * dist);
+	  float dw_dA = fabs (dot (light_norm, s->dir)) / (dist * dist);
 
 	  // Pdf Is (1 / Area) * (Dw/Da)
 	  //

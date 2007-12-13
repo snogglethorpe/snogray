@@ -18,5 +18,6 @@ using namespace snogray;
 Color
 NormGlow::render (const Intersect &isec) const
 {
-  return Color (intens * isec.n.x, intens * isec.n.y, intens * isec.n.z);
+  const Vec &n = isec.normal_frame.z;
+  return Color (intens * n.x, intens * n.y, intens * n.z);
 }

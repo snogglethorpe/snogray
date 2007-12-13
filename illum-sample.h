@@ -46,7 +46,9 @@ public:
       light (0), specular (false), invalid (false)
   { }
 
-  // The sample direction (the origin is implicit).
+  // The sample direction (the origin is implicit), in the
+  // surface-normal coordinate system (where the surface normal is
+  // (0,0,1)).
   //
   Vec dir;
 

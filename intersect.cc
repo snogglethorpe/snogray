@@ -25,10 +25,9 @@ using namespace snogray;
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 		      const Pos &_pos, const Vec &_normal, bool _back,
 		      Trace &_trace, const void *_smoothing_group)
-  : ray (_ray), surface (_surface), pos (_pos),
-    n ((_back ? -_normal : _normal).unit ()),
-    s (n.perpendicular ().unit ()), t (cross (s, n).unit ()),
-    v (-_ray.dir.unit ()), nv (dot (n, v)), back (_back),
+  : ray (_ray), surface (_surface),
+    normal_frame (_pos, (_back ? -_normal : _normal).unit ()),
+    v (normal_frame.to (-_ray.dir.unit ())), back (_back),
     material (_surface->material), brdf (0),
     smoothing_group (_smoothing_group), no_self_shadowing (false),
     trace (_trace)
@@ -46,17 +45,19 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 		      const Pos &_pos, const Vec &_normal, Trace &_trace)
   : ray (_ray), surface (_surface),
-    pos (_pos), n (_normal.unit ()),
-    s (n.perpendicular ().unit ()), t (cross (s, n).unit ()),
-    v (-_ray.dir.unit ()), nv (dot (n, v)), back (nv < 0),
+    normal_frame (_pos, _normal.unit ()),
+    v (normal_frame.to (-_ray.dir.unit ())), back (v.z < 0),
     material (_surface->material), brdf (0),
     smoothing_group (0), no_self_shadowing (false),
     trace (_trace)
 {
+  // Make sure V (in the normal frame of reference) always has a
+  // positive Z component.
+  //
   if (back)
     {
-      n = -n;
-      nv = -nv;
+      v.z = -v.z;
+      normal_frame.z = -normal_frame.z;
     }
 
   // Initialize BRDF last, because we pass this object as argument to
@@ -70,7 +71,7 @@ Color
 Intersect::illum () const
 {
   trace.global.stats.illum_calls++;
-  if (nv > Eps)
+  if (v.z > Eps)
     return trace.illuminator().illum (*this);
   else
     return 0;

@@ -85,16 +85,20 @@ Glass::render (const Intersect &isec) const
 
   // Direction from which transmitted light comes.
   //
-  Vec xmit_dir = isec.ray.dir.refraction (isec.n, refr.old_ior, refr.new_ior);
+  Vec xmit_dir
+    = isec.ray.dir.refraction (isec.normal_frame.z, refr.old_ior, refr.new_ior);
 
   // Proportion of transmitted light, 0-1.  Note that in the case of total
   // internal reflection, XMIT_DIR will be a null vector (all zeros).
   //
-  float xmit = xmit_dir.null() ? 0 : refr.transmittance(dot(xmit_dir, -isec.n));
+  float xmit
+    = (xmit_dir.null()
+       ? 0
+       : refr.transmittance (dot(xmit_dir, -isec.normal_frame.z)));
 
   // Proportion of reflected light, 0-1
   //
-  float refl = refr.reflectance (isec.nv);
+  float refl = refr.reflectance (isec.cos_n (isec.v));
 
   // Maybe use a "russian roulette" test to avoid excessive recursion.
   // This test probabilistically terminates further recursion, and scales
@@ -150,7 +154,7 @@ Glass::render (const Intersect &isec) const
   //
   if (xmit > Eps)
     {
-      Ray xmit_ray (isec.pos, xmit_dir);
+      Ray xmit_ray (isec.normal_frame.origin, xmit_dir);
       Trace::Type subtrace_type
 	= refr.entering ? Trace::REFRACTION_IN : Trace::REFRACTION_OUT;
       Trace &sub_trace = isec.subtrace (subtrace_type, refr.new_medium);
@@ -161,8 +165,9 @@ Glass::render (const Intersect &isec) const
   //
   if (refl > Eps)
     {
-      Vec mirror_dir = isec.v.mirror (isec.n);
-      Ray mirror_ray (isec.pos, mirror_dir);
+      Vec eye_dir = -isec.ray.dir;
+      Vec mirror_dir = eye_dir.mirror (isec.normal_frame.z);
+      Ray mirror_ray (isec.normal_frame.origin, mirror_dir);
 
       radiance += refl * isec.subtrace (Trace::REFLECTION).render (mirror_ray);
     }
@@ -194,7 +199,7 @@ Glass::shadow (const Intersect &isec, const Ray &light_ray,
 
   // Use the straight-through angle.
   //
-  float xmit = refr.transmittance (dot (light_ray.dir, -isec.n));
+  float xmit = refr.transmittance (dot (light_ray.dir, -isec.normal_frame.z));
 
   if (xmit > Eps)
     {

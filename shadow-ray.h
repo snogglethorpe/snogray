@@ -38,7 +38,7 @@ public:
   ShadowRay (const Intersect &_isec, const Vec &light_dir,
 	     dist_t min_dist, dist_t max_dist,
 	     const Light *_light = 0)
-    : Ray (_isec.pos, light_dir, min_dist, max_dist),
+    : Ray (_isec.normal_frame.origin, light_dir, min_dist, max_dist),
       isec (_isec), light (_light)
   { }
 

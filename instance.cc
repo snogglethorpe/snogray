@@ -56,11 +56,14 @@ Instance::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
   // Now transform parts of it to be in the global space.
   //
   isec.ray = ray;
-  isec.pos = instance->local_to_world (isec.pos);
-  isec.n   = instance->normal_to_world (isec.n).unit ();
-  isec.s   = instance->local_to_world (isec.s).unit ();
-  isec.t   = instance->local_to_world (isec.t).unit ();
-  isec.v   = -ray.dir.unit ();
+  isec.normal_frame.origin
+    = instance->local_to_world (isec.normal_frame.origin);
+  isec.normal_frame.x
+    = instance->local_to_world (isec.normal_frame.x).unit ();
+  isec.normal_frame.y
+    = instance->local_to_world (isec.normal_frame.y).unit ();
+  isec.normal_frame.z
+    = instance->normal_to_world (isec.normal_frame.z).unit ();
 
   // Self-shadowing is detected via object identity, and object identity is
   // a murky concept for anything in an instance.

@@ -25,9 +25,9 @@ PointLight::gen_samples (const Intersect &isec, unsigned,
 			 IllumSampleVec &samples)
   const
 {
-  Vec lvec = pos - isec.pos;
+  Vec lvec = isec.normal_frame.to (pos);
 
-  if (dot (isec.n, lvec) >= -Eps)
+  if (isec.cos_n (lvec) >= -Eps)
     {
       dist_t dist = lvec.length ();
       Vec s_dir = lvec / dist;

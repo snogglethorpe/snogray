@@ -40,7 +40,7 @@ public:
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.trace.medium ? isec.trace.medium->ior : 1, ct.ior),
-      nv (isec.nv), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv)
+      nv (isec.cos_n (isec.v)), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv)
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.
@@ -102,7 +102,7 @@ private:
   //
   float G (float vh, float nh, float nl) const
   {
-    return min (2 * nh * ((isec.nv > nl) ? nl : isec.nv) / vh, 1.f);
+    return min (2 * nh * ((nv > nl) ? nl : nv) / vh, 1.f);
   }
 
   // Return the CT reflectance for the sample in direction L, where H is
@@ -144,13 +144,13 @@ private:
     if (u < diff_weight)
       {
 	float scaled_u = u * inv_diff_weight;
-	l = isec.z_normal_to_world (diff_dist.sample (scaled_u, v));
+	l = diff_dist.sample (scaled_u, v);
 	h = (isec.v + l).unit ();
       }
     else
       {
 	float scaled_u = (u - diff_weight) * inv_spec_weight;
-	h = isec.z_normal_to_world (spec_dist.sample (scaled_u, v));
+	h = spec_dist.sample (scaled_u, v);
 	if (isec.cos_v (h) < 0)
 	  h = -h;
 	l = isec.v.mirror (h);

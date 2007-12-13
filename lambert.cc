@@ -44,10 +44,9 @@ public:
     while (grid_iter.next (u, v))
       {
 	float pdf;
-	Vec z_norm_dir = dist.sample (u, v, pdf);
-	Vec s_dir = isec.z_normal_to_world (z_norm_dir);
-	if (isec.cos_n (s_dir) > 0)
-	  samples.push_back (IllumSample (s_dir, lambert.color * pdf, pdf));
+	Vec dir = dist.sample (u, v, pdf);
+	if (isec.cos_n (dir) > 0)
+	  samples.push_back (IllumSample (dir, lambert.color * pdf, pdf));
       }
 
     return grid_iter.num_samples ();

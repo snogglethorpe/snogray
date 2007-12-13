@@ -94,7 +94,7 @@ private:
   {
     for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
       {
-	float fres_refl = fres.reflectance (dot (isec.n, s->dir));
+	float fres_refl = fres.reflectance (isec.cos_n (s->dir));
 	const Color refl = fres_refl * reflectance;
 	s->refl *= (1 - refl);
       }
@@ -120,7 +120,7 @@ Mirror::get_brdf (const Intersect &isec) const
 Color
 Mirror::render (const Intersect &isec) const
 {
-  float cos_refl_angle = isec.nv;
+  float cos_refl_angle = isec.cos_n (isec.v);
   float medium_ior = isec.trace.medium ? isec.trace.medium->ior : 1;
   const Fresnel fres (medium_ior, ior);
   float fres_refl = fres.reflectance (cos_refl_angle);
@@ -153,8 +153,9 @@ Mirror::render (const Intersect &isec) const
 
   if (refl_test < refl)
     {
-      Vec mirror_dir = isec.v.mirror (isec.n);
-      Ray mirror_ray (isec.pos, mirror_dir);
+      Vec eye_dir = -isec.ray.dir;
+      Vec mirror_dir = eye_dir.mirror (isec.normal_frame.z);
+      Ray mirror_ray (isec.normal_frame.origin, mirror_dir);
       Trace &sub_trace = isec.subtrace (Trace::REFLECTION);
 
       radiance += refl_scale * sub_trace.render (mirror_ray);

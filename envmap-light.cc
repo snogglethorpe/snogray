@@ -154,9 +154,10 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
       //
       float intens_pdf;
 
-      // The direction of this sample.
+      // The direction of this sample in the normal frame, and in the world
+      // frame.
       //
-      Vec dir;
+      Vec dir, world_dir;
 
       // Choose hemi or intensity sampling based on the V parameter.
       //
@@ -166,9 +167,12 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
 	  // distribution HEMI_DIST.
 
 	  float rescaled_v = v * inv_hemi_frac;
-	  dir = isec.z_normal_to_world (hemi_dist.sample (u, rescaled_v));
 
-	  UV map_pos = LatLongMapping::map (dir);
+	  dir = hemi_dist.sample (u, rescaled_v);
+	  world_dir = isec.normal_frame.from (dir);
+
+	  UV map_pos = LatLongMapping::map (world_dir);
+
 	  intens = intensity (map_pos.u, map_pos.v, intens_pdf);
 	}
       else
@@ -177,9 +181,11 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
 	  // sphere) based on the light's intensity distribution.
 
 	  float rescaled_v = (v - hemi_frac) * inv_intens_frac;
+
 	  UV map_pos = intensity_sample (u, rescaled_v, intens, intens_pdf);
 
-	  dir = LatLongMapping::map (map_pos);
+	  world_dir = LatLongMapping::map (map_pos);
+	  dir = isec.normal_frame.to (world_dir);
 
 	  // If this sample is in the wrong hemisphere, throw it away.
 	  //
@@ -191,7 +197,7 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
       // from the environment map, which is more accurate.
       //
       if (use_hires_intens)
-	intens = envmap->map (dir);
+	intens = envmap->map (world_dir);
 
       // The intensity distribution covers the entire sphere, so adjust
       // the pdf to reflect that.
@@ -248,9 +254,13 @@ EnvmapLight::filter_samples (const Intersect &isec,
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
     if (s->dist == 0)
       {
+	// The sample direction in the world frame of reference.
+	//
+	Vec world_dir = isec.normal_frame.from (s->dir);
+
 	// Find S's direction in our light map.
 	//
-	UV map_pos = LatLongMapping::map (s->dir);
+	UV map_pos = LatLongMapping::map (world_dir);
 
 	// Look up the intensity at that point.
 	//
@@ -261,7 +271,7 @@ EnvmapLight::filter_samples (const Intersect &isec,
 	// intensity from the environment map, which is more accurate.
 	//
 	if (use_hires_intens)
-	  intens = envmap->map (s->dir);
+	  intens = envmap->map (world_dir);
 
 	// The intensity distribution covers the entire sphere, so adjust
 	// the pdf to reflect that.
