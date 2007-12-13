@@ -80,17 +80,6 @@ Todo list for snogray
      superclass with textures?
 
 
- + Encapsulate space/octree abstraction inside a surface interface, so
-   that there can be multiple nested search spaces.  This might help
-   speed (or hurt it...) by consolidating logically related surfaces
-   into their own search spaces, but more importantly, it allows easy
-   object instancing by allowing us to wrap a search-space with a
-   coordinate transform.
-
-
- + Implement instancing
-
-
  + Add a real scene definition language
 
      Some possibilities:
@@ -260,6 +249,20 @@ Todo list for snogray
 ----------------------------------------------------------------
 
 Completed items:
+
+
+ [DONE]
+ + Encapsulate space/octree abstraction inside a surface interface, so
+   that there can be multiple nested search spaces.  This might help
+   speed (or hurt it...) by consolidating logically related surfaces
+   into their own search spaces, but more importantly, it allows easy
+   object instancing by allowing us to wrap a search-space with a
+   coordinate transform.
+
+
+ [DONE]
+ + Implement instancing
+
 
  [DONE]
  + Switch to proper filtering for anti-aliasing, taking jitter etc into account:
