@@ -41,8 +41,15 @@ Tripar::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 Intersect
 Tripar::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
-  Intersect isec (ray, tripar, ray.end(), cross (tripar->e1, tripar->e2),
-		  trace);
+  Pos point = ray.end ();
+
+  // Calculate the normal and tangent vectors.
+  //
+  Vec norm = cross (tripar->e1, tripar->e2).unit ();
+  Vec s = tripar->e1.unit ();
+  Vec t = cross (norm, s);
+
+  Intersect isec (ray, tripar, Frame (point, s, t, norm), trace);
 
   isec.no_self_shadowing = true;
 
