@@ -267,7 +267,6 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
   // perhaps after replacing it w ith the interpolated normal).
   //
   Vec norm = triangle->raw_normal_unscaled ();
-  bool back = dot (norm, ray.dir) > 0;
 
   // Point of intersection.
   //
@@ -278,6 +277,8 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
   //
   if (! triangle->mesh.vertex_normals.empty ())
     {
+      bool back = dot (norm, ray.dir) > 0;
+
       norm =  triangle->vnorm(0) * (1 - u - v);
       norm += triangle->vnorm(1) * u;
       norm += triangle->vnorm(2) * v;
