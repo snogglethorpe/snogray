@@ -27,7 +27,10 @@ float
 SphereLight::solid_angle (const Vec &light_center_vec) const
 {
   float dist = light_center_vec.length ();
-  return 2 * PIf * (1 - cos (asin (radius / dist)));
+  if (dist < radius)
+    return 4 * PIf;
+  else
+    return 2 * PIf * (1 - cos (asin (radius / dist)));
 }
 
 
