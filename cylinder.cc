@@ -89,9 +89,10 @@ Intersect
 Cylinder::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
   Pos point = ray.end ();
-  Vec onorm = Vec (isec_x, isec_y, 0);
-  Vec norm = cylinder->normal_to_world (onorm);
-  return Intersect (ray, cylinder, point, norm, trace);
+  Vec norm = cylinder->normal_to_world (Vec (isec_x, isec_y, 0)).unit ();
+  Vec t = cylinder->local_to_world (Vec (0, 0, 1)).unit ();
+  Vec s = cross (norm, t);
+  return Intersect (ray, cylinder, Frame (point, s, t, norm), trace);
 }
 
 // Return the strongest type of shadowing effect this surface has on
