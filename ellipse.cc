@@ -40,9 +40,19 @@ Ellipse::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 Intersect
 Ellipse::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
-  Intersect isec (ray, ellipse, ray.end(),
-		  cross (ellipse->edge1, ellipse->edge2),
-		  trace);
+  Pos point = ray.end ();
+
+  // Center of ellipse.
+  //
+  Pos center = ellipse->corner + ellipse->edge1 / 2 + ellipse->edge2 / 2;
+
+  // Calculate the normal and tangent vectors.
+  //
+  Vec norm = cross (ellipse->edge1, ellipse->edge2).unit ();
+  Vec s = (point - center).unit ();
+  Vec t = cross (norm, s);
+
+  Intersect isec (ray, ellipse, Frame (point, s, t, norm), trace);
 
   isec.no_self_shadowing = true;
 
