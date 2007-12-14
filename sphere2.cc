@@ -45,8 +45,31 @@ Intersect
 Sphere2::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
   Pos point = ray.end ();
-  Vec norm = sphere->normal_to_world (onorm);
-  return Intersect (ray, sphere, point, norm, trace);
+
+  // Choose the second tangent vector (perpendicular to ONORM) in object
+  // space, OT (this is convenient for later calculating the first tangent
+  // vector in world space -- it will then point towards the north pole).
+  //
+  // We try to make OT point "around" the sphere, by calculating it as
+  // the cross product of ONORM and an "up" vector (0,0,1).  However if
+  // ONORM itself is (0,0,1) or (0,0,-1), we can't do that; in that
+  // case, we choose an arbitrary vector for OT instead.
+  //
+  Vec ot;
+  if (abs (onorm.x) < Eps && abs (onorm.y) < Eps)
+    ot = Vec (1, 0, 0);
+  else
+    ot = cross (onorm, Vec (0, 0, 1));
+
+  // Calculate the normal and tangent vectors in world space.  NORM and
+  // T are just ONORM and OT converted from the local coordinate system
+  // to world space, and S is just the cross product of NORM and T.
+  //
+  Vec norm = sphere->normal_to_world (onorm).unit ();
+  Vec t = sphere->local_to_world (ot).unit ();
+  Vec s = cross (norm, t);
+
+  return Intersect (ray, sphere, Frame (point, s, t, norm), trace);
 }
 
 // Return the strongest type of shadowing effect this surface has on
