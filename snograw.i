@@ -528,7 +528,7 @@ namespace snogray {
     void load (const char *file_name,
 	       const MaterialDict &mat_dict = MaterialDict ());
 
-    void compute_vertex_normals (float max_angle = 45 * M_PIf / 180);
+    void compute_vertex_normals (float max_angle = 45 * PIf / 180);
 
     void transform (Xform &xform);
 
