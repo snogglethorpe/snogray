@@ -43,7 +43,16 @@ Intersect
 Sphere::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
   Pos point = ray.end ();
-  Intersect isec (ray, sphere, point, point - sphere->center, trace);
+
+  // Calculate the normal and tangent vectors.
+  //
+  Vec norm = (point - sphere->center).unit ();
+  Vec s = cross (norm, sphere->axis).unit ();
+  if (s.length_squared() < Eps)
+    s = norm.perpendicular ();	// degenerate case where NORM == AXIS
+  Vec t = cross (norm, s);
+
+  Intersect isec (ray, sphere, Frame (point, s, t, norm), trace);
 
   isec.no_self_shadowing = !isec.back;
 

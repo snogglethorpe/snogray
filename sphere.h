@@ -23,7 +23,12 @@ class Sphere : public Surface
 public:
 
   Sphere (const Material *mat, const Pos &_center, dist_t _radius)
-    : Surface (mat), center (_center), radius (_radius)
+    : Surface (mat), center (_center), radius (_radius), axis (Vec (0, 0, 1))
+  { }
+
+  Sphere (const Material *mat, const Pos &_center, const Vec &_radius)
+    : Surface (mat), center (_center),
+      radius (_radius.length ()), axis (_radius.unit ())
   { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
@@ -56,6 +61,10 @@ private:
 
   Pos center;
   dist_t radius;
+
+  // A unit vector pointing along the "axis" of the sphere.
+  //
+  Vec axis;
 };
 
 }
