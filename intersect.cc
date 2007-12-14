@@ -24,12 +24,12 @@ using namespace snogray;
 
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 		      const Pos &_pos, const Vec &_normal, bool _back,
-		      Trace &_trace, const void *_smoothing_group)
+		      Trace &_trace)
   : ray (_ray), surface (_surface),
     normal_frame (_pos, (_back ? -_normal : _normal).unit ()),
     v (normal_frame.to (-_ray.dir.unit ())), back (_back),
     material (_surface->material), brdf (0),
-    smoothing_group (_smoothing_group), no_self_shadowing (false),
+    smoothing_group (0), no_self_shadowing (false),
     trace (_trace)
 {
   // Initialize BRDF last, because we pass this object as argument to

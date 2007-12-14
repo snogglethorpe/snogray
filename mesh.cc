@@ -306,10 +306,10 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 
   // Make the intersect object.
   //
-  Intersect isec (ray, triangle, point, norm, back, trace,
-		  static_cast<const void *>(&triangle->mesh));
+  Intersect isec (ray, triangle, point, norm, back, trace);
 
   isec.no_self_shadowing = true;
+  isec.smoothing_group = static_cast<const void *>(&triangle->mesh);
 
   return isec;
 }
