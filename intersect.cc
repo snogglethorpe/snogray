@@ -22,34 +22,10 @@ using namespace snogray;
 
 
 
-Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Pos &_pos, const Vec &_normal, bool _back,
-		      Trace &_trace)
-  : ray (_ray), surface (_surface),
-    normal_frame (_pos, (_back ? -_normal : _normal).unit ()),
-    v (normal_frame.to (-_ray.dir.unit ())), back (_back),
-    material (_surface->material), brdf (0),
-    smoothing_group (0), no_self_shadowing (false),
-    trace (_trace)
-{
-  // Initialize BRDF last, because we pass this object as argument to
-  // Material::get_brdf, and we want it to be in a consistent state.
-  //
-  brdf = material->get_brdf (*this);
-}
-
-// For surfaces with non-interpolated normals, we can calculate
-// whether it's a backface or not using the normal; they typically
-// also have a zero smoothing group, so we omit that parameter.
+// Finish initialization in a constructor.
 //
-Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Pos &_pos, const Vec &_normal, Trace &_trace)
-  : ray (_ray), surface (_surface),
-    normal_frame (_pos, _normal.unit ()),
-    v (normal_frame.to (-_ray.dir.unit ())), back (v.z < 0),
-    material (_surface->material), brdf (0),
-    smoothing_group (0), no_self_shadowing (false),
-    trace (_trace)
+inline void
+Intersect::finish_init ()
 {
   // Make sure V (in the normal frame of reference) always has a
   // positive Z component.
@@ -60,10 +36,25 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
       normal_frame.z = -normal_frame.z;
     }
 
-  // Initialize BRDF last, because we pass this object as argument to
-  // Material::get_brdf, and we want it to be in a consistent state.
+  // Setup the "brdf" field by calling Intersect::get_brdf.  This is done
+  // separately from the constructor initialization, because we pass the
+  // intersect object as argument to Material::get_brdf, and we want it to
+  // be in a consistent state.
   //
   brdf = material->get_brdf (*this);
+}
+
+
+Intersect::Intersect (const Ray &_ray, const Surface *_surface,
+		      const Pos &_pos, const Vec &_normal, Trace &_trace)
+  : ray (_ray), surface (_surface),
+    normal_frame (_pos, _normal.unit ()),
+    v (normal_frame.to (-_ray.dir.unit ())), back (v.z < 0),
+    material (_surface->material), brdf (0),
+    smoothing_group (0), no_self_shadowing (false),
+    trace (_trace)
+{
+  finish_init ();
 }
 
   

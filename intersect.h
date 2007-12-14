@@ -156,6 +156,12 @@ public:
   // Trace this intersection came from.
   //
   Trace &trace;
+
+private:
+
+  // Finish initialization in a constructor.
+  //
+  void finish_init ();
 };
 
 }
