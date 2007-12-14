@@ -34,12 +34,6 @@ class Intersect
 public:
 
   Intersect (const Ray &_ray, const Surface *_surface,
-	     const Pos &_point, const Vec &_normal, bool _back, Trace &_trace);
-
-  // For surfaces with non-interpolated normals, we can calculate
-  // whether it's a backface or not using the normal.
-  //
-  Intersect (const Ray &_ray, const Surface *_surface,
 	     const Pos &_point, const Vec &_normal, Trace &_trace);
 
   ~Intersect ();
