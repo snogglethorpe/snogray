@@ -36,11 +36,6 @@ public:
   Intersect (const Ray &_ray, const Surface *_surface,
 	     const Frame &_normal_frame, Trace &_trace);
 
-  // Constructs normal frame automatically from POS and NORMAL.
-  //
-  Intersect (const Ray &_ray, const Surface *_surface,
-	     const Pos &_pos, const Vec &_normal, Trace &_trace);
-
   ~Intersect ();
 
   // Calculate the outgoing radiance from this intersection.
