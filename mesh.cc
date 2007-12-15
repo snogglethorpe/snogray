@@ -343,7 +343,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 
   // Calculate the second tangent vector.  This one is much easier... :-)
   //
-  Vec t = cross (norm, s).unit ();
+  Vec t = cross (norm, s);
 
   // Make the intersect object.
   //
