@@ -261,10 +261,12 @@ Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 Intersect
 Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 {
+  const Mesh &mesh = triangle->mesh;
+
   // We first use the real "raw" normal to determine if this is a back
-  // face or not (for back-face determination the normal doesn't need
-  // to be a unit vector, so it is only made a unit vector later,
-  // perhaps after replacing it w ith the interpolated normal).
+  // face or not (for back-face determination the normal doesn't need to
+  // be a unit vector, so it is only made a unit vector later, perhaps
+  // after replacing it with the interpolated normal).
   //
   Vec norm = triangle->raw_normal_unscaled ();
 
@@ -275,7 +277,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
   // Now if we're using normal interpolation, calculate the
   // interpolated normal.
   //
-  if (! triangle->mesh.vertex_normals.empty ())
+  if (! mesh.vertex_normals.empty ())
     {
       bool back = dot (norm, ray.dir) > 0;
 
@@ -305,12 +307,50 @@ Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
 	}
     }
 
+  norm = norm.unit ();		// normalize NORM
+
+  // Calculate the first tangent vector.
+  //
+  // The usual value is NORM x AXIS, where AXIS is an arbitrary axis
+  // vector.  This yields a value for S that's pointing "around" AXIS,
+  // but will fail if NORM is the same as AXIS (so for instance, if AXIS
+  // is "up", then horizontal faces in the mesh will fail).
+  //
+  Vec s = cross (norm, mesh.axis);
+
+  // Handle degenerate case where NORM == AXIS (making the cross-product zero).
+  //
+  if (s.length_squared() < Eps)
+    {
+      // CENT is a vector pointing towards the mesh bounding-box center.
+      //
+      Vec cent = midpoint (mesh._bbox.min, mesh._bbox.max) - point;
+
+      // Try to use the value (CENT x NORM) for S.  This helps keep the
+      // direction of S consistent for the whole mesh.  However that
+      // also will fail if NORM == CENT.
+      //
+      s = cross (norm, cent);
+
+      // If that failed too, give up and use an arbitrary tangent
+      // vector.
+      //
+      if (s.length_squared() < Eps)
+	s = norm.perpendicular ();
+    }
+
+  s = s.unit ();		// normalize S
+
+  // Calculate the second tangent vector.  This one is much easier... :-)
+  //
+  Vec t = cross (norm, s).unit ();
+
   // Make the intersect object.
   //
-  Intersect isec (ray, triangle, point, norm, trace);
+  Intersect isec (ray, triangle, Frame (point, s, t, norm), trace);
 
   isec.no_self_shadowing = true;
-  isec.smoothing_group = static_cast<const void *>(&triangle->mesh);
+  isec.smoothing_group = static_cast<const void *>(&mesh);
 
   return isec;
 }

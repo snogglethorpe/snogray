@@ -46,19 +46,21 @@ public:
   // Basic constructor.  Actual contents must be defined later.  If no
   // material is defined, all triangles added must have an explicit material.
   //
-  Mesh (const Material *mat = 0) : Surface (mat), left_handed (true) { }
+  Mesh (const Material *mat = 0)
+    : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
+  { }
 
   // All-in-one constructor for loading a mesh from FILE_NAME.
   //
   Mesh (const Material *mat, const std::string &file_name, bool smooth = true)
-    : Surface (mat), left_handed (true)
+    : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
   {
     load (file_name, MaterialDict (mat));
     if (smooth)
       compute_vertex_normals ();
   }
   Mesh (const std::string &file_name, const MaterialDict &mat_dict)
-    : Surface (0), left_handed (true)
+    : Surface (0), axis (Vec (0, 0, 1)), left_handed (true)
   {
     load (file_name, mat_dict);
   }
@@ -289,6 +291,12 @@ private:
   BBox _bbox;
 
 public:
+
+  // A unit vector pointing along the "axis" of the mesh.  This is used
+  // to compute consistent tangent vectors for intersections with the
+  // mesh (which is good for anisotropic materials).
+  //
+  Vec axis;
 
   // Whether this mesh uses left-handed or right-handed conventions by
   // default -- basically whether the triangle vertices are in a
