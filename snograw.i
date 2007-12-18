@@ -2,9 +2,10 @@
 #
 #  Copyright (C) 2007  Miles Bader <miles@gnu.org>
 #
-# This file is subject to the terms and conditions of the GNU General
-# Public License.  See the file COPYING in the main directory of this
-# archive for more details.
+# This source code is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3, or (at
+# your option) any later version.  See the file COPYING for more details.
 #
 # Written by Miles Bader <miles@gnu.org>
 #
