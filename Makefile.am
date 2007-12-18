@@ -13,7 +13,7 @@
 # Targets
 #
 bin_PROGRAMS = snogray snogcvt snogdiff snogsamp
-#noinst_PROGRAMS = hemint
+noinst_PROGRAMS = hemint
 
 # Internal libraries; not installed
 #
