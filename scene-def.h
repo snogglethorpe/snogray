@@ -17,7 +17,6 @@
 #include <iomanip>
 
 #include "val-table.h"
-#include "test-scenes.h"
 
 #define SCENE_DEF_OPTIONS_HELP "\
  Scene options:\n\
@@ -31,8 +30,6 @@
                                  \"background\"-- scene background\n\
                                  \"gamma\"     -- implied scene gamma correction\n\
 \n\
-      --list-test-scenes     Ouput a list of builtin test-scenes to stdout\n\
-\n\
  Camera options:\n\
   -c, --camera=COMMANDS      Move/point the camera according to COMMANDS:\n\
                                g X,Y,Z     Goto absolute location X, Y, Z\n\
@@ -45,25 +42,13 @@
                                r[xyz] A    Rotate A degrees around [xyz]-axis\n\
                                o[xyz] A    Orbit A degrees around [xyz]-axis"
 //
-#define SCENE_DEF_SHORT_OPTIONS		"b:I:T:c:"
+#define SCENE_DEF_SHORT_OPTIONS		"b:l:I:c:"
 //
 #define SCENE_DEF_LONG_OPTIONS						\
     { "background",     required_argument, 0, 'b' },			\
     { "light-map",	required_argument, 0, 'l' },			\
     { "scene-options", 	required_argument, 0, 'I' },			\
     { "camera",		required_argument, 0, 'c' },			\
-    { "list-test-scenes", no_argument,     0, SCENE_DEF_OPT_LIST_TEST_SCENES }
-//
-#define SCENE_DEF_OPT_BASE		(('S'<<24)+('C'<<16)+('N'<<8))
-#define SCENE_DEF_OPT_LIST_TEST_SCENES	(SCENE_DEF_OPT_BASE + 1)
-//
-#define SCENE_DEF_EXTRA_HELP "\
-The \"test\" scene type is special, as no scene file is actually read;\n\
-instead, a built in test-scene with the given name is used.  As a shortcut\n\
-a prefix of `test:' maybe be used instead of the `-Itest' option;\n\
-e.g. `test:cbox1' refers to the built-in test-scene `cbox1'.\n\
-\n\
-For a full list of test-scenes, use the `--list-test-scenes' option."
 
 #define SCENE_DEF_OPTION_CASES(clp, scene_def)				      \
   case 'b':								      \
@@ -79,26 +64,7 @@ For a full list of test-scenes, use the `--list-test-scenes' option."
 									      \
   case 'c':								      \
     scene_def.camera_cmds += clp.opt_arg ();				      \
-    break;								      \
-									      \
-  case SCENE_DEF_OPT_LIST_TEST_SCENES:					      \
-    {									      \
-      std::vector<TestSceneDesc> descs = list_test_scenes ();		      \
-									      \
-      std::cout << "Built-in test scenes:" << std::endl << std::endl;	      \
-      std::cout.setf (std::ios::left);					      \
-									      \
-      for (std::vector<TestSceneDesc>::const_iterator di = descs.begin();     \
-	   di != descs.end(); di++)					      \
-	{								      \
-	  unsigned nlen = 15;						      \
-	  while (di->name.length() > nlen - 3)				      \
-	    nlen += 12;							      \
-	  std::cout << "   " << std::setw(nlen) << di->name << di->desc	      \
-		    << std::endl;					      \
-	}								      \
-    }									      \
-    exit (0);
+    break;
 
 namespace snogray {
 

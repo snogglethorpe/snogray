@@ -48,12 +48,6 @@ SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
       string name = user_name;
       string fmt = params.get_string ("format");
 
-      if (fmt.empty() && name.substr (0, 5) == "test:")
-	{
-	  fmt = "test";
-	  name = name.substr (5);
-	}
-
       specs.push_back (Spec (user_name, name, fmt));
 
       num--;
@@ -99,16 +93,13 @@ SceneDef::load (Scene &scene, Camera &camera)
   if (scene.env_map && !scene.light_map)
     scene.set_light_map (scene.env_map);
 
-  // Read in scene file (or built-in test scene)
+  // Read in scene file
   //
   for (vector<Spec>::iterator spec = specs.begin();
        spec != specs.end(); spec++)
     try
       {
-	if (spec->scene_fmt == "test")
-	  def_test_scene (spec->name, scene, camera);
-	else
-	  scene.load (spec->name, spec->scene_fmt, camera);
+	scene.load (spec->name, spec->scene_fmt, camera);
       }
     catch (runtime_error &err)
       {

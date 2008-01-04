@@ -169,13 +169,6 @@ s "X_POS and Y_POS determine the location in the virtual camera image of"
 s "the ray to be shot.  They can be pixel row/column positions or a"
 s "fractional location within the image.  The latter may be floating-"
 s "point fractions (containing a `.') or percentages (with a `%' suffix)."
-n
-s "If no input/output filenames are given, standard input/output are used"
-s "respectively.  When no explicit scene/image formats are specified, the"
-s "filename extensions are used to guess the format (so an explicit format"
-s "must be specified when standard input/output are used)."
-n
-s SCENE_DEF_EXTRA_HELP
 n;
 
 #undef s
@@ -200,7 +193,6 @@ int main (int argc, char *const *argv)
     { "lights",		no_argument,	   0, OPT_LIGHTS },
     { "color",		required_argument, 0, 'C' },
     { "radius",		required_argument, 0, 'r' },
-    SCENE_DEF_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     RENDER_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,

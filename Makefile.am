@@ -146,7 +146,7 @@ libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
 # Snogray command-line-interface library, libsnogcli.a
 #
 
-libsnogcli_a_SOURCES = recover.cc recover.h test-scenes.cc test-scenes.h
+libsnogcli_a_SOURCES = recover.cc recover.h
 
 
 ################################################################

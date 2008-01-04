@@ -289,13 +289,6 @@ s "  -P, --no-progress          Do not output progress indicator"
 s "  -p, --progress             Output progress indicator despite --quiet"
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
-n
-s "If no input/output filenames are given, standard input/output are used"
-s "respectively.  When no explicit scene/image formats are specified, the"
-s "filename extensions are used to guess the format (so an explicit format"
-s "must be specified when standard input/output are used)."
-n
-s SCENE_DEF_EXTRA_HELP
 n;
 
 #undef s
@@ -317,7 +310,6 @@ int main (int argc, char *const *argv)
     { "no-progress",	no_argument,	   0, 'P' },
     { "continue",	no_argument,	   0, 'C' },
 
-    SCENE_DEF_LONG_OPTIONS,
     RENDER_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
@@ -417,7 +409,7 @@ int main (int argc, char *const *argv)
       exit (1);
     }
 
-  // Parse scene spec (filename or test-scene name)
+  // Parse scene filename
   //
   CMDLINEPARSER_CATCH
     (clp, scene_def.parse (clp, clp.num_remaining_args() - 1));
