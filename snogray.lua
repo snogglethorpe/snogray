@@ -1,6 +1,6 @@
 -- snogray.lua -- Lua scene interface for snogray
 --
---  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -121,7 +121,7 @@ local color_keys = set{
 
 function is_color_spec (obj)
    local ot = type (obj)
-   if is_color (obj) or (ot == 'string' and colors[obj]) then
+   if ot == 'number' or is_color (obj) or (ot == 'string' and colors[obj]) then
       return true
    elseif ot ~= 'table' then
       return false
