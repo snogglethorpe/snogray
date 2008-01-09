@@ -349,7 +349,7 @@ function mirror (params)
       _reflect = params
    elseif is_ior_spec (params) then
       _ior = params
-   else
+   elseif params then
       _reflect = params.reflect or params.reflectance or params[1] or _reflect
       _ior = params.ior or params[2] or _ior
       _col = params.color or params[3] or _col
