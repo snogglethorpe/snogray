@@ -160,13 +160,6 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       //
       Color color = trace.render (camera_ray);
 
-      // If necessary undo any bogus gamma-correction embedded in the scene
-      // lighting.  Proper gamma correction will be done by the image
-      // back-end when appropriate.
-      //
-      if (scene.assumed_gamma != 1)
-	color = color.pow (scene.assumed_gamma);
-
       output.add_sample (sx - lim_x, sy - lim_y, color);
     }
 }

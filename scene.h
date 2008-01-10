@@ -38,7 +38,6 @@ class Scene
 public:
 
   static const unsigned DEFAULT_HORIZON = 1000000;
-  static const int DEFAULT_ASSUMED_GAMMA = 1;
 
   Scene ();
   ~Scene ();
@@ -100,8 +99,6 @@ public:
 
   void set_light_map (const Ref<Envmap> &lmap);
 
-  void set_assumed_gamma (float g) { assumed_gamma = g; }
-
   std::vector<const Surface *> surfaces;
 
   std::vector<const Light *> lights;
@@ -127,8 +124,6 @@ public:
   // Acceleration structure for doing ray-surface intersection testing.
   //
   const Space *space;
-
-  float assumed_gamma;
 };
 
 

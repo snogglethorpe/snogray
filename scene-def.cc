@@ -118,12 +118,6 @@ SceneDef::load (Scene &scene, Camera &camera)
 	env_light->dump (env_light_dump_file, *scene.light_map);
     }
 
-  // Correct for bogus "gamma correction in lighting"
-  //
-  float assumed_gamma = params.get_float ("gamma", 1);
-  if (assumed_gamma != 1)
-    scene.set_assumed_gamma (assumed_gamma);
-
   // Make sure the space acceleration structures are built.
   //
   Octree::BuilderBuilder octree_builder_builder; // hardwired for now

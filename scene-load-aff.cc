@@ -46,11 +46,6 @@ using namespace std;
 //
 #define AFF_LIGHT_INTENS		100
 
-// The .aff files we have seen all use wacky "gamma adjusted" lighting,
-// So try to compensate for that here.
-//
-#define AFF_ASSUMED_GAMMA		2.2
-
 // We scale phong highlights this much (over the Ks parameter) -- .nff
 // files don't have a separate "phong intensity" parameter in material
 // descriptions, whereas other SPD output formats do (and SPD actually
@@ -355,7 +350,6 @@ Scene::load_aff_file (const std::string &file_name, Camera &camera)
   if (! stream)
     throw file_error (string ("Cannot open scene file: ") + strerror (errno));
 
-  set_assumed_gamma (AFF_ASSUMED_GAMMA);
   camera.transform (Xform::scaling (1, 1, -1));
 
   // Transform vertical Z axis into our preferred vertical Y axis to
