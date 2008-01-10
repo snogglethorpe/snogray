@@ -33,7 +33,6 @@ EXTRA_DIST =						\
 	snograw.i					\
 	autogen.sh					\
 	lpeg.html					\
-	board1.msh board2.msh board3.msh bunny500.msh	\
 	stats.txt spd.txt
 
 # Allow specifying a Lua distribution to be included.  If we're already
