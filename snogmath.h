@@ -1,6 +1,6 @@
 // snogmath.h -- Math operations
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -44,6 +44,30 @@ inline float max (float x, float y) { return x > y ? x : y; }
 inline double max (double x, double y) { return x > y ? x : y; }
 inline int max (int x, int y) { return x > y ? x : y; }
 inline unsigned max (unsigned x, unsigned y) { return x > y ? x : y; }
+
+
+// Clamp a value to remain within min/max values.
+//
+// For some reason, using a template function instead of the following
+// explicit definitions generates slightly worse code in some cases
+// (g++ 4.3.0 20071026).
+//
+inline float clamp (float val, float minv, float maxv)
+{
+  return min (max (val, minv), maxv);
+}
+inline double clamp (double val, double minv, double maxv)
+{
+  return min (max (val, minv), maxv);
+}
+inline int clamp (int val, int minv, int maxv)
+{
+  return min (max (val, minv), maxv);
+}
+inline unsigned clamp (unsigned val, unsigned minv, unsigned maxv)
+{
+  return min (max (val, minv), maxv);
+}
 
 
 // Copy the standard scalar definitions of these operators into our
