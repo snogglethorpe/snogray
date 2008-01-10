@@ -1,6 +1,6 @@
 // spheremap.h -- Texture wrapped around a sphere
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #ifndef __SPHEREMAP_H__
 #define __SPHEREMAP_H__
 
+#include "snogmath.h"
 #include "excepts.h"
 #include "color.h"
 #include "uv.h"
@@ -33,8 +34,8 @@ struct LatLongMapping
 {
   static UV map (const Vec &dir)
   {
-    return UV ((dir.longitude () + PI) * INV_PI / 2,
-	       (dir.latitude () + PI/2) * INV_PI);
+    return UV (clamp ((dir.longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
+	       clamp ((dir.latitude () + PIf/2) * INV_PIf, 0.f, 1.f));
   }
 
   static Vec map (const UV &uv)
@@ -60,7 +61,8 @@ struct MercatorMapping
 {
   static UV map (const Vec &dir) const
   {
-    return UV ((dir.longitude () + PI) * INV_PI / 2, (dir.y + 1) / 2);
+    return UV (clamp ((dir.longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
+	       clamp ((dir.y + 1) / 2, 0.f, 1.f);
   }
 
   static Vec map (const UV &uv) const
@@ -102,7 +104,8 @@ struct DebevecMapping
     tparam_t d = sqrt (x * x + y * y);
     tparam_t rpi = (d == 0) ? 0 : INV_PIf * acos (z) / 2 / d;
 
-    return UV (x * rpi + 0.5f, y * rpi + 0.5f);
+    return UV (clamp (x * rpi + 0.5f, 0.f, 1.f),
+	       clamp (y * rpi + 0.5f, 0.f, 1.f));
   }
 
   static Vec map (const UV &uv)
@@ -126,7 +129,8 @@ struct MirrorBallMapping
     tparam_t d = sqrt (x * x + y * y);
     tparam_t rpi = (d == 0) ? 0 : sqrt ((1 - z) / 2) / 2 / d;
 
-    return UV (x * rpi + 0.5f, y * rpi + 0.5f);
+    return UV (clamp (x * rpi + 0.5f, 0.f, 1.f),
+	       clamp (y * rpi + 0.5f, 0.f, 1.f));
   }
 
   // XXXX this is not correct !!!!! XXXX
