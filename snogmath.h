@@ -46,25 +46,10 @@ inline int max (int x, int y) { return x > y ? x : y; }
 inline unsigned max (unsigned x, unsigned y) { return x > y ? x : y; }
 
 
-// Clamp a value to remain within min/max values.
+// Clamp VAL to remain between MINV and MAXV (inclusive).
 //
-// For some reason, using a template function instead of the following
-// explicit definitions generates slightly worse code in some cases
-// (g++ 4.3.0 20071026).
-//
-inline float clamp (float val, float minv, float maxv)
-{
-  return min (max (val, minv), maxv);
-}
-inline double clamp (double val, double minv, double maxv)
-{
-  return min (max (val, minv), maxv);
-}
-inline int clamp (int val, int minv, int maxv)
-{
-  return min (max (val, minv), maxv);
-}
-inline unsigned clamp (unsigned val, unsigned minv, unsigned maxv)
+template<typename T>
+inline T clamp (T val, T minv, T maxv)
 {
   return min (max (val, minv), maxv);
 }
