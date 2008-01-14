@@ -29,7 +29,7 @@ public:
 
   // The default maximum allocation size we support.
   //
-  static const size_t DEFAULT_MAX_SIZE = 4096;
+  static const size_t DEFAULT_MAX_SIZE = 16384;
 
   Mempool (size_t max_size = DEFAULT_MAX_SIZE)
     : block_size (max_size), beg (0), end (0), blocks (0), avail (0)
