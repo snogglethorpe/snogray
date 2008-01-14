@@ -1,6 +1,6 @@
 // mempool.h -- Quick but stupid memory allocator
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -60,12 +60,7 @@ public:
   // Return all memory allocate from this pool to the pool.  This is the
   // only way to reclaim memory allocated with Mempool::get.
   //
-  void reset ()
-  {
-    avail = blocks;
-    if (avail)
-      pop_avail ();
-  }
+  void reset ();
 
   // Return all allocated and available memory to the system.
   //
@@ -87,17 +82,6 @@ private:
   // be signalled.
   //
   void refill (size_t size);
-
-  // Pop the next block off the AVAIL list and make its contents
-  // available for allocation.
-  //
-  void pop_avail ()
-  {
-    beg = avail->mem;
-    end = beg + block_size;
-
-    avail = avail->next;
-  }
 
   // The size of each Block.  Nothing longer than this can be allocated.
   //

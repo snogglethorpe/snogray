@@ -28,13 +28,28 @@ Mempool::refill (size_t size)
 
   // If we have no more blocks remaining, get some from the system.
   //
-  if (! avail)
+  if (avail)
     {
-      avail = new Block (new char [block_size], blocks);
-      blocks = avail;
+      beg = avail->mem;
+      end = beg + block_size;
+      avail = avail->next;
     }
+  else
+    {
+      blocks = new Block (new char [block_size], blocks);
+      beg = blocks->mem;
+      end = beg + block_size;
+    }
+}
 
-  pop_avail ();
+// Return all memory allocate from this pool to the pool.  This is the
+// only way to reclaim memory allocated with Mempool::get.
+//
+void
+Mempool::reset ()
+{
+  avail = blocks;
+  beg = end = 0;
 }
 
 // Return all allocated and available memory to the system.
