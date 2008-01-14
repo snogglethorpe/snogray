@@ -103,6 +103,67 @@ private:
 };
 
 
+extern void anon_mempool_alloc_barf ();
+
+
+// An STL allocator for allocating from an Intersect object.
+//
+template<typename T>
+class MempoolAlloc
+{
+public:
+
+  MempoolAlloc (Mempool &_mempool) : mempool (_mempool) { }
+
+  // STL constructors need this, though using it would certainly be
+  // incorrect.
+  //
+  MempoolAlloc ()
+  {
+    anon_mempool_alloc_barf ();
+  }
+
+  typedef T		 value_type;
+  typedef T		*pointer;
+  typedef const T	*const_pointer;
+  typedef T		&reference;
+  typedef const T	&const_reference;
+
+  template<typename T2>
+  struct rebind
+  {
+    typedef MempoolAlloc<T2> other;
+  };
+
+  T *allocate (size_t n)
+  {
+    return static_cast<T *> (mempool.get (n * sizeof (T)));
+  }
+
+  void deallocate (void *, size_t)
+  {
+    // Nothing -- mempools cannot free data
+  }
+
+  void construct (T *obj, const T &from)
+  {
+    new (static_cast<void *> (obj)) T (from);
+  }
+
+  void destroy (T *obj)
+  {
+    obj->~T ();
+  }
+
+  size_t max_size() const
+  {
+    return size_t (-1) / sizeof (T);
+  }
+
+  Mempool &mempool;
+};
+
+
 }
 
 
