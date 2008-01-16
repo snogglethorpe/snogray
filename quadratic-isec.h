@@ -1,6 +1,6 @@
 // quadratic-isec.h -- Quadratic surface intersection
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -24,6 +24,9 @@ template<typename T>
 inline bool
 quadratic_isec (T a, T b, T c, T &root0, T &root1)
 {
+  if (a == 0 && b == 0)
+    return false;		// no possible root
+
   T disc = b * b - 4 * a * c;
 
   if (disc < 0)
