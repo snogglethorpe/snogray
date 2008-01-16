@@ -1,6 +1,6 @@
 // glow.cc -- Constant-color reflectance function
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,9 +16,9 @@
 using namespace snogray;
 
 Color
-Glow::render (const Intersect &) const
+Glow::render (const Intersect &isec) const
 {
-  return color;
+  return isec.back ? 0 : color;
 }
 
 // Shadow LIGHT_RAY, which points to a light with (apparent) color

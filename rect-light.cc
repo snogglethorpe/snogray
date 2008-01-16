@@ -67,10 +67,17 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
 	  // Area to solid-angle conversion, dw/dA
 	  //   = cos (light_normal, -sample_dir) / distance^2
 	  //
-	  float dw_dA = abs (dot (light_norm, s_dir)) * inv_dist * inv_dist;
-	  float pdf = 1 / (area * dw_dA);
+	  float dw_dA = -dot (light_norm, s_dir) * inv_dist * inv_dist;
 
-	  samples.push_back (IllumSample (s_dir, intensity, pdf, dist, this));
+	  if (dw_dA > Eps)
+	    {
+	      // Pdf Is (1 / Area) * (Dw/Da)
+	      //
+	      float pdf = 1 / (area * dw_dA);
+
+	      samples.push_back
+		(IllumSample (s_dir, intensity, pdf, dist, this));
+	    }
 	}
     }
 
@@ -108,15 +115,18 @@ RectLight::filter_samples (const Intersect &isec,
 	  // Area to solid-angle conversion, dw/dA
 	  //   = cos (light_normal, -sample_dir) / distance^2
 	  //
-	  float dw_dA = fabs (dot (light_norm, s->dir)) / (dist * dist);
+	  float dw_dA = -dot (light_norm, s->dir) / (dist * dist);
 
-	  // Pdf Is (1 / Area) * (Dw/Da)
-	  //
-	  s->light_pdf = 1 / (area * dw_dA);
+	  if (dw_dA > Eps)
+	    {
+	      // Pdf Is (1 / Area) * (Dw/Da)
+	      //
+	      s->light_pdf = 1 / (area * dw_dA);
 
-	  s->val = intensity; //XXX * s->light_pdf;
-	  s->dist = dist;
-	  s->light = this;
+	      s->val = intensity; //XXX * s->light_pdf;
+	      s->dist = dist;
+	      s->light = this;
+	    }
 	}
     }
 }
