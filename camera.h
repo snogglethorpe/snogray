@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -169,7 +169,7 @@ public:
     // The distance to the focus plane is parallel to the camera forward
     // vector.
     //
-    Vec components = vec.from_basis (right, up, forward);
+    Vec components = vec.to_basis (right, up, forward);
     set_focus (components.z);
   }
 
