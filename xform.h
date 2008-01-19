@@ -1,6 +1,6 @@
 // xform.h -- Affine transformations
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -147,6 +147,19 @@ public:
     return xform;
   }
 
+  // Return a rotation transformation which converts to a coordinate
+  // system with (orthonormal) axes X_AXIS, Y_AXIS, and Z_AXIS.
+  //
+  static TXform
+  basis (const TVec<T> &x_axis, const TVec<T> &y_axis, const TVec<T> &z_axis)
+  {
+    TXform xform;
+    xform (0, 0) = x_axis.x; xform (0, 1) = x_axis.y; xform (0, 2) = x_axis.z;
+    xform (1, 0) = y_axis.x; xform (1, 1) = y_axis.y; xform (1, 2) = y_axis.z;
+    xform (2, 0) = z_axis.x; xform (2, 1) = z_axis.y; xform (2, 2) = z_axis.z;
+    return xform;
+  }
+
   // Translate this transformation by the given offset.
   //
   TXform &translate (T x, T y, T z)
@@ -198,6 +211,16 @@ public:
   TXform &rotate (TVec<T> axis, T angle)
   {
     *this *= rotation (axis, angle);
+    return *this;
+  }
+
+  // Convert from the standard coordinate system to a coordinate system
+  // with (orthonormal) axes X_AXIS, Y_AXIS, and Z_AXIS.
+  //
+  TXform &to_basis (const TVec<T> &x_axis, const TVec<T> &y_axis,
+		    const TVec<T> &z_axis)
+  {
+    *this *= basis (x_axis, y_axis, z_axis);
     return *this;
   }
 

@@ -1,6 +1,6 @@
 # snograw.i -- Swig interface specification for snogray
 #
-#  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -180,6 +180,9 @@ namespace snogray {
     static TXform z_rotation (T angle);
     static TXform rotation (TVec<T> axis, T angle);
 
+    static TXform basis (const TVec<T> &x_axis, const TVec<T> &y_axis,
+			 const TVec<T> &z_axis);
+
     TXform &translate (dist_t x, dist_t y, dist_t z);
     TXform &translate (const TVec<T> &offs);
 
@@ -190,6 +193,9 @@ namespace snogray {
     TXform &rotate_y (T angle);
     TXform &rotate_z (T angle);
     TXform &rotate (TVec<T> axis, T angle);
+
+    TXform &to_basis (const TVec<T> &x_axis, const TVec<T> &y_axis,
+		      const TVec<T> &z_axis);
 
     bool reverses_handedness () const { return Matrix4<T>::det() < 0; }
 
