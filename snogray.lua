@@ -608,6 +608,44 @@ ellipse = raw.Ellipse
 
 cylinder = raw.Cylinder
 
+-- solid_cylinder is just like cylinder, but has endcaps as well
+--
+function solid_cylinder (mat, arg1, ...)
+
+   -- There are two argument conventions for cylinders, which we handle
+   -- separately.
+   --
+   if is_xform (arg1) then	-- args: MAT, XFORM
+      local xform = arg1
+
+      local base = pos(0,0,-1)*xform
+      local axis = vec(0,0,2)*xform
+      local r1 = vec(1,0,0)*xform
+      local r2 = vec(0,1,0)*xform
+
+      return surface_group {
+	 cylinder (mat, xform);
+	 ellipse (mat, base, r1, r2);
+	 ellipse (mat, base + axis, r1, r2);
+      }
+   else				-- args: MAT, BASE, AXIS, RADIUS
+      local base = arg1
+      local axis = select (1, ...)
+      local radius = select (2, ...)
+
+      local au = axis:unit()
+      local r1u = au:perpendicular()
+      local r1 = r1u * radius
+      local r2 = cross (au, r1u) * radius
+
+      return surface_group {
+	 cylinder (mat, base, axis, radius);
+	 ellipse (mat, base, r1, r2);
+	 ellipse (mat, base + axis, r1, r2);
+      }
+   end
+end
+
 -- Wrap the subspace constructor to record the GC link between a
 -- subspace and the surface in it.
 --
