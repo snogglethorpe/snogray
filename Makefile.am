@@ -29,7 +29,7 @@ endif
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =						\
-	snogray.lua load-obj.lua			\
+	snogray.lua load-obj.lua load-ug.lua		\
 	snograw.i					\
 	autogen.sh					\
 	lpeg.html					\
