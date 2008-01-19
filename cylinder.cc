@@ -1,6 +1,6 @@
 // cylinder.cc -- Cylindrical surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,6 +18,25 @@
 
 
 using namespace snogray;
+
+
+// Return a transformation that will transform a canonical cylinder to a
+// cylinder with the given base/axis/radius.
+//
+Xform
+Cylinder::xform (const Pos &base, const Vec &axis, float radius)
+{
+  Vec az = axis.unit ();
+  Vec ax = az.perpendicular ();
+  Vec zy = cross (ax, az);
+
+  Xform xf;
+  xf.translate (Vec (0,0,1));
+  xf.scale (radius,radius,axis.length()/2);
+  xf.to_basis (ax, zy, az);
+  xf.translate (Vec (base));
+  return xf;
+}
 
 
 // Return the point of intersection of RAY with a radius 1 cylinder of

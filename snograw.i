@@ -402,6 +402,8 @@ namespace snogray {
   public:
 
     Cylinder (const Material *mat, const Xform &obj_to_world_xform);
+    Cylinder (const Material *mat, const Pos &base, const Vec &axis,
+	      float radius);
   };
 
   class Sphere2 : public Surface

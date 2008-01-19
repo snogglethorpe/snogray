@@ -1,6 +1,6 @@
 // cylinder.h -- Cylindrical surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,6 +28,12 @@ public:
     : LocalSurface (mat, local_to_world_xform)
   { }
 
+  // Constructor for making a cylinder from a base/axis/radius
+  //
+  Cylinder (const Material *mat, const Pos &base, const Vec &axis, float radius)
+    : LocalSurface (mat, xform (base, axis, radius))
+  { }
+
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
   // to reflect the point of intersection, and return a Surface::IsecInfo
   // object describing the intersection (which should be allocated using
@@ -41,6 +47,11 @@ public:
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
   virtual Material::ShadowType shadow (const ShadowRay &ray) const;
+
+  // Return a transformation that will transform a canonical cylinder to a
+  // cylinder with the given base/axis/radius.
+  //
+  static Xform xform (const Pos &base, const Vec &axis, float radius);
 
 private:
 
