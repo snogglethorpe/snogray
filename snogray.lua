@@ -967,6 +967,10 @@ local scene_loaders = {}
 -- recognized as loadable, or an error string if an error occured during
 -- loading.
 --
+-- Note that this only handles formats loaded using Lua, not those
+-- handled by the C++ core.  To load any supported format, use the
+-- scene "load" method.
+--
 function load_scene (filename, fmt, ...)
    local loader = scene_loaders[fmt]
    if loader then
@@ -991,6 +995,10 @@ local mesh_loaders = {}
 -- Return true for a successful load, false if FILENAME is not
 -- recognized as loadable, or an error string if an error occured during
 -- loading.
+--
+-- Note that this only handles formats loaded using Lua, not those
+-- handled by the C++ core.  To load any supported format, use the
+-- mesh "load" method.
 --
 function load_mesh (filename, fmt, ...)
    local loader = mesh_loaders[fmt]
