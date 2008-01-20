@@ -547,6 +547,9 @@ end
 
 mesh = raw.Mesh
 
+mesh_vertex_group = raw.mesh_vertex_group
+mesh_vertex_normal_group = raw.mesh_vertex_normal_group
+
 -- Return a transform which will warp SURF to be in a 2x2x2 box centered
 -- at the origin.  Only a single scale factor is used for all
 -- dimensions, so that a transformed object isn't distorted, merely

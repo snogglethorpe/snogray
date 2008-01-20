@@ -54,6 +54,20 @@
     return static_rep_buf;
   }
 
+  namespace snogray
+  {
+
+    Mesh::VertexGroup *mesh_vertex_group ()
+    {
+      return new Mesh::VertexGroup;
+    }
+    Mesh::VertexNormalGroup *mesh_vertex_normal_group ()
+    {
+      return new Mesh::VertexNormalGroup;
+    }
+
+  }
+
 %}
 
 //
@@ -511,8 +525,9 @@ namespace snogray {
     Mesh (const char *file_name, const MaterialDict &mat_dict);
 
     typedef unsigned vert_index_t;
-    class VertexGroup;
-    class VertexNormalGroup;
+
+    typedef std::map<Pos, vert_index_t> VertexGroup;
+    typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
 
     void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
 		       const Material *mat = 0);
@@ -562,17 +577,35 @@ namespace snogray {
       return $self->add_vertex (snogray::Pos (x, y, z));
     }
     vert_index_t add_vertex (float x, float y, float z,
+			     VertexGroup &vg)
+    {
+      return $self->add_vertex (snogray::Pos (x, y, z), vg);
+    }
+    vert_index_t add_vertex (float x, float y, float z,
 			     float nx, float ny, float nz)
     {
       return $self->add_vertex (snogray::Pos (x, y, z),
 				snogray::Vec (nx, ny, nz));
     }
+    vert_index_t add_vertex (float x, float y, float z,
+			     float nx, float ny, float nz,
+			     VertexNormalGroup &vng)
+    {
+      return $self->add_vertex (snogray::Pos (x, y, z),
+				snogray::Vec (nx, ny, nz),
+				vng);
+    }
+
     vert_index_t add_normal (vert_index_t vert_index,
 			     float nx, float ny, float nz)
     {
       return $self->add_normal (vert_index, snogray::Vec (nx, ny, nz));
     }
   }
+
+  Mesh::VertexGroup *mesh_vertex_group ();
+  Mesh::VertexNormalGroup *mesh_vertex_normal_group ();
+
 
   class Camera
   {
