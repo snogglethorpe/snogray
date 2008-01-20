@@ -1004,6 +1004,7 @@ end
 
 add_autoload_stub (mesh_loaders, "obj", "load-obj.lua", "load_obj")
 add_autoload_stub (mesh_loaders, "ug", "load-ug.lua", "load_ug")
+add_autoload_stub (mesh_loaders, "stl", "load-stl.lua", "load_stl")
 
 
 ----------------------------------------------------------------
