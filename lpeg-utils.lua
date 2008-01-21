@@ -50,15 +50,25 @@ p_ws_int = p_opt_ws * p_int
 function parse_err (text, pos, msg)
    local line_num = 1
    local count_pos = 1
+   local bol_pos = 1
+
    while count_pos < pos do
       line_num = line_num + 1
+      bol_pos = count_pos
       count_pos = p_line_nl:match (text, count_pos)
    end
+   if count_pos > pos then
+      line_num = line_num - 1
+   else
+      bol_pos = count_pos
+   end
+
    local msg_pfx = "parse error on line "..tostring(line_num)..": "
    if msg then
       msg_pfx = msg_pfx .. msg .. ": "
    end
-   error (msg_pfx .. p_line_contents:match (text, pos), 0)
+
+   error (msg_pfx .. p_line_contents:match (text, bol_pos), 0)
 end
 
 -- Call the lpeg pattern PATTERN's match function with TEXT and POS, and
