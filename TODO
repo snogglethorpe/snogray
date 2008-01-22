@@ -79,30 +79,27 @@ Todo list for snogray
      Similar techniques are needed for looking up normals; shared
      superclass with textures?
 
+ 
+ + Write a C extension to Lua for quickly parsing large vertex/triangle
+   arrays using some very simplistic grammar, essentially requiring they
+   being arrays of float/int constants in the same order, but with a
+   little flexibility as to the strings separating the values.  This
+   should vastly speed up some Lua parsers (which can take a lot of time
+   to read in large meshes).
 
- + Add a real scene definition language
 
-     Some possibilities:
+ + Add RenderMan/PBRT language loader
 
-       * PBRT-style simple textual language
 
-       * XML format (maybe use Cornell XML format?)
+ + Add scene loaders:
 
-       [DONE]
-       * Add Lua integration, and allow defining scenes using Lua programs
+     * Cinema 4D.  There is a published spec for version 5 of the C4D
+       format, which is not current, but apparently designated as a sort
+       of "exchange format" for C4D.  This is a binary format, but maybe
+       parseable using Lua/lpeg/struct.
 
-         Lua integration issues:
-	   . How to embed snogray objects as opaque lua objects
-	   . Adding syntax extensions for efficient parsing of very
-             large literal objects like meshes (allowing Lua to parse
-	      these 
-
-       * Loaders for proprietary scene formats:
-           . Cinema 4D (there is a published spec for version 5 of the
-	     C4D format, which is not current, but apparently designated
-	     as a sort of "exchange format" for C4d)
-	   . 3ds Max (different from 3ds)
-	   . Bryce ...
+     * 3DS MAX.  Note this is different from 3DS format, which is
+       already supported.
 
 
  + Maybe separate the notion of "Shape" from Surface, so that we can
@@ -197,7 +194,6 @@ Todo list for snogray
  + Implement new BRDFs
 
      Ashikhmin
-     Cook-Torrance	[DONE]
      Ward
      Schick
      LaFortune
@@ -275,6 +271,10 @@ Completed items:
      just needs some kind of error margin when tracing recursive rays.
 
 
+ [DONE, Lua support]
+ + Add a real scene definition language
+
+
  [DONE]
  + Importance sampling
 
@@ -342,6 +342,10 @@ Completed items:
  + Use Fresnel equations to calculate reflectance/transmittance
 
      http://scienceworld.wolfram.com/physics/FresnelEquations.html
+
+
+ [DONE]
+ + Implement Cook-Torrance BRDF
 
 
  [DONE]
