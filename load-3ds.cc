@@ -1,6 +1,6 @@
 // load-3ds.cc -- Load 3ds scene file
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -602,7 +602,8 @@ TdsLoader::convert (const Xform &xform)
   if (scene)
     {
       dist_t radius = 50;
-      dist_t area_scale = 1 / (4 * PI * radius * radius);
+      dist_t sc_rad = radius / 10000;
+      dist_t area_scale = 1 / (4 * PI * sc_rad * sc_rad);
 
       for (Lib3dsLight *l = file->lights; l; l = l->next)
 #ifdef HAVE_LIB3DS_OBJ_FLAGS
