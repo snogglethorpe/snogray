@@ -1,6 +1,6 @@
 // grid-iter.h -- Iterator for stratified grid sampling
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ class GridIter
  public:
 
   GridIter (unsigned num)
-    : num_steps (num ? unsigned (ceil (sqrt (num))) : 0),
+    : num_steps (num ? unsigned (ceil (sqrt (float (num)))) : 0),
       step (num ? 1.f / num_steps : 0),
       u_offs (0), v_offs (0), u_left (num_steps), v_left (num_steps)
   { }
