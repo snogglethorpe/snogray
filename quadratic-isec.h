@@ -24,8 +24,16 @@ template<typename T>
 inline bool
 quadratic_isec (T a, T b, T c, T &root0, T &root1)
 {
-  if (a == 0 && b == 0)
-    return false;		// no possible root
+  // Special-case linear equation to avoid divide-by-zero below.
+  //
+  if (a == 0)
+    {
+      if (b == 0)
+	return false;
+
+      root0 = root1 = -c / b;
+      return true;
+    }
 
   T disc = b * b - 4 * a * c;
 
@@ -36,7 +44,7 @@ quadratic_isec (T a, T b, T c, T &root0, T &root1)
   T t = -(b + (b < 0 ? -sqrt_disc : sqrt_disc)) / 2;
 
   root0 = t / a;
-  root1 = c / t;
+  root1 = (t == 0) ? root0 : c / t; // if roots are same, t can be 0
 
   if (root0 > root1)
     {
