@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "quadratic-isec.h"
+#include "quadratic-roots.h"
 #include "intersect.h"
 #include "shadow-ray.h"
 
@@ -51,26 +51,24 @@ cylinder_intersect (Ray &ray)
   const Pos &o = ray.origin;
   const Vec &d = ray.dir;
 
+  // Coefficients of the quadratic equation we'll solve.
+  //
   dist_t a = d.x * d.x + d.y * d.y;
   dist_t b = 2 * (d.x * o.x + d.y * o.y);
   dist_t c = o.x * o.x + o.y * o.y - 1 /* radius */;
 
-  // Compute intersection point.
+  // Compute intersection points.
   //
-  dist_t t0, t1;
-  if (quadratic_isec (a, b, c, t0, t1))
+  dist_t roots[2];
+  unsigned nroots = quadratic_roots (a, b, c, roots);
+  for (unsigned i = 0; i < nroots; i++)
     {
-      if (t0 > ray.t0 && t0 < ray.t1)
+      dist_t root = roots[i];
+      if (root > ray.t0 && root < ray.t1)
 	{
-	  coord_t z = ray.origin.z + t0 * ray.dir.z;
+	  coord_t z = o.z + root * d.z;
 	  if (z >= -1 && z <= 1)
-	    return t0;
-	}
-      if (t1 > ray.t0 && t1 < ray.t1)
-	{
-	  coord_t z = ray.origin.z + t1 * ray.dir.z;
-	  if (z >= -1 && z <= 1)
-	    return t1;
+	    return root;
 	}
     }
 
@@ -79,9 +77,9 @@ cylinder_intersect (Ray &ray)
 
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
+// to reflect the point of intersection, and return a Surface::IsecInfo
+// object describing the intersection (which should be allocated using
 // placement-new with ISEC_CTX); otherwise return zero.
 //
 const Surface::IsecInfo *

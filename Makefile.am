@@ -1,6 +1,6 @@
 # Automake Makefile template for snogray
 #
-#  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -134,7 +134,7 @@ libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
 	coords.h cubemap.cc cubemap.h dist.h envmap.cc envmap.h frame.h	\
 	material-dict.cc material-dict.h material.cc material.h		\
 	matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc matrix4.h medium.h	\
-	octree.cc octree.h pos.h quadratic-isec.h scene.cc scene.h	\
+	octree.cc octree.h pos.h quadratic-roots.h scene.cc scene.h	\
 	space.cc space.h space-builder.h sphere-isec.h spheremap.cc	\
 	spheremap.h surface.cc surface.h tex2.h tripar-isec.h tuple3.h	\
 	uv.h vec.h xform.h xform-base.h
