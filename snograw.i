@@ -708,6 +708,8 @@ namespace snogray {
     Light *add (Light *light);
     Material *add (Material *mat);
 
+    void set_background (const Color &col);
+
     void load (const char *file_name, const char *fmt, Camera &camera);
   };
   %extend Scene
