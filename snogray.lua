@@ -344,6 +344,7 @@ function mirror (params)
    local _ior = default_mirror_ior
    local _reflect = white
    local _col = black
+   local _under
 
    if type (params) == "number" or is_color_spec (params) then
       _reflect = params
@@ -353,9 +354,14 @@ function mirror (params)
       _reflect = params.reflect or params.reflectance or params[1] or _reflect
       _ior = params.ior or params[2] or _ior
       _col = params.color or params[3] or _col
+      _under = params.underlying or params.under or params[4]
    end
 
-   return material (raw.Mirror (ior (_ior), color (_reflect), color (_col)));
+   if not _under then
+      _under = color (_col)
+   end
+
+   return material (raw.Mirror (ior (_ior), color (_reflect), _under));
 end
 
 -- Return a glass material.
@@ -1069,6 +1075,8 @@ end
 --
 scene_loaders.luac = scene_loaders.lua
 scene_loaders.luo = scene_loaders.lua
+
+add_autoload_stub (scene_loaders, "nff", "load-nff.lua", "load_nff")
 
 
 -- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b
