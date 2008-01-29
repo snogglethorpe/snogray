@@ -971,10 +971,21 @@ local scene_loaders = {}
 -- handled by the C++ core.  To load any supported format, use the
 -- scene "load" method.
 --
-function load_scene (filename, fmt, ...)
+function load_scene (filename, fmt, rscene, rcamera, ...)
    local loader = scene_loaders[fmt]
+
    if loader then
-      return loader (filename, ...)
+      -- Set up the scene object for the loader code to use.
+      --
+      init_scene (rscene)
+
+      -- Let users use the raw camera directly.
+      --
+      camera = rcamera
+
+      -- Call the loader.
+      --
+      return loader (filename, scene, camera, ...)
    else
       return false
    end
@@ -1046,14 +1057,6 @@ function scene_loaders.lua (filename, rscene, rcamera)
    -- the same location.
    --
    cur_filename = filename
-
-   -- Set up the scene object for the user code to use.
-   --
-   init_scene (rscene)
-
-   -- Let users use the raw camera directly.
-   --
-   camera = rcamera
 
    -- Finally, evaluate the loaded file!
    --
