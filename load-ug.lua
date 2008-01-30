@@ -46,7 +46,7 @@ function load_ug (filename, mesh, mat_dict)
    local function map_vert (name)
       local vert = named_verts[name]
       if not vert then
-	 error (filename ": Unknown vertex name \"" .. name .. "\"", 0)
+	 lu.parse_err ("Unknown vertex name \"" .. name .. "\"")
       end
       return vert
    end
@@ -58,7 +58,7 @@ function load_ug (filename, mesh, mat_dict)
 	    mat = named_mats[name]
 	 end
 	 if not mat then
-	    error (filename ": Unknown material name \"" .. name .. "\"", 0)
+	    lu.parse_err ("Unknown material name \"" .. name .. "\"")
 	 end
 	 return mat
       else

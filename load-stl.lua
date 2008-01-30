@@ -28,17 +28,6 @@ function load_stl (filename, mesh, mat_dict)
    local facet_verts = {}
    local vg = mesh_vertex_group ()
 
-   local err_pos = 1
-   local err_text = nil
-   local function record_err_pos (text, pos)
-      err_text = text
-      err_pos = pos
-      return pos
-   end
-   local function get_err_pos ()
-      return err_pos
-   end
-
    local function add_vert (x, y, z)
       facet_verts[#facet_verts + 1] = mesh:add_vertex (x, y, z, vg)
    end
@@ -47,7 +36,7 @@ function load_stl (filename, mesh, mat_dict)
       local fv = facet_verts
 
       if #fv < 3 then
-	 lu.parse_err (err_text, err_pos, "not enough vertices in facet")
+	 lu.parse_err ("not enough vertices in facet")
       end
 
       mesh:add_triangle (fv[1], fv[2], fv[3], mat)
@@ -64,8 +53,7 @@ function load_stl (filename, mesh, mat_dict)
       facet_verts = {}
    end
 
-   local ERR_POS = P(record_err_pos)
-   local SYNC = OPT_WS * ERR_POS
+   local SYNC = OPT_WS * lu.ERR_POS
    local COORDS = WS_FLOAT * WS_FLOAT * WS_FLOAT
    local VERTEX = P"vertex" * (COORDS / add_vert)
    local NORMAL = P"normal" * COORDS
@@ -85,7 +73,7 @@ function load_stl (filename, mesh, mat_dict)
 	 * (SYNC * SOLID_EL)^0 * OPT_WS
          * P"end" * HWS * P"solid" * OPT_WS)
 
-   lu.parse_file (filename, SOLID, get_err_pos)
+   lu.parse_file (filename, SOLID)
 
    return true
 end
