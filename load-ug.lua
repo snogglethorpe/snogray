@@ -17,15 +17,15 @@ local lu = require 'lpeg-utils'
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 
 -- ug-file comment
-local p_ws_comment = P"{" * (1 - P"}")^0 * P"}"
+local WS_COMMENT = P"{" * (1 - P"}")^0 * P"}"
 
-local p_hws = lu.p_opt_horiz_ws * ((p_ws_comment * lu.p_opt_horiz_ws)^0)
+local HWS = lu.OPT_HORIZ_WS * ((WS_COMMENT * lu.OPT_HORIZ_WS)^0)
 
 -- whitespace followed by float
-local p_ws_float = p_hws * lu.p_float
+local WS_FLOAT = HWS * lu.FLOAT
 
 -- whitespace followed by name
-local p_ws_name = p_hws * C(R("AZ","az", "__") * R("AZ","az", "09", "__")^0)
+local WS_NAME = HWS * C(R("AZ","az", "__") * R("AZ","az", "09", "__")^0)
 
 function load_ug (filename, mesh, mat_dict)
    local def_mat = mat_dict:get_default ()
@@ -85,19 +85,18 @@ function load_ug (filename, mesh, mat_dict)
       end
    end
 
-   local p_c_cmd
-      = P"c" * ((p_ws_name * p_ws_float * p_ws_float * p_ws_float) / add_mat)
-   local p_v_cmd
-      = P"v" * ((p_ws_name * p_ws_float * p_ws_float * p_ws_float) / add_vert)
-   local p_f_cmd
-      = P"f" * p_hws * ((P"(" * p_ws_name^3 * p_hws * P")" * p_ws_name^0)
-			/ add_face)
-   local p_w_cmd  -- ignored
+   local C_CMD
+      = P"c" * ((WS_NAME * WS_FLOAT * WS_FLOAT * WS_FLOAT) / add_mat)
+   local V_CMD
+      = P"v" * ((WS_NAME * WS_FLOAT * WS_FLOAT * WS_FLOAT) / add_vert)
+   local F_CMD
+      = P"f" * HWS * ((P"(" * WS_NAME^3 * HWS * P")" * WS_NAME^0) / add_face)
+   local W_CMD  -- ignored
       = P"w" * (1 - P";")^0
-   local p_cmd = (p_v_cmd + p_f_cmd + p_c_cmd) * P";" * p_hws
-   local p_line = p_cmd + p_hws
+   local CMD = (V_CMD + F_CMD + C_CMD) * P";" * HWS
+   local LINE = CMD + HWS
 
-   lu.parse_file (filename, p_line * lu.p_nl)
+   lu.parse_file (filename, LINE * lu.NL)
 
    return true
 end

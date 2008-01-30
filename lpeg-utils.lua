@@ -18,31 +18,31 @@ local lpeg = require "lpeg"
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 
 -- number components
-local p_pm = S"+-"^-1
-local p_digs = R"09"^1
-local p_opt_digs = R"09"^0
-local p_fmant = p_pm * ((P"." * p_digs) + (p_digs * (P"." * p_opt_digs)^-1))
-local p_fexp = P"e" * p_pm * p_digs
+local PM = S"+-"^-1
+local DIGS = R"09"^1
+local OPT_DIGS = R"09"^0
+local FMANT =  PM * ((P"." * DIGS) + (DIGS * (P"." * OPT_DIGS)^-1))
+local FEXP = P"e" * PM * DIGS
 
 -- whole numbers
-p_int = (p_pm * p_digs) / tonumber
-p_float = (p_fmant * p_fexp^-1) / tonumber
+INT = (PM * DIGS) / tonumber
+FLOAT = (FMANT * FEXP^-1) / tonumber
 
 -- whitespace
-p_opt_ws = S" \t\r\n\f"^0	-- optional whitespace
-p_req_ws = S" \t\r\n\f"^1 -- required whitespace
-p_opt_horiz_ws = S" \t"^0	-- optional non-newline whitespace
-p_req_horiz_ws = S" \t"^1 -- required non-newline whitespace
-p_nl = S"\r\n\f"		-- newline char
+OPT_WS = S" \t\r\n\f"^0	-- optional whitespace
+REQ_WS = S" \t\r\n\f"^1 -- required whitespace
+OPT_HORIZ_WS = S" \t"^0	-- optional non-newline whitespace
+REQ_HORIZ_WS = S" \t"^1 -- required non-newline whitespace
+NL = S"\r\n\f"		-- newline char
 
 -- line
-p_line = (1 - p_nl)^0
-p_line_nl = p_line * p_nl
-p_line_contents = C (p_line)
+LINE = (1 - NL)^0
+LINE_NL = LINE * NL
+LINE_CONTENTS = C (LINE)
 
 -- whitespace followed by numbers (useful shortcuts)
-p_ws_float = p_opt_ws * p_float
-p_ws_int = p_opt_ws * p_int
+WS_FLOAT = OPT_WS * FLOAT
+WS_INT = OPT_WS * INT
 
 
 -- Signals an error with a simple message quoting the problem line
@@ -55,7 +55,7 @@ function parse_err (text, pos, msg)
    while count_pos < pos do
       line_num = line_num + 1
       bol_pos = count_pos
-      count_pos = p_line_nl:match (text, count_pos)
+      count_pos = LINE_NL:match (text, count_pos)
    end
    if count_pos > pos then
       line_num = line_num - 1
@@ -68,7 +68,7 @@ function parse_err (text, pos, msg)
       msg_pfx = msg_pfx .. msg .. ": "
    end
 
-   error (msg_pfx .. p_line_contents:match (text, bol_pos), 0)
+   error (msg_pfx .. LINE_CONTENTS:match (text, bol_pos), 0)
 end
 
 -- Call the lpeg pattern PATTERN's match function with TEXT and POS, and

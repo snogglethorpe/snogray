@@ -16,11 +16,11 @@ local lu = require 'lpeg-utils'
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 
-local p_hws = lu.p_opt_horiz_ws
-local p_opt_ws = lu.p_opt_ws
+local HWS = lu.OPT_HORIZ_WS
+local OPT_WS = lu.OPT_WS
 
 -- whitespace followed by float
-local p_ws_float = p_hws * lu.p_float
+local WS_FLOAT = HWS * lu.FLOAT
 
 function load_stl (filename, mesh, mat_dict)
    local mat = mat_dict:get_default ()
@@ -64,28 +64,28 @@ function load_stl (filename, mesh, mat_dict)
       facet_verts = {}
    end
 
-   local p_err_pos = P(record_err_pos)
-   local p_sync = p_opt_ws * p_err_pos
-   local p_coords = p_ws_float * p_ws_float * p_ws_float
-   local p_vertex = P"vertex" * (p_coords / add_vert)
-   local p_normal = P"normal" * p_coords
-   local p_loop_el = p_vertex
-   local p_loop
-      = (P"outer" * p_hws * P"loop"
-	 * (p_sync * p_loop_el)^0 * p_opt_ws
-         * P"end" * p_hws * P"loop")
-   local p_facet_el = p_loop + p_normal
-   local p_facet
+   local ERR_POS = P(record_err_pos)
+   local SYNC = OPT_WS * ERR_POS
+   local COORDS = WS_FLOAT * WS_FLOAT * WS_FLOAT
+   local VERTEX = P"vertex" * (COORDS / add_vert)
+   local NORMAL = P"normal" * COORDS
+   local LOOP_EL = VERTEX
+   local LOOP
+      = (P"outer" * HWS * P"loop"
+	 * (SYNC * LOOP_EL)^0 * OPT_WS
+         * P"end" * HWS * P"loop")
+   local FACET_EL = LOOP + NORMAL
+   local FACET
       = (P"facet"
-	 * (p_sync * p_facet_el)^0 * p_opt_ws
-	 * P"end" * p_hws * P"facet") / add_facet
-   local p_solid_el = p_facet
-   local p_solid
-      = (P"solid" * p_hws * P"ascii"
-	 * (p_sync * p_solid_el)^0 * p_opt_ws
-         * P"end" * p_hws * P"solid" * p_opt_ws)
+	 * (SYNC * FACET_EL)^0 * OPT_WS
+	 * P"end" * HWS * P"facet") / add_facet
+   local SOLID_EL = FACET
+   local SOLID
+      = (P"solid" * HWS * P"ascii"
+	 * (SYNC * SOLID_EL)^0 * OPT_WS
+         * P"end" * HWS * P"solid" * OPT_WS)
 
-   lu.parse_file (filename, p_solid, get_err_pos)
+   lu.parse_file (filename, SOLID, get_err_pos)
 
    return true
 end
