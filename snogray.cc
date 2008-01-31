@@ -1,6 +1,6 @@
 // snogray.cc -- Main driver for snogray ray tracer
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -434,6 +434,15 @@ int main (int argc, char *const *argv)
   Camera camera;
 
 
+  // If the user specified both a width and a height, set the camera aspect
+  // ratio to maintain pixels with a 1:1 aspect ratio.  We do this before
+  // loading the scene so that scene camera manipulation commands can see
+  // the final aspect ratio.
+  //
+  if (width && height)
+    camera.set_aspect_ratio (float (width) / float (height));
+
+
   // Read in the scene/camera definitions
   //
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
@@ -449,7 +458,8 @@ int main (int argc, char *const *argv)
 
 
   // If the user specified both a width and a height, set the camera aspect
-  // ratio to maintain pixels with a 1:1 aspect ratio.
+  // ratio _again_ to maintain pixels with a 1:1 aspect ratio, just in case
+  // the scene file tried to muck with it.
   //
   if (width && height)
     camera.set_aspect_ratio (float (width) / float (height));
