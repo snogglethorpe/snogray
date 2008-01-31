@@ -1,6 +1,6 @@
 // scene-load.cc -- Loading scene files
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,20 +40,18 @@ Scene::load (const string &file_name, const string &_fmt, Camera &camera)
   //
   string fmt = _fmt.empty() ? filename_ext (file_name) : _fmt;
 
-  if (fmt == "nff" || fmt == "aff")
-    load_aff_file (file_name, camera);
-
 #ifdef HAVE_LIB3DS
-  else if (fmt == "3ds")
+  if (fmt == "3ds")
     load_3ds_file (file_name, *this, camera);
+  else
 #endif
 
 #ifdef USE_LUA
-  else if (load_lua_file (file_name, fmt, *this, camera))
+  if (load_lua_file (file_name, fmt, *this, camera))
       { /* loaded */ }
+  else
 #endif
 
-  else
     throw (runtime_error (string ("Unknown scene file format: ") + fmt));
 }
 

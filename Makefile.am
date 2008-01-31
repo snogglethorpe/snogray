@@ -26,13 +26,15 @@ if use_lua
   noinst_LIBRARIES += libsnograw.a libluaexts.a
 endif
 
+
 # Various files to include in distribution not covered by automatic rules
 #
-EXTRA_DIST =						\
-	snogray.lua load-obj.lua load-ug.lua		\
-	snograw.i					\
-	autogen.sh					\
-	lpeg.html					\
+EXTRA_DIST =							\
+	snogray.lua						\
+	load-obj.lua load-ug.lua load-stl.obj load-nff.lua	\
+	snograw.i						\
+	autogen.sh						\
+	lpeg.html						\
 	stats.txt spd.txt
 
 # Allow specifying a Lua distribution to be included.  If we're already
@@ -223,7 +225,7 @@ libluaexts_a_SHORTNAME = le
 # issues), libsnogload2.a
 #
 
-libsnogload2_a_SOURCES = mesh-load.cc scene-load-aff.cc
+libsnogload2_a_SOURCES = mesh-load.cc
 libsnogload2_a_SOURCES += load-msh.cc load-msh.h
 libsnogload2_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
 
