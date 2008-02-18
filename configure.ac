@@ -354,14 +354,39 @@ if test $have_lib3ds = yes; then
 fi
 AM_CONDITIONAL([have_lib3ds], [test $have_lib3ds = yes])
 
-# See if lib3ds supports the "obj_flags" extension, which adds handling
-# of LIB3DS_OBJ_ chunks (in particular the LIB3DS_OBJ_HIDDEN chunk,
-# which is used by many real-world models).
-#
-# (currently this is my own extension to lib3ds; hopefully in the future
-# it can get merged into the standard version)
+
+# See if lib3ds supports the "object_flags" feature, which handles
+# LIB3DS_OBJ_ chunks (in particular the LIB3DS_OBJ_HIDDEN chunk, which
+# is used by many real-world models).  This feature is the upstream
+# version of my own earlier "obj_flags" extension (see below).
 #
 if test $have_lib3ds = yes; then
+
+  _OLD_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CFLAGS $LIB3DS_CFLAGS"
+
+  AC_MSG_CHECKING([whether lib3ds supports object_flags])
+  AC_TRY_COMPILE([#include <lib3ds/mesh.h>],
+  	         [extern Lib3dsMesh *m; m->object_flags = LIB3DS_OBJECT_HIDDEN;],
+		 [have_lib3ds_object_flags=yes],
+		 [have_lib3ds_object_flags=no])
+  AC_MSG_RESULT([$have_lib3ds_object_flags])
+
+  if test $have_lib3ds_object_flags = yes; then
+    AC_DEFINE([HAVE_LIB3DS_OBJECT_FLAGS], [1],
+              [Define if lib3ds has "object_flags" support])
+  fi  
+
+  CPPFLAGS="$_OLD_CPPFLAGS"
+fi
+
+# If "objects_flags" isn't supported, see if lib3ds supports the
+# "obj_flags" extension, which adds handling of LIB3DS_OBJ_ chunks (in
+# particular the LIB3DS_OBJ_HIDDEN chunk, which is used by many
+# real-world models).  This is my earlier version of what was eventually
+# added to the official sources as "object_flags".
+#
+if test $have_lib3ds = yes && test $have_lib3ds_object_flags = no; then
 
   _OLD_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$CFLAGS $LIB3DS_CFLAGS"
@@ -376,6 +401,53 @@ if test $have_lib3ds = yes; then
   if test $have_lib3ds_obj_flags = yes; then
     AC_DEFINE([HAVE_LIB3DS_OBJ_FLAGS], [1],
               [Define if lib3ds has "obj_flags" support])
+  fi  
+
+  CPPFLAGS="$_OLD_CPPFLAGS"
+fi
+
+
+# See if lib3ds supports the "LIB3DS_HIDDEN" node flag.
+#
+if test $have_lib3ds = yes; then
+
+  _OLD_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CFLAGS $LIB3DS_CFLAGS"
+
+  AC_MSG_CHECKING([whether lib3ds supports the HIDDEN node flag])
+  AC_TRY_COMPILE([#include <lib3ds/node.h>],
+  	         [extern Lib3dsNode *n; n->flags1 = LIB3DS_HIDDEN;],
+		 [have_lib3ds_node_hidden_flag=yes],
+		 [have_lib3ds_node_hidden_flag=no])
+  AC_MSG_RESULT([$have_lib3ds_node_hidden_flag])
+
+  if test $have_lib3ds_node_hidden_flag = yes; then
+    AC_DEFINE([HAVE_LIB3DS_NODE_HIDDEN_FLAG], [1],
+              [Define if lib3ds defines the node LIB3DS_HIDDEN flag])
+  fi  
+
+  CPPFLAGS="$_OLD_CPPFLAGS"
+fi
+
+
+# See if lib3ds has "lib3ds_matrix_mult", which for whatever reason,
+# _replaced_ lib3ds_matrix_mul in lib3ds 1.3.0.
+#
+if test $have_lib3ds = yes; then
+
+  _OLD_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CFLAGS $LIB3DS_CFLAGS"
+
+  AC_MSG_CHECKING([for lib3ds_matrix_mult])
+  AC_TRY_COMPILE([#include <lib3ds/matrix.h>],
+  	         [Lib3dsMatrix N, M; lib3ds_matrix_mult (N, M);],
+		 [have_lib3ds_matrix_mult=yes],
+		 [have_lib3ds_matrix_mult=no])
+  AC_MSG_RESULT([$have_lib3ds_matrix_mult])
+
+  if test $have_lib3ds_matrix_mult = yes; then
+    AC_DEFINE([HAVE_LIB3DS_MATRIX_MULT], [1],
+              [Define if lib3ds defines "lib3ds_matrix_mult"])
   fi  
 
   CPPFLAGS="$_OLD_CPPFLAGS"

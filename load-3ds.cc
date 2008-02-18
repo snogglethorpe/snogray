@@ -433,6 +433,11 @@ void
 TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 		    const Name *enclosing_names)
 {
+#ifdef HAVE_LIB3DS_NODE_HIDDEN_FLAG
+  if (node->flags1 & LIB3DS_HIDDEN)
+    return;
+#endif
+
   const Name hier_names (node->name, enclosing_names);
 
   for (Lib3dsNode *child = node->childs; child; child = child->next)
@@ -446,16 +451,27 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
       if (m
 #ifdef HAVE_LIB3DS_OBJ_FLAGS
 	  && !(m->obj_flags & LIB3DS_OBJF_HIDDEN)
+#elif HAVE_LIB3DS_OBJECT_FLAGS
+	  && !(m->object_flags & LIB3DS_OBJECT_HIDDEN)
 #endif
 	  )
 	{
-	  Lib3dsMatrix N, M, X;
 	  Lib3dsObjectData *d = &node->data.object;
+	  Lib3dsMatrix M, X;
+#if HAVE_LIB3DS_MATRIX_MULT
+	  lib3ds_matrix_copy (X, node->matrix);
+	  lib3ds_matrix_translate_xyz (X, -d->pivot[0], -d->pivot[1], -d->pivot[2]);
+	  lib3ds_matrix_copy (M, m->matrix);
+	  lib3ds_matrix_inv (M);
+	  lib3ds_matrix_mult (X, M);
+#else
+	  Lib3dsMatrix N;
 	  lib3ds_matrix_copy (N, node->matrix);
 	  lib3ds_matrix_translate_xyz (N, -d->pivot[0], -d->pivot[1], -d->pivot[2]);
 	  lib3ds_matrix_copy (M, m->matrix);
 	  lib3ds_matrix_inv (M);
 	  lib3ds_matrix_mul (X, N, M);
+#endif
 
 	  Xform vert_xform = Xform (X) * xform;
 
@@ -608,6 +624,8 @@ TdsLoader::convert (const Xform &xform)
       for (Lib3dsLight *l = file->lights; l; l = l->next)
 #ifdef HAVE_LIB3DS_OBJ_FLAGS
 	if (! (l->obj_flags & LIB3DS_OBJF_HIDDEN))
+#elif HAVE_LIB3DS_OBJECT_FLAGS
+	if (! (l->object_flags & LIB3DS_OBJECT_HIDDEN))
 #endif
 	{
 	  const Pos loc = pos (l->position) * xform;
@@ -661,6 +679,9 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 
 #ifdef HAVE_LIB3DS_OBJ_FLAGS
       while (c && (c->obj_flags & LIB3DS_OBJF_HIDDEN))
+	c = c->next;
+#elif HAVE_LIB3DS_OBJECT_FLAGS
+      while (c && (c->object_flags & LIB3DS_OBJECT_HIDDEN))
 	c = c->next;
 #endif
 
