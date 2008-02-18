@@ -1,6 +1,6 @@
 // lambert.cc -- Lambertian material
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -47,7 +47,8 @@ public:
 	float pdf;
 	Vec dir = dist.sample (u, v, pdf);
 	if (isec.cos_n (dir) > 0)
-	  samples.push_back (IllumSample (dir, lambert.color * pdf, pdf));
+	  samples.push_back (IllumSample (dir, lambert.color * pdf, pdf,
+					  IllumSample::DIFFUSE));
       }
 
     return grid_iter.num_samples ();
@@ -61,11 +62,11 @@ public:
     const
   {
     for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
-      if (! s->invalid)
-	{
-	  s->brdf_pdf = dist.pdf (isec.cos_n (s->dir));
-	  s->refl = lambert.color * s->brdf_pdf;
-	}
+      {
+	s->brdf_pdf = dist.pdf (isec.cos_n (s->dir));
+	s->brdf_val = lambert.color * s->brdf_pdf;
+	s->flags |= IllumSample::DIFFUSE;
+      }
   }
 
 private:

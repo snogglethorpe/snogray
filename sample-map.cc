@@ -1,6 +1,6 @@
 // sample-map.cc -- Visual representation of sample distribution
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "trace.h"
-#include "mis-illum.h"
+#include "illum-mgr.h"
 #include "global-tstate.h"
 
 #include "sample-map.h"
@@ -27,7 +27,8 @@ using namespace std;
 //
 unsigned
 SampleMap::sample (const Ray &eye_ray, Scene &scene,
-		   const TraceParams &trace_params)
+		   const TraceParams &trace_params,
+		   const IllumMgr &illum_mgr)
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
@@ -37,42 +38,20 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
   const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, trace);
   if (isec_info)
     {
-      Intersect isec = isec_info->make_intersect (intersected_ray, trace);
-      MisIllum mis_illum (trace);
-
-      mis_illum.distribute_light_samples (trace_params.num_light_samples,
-					  mis_illum.light_params);
-      mis_illum.gen_samples (isec, trace_params.num_brdf_samples,
-			     mis_illum.light_params, samples);
+      Intersect isec = isec_info->make_intersect (trace);
+      unsigned num = illum_mgr.gen_samples (isec, samples);
 
       for (IllumSampleVec::iterator s = samples.begin() + num_samples;
 	   s != samples.end(); ++s)
 	{	
-	  sum += s->val;
-	  if (num_samples == 0 || s->val < min)
-	    min = s->val;
-	  if (s->val > max)
-	    max = s->val;
+	  sum += s->light_val;
+	  if (num_samples == 0 || s->light_val < min)
+	    min = s->light_val;
+	  if (s->light_val > max)
+	    max = s->light_val;
 
 	  num_samples++;
 	}
-
-      // Number of real+virtual samples.
-      //
-      unsigned num = 0;
-
-      // Count the number of real+virtual light samples.
-      //
-      for (std::vector<SampleIllum::LightParams>::iterator lp
-	     = mis_illum.light_params.begin();
-	   lp != mis_illum.light_params.end(); ++lp)
-	num += lp->num_samples;
-
-      // There's no way to do the same thing for brdf samples, so assume
-      // there are no virtual brdf samples (which is true more often
-      // than for lights at least).
-      //
-      num += trace_params.num_brdf_samples;
 
       return num;
     }
@@ -88,7 +67,7 @@ SampleMap::normalize ()
   float scale = 1 / max.intensity ();
 
   for (IllumSampleVec::iterator s = samples.begin (); s != samples.end (); s++)
-    s->val *= scale;
+    s->light_val *= scale;
 }
 
 // Draw a picture of the samples to MAP.  RADIUS is how wide a circle to use
@@ -114,7 +93,7 @@ SampleMap::draw (Image &map, unsigned radius, Color color)
 	unsigned x = unsigned (w * (s->dir.longitude() + PI) / (PI * 2));
 	unsigned y = unsigned (h * (-s->dir.latitude() + PI/2) / PI);
 
-	Color col = use_sample_color ? s->val : color;
+	Color col = use_sample_color ? s->light_val : color;
 
 	for (int yi = -radius; yi <= int (radius); yi++)
 	  for (int xi = -radius; xi <= int (radius); xi++)

@@ -1,6 +1,6 @@
 // norm-glow.h -- Material whose color indicates surface normal
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -24,8 +24,6 @@ public:
   NormGlow (Color::component_t _intens)
     : Material (Material::SHADOW_OPAQUE), intens (_intens)
   { }
-
-  virtual Color render (const Intersect &isec) const;
 
 private:
 

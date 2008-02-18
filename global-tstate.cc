@@ -21,13 +21,11 @@ using namespace snogray;
 
 GlobalTraceState::GlobalTraceState (const TraceParams &_params)
   : params (_params),
-    illum_global_state (new MisIllumGlobalState),      // hardwired for now
     space_builder_builder (new Octree::BuilderBuilder) // hardwired for now
 { }
 
 GlobalTraceState::~GlobalTraceState ()
 {
-  delete illum_global_state;
 }
 
 

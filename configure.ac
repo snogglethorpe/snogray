@@ -17,6 +17,12 @@ AC_CHECK_PROG([SWIG], [swig], [swig])
 AC_LANG(C++)
 
 
+# This is a fake "conditional" we use for commenting out stuff in
+# Makefile.am
+#
+AM_CONDITIONAL([never], [false])
+
+
 # Enable/disable single-precision floating-point coordinates
 #
 # Using single-precision coordinates is much faster, but can present

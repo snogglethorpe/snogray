@@ -1,6 +1,6 @@
 // phong.cc -- Phong material
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -62,8 +62,7 @@ public:
     const
   {
     for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
-      if (! s->invalid)
-	filter_sample (s);
+      filter_sample (s);
   }
 
 private:
@@ -129,7 +128,7 @@ private:
   {
     const Vec &l = s->dir;
     const Vec h = (isec.v + l).unit ();
-    s->refl = val (l, h, s->brdf_pdf);
+    s->brdf_val = val (l, h, s->brdf_pdf);
   }
 
   const Phong &phong;

@@ -1,6 +1,6 @@
 // scene.cc -- Scene description datatype
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -144,7 +144,7 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
   // (which will be zero if that didn't work out either).
   //
   if (isec_info)
-    trace.horizon_hint = isec_info->surface ();
+    trace.horizon_hint = isec_info->outermost_surface ();
   else
     isec_info = hint_isec_info;
 
@@ -197,6 +197,53 @@ Scene::shadow (const ShadowRay &ray, Trace &trace) const
     }
 
   return space->shadow (ray, trace, ray.light);
+}
+
+// Return true if any surface blocks RAY.  This is the fastest
+// intersection method, because it can return as soon as it it finds any
+// intersection.
+//
+bool
+Scene::shadows (const ShadowRay &ray, Trace &trace) const
+{
+  trace.global.stats.scene_shadow_tests++;
+
+  // See if this light has a shadow hint (the last surface that cast a
+  // shadow from it); if it does, then try that surface first, as it
+  // stands a better chance of hitting than usual (because nearby points
+  // are often obscured from a given light by the same surface).
+  //
+  // Note that in the case where the hint refers to non-opaque surface,
+  // we will return it immediately, just like an opaque surface.  This
+  // will not cause errors, because the shadow-tracing "slow path" (which
+  // will get used if a non-opaque surface is returned) still does the
+  // right thing in this case, simply more slowly; in the case where a
+  // new opaque surface is found, the hint will be updated elsewhere (in
+  // Material::shadow actually).
+  //
+  if (ray.light)
+    {
+      const Surface *hint = trace.shadow_hints[ray.light->num];
+
+      if (hint && hint != trace.origin)
+	{
+	  Material::ShadowType shadow_type = hint->shadow (ray);
+
+	  if (shadow_type != Material::SHADOW_NONE)
+	    {
+	      trace.global.stats.shadow_hint_hits++;
+	      return shadow_type;
+	    }
+	  else
+	    // It didn't work; clear this hint out.
+	    {
+	      trace.global.stats.shadow_hint_misses++;
+	      trace.shadow_hints[ray.light->num] = 0;
+	    }
+	}
+    }
+
+  return space->shadows (ray, trace, ray.light);
 }
 
 

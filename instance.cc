@@ -1,6 +1,6 @@
 // instance.cc -- Transformed object subspace
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ Instance::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (subspace_isec_info)
     {
       ray.t1 = xformed_ray.t1;
-      return new (isec_ctx) IsecInfo (this, xformed_ray, subspace_isec_info);
+      return new (isec_ctx) IsecInfo (ray, this, subspace_isec_info);
     }
   else
     return 0;
@@ -48,11 +48,11 @@ Instance::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Instance::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
+Instance::IsecInfo::make_intersect (Trace &trace) const
 {
   // First make an intersection in our subspace.
   //
-  Intersect isec = subspace_isec_info->make_intersect (xformed_ray, trace);
+  Intersect isec = subspace_isec_info->make_intersect (trace);
 
   // Now transform parts of it to be in the global space.
   //

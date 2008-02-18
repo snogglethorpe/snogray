@@ -31,19 +31,9 @@ public:
     : Material (Material::SHADOW_MEDIUM), color (col), ior (_ior)
   { }
 
-  virtual Color render (const Intersect &isec) const;
-
-  // Shadow LIGHT_RAY, which points to a light with (apparent) color
-  // LIGHT_COLOR. and return the shadow color.  This is basically like
-  // the `render' method, but calls the material's `shadow' method
-  // instead of its `render' method.
+  // Return a new BRDF object for this material instantiated at ISEC.
   //
-  // Note that this method is only used for `non-opaque' shadows --
-  // opaque shadows (the most common kind) don't use it!
-  //
-  virtual Color shadow (const Intersect &isec, const Ray &light_ray,
-			const Color &light_color, const Light &light)
-    const;
+  virtual Brdf *get_brdf (const Intersect &isec) const;
 
   Color color;
 

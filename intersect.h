@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording scene-ray intersection result
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -39,48 +39,21 @@ public:
 
   ~Intersect ();
 
-  // Calculate the outgoing radiance from this intersection.
-  //
-  Color render () const
-  {
-    return material->render (*this);
-  }
-
-  // Shadow LIGHT_RAY, which points to a light with (apparent) color
-  // LIGHT_COLOR. and return the shadow color.  This is basically like
-  // the `render' method, but calls the material's `shadow' method
-  // instead of its `render' method.
-  //
-  // Note that this method is only used for `non-opaque' shadows --
-  // opaque shadows (the most common kind) don't use it!
-  //
-  Color shadow (const Ray &light_ray, const Color &light_color,
-		const Light &light)
-    const
-  {
-    return material->shadow (*this, light_ray, light_color, light);
-  }
-
   // Returns a pointer to the trace for a subtrace of the given
   // type (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  Trace &subtrace (Trace::Type type, const Medium *medium) const
+  Trace &subtrace (float branch_factor, Trace::Type type, const Medium *medium)
+    const
   {
-    return trace.subtrace (type, medium, surface);
+    return trace.subtrace (branch_factor, type, medium, surface);
   }
   // For sub-traces with no specified medium, propagate the current one.
   //
-  Trace &subtrace (Trace::Type type) const
+  Trace &subtrace (float branch_factor, Trace::Type type) const
   {
-    return trace.subtrace (type, surface);
+    return trace.subtrace (branch_factor, type, surface);
   }
-
-  // Iterate over every light, calculating its contribution the color of
-  // ISEC.  BRDF is used to calculate the actual effect; COLOR is
-  // the "base color"
-  //
-  Color illum () const;
 
   // Returns the cosine of the angle between the surface normal and VEC.
   // VEC must be in this intersection's normal frame, and must be
@@ -102,6 +75,10 @@ public:
   {
     return min (dot (v, vec), dist_t (1)); // use min to clamp precision errors
   }
+
+  // Return a mempool for intersection-related allocations.
+  //
+  Mempool &mempool () const { return trace.mempool (); }
 
   // Ray which intersected something; its endpoint is the point of intersection.
   //
@@ -159,7 +136,8 @@ private:
   void finish_init ();
 };
 
-}
+
+} // namespace snogray
 
 
 // The user can use this via placement new: "new (ISEC) T (...)".

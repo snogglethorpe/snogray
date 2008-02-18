@@ -1,13 +1,6 @@
 Todo list for snogray
 
 
- + Split illumination into DirectIllum and IndirIllum superclasses
-
-     The current SampleIllum class should probably just be renamed to
-     DirectIllum.  IndirIllum would be a superclass for photon-mapping
-     or hemisphere-sampling indirect illumination algorithms.
-
-
  + Add system for sharing sample generation info among different levels
    of sampling
 
@@ -186,11 +179,6 @@ Todo list for snogray
    searching in octree (or KD-tree)
 
 
- + Make mirror reflections use light-model
-
-     Importance sampling + indirect illumination
-
-
  + Implement new BRDFs
 
      Ashikhmin
@@ -245,6 +233,20 @@ Todo list for snogray
 ----------------------------------------------------------------
 
 Completed items:
+
+
+ [DONE, more generally, by rewriting illumination to use the IllumMgr
+  and subclasses of Illum]
+
+ + Split illumination into DirectIllum and IndirIllum superclasses
+
+     The current SampleIllum class should probably just be renamed to
+     DirectIllum.  IndirIllum would be a superclass for photon-mapping
+     or hemisphere-sampling indirect illumination algorithms.
+
+ + Make mirror reflections use light-model
+
+     Importance sampling + indirect illumination
 
 
  [DONE]

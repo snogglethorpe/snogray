@@ -1,6 +1,6 @@
 // surface.h -- Physical surface
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -51,15 +51,28 @@ public:
   {
   public:
 
+    IsecInfo (const Ray &_ray) : ray (_ray) { }
     virtual ~IsecInfo () { }
 
     // Create an Intersect object for this intersection.
     //
-    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const = 0;
+    virtual Intersect make_intersect (Trace &trace) const = 0;
 
-    // Return the surface which resulted in this intersection.
+    // Return the intersecting surface.
     //
     virtual const Surface *surface () const = 0;
+
+    // Return the intersecting surface.  If the intersection was the result
+    // of a nested structure, the _outermost_ surface will be returned (for
+    // most surfaces, this is the same as the IsecInfo::surface method).
+    //
+    virtual const Surface *outermost_surface () const;
+
+    // Return the material used by intersecting surface.
+    //
+    const Material *material () const { return surface()->material; }
+
+    Ray ray;
   };
 
   // A special object passed into the Surface::intersect method, which

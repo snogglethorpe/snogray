@@ -1,6 +1,6 @@
 // far-light.cc -- Light at infinite distance
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -76,9 +76,9 @@ FarLight::filter_samples (const Intersect &isec,
   Vec light_normal_dir = isec.normal_frame.to (frame.z);
 
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
-    if (s->dist == 0 && dot (s->dir, light_normal_dir) <= max_cos)
+    if (s->light_dist == 0 && dot (s->dir, light_normal_dir) <= max_cos)
       {
-	s->val = intensity;
+	s->light_val = intensity;
 	s->light_pdf = pdf;
 	s->light = this;
       }

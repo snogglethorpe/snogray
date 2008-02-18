@@ -1,6 +1,6 @@
 // sphere-light.cc -- Sphereangular light
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -137,11 +137,11 @@ SphereLight::filter_samples (const Intersect &isec,
     {
       float dist = sphere_intersect (radius, -light_center_vec, s->dir);
 
-      if (dist > 0 && (dist < s->dist || s->dist == 0))
+      if (dist > 0 && (dist < s->light_dist || s->light_dist == 0))
 	{
 	  s->light_pdf = pdf;
-	  s->val = intensity; //XXX * pdf;
-	  s->dist = dist;
+	  s->light_val = intensity; //XXX * pdf;
+	  s->light_dist = dist;
 	  s->light = this;
 	}
     }

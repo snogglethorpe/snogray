@@ -1,6 +1,6 @@
 // instance.h -- Transformed virtual instance of a surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -52,21 +52,26 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Instance *_instance,
-	      const Ray &_xformed_ray,
+    IsecInfo (const Ray &ray,
+	      const Instance *_instance,
 	      const Surface::IsecInfo *_subspace_isec_info)
-      : instance (_instance),
-	xformed_ray (_xformed_ray),
+      : Surface::IsecInfo (ray),
+	instance (_instance),
 	subspace_isec_info (_subspace_isec_info)
     { }
 
-    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    virtual Intersect make_intersect (Trace &trace) const;
 
-    virtual const Surface *surface () const { return instance; }
+    virtual const Surface *surface () const
+    {
+      return subspace_isec_info->surface();
+    }
+    virtual const Surface *outermost_surface () const
+    {
+      return instance;
+    }
 
     const Instance *instance;
-
-    const Ray xformed_ray;
 
     const Surface::IsecInfo *subspace_isec_info;
   };

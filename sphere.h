@@ -1,6 +1,6 @@
 // sphere.h -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -54,8 +54,10 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Sphere *_sphere) : sphere (_sphere) { }
-    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    IsecInfo (const Ray &ray, const Sphere *_sphere)
+      : Surface::IsecInfo (ray), sphere (_sphere)
+    { }
+    virtual Intersect make_intersect (Trace &trace) const;
     virtual const Surface *surface () const { return sphere; }
     const Sphere *sphere;
   };

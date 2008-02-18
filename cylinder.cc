@@ -95,7 +95,7 @@ Cylinder::intersect (Ray &ray, const IsecCtx &isec_ctx) const
       coord_t ix = oray.origin.x + t * oray.dir.x;
       coord_t iy = oray.origin.y + t * oray.dir.y;
 
-      return new (isec_ctx) IsecInfo (this, ix, iy);
+      return new (isec_ctx) IsecInfo (ray, this, ix, iy);
     }
   else
     return 0;
@@ -104,7 +104,7 @@ Cylinder::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Cylinder::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
+Cylinder::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
   Vec norm = cylinder->normal_to_world (Vec (isec_x, isec_y, 0)).unit ();

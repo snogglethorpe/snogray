@@ -1,6 +1,6 @@
 // mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -251,7 +251,7 @@ Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (triangle_intersect (corner, edge1, edge2, ray, t, u, v))
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (this, u, v);
+      return new (isec_ctx) IsecInfo (ray, this, u, v);
     }
 
   return 0;
@@ -260,7 +260,7 @@ Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Mesh::Triangle::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
+Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
 {
   const Mesh &mesh = triangle->mesh;
 

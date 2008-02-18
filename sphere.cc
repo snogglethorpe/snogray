@@ -1,6 +1,6 @@
 // sphere.cc -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ Sphere::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (t > ray.t0 && t < ray.t1)
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (this);
+      return new (isec_ctx) IsecInfo (ray, this);
     }
   else
     return false;
@@ -41,7 +41,7 @@ Sphere::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Sphere::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
+Sphere::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
 

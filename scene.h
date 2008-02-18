@@ -1,6 +1,6 @@
 // scene.h -- Scene description datatype
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -61,6 +61,12 @@ public:
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
   Material::ShadowType shadow (const ShadowRay &ray, Trace &trace) const;
+
+  // Return true if any surface blocks RAY.  This is the fastest
+  // intersection method, because it can return as soon as it it finds any
+  // intersection.
+  //
+  bool shadows (const ShadowRay &ray, Trace &trace) const;
 
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.
@@ -125,15 +131,6 @@ public:
   //
   const Space *space;
 };
-
-
-// Convenience method calling Scene::shadow.
-//
-inline Material::ShadowType
-Trace::shadow (const ShadowRay &ray)
-{
-  return scene.shadow (ray, *this);
-}
 
 
 }

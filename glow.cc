@@ -15,29 +15,14 @@
 
 using namespace snogray;
 
+
+// Return emitted radiance from this light, at the point described by ISEC.
+//
 Color
-Glow::render (const Intersect &isec) const
+Glow::le (const Intersect &isec) const
 {
   return isec.back ? 0 : color;
 }
 
-// Shadow LIGHT_RAY, which points to a light with (apparent) color
-// LIGHT_COLOR. and return the shadow color.  This is basically like
-// the `render' method, but calls the material's `shadow' method
-// instead of its `render' method.
-//
-// Note that this method is only used for `non-opaque' shadows --
-// opaque shadows (the most common kind) don't use it!
-//
-Color
-Glow::shadow (const Intersect &isec, const Ray &light_ray,
-	      const Color &light_color, const Light &light)
-  const
-{
-  // Just pass straight through
-  //
-  Trace &sub_trace = isec.subtrace (Trace::SHADOW);
-  return sub_trace.shadow (light_ray, light_color, light);
-}
 
 // arch-tag: af19d9b6-7b4a-49ec-aee4-529be6aba253

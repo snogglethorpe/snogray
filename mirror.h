@@ -51,8 +51,6 @@ public:
       delete underlying_material;
   }
 
-  virtual Color render (const Intersect &isec) const;
-
   // Return a new BRDF object for this material instantiated at ISEC.
   //
   virtual Brdf *get_brdf (const Intersect &isec) const;

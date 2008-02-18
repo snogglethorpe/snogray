@@ -1,6 +1,6 @@
 // tripar.cc -- Triangle/parallelogram surface
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@ Tripar::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (intersects (ray, t, u, v))
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (this);
+      return new (isec_ctx) IsecInfo (ray, this);
     }
 
   return 0;
@@ -40,7 +40,7 @@ Tripar::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Tripar::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
+Tripar::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
 

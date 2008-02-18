@@ -1,6 +1,6 @@
 // space.cc -- Space-division abstraction (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -161,6 +161,79 @@ Space::shadow (const ShadowRay &ray, Trace &trace, const Light *hint_light)
 				 trace.global.stats.shadow);
 
   return shadow_cb.shadow_type;
+}
+
+
+// Simple shadow intersection testing
+
+struct SimpleShadowCallback : Space::IntersectCallback
+{
+  SimpleShadowCallback (const ShadowRay &_ray, Trace &_trace,
+		  const Light *_hint_light, const Surface *_reject = 0)
+    : ray (_ray), shadows (false),
+      trace (_trace), hint_light (_hint_light), reject (_reject)
+  { }
+
+  virtual bool operator() (const Surface *surf)
+  {
+    if (surf == reject)
+      return false;
+
+    shadows = (surf->shadow (ray) != Material::SHADOW_NONE);
+
+    if (shadows)
+      {
+	// Remember which surface we found, so we can try it first
+	// next time.
+	//
+	if (hint_light)
+	  trace.shadow_hints[hint_light->num] = surf;
+
+	// We can immediately return it; stop looking any further.
+	//
+	stop_iteration ();
+      }
+
+    return shadows;
+  }
+
+  const ShadowRay &ray;
+
+  // True if we found a shadowing object.
+  //
+  bool shadows;
+
+  Trace &trace;
+
+  const Light *hint_light;
+
+  // If non-zero, this surface is always immediately rejected.
+  //
+  const Surface *reject;
+};
+
+
+// Return true if any object intersects RAY.
+//
+// If HINT_LIGHT is non-zero, then the shadow-hint entry for HINT_LIGHT
+// should be updated to hold the first object which results in an opaque
+// shadow.
+//
+bool
+Space::shadows (const ShadowRay &ray, Trace &trace, const Light *hint_light)
+  const
+{
+  // If possible, prime the negative intersect cache with the current
+  // surface, to avoid wasting time test it for intersection.
+  //
+  const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
+
+  SimpleShadowCallback shadow_cb (ray, trace, hint_light, reject);
+
+  for_each_possible_intersector (ray, shadow_cb, trace,
+				 trace.global.stats.shadow);
+
+  return shadow_cb.shadows;
 }
 
 

@@ -1,6 +1,6 @@
-// mis-illum.cc -- Illuminator using multiple importance sampling
+// mis-illum.cc -- Direct illumination using multiple importance sampling
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -9,19 +9,16 @@
 //
 // Written by Miles Bader <miles@gnu.org>
 //
-#include<iostream>
 
-#include "intersect.h"
+#include "scene.h"
 #include "light.h"
 #include "brdf.h"
+#include "intersect.h"
 
 #include "mis-illum.h"
 
 
 using namespace snogray;
-
-
-#define MIS_VERBOSE_DEBUG 0
 
 
 // Return a weight for one sample in multiple importantance sampling
@@ -57,252 +54,163 @@ mis_sample_weight (float pdf, float num_samples,
   return term / (term + other_term);
 }
 
-// Generate samples for estimating the illumination at ISEC.  The
-// samples should be appended to SAMPLES.  NUM_BRDF_SAMPLES is the
-// number of brdf samples to use, and LIGHT_PARAMS is an array of
-// sampling parameters for each light (which may be modified).
+// Return outgoing radiance for this illuminator.  The BRDF samples
+// between BRDF_SAMPLES_BEG and BRDF_SAMPLES_END are matched to this
+// illuminator.  NUM_BRDF_SAMPLES is the total number of non-specular
+// BRDF samples generated (even those not passed to this illuminator).
 //
-void
-MisIllum::gen_samples (const Intersect &isec,
-		       unsigned num_brdf_samples,
-		       std::vector<LightParams> &light_params,
-		       IllumSampleVec &samples)
+// ILLUM_MGR can be used for recursively calculating illumination.
+//
+Color
+MisIllum::lo (const Intersect &isec,
+	      const IllumSampleVec::iterator &brdf_samples_beg,
+	      const IllumSampleVec::iterator &brdf_samples_end,
+	      unsigned num_brdf_samples,
+	      const IllumMgr &)
+  const
 {
-  // Generate BRDF samples.
+  const std::vector<const Light *> &lights = scene.lights;
+  unsigned num_lights = lights.size ();
+
+  GlobalTraceState &global = isec.trace.global;
+
+  unsigned global_light_samples = global.params.max_light_samples;
+  unsigned local_light_samples = global.params.num_light_samples;
+  unsigned desired_light_samples
+    = clamp (unsigned (global_light_samples / isec.trace.complexity + 0.5f),
+	     1u, local_light_samples);
+  LightParamsVec light_params (desired_light_samples, lights, isec);
+
+  // STL allocator for allocating samples.
   //
-  num_brdf_samples = isec.brdf->gen_samples (num_brdf_samples, samples);
-  unsigned num_real_brdf_samples = samples.size ();
+  IllumSampleVecAlloc samp_alloc (isec.mempool ());
 
-  // We mark any BRDF samples over a certain threshold, as "specular" (even
-  // if they're not really specular, they're probably getting close).  For
-  // these samples well do full subtraces instead of calculating the
-  // illumination here.  We also calculate NUM_IMP_BRDF_SAMPLES, which is
-  // the number of BRDF samples which are not specular, for which we want
-  // to do importance sampling.
+  // Vector of light samples.
   //
-//   float specular_threshold = isec.trace.global.params.specular_threshold;
-  for (IllumSampleVec::iterator s = samples.begin(); s != samples.end (); ++s)
-    {
-//       if (s->refl > specular_threshold)
-// 	s->specular = true;
-      if (s->specular)
-	num_brdf_samples--;
-    }
+  IllumSampleVec light_samples (samp_alloc);
 
-  // Total number of samples for all lights, including both light samples
-  // and BRDF samples (which are counted multiple times, once for each light).
+  // Total outgoing light calculated.
   //
-  unsigned total_samples = 0;
+  Color radiance = 0;
 
-  // Generate samples for each light.
+  // Weight due to number of BRDF samples.
   //
-  for (unsigned lnum = 0; lnum < num_lights; lnum++)
-    {
-      // Number of samples to take for this light.
-      //
-      LightParams &lparams = light_params[lnum];
+  float brdf_sample_weight = num_brdf_samples ? 1.f / num_brdf_samples : 1.f;
 
-      unsigned prev_samples_size = samples.size ();
-
-      if (lparams.num_samples != 0)
-	{
-	  // Generate the samples; the sample method may generate a different
-	  // number of samples than we requested, so we update our count.
-	  //
-	  lparams.num_samples
-	    = lights[lnum]->gen_samples (isec, lparams.num_samples, samples);
-
-	  total_samples += lparams.num_samples;
-	}
-
-      // Count the physical number of samples added.  The difference
-      // between the `num_samples' and `num_real_samples' fields is
-      // accounted for by "virtual samples" with a value of zero.
-      //
-      lparams.num_real_samples = samples.size() - prev_samples_size;
-
-      if (! lparams.is_point_light)
-	total_samples += num_brdf_samples;
-    }
-
-  if (total_samples == 0)
-    return;			// whoops
-
-  // Sample range of BRDF samples in SAMPLES.
-  //
-  const IllumSampleVec::iterator bs_beg = samples.begin ();
-  const IllumSampleVec::iterator bs_end = bs_beg + num_real_brdf_samples;
-
-  // Beginning of next light's samples in SAMPLES.
-  //
-  IllumSampleVec::iterator ls_beg = bs_end;
-
-  // Match BRDF samples to lights.
+  // Iterate over all lights, adding the contribution from each one.
   //
   for (unsigned lnum = 0; lnum < num_lights; lnum++)
     {
+      const Light *light = lights[lnum];
       const LightParams &lparams = light_params[lnum];
 
-      if (lparams.num_samples + num_brdf_samples != 0)
+      // We re-use LIGHT_SAMPLES for each light, so clear out any old contents.
+      //
+      light_samples.clear ();
+
+      // Number of light samples taken for this light (possibly
+      // including any implicit samples not actually present in the
+      // LIGHT_SAMPLES vector).
+      //
+      unsigned num_light_samples = 0;
+
+      // Generate the samples.
+      //
+      if (lparams.num_samples != 0)
+	num_light_samples
+	  = light->gen_samples (isec, lparams.num_samples, light_samples);
+
+      global.stats.illum_samples += num_light_samples;
+
+      // Process light samples for this light.
+      //
+      if (! light_samples.empty ())
 	{
-	  // See if any BRDF samples hit this light
+	  // Beginning/end of this light's samples.
 	  //
-	  lights[lnum]->filter_samples (isec, bs_beg, bs_end);
+	  const IllumSampleVec::iterator ls_beg = light_samples.begin ();
+	  const IllumSampleVec::iterator ls_end = light_samples.end ();
 
-	  // Final processing of light samples.
+	  // Calculate BRDF response for light samples from this light.
 	  //
-	  if (lparams.num_real_samples != 0)
-	    {
-	      // End of this light's samples.
-	      //
-	      const IllumSampleVec::iterator ls_end
-		= ls_beg + lparams.num_real_samples;
+	  isec.brdf->filter_samples (ls_beg, ls_end);
 
-	      // Calculate BRDF response for light samples from this light.
-	      //
-	      isec.brdf->filter_samples (ls_beg, ls_end);
+	  // Shadow-test light samples.
+	  //
+	  shadow_test (isec, ls_beg, ls_end);
 
-	      // Amount each sample counts in the final overall illumination
-	      // equation (including all samples from all lights).
-	      //
-	      float light_sample_weight = lparams.weight / lparams.num_samples;
+	  // Amount each sample counts in the final overall illumination
+	  // equation (including all samples from all lights).
+	  //
+	  float light_sample_weight = lparams.weight / num_light_samples;
 
-	      // We handle point lights specially, as they don't use any BRDF
-	      // samples, and can't use multiple importance sampling.
-	      //
-	      if (lparams.is_point_light)
+	  // We handle point lights specially, as they don't use any BRDF
+	  // samples, and can't use multiple importance sampling.
+	  //
+	  if (lparams.is_point_light)
+	    //
+	    // Point light
+	    //
+	    for (IllumSampleVec::iterator s = ls_beg; s != ls_end; ++s)
+	      radiance += s->light_val * s->brdf_val * light_sample_weight;
+
+	  else
+	    //
+	    // Area light
+	    //
+	    for (IllumSampleVec::iterator s = ls_beg; s != ls_end; ++s)
+	      {
+		// Weight to adjust for multiple importance sampling
 		//
-		// Point light
-		{
-		  // Calculate the final sample values for light samples.
-		  //
-		  for (IllumSampleVec::iterator s = ls_beg; s != ls_end; ++s)
-		    if (! s->invalid)
-		      s->val *= s->refl * light_sample_weight;
-		}
-	      else
+		float mis_weight
+		  = mis_sample_weight (s->light_pdf, num_light_samples,
+				       s->brdf_pdf, num_brdf_samples);
+
+		radiance
+		  += (s->light_val * s->brdf_val
+		      * mis_weight * light_sample_weight
+		      / s->light_pdf);
+	      }
+	}
+
+      // Process BRDF samples related to this light.  The light-related
+      // fields for every sample have been filled in by our caller.
+      //
+      // We simply ignore any BRDF samples which don't hit our light, as
+      // they will contribute nothing to this light's terms (so each
+      // BRDF sample only contributes to illumination from a single
+      // light, even though it's "counted" for all lights).
+      //
+      if (! lparams.is_point_light)
+	{
+	  float sample_weight = lparams.weight * brdf_sample_weight;
+
+	  for (IllumSampleVec::iterator s = brdf_samples_beg;
+	       s != brdf_samples_end; ++s)
+	    if (s->light == light && (s->flags & IllumSample::DIRECT))
+	      {
+		Color val = s->light_val * s->brdf_val;
+
+		// We can only do MIS for non-specular samples (specular
+		// samples just get the value unmodified.
 		//
-		// Area light
-		{
-		  // Calculate BRDF response for light samples from this
-		  // light, and then calculate the final sample value
-		  // from the light and BRDF factors.
-		  //
-		  for (IllumSampleVec::iterator s = ls_beg; s != ls_end; ++s)
-		    if (! s->invalid)
-		      {
-			// Weight to adjust for multiple importance sampling
-			//
-			float mis_weight
-			  = mis_sample_weight (s->light_pdf,
-					       lparams.num_samples,
-					       s->brdf_pdf, num_brdf_samples);
-
-#if MIS_VERBOSE_DEBUG
-			std::cout << "light sample " << s - ls_beg << std::endl
-				  << "   orig_val = " << s->val << std::endl
-				  << "   weight(lpdf = " << s->light_pdf
-				  << ", lnum = " << lparams.num_samples
-				  << ", bpdf = " << s->brdf_pdf
-				  << ", bnum = " << num_brdf_samples
-				  << ") = " << mis_weight << std::endl
-				  << "   sample_weight = " << light_sample_weight
-				  << " (" << lparams.weight
-				  << " /  " << lparams.num_samples << ")"
-				  << "   scale = "
-				  << (mis_weight * light_sample_weight / s->light_pdf)
-				  << std::endl
-				  << "   refl = " << s->refl
-				  << std::endl;
-#endif
-			s->val *= (s->refl * mis_weight * light_sample_weight
-				   / s->light_pdf);
-#if MIS_VERBOSE_DEBUG
-			std::cout << "   new_val = " << s->val << std::endl
-				  << std::endl;
-#endif
-		      }
-		}
-
-	      // Update LS_BEG for next light.
-	      //
-	      ls_beg = ls_end;
-	    }
-
-	  // Now do BRDF samples.  The call to `filter_samples' above will have
-	  // filled in the appropriate light-related fields for every BRDF
-	  // sample which intersected the light _if_ this light is closer than
-	  // any other previous light that intersected that sample.  We can
-	  // tell which light the current light fields are from by looking at
-	  // each sample's `light' field.
-	  //
-	  // We simply ignore BRDF samples which don't hit, as they will
-	  // contribute nothing to this light's terms (so each BRDF sample only
-	  // contributes to illumination from a single light, even though it's
-	  // "counted" for all lights).
-	  //
-#if MIS_VERBOSE_DEBUG
-	  std::cout << "num_brdf_samples = " << num_brdf_samples << std::endl;
-	  std::cout << "is_point_light = " << lparams.is_point_light << std::endl;
-#endif
-	  if (num_brdf_samples != 0 && !lparams.is_point_light)
-	    {
-	      float brdf_sample_weight = lparams.weight / num_brdf_samples;
-#if MIS_VERBOSE_DEBUG
-	      std::cout << "brdf_sample_weight = " << brdf_sample_weight << std::endl;
-#endif
-
-	      for (IllumSampleVec::iterator s = bs_beg; s != bs_end; ++s)
-		if (!s->invalid && s->light == lights[lnum])
+		if (s->brdf_pdf != 0)
 		  {
 		    // Weight to adjust for multiple importance sampling
 		    //
 		    float mis_weight
 		      = mis_sample_weight (s->brdf_pdf, num_brdf_samples,
-					   s->light_pdf, lparams.num_samples);
+					   s->light_pdf, num_light_samples);
 
-#if MIS_VERBOSE_DEBUG
-		    std::cout << "brdf sample " << s - bs_beg << std::endl
-			      << "   orig_val = " << s->val << std::endl
-			      << "   weight(bpdf = " << s->brdf_pdf
-			      << ", bnum = " << num_brdf_samples
-			      << ", lpdf = " << s->light_pdf
-			      << ", lnum = " << lparams.num_samples
-			      << ") = " << mis_weight << std::endl
-			      << "   sample_weight = " << brdf_sample_weight
-			      << " (" << lparams.weight
-			      << " /  " << num_brdf_samples << ")"
-			      << "   scale = "
-			      << (mis_weight * brdf_sample_weight / s->brdf_pdf)
-			      << std::endl
-			      << "   refl = " << s->refl
-			      << std::endl;
-#endif
-		    s->val *= s->refl * mis_weight * brdf_sample_weight / s->brdf_pdf;
-#if MIS_VERBOSE_DEBUG
-		    std::cout << "   new_val = " << s->val << std::endl
-			      << std::endl;
-#endif
+		    val *= mis_weight * sample_weight / s->brdf_pdf;
 		  }
-	    }
+
+		radiance += val;
+	      }
 	}
     }
 
-#if MIS_VERBOSE_DEBUG
-  for (IllumSampleVec::iterator s = samples.begin (); s != samples.end(); ++s)
-    {
-      std::cout << "dir = " << s->dir
-		<< ", val = " << s->val
-		<< ", refl = " << s->refl
-		<< ", light_pdf = " << s->light_pdf
-		<< ", brdf_pdf = " << s->brdf_pdf
-		<< ", dist = " << s->dist
-		<< ", light = " << (s->light ? s->light->num : -1)
-		<< ", specular = " << s->specular
-		<< ", invalid = " << s->invalid
-		<< std::endl;
-    }
-#endif
+  return radiance;
 }
 
 

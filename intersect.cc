@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording surface-ray intersection results
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -57,17 +57,6 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
 {
   finish_init ();
 }
-
-  
-Color
-Intersect::illum () const
-{
-  trace.global.stats.illum_calls++;
-  if (v.z > Eps)
-    return trace.illuminator().illum (*this);
-  else
-    return 0;
-}  
 
 
 Intersect::~Intersect ()

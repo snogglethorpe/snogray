@@ -57,11 +57,11 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Cylinder *_cylinder, coord_t ix, coord_t iy)
-      : cylinder (_cylinder), isec_x (ix), isec_y (iy)
+    IsecInfo (const Ray &ray, const Cylinder *_cylinder, coord_t ix, coord_t iy)
+      : Surface::IsecInfo (ray), cylinder (_cylinder), isec_x (ix), isec_y (iy)
     { }
 
-    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    virtual Intersect make_intersect (Trace &trace) const;
 
     virtual const Surface *surface () const { return cylinder; }
 

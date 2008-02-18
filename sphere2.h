@@ -1,6 +1,6 @@
 // sphere2.h -- Alternative sphere surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -51,11 +51,11 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Sphere2 *_sphere, const Vec &_onorm)
-      : sphere (_sphere), onorm (_onorm)
+    IsecInfo (const Ray &ray, const Sphere2 *_sphere, const Vec &_onorm)
+      : Surface::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
     { }
 
-    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    virtual Intersect make_intersect (Trace &trace) const;
 
     virtual const Surface *surface () const { return sphere; }
 

@@ -1,6 +1,6 @@
 // mesh.h -- Mesh surface
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -258,10 +258,10 @@ private:
 
     struct IsecInfo : public Surface::IsecInfo
     {
-      IsecInfo (const Triangle *_triangle, dist_t _u, dist_t _v)
-	: triangle (_triangle), u (_u), v (_v)
+      IsecInfo (const Ray &ray, const Triangle *_triangle, dist_t _u, dist_t _v)
+	: Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
       { }
-      virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+      virtual Intersect make_intersect (Trace &trace) const;
       virtual const Surface *surface () const { return triangle; }
       const Triangle *triangle;
       dist_t u, v;

@@ -1,6 +1,6 @@
 // renderer.h -- Outer rendering loop
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,6 +15,7 @@
 
 #include "image-output.h"
 #include "global-tstate.h"
+#include "illum-mgr.h"
 
 
 namespace snogray {
@@ -36,6 +37,7 @@ public:
 	    unsigned _width, unsigned _height,
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 	    unsigned max_y_block_size,
+	    IllumMgr &_illum_mgr,
 	    Sample2Gen &_sample_gen, Sample2Gen &_focus_sample_gen,
 	    const TraceParams &trace_params);
 
@@ -67,6 +69,10 @@ private:
   // because they are always used as such.
   //
   float width, height;
+
+  // Illumination manager for calculating illumination.
+  //
+  IllumMgr &illum_mgr;
 
   // Where the results are written.  This may be smaller than the nominal
   // output image defined by WIDTH and HEIGHT.

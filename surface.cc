@@ -1,6 +1,6 @@
 // surface.cc -- Physical surface
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,6 +16,17 @@
 #include "space.h"
 
 using namespace snogray;
+
+
+// Return the intersecting surface.  If the intersection was the result
+// of a nested structure, the _outermost_ surface will be returned (for
+// most surfaces, this is the same as the IsecInfo::surface method).
+//
+const Surface *
+Surface::IsecInfo::outermost_surface () const
+{
+  return surface ();
+}
 
 
 // Add this (or some other) surfaces to the space being built by

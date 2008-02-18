@@ -1,6 +1,6 @@
 // envmap-light.cc -- Lighting from an environment map
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -253,7 +253,7 @@ EnvmapLight::filter_samples (const Intersect &isec,
   CosDist hemi_dist;
 
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
-    if (s->dist == 0)
+    if (s->light_dist == 0)
       {
 	// The sample direction in the world frame of reference.
 	//
@@ -281,7 +281,7 @@ EnvmapLight::filter_samples (const Intersect &isec,
 
 	float hemi_pdf = hemi_dist.pdf (isec.cos_n (s->dir));
 
-	s->val = intens;
+	s->light_val = intens;
 	s->light_pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
 	s->light = this;
       }

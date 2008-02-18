@@ -13,8 +13,24 @@
 
 # Targets
 #
-bin_PROGRAMS = snogray snogcvt snogdiff snogsamp
-noinst_PROGRAMS = hemint
+bin_PROGRAMS = snogray snogcvt snogdiff
+noinst_PROGRAMS =
+
+
+# Targets we don't want for whatever reason.  Automake bitches if we
+# simply remove them from the above target variables, so we
+# "conditionally" add them back here.
+#
+if never
+
+# snogsamp is broken now
+bin_PROGRAMS += snogsamp
+
+# hemint is rarely used, so don't compile it
+noinst_PROGRAMS += hemint
+
+endif
+
 
 # Internal libraries; not installed
 #
@@ -46,6 +62,7 @@ dist-hook:
 	  find $(distdir)/lua -name '*.[oa]' -exec rm {} \; ;	\
 	fi
 
+
 # Some extra stuff that needs cleaning up
 #
 CLEANFILES = liblua.a snograw.so
@@ -56,6 +73,7 @@ CLEANFILES = liblua.a snograw.so
 if have_swig
 MAINTAINERCLEANFILES = snograw_wrap.cc swigluarun.h
 endif
+
 
 ################################################################
 #
@@ -111,11 +129,13 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 # Snogray core rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = global-tstate.cc global-tstate.h grid-iter.h	 \
-	grid.cc grid.h illum-sample.h illum.h intersect.cc intersect.h	 \
-	isec-cache.h mis-illum.cc mis-illum.h ray.cc ray.h sample-disk.h \
-	sample-illum.cc sample-illum.h sample2-gen.h shadow-ray.h	 \
-	trace-params.h trace-stats.cc trace-stats.h trace.cc trace.h
+libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
+	global-tstate.cc global-tstate.h grid-iter.h grid.cc grid.h	\
+	illum.h illum-mgr.cc illum-mgr.h illum-sample.h intersect.cc	\
+	intersect.h isec-cache.h mis-illum.cc mis-illum.h ray.cc ray.h	\
+	recurs-illum.cc recurs-illum.h sample-disk.h sample2-gen.h	\
+	shadow-ray.h trace-params.h trace-stats.cc trace-stats.h	\
+	trace.cc trace.h
 
 
 ################################################################

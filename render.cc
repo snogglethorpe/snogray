@@ -1,6 +1,6 @@
 // render.cc -- Main rendering loop
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,10 +12,15 @@
 
 #include <memory>
 
+#include "excepts.h"
+
 #include "renderer.h"
 #include "progress.h"
 #include "grid.h"
 #include "sample2-gen.h"
+#include "mis-illum.h"
+#include "recurs-illum.h"
+#include "illum-mgr.h"
 
 #include "render.h"
 
@@ -26,6 +31,7 @@ static void
 render_by_rows (const Scene &scene, const Camera &camera,
 		unsigned width, unsigned height,
 		ImageOutput &output, unsigned offs_x, unsigned offs_y,
+		IllumMgr &illum_mgr,
 		Sample2Gen &sample_gen, Sample2Gen &focus_sample_gen,
 		const TraceParams &trace_params, TraceStats &stats,
 		std::ostream &prog_stream, Progress::Verbosity verbosity)
@@ -38,7 +44,7 @@ render_by_rows (const Scene &scene, const Camera &camera,
   prog.start ();
 
   Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     1, sample_gen, focus_sample_gen, trace_params);
+		     1, illum_mgr, sample_gen, focus_sample_gen, trace_params);
 
   for (unsigned row_offs = 0; row_offs < output.height; row_offs++)
     {
@@ -58,6 +64,7 @@ render_by_blocks (unsigned block_width, unsigned block_height,
 		  const Scene &scene, const Camera &camera,
 		  unsigned width, unsigned height,
 		  ImageOutput &output, unsigned offs_x, unsigned offs_y,
+		  IllumMgr &illum_mgr,
 		  Sample2Gen &sample_gen, Sample2Gen &focus_sample_gen,
 		  const TraceParams &trace_params, TraceStats &stats,
 		  std::ostream &prog_stream, Progress::Verbosity verbosity)
@@ -73,7 +80,8 @@ render_by_blocks (unsigned block_width, unsigned block_height,
   prog.start ();
 
   Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     block_height, sample_gen, focus_sample_gen, trace_params);
+		     block_height, illum_mgr, sample_gen, focus_sample_gen,
+		     trace_params);
 
   unsigned cur_block_num = 0;
 
@@ -136,16 +144,36 @@ snogray::render (const Scene &scene, const Camera &camera,
   std::auto_ptr<Sample2Gen> focus_sample_gen (sample_gen->clone ());
   TraceParams trace_params (params);
 
+  std::string algo = params.get_string ("algo", "rt");
+
+  IllumMgr illum_mgr;
+
+  if (algo == "ppt" || algo == "pure-path-trace" || algo == "purepathtrace")
+    illum_mgr.add_illum (new RecursIllum (scene), 0);
+  else
+    {
+      illum_mgr.add_illum (new MisIllum (scene), IllumSample::DIRECT);
+
+      if (algo == "pt" || algo == "path-trace" || algo == "pathtrace")
+	illum_mgr.add_illum (new RecursIllum (scene), 0);
+      else if (algo == "rt" || algo == "ray-trace" || algo == "raytrace")
+	illum_mgr.add_illum (new RecursIllum (scene), IllumSample::SPECULAR);
+      else
+	throw std::runtime_error ("Unknown algorithm \"" + algo + "\"");
+    }
+
   // Do the actual rendering.
   //
   if (params.get_int ("render-by-rows", 0))
     render_by_rows (scene, camera, width, height, output, offs_x, offs_y,
-		    *sample_gen, *focus_sample_gen, trace_params, stats,
+		    illum_mgr, *sample_gen, *focus_sample_gen,
+		    trace_params, stats,
 		    progress_stream, verbosity);
   else
     render_by_blocks (16, 16,
 		      scene, camera, width, height, output, offs_x, offs_y,
-		      *sample_gen, *focus_sample_gen, trace_params, stats,
+		      illum_mgr, *sample_gen, *focus_sample_gen,
+		      trace_params, stats,
 		      progress_stream, verbosity);
 }
 

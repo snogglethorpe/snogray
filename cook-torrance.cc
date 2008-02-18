@@ -1,6 +1,6 @@
 // cook-torrance.cc -- Cook-Torrance material
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -34,6 +34,10 @@ class CookTorranceBrdf : public Brdf
 {
 public:
 
+  // Values of M (RMS slope) less than this are considered "glossy".
+  //
+  static const float GLOSSY_M = 0.5;
+
   CookTorranceBrdf (const CookTorrance &_ct, const Intersect &_isec)
     : Brdf (_isec), ct (_ct),
       spec_dist (ct.m), diff_dist (),
@@ -41,7 +45,8 @@ public:
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.trace.medium ? isec.trace.medium->ior : 1, ct.ior),
-      nv (isec.cos_n (isec.v)), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv)
+      nv (isec.cos_n (isec.v)), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv),
+      spec_flags (ct.m < GLOSSY_M ? IllumSample::GLOSSY : IllumSample::DIFFUSE)
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.
@@ -66,8 +71,7 @@ public:
     const
   {
     for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
-      if (! s->invalid)
-	filter_sample (s);
+      filter_sample (s);
   }
 
 private:
@@ -142,11 +146,14 @@ private:
   void gen_sample (float u, float v, IllumSampleVec &samples) const
   {
     Vec l, h;
+    unsigned flags = IllumSample::REFLECTIVE;
+
     if (u < diff_weight)
       {
 	float scaled_u = u * inv_diff_weight;
 	l = diff_dist.sample (scaled_u, v);
 	h = (isec.v + l).unit ();
+	flags |= IllumSample::DIFFUSE;
       }
     else
       {
@@ -155,6 +162,7 @@ private:
 	if (isec.cos_v (h) < 0)
 	  h = -h;
 	l = isec.v.mirror (h);
+	flags |= spec_flags;
       }
 
     if (isec.cos_n (l) > Eps)
@@ -162,7 +170,7 @@ private:
 	float pdf;
 	Color f = val (l, h, pdf);
 
-	samples.push_back (IllumSample (l, f, pdf));
+	samples.push_back (IllumSample (l, f, pdf, flags));
       }
   }
 
@@ -170,7 +178,7 @@ private:
   {
     const Vec &l = s->dir;
     const Vec h = (isec.v + l).unit ();
-    s->refl = val (l, h, s->brdf_pdf);
+    s->brdf_val = val (l, h, s->brdf_pdf);
   }
 
   const CookTorrance &ct;
@@ -197,6 +205,10 @@ private:
   // (N dot V) and 1 / (PI * N dot V).
   //
   const float nv, inv_pi_nv;
+
+  // IllumSample flags to use for "specular" samples.
+  //
+  unsigned spec_flags;
 };
 
 

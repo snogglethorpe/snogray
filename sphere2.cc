@@ -1,6 +1,6 @@
 // sphere2.cc -- Alternative sphere surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ Sphere2::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (t > oray.t0 && t < oray.t1)
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (this, Vec (oray.extension (t)));
+      return new (isec_ctx) IsecInfo (ray, this, Vec (oray.extension (t)));
     }
   else
     return false;
@@ -43,7 +43,7 @@ Sphere2::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Sphere2::IsecInfo::make_intersect (const Ray &ray, Trace &trace) const
+Sphere2::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
 

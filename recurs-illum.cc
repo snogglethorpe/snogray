@@ -1,0 +1,129 @@
+// recurs-illum.cc -- Illuminator using recursive tracing.
+//
+//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//
+// This source code is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation; either version 3, or (at
+// your option) any later version.  See the file COPYING for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
+#include "scene.h"
+#include "illum-mgr.h"
+
+#include "recurs-illum.h"
+
+
+using namespace snogray;
+
+
+// Return outgoing radiance for this illuminator.  The BRDF samples
+// between BRDF_SAMPLES_BEG and BRDF_SAMPLES_END are matched to this
+// illuminator.  NUM_BRDF_SAMPLES is the total number of non-specular
+// BRDF samples generated (even those not passed to this illuminator).
+//
+// ILLUM_MGR can be used for recursively calculating illumination.
+//
+Color
+RecursIllum::lo (const Intersect &isec,
+		 const IllumSampleVec::iterator &brdf_samples_beg,
+		 const IllumSampleVec::iterator &brdf_samples_end,
+		 unsigned num_brdf_samples,
+		 const IllumMgr &illum_mgr)
+  const
+{
+  float brdf_sample_weight = num_brdf_samples ? 1.f / num_brdf_samples : 1.f;
+
+  const Medium *refr_medium = 0;
+  bool calculated_refr_medium = false;
+
+  bool use_rr
+    = ((isec.trace.complexity >= isec.trace.global.params.max_brdf_samples)
+       || isec.trace.depth > 10);
+
+  float branch_factor = 0;
+  for (IllumSampleVec::iterator s = brdf_samples_beg;
+       s != brdf_samples_end; ++s)
+    if (s->brdf_val > Eps)
+      branch_factor++;
+
+  Color radiance = 0;
+
+  for (IllumSampleVec::iterator s = brdf_samples_beg;
+       s != brdf_samples_end; ++s)
+    if (s->brdf_val > Eps)
+      {
+	Color val;
+
+	if (s->isec_info)
+	  {
+	    float rr_adj = 1;
+
+	    if (use_rr)
+	      {
+		// Use russian-roulette
+
+		rr_adj = isec.trace.depth;
+
+		rr_adj /= s->brdf_val.intensity ();
+		if (s->brdf_pdf)
+		  rr_adj *= s->brdf_pdf;
+
+		if (rr_adj < 1)
+		  rr_adj = 1;
+		else if (random (rr_adj) > 1)
+		  continue;
+	      }
+
+	    Trace::Type subtrace_type;
+	    const Medium *new_medium;
+	    if (s->flags & IllumSample::REFLECTIVE)
+	      {
+		subtrace_type = Trace::REFLECTION;
+		new_medium = isec.trace.medium; // reflection, new same as old
+	      }
+	    else if (isec.back)
+	      {
+		subtrace_type = Trace::REFRACTION_OUT;
+		if (! calculated_refr_medium)
+		  {
+		    refr_medium = isec.trace.enclosing_medium ();
+		    calculated_refr_medium = true;
+		  }
+		new_medium = refr_medium;
+	      }
+	    else
+	      {
+		subtrace_type = Trace::REFRACTION_IN;
+		if (! calculated_refr_medium)
+		  {
+		    refr_medium = isec.material->medium ();
+		    calculated_refr_medium = true;
+		  }
+		new_medium = refr_medium;
+	      }
+
+	    Trace &sub_trace
+	      = isec.subtrace (branch_factor, subtrace_type, new_medium);
+
+	    val = illum_mgr.li (s->isec_info, sub_trace);
+
+	    val *= rr_adj;
+	  }
+	else
+	  {
+	    val = isec.trace.scene.background (isec.normal_frame.from (s->dir));
+	  }
+
+	val *= s->brdf_val;
+
+	if (s->brdf_pdf > Eps)
+	  val *= brdf_sample_weight / s->brdf_pdf;
+
+	radiance += val;
+      }
+
+  return radiance;
+}

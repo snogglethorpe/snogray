@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -23,9 +23,11 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned _width, unsigned _height,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 		    unsigned max_y_block_size,
+		    IllumMgr &_illum_mgr,
 		    Sample2Gen &_sample_gen, Sample2Gen &_focus_sample_gen,
 		    const TraceParams &trace_params)
   : scene (_scene), camera (_camera), width (_width), height (_height),
+    illum_mgr (_illum_mgr),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
@@ -34,6 +36,8 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 {
   output.set_num_buffered_rows (max_y_block_size);
 }
+
+
 
 // Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
 // are clamped to fit the global rendering limit.
@@ -109,6 +113,8 @@ Renderer::render_block (int x, int y, int w, int h)
     }
 }
 
+
+
 // Render a single output pixel at X,Y.  X and Y will be correctly
 // handled even when they're outside the global rendering limit (such
 // out-of-bounds pixels may still affect the output, because they are
@@ -154,11 +160,13 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       // camera.
       //
       Ray camera_ray = camera.eye_ray (u, v, fs->u, fs->v);
+      camera_ray.t1 = scene.horizon;
 
-      // Cast the camera ray and calculate image color at that
-      // point.
+      // Cast the camera ray and calculate image color from that direction.
       //
-      Color color = trace.render (camera_ray);
+      Color color = illum_mgr.li (camera_ray, trace);
+
+      trace.global.mempool.reset ();
 
       output.add_sample (sx - lim_x, sy - lim_y, color);
     }

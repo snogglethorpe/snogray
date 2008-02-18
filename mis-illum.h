@@ -1,6 +1,6 @@
-// mis-illum.h -- Illuminator using multiple importance sampling
+// mis-illum.h -- Direct illumination using multiple importance sampling
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,38 +13,40 @@
 #ifndef __MIS_ILLUM_H__
 #define __MIS_ILLUM_H__
 
-#include "sample-illum.h"
+#include "direct-illum.h"
+
 
 namespace snogray {
 
 
-class MisIllum : public SampleIllum
+class MisIllum : public DirectIllum
 {
 public:
 
-  MisIllum (const Trace &trace) : SampleIllum (trace) { }
+  MisIllum (const Scene &scene)
+    : DirectIllum (scene,
+		   USES_BRDF_SAMPLES | USES_DIRECT_INFO | USES_LIGHT_INFO)
+  { }
 
-  // Generate samples for estimating the illumination at ISEC.  The
-  // samples should be appended to SAMPLES.  NUM_BRDF_SAMPLES is the
-  // number of brdf samples to use, and LIGHT_PARAMS is an array of
-  // sampling parameters for each light (which may be modified).
+  // Return outgoing radiance for this illuminator.  The BRDF samples
+  // between BRDF_SAMPLES_BEG and BRDF_SAMPLES_END are matched to this
+  // illuminator.  NUM_BRDF_SAMPLES is the total number of non-specular
+  // BRDF samples generated (even those not passed to this illuminator).
   //
-  virtual void gen_samples (const Intersect &isec,
-			    unsigned num_brdf_samples,
-			    std::vector<LightParams> &light_params,
-			    IllumSampleVec &samples);
+  // ILLUM_MGR can be used for recursively calculating illumination.
+  //
+  virtual Color lo (const Intersect &isec,
+		    const IllumSampleVec::iterator &brdf_samples_beg,
+		    const IllumSampleVec::iterator &brdf_samples_end,
+		    unsigned num_brdf_samples,
+		    const IllumMgr &illum_mgr)
+    const;
 };
 
-class MisIllumGlobalState : public IllumGlobalState
-{
-public:
-
-  virtual Illum *get_illum (Trace &trace) { return new MisIllum (trace); }
-  virtual void put_illum (Illum *ill) { delete ill; }
-};
 
 }
 
 #endif /* __MIS_ILLUM_H__ */
+
 
 // arch-tag: cfd4e0a1-2bc3-4e1a-9206-2aa029c91dfd

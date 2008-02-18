@@ -1,6 +1,6 @@
 // ellipse.h -- Ellipse surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -65,8 +65,10 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ellipse *_ellipse) : ellipse (_ellipse) { }
-    virtual Intersect make_intersect (const Ray &ray, Trace &trace) const;
+    IsecInfo (const Ray &ray, const Ellipse *_ellipse)
+      : Surface::IsecInfo (ray), ellipse (_ellipse)
+    { }
+    virtual Intersect make_intersect (Trace &trace) const;
     virtual const Surface *surface () const { return ellipse; }
     const Ellipse *ellipse;
   };

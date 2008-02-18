@@ -1,6 +1,6 @@
 // snogsamp.cc -- Dump a "sample map"
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -23,9 +23,13 @@
 #include "render-cmdline.h"
 #include "trace-params.h"
 #include "envmap-light.h"
+#include "mis-illum.h"
+#include "illum-mgr.h"
+
 
 using namespace snogray;
 using namespace std;
+
 
 static void
 parse_size_opt_arg (CmdLineParser &clp, unsigned &width, unsigned &height)
@@ -303,11 +307,15 @@ int main (int argc, char *const *argv)
 
   TraceParams trace_params (render_params);
 
+  IllumMgr illum_mgr;
+  illum_mgr.add_illum (new MisIllum (scene), IllumSample::DIRECT);
+
   SampleMap smap;
 
   float u = float (x) / float (width);
   float v = float (y) / float (height);
-  unsigned num = smap.sample (camera.eye_ray (u, v), scene, trace_params);
+  unsigned num = smap.sample (camera.eye_ray (u, v), scene,
+			      trace_params, illum_mgr);
 
   if (show_intensity && !no_normalize)
     smap.normalize ();

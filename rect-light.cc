@@ -1,6 +1,6 @@
 // rect-light.cc -- Rectangular light
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -106,7 +106,7 @@ RectLight::filter_samples (const Intersect &isec,
       dist_t dist, u, v;
       Ray ray (isec.normal_frame.origin,
 	       isec.normal_frame.from (s->dir),
-	       s->dist);
+	       s->light_dist);
 
       if (parallelogram_intersect (pos, side1, side2, ray, dist, u, v))
 	{
@@ -123,8 +123,8 @@ RectLight::filter_samples (const Intersect &isec,
 	      //
 	      s->light_pdf = 1 / (area * dw_dA);
 
-	      s->val = intensity; //XXX * s->light_pdf;
-	      s->dist = dist;
+	      s->light_val = intensity; //XXX * s->light_pdf;
+	      s->light_dist = dist;
 	      s->light = this;
 	    }
 	}
