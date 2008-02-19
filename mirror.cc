@@ -49,7 +49,7 @@ public:
   {
     // Generate specular sample.
     //
-    float refl = fres.reflectance (isec.cos_n (isec.v));
+    Color refl = reflectance * fres.reflectance (isec.cos_n (isec.v));
     if (refl > Eps)
       samples.push_back (
 		IllumSample (isec.v.mirror (Vec (0, 0, 1)), refl, 0,
