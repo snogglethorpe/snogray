@@ -377,6 +377,10 @@ namespace snogray {
     Mirror (float _ior, const Color &_reflectance,
 	    const Material *underlying_material);
     Mirror (float _ior, const Color &_reflectance, const Color &col = 0);
+
+    Ior ior;
+    Color reflectance;
+    const Material *underlying_material;
   };
 
   class Glow : public Material
