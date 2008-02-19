@@ -346,7 +346,7 @@ function mirror (params)
    local _col = black
    local _under
 
-   if type (params) == "number" or is_color_spec (params) then
+   if is_color_spec (params) then
       _reflect = params
    elseif is_ior_spec (params) then
       _ior = params
