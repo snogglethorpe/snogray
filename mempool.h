@@ -29,10 +29,13 @@ public:
 
   // The default maximum allocation size we support.
   //
-  static const size_t DEFAULT_MAX_SIZE = 16384;
+  static const size_t DEFAULT_BLOCK_SIZE = 16384;
+  static const size_t DEFAULT_LARGE_SIZE = 8192;
 
-  Mempool (size_t max_size = DEFAULT_MAX_SIZE)
-    : block_size (max_size), beg (0), end (0), blocks (0), avail (0)
+  Mempool (size_t _block_size = DEFAULT_BLOCK_SIZE,
+	   size_t _large_size = DEFAULT_LARGE_SIZE)
+    : beg (0), end (0), blocks (0), avail (0), large_blocks (0),
+      block_size (_block_size), large_size (_large_size)
   { }
   ~Mempool () { clear (); }
 
@@ -48,13 +51,13 @@ public:
   void *get (size_t size)
   {
     if (beg + size > end)
-      refill (size);
-
-    void *block = beg;
-
-    beg += size;
-
-    return block;
+      return _get (size);
+    else
+      {
+	void *block = beg;
+	beg += size;
+	return block;
+      }
   }
 
   // Return all memory allocate from this pool to the pool.  This is the
@@ -77,15 +80,21 @@ private:
     Block *next;
   };
 
-  // Make sure that BEG and END are set up to allocate at least SIZE
-  // bytes of memory.  If SIZE is greater than BLOCK_SIZE, an error may
-  // be signalled.
-  //
-  void refill (size_t size);
 
-  // The size of each Block.  Nothing longer than this can be allocated.
+  // Allocate a block of memory from this pool.  Unlike the Mempool::get
+  // method, this method knows how to allocate large blocks or refill the
+  // small-allocation arena.  If this is a small allocation it is assumed
+  // that there is no more room in the small-allocation arena, so it is
+  // refilled with a new block; this is because the easy case of allocating
+  // small allocations form the arena is handled by Mempool::get.
   //
-  size_t block_size;
+  void *_get (size_t size);
+
+  // Return all blocks in BLOCK_LIST to the system, and set BLOCK_LIST to
+  // zero.
+  //
+  void free_blocks (Block *&block_list);
+
 
   // The beginning and end of the current region of memory available for
   // allocation.  There are (END - BEG) bytes available for allocation.
@@ -100,6 +109,21 @@ private:
   // of the BLOCKS list.
   //
   Block *avail;
+
+  // Blocks too large to be allocated using the default mechanism, each
+  // dedicated to a single user allocation.  These are returned the system
+  // when reseting.
+  //
+  Block *large_blocks;
+
+  // The size of the blocks used for normal allocations.
+  //
+  size_t block_size;
+
+  // Allocations this size or larger are allocated individually from the
+  // LARGE_BLOCKS list.
+  //
+  size_t large_size;
 };
 
 
