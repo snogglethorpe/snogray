@@ -33,7 +33,7 @@ OPT_WS = S" \t\r\n\f"^0	-- optional whitespace
 REQ_WS = S" \t\r\n\f"^1 -- required whitespace
 OPT_HORIZ_WS = S" \t"^0	-- optional non-newline whitespace
 REQ_HORIZ_WS = S" \t"^1 -- required non-newline whitespace
-NL = S"\r\n\f"		-- newline char
+NL = S"\r"^-1 * S"\n"	-- newline char
 
 -- line
 LINE = (1 - NL)^0
