@@ -19,6 +19,10 @@ local COMMENT = lp.S"#g" * lu.LINE
 function load_obj (filename, mesh, mat_map)
    local mat = mat_map:get_default ()
 
+   -- .obj files use a right-handed coordinate system by convention.
+   --
+   mesh.left_handed = false
+
    local function add_vert (x, y, z)
       mesh:add_vertex (x, y, z)
    end
