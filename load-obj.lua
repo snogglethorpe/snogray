@@ -14,7 +14,9 @@ local lp = require 'lpeg'
 local lu = require 'lpeg-utils'
 
 -- obj-file comment or ignored command
-local COMMENT = lp.S"#g" * lu.LINE
+local COMMENT = lp.S"#go" * lu.LINE
+local WS = lu.REQ_HORIZ_WS
+local OPT_WS = lu.OPT_HORIZ_WS
 
 function load_obj (filename, mesh, mat_map)
    local mat = mat_map:get_default ()
@@ -25,6 +27,23 @@ function load_obj (filename, mesh, mat_map)
 
    local function add_vert (x, y, z)
       mesh:add_vertex (x, y, z)
+   end
+
+   local norm_index = 0
+   local function add_norm (x, y, z)
+      mesh:add_normal (norm_index, x, y, z)
+      norm_index = norm_index + 1
+   end
+
+   -- We only support files where the normal indices are identical to
+   -- the vertex indices, so when both are specified, check our
+   -- assumption.
+   --
+   local function check_indices (vi, ni)
+      if ni and ni ~= vi then
+	 lu.parse_err ("Normal indices must be identical to vertex indices")
+      end
+      return vi
    end
 
    local function add_poly (v1, v2, v3, ...)
@@ -44,12 +63,24 @@ function load_obj (filename, mesh, mat_map)
       end
    end
 
+   local function load_mtllib (name)
+      lu.parse_warn ("ignoring mtllib \"" .. name .. "\"")
+   end
+
+   local WS_VERT_INDEX
+      = (lu.WS_INT * (OPT_WS * lp.P"//" * lu.WS_INT)^-1) / check_indices
    local V_CMD
       = lp.P"v" * ((lu.WS_FLOAT * lu.WS_FLOAT * lu.WS_FLOAT) / add_vert)
+   local VN_CMD
+      = lp.P"vn" * ((lu.WS_FLOAT * lu.WS_FLOAT * lu.WS_FLOAT) / add_norm)
    local F_CMD
-      = lp.P"f" * (lu.WS_INT^2 / add_poly)
+      = lp.P"f" * (WS_VERT_INDEX^2 / add_poly)
+   local MTLLIB_CMD
+      = lp.P"mtllib" * WS * (lu.LINE / load_mtllib)
+   local USEMTL_CMD
+      = lp.P"usemtl" * WS * lu.LINE
    local CMD
-      = V_CMD + F_CMD + COMMENT + lu.OPT_HORIZ_WS
+      = V_CMD + VN_CMD + F_CMD + MTLLIB_CMD + USEMTL_CMD + COMMENT + OPT_WS
 
    lu.parse_file (filename, CMD * lu.NL)
 
