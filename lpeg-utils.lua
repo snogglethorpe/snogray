@@ -67,9 +67,7 @@ end
 ERR_POS = P(update_err_pos)
 
 
--- Signals an error with a simple message quoting the problem line.
---
-function parse_err (msg)
+local function cur_line ()
    local line_num = 1
    local count_pos = 1
    local bol_pos = 1
@@ -88,9 +86,24 @@ function parse_err (msg)
       bol_pos = count_pos
    end
 
-   local msg = "line "..tostring(line_num)..": " .. (msg or "parse error")
+   return line_num, bol_pos
+end
 
+
+-- Signals an error with a simple message quoting the problem line.
+--
+function parse_err (msg)
+   local line_num = cur_line ()
+   local msg = "line "..tostring(line_num)..": " .. (msg or "parse error")
    error (msg, 0)
+end
+
+-- Prints a warning message
+--
+function parse_warn (msg)
+   local filename = parse_state.filename
+   local line_num = cur_line ()
+   print (filename..": line "..tostring(line_num)..": "..msg)
 end
 
 
