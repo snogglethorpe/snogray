@@ -1,6 +1,6 @@
 // ref.h -- Reference-counting framework
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@ public:
   RefCounted (int initial_ref_count = 0) : ref_count (initial_ref_count) { }
   virtual ~RefCounted () { }
 
-  void ref () { ++ref_count; }
-  void deref () { if (--ref_count <= 0) { delete this; } }
+  void ref () const { ++ref_count; }
+  void deref () const { if (--ref_count <= 0) { delete this; } }
 
   mutable int ref_count;
 };
