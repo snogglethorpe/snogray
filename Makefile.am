@@ -48,7 +48,7 @@ endif
 EXTRA_DIST =							\
 	snogray.lua						\
 	load-obj.lua load-ug.lua load-stl.obj load-nff.lua	\
-	snograw.i						\
+	snograw.swg						\
 	autogen.sh						\
 	lpeg.html						\
 	stats.txt spd.txt
@@ -402,19 +402,19 @@ endif
 #
 
 # If the swig interface generator is available, we can update the C++
-# interface when snograw.i changes; otherwise we need to use
+# interface when snograw.swg changes; otherwise we need to use
 # pregenerated copies.
 #
 if have_swig
 
-%_wrap.cc : %.i
+%_wrap.cc : %.swg
 	$(SWIG) -o $@ -c++ -lua $<
 swigluarun.h:
 	$(SWIG) -lua -c++ -external-runtime $@
 
 else
 
-%_wrap.cc : %.i
+%_wrap.cc : %.swg
 	@if test -r "$@"; then						       \
 	  echo '** Warning: $< is newer than $@, but cannot run swig interface generator'; \
 	else								       \

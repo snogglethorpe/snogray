@@ -1,4 +1,4 @@
-# snograw.i -- Swig interface specification for snogray
+# snograw.swg -- Swig interface specification for snogray
 #
 #  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 #
