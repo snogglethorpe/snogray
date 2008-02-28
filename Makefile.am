@@ -67,11 +67,11 @@ dist-hook:
 #
 CLEANFILES = liblua.a snograw.so
 
-# We only clean up "snograw_wrap.cc" and "swigluarun.h" if it's possible
-# to regenerate them.
+# We only clean up "snograw_lua_wrap.cc" and "swigluarun.h" if it's
+# possible to regenerate them.
 #
 if have_swig
-MAINTAINERCLEANFILES = snograw_wrap.cc swigluarun.h
+MAINTAINERCLEANFILES = snograw_lua_wrap.cc swigluarun.h
 endif
 
 
@@ -407,7 +407,7 @@ endif
 #
 if have_swig
 
-%_wrap.cc : %.swg
+%_lua_wrap.cc : %.swg
 	$(SWIG) -o $@ -c++ -lua $<
 swigluarun.h:
 	$(SWIG) -lua -c++ -external-runtime $@
@@ -424,7 +424,7 @@ else
 
 endif
 
-libsnograw_a_SOURCES = snograw_wrap.cc swigluarun.h
+libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 
 # Note that we don't copy AM_CFLAGS -- that's because we want to use a
 # different optimization setting, $(OPT_SIZE) instead of $(OPT)
