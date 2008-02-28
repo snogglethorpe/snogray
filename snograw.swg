@@ -42,6 +42,7 @@
 #include "sphere-light.h"
 #include "cook-torrance.h"
 #include "lambert.h"
+#include "image.h"
 
   static char static_rep_buf[255];
 
@@ -336,7 +337,6 @@ namespace snogray {
     enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
   };
   %template(MatRef) Ref<const Material>;
-  typedef Ref<const Material> MatRef;
 
   %extend Ref<const Material>
   {
@@ -800,6 +800,85 @@ namespace snogray {
     }
   };
 
+  %ignore ValTable;
+  class ValTable
+  {
+  public:
+    static ValTable NONE;
+  };
+
+  %ignore TupleMatrixData;
+  class TupleMatrixData
+  {
+  public:
+
+    void load (const char *filename, const ValTable &params,
+	       unsigned border = 0);
+    void save (const char *filename, const ValTable &params = ValTable::NONE)
+      const;
+
+    const unsigned tuple_len;
+    unsigned width, height;
+  };
+
+  template<class T>
+  class TupleMatrix : public TupleMatrixData
+  {
+  public:
+
+    TupleMatrix (unsigned _width, unsigned _height);
+    TupleMatrix (const std::string &filename, unsigned border = 0);
+    TupleMatrix (const std::string &filename, const ValTable &params,
+		 unsigned border = 0);
+    TupleMatrix (const TupleMatrix &base,
+		 unsigned offs_x = 0, unsigned offs_y = 0,
+		 unsigned w = 0, unsigned h = 0);
+    TupleMatrix (const Ref<TupleMatrix> &base,
+		 unsigned offs_x = 0, unsigned offs_y = 0,
+		 unsigned w = 0, unsigned h = 0);
+
+    T operator() (unsigned x, unsigned y) const;
+    T get (unsigned x, unsigned y) const;
+    void put (unsigned x, unsigned y, const T &val);
+  };
+
+  %template(Image) TupleMatrix<Color>;
+  typedef TupleMatrix<Color> Image;
+
+  %extend TupleMatrix<Color>
+  {
+    const char* __str__()
+    {
+      snprintf (static_rep_buf, sizeof static_rep_buf,
+		"image<%d, %d>", $self->width, $self->height);
+      return static_rep_buf;
+    }
+  }
+
+  %template(ImageRef) Ref<TupleMatrix<Color> >;
+
+  %{
+    namespace snogray {
+      static Ref<Image> image (unsigned _width, unsigned _height)
+      {
+	return new Image (_width, _height);
+      }
+      static Ref<Image> image (const char *filename, unsigned border = 0)
+      {
+	return new Image (filename, border);
+      }
+      // static Ref<Image> image (const std::string &filename, const ValTable &params,
+      // 		   unsigned border = 0)
+      // {
+      // 	return new Image (filename, params, border);
+      // }
+    }
+  %}
+
+  Ref<Image> image (unsigned _width, unsigned _height);
+  Ref<Image> image (const char *filename, unsigned border = 0);
+  // Ref<Image> image (const std::string &filename, const ValTable &params,
+  // 		    unsigned border = 0);
 }
 
 

@@ -250,6 +250,7 @@ local material_types = set{
    "_p_snogray__Glass",
    "snogray::Plastic *",
    "_p_snogray__Plastic",
+   "snogray::Ref<snogray::Material const > *",
    "snogray::Ref<snogray::Material const > *|snogray::MatRef *",
 }
 
@@ -726,6 +727,13 @@ end
 function rect_light (corner, side1, side2, intens)
    return raw.RectLight (corner, side1, side2, color (intens))
 end
+
+
+----------------------------------------------------------------
+--
+-- Images
+
+image = raw.image
 
 
 ----------------------------------------------------------------
