@@ -89,10 +89,6 @@ public:
   void load (const std::string &file_name, const std::string &fmt,
 	     Camera &camera);
 
-  // Specific scene file formats
-  //
-  void load_aff_file (const std::string &file_name, Camera &camera);
-
   unsigned num_surfaces () const { return surfaces.size (); }
   unsigned num_lights () const { return lights.size (); }
 
