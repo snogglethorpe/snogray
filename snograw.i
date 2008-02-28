@@ -318,6 +318,8 @@ namespace snogray {
     Ref (const Ref &ref);
     ~Ref ();
 
+    bool null () const { return !obj; }
+
     T &operator* () const;
     T *operator-> () const;
 
@@ -749,6 +751,12 @@ namespace snogray {
     SphereLight (const Pos &_pos, float _radius, const Color &_intensity);
   };
 
+  %ignore Envmap;
+  class Envmap
+  {
+  };
+  %template(EnvmapRef) Ref<Envmap>;
+
   class Scene
   {
   public:
@@ -759,6 +767,9 @@ namespace snogray {
     void set_background (const Color &col);
 
     void load (const char *file_name, const char *fmt, Camera &camera);
+
+    Ref<Envmap> env_map;
+    Ref<Envmap> light_map;
   };
   %extend Scene
   {
