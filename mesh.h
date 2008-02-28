@@ -47,13 +47,14 @@ public:
   // Basic constructor.  Actual contents must be defined later.  If no
   // material is defined, all triangles added must have an explicit material.
   //
-  Mesh (const Material *mat = 0)
+  Mesh (const Ref<const Material> &mat = 0)
     : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
   { }
 
   // All-in-one constructor for loading a mesh from FILE_NAME.
   //
-  Mesh (const Material *mat, const std::string &file_name, bool smooth = true)
+  Mesh (const Ref<const Material> &mat,
+	const std::string &file_name, bool smooth = true)
     : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
   {
     load (file_name, MaterialDict (mat));
@@ -70,11 +71,11 @@ public:
   // Add a triangle to the mesh.
   //
   void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-		     const Material *mat = 0);
+		     const Ref<const Material> &mat = 0);
   void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		     const Material *mat = 0);
+		     const Ref<const Material> &mat = 0);
   void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		     VertexGroup &vgroup, const Material *mat = 0);
+		     VertexGroup &vgroup, const Ref<const Material> &mat = 0);
 
   // Add a vertex to the mesh (with no normal).
   //
@@ -188,7 +189,7 @@ private:
     { }
     Triangle (const Mesh &_mesh,
 	      vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-	      const Material *mat = 0)
+	      const Ref<const Material> &mat = 0)
       : Surface (mat ? mat : _mesh.material), mesh (_mesh)
     {
       vi[0] = v0i;

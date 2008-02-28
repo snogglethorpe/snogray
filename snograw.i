@@ -21,6 +21,7 @@
 #include <cstring>
 
 #include "coords.h"
+#include "material.h"
 #include "mesh.h"
 #include "scene.h"
 #include "camera.h"
@@ -307,12 +308,35 @@ namespace snogray {
     const char* __str__() { return static_rep (*$self); }
   }
 
+  template<class T>
+  class Ref
+  {
+  public:
+
+    Ref ();
+    Ref (T *_obj);
+    Ref (const Ref &ref);
+    ~Ref ();
+
+    T &operator* () const;
+    T *operator-> () const;
+
+    Ref &operator= (T *new_obj);
+    Ref &operator= (const Ref &ref);
+  };
+
   class Material
   {
   public:
-    enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
 
-    Material (ShadowType _shadow_type = SHADOW_OPAQUE);
+    enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
+  };
+  %template(MatRef) Ref<const Material>;
+  typedef Ref<const Material> MatRef;
+
+  %extend Ref<const Material>
+  {
+    const Material *material () const { return &**$self; }
   };
 
   class Ior
@@ -336,23 +360,6 @@ namespace snogray {
     }
   }
 
-  class CookTorrance : public Material
-  {
-  public:
-
-    CookTorrance (const Color &col, const Color &spec_col,
-		  float m, const Ior &ior);
-    CookTorrance (const Color &col, const Color &spec_col,
-		  float m, float ior);
-  };
-
-  class Lambert : public Material
-  {
-  public:
-
-    Lambert (const Color &col) : color (col) { }
-  };
-
   class Medium
   {
   public:
@@ -360,42 +367,80 @@ namespace snogray {
     Medium (float _ior = 1, const Color &_absorb = 0);
   };
 
-  class Glass : public Material
-  {
-  public:
+  //
+  // We define these wrapper routines in place of defining constructors for
+  // various material classes, because we want to avoid giving swig control
+  // of memory management for materials, which are reference counted, so we
+  // want swig to use a reference instead.
+  //
+%{
+  namespace snogray {
 
-    Glass (Medium _medium);
-  };
+    Ref<const Material> lambert (const Color &col) { return new Lambert (col); }
 
-  class Mirror : public Material
-  {
-  public:
+    Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
+				       float m, const Ior &ior)
+    {
+      return new CookTorrance (col, spec_col, m, ior);
+    }
+    Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
+				       float m, float ior)
+    {
+      return new CookTorrance (col, spec_col, m, ior);
+    }
+    
+    Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
+				const Ref<const Material> &underlying_material)
+    {
+      return new Mirror (_ior, _reflectance, underlying_material);
+    }
+    Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
+				const Color &col = 0)
+    {
+      return new Mirror (_ior, _reflectance, col);
+    }
+    Ref<const Material> mirror (float _ior, const Color &_reflectance,
+				const Ref<const Material> &underlying_material)
+    {
+      return new Mirror (_ior, _reflectance, underlying_material);
+    }
+    Ref<const Material> mirror (float _ior, const Color &_reflectance,
+				const Color &col = 0)
+    {
+      return new Mirror (_ior, _reflectance, col);
+    }
 
-    Mirror (const Ior &_ior, const Color &_reflectance,
-	    const Material *underlying_material);
-    Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0);
-    Mirror (float _ior, const Color &_reflectance,
-	    const Material *underlying_material);
-    Mirror (float _ior, const Color &_reflectance, const Color &col = 0);
+    Ref<const Material> glass (const Medium &medium)
+    {
+      return new Glass (medium);
+    }      
 
-    Ior ior;
-    Color reflectance;
-    const Material *underlying_material;
-  };
+    Ref<const Material> glow (const Color &col) { return new Glow (col); }
+    Ref<const Material> norm_glow (float intens) { return new NormGlow (intens); }
 
-  class Glow : public Material
-  {
-  public:
+  }
+%}
 
-    Glow (const Color &_color);
-  };
+  Ref<const Material> lambert (const Color &col);
 
-  class NormGlow : public Material
-  {
-  public:
+  Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
+			       float m, const Ior &ior);
+  Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
+			       float m, float ior);
 
-    NormGlow (Color::component_t intens);
-  };
+  Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
+			      const Ref<const Material> &underlying_material);
+  Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
+			      const Color &col = 0);
+  Ref<const Material> mirror (float _ior, const Color &_reflectance,
+			      const Ref<const Material> &underlying_material);
+  Ref<const Material> mirror (float _ior, const Color &_reflectance,
+			      const Color &col = 0);
+
+  Ref<const Material> glass (const Medium &medium);      
+
+  Ref<const Material> glow (const Color &col);
+  Ref<const Material> norm_glow (float intens);
 
   class Surface
   {
@@ -412,15 +457,15 @@ namespace snogray {
   {
   public:
 
-    Sphere (const Material *mat, const Pos &_center, dist_t _radius);
+    Sphere (const Ref<const Material> &mat, const Pos &_center, dist_t _radius);
   };
 
   class Cylinder : public Surface
   {
   public:
 
-    Cylinder (const Material *mat, const Xform &obj_to_world_xform);
-    Cylinder (const Material *mat, const Pos &base, const Vec &axis,
+    Cylinder (const Ref<const Material> &mat, const Xform &obj_to_world_xform);
+    Cylinder (const Ref<const Material> &mat, const Pos &base, const Vec &axis,
 	      float radius);
   };
 
@@ -428,14 +473,14 @@ namespace snogray {
   {
   public:
 
-    Sphere2 (const Material *mat, const Xform &_xform);
+    Sphere2 (const Ref<const Material> &mat, const Xform &_xform);
   };
 
   class Tripar : public Surface
   {
   public:
 
-    Tripar (const Material *mat, const Pos &_v0, const Vec &_e1, const Vec &_e2,
+    Tripar (const Ref<const Material> &mat, const Pos &_v0, const Vec &_e1, const Vec &_e2,
 	    bool _parallelogram = false);
   };
 
@@ -443,7 +488,7 @@ namespace snogray {
   {
   public:
 
-    Ellipse (const Material *mat,
+    Ellipse (const Ref<const Material> &mat,
 	     const Pos &center, const Vec &radius1, const Vec &radius2);
   };
 
@@ -479,23 +524,23 @@ namespace snogray {
   {
   public:
 
-    MaterialDict (const Material *default_material = 0);
+    MaterialDict (const Ref<const Material> &default_material = 0);
 
-    const Material *get (const char *name, const Material *def_mat) const;
-    const Material *get (const char *name) const;
-    void add (const char *name, const Material *mat);
+    Ref<const Material> get (const char *name, const Ref<const Material> &def_mat) const;
+    Ref<const Material> get (const char *name) const;
+    void add (const char *name, const Ref<const Material> &mat);
     bool contains (const char *name) const;
 
-    const Material *get_default () const;
-    void set_default (const Material *mat);
+    Ref<const Material> get_default () const;
+    void set_default (const Ref<const Material> &mat);
   };
   %extend MaterialDict
   {
-    const Material *__getitem__ (const char *name) const
+    const Ref<const Material> __getitem__ (const char *name) const
     {
       return $self->get (name);
     }
-    void __setitem__ (const char *name, const Material *mat)
+    void __setitem__ (const char *name, const Ref<const Material> &mat)
     {
       $self->add (name, mat);
     }
@@ -523,8 +568,8 @@ namespace snogray {
   {
   public:
 
-    Mesh (const snogray::Material *mat = 0);
-    Mesh (const snogray::Material *mat, const char *file_name,
+    Mesh (const Ref<const Material> &mat = 0);
+    Mesh (const Ref<const Material> &mat, const char *file_name,
 	  bool smooth = true);
     Mesh (const char *file_name, const MaterialDict &mat_dict);
 
@@ -534,11 +579,11 @@ namespace snogray {
     typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
 
     void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-		       const Material *mat = 0);
+		       const Ref<const Material> &mat = Ref<const Material> ());
     void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       const Material *mat = 0);
+		       const Ref<const Material> &mat = Ref<const Material> ());
     void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       VertexGroup &vgroup, const Material *mat = 0);
+		       VertexGroup &vgroup, const Ref<const Material> &mat = Ref<const Material> ());
 
     vert_index_t add_vertex (const Pos &pos);
     vert_index_t add_vertex (const Pos &pos, VertexGroup &vgroup);
@@ -710,7 +755,6 @@ namespace snogray {
 
     Surface *add (Surface *surface);
     Light *add (Light *light);
-    Material *add (Material *mat);
 
     void set_background (const Color &col);
 

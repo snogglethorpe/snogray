@@ -1,6 +1,6 @@
 // load-ply.h -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,6 +16,8 @@
 
 #include <string>
 
+#include "ref.h"
+
 namespace snogray {
 
 class Mesh;
@@ -26,7 +28,7 @@ class Material;
 // default material will be used).
 //
 extern void load_ply_file (const std::string &filename, Mesh &mesh,
-			   const Material *mat = 0);
+			   const Ref<const Material> &mat = 0);
 
 }
 

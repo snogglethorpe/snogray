@@ -38,9 +38,6 @@ Scene::~Scene ()
   for (std::vector<const Light *>::const_iterator li = lights.begin();
        li != lights.end(); ++li)
     delete *li;
-  for (std::vector<const Material *>::const_iterator mi = materials.begin();
-       mi != materials.end(); ++mi)
-    delete *mi;
 
   delete space;
 }
@@ -72,15 +69,6 @@ Scene::add (Light *light)
   light->num = num_lights();	// Give LIGHT an index
   lights.push_back (light);
   return light;
-}
-
-// Add a material (we actually do nothing with these...).
-//
-const Material *
-Scene::add (const Material *mat)
-{
-  materials.push_back (mat);
-  return mat;
 }
 
 // Construct the search accelerator for this scene.

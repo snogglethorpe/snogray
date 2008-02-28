@@ -36,7 +36,7 @@ public:
   // If RADIUS1 and RADIUS2 are not orthogonal, then the resulting
   // ellipse will be skewed.
   //
-  Ellipse (const Material *mat,
+  Ellipse (const Ref<const Material> &mat,
 	   const Pos &center, const Vec &radius1, const Vec &radius2)
     : Surface (mat),
       corner (center - radius1 - radius2),

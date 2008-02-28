@@ -29,7 +29,7 @@ class Sphere2 : public LocalSurface
 {
 public:
 
-  Sphere2 (const Material *mat, const Xform &local_to_world_xform)
+  Sphere2 (const Ref<const Material> &mat, const Xform &local_to_world_xform)
     : LocalSurface (mat, local_to_world_xform)
   { }
 

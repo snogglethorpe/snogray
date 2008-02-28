@@ -1,6 +1,6 @@
 // material-dict.h -- Named set of materials
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,10 +16,10 @@
 #include <string>
 #include <map>
 
+#include "material.h"
+
 
 namespace snogray {
-
-class Material;
 
 
 // A named set of material pointers, for loading meshes with multiple
@@ -33,15 +33,15 @@ class Material;
 //   4) "Global" default (e.g. from a mesh being loaded into)
 //   5) Error
 //
-class MaterialDict : std::map<std::string, const Material *>
+class MaterialDict : std::map<std::string, Ref<const Material> >
 {
 private:
 
-  typedef std::map<std::string, const Material *> super;
+  typedef std::map<std::string, Ref<const Material> > super;
 
 public:
 
-  MaterialDict (const Material *default_material = 0)
+  MaterialDict (const Ref<const Material> &default_material = 0)
     : _default_material (default_material)
   { }
 
@@ -52,34 +52,36 @@ public:
 
   // Return the material called NAME, or DEF_MAT if there is none.
   //
-  const Material *get (const std::string &name, const Material *def_mat) const;
+  Ref<const Material> get (const std::string &name,
+			   const Ref<const Material> &def_mat)
+    const;
 
   // Return the material called NAME, or the default material if there is none.
   //
-  const Material *get (const std::string &name) const
+  Ref<const Material> get (const std::string &name) const
   {
     return get (name, _default_material);
   }
 
   // Return the default material.
   //
-  const Material *get_default () const { return _default_material; }
+  Ref<const Material> get_default () const { return _default_material; }
 
   // Add a name->material dictping.
   //
-  void add (const std::string &name, const Material *mat);
+  void add (const std::string &name, const Ref<const Material> &mat);
 
   // Return true if this dict contains a dictping for NAME.
   //
   bool contains (const std::string &name) const;
 
-  void set_default (const Material *mat) { _default_material = mat; }
+  void set_default (const Ref<const Material> &mat) { _default_material = mat; }
 
   unsigned num_entries () const { return size (); }
 
 private:
 
-  const Material *_default_material;
+  Ref<const Material> _default_material;
 };
 
 

@@ -1,6 +1,6 @@
 // local-surface.cc -- Transformed surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 using namespace snogray;
 
 
-LocalSurface::LocalSurface (const Material *mat,
+LocalSurface::LocalSurface (const Ref<const Material> &mat,
 			    const Xform &local_to_world_xform)
   : Surface (mat),
     local_to_world (local_to_world_xform),

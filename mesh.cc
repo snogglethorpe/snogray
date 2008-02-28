@@ -139,8 +139,10 @@ Mesh::add_normal (vert_index_t vert_index, const Vec &normal)
 
 void
 Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-		    const Material *mat)
+		    const Ref<const Material> &_mat)
 {
+  Ref<const Material> mat = _mat;
+
   if (! mat)
     mat = material;
 
@@ -154,7 +156,7 @@ Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
 
 void
 Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		    VertexGroup &vgroup, const Material *mat)
+		    VertexGroup &vgroup, const Ref<const Material> &mat)
 {
   vert_index_t v0i = add_vertex (v0, vgroup);
   vert_index_t v1i = add_vertex (v1, vgroup);
@@ -165,7 +167,7 @@ Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
 
 void
 Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		    const Material *mat)
+		    const Ref<const Material> &mat)
 {
   add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2), mat);
 }

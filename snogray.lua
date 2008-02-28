@@ -250,18 +250,12 @@ local material_types = set{
    "_p_snogray__Glass",
    "snogray::Plastic *",
    "_p_snogray__Plastic",
+   "snogray::Ref<snogray::Material const > *|snogray::MatRef *",
 }
 
 function is_material (val)
    -- ugh; isn't there some way in swig to do a sub-class test?
    return material_types[swig_type (val)]
-end
-
--- Remember MAT to avoid garbage collection.
---
-local function material (mat)
-   scene:add (mat)
-   return mat
 end
 
 function is_ior (val)
@@ -308,7 +302,7 @@ function lambert (params)
    else
       diff = color (params.diffuse or params.color or params[1] or 1)
    end
-   return material (raw.Lambert (diff))
+   return raw.lambert (diff)
 end
 
 function cook_torrance (params)
@@ -327,8 +321,8 @@ function cook_torrance (params)
        m = params.m or params[3] or 1
        i = ior (params.ior or params[4] or 1.5)
    end
-   
-   return material (raw.CookTorrance (diff, spec, m, i))
+
+   return raw.cook_torrance (diff, spec, m, i)
 end
 
 local default_mirror_ior = ior (0.25, 3)
@@ -361,7 +355,7 @@ function mirror (params)
       _under = color (_col)
    end
 
-   return material (raw.Mirror (ior (_ior), color (_reflect), _under));
+   return raw.mirror (ior (_ior), color (_reflect), _under);
 end
 
 -- Return a glass material.
@@ -388,22 +382,15 @@ function glass (params)
       _absorb = params
    end
 
-   local gl = raw.Glass (raw.Medium (ior (_ior), color (_absorb)));
-   scene:add (gl)		-- protect against GC
-
-   return gl;
+   return raw.glass (raw.Medium (ior (_ior), color (_absorb)));
 end
 
 function glow (col)
-   local gl = raw.Glow (color (col))
-   scene:add (gl)		-- protect against GC
-   return gl;
+   return raw.glow (color (col))
 end   
 
 function norm_glow (intens)
-   local ng = raw.NormGlow (intens or 1)
-   scene:add (ng)		-- protect against GC
-   return ng;
+   return raw.norm_glow (intens or 1)
 end   
 
 

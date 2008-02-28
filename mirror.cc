@@ -24,8 +24,7 @@ using namespace snogray;
 //
 Mirror::Mirror (const Ior &_ior, const Color &_reflectance, const Color &col)
   : ior (_ior), reflectance (_reflectance),
-    underlying_material (col < Eps ? 0 : new Lambert (col)),
-    free_underlying_material (true)
+    underlying_material (col < Eps ? 0 : new Lambert (col))
 { }
 
 

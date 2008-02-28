@@ -23,11 +23,12 @@ class Sphere : public Surface
 {
 public:
 
-  Sphere (const Material *mat, const Pos &_center, dist_t _radius)
+  Sphere (const Ref<const Material> &mat, const Pos &_center, dist_t _radius)
     : Surface (mat), center (_center), radius (_radius), axis (Vec (0, 0, 1))
   { }
 
-  Sphere (const Material *mat, const Pos &_center, const Vec &_radius)
+  Sphere (const Ref<const Material> &mat,
+	  const Pos &_center, const Vec &_radius)
     : Surface (mat), center (_center),
       radius (_radius.length ()), axis (_radius.unit ())
   { }

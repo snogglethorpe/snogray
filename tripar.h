@@ -23,7 +23,8 @@ class Tripar : public Surface
 {
 public:
 
-  Tripar (const Material *mat, const Pos &_v0, const Vec &_e1, const Vec &_e2,
+  Tripar (const Ref<const Material> &mat,
+	  const Pos &_v0, const Vec &_e1, const Vec &_e2,
 	  bool _parallelogram = false)
     : Surface (mat), v0 (_v0), e1 (_e1), e2 (_e2),
       parallelogram (_parallelogram)

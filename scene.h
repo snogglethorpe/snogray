@@ -79,10 +79,6 @@ public:
   //
   const Light *add (Light *light);
 
-  // Add a material (we actually do nothing with these...)
-  //
-  const Material *add (const Material *mat);
-
   // Construct the search accelerator for this scene.
   // SPACE_BUILDER_BUILDER says how to do it.
   //
@@ -108,8 +104,6 @@ public:
   std::vector<const Surface *> surfaces;
 
   std::vector<const Light *> lights;
-
-  std::vector<const Material *> materials;
 
   // A distance which is further than the furthest surface from any point.
   //

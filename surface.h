@@ -35,7 +35,7 @@ class Surface
 {
 public:
 
-  Surface (const Material *mat) : material (mat) { }
+  Surface (const Ref<const Material> &mat) : material (mat) { }
   virtual ~Surface () { }
 
   // A lightweight object used to return infomation from the
@@ -69,8 +69,14 @@ public:
     virtual const Surface *outermost_surface () const;
 
     // Return the material used by intersecting surface.
+    // Note that it returns a _pointer_ to the material, not a Ref<>;
+    // it is up to the caller to make sure the scene is not changed in a
+    // way that would invalidate this poniter.
     //
-    const Material *material () const { return surface()->material; }
+    const Material *material () const
+    {
+      return &*surface()->material;
+    }
 
     Ray ray;
   };
@@ -120,7 +126,7 @@ public:
   //
   virtual const void *smoothing_group () const;
 
-  const Material *material;
+  Ref<const Material> material;
 };
 
 

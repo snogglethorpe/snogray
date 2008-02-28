@@ -1,6 +1,6 @@
 // load-msh.cc -- Load a .msh format mesh file
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
     {
       unsigned base_vert = mesh.num_vertices ();
 
-      const Material *mat;
+      Ref<const Material> mat;
       unsigned num_vertices, num_triangles;
 
       // See whether a named material or the number of vertices follows.

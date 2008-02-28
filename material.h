@@ -15,6 +15,7 @@
 
 #include "color.h"
 #include "ray.h"
+#include "ref.h"
 
 
 namespace snogray {
@@ -25,7 +26,7 @@ class Medium;
 class Brdf;
 
 
-class Material
+class Material : public RefCounted
 {
 public:
 

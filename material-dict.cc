@@ -1,6 +1,6 @@
 // material-dict.cc -- Named set of materials
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,8 +19,9 @@ using namespace snogray;
 
 // Return the material called NAME, or DEF_MAT if there is none.
 //
-const Material *
-MaterialDict::get (const std::string &name, const Material *def_mat) const
+Ref<const Material>
+MaterialDict::get (const std::string &name, const Ref<const Material> &def_mat)
+  const
 {
   const_iterator iter = find (name);
   if (iter != end())
@@ -32,7 +33,7 @@ MaterialDict::get (const std::string &name, const Material *def_mat) const
 // Add a name->material dictping.
 //
 void
-MaterialDict::add (const std::string &name, const Material *mat)
+MaterialDict::add (const std::string &name, const Ref<const Material> &mat)
 {
   std::pair<iterator, bool> ins_result = insert (std::make_pair (name, mat));
 

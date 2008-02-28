@@ -1,6 +1,6 @@
 // mirror.h -- Mirror (perfectly reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -34,22 +34,14 @@ class Mirror : public Material
 public:
 
   Mirror (const Ior &_ior, const Color &_reflectance,
-	  const Material *_underlying_material,
-	  bool _free_underlying_material = false)
+	  const Ref<const Material> &_underlying_material)
     : ior (_ior), reflectance (_reflectance),
-      underlying_material (_underlying_material),
-      free_underlying_material (_free_underlying_material)
+      underlying_material (_underlying_material)
   { }
 
   // A mirror with a simple lambertian underlying material.
   //
   Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0);
-
-  ~Mirror ()
-  {
-    if (free_underlying_material)
-      delete underlying_material;
-  }
 
   // Return a new BRDF object for this material instantiated at ISEC.
   //
@@ -68,11 +60,7 @@ public:
   // MATERIAL underlying the mirror coating, which does the real work.
   // This may be zero, for perfectly black surfaces.
   //
-  const Material *underlying_material;
-
-  // If true, free UNDERLYING_MATERIAL when destroyed.
-  //
-  bool free_underlying_material;
+  Ref<const Material> underlying_material;
 };
 
 

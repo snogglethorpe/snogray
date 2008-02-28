@@ -24,13 +24,14 @@ class Cylinder : public LocalSurface
 {
 public:
 
-  Cylinder (const Material *mat, const Xform &local_to_world_xform)
+  Cylinder (const Ref<const Material> &mat, const Xform &local_to_world_xform)
     : LocalSurface (mat, local_to_world_xform)
   { }
 
   // Constructor for making a cylinder from a base/axis/radius
   //
-  Cylinder (const Material *mat, const Pos &base, const Vec &axis, float radius)
+  Cylinder (const Ref<const Material> &mat,
+	    const Pos &base, const Vec &axis, float radius)
     : LocalSurface (mat, xform (base, axis, radius))
   { }
 

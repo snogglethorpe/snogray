@@ -1,6 +1,6 @@
 // load-ply.cc -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ using namespace snogray;
 
 struct RplyState
 {
-  RplyState (Mesh &_mesh, const Material *_mat)
+  RplyState (Mesh &_mesh, const Ref<const Material> &_mat)
     : mesh (_mesh), base_vert_index (mesh.num_vertices ()), mat (_mat),
       last_vert_index (0)
   { }
@@ -39,7 +39,7 @@ struct RplyState
 
   Mesh::vert_index_t base_vert_index;
 
-  const Material *mat;
+  Ref<const Material> mat;
 
   double vals[3];
 
@@ -156,7 +156,7 @@ face_cb (p_ply_argument arg)
 //
 void
 snogray::load_ply_file (const std::string &filename, Mesh &mesh,
-			const Material *mat)
+			const Ref<const Material> &mat)
 {
   // State used by all our call back functions.
   //

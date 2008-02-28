@@ -1,6 +1,6 @@
 // local-surface.h -- Transformed surface
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,7 +33,8 @@ class LocalSurface : public Surface
 {
 public:
 
-  LocalSurface (const Material *mat, const Xform &local_to_world_xform);
+  LocalSurface (const Ref<const Material> &mat,
+		const Xform &local_to_world_xform);
 
   // Return a bounding box for this surface.
   //

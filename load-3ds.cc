@@ -110,20 +110,16 @@ struct TdsLoader
   // See the function documentation of TdsLoader::lookup_material for a
   // more detailed description of how exactly this is done.
   //
-  const Material *lookup_material (const char *name, const Name *hier_names=0);
+  Ref<const Material> lookup_material (const char *name, const Name *hier_names=0);
 
   // Return a snogray material corresponding to the 3ds material loaded
-  // with the file called NAME.  If this loader has a scene associated
-  // with it, the material will be added to it.  Does not consider user
-  // materials.
+  // with the file called NAME.  Does not consider user materials.
   //
-  const Material *lookup_file_material (const char *name);
+  Ref<const Material> lookup_file_material (const char *name);
 
   // Return a snogray material corresponding to the 3ds material M.
-  // If this loader has a scene associated with it, the material will be
-  // added to it.
   //
-  const Material *convert_material (Lib3dsMaterial *m);
+  Ref<const Material> convert_material (Lib3dsMaterial *m);
 
   // 3ds to snogray conversion methods for various primitive types.
   //
@@ -160,10 +156,8 @@ struct TdsLoader
 // TdsLoader::convert_material
 
 // Return a snogray material corresponding to the 3ds material M.
-// If this loader has a scene associated with it, the material will be
-// added to it.
 //
-const Material *
+Ref<const Material>
 TdsLoader::convert_material (Lib3dsMaterial *m)
 {
   const Material *mat;
@@ -198,14 +192,10 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
 	mat = new Mirror (TDS_METAL_IOR, specular,
 			  new CookTorrance (diffuse, specular,
 					    pow (100, -m->shininess),
-					    TDS_METAL_IOR),
-			  true);
+					    TDS_METAL_IOR));
       else
 	mat = new Lambert (diffuse);
     }
-
-  if (scene)
-    scene->add (mat);
 
   return mat;
 }
@@ -213,12 +203,10 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
 
 // TdsLoader::lookup_file_material
 
-// Return a snogray material corresponding to the 3ds material loaded
-// with the file called NAME.  If this loader has a scene associated
-// with it, the material will be added to it.  Does not consider user
-// materials.
+// Return a snogray material corresponding to the 3ds material loaded with
+// the file called NAME.  Does not consider user materials.
 //
-const Material *
+Ref<const Material>
 TdsLoader::lookup_file_material (const char *name)
 {
   string mat_name (name);
@@ -234,12 +222,12 @@ TdsLoader::lookup_file_material (const char *name)
 
   if (m)
     {
-      const Material *mat = convert_material (m);
+      Ref<const Material> mat = convert_material (m);
       loaded_materials.add (mat_name, mat);
       return mat;
     }
 
-  return 0;
+  return Ref<const Material> (); // null ref
 }
 
 
@@ -292,11 +280,11 @@ TdsLoader::lookup_file_material (const char *name)
 // The final material returned may be NULL, in which case no surface is
 // rendered.
 //
-const Material *
+Ref<const Material>
 TdsLoader::lookup_material (const char *name, const Name *hier_names)
 {
   string mat_name (name);
-  const Material *mat = 0;
+  Ref<const Material> mat;
   bool found_user_mapping = false;
 
   // If this is a named material reference, first lookup materials by
@@ -345,7 +333,7 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
   for (const Name *hn = hier_names; hn; hn = hn->next)
     if (hn->valid () && user_materials.contains (hn->name))
       {
-	const Material *obj_mat = user_materials.get (hn->name, 0);
+	Ref<const Material> obj_mat = user_materials.get (hn->name, 0);
 	
 	// If we already found some material in steps 1-3, OBJ_MAT
 	// overrides it only if it's NULL (providing the ability to
@@ -490,7 +478,7 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 
 	  // Simple cache to avoid the most repetitive material lookups.
 	  //
-	  const Material *cached_mat = 0;
+	  Ref<const Material> cached_mat;
 	  char cached_mat_name[64]; // 64 is from the 3DS file standard
 	  cached_mat_name[0] = '\0';
 
@@ -632,7 +620,7 @@ TdsLoader::convert (const Xform &xform)
 	  const Color intens = color (l->color) * l->multiplier * area_scale;
 
 	  scene->add (new SphereLight (loc, radius, intens));
-	  scene->add (new Sphere (scene->add (new Glow (intens)), loc, radius));
+	  scene->add (new Sphere (new Glow (intens), loc, radius));
 	}
     }
 }

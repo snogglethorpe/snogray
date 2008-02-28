@@ -566,8 +566,6 @@ int main (int argc, char *const *argv)
 				"top-level surface", "top-level surfaces")
 	 << ", " << commify_with_units (scene.lights.size (),
 					"light", "lights")
-	 << ", " << commify_with_units (scene.materials.size (),
-					"material", "materials")
 	 << endl;
 
 
