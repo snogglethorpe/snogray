@@ -58,11 +58,13 @@
   namespace snogray
   {
 
-    Mesh::VertexGroup *mesh_vertex_group ()
+    static Mesh::VertexGroup *
+    mesh_vertex_group ()
     {
       return new Mesh::VertexGroup;
     }
-    Mesh::VertexNormalGroup *mesh_vertex_normal_group ()
+    static Mesh::VertexNormalGroup *
+    mesh_vertex_normal_group ()
     {
       return new Mesh::VertexNormalGroup;
     }
@@ -372,53 +374,69 @@ namespace snogray {
   //
   // We define these wrapper routines in place of defining constructors for
   // various material classes, because we want to avoid giving swig control
-  // of memory management for materials, which are reference counted, so we
-  // want swig to use a reference instead.
+  // of memory management for materials.  Materials are reference counted,
+  // so these wrappers simply create the object and return a reference to
+  // it, and swig happily uses the reference instead.
   //
 %{
   namespace snogray {
 
-    Ref<const Material> lambert (const Color &col) { return new Lambert (col); }
+    static Ref<const Material>
+    lambert (const Color &col)
+    {
+      return new Lambert (col);
+    }
 
-    Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
-				       float m, const Ior &ior)
+    static Ref<const Material>
+    cook_torrance (const Color &col, const Color &spec_col, float m,
+		   const Ior &ior)
     {
       return new CookTorrance (col, spec_col, m, ior);
     }
-    Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
-				       float m, float ior)
+    static Ref<const Material>
+    cook_torrance (const Color &col, const Color &spec_col, float m, float ior)
     {
       return new CookTorrance (col, spec_col, m, ior);
     }
     
-    Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
-				const Ref<const Material> &underlying_material)
+    static Ref<const Material>
+    mirror (const Ior &_ior, const Color &_reflectance,
+	    const Ref<const Material> &underlying_material)
     {
       return new Mirror (_ior, _reflectance, underlying_material);
     }
-    Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
-				const Color &col = 0)
+    static Ref<const Material>
+    mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0)
     {
       return new Mirror (_ior, _reflectance, col);
     }
-    Ref<const Material> mirror (float _ior, const Color &_reflectance,
-				const Ref<const Material> &underlying_material)
+    static Ref<const Material>
+    mirror (float _ior, const Color &_reflectance,
+	    const Ref<const Material> &underlying_material)
     {
       return new Mirror (_ior, _reflectance, underlying_material);
     }
-    Ref<const Material> mirror (float _ior, const Color &_reflectance,
-				const Color &col = 0)
+    static Ref<const Material>
+    mirror (float _ior, const Color &_reflectance, const Color &col = 0)
     {
       return new Mirror (_ior, _reflectance, col);
     }
 
-    Ref<const Material> glass (const Medium &medium)
+    static Ref<const Material> glass (const Medium &medium)
     {
       return new Glass (medium);
     }      
 
-    Ref<const Material> glow (const Color &col) { return new Glow (col); }
-    Ref<const Material> norm_glow (float intens) { return new NormGlow (intens); }
+    static Ref<const Material>
+    glow (const Color &col)
+    {
+      return new Glow (col);
+    }
+    static Ref<const Material>
+    norm_glow (float intens)
+    {
+      return new NormGlow (intens);
+    }
 
   }
 %}
