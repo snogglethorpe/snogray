@@ -55,6 +55,12 @@ public:
 
   operator bool () const { return !!obj; }
 
+  // In C++, it's more usual to simply use the reference object in a
+  // boolean context (e.g., "if (! ref) ..."), but Ref::null is provided
+  // as a convenience to Lua, where doing that is not possible.
+  //
+  bool null () const { return !obj; }
+
   //operator T* () const { return obj; }
 
   Ref &operator= (T *new_obj)
