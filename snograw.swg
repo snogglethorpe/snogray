@@ -371,97 +371,6 @@ namespace snogray {
     Medium (float _ior = 1, const Color &_absorb = 0);
   };
 
-  //
-  // We define these wrapper routines in place of defining constructors for
-  // various material classes, because we want to avoid giving swig control
-  // of memory management for materials.  Materials are reference counted,
-  // so these wrappers simply create the object and return a reference to
-  // it, and swig happily uses the reference instead.
-  //
-%{
-  namespace snogray {
-
-    static Ref<const Material>
-    lambert (const Color &col)
-    {
-      return new Lambert (col);
-    }
-
-    static Ref<const Material>
-    cook_torrance (const Color &col, const Color &spec_col, float m,
-		   const Ior &ior)
-    {
-      return new CookTorrance (col, spec_col, m, ior);
-    }
-    static Ref<const Material>
-    cook_torrance (const Color &col, const Color &spec_col, float m, float ior)
-    {
-      return new CookTorrance (col, spec_col, m, ior);
-    }
-    
-    static Ref<const Material>
-    mirror (const Ior &_ior, const Color &_reflectance,
-	    const Ref<const Material> &underlying_material)
-    {
-      return new Mirror (_ior, _reflectance, underlying_material);
-    }
-    static Ref<const Material>
-    mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0)
-    {
-      return new Mirror (_ior, _reflectance, col);
-    }
-    static Ref<const Material>
-    mirror (float _ior, const Color &_reflectance,
-	    const Ref<const Material> &underlying_material)
-    {
-      return new Mirror (_ior, _reflectance, underlying_material);
-    }
-    static Ref<const Material>
-    mirror (float _ior, const Color &_reflectance, const Color &col = 0)
-    {
-      return new Mirror (_ior, _reflectance, col);
-    }
-
-    static Ref<const Material> glass (const Medium &medium)
-    {
-      return new Glass (medium);
-    }      
-
-    static Ref<const Material>
-    glow (const Color &col)
-    {
-      return new Glow (col);
-    }
-    static Ref<const Material>
-    norm_glow (float intens)
-    {
-      return new NormGlow (intens);
-    }
-
-  }
-%}
-
-  Ref<const Material> lambert (const Color &col);
-
-  Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
-			       float m, const Ior &ior);
-  Ref<const Material> cook_torrance (const Color &col, const Color &spec_col,
-			       float m, float ior);
-
-  Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
-			      const Ref<const Material> &underlying_material);
-  Ref<const Material> mirror (const Ior &_ior, const Color &_reflectance,
-			      const Color &col = 0);
-  Ref<const Material> mirror (float _ior, const Color &_reflectance,
-			      const Ref<const Material> &underlying_material);
-  Ref<const Material> mirror (float _ior, const Color &_reflectance,
-			      const Color &col = 0);
-
-  Ref<const Material> glass (const Medium &medium);      
-
-  Ref<const Material> glow (const Color &col);
-  Ref<const Material> norm_glow (float intens);
-
   class Surface
   {
   private:
@@ -856,30 +765,99 @@ namespace snogray {
   }
 
   %template(ImageRef) Ref<TupleMatrix<Color> >;
-
-  %{
-    namespace snogray {
-      static Ref<Image> image (unsigned _width, unsigned _height)
-      {
-	return new Image (_width, _height);
-      }
-      static Ref<Image> image (const char *filename, unsigned border = 0)
-      {
-	return new Image (filename, border);
-      }
-      // static Ref<Image> image (const std::string &filename, const ValTable &params,
-      // 		   unsigned border = 0)
-      // {
-      // 	return new Image (filename, params, border);
-      // }
-    }
-  %}
-
-  Ref<Image> image (unsigned _width, unsigned _height);
-  Ref<Image> image (const char *filename, unsigned border = 0);
-  // Ref<Image> image (const std::string &filename, const ValTable &params,
-  // 		    unsigned border = 0);
 }
+
+//
+// The following are object-creation wrappers, which we use in place of
+// swig-generated constructors for any classes that we want to manage via
+// reference-counting.  This is because swig will do its own memory
+// management for object which it constructs, and we want to avoid that.
+//
+// These wrapper functions simply create the object using new and return a
+// reference to it; swig happily uses the reference instead, with almost
+// exactly the same functionality as the underlying object pointer.
+//
+// [This is at the end of the file because swig doesn't like %inline blocks
+// inside namespaces.]
+//
+%inline %{
+  namespace snogray {
+
+    // Lambert
+    static Ref<const Material> lambert (const Color &col)
+    {
+      return new Lambert (col);
+    }
+
+    // CookTorrance
+    static Ref<const Material>
+    cook_torrance (const Color &col, const Color &spec_col, float m,
+		   const Ior &ior)
+    {
+      return new CookTorrance (col, spec_col, m, ior);
+    }
+    static Ref<const Material>
+    cook_torrance (const Color &col, const Color &spec_col, float m, float ior)
+    {
+      return new CookTorrance (col, spec_col, m, ior);
+    }
+    
+    // Mirror
+    static Ref<const Material>
+    mirror (const Ior &_ior, const Color &_reflectance,
+	    const Ref<const Material> &underlying_material)
+    {
+      return new Mirror (_ior, _reflectance, underlying_material);
+    }
+    static Ref<const Material>
+    mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0)
+    {
+      return new Mirror (_ior, _reflectance, col);
+    }
+    static Ref<const Material>
+    mirror (float _ior, const Color &_reflectance,
+	    const Ref<const Material> &underlying_material)
+    {
+      return new Mirror (_ior, _reflectance, underlying_material);
+    }
+    static Ref<const Material>
+    mirror (float _ior, const Color &_reflectance, const Color &col = 0)
+    {
+      return new Mirror (_ior, _reflectance, col);
+    }
+
+    // Glass
+    static Ref<const Material> glass (const Medium &medium)
+    {
+      return new Glass (medium);
+    }      
+
+    // Glow, NormGlow
+    static Ref<const Material> glow (const Color &col)
+    {
+      return new Glow (col);
+    }
+    static Ref<const Material> norm_glow (float intens)
+    {
+      return new NormGlow (intens);
+    }
+
+    // Image
+    static Ref<Image> image (unsigned _width, unsigned _height)
+    {
+      return new Image (_width, _height);
+    }
+    static Ref<Image> image (const char *filename, unsigned border = 0)
+    {
+      return new Image (filename, border);
+    }
+    // static Ref<Image> image (const std::string &filename, const ValTable &params,
+    // 		   unsigned border = 0)
+    // {
+    // 	return new Image (filename, params, border);
+    // }
+  }
+%}
 
 
 # arch-tag: ced00636-fe46-45bd-b738-1949800e26f1
