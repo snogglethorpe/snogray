@@ -601,19 +601,36 @@ function rectangle (mat, v0, e1, e2)
    return tripar (mat, v0, e1, e2, true)
 end
 
+-- Return an elliptical surface.
+--
+-- args: MAT, XFORM
+--   or: MAT, BASE, AXIS, RADIUS
+--
 ellipse = raw.Ellipse
 
+-- Return a cylindrical surface (with no ends).
+--
+-- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
+--   or: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
+--
 cylinder = raw.Cylinder
 
--- solid_cylinder is just like cylinder, but has endcaps as well
+-- solid_cylinder is just like cylinder, but has endcaps as well.
+--
+-- Optionally, specific materials can be specified for the ends by at
+-- the end of the argument list.
+--
+-- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
+--   or: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
 --
 function solid_cylinder (mat, arg1, ...)
 
    -- There are two argument conventions for cylinders, which we handle
    -- separately.
    --
-   if is_xform (arg1) then	-- args: MAT, XFORM
+   if is_xform (arg1) then -- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
       local xform = arg1
+      local emat1, emat2 = select (1, ...), select (2, ...)
 
       local base = pos(0,0,-1)*xform
       local axis = vec(0,0,2)*xform
@@ -622,13 +639,14 @@ function solid_cylinder (mat, arg1, ...)
 
       return surface_group {
 	 cylinder (mat, xform);
-	 ellipse (mat, base, r1, r2);
-	 ellipse (mat, base + axis, r1, r2);
+	 ellipse (emat1 or mat, base, r1, r2);
+	 ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
       }
-   else				-- args: MAT, BASE, AXIS, RADIUS
+   else	      -- args: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
       local base = arg1
       local axis = select (1, ...)
       local radius = select (2, ...)
+      local emat1, emat2 = select (3, ...), select (4, ...)
 
       local au = axis:unit()
       local r1u = au:perpendicular()
@@ -637,8 +655,8 @@ function solid_cylinder (mat, arg1, ...)
 
       return surface_group {
 	 cylinder (mat, base, axis, radius);
-	 ellipse (mat, base, r1, r2);
-	 ellipse (mat, base + axis, r1, r2);
+	 ellipse (emat1 or mat, base, r1, r2);
+	 ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
       }
    end
 end
