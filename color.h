@@ -1,6 +1,6 @@
 // color.h -- Color datatype
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -395,6 +395,14 @@ inline Color log (const Color &col)
   Color rval;
   for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
     rval[c] = log (col[c]);
+  return rval;
+}
+
+inline Color fmod (const Color &col1, const Color &col2)
+{
+  Color rval;
+  for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
+    rval[c] = fmod (col1[c], col2[c]);
   return rval;
 }
 
