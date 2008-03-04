@@ -69,6 +69,40 @@ end
 
 
 ----------------------------------------------------------------
+--
+-- Swig type handling
+
+local function strip_swig_type (name)
+   name = name:gsub ("snogray::","")
+   name = name:gsub (" const","")
+   name = name:gsub (" ","")
+   name = name:gsub ("[*]*$","")
+   local strip_ref = name:gsub ("^Ref<", "")
+   if strip_ref ~= name then
+      name = strip_ref:gsub (">$", "")
+   end
+   return name
+end
+
+local swig_type_names = {}
+
+local function nice_type (obj)
+   local type = swig_type (obj)
+   local best = swig_type_names[type]
+   if not best then
+      for comp in type:gmatch ("[^|]+") do
+	 comp = strip_swig_type (comp)
+	 if not best or #comp < #best then
+	    best = comp
+	 end
+      end
+      swig_type_names[type] = best
+   end
+   return best
+end
+
+
+----------------------------------------------------------------
 
 -- Return a table containing every key in KEYS as a key, with value true.
 --
@@ -109,8 +143,7 @@ function define_color (name, val)
 end
 
 function is_color (val)
-   local st = swig_type (val)
-   return st == "snogray::Color *" or st == "_p_snogray__Color" 
+   return nice_type (val) == 'Color'
 end
 
 local color_keys = set{
@@ -235,32 +268,12 @@ define_color ("yellow",	{red=1, green=1})
 -- materials
 
 
-local material_types = set{
-   "snogray::Material *",
-   "_p_snogray__Material",
-   "snogray::CookTorrance *",
-   "_p_snogray__CookTorrance",
-   "snogray::Lambert *",
-   "_p_snogray__Lambert",
-   "snogray::Phong *",
-   "_p_snogray__Phong",
-   "snogray::Mirror *",
-   "_p_snogray__Mirror",
-   "snogray::Glass *",
-   "_p_snogray__Glass",
-   "snogray::Plastic *",
-   "_p_snogray__Plastic",
-   "snogray::Ref<snogray::Material const > *",
-   "snogray::Ref<snogray::Material const > *|snogray::MatRef *",
-}
-
 function is_material (val)
-   -- ugh; isn't there some way in swig to do a sub-class test?
-   return material_types[swig_type (val)]
+   return nice_type (val) == 'Material'
 end
 
 function is_ior (val)
-   return swig_type (val) == "_p_snogray__Ior"
+   return nice_type (val) == "Ior"
 end
 
 function is_ior_spec (obj)
@@ -405,8 +418,7 @@ end
 -- material dicts
 
 function is_material_dict (val)
-   local st = swig_type (val)
-   return st == "_p_snogray__MaterialDict" or st == "snogray::MaterialDict *"
+   return nice_type (val) == 'MaterialDict'
 end
 
 function material_dict (init)
@@ -441,10 +453,7 @@ xform = raw.Xform
 identity_xform = raw.Xform_identity
 
 function is_xform (val)
-   local st = swig_type (val)
-   return st == "snogray::Xform *|snogray::TXform<float > *|snogray::TXform<snogray::dist_t > *"
-      or st == "_p_snogray__TXformTdouble_t"
-      or st == "_p_snogray__TXformTfloat_t"
+   return nice_type (val) == 'Xform'
 end
 
 -- Various transform constructors.
@@ -764,21 +773,11 @@ image = raw.image
 -- Textures
 
 function is_float_tex (val)
-   local st = swig_type (val)
-   return st == "snogray::Ref<snogray::Tex<float > const > *|snogray::FloatTexRef *"
+   return nice_type (val) == 'Tex<float>'
 end
 
 function is_color_tex (val)
-   local st = swig_type (val)
-   return st == "snogray::ColorTexRef *|snogray::Ref<snogray::Tex<snogray::Color > const > *"
-end
-
-local color_tex_keys = set{
-   "snogray::Color *", "_p_snogray__Color",
-   "snogray::Ref<snogray::Tex<snogray::Color > const > *"
-}
-function is_color_or_color_tex (val)
-   return color_tex_keys[swig_type (val)]
+   return nice_type (val) == 'Tex<Color>'
 end
 
 function color_tex_val (val)
