@@ -780,6 +780,9 @@ function is_color_tex (val)
    return nice_type (val) == 'Tex<Color>'
 end
 
+-- Return VAL, which should either be a color or a color texture, boxed
+-- into a TexVal<Color> container.
+--
 function color_tex_val (val)
    if is_float_tex (val) then
       val = raw.grey_tex (raw.FloatTexVal (val))
@@ -789,6 +792,9 @@ function color_tex_val (val)
    return raw.ColorTexVal (val)
 end
 
+-- Return VAL, which should either be a number or a float texture, boxed
+-- into a TexVal<float> container.
+--
 function float_tex_val (val)
    if is_color_tex (val) then
       val = raw.intens_tex (raw.ColorTexVal (val))
@@ -796,6 +802,9 @@ function float_tex_val (val)
    return raw.FloatTexVal (val)
 end
 
+-- Return VAL boxed into either a TexVal<Color> or a TexVal<float>
+-- container, whichever is appropriate.
+--
 function tex_val (tex)
    if is_float_tex (tex) then
       return raw.FloatTexVal (tex)
@@ -808,31 +817,55 @@ function tex_val (tex)
    end
 end
 
-function tex_vals (tex1, tex2)
-   if is_color_tex (tex1) or is_color_tex (tex2) or is_color_spec (tex1) or is_color_spec (tex2) then
-      return color_tex_val (tex1), color_tex_val (tex2)
+-- Return VAL1 and VAL2 boxed into a pair of either TexVal<Color> or
+-- TexVal<float> containers, whichever are appropriate.  Both VAL1 and
+-- VAL2 are examined to make the decision; a mixture of Color and float
+-- values results in the floating value being automatically converted to
+-- a Color value to match.
+--
+function tex_vals (val1, val2)
+   if is_color_tex (val1) or is_color_tex (val2) or is_color_spec (val1) or is_color_spec (val2) then
+      return color_tex_val (val1), color_tex_val (val2)
    else
-      return float_tex_val (tex1), float_tex_val (tex2)
+      return float_tex_val (val1), float_tex_val (val2)
    end
 end
 
 image_tex = raw.image_tex
 mono_image_tex = raw.mono_image_tex
 
+-- Return a "grey_tex" texture object using the floating-point texture
+-- VAL as a source.  This can be used to convert a floating-point
+-- texture into a color texture.
+--
 function grey_tex (val) return raw.grey_tex (float_tex_val (val)) end
+
+-- Return a "intens_tex" texture object using the color texture VAL as a
+-- source.  This can be used to convert a color-point texture into a
+-- floating-point texture.
+--
 function intens_tex (val) return raw.intens_tex (color_tex_val (val)) end
 
+-- Encoding for arith_tex operations.
+--
 local arith_tex_ops = {
    ADD = 0, SUB = 1, MUL = 2, DIV = 3, MOD = 4, POW = 5,
    MIN = 6, MAX = 7, AVG = 8,
    MIRROR = 9,			-- abs (x - y)
 }
 
+-- Return a texture which performs operation OP on input textures ARG1
+-- and ARG2.  Both color and floating-point textures are handled (a
+-- mixture of both results in the floating-point texture being converted
+-- to color before applying the operation).
+--
 function arith_tex (op, arg1, arg2)
    op = arith_tex_ops[op]
    return raw.arith_tex (op, tex_vals (arg1, arg2))
 end
 
+-- Convenient aliases for the various arith_tex operations.
+--
 function add_tex (tex1, tex2)
    return arith_tex ('ADD', tex1, tex2)
 end
@@ -870,13 +903,23 @@ function neg_tex (tex)
    return arith_tex ('SUB', 0, tex)
 end
 
+-- Return a texture which transforms TEX by the transform XFORM.
+--
+-- Actually it's the texture coordinates which are transformed (before
+-- giving them to TEX), so for instance, to make TEX get "smaller", you
+-- would use a value of XFORM which scales by an amount greater than 1.
+--
 function xform_tex (xform, tex)
    return raw.xform_tex (xform, tex_val (tex))
 end
 
+-- Return a "check" texture, which evaluates to either TEX1 or TEX2 in a
+-- check pattern.
+--
 function check_tex (tex1, tex2)
    return raw.check_tex (tex_vals (tex1, tex2))
 end
+
 
 ----------------------------------------------------------------
 --
