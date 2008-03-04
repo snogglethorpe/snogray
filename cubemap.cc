@@ -1,6 +1,6 @@
 // cubemap.cc -- Texture wrapped around a cube
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
 #include "snogmath.h"
 #include "excepts.h"
 #include "image-io.h"
-#include "matrix-tex2.h"
+#include "matrix-tex.h"
 
 #include "cubemap.h"
 
@@ -51,17 +51,16 @@ Cubemap::map (const Vec &dir) const
   // Calculate u and v -- basically the non-axis components of DIR
   // divided by the axis component.
   //
-  tparam_t u = dot (dir, face.u_dir) / axis_val;
-  tparam_t v = dot (dir, face.v_dir) / axis_val;
+  float u = dot (dir, face.u_dir) / axis_val;
+  float v = dot (dir, face.v_dir) / axis_val;
 
   // Translate [-1, 1] params into [0, 1] for texture lookup
   //
-  u = (u + 1) / 2;
-  v = (v + 1) / 2;
+  UV uv ((u + 1) / 2, (v + 1) / 2);
 
   // Lookup the value
   //
-  return face.tex->map (u, v);
+  return face.tex->eval (TexCoords (Pos (dir), uv));
 }
 
 
@@ -211,7 +210,7 @@ Cubemap::load (istream &stream, const string &filename_pfx)
 
       try
 	{ 
-	  face.tex.reset (new MatrixTex2<Color> (tex_filename));
+	  face.tex.reset (new MatrixTex<Color> (tex_filename));
 	}
       catch (runtime_error &err)
 	{
@@ -271,7 +270,7 @@ Cubemap::load (const Ref<Image> &image)
     {
       // Back
       faces[5].tex.reset (
-		     new MatrixTex2<Color> (image, size, size * 3, size, size));
+		     new MatrixTex<Color> (image, size, size * 3, size, size));
       faces[5].u_dir = Vec (-1, 0, 0);
       faces[5].v_dir = Vec (0, 1, 0);
     }
@@ -281,7 +280,7 @@ Cubemap::load (const Ref<Image> &image)
     {
       // Back
       faces[5].tex.reset (
-		     new MatrixTex2<Color> (image, size * 3, size, size, size));
+		     new MatrixTex<Color> (image, size * 3, size, size, size));
       faces[5].u_dir = Vec (1, 0, 0);
       faces[5].v_dir = Vec (0, -1, 0);
     }
@@ -291,27 +290,27 @@ Cubemap::load (const Ref<Image> &image)
   // Common parts of the two "cross" formats
 
   // Right
-  faces[0].tex.reset (new MatrixTex2<Color> (image, size * 2, size, size,size));
+  faces[0].tex.reset (new MatrixTex<Color> (image, size * 2, size, size,size));
   faces[0].u_dir = Vec (0, 0, -1);
   faces[0].v_dir = Vec (0, 1, 0);
 
   // Left
-  faces[1].tex.reset (new MatrixTex2<Color> (image, 0, size, size, size));
+  faces[1].tex.reset (new MatrixTex<Color> (image, 0, size, size, size));
   faces[1].u_dir = Vec (0, 0, -1);
   faces[1].v_dir = Vec (0, -1, 0);
 
   // Top
-  faces[2].tex.reset (new MatrixTex2<Color> (image, size, 0, size, size));
+  faces[2].tex.reset (new MatrixTex<Color> (image, size, 0, size, size));
   faces[2].u_dir = Vec (1, 0, 0);
   faces[2].v_dir = Vec (0, 0, -1);
 
   // Bottom
-  faces[3].tex.reset (new MatrixTex2<Color> (image, size, size * 2, size,size));
+  faces[3].tex.reset (new MatrixTex<Color> (image, size, size * 2, size,size));
   faces[3].u_dir = Vec (-1, 0, 0);
   faces[3].v_dir = Vec (0, 0, -1);
 
   // Front
-  faces[4].tex.reset (new MatrixTex2<Color> (image, size, size, size, size));
+  faces[4].tex.reset (new MatrixTex<Color> (image, size, size, size, size));
   faces[4].u_dir = Vec (1, 0, 0);
   faces[4].v_dir = Vec (0, 1, 0);
 }

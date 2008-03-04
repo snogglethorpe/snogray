@@ -43,17 +43,38 @@ Ellipse::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
 
+  // The ellipse's two "radii".
+  //
+  Vec rad1 = ellipse->edge1 / 2;
+  Vec rad2 = ellipse->edge2 / 2;
+  dist_t inv_rad1_len = 1 / rad1.length ();
+  dist_t inv_rad2_len = 1 / rad1.length ();
+
   // Center of ellipse.
   //
-  Pos center = ellipse->corner + ellipse->edge1 / 2 + ellipse->edge2 / 2;
+  Pos center = ellipse->corner + rad1 + rad2;
 
   // Calculate the normal and tangent vectors.
   //
-  Vec norm = cross (ellipse->edge1, ellipse->edge2).unit ();
-  Vec s = (point - center).unit ();
+  Vec norm = cross (rad1, rad2).unit ();
+  Vec s = rad1 * inv_rad1_len;
   Vec t = cross (norm, s);
 
-  Intersect isec (ray, ellipse, Frame (point, s, t, norm), trace);
+  // Normal frame.
+  //
+  Frame norm_frame (point, s, t, norm);
+
+  // 2d texture coordinates.
+  //
+  Vec ocent = norm_frame.to (center);
+  UV tex_coords (-ocent.x * inv_rad1_len * 0.5f + 0.5f,
+		 -ocent.y * inv_rad2_len * 0.5f + 0.5f);
+  //
+  // TEX_COORDS will not be "correct" in case where edge1 and edge2 are
+  // skewed (not perpendicular); it's not really hard to calculate it
+  // correctly in that case, but a bit annoying.
+
+  Intersect isec (ray, ellipse, norm_frame, tex_coords, trace);
 
   isec.no_self_shadowing = true;
 

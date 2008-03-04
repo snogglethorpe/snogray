@@ -17,7 +17,9 @@
 
 #include "surface.h"
 
+
 namespace snogray {
+
 
 class Tripar : public Surface
 {
@@ -52,12 +54,13 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Tripar *_tripar)
-      : Surface::IsecInfo (ray), tripar (_tripar)
+    IsecInfo (const Ray &ray, const Tripar *_tripar, dist_t _u, dist_t _v)
+      : Surface::IsecInfo (ray), tripar (_tripar), u (_u), v (_v)
     { }
     virtual Intersect make_intersect (Trace &trace) const;
     virtual const Surface *surface () const { return tripar; }
     const Tripar *tripar;
+    dist_t u, v;
   };
 
   // Return true if this surface intersects RAY; if true is returned, the
@@ -74,8 +77,10 @@ private:
   bool parallelogram;
 };
 
+
 }
 
-#endif /* __TRIPAR_H__ */
+#endif // __TRIPAR_H__
+
 
 // arch-tag: cf7f49db-937d-4328-b7c0-3959241a191e

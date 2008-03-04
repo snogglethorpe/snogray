@@ -13,6 +13,7 @@
 #ifndef __MIRROR_H__
 #define __MIRROR_H__
 
+#include "tex.h"
 #include "material.h"
 #include "fresnel.h"
 
@@ -33,7 +34,7 @@ class Mirror : public Material
 {
 public:
 
-  Mirror (const Ior &_ior, const Color &_reflectance,
+  Mirror (const Ior &_ior, const TexVal<Color> &_reflectance,
 	  const Ref<const Material> &_underlying_material)
     : ior (_ior), reflectance (_reflectance),
       underlying_material (_underlying_material)
@@ -41,7 +42,9 @@ public:
 
   // A mirror with a simple lambertian underlying material.
   //
-  Mirror (const Ior &_ior, const Color &_reflectance, const Color &col = 0);
+  Mirror (const Ior &_ior,
+	  const TexVal<Color> &_reflectance,
+	  const TexVal<Color> &col = Color(0));
 
   // Return a new BRDF object for this material instantiated at ISEC.
   //
@@ -55,7 +58,7 @@ public:
   // Amount of light reflected (further modulated by a fresnel reflection
   // term using IOR).
   //
-  Color reflectance;
+  TexVal<Color> reflectance;
 
   // MATERIAL underlying the mirror coating, which does the real work.
   // This may be zero, for perfectly black surfaces.

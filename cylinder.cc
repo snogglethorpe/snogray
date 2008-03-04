@@ -91,11 +91,7 @@ Cylinder::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (t != 0)
     {
       ray.t1 = t;
-
-      coord_t ix = oray.origin.x + t * oray.dir.x;
-      coord_t iy = oray.origin.y + t * oray.dir.y;
-
-      return new (isec_ctx) IsecInfo (ray, this, ix, iy);
+      return new (isec_ctx) IsecInfo (ray, this, oray.extension (t));
     }
   else
     return 0;
@@ -107,10 +103,14 @@ Intersect
 Cylinder::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
-  Vec norm = cylinder->normal_to_world (Vec (isec_x, isec_y, 0)).unit ();
+  Vec onorm (isec_point.x, isec_point.y, 0);
+  Vec norm = cylinder->normal_to_world (onorm).unit ();
   Vec t = cylinder->local_to_world (Vec (0, 0, 1)).unit ();
   Vec s = cross (norm, t);
-  return Intersect (ray, cylinder, Frame (point, s, t, norm), trace);
+  UV tex_coords (atan2 (isec_point.y, isec_point.x) * INV_PIf * 0.5f + 0.5f,
+		 isec_point.z * 0.5f + 0.5f);
+  return Intersect (ray, cylinder, Frame (point, s, t, norm), tex_coords,
+		    trace);
 }
 
 // Return the strongest type of shadowing effect this surface has on

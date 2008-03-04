@@ -1,6 +1,6 @@
 // cook-torrance.h -- Cook-Torrance material
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #ifndef __COOK_TORRANCE_H__
 #define __COOK_TORRANCE_H__
 
+#include "tex.h"
 #include "material.h"
 #include "fresnel.h"
 
@@ -23,8 +24,8 @@ class CookTorrance : public Material
 {
 public:
 
-  CookTorrance (const Color &col, const Color &spec_col,
-		float _m, const Ior &_ior = 1.5)
+  CookTorrance (const TexVal<Color> &col, const TexVal<Color> &spec_col,
+		const TexVal<float> &_m, const Ior &_ior = 1.5)
     : color (col), specular_color (spec_col), m (_m), ior (_ior)
   { }
 
@@ -32,14 +33,14 @@ public:
   //
   virtual Brdf *get_brdf (const Intersect &isec) const;
 
-  Color color, specular_color;
+  TexVal<Color> color, specular_color;
 
   // Cook Torrance parameters:
 
   // m:  RMS slope of microfacets -- large m means more spread out
   // reflections.
   //
-  float m;
+  TexVal<float> m;
 
   // Index of refraction for calculating fresnel reflection term.
   //
@@ -49,7 +50,7 @@ public:
 
 }
 
-#endif /* __COOK_TORRANCE_H__ */
+#endif // __COOK_TORRANCE_H__
 
 
 // arch-tag: 73c818bb-1305-412f-a616-6950b8d9ef39

@@ -36,7 +36,8 @@ endif
 #
 noinst_LIBRARIES = libsnogcli.a libsnogimage.a libsnoglight.a		\
 	libsnogload.a libsnogload2.a libsnogmat.a libsnogrdrive.a	\
-	libsnogrender.a libsnogscene.a libsnogsurf.a libsnogutil.a
+	libsnogrender.a libsnogscene.a libsnogsurf.a libsnogtex.a	\
+	libsnogutil.a
 
 if use_lua
   noinst_LIBRARIES += libsnograw.a libluaexts.a
@@ -47,7 +48,7 @@ endif
 #
 EXTRA_DIST =							\
 	snogray.lua						\
-	load-obj.lua load-ug.lua load-stl.obj load-nff.lua	\
+	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg						\
 	autogen.sh						\
 	lpeg.html						\
@@ -153,13 +154,23 @@ libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
 #
 
 libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
-	coords.h cubemap.cc cubemap.h dist.h envmap.cc envmap.h frame.h	\
-	material-dict.cc material-dict.h material.cc material.h		\
-	matrix-tex2.cc matrix-tex2.h matrix-tex2.tcc matrix4.h medium.h	\
-	octree.cc octree.h pos.h quadratic-roots.h scene.cc scene.h	\
-	space.cc space.h space-builder.h sphere-isec.h spheremap.cc	\
-	spheremap.h surface.cc surface.h tex2.h tripar-isec.h tuple3.h	\
-	uv.h vec.h xform.h xform-base.h
+	coords.h dist.h frame.h material-dict.cc material-dict.h	\
+	material.cc material.h matrix4.h medium.h octree.cc octree.h	\
+	pos.h quadratic-roots.h scene.cc scene.h space.cc space.h	\
+	space-builder.h sphere-isec.h surface.cc surface.h tex.h	\
+	tex-coords.h tripar-isec.h tuple3.h uv.h vec.h xform.h		\
+	xform-base.h
+
+
+################################################################
+#
+# Snogray texture library, libsnogtex.a
+#
+
+libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
+	check-tex.h cubemap.cc cubemap.h envmap.cc envmap.h grey-tex.h	\
+	intens-tex.h matrix-linterp.h matrix-tex.cc matrix-tex.h	\
+	matrix-tex.tcc spheremap.cc spheremap.h xform-tex.h
 
 
 ################################################################
@@ -321,7 +332,7 @@ LIBS += $(MUDFLAP:-f%=-l%)
 # Groups of associated libraries
 #
 CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
-	libsnogscene.a
+	libsnogtex.a libsnogscene.a
 LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogload2.a	\
 	$(libsnogload2_LIBS)
 IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS)

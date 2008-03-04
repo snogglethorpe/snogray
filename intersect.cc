@@ -47,12 +47,14 @@ Intersect::finish_init ()
 
 
 Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Frame &_normal_frame, Trace &_trace)
+		      const Frame &_normal_frame, const UV &_tex_coords,
+		      Trace &_trace)
   : ray (_ray), surface (_surface),
     normal_frame (_normal_frame),
     v (normal_frame.to (-_ray.dir.unit ())), back (v.z < 0),
     material (&*_surface->material), brdf (0),
     smoothing_group (0), no_self_shadowing (false),
+    tex_coords (normal_frame.origin, _tex_coords),
     trace (_trace)
 {
   finish_init ();

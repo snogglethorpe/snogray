@@ -38,15 +38,16 @@ public:
   //
   static const float GLOSSY_M = 0.5;
 
-  CookTorranceBrdf (const CookTorrance &_ct, const Intersect &_isec)
-    : Brdf (_isec), ct (_ct),
-      spec_dist (ct.m), diff_dist (),
-      diff_weight (ct.color.intensity ()),
+  CookTorranceBrdf (const CookTorrance &ct, const Intersect &_isec)
+    : Brdf (_isec),
+      m (ct.m.eval (isec)), spec_dist (m), diff_dist (),
+      diff_col (ct.color.eval (isec)), spec_col (ct.specular_color.eval (isec)),
+      diff_weight (diff_col.intensity ()),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.trace.medium ? isec.trace.medium->ior : 1, ct.ior),
       nv (isec.cos_n (isec.v)), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv),
-      spec_flags (ct.m < GLOSSY_M ? IllumSample::GLOSSY : IllumSample::DIFFUSE)
+      spec_flags (m < GLOSSY_M ? IllumSample::GLOSSY : IllumSample::DIFFUSE)
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.
@@ -140,7 +141,7 @@ private:
 
     pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
 
-    return ct.color * diff + ct.specular_color * spec;
+    return diff_col * diff + spec_col * spec;
   }
 
   void gen_sample (float u, float v, IllumSampleVec &samples) const
@@ -181,12 +182,18 @@ private:
     s->brdf_val = val (l, h, s->brdf_pdf);
   }
 
-  const CookTorrance &ct;
+  // M value used.
+  //
+  float m;
 
   // Sample distributions for specular and diffuse components.
   //
   const WardDist spec_dist;
   const CosDist diff_dist;
+
+  // Color of diffuse/specular components.
+  //
+  Color diff_col, spec_col;
 
   // Weight used for sampling diffuse component (0 = don't sample
   // diffuse at all, 1 = only sample diffuse).  The "specular" component

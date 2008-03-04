@@ -13,11 +13,12 @@
 #ifndef __SPHEREMAP_H__
 #define __SPHEREMAP_H__
 
+#include "tex.h"
 #include "snogmath.h"
 #include "excepts.h"
 #include "color.h"
 #include "uv.h"
-#include "matrix-tex2.h"
+#include "matrix-tex.h"
 #include "envmap.h"
 
 
@@ -159,10 +160,8 @@ public:
 
   virtual Color map (const Vec &dir) const
   {
-    UV uv = mapping.map (dir);
-    return tex.map (uv.u, uv.v);
+    return tex.eval (TexCoords (Pos (dir), mapping.map (dir)));
   }
-
 
   // Return a "light-map" -- a lat-long format spheremap image
   // containing light values of the environment map -- for this
@@ -178,7 +177,7 @@ private:
 #if 0
   virtual void fill (FillDst &dst) const
   {
-    for (MatrixTex2<Color>::const_iterator p = tex.begin ();
+    for (MatrixTex<Color>::const_iterator p = tex.begin ();
 	 p != tex.end (); ++p)
       dst.put (mapping.map (p.uv ()), p.val ());
   }
@@ -186,7 +185,7 @@ private:
 
   // The texture wrapped around the sphere.
   //
-  MatrixTex2<Color> tex;
+  MatrixTex<Color> tex;
 
   Mapping mapping;
 };
@@ -201,7 +200,7 @@ Ref<Image> Spheremap<LatLongMapping>::light_map () const;
 
 }
 
-#endif /* __SPHEREMAP_H__ */
+#endif // __SPHEREMAP_H__
 
 
 // arch-tag: 13f3c349-9a3e-4337-ba26-cf083997542f

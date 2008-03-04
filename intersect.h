@@ -13,11 +13,13 @@
 #ifndef __INTERSECT_H__
 #define __INTERSECT_H__
 
+#include "uv.h"
 #include "ray.h"
 #include "frame.h"
 #include "color.h"
 #include "trace.h"
 #include "material.h"
+#include "tex-coords.h"
 
 
 namespace snogray {
@@ -35,7 +37,8 @@ class Intersect
 public:
 
   Intersect (const Ray &_ray, const Surface *_surface,
-	     const Frame &_normal_frame, Trace &_trace);
+	     const Frame &_normal_frame, const UV &_tex_coords,
+	     Trace &_trace);
 
   ~Intersect ();
 
@@ -125,6 +128,10 @@ public:
   //
   bool no_self_shadowing;
 
+  // Texture coordinates for this intersection.
+  //
+  TexCoords tex_coords;
+
   // Trace this intersection came from.
   //
   Trace &trace;
@@ -162,6 +169,7 @@ inline void operator delete (void *mem, const snogray::Intersect &isec)
 }
 
 
-#endif /* __INTERSECT_H__ */
+#endif // __INTERSECT_H__
+
 
 // arch-tag: cce437f9-75b6-42e5-bb0f-ee18693d6799

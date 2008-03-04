@@ -350,7 +350,7 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
 
   // Make the intersect object.
   //
-  Intersect isec (ray, triangle, Frame (point, s, t, norm), trace);
+  Intersect isec (ray, triangle, Frame (point, s, t, norm), UV (u, v), trace);
 
   isec.no_self_shadowing = true;
   isec.smoothing_group = static_cast<const void *>(&mesh);

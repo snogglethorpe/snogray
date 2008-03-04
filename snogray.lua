@@ -298,30 +298,35 @@ end
 --
 function lambert (params)
    local diff
-   if is_color_spec (params) then
-      diff = color (params)
+   if is_color_spec (params) or is_color_tex (params) then
+      diff = params
    else
-      diff = color (params.diffuse or params.color or params[1] or 1)
+      diff = params.diffuse or params.color or params[1] or 1
    end
+   diff = color_tex_val (diff)
    return raw.lambert (diff)
 end
 
 function cook_torrance (params)
    local diff, spec, m, i
 
-   if is_color_spec (params) then
-      diff = color (params)
+   if is_color_spec (params) or is_color_tex (params) then
+      diff = params
       spec = white
       m = 0.1
       i = 1.5
    else
-       diff = color (params.diffuse or params.diff or params.d
-		     or params.color or params[1] or 1)
-       spec = color (params.specular or params.spec or params.s
-		     or params[2] or 1)
+       diff = params.diffuse or params.diff or params.d
+	 or params.color or params[1] or 1
+       spec = params.specular or params.spec or params.s
+	 or params[2] or 1
        m = params.m or params[3] or 1
        i = ior (params.ior or params[4] or 1.5)
    end
+
+   diff = color_tex_val (diff)
+   spec = color_tex_val (spec)
+   m = float_tex_val (m)
 
    return raw.cook_torrance (diff, spec, m, i)
 end
@@ -341,22 +346,22 @@ function mirror (params)
    local _col = black
    local _under
 
-   if is_color_spec (params) then
+   if is_color_spec (params) or is_color_tex (params) then
       _reflect = params
    elseif is_ior_spec (params) then
       _ior = params
    elseif params then
-      _reflect = params.reflect or params.reflectance or params[1] or _reflect
+      _reflect = params.reflect or params.reflectance or params.refl or params[1] or _reflect
       _ior = params.ior or params[2] or _ior
       _col = params.color or params[3] or _col
       _under = params.underlying or params.under or params[4]
    end
 
    if not _under then
-      _under = color (_col)
+      _under = color_tex_val (_col)
    end
 
-   return raw.mirror (ior (_ior), color (_reflect), _under);
+   return raw.mirror (ior (_ior), color_tex_val (_reflect), _under);
 end
 
 -- Return a glass material.
@@ -753,6 +758,126 @@ end
 
 image = raw.image
 
+
+----------------------------------------------------------------
+--
+-- Textures
+
+function is_float_tex (val)
+   local st = swig_type (val)
+   return st == "snogray::Ref<snogray::Tex<float > const > *|snogray::FloatTexRef *"
+end
+
+function is_color_tex (val)
+   local st = swig_type (val)
+   return st == "snogray::ColorTexRef *|snogray::Ref<snogray::Tex<snogray::Color > const > *"
+end
+
+local color_tex_keys = set{
+   "snogray::Color *", "_p_snogray__Color",
+   "snogray::Ref<snogray::Tex<snogray::Color > const > *"
+}
+function is_color_or_color_tex (val)
+   return color_tex_keys[swig_type (val)]
+end
+
+function color_tex_val (val)
+   if is_float_tex (val) then
+      val = raw.grey_tex (raw.FloatTexVal (val))
+   elseif is_color_spec (val) then
+      val = color (val)
+   end
+   return raw.ColorTexVal (val)
+end
+
+function float_tex_val (val)
+   if is_color_tex (val) then
+      val = raw.intens_tex (raw.ColorTexVal (val))
+   end
+   return raw.FloatTexVal (val)
+end
+
+function tex_val (tex)
+   if is_float_tex (tex) then
+      return raw.FloatTexVal (tex)
+   elseif is_color_tex (tex) then
+      return raw.ColorTexVal (tex)
+   elseif type (tex) == 'number' then
+      return raw.FloatTexVal (tex)
+   else
+      return raw.ColorTexVal (color (tex))
+   end
+end
+
+function tex_vals (tex1, tex2)
+   if is_color_tex (tex1) or is_color_tex (tex2) or is_color_spec (tex1) or is_color_spec (tex2) then
+      return color_tex_val (tex1), color_tex_val (tex2)
+   else
+      return float_tex_val (tex1), float_tex_val (tex2)
+   end
+end
+
+image_tex = raw.image_tex
+mono_image_tex = raw.mono_image_tex
+
+function grey_tex (val) return raw.grey_tex (float_tex_val (val)) end
+function intens_tex (val) return raw.intens_tex (color_tex_val (val)) end
+
+local arith_tex_ops = {
+   ADD = 0, SUB = 1, MUL = 2, DIV = 3, MOD = 4, POW = 5,
+   MIN = 6, MAX = 7, AVG = 8,
+   MIRROR = 9,			-- abs (x - y)
+}
+
+function arith_tex (op, arg1, arg2)
+   op = arith_tex_ops[op]
+   return raw.arith_tex (op, tex_vals (arg1, arg2))
+end
+
+function add_tex (tex1, tex2)
+   return arith_tex ('ADD', tex1, tex2)
+end
+function sub_tex (tex1, tex2)
+   return arith_tex ('SUB', tex1, tex2)
+end
+function mul_tex (tex1, tex2)
+   return arith_tex ('MUL', tex1, tex2)
+end
+function div_tex (tex1, tex2)
+   return arith_tex ('DIV', tex1, tex2)
+end
+function mod_tex (tex1, tex2)
+   return arith_tex ('MOD', tex1, tex2)
+end
+function pow_tex (tex1, tex2)
+   return arith_tex ('POW', tex1, tex2)
+end
+function min_tex (tex1, tex2)
+   return arith_tex ('MIN', tex1, tex2)
+end
+function max_tex (tex1, tex2)
+   return arith_tex ('MAX', tex1, tex2)
+end
+function avg_tex (tex1, tex2)
+   return arith_tex ('AVG', tex1, tex2)
+end
+function mirror_tex (tex1, tex2)
+   return arith_tex ('MIRROR', tex1, tex2)
+end
+function abs_tex (tex)
+   return arith_tex ('MIRROR', tex, 0)
+end
+function neg_tex (tex)
+   return arith_tex ('SUB', 0, tex)
+end
+
+function xform_tex (xform, tex)
+   return raw.xform_tex (xform, tex_val (tex))
+end
+
+function check_tex (tex1, tex2)
+   return raw.check_tex (tex_vals (tex1, tex2))
+end
 
 ----------------------------------------------------------------
 --

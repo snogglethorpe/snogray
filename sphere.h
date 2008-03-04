@@ -23,14 +23,18 @@ class Sphere : public Surface
 {
 public:
 
+  Sphere (const Ref<const Material> &mat, dist_t _radius, const Frame &_frame)
+    : Surface (mat), radius (_radius), frame (_frame)
+  { }
+
   Sphere (const Ref<const Material> &mat, const Pos &_center, dist_t _radius)
-    : Surface (mat), center (_center), radius (_radius), axis (Vec (0, 0, 1))
+    : Surface (mat), radius (_radius), frame (_center)
   { }
 
   Sphere (const Ref<const Material> &mat,
 	  const Pos &_center, const Vec &_radius)
-    : Surface (mat), center (_center),
-      radius (_radius.length ()), axis (_radius.unit ())
+    : Surface (mat),
+      radius (_radius.length ()), frame (_center, _radius.unit ())
   { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
@@ -63,16 +67,17 @@ private:
     const Sphere *sphere;
   };
 
-  Pos center;
   dist_t radius;
 
-  // A unit vector pointing along the "axis" of the sphere.
+  // A frame describing the sphere's coordinate system.
   //
-  Vec axis;
+  Frame frame;
 };
+
 
 }
 
-#endif /* __SPHERE_H__ */
+#endif // __SPHERE_H__
+
 
 // arch-tag: 0284bdaf-1330-46c4-875b-919152357490

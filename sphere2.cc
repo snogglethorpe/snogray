@@ -70,7 +70,13 @@ Sphere2::IsecInfo::make_intersect (Trace &trace) const
   Vec t = sphere->local_to_world (ot).unit ();
   Vec s = cross (norm, t);
 
-  return Intersect (ray, sphere, Frame (point, s, t, norm), trace);
+  // Calculate texture coords.  Note that ONORM is also the intersection
+  // location in object coordinates.
+  //
+  UV tex_coords (atan2 (onorm.y, onorm.x) * INV_PIf * 0.5f + 0.5f,
+		 asin (clamp (onorm.z, -1.f, 1.f)) * INV_PIf + 0.5f);
+
+  return Intersect (ray, sphere, Frame (point, s, t, norm), tex_coords, trace);
 }
 
 // Return the strongest type of shadowing effect this surface has on

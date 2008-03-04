@@ -1,4 +1,4 @@
-// xform.h -- Affine transformations
+// xform.h -- 3d affine transformations
 //
 //  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
@@ -15,6 +15,7 @@
 
 #include "coords.h"
 #include "vec.h"
+#include "uv.h"
 
 #include "xform-base.h"
 
@@ -22,7 +23,7 @@
 namespace snogray {
 
 
-// An affine transformation.
+// A 3d affine transformation.
 //
 template<typename T>
 class TXform : public XformBase<T>
@@ -43,6 +44,14 @@ public:
     el (3, 2) = tup.z;
   }
 
+  // A UV value yields a 2d translation
+  template<typename T2>
+  TXform (const TUV<T2> &uv)
+  {
+    el (3, 0) = uv.u;
+    el (3, 1) = uv.v;
+  }
+
   // Allow easy down-casting from a raw matrix
   //
   template<typename T2>
@@ -58,7 +67,11 @@ public:
   {
     return TXform (offs);
   }
-  static TXform translation (T x, T y, T z)
+  static TXform translation (const TUV<T> &offs)
+  {
+    return TXform (offs);
+  }
+  static TXform translation (T x, T y, T z = 0)
   {
     return TXform (TVec<T> (x, y, z));
   }
@@ -71,9 +84,9 @@ public:
   }
 
   // Return a transform which scales by factors of S_X, S_Y, and S_Z in the
-  // corresponding dimensions.
+  // corresponding dimensions.  The Z axis is defaulted for convenient 2d use.
   //
-  static TXform scaling (T s_x, T s_y, T s_z)
+  static TXform scaling (T s_x, T s_y, T s_z = 1)
   {
     TXform xform;
     xform (0, 0) = s_x;
@@ -147,6 +160,13 @@ public:
     return xform;
   }
 
+  // An alias for z_rotation which is nice for 2d rotations.
+  //
+  static TXform rotation (T angle)
+  {
+    return z_rotation (angle);
+  }
+
   // Return a rotation transformation which converts to a coordinate
   // system with (orthonormal) axes X_AXIS, Y_AXIS, and Z_AXIS.
   //
@@ -161,13 +181,19 @@ public:
   }
 
   // Translate this transformation by the given offset.
+  // The Z axis is defaulted for convenient 2d use.
   //
-  TXform &translate (T x, T y, T z)
+  TXform &translate (T x, T y, T z = 0)
   {
     *this *= translation (x, y, z);
     return *this;
   }
   TXform &translate (const TVec<T> &offs)
+  {
+    *this *= translation (offs);
+    return *this;
+  }
+  TXform &translate (const TUV<T> &offs)
   {
     *this *= translation (offs);
     return *this;
@@ -182,9 +208,10 @@ public:
   }
 
   // Scale this transform by the scale factors S_X, S_Y, and S_Z in the
-  // corresponding dimensions.
+  // corresponding dimensions.  The Z axis is defaulted for convenient 2d
+  // use.
   //
-  TXform &scale (T s_x, T s_y, T s_z)
+  TXform &scale (T s_x, T s_y, T s_z = 1)
   {
     *this *= scaling (s_x, s_y, s_z);
     return *this;
@@ -211,6 +238,11 @@ public:
   TXform &rotate (TVec<T> axis, T angle)
   {
     *this *= rotation (axis, angle);
+    return *this;
+  }
+  TXform &rotate (T angle)	// alias for rotate_z, for 2d use
+  {
+    *this *= rotation (angle);
     return *this;
   }
 
@@ -305,7 +337,7 @@ typedef TXform<sdist_t> SXform;
 
 }
 
+#endif // __XFORM_H__
 
-#endif /* __XFORM_H__ */
 
 // arch-tag: e168d3bc-8dfe-4a9a-8708-a79db007005e

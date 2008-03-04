@@ -31,7 +31,7 @@ class LambertBrdf : public Brdf
 public:
 
   LambertBrdf (const Lambert &_lambert, const Intersect &_isec)
-    : Brdf (_isec), lambert (_lambert)
+    : Brdf (_isec), color (_lambert.color.eval (_isec))
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.
@@ -47,7 +47,7 @@ public:
 	float pdf;
 	Vec dir = dist.sample (u, v, pdf);
 	if (isec.cos_n (dir) > 0)
-	  samples.push_back (IllumSample (dir, lambert.color * pdf, pdf,
+	  samples.push_back (IllumSample (dir, color * pdf, pdf,
 					  IllumSample::DIFFUSE));
       }
 
@@ -64,14 +64,14 @@ public:
     for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
       {
 	s->brdf_pdf = dist.pdf (isec.cos_n (s->dir));
-	s->brdf_val = lambert.color * s->brdf_pdf;
+	s->brdf_val = color * s->brdf_pdf;
 	s->flags |= IllumSample::DIFFUSE;
       }
   }
 
 private:
 
-  const Lambert &lambert;
+  Color color;
 
   CosDist dist;
 };

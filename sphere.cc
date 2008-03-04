@@ -28,7 +28,8 @@ using namespace snogray;
 const Surface::IsecInfo *
 Sphere::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
-  dist_t t = sphere_intersect (center, radius, ray.origin, ray.dir, ray.t0);
+  dist_t t
+    = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);
   if (t > ray.t0 && t < ray.t1)
     {
       ray.t1 = t;
@@ -47,13 +48,20 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
 
   // Calculate the normal and tangent vectors.
   //
-  Vec norm = (point - sphere->center).unit ();
-  Vec s = cross (norm, sphere->axis).unit ();
+  Vec norm = (point - sphere->frame.origin).unit ();
+  Vec s = cross (norm, sphere->frame.z).unit ();
   if (s.length_squared() < Eps)
     s = norm.perpendicular ();	// degenerate case where NORM == AXIS
   Vec t = cross (norm, s);
 
-  Intersect isec (ray, sphere, Frame (point, s, t, norm), trace);
+  // Calculate texture coords.
+  //
+  Vec opoint = sphere->frame.to (point);
+  UV tex_coords (atan2 (opoint.y, opoint.x) * INV_PIf * 0.5f + 0.5f,
+		 asin (clamp (opoint.z / sphere->radius, -1.f, 1.f))
+		 * INV_PIf + 0.5f);
+
+  Intersect isec (ray, sphere, Frame (point, s, t, norm), tex_coords, trace);
 
   isec.no_self_shadowing = !isec.back;
 
@@ -67,7 +75,8 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
 //
 Material::ShadowType Sphere::shadow (const ShadowRay &ray) const
 {
-  dist_t t = sphere_intersect (center, radius, ray.origin, ray.dir, ray.t0);
+  dist_t t
+    = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);
   if (t > ray.t0 && t < ray.t1)
     return material->shadow_type;
   else
@@ -78,8 +87,9 @@ Material::ShadowType Sphere::shadow (const ShadowRay &ray) const
 BBox
 Sphere::bbox () const
 {
-  return BBox (Pos (center.x - radius, center.y - radius, center.z - radius),
-	       Pos (center.x + radius, center.y + radius, center.z + radius));
+  const Pos &cent = frame.origin;
+  return BBox (Pos (cent.x - radius, cent.y - radius, cent.z - radius),
+	       Pos (cent.x + radius, cent.y + radius, cent.z + radius));
 }
 
 

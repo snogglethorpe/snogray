@@ -22,9 +22,11 @@ using namespace snogray;
 
 // A mirror with a simple lambertian underlying material.
 //
-Mirror::Mirror (const Ior &_ior, const Color &_reflectance, const Color &col)
+Mirror::Mirror (const Ior &_ior,
+		const TexVal<Color> &_reflectance, const TexVal<Color> &col)
   : ior (_ior), reflectance (_reflectance),
-    underlying_material (col < Eps ? 0 : new Lambert (col))
+    underlying_material ((!col.tex && col.default_val < Eps)
+			 ? 0 : new Lambert (col))
 { }
 
 
@@ -38,7 +40,7 @@ public:
 		       ? _mirror.underlying_material->get_brdf (_isec)
 		       : 0),
       fres (isec.trace.medium ? isec.trace.medium->ior : 1, _mirror.ior),
-      reflectance (_mirror.reflectance)
+      reflectance (_mirror.reflectance.eval (isec))
   { }
 
   // Generate around NUM samples of this material and add them to SAMPLES.

@@ -58,8 +58,8 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Cylinder *_cylinder, coord_t ix, coord_t iy)
-      : Surface::IsecInfo (ray), cylinder (_cylinder), isec_x (ix), isec_y (iy)
+    IsecInfo (const Ray &ray, const Cylinder *_cylinder, const Pos &_isec_point)
+      : Surface::IsecInfo (ray), cylinder (_cylinder), isec_point (_isec_point)
     { }
 
     virtual Intersect make_intersect (Trace &trace) const;
@@ -68,10 +68,9 @@ private:
 
     const Cylinder *cylinder;
 
-    // X/Y coordinates in the cylinder's local coordinate system of the
-    // intersection; used to calculate the normal.
+    // Intersection point in the cylinder's local coordinate system.
     //
-    coord_t isec_x, isec_y;
+    Pos isec_point;
   };
 
 };
@@ -79,7 +78,7 @@ private:
 
 }
 
+#endif // __CYLINDER_H__
 
-#endif /* __CYLINDER_H__ */
 
 // arch-tag: 583e4c68-5f8f-4d18-9100-3abab4b525ce

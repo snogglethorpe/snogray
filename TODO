@@ -38,41 +38,6 @@ Todo list for snogray
      formats like XMP and IPTC can be supported.
 
 
- + Texture support
-
-     Add a "TextureMap" data type which maps between a surface point and
-     texture coordinates.
-
-     New class TexCoords to hold two texture coordinates?
-
-     Add a "Pigment" data type, which contains a Color and a Texture
-     pointer; most places where Color is now used in materials, should
-     use Pigment instead (have constructors so that it can be
-     initialized just like a color, resulting in a 0 Texture pointer).
-
-     Pigment has a "color(...)" method, which takes an a texture-map and
-     a location, and returns a color by using the texture-map to map the
-     location into texture coordinates, and looking them in the texture
-     (if the pigment's texture is 0 of course, return its color).
-
-     Surface class gets a "texture_coords" method that returns texture
-     coordinates for a given point on the surface.  PrimarySurface gets
-     a new field to explicitly store a texture map, and uses that to
-     implement texture_coords; mesh triangles use something else, e.g.,
-     explicit per-vertex texture-coordinate tables with interpolation.
-
-     Intersect constructor should look up and cache texture-coordinates
-     for the intersection point.
-
-     Anyplace where a Color has been replaced by a Pigment should now
-     call `pigment.color (isec.tex_coords)' instead of just returning
-     the color directly (when the pigment's texture pointers is 0, this
-     will be almost as fast).
-
-     Similar techniques are needed for looking up normals; shared
-     superclass with textures?
-
- 
  + Write a C extension to Lua for quickly parsing large vertex/triangle
    arrays using some very simplistic grammar, essentially requiring they
    being arrays of float/int constants in the same order, but with a
@@ -235,6 +200,42 @@ Todo list for snogray
 Completed items:
 
 
+ [DONE]
+ + Texture support
+
+     Add a "TextureMap" data type which maps between a surface point and
+     texture coordinates.
+
+     New class TexCoords to hold two texture coordinates?
+
+     Add a "Pigment" data type, which contains a Color and a Texture
+     pointer; most places where Color is now used in materials, should
+     use Pigment instead (have constructors so that it can be
+     initialized just like a color, resulting in a 0 Texture pointer).
+
+     Pigment has a "color(...)" method, which takes an a texture-map and
+     a location, and returns a color by using the texture-map to map the
+     location into texture coordinates, and looking them in the texture
+     (if the pigment's texture is 0 of course, return its color).
+
+     Surface class gets a "texture_coords" method that returns texture
+     coordinates for a given point on the surface.  PrimarySurface gets
+     a new field to explicitly store a texture map, and uses that to
+     implement texture_coords; mesh triangles use something else, e.g.,
+     explicit per-vertex texture-coordinate tables with interpolation.
+
+     Intersect constructor should look up and cache texture-coordinates
+     for the intersection point.
+
+     Anyplace where a Color has been replaced by a Pigment should now
+     call `pigment.color (isec.tex_coords)' instead of just returning
+     the color directly (when the pigment's texture pointers is 0, this
+     will be almost as fast).
+
+     Similar techniques are needed for looking up normals; shared
+     superclass with textures?
+
+ 
  [DONE, more generally, by rewriting illumination to use the IllumMgr
   and subclasses of Illum]
 

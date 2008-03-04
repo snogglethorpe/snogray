@@ -31,7 +31,7 @@ Tripar::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (intersects (ray, t, u, v))
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (ray, this);
+      return new (isec_ctx) IsecInfo (ray, this, u, v);
     }
 
   return 0;
@@ -50,7 +50,7 @@ Tripar::IsecInfo::make_intersect (Trace &trace) const
   Vec s = tripar->e1.unit ();
   Vec t = cross (norm, s);
 
-  Intersect isec (ray, tripar, Frame (point, s, t, norm), trace);
+  Intersect isec (ray, tripar, Frame (point, s, t, norm), UV (u, v), trace);
 
   isec.no_self_shadowing = true;
 

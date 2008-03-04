@@ -1,6 +1,6 @@
 // cubemap.h -- Texture wrapped around a cube
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,11 +16,12 @@
 #include <memory>
 
 #include "color.h"
-#include "tex2.h"
+#include "tex.h"
 #include "envmap.h"
 
 
 namespace snogray {
+
 
 class Cubemap : public Envmap
 {
@@ -55,7 +56,7 @@ private:
 
   struct Face
   {
-    std::auto_ptr<Tex2<Color> > tex;
+    std::auto_ptr<Tex<Color> > tex;
 
     Vec u_dir, v_dir;
   };
@@ -65,8 +66,10 @@ private:
   Face faces[6];
 };
 
+
 }
 
-#endif /* __CUBEMAP_H__ */
+#endif // __CUBEMAP_H__
+
 
 // arch-tag: dacaf2e7-e81c-4562-b7db-9917e9d55994
