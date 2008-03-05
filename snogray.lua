@@ -265,8 +265,74 @@ define_color ("yellow",	{red=1, green=1})
 
 ----------------------------------------------------------------
 --
--- materials
+-- Basic texture support
 
+function is_float_tex (val)
+   return nice_type (val) == 'Tex<float>'
+end
+
+function is_color_tex (val)
+   return nice_type (val) == 'Tex<Color>'
+end
+
+-- Return VAL, which should either be a color or a color texture, boxed
+-- into a TexVal<Color> container.
+--
+local function color_tex_val (val)
+   if is_float_tex (val) then
+      val = raw.grey_tex (raw.FloatTexVal (val))
+   elseif is_color_spec (val) then
+      val = color (val)
+   end
+   return raw.ColorTexVal (val)
+end
+
+-- Return VAL, which should either be a number or a float texture, boxed
+-- into a TexVal<float> container.
+--
+local function float_tex_val (val)
+   if is_color_tex (val) then
+      val = raw.intens_tex (raw.ColorTexVal (val))
+   end
+   return raw.FloatTexVal (val)
+end
+
+-- Return VAL boxed into either a TexVal<Color> or a TexVal<float>
+-- container, whichever is appropriate.
+--
+local function tex_val (tex)
+   if is_float_tex (tex) then
+      return raw.FloatTexVal (tex)
+   elseif is_color_tex (tex) then
+      return raw.ColorTexVal (tex)
+   elseif type (tex) == 'number' then
+      return raw.FloatTexVal (tex)
+   else
+      return raw.ColorTexVal (color (tex))
+   end
+end
+
+-- Return VAL1 and VAL2 boxed into a pair of either TexVal<Color> or
+-- TexVal<float> containers, whichever are appropriate.  Both VAL1 and
+-- VAL2 are examined to make the decision; a mixture of Color and float
+-- values results in the floating value being automatically converted to
+-- a Color value to match.
+--
+local function tex_vals (val1, val2)
+   if is_color_tex (val1) or is_color_tex (val2)
+      or (type(val1) ~= 'number' and is_color_spec (val1))
+      or (type(val2) ~= 'number' and is_color_spec (val2))
+   then
+      return color_tex_val (val1), color_tex_val (val2)
+   else
+      return float_tex_val (val1), float_tex_val (val2)
+   end
+end
+
+
+----------------------------------------------------------------
+--
+-- materials
 
 function is_material (val)
    return nice_type (val) == 'Material'
@@ -772,68 +838,8 @@ image = raw.image
 --
 -- Textures
 
-function is_float_tex (val)
-   return nice_type (val) == 'Tex<float>'
-end
-
-function is_color_tex (val)
-   return nice_type (val) == 'Tex<Color>'
-end
-
--- Return VAL, which should either be a color or a color texture, boxed
--- into a TexVal<Color> container.
+-- Image textures (read from a file)
 --
-function color_tex_val (val)
-   if is_float_tex (val) then
-      val = raw.grey_tex (raw.FloatTexVal (val))
-   elseif is_color_spec (val) then
-      val = color (val)
-   end
-   return raw.ColorTexVal (val)
-end
-
--- Return VAL, which should either be a number or a float texture, boxed
--- into a TexVal<float> container.
---
-function float_tex_val (val)
-   if is_color_tex (val) then
-      val = raw.intens_tex (raw.ColorTexVal (val))
-   end
-   return raw.FloatTexVal (val)
-end
-
--- Return VAL boxed into either a TexVal<Color> or a TexVal<float>
--- container, whichever is appropriate.
---
-function tex_val (tex)
-   if is_float_tex (tex) then
-      return raw.FloatTexVal (tex)
-   elseif is_color_tex (tex) then
-      return raw.ColorTexVal (tex)
-   elseif type (tex) == 'number' then
-      return raw.FloatTexVal (tex)
-   else
-      return raw.ColorTexVal (color (tex))
-   end
-end
-
--- Return VAL1 and VAL2 boxed into a pair of either TexVal<Color> or
--- TexVal<float> containers, whichever are appropriate.  Both VAL1 and
--- VAL2 are examined to make the decision; a mixture of Color and float
--- values results in the floating value being automatically converted to
--- a Color value to match.
---
-local function tex_vals (val1, val2)
-   if is_color_tex (val1) or is_color_tex (val2)
-      or (type(val1) ~= 'number' and is_color_spec (val1))
-      or (type(val2) ~= 'number' and is_color_spec (val2))
-   then
-      return color_tex_val (val1), color_tex_val (val2)
-   else
-      return float_tex_val (val1), float_tex_val (val2)
-   end
-end
-
 image_tex = raw.image_tex
 mono_image_tex = raw.mono_image_tex
 
