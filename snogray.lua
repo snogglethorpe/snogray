@@ -823,8 +823,11 @@ end
 -- values results in the floating value being automatically converted to
 -- a Color value to match.
 --
-function tex_vals (val1, val2)
-   if is_color_tex (val1) or is_color_tex (val2) or is_color_spec (val1) or is_color_spec (val2) then
+local function tex_vals (val1, val2)
+   if is_color_tex (val1) or is_color_tex (val2)
+      or (type(val1) ~= 'number' and is_color_spec (val1))
+      or (type(val2) ~= 'number' and is_color_spec (val2))
+   then
       return color_tex_val (val1), color_tex_val (val2)
    else
       return float_tex_val (val1), float_tex_val (val2)
