@@ -47,7 +47,11 @@ public:
 
   Ref () : obj (0) { }
   Ref (T *_obj) : obj (_obj) { if (obj) obj->ref (); }
-  Ref (const Ref &ref) : obj (ref.obj) { if (obj) obj->ref (); }
+  Ref (const Ref &ref) : obj (&*ref) { if (obj) obj->ref (); }
+
+  template<class T2>
+  Ref (const Ref<T2> &ref) : obj (&*ref) { if (obj) obj->ref (); }
+
   ~Ref () { if (obj) obj->deref (); }
 
   T &operator* () const { return *obj; }
@@ -63,22 +67,21 @@ public:
 
   //operator T* () const { return obj; }
 
-  Ref &operator= (T *new_obj)
+  template<class T2>
+  Ref &operator= (T2 *new_obj)
   {
-    if (obj != new_obj)
-      {
-	if (obj)
-	  obj->deref ();
-	obj = new_obj;
-	if (obj)
-	  obj->ref ();
-      }
+    if (new_obj)
+      new_obj->ref ();
+    if (obj)
+      obj->deref ();
+    obj = new_obj;
     return *this;
   }
-  Ref &operator= (const Ref &ref)
-  {
-    return operator= (ref.obj);
-  }
+
+  Ref &operator= (const Ref &ref) { return operator= (&*ref); }
+
+  template<class T2>
+  Ref &operator= (const Ref<T2> &ref) { return operator= (&*ref); }
 
 private:
 
