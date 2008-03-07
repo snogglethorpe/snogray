@@ -10,6 +10,30 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
+//
+// Swig's understanding of C++ is imperfect, so in various cases we
+// lie to it, giving different source code for the swig input than is
+// actually compiled elsewhere:
+//
+//   (1) For function arguments with a type of "const std::string &",
+// 	 we use "const char *" in the declarations below (and rely on
+// 	 the automatic C++ conversion to translate), because swig is
+// 	 more functional with char pointers (e.g. it automatically
+// 	 converts to/from the client language's string type).
+//
+//   (2) We generally omit "const" from types used in Ref's, where
+//       const is used in the real code; e.g., if the real code says
+//       "Ref<const T>", we tell swig it's "Ref<T>" instead.  The
+//       reason is that whereas the compiler understands that a value
+//       with type "Ref<T>" can be assigned to or used to initialize a
+//       variable of type "Ref<const T>" (there are appropriate
+//       overloads in the Ref definition to allow this), swig doesn't
+//       understand this, and generally mucks up type-checking as a
+//       result.  To avoid these problems we basically just always use
+//       Ref<T> and let the compiler deal with making everything right
+//       (which it does).
+//
+
 # This is the "raw" interface to snogray
 #
 %module snograw
@@ -83,14 +107,6 @@
   }
 
 %}
-
-//
-// Note: for function arguments with a type of "const std::string &", we
-// use "const char *" in the declarations below (and rely on the
-// automatic C++ conversion to translate), because swig is more
-// functional with char pointers (e.g. it automatically converts to/from
-// the client language's string type).
-//
 
 %include "coords.h"
 
@@ -331,18 +347,59 @@ namespace snogray {
     Ref ();
     Ref (T *_obj);
     Ref (const Ref &ref);
+
     ~Ref ();
 
-    bool null () const { return !obj; }
+    T &operator* ();
+    T *operator-> ();
 
-    T &operator* () const;
-    T *operator-> () const;
+    bool null () const;
 
     %rename(set) operator= (T *new_obj);
-    Ref &operator= (T *new_obj);
+    template<class T2> Ref &operator= (T2 *new_obj);
+
     %rename(set) operator= (const Ref &ref);
     Ref &operator= (const Ref &ref);
   };
+
+  template<typename T>
+  class Tex
+  {
+  };
+  %template(ColorTex) Tex<Color>;
+  %template(FloatTex) Tex<float>;
+  %template(ColorTexRef) Ref<Tex<Color> >;
+  %template(FloatTexRef) Ref<Tex<float> >;
+
+  template<typename T>
+  class TexVal
+  {
+  public:
+
+    TexVal (const Ref<Tex<T> > &_tex);
+    TexVal (const T &val);
+
+    %rename(set) operator= (const Ref<Tex<T> > &_tex);
+    TexVal &operator= (const Ref<Tex<T> > &_tex);
+    %rename(set) operator= (const T &val);
+    TexVal &operator= (const T &val);
+  };
+  %template(ColorTexVal) TexVal<Color>;
+  %template(FloatTexVal) TexVal<float>;
+
+  // Swig fails to define %renamed methods in a template'd class, so define
+  // these manually.
+  //
+  %extend TexVal<float>
+  {
+    void set (const Ref<Tex<float> > &_tex) { *$self = _tex; }
+    void set (float val) { *$self = val; }
+  }
+  %extend TexVal<Color>
+  {
+    void set (const Ref<Tex<Color> > &_tex) { *$self = _tex; }
+    void set (Color val) { *$self = val; }
+  }
 
   class Material
   {
@@ -350,12 +407,7 @@ namespace snogray {
 
     enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
   };
-  %template(MatRef) Ref<const Material>;
-
-  %extend Ref<const Material>
-  {
-    const Material *material () const { return &**$self; }
-  };
+  %template(MatRef) Ref<Material>;
 
   class Ior
   {
@@ -400,17 +452,16 @@ namespace snogray {
   {
   public:
 
-    Sphere (const Ref<const Material> &mat, const Pos &_center, dist_t _radius);
-    Sphere (const Ref<const Material> &mat,
-	    const Pos &_center, const Vec &_radius);
+    Sphere (const Ref<Material> &mat, const Pos &_center, dist_t _radius);
+    Sphere (const Ref<Material> &mat, const Pos &_center, const Vec &_radius);
   };
 
   class Cylinder : public Surface
   {
   public:
 
-    Cylinder (const Ref<const Material> &mat, const Xform &obj_to_world_xform);
-    Cylinder (const Ref<const Material> &mat, const Pos &base, const Vec &axis,
+    Cylinder (const Ref<Material> &mat, const Xform &obj_to_world_xform);
+    Cylinder (const Ref<Material> &mat, const Pos &base, const Vec &axis,
 	      float radius);
   };
 
@@ -418,22 +469,22 @@ namespace snogray {
   {
   public:
 
-    Sphere2 (const Ref<const Material> &mat, const Xform &_xform);
+    Sphere2 (const Ref<Material> &mat, const Xform &_xform);
   };
 
   class Tripar : public Surface
   {
   public:
 
-    Tripar (const Ref<const Material> &mat, const Pos &_v0, const Vec &_e1, const Vec &_e2,
-	    bool _parallelogram = false);
+    Tripar (const Ref<Material> &mat, const Pos &_v0,
+	    const Vec &_e1, const Vec &_e2, bool _parallelogram = false);
   };
 
   class Ellipse : public Surface
   {
   public:
 
-    Ellipse (const Ref<const Material> &mat,
+    Ellipse (const Ref<Material> &mat,
 	     const Pos &center, const Vec &radius1, const Vec &radius2);
   };
 
@@ -513,8 +564,8 @@ namespace snogray {
   {
   public:
 
-    Mesh (const Ref<const Material> &mat = 0);
-    Mesh (const Ref<const Material> &mat, const char *file_name,
+    Mesh (const Ref<Material> &mat = 0);
+    Mesh (const Ref<Material> &mat, const char *file_name,
 	  bool smooth = true);
     Mesh (const char *file_name, const MaterialDict &mat_dict);
 
@@ -524,11 +575,11 @@ namespace snogray {
     typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
 
     void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-		       const Ref<const Material> &mat = Ref<const Material> ());
+		       const Ref<Material> &mat = Ref<Material> ());
     void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       const Ref<const Material> &mat = Ref<const Material> ());
+		       const Ref<Material> &mat = Ref<Material> ());
     void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       VertexGroup &vgroup, const Ref<const Material> &mat = Ref<const Material> ());
+		       VertexGroup &vgroup, const Ref<Material> &mat = Ref<Material> ());
 
     vert_index_t add_vertex (const Pos &pos);
     vert_index_t add_vertex (const Pos &pos, VertexGroup &vgroup);
@@ -766,27 +817,6 @@ namespace snogray {
   %template(Image) TupleMatrix<Color>;
   %template(ImageRef) Ref<TupleMatrix<Color> >;
 
-
-  // texture stuff
-
-  template<typename T>
-  class Tex
-  {
-  };
-  %template(ColorTex) Tex<Color>;
-  %template(FloatTex) Tex<float>;
-
-  template<typename T>
-  class TexVal
-  {
-  public:
-
-    TexVal (const Ref<const Tex<T> > &_tex) : tex (_tex), default_val (0) { }
-    TexVal (const T &val) : default_val (val) { }
-  };
-  %template(ColorTexVal) TexVal<Color>;
-  %template(FloatTexVal) TexVal<float>;
-
 }
 
 //
@@ -806,19 +836,19 @@ namespace snogray {
   namespace snogray {
 
     // Lambert
-    static Ref<const Material> lambert (const TexVal<Color> &col)
+    static Ref<Material> lambert (const TexVal<Color> &col)
     {
       return new Lambert (col);
     }
 
     // CookTorrance
-    static Ref<const Material>
+    static Ref<Material>
     cook_torrance (const TexVal<Color> &col, const TexVal<Color> &spec_col,
 		   const TexVal<float> &m, const Ior &ior)
     {
       return new CookTorrance (col, spec_col, m, ior);
     }
-    static Ref<const Material>
+    static Ref<Material>
     cook_torrance (const TexVal<Color> &col, const TexVal<Color> &spec_col,
 		   const TexVal<float> &m, float ior)
     {
@@ -826,26 +856,26 @@ namespace snogray {
     }
     
     // Mirror
-    static Ref<const Material>
+    static Ref<Material>
     mirror (const Ior &_ior, const TexVal<Color> &_reflectance,
-	    const Ref<const Material> &underlying_material)
+	    const Ref<Material> &underlying_material)
     {
       return new Mirror (_ior, _reflectance, underlying_material);
     }
-    static Ref<const Material>
+    static Ref<Material>
     mirror (const Ior &_ior,
 	    const TexVal<Color> &_reflectance,
 	    const TexVal<Color> &col = Color(0))
     {
       return new Mirror (_ior, _reflectance, col);
     }
-    static Ref<const Material>
+    static Ref<Material>
     mirror (float _ior, const TexVal<Color> &_reflectance,
-	    const Ref<const Material> &underlying_material)
+	    const Ref<Material> &underlying_material)
     {
       return new Mirror (_ior, _reflectance, underlying_material);
     }
-    static Ref<const Material>
+    static Ref<Material>
     mirror (float _ior,
 	    const TexVal<Color> &_reflectance,
 	    const TexVal<Color> &col = Color(0))
@@ -854,17 +884,17 @@ namespace snogray {
     }
 
     // Glass
-    static Ref<const Material> glass (const Medium &medium)
+    static Ref<Material> glass (const Medium &medium)
     {
       return new Glass (medium);
     }      
 
     // Glow, NormGlow
-    static Ref<const Material> glow (const Color &col)
+    static Ref<Material> glow (const Color &col)
     {
       return new Glow (col);
     }
-    static Ref<const Material> norm_glow (float intens)
+    static Ref<Material> norm_glow (float intens)
     {
       return new NormGlow (intens);
     }
@@ -885,37 +915,34 @@ namespace snogray {
     // 	return new Image (filename, params, border);
     // }
 
-    typedef Ref<const Tex<Color> > ColorTexRef;
-    typedef Ref<const Tex<float> > FloatTexRef;
-
     // ImageTex
-    static ColorTexRef image_tex (const char *filename)
+    static Ref<Tex<Color> > image_tex (const char *filename)
     {
       return new MatrixTex<Color> (filename);
     }
-    static ColorTexRef image_tex (const Ref<Image> &contents)
+    static Ref<Tex<Color> > image_tex (const Ref<Image> &contents)
     {
       return new MatrixTex<Color> (contents);
     }
 
     // "mono" ImageTex (float-valued)
-    static FloatTexRef mono_image_tex (const char *filename)
+    static Ref<Tex<float> > mono_image_tex (const char *filename)
     {
       return new MatrixTex<float> (filename);
     }
-    static FloatTexRef mono_image_tex (const Ref<TupleMatrix<float> > &contents)
+    static Ref<Tex<float> > mono_image_tex (const Ref<TupleMatrix<float> > &contents)
     {
       return new MatrixTex<float> (contents);
     }
 
     // ArithTex
-    static ColorTexRef arith_tex (unsigned op,
+    static Ref<Tex<Color> > arith_tex (unsigned op,
 				  const TexVal<Color> &arg1,
 				  const TexVal<Color> &arg2)
     {
       return new ArithTex<Color> (ArithTex<Color>::Op (op), arg1, arg2);
     }
-    static FloatTexRef arith_tex (unsigned op,
+    static Ref<Tex<float> > arith_tex (unsigned op,
 				  const TexVal<float> &arg1,
 				  const TexVal<float> &arg2)
     {
@@ -923,35 +950,37 @@ namespace snogray {
     }
 
     // GreyTex
-    static ColorTexRef grey_tex (const TexVal<float> &val)
+    static Ref<Tex<Color> > grey_tex (const TexVal<float> &val)
     {
       return new GreyTex (val);
     }
 
     // IntensTex
-    static FloatTexRef intens_tex (const TexVal<Color> &val)
+    static Ref<Tex<float> > intens_tex (const TexVal<Color> &val)
     {
       return new IntensTex (val);
     }
 
     // XformTex
-    static ColorTexRef xform_tex (const Xform &xform, const TexVal<Color> &tex)
+    static Ref<Tex<Color> > xform_tex (const Xform &xform,
+					     const TexVal<Color> &tex)
     {
       return new XformTex<Color> (xform, tex);
     }
-    static FloatTexRef xform_tex (const Xform &xform, const TexVal<float> &tex)
+    static Ref<Tex<float> > xform_tex (const Xform &xform,
+					     const TexVal<float> &tex)
     {
       return new XformTex<float> (xform, tex);
     }
 
     // CheckTex
-    static ColorTexRef check_tex (const TexVal<Color> &tex1,
-				  const TexVal<Color> &tex2)
+    static Ref<Tex<Color> > check_tex (const TexVal<Color> &tex1,
+					     const TexVal<Color> &tex2)
     {
       return new CheckTex<Color> (tex1, tex2);
     }
-    static FloatTexRef check_tex (const TexVal<float> &tex1,
-				  const TexVal<float> &tex2)
+    static Ref<Tex<float> > check_tex (const TexVal<float> &tex1,
+					     const TexVal<float> &tex2)
     {
       return new CheckTex<float> (tex1, tex2);
     }
@@ -960,25 +989,25 @@ namespace snogray {
 
 #if 0 // doesn't work
 namespace snogray {
-  %extend Ref<const snogray::Tex<snogray::Color> >
+  %extend Ref<snogray::Tex<snogray::Color> >
   {
-    Ref<const snogray::Tex<snogray::Color> > operator+ (const snogray::TexVal<snogray::Color> &val)
+    Ref<snogray::Tex<snogray::Color> > operator+ (const snogray::TexVal<snogray::Color> &val)
     {
       return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::ADD, $self, val);
     }
-    Ref<const snogray::Tex<snogray::Color> > operator- (const snogray::TexVal<snogray::Color> &val)
+    Ref<snogray::Tex<snogray::Color> > operator- (const snogray::TexVal<snogray::Color> &val)
     {
       return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::SUB, $self, val);
     }
-    Ref<const snogray::Tex<snogray::Color> > operator* (const snogray::TexVal<snogray::Color> &val)
+    Ref<snogray::Tex<snogray::Color> > operator* (const snogray::TexVal<snogray::Color> &val)
     {
       return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::MUL, $self, val);
     }
-    Ref<const snogray::Tex<snogray::Color> > operator/ (const snogray::TexVal<snogray::Color> &val)
+    Ref<snogray::Tex<snogray::Color> > operator/ (const snogray::TexVal<snogray::Color> &val)
     {
       return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::DIV, $self, val);
     }
-    Ref<const snogray::Tex<snogray::Color> > operator- ()
+    Ref<snogray::Tex<snogray::Color> > operator- ()
     {
       return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::SUB, snogray::Color (0), $self);
     }
