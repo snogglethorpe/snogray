@@ -16,7 +16,6 @@
 #include "ray.h"
 #include "color.h"
 #include "medium.h"
-#include "material.h"
 #include "isec-cache.h"
 #include "global-tstate.h"
 
