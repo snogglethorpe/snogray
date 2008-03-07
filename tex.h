@@ -45,18 +45,22 @@ class TexVal
 {
 public:
 
-  TexVal (const Ref<const Tex<T> > &_tex) : tex (_tex), default_val (0) { }
   TexVal (const T &val) : default_val (val) { }
 
-  TexVal &operator= (const Ref<const Tex<T> > &_tex)
-  {
-    tex = _tex;
-    return *this;
-  }
+  template<typename T2>
+  TexVal (const Ref<Tex<T2> > &_tex) : tex (_tex), default_val (0) { }
+
   TexVal &operator= (const T &val)
   {
     tex = 0;
     default_val = val;
+    return *this;
+  }
+
+  template<typename T2>
+  TexVal &operator= (const Ref<Tex<T2> > &_tex)
+  {
+    tex = _tex;
     return *this;
   }
 
