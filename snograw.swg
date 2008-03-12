@@ -1049,33 +1049,58 @@ namespace snogray {
   }
 %}
 
-#if 0 // doesn't work
+
+#define DEF_TEX_OP_T_T(T, c_op, arith_op)				\
+    Ref<snogray::Tex<T> > operator c_op (const Ref<snogray::Tex<T> > &val) \
+    {									\
+      return new snogray::ArithTex<T> (snogray::ArithTex<T>::arith_op,	\
+				       *$self, val);			\
+    }
+#define DEF_TEX_OP_T_CONST(T, c_op, arith_op, const_T)			\
+    Ref<snogray::Tex<T> > operator c_op (const const_T &val)		\
+    {									\
+      return new snogray::ArithTex<T> (snogray::ArithTex<T>::arith_op,	\
+                                       *$self, T (val));		\
+    }
+
 namespace snogray {
   %extend Ref<snogray::Tex<snogray::Color> >
   {
-    Ref<snogray::Tex<snogray::Color> > operator+ (const snogray::TexVal<snogray::Color> &val)
+    DEF_TEX_OP_T_T(snogray::Color, +, ADD)
+    DEF_TEX_OP_T_CONST(snogray::Color, +, ADD, snogray::Color)
+    DEF_TEX_OP_T_CONST(snogray::Color, +, ADD, float)
+    DEF_TEX_OP_T_T(snogray::Color, -, SUB)
+    DEF_TEX_OP_T_CONST(snogray::Color, -, SUB, snogray::Color)
+    DEF_TEX_OP_T_CONST(snogray::Color, -, SUB, float)
+    DEF_TEX_OP_T_T(snogray::Color, *, MUL)
+    DEF_TEX_OP_T_CONST(snogray::Color, *, MUL, snogray::Color)
+    DEF_TEX_OP_T_CONST(snogray::Color, *, MUL, float)
+    DEF_TEX_OP_T_T(snogray::Color, /, ADD)
+    DEF_TEX_OP_T_CONST(snogray::Color, /, DIV, snogray::Color)
+    DEF_TEX_OP_T_CONST(snogray::Color, /, DIV, float)
+
+    Ref<snogray::Tex<snogray::Color> > operator* (const Xform &xform)
     {
-      return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::ADD, $self, val);
+      return new snogray::XformTex<snogray::Color> (xform, *$self);
     }
-    Ref<snogray::Tex<snogray::Color> > operator- (const snogray::TexVal<snogray::Color> &val)
+  }
+  %extend Ref<snogray::Tex<float> >
+  {
+    DEF_TEX_OP_T_T(float, +, ADD)
+    DEF_TEX_OP_T_CONST(float, +, ADD, float)
+    DEF_TEX_OP_T_T(float, -, SUB)
+    DEF_TEX_OP_T_CONST(float, -, SUB, float)
+    DEF_TEX_OP_T_T(float, *, MUL)
+    DEF_TEX_OP_T_CONST(float, *, MUL, float)
+    DEF_TEX_OP_T_T(float, /, ADD)
+    DEF_TEX_OP_T_CONST(float, /, DIV, float)
+
+    Ref<snogray::Tex<float> > operator* (const Xform &xform)
     {
-      return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::SUB, $self, val);
-    }
-    Ref<snogray::Tex<snogray::Color> > operator* (const snogray::TexVal<snogray::Color> &val)
-    {
-      return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::MUL, $self, val);
-    }
-    Ref<snogray::Tex<snogray::Color> > operator/ (const snogray::TexVal<snogray::Color> &val)
-    {
-      return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::DIV, $self, val);
-    }
-    Ref<snogray::Tex<snogray::Color> > operator- ()
-    {
-      return new snogray::ArithTex<snogray::Color> (snogray::ArithTex<snogray::Color>::SUB, snogray::Color (0), $self);
+      return new snogray::XformTex<float> (xform, *$self);
     }
   }
 }
-#endif
 
 
 # arch-tag: ced00636-fe46-45bd-b738-1949800e26f1
