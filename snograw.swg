@@ -202,6 +202,16 @@ namespace snogray {
   Pos midpoint (const Pos &p1, const Pos &p2);
 
   template<typename T>
+  class TUV
+  {
+  public:
+    TUV (T _u, T _v);
+    T u, v;
+  };
+  %template(UV) TUV<float>;
+  typedef TUV<float> UV;
+
+  template<typename T>
   class TXform : public Matrix4<T>
   {
   public:
@@ -359,6 +369,16 @@ namespace snogray {
     Ref &operator= (const Ref &ref);
   };
 
+  class TexCoords
+  {
+  public:
+
+    TexCoords (const Pos &_pos, const UV &_uv);
+
+    Pos pos;
+    UV uv;
+  };
+
   template<typename T>
   class Tex
   {
@@ -426,6 +446,25 @@ namespace snogray {
       return static_rep_buf;
     }
   }
+
+  class Frame
+  {
+  public:
+
+    Frame (const Pos &org, const Vec &_x, const Vec &_y, const Vec &_z);
+    Frame ();
+    Frame (const Pos &org);
+    Frame (const Vec &_x, const Vec &_y, const Vec &_z);
+    Frame (const Vec &_z);
+    Frame (const Pos &org, const Vec &_z);
+
+    Vec to (const Vec &vec) const { return vec.to_basis (x, y, z); }
+    Vec to (const Pos &pos) const { return to (pos - origin); }
+    Vec from (const Vec &vec) const { return vec.from_basis (x, y, z); }
+
+    Pos origin;
+    Vec x, y, z;
+  };
 
   class Medium
   {
