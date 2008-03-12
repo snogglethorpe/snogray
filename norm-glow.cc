@@ -15,3 +15,13 @@
 #include "norm-glow.h"
 
 using namespace snogray;
+
+
+// Return emitted radiance from this light, at the point described by ISEC.
+//
+Color
+NormGlow::le (const Intersect &isec) const
+{
+  const Vec &n = isec.normal_frame.z;
+  return Color (n.x * 0.5f + 0.5f, n.y * 0.5f + 0.5f, n.z * 0.5f + 0.5f);
+}

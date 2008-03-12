@@ -22,8 +22,12 @@ class NormGlow : public Material
 public:
 
   NormGlow (Color::component_t _intens)
-    : Material (Material::SHADOW_OPAQUE), intens (_intens)
+    : Material (Material::SHADOW_OPAQUE, true), intens (_intens)
   { }
+
+  // Return emitted radiance from this light, at the point described by ISEC.
+  //
+  virtual Color le (const Intersect &isec) const;
 
 private:
 
