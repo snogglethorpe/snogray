@@ -1032,6 +1032,19 @@ namespace snogray {
     {
       return new CheckTex<float> (tex1, tex2);
     }
+
+    // CheckTex3d
+    static Ref<Tex<Color> > check3d_tex (const TexVal<Color> &tex1,
+					 const TexVal<Color> &tex2)
+    {
+      return new Check3dTex<Color> (tex1, tex2);
+    }
+    static Ref<Tex<float> > check3d_tex (const TexVal<float> &tex1,
+					 const TexVal<float> &tex2)
+    {
+      return new Check3dTex<float> (tex1, tex2);
+    }
+
   }
 %}
 

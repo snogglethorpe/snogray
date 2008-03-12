@@ -1,4 +1,4 @@
-// check-tex.h -- Texture coordinate transform
+// check-tex.h -- check-pattern texture
 //
 //  Copyright (C) 2008  Miles Bader <miles@gnu.org>
 //
@@ -19,8 +19,16 @@
 namespace snogray {
 
 
-// A texture which transforms the texture coordinates.
-// Both 2d and 3d coordinates are transformed.
+inline bool first_half (float coord)
+{
+  coord = fmod (coord, 1);
+  if (coord < 0)
+    coord += 1;
+  return coord < 0.5f;
+}
+
+
+// A texture which implements a 2d check pattern.
 //
 template<typename T>
 class CheckTex : public Tex<T>
@@ -37,8 +45,41 @@ public:
   {
     // See which sub-texture to use.
     //
-    bool use1 = (fmod (tex_coords.uv.u, 1) < 0.5f);
-    if (fmod (tex_coords.uv.v, 1) < 0.5f)
+    bool use1 = first_half (tex_coords.uv.u);
+    if (first_half (tex_coords.uv.v))
+      use1 = !use1;
+    return use1 ? tex1.eval (tex_coords) : tex2.eval (tex_coords);
+  }
+
+  // Sub-textures which form the two parts of the check pattern.
+  //
+  TexVal<T> tex1, tex2;
+};
+
+
+// A texture which implements a 3d check pattern.
+//
+template<typename T>
+class Check3dTex : public Tex<T>
+{
+public:
+
+  Check3dTex (const TexVal<T> &_tex1, const TexVal<T> &_tex2)
+    : tex1 (_tex1), tex2 (_tex2)
+  { }
+
+  // Evaluate this texture at TEX_COORDS.
+  //
+  virtual T eval (const TexCoords &tex_coords) const
+  {
+    // See which sub-texture to use.
+    //
+    bool use1 = false;
+    if (first_half (tex_coords.pos.x))
+      use1 = !use1;
+    if (first_half (tex_coords.pos.y))
+      use1 = !use1;
+    if (first_half (tex_coords.pos.z))
       use1 = !use1;
 
     return use1 ? tex1.eval (tex_coords) : tex2.eval (tex_coords);
