@@ -856,6 +856,7 @@ namespace snogray {
 
 }
 
+
 //
 // The following are object-creation wrappers, which we use in place of
 // swig-generated constructors for any classes that we want to manage via
@@ -1011,24 +1012,24 @@ namespace snogray {
 
     // XformTex
     static Ref<Tex<Color> > xform_tex (const Xform &xform,
-					     const TexVal<Color> &tex)
+				       const TexVal<Color> &tex)
     {
       return new XformTex<Color> (xform, tex);
     }
     static Ref<Tex<float> > xform_tex (const Xform &xform,
-					     const TexVal<float> &tex)
+				       const TexVal<float> &tex)
     {
       return new XformTex<float> (xform, tex);
     }
 
     // CheckTex
     static Ref<Tex<Color> > check_tex (const TexVal<Color> &tex1,
-					     const TexVal<Color> &tex2)
+				       const TexVal<Color> &tex2)
     {
       return new CheckTex<Color> (tex1, tex2);
     }
     static Ref<Tex<float> > check_tex (const TexVal<float> &tex1,
-					     const TexVal<float> &tex2)
+				       const TexVal<float> &tex2)
     {
       return new CheckTex<float> (tex1, tex2);
     }
@@ -1078,4 +1079,3 @@ namespace snogray {
 
 
 # arch-tag: ced00636-fe46-45bd-b738-1949800e26f1
-
