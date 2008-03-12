@@ -922,6 +922,10 @@ function xform_tex (xform, tex)
    return raw.xform_tex (xform, tex_val (tex))
 end
 
+function scale_tex (amount, tex) return xform_tex (scale (amount), tex) end
+function rotate_tex (amount, tex) return xform_tex (rotate (amount), tex) end
+rot_tex = rotate_tex
+
 -- Return a "check" texture, which evaluates to either TEX1 or TEX2 in a
 -- check pattern.
 --
