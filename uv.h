@@ -41,6 +41,14 @@ public:
     return *this;
   }
 
+  TUV operator* (const TUV &uv) const { return TUV (u * uv.u, v * uv.v); }
+  TUV operator+ (const TUV &uv) const { return TUV (u + uv.u, v + uv.v); }
+  TUV operator- (const TUV &uv) const { return TUV (u - uv.u, v - uv.v); }
+  TUV operator/ (const TUV &uv) const { return TUV (u / uv.u, v / uv.v); }
+
+  TUV operator* (T s) const { return TUV (u * s, v * s); }
+  TUV operator/ (T s) const { return TUV (u / s, v / s); }
+
   T u, v;
 };
 
