@@ -191,9 +191,6 @@ namespace snogray {
     TPos operator/ (T denom) const;
 
     TPos operator* (const Matrix4<T> &xform) const;
-
-    %rename(transform) operator*= (const Matrix4<T> &xform);
-    const TPos &operator*= (const Matrix4<T> &xform);
   };
   %extend TPos<coord_t>
   {
