@@ -557,23 +557,39 @@ namespace snogray {
   {
   public:
 
-    MaterialDict (const Ref<const Material> &default_material = 0);
+    MaterialDict (const Ref<Material> &default_material = 0);
 
-    Ref<const Material> get (const char *name, const Ref<const Material> &def_mat) const;
-    Ref<const Material> get (const char *name) const;
-    void add (const char *name, const Ref<const Material> &mat);
+    void add (const char *name, const Ref<Material> &mat);
     bool contains (const char *name) const;
 
-    Ref<const Material> get_default () const;
-    void set_default (const Ref<const Material> &mat);
+    void set_default (const Ref<Material> &mat);
+
+    // MaterialDict::get and MaterialDict::get_default are implemented
+    // using %extend, so we can lie to swig about their return types.
   };
   %extend MaterialDict
   {
+    Ref<Material> get (const char *name, const Ref<Material> &def_mat) const
+    {
+      snogray::Ref<const snogray::Material> cmat = $self->get (name, def_mat);
+      return const_cast<snogray::Material *> (&*cmat);
+    }
+    Ref<Material> get (const char *name) const
+    {
+      snogray::Ref<const snogray::Material> cmat = $self->get (name);
+      return const_cast<snogray::Material *> (&*cmat);
+    }
+    Ref<Material> get_default () const
+    {
+      snogray::Ref<const snogray::Material> cmat = $self->get_default ();
+      return const_cast<snogray::Material *> (&*cmat);
+    }
+
     const Ref<const Material> __getitem__ (const char *name) const
     {
       return $self->get (name);
     }
-    void __setitem__ (const char *name, const Ref<const Material> &mat)
+    void __setitem__ (const char *name, const Ref<Material> &mat)
     {
       $self->add (name, mat);
     }
