@@ -72,22 +72,47 @@ end
 --
 -- Swig type handling
 
+-- Type name stripping for old-style mangled swig type names.
+--
+local function strip_old_swig_type (name)
+   name = name:gsub (" const","")
+   name = name:gsub (" ","")
+   name = name:gsub ("_p_", "")
+   name = name:gsub ("snogray__", "")
+   name = name:gsub ("^RefT(.*)_t$", "%1")
+
+   -- This is not reliable, because we can't really distinguish a "T" meaning
+   -- "<" from a "T" which is part of a type name, but it should wort for the
+   -- particular type names we use, because none of the types we use inside
+   -- brackets (in templates) contain a real "T".
+   --
+   name = name:gsub ("T([^T]*)_t$", "<%1>")
+
+   return name
+end
+
+-- Return the type name NAME with all extraneous junk removed.  
 local function strip_swig_type (name)
+   -- If the first character is an underscore, assume it's an old-style
+   -- mangled swig type name.
+   --
+   if name:byte() == 95 then -- 95 is '_'
+      return strip_old_swig_type (name)
+   end
+
    name = name:gsub ("snogray::","")
    name = name:gsub (" const","")
    name = name:gsub (" ","")
    name = name:gsub ("[*]*$","")
-   local strip_ref = name:gsub ("^Ref<", "")
-   if strip_ref ~= name then
-      name = strip_ref:gsub (">$", "")
-   end
+   name = name:gsub ("^Ref<(.*)>$", "%1")
+
    return name
 end
 
 local swig_type_names = {}
 
 local function nice_type (obj)
-   local type = swig_type (obj)
+   local type = swig_type (obj) or type (obj)
    local best = swig_type_names[type]
    if not best then
       for comp in type:gmatch ("[^|]+") do
