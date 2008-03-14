@@ -67,7 +67,7 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
 	  // Area to solid-angle conversion, dw/dA
 	  //   = cos (light_normal, -sample_dir) / distance^2
 	  //
-	  float dw_dA = -dot (light_norm, s_dir) * inv_dist * inv_dist;
+	  float dw_dA = dot (light_norm, s_dir) * inv_dist * inv_dist;
 
 	  if (dw_dA > Eps)
 	    {
