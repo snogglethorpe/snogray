@@ -190,7 +190,7 @@ function is_color_spec (obj)
       local vt = type (v)
       local inh = false
       if kt == 'number' then
-	 if k == 1 and vt == 'string' then
+	 if k == 1 and is_color_spec (v) then
 	    inh = true
 	 elseif k > 1 and inh then
 	    return false
