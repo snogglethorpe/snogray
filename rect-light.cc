@@ -58,7 +58,7 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
       //
       const Vec s_vec = org + s1 * u + s2 * v;
 
-      if (isec.cos_n (s_vec) > 0)
+      if (isec.cos_n (s_vec) > 0 && isec.cos_geom_n (s_vec) > 0)
 	{
 	  float dist = s_vec.length ();
 	  float inv_dist = 1 / dist;

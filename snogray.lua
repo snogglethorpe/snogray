@@ -398,6 +398,18 @@ function ior (n, k)
    end
 end
 
+-- Do common material post-processing to the material MAT, using
+-- parameters from the table PARAMS, and return MAT.  If PARAMS is not a
+-- table, it is ignored.
+--
+local function postproc_material (mat, params)
+   if type (params) == 'table' then
+      local bump = params.bump_map or params.bump
+      if bump then mat.bump_map = bump end
+   end
+   return mat
+end   
+
 -- Lambertian material:  { diffuse|color = 
 --
 function lambert (params)
@@ -408,7 +420,7 @@ function lambert (params)
       diff = params.diffuse or params.color or params[1] or 1
    end
    diff = color_tex_val (diff)
-   return raw.lambert (diff)
+   return postproc_material (raw.lambert (diff), params)
 end
 
 function cook_torrance (params)
@@ -432,7 +444,7 @@ function cook_torrance (params)
    spec = color_tex_val (spec)
    m = float_tex_val (m)
 
-   return raw.cook_torrance (diff, spec, m, i)
+   return postproc_material (raw.cook_torrance (diff, spec, m, i), params)
 end
 
 local default_mirror_ior = ior (0.25, 3)
@@ -465,7 +477,10 @@ function mirror (params)
       _under = color_tex_val (_col)
    end
 
-   return raw.mirror (ior (_ior), color_tex_val (_reflect), _under);
+   _ior = ior (_ior)
+   _reflect = color_tex_val (_reflect)
+
+   return postproc_material (raw.mirror (_ior, _reflect, _under), params)
 end
 
 -- Return a glass material.
@@ -492,7 +507,10 @@ function glass (params)
       _absorb = params
    end
 
-   return raw.glass (raw.Medium (ior (_ior), color (_absorb)));
+   _ior = ior (_ior)
+   _absorb = color (_absorb)
+
+   return postproc_material (raw.glass (raw.Medium (_ior, _absorb)), params)
 end
 
 function glow (col)
@@ -756,7 +774,7 @@ function solid_cylinder (mat, arg1, ...)
       local au = axis:unit()
       local r1u = au:perpendicular()
       local r1 = r1u * radius
-      local r2 = cross (au, r1u) * radius
+      local r2 = cross (r1u, au) * radius
 
       return surface_group {
 	 cylinder (mat, base, axis, radius);

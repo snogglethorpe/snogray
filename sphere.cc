@@ -52,7 +52,7 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
   Vec s = cross (norm, sphere->frame.z).unit ();
   if (s.length_squared() < Eps)
     s = norm.perpendicular ();	// degenerate case where NORM == AXIS
-  Vec t = cross (norm, s);
+  Vec t = cross (s, norm);
 
   // Calculate texture coords.
   //
@@ -61,7 +61,13 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
 		 asin (clamp (opoint.z / sphere->radius, -1.f, 1.f))
 		 * INV_PIf + 0.5f);
 
-  Intersect isec (ray, sphere, Frame (point, s, t, norm), tex_coords, trace);
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  UV dTds (INV_PIf * 0.5f, 0), dTdt (0, INV_PIf);
+
+  Intersect isec (ray, sphere, Frame (point, s, t, norm),
+		  tex_coords, dTds, dTdt, trace);
 
   isec.no_self_shadowing = !isec.back;
 

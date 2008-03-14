@@ -190,7 +190,7 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
 
 	  // If this sample is in the wrong hemisphere, throw it away.
 	  //
-	  if (isec.cos_n (dir) < 0)
+	  if (isec.cos_n (dir) < 0 || isec.cos_geom_n (dir) < 0)
 	    continue;
 	}
 

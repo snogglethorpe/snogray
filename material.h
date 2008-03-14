@@ -16,6 +16,7 @@
 #include "color.h"
 #include "ray.h"
 #include "ref.h"
+#include "tex.h"
 
 
 namespace snogray {
@@ -36,7 +37,7 @@ public:
   enum ShadowType { SHADOW_NONE, SHADOW_MEDIUM, SHADOW_OPAQUE };
 
   Material (ShadowType _shadow_type = SHADOW_OPAQUE, bool emits_light = false)
-    : shadow_type (_shadow_type), _emits_light (emits_light)
+    : shadow_type (_shadow_type), bump_map (0), _emits_light (emits_light)
   { }
   virtual ~Material () { }
 
@@ -60,6 +61,8 @@ public:
   // should never change for a given material, so can be cached.
   //
   const ShadowType shadow_type;
+
+  Ref<const Tex<float> > bump_map;
 
 private:
 

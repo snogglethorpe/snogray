@@ -87,7 +87,7 @@ SphereLight::gen_samples (const Intersect &isec, unsigned num,
       //
       const Vec s_vec = light_center_vec + Vec (x, y, z);
 
-      if (isec.cos_n (s_vec) > 0)
+      if (isec.cos_n (s_vec) > 0 && isec.cos_geom_n (s_vec) > 0)
 	{
 	  const Vec s_dir = s_vec.unit ();
 

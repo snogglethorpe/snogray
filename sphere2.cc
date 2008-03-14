@@ -76,7 +76,13 @@ Sphere2::IsecInfo::make_intersect (Trace &trace) const
   UV tex_coords (atan2 (onorm.y, onorm.x) * INV_PIf * 0.5f + 0.5f,
 		 asin (clamp (onorm.z, -1.f, 1.f)) * INV_PIf + 0.5f);
 
-  return Intersect (ray, sphere, Frame (point, s, t, norm), tex_coords, trace);
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  UV dTds (INV_PIf * 0.5f, 0), dTdt (0, INV_PIf);
+
+  return Intersect (ray, sphere, Frame (point, s, t, norm),
+		    tex_coords, dTds, dTdt, trace);
 }
 
 // Return the strongest type of shadowing effect this surface has on

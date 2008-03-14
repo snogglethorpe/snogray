@@ -56,9 +56,9 @@ Ellipse::IsecInfo::make_intersect (Trace &trace) const
 
   // Calculate the normal and tangent vectors.
   //
-  Vec norm = cross (rad1, rad2).unit ();
+  Vec norm = cross (rad2, rad1).unit ();
   Vec s = rad1 * inv_rad1_len;
-  Vec t = cross (norm, s);
+  Vec t = cross (s, norm);
 
   // Normal frame.
   //
@@ -74,7 +74,12 @@ Ellipse::IsecInfo::make_intersect (Trace &trace) const
   // skewed (not perpendicular); it's not really hard to calculate it
   // correctly in that case, but a bit annoying.
 
-  Intersect isec (ray, ellipse, norm_frame, tex_coords, trace);
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  UV dTds (0.5f * inv_rad1_len, 0), dTdt (0, 0.5f * inv_rad2_len);
+
+  Intersect isec (ray, ellipse, norm_frame, tex_coords, dTds, dTdt, trace);
 
   isec.no_self_shadowing = true;
 

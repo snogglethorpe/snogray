@@ -44,13 +44,28 @@ Tripar::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
 
+  dist_t e1_len = tripar->e1.length (), inv_e1_len = 1 / e1_len;
+
   // Calculate the normal and tangent vectors.
   //
-  Vec norm = cross (tripar->e1, tripar->e2).unit ();
-  Vec s = tripar->e1.unit ();
-  Vec t = cross (norm, s);
+  Vec norm = cross (tripar->e2, tripar->e1).unit ();
+  Vec s = tripar->e1 * inv_e1_len;
+  Vec t = cross (s, norm);
 
-  Intersect isec (ray, tripar, Frame (point, s, t, norm), UV (u, v), trace);
+  // Normal frame.
+  //
+  Frame normal_frame (point, s, t, norm);
+
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  Vec oe2 = normal_frame.to (tripar->e2); // tripar->e2 in object space
+  dist_t duds = inv_e1_len;
+  dist_t dvds = oe2.x ? 1 / oe2.x : 0;
+  dist_t dvdt = oe2.y ? 1 / oe2.y : 0;
+  UV dTds (duds, dvds), dTdt (0, dvdt);
+
+  Intersect isec (ray, tripar, normal_frame, UV (u, v), dTds, dTdt, trace);
 
   isec.no_self_shadowing = true;
 

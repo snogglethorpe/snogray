@@ -262,8 +262,15 @@ private:
       IsecInfo (const Ray &ray, const Triangle *_triangle, dist_t _u, dist_t _v)
 	: Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
       { }
+
       virtual Intersect make_intersect (Trace &trace) const;
       virtual const Surface *surface () const { return triangle; }
+
+      // Return a normal frame FRAME at ORIGIN, with basis vectors
+      // calculated from the normal NORM.
+      //
+      Frame make_frame (const Pos &orgin, const Vec &norm) const;
+
       const Triangle *triangle;
       dist_t u, v;
     };

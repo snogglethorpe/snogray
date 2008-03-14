@@ -1,6 +1,6 @@
 // point-light.cc -- Point light
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ PointLight::gen_samples (const Intersect &isec, unsigned,
 {
   Vec lvec = isec.normal_frame.to (pos);
 
-  if (isec.cos_n (lvec) >= -Eps)
+  if (isec.cos_n (lvec) > 0 && isec.cos_geom_n (lvec) > 0)
     {
       dist_t dist = lvec.length ();
       Vec s_dir = lvec / dist;

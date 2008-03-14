@@ -53,7 +53,7 @@ FarLight::gen_samples (const Intersect &isec, unsigned num,
       float x = r * cos (phi), y = r * sin (phi);
       Vec s_dir = isec.normal_frame.to (frame.from (Vec (x, y, z)));
 
-      if (isec.cos_n (s_dir) > 0)
+      if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
 	samples.push_back (IllumSample (s_dir, intensity, pdf, 0, this));
     }
 

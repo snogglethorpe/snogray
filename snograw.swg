@@ -424,6 +424,8 @@ namespace snogray {
   public:
 
     enum ShadowType { SHADOW_OPAQUE, SHADOW_NONE, SHADOW_MEDIUM };
+
+    Ref<Tex<float> > bump_map;
   };
   %template(MatRef) Ref<Material>;
 

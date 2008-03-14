@@ -259,61 +259,14 @@ Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   return 0;
 }
 
-// Create an Intersect object for this intersection.
+// Return a normal frame FRAME at ORIGIN, with basis vectors calculated
+// from the normal NORM.
 //
-Intersect
-Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
+Frame
+Mesh::Triangle::IsecInfo::make_frame (const Pos &origin, const Vec &norm) const
 {
   const Mesh &mesh = triangle->mesh;
 
-  // We first use the real "raw" normal to determine if this is a back
-  // face or not (for back-face determination the normal doesn't need to
-  // be a unit vector, so it is only made a unit vector later, perhaps
-  // after replacing it with the interpolated normal).
-  //
-  Vec norm = triangle->raw_normal_unscaled ();
-
-  // Point of intersection.
-  //
-  Pos point = ray.end ();
-
-  // Now if we're using normal interpolation, calculate the
-  // interpolated normal.
-  //
-  if (! mesh.vertex_normals.empty ())
-    {
-      bool back = dot (norm, ray.dir) > 0;
-
-      norm =  triangle->vnorm(0) * (1 - u - v);
-      norm += triangle->vnorm(1) * u;
-      norm += triangle->vnorm(2) * v;
-
-      // If the interpolated normal is pointing in (roughly) the same
-      // direction as RAY, it means normal interpolation has
-      // interpolated past a virtual tangent point on the surface.
-      //
-      if (back != (dot (norm, ray.dir) > 0))
-	{
-	  // In this case there's not much we can do -- it will look
-	  // ugly no matter what -- but try to keep things as sane as
-	  // possible by clamping the normal at the point where it's
-	  // perpendicular to RAY.
-	  //
-	  Vec cx = cross (norm, ray.dir);
-	  norm = cross (ray.dir, cx);
-
-	  // Now very slightly nudge the resulting "perfectly perpendicular"
-	  // normal back towards the viewer, which will avoid problems
-	  // caused by precision errors pushing it in the other direction.
-	  //
-	  norm -= ray.dir * Eps;
-	}
-    }
-
-  norm = norm.unit ();		// normalize NORM
-
-  // Calculate the first tangent vector.
-  //
   // The usual value is NORM x AXIS, where AXIS is an arbitrary axis
   // vector.  This yields a value for S that's pointing "around" AXIS,
   // but will fail if NORM is the same as AXIS (so for instance, if AXIS
@@ -327,7 +280,7 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
     {
       // CENT is a vector pointing towards the mesh bounding-box center.
       //
-      Vec cent = midpoint (mesh._bbox.min, mesh._bbox.max) - point;
+      Vec cent = midpoint (mesh._bbox.min, mesh._bbox.max) - origin;
 
       // Try to use the value (CENT x NORM) for S.  This helps keep the
       // direction of S consistent for the whole mesh.  However that
@@ -346,14 +299,62 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
 
   // Calculate the second tangent vector.  This one is much easier... :-)
   //
-  Vec t = cross (norm, s);
+  Vec t = cross (s, norm);
+
+  return Frame (origin, s, t, norm);
+}
+
+// Create an Intersect object for this intersection.
+//
+Intersect
+Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
+{
+  Vec norm = triangle->raw_normal ();
+
+  // Point of intersection.
+  //
+  Pos point = ray.end ();
+
+  // Our geometric frame uses the real surface geometry.
+  //
+  Frame geom_frame = make_frame (point, triangle->raw_normal ());
+
+  // Calculate the normal frame; if the mesh contains vertex normal
+  // information, calculate it by interpolating our vertex normals,,
+  // otherwise just copy the geometric frame.
+  //
+  Frame normal_frame;
+  if (! triangle->mesh.vertex_normals.empty ())
+    {
+      Vec norm = triangle->vnorm(0) * (1 - u - v);
+      norm += triangle->vnorm(1) * u;
+      norm += triangle->vnorm(2) * v;
+      norm = norm.unit ();	// normalize
+      normal_frame = make_frame (point, norm);
+    }
+  else
+    normal_frame = geom_frame;
+
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  Vec e1 = triangle->v(1) - triangle->v(0); // triangle edge 1
+  Vec e2 = triangle->v(2) - triangle->v(0); // triangle edge 2
+  Vec oe1 = normal_frame.to (e1);	    // E1 in object space
+  Vec oe2 = normal_frame.to (e2);	    // E2 in object space
+  dist_t duds = oe1.x ? 1 / oe1.x : 0;
+  dist_t dudt = oe1.y ? 1 / oe1.y : 0;
+  dist_t dvds = oe2.x ? 1 / oe2.x : 0;
+  dist_t dvdt = oe2.y ? 1 / oe2.y : 0;
+  UV dTds (duds, dvds), dTdt (dudt, dvdt);
 
   // Make the intersect object.
   //
-  Intersect isec (ray, triangle, Frame (point, s, t, norm), UV (u, v), trace);
+  Intersect isec (ray, triangle, normal_frame, geom_frame,
+		  UV (u, v), dTds, dTdt, trace);
 
   isec.no_self_shadowing = true;
-  isec.smoothing_group = static_cast<const void *>(&mesh);
+  isec.smoothing_group = static_cast<const void *>(&triangle->mesh);
 
   return isec;
 }

@@ -115,7 +115,7 @@ private:
 	l = isec.v.mirror (h);
       }
 
-    if (isec.cos_n (l) > 0)
+    if (isec.cos_n (l) > 0 && isec.cos_geom_n (l) > 0)
       {
 	float pdf;
 	Color f = val (l, h, pdf);

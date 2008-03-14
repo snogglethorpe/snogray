@@ -46,7 +46,7 @@ public:
       {
 	float pdf;
 	Vec dir = dist.sample (u, v, pdf);
-	if (isec.cos_n (dir) > 0)
+	if (isec.cos_n (dir) > 0 && isec.cos_geom_n (dir) > 0)
 	  samples.push_back (IllumSample (dir, color * pdf, pdf,
 					  IllumSample::DIFFUSE));
       }

@@ -103,14 +103,22 @@ Intersect
 Cylinder::IsecInfo::make_intersect (Trace &trace) const
 {
   Pos point = ray.end ();
+
   Vec onorm (isec_point.x, isec_point.y, 0);
   Vec norm = cylinder->normal_to_world (onorm).unit ();
   Vec t = cylinder->local_to_world (Vec (0, 0, 1)).unit ();
   Vec s = cross (norm, t);
+
   UV tex_coords (atan2 (isec_point.y, isec_point.x) * INV_PIf * 0.5f + 0.5f,
 		 isec_point.z * 0.5f + 0.5f);
-  return Intersect (ray, cylinder, Frame (point, s, t, norm), tex_coords,
-		    trace);
+
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  UV dTds (INV_PIf * 0.5f, 0), dTdt (0, 0.5f);
+
+  return Intersect (ray, cylinder, Frame (point, s, t, norm),
+		    tex_coords, dTds, dTdt, trace);
 }
 
 // Return the strongest type of shadowing effect this surface has on

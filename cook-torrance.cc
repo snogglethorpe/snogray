@@ -166,7 +166,7 @@ private:
 	flags |= spec_flags;
       }
 
-    if (isec.cos_n (l) > Eps)
+    if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
       {
 	float pdf;
 	Color f = val (l, h, pdf);

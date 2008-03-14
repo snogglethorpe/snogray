@@ -18,13 +18,13 @@
 #include "frame.h"
 #include "color.h"
 #include "trace.h"
-#include "material.h"
 #include "tex-coords.h"
 
 
 namespace snogray {
 
 class Surface;
+class Material;
 class Brdf;
 
 
@@ -38,7 +38,11 @@ public:
 
   Intersect (const Ray &_ray, const Surface *_surface,
 	     const Frame &_normal_frame, const UV &_tex_coords,
-	     Trace &_trace);
+	     const UV &dTds, const UV &dTdt, Trace &_trace);
+  Intersect (const Ray &_ray, const Surface *_surface,
+	     const Frame &_normal_frame, const Frame &_geom_frame,
+	     const UV &_tex_coords,
+	     const UV &dTds, const UV &dTdt, Trace &_trace);
 
   ~Intersect ();
 
@@ -70,6 +74,21 @@ public:
     return vec.z;
   }
 
+  // Returns the cosine of the angle between the geometric surface
+  // normal and VEC.  VEC must be in this intersection's normal frame,
+  // and must be normalized.
+  //
+  // This may be different from Intersect::cos_n when the surface normal
+  // has been perturbed due to bump-mapping or normal interpolation in
+  // meshes.
+  //
+  dist_t cos_geom_n (const Vec &vec) const
+  {
+    // As VEC is normalized, cos(theta) is (GEOM_N dot VEC).
+    //
+    return dot (vec, geom_n);
+  }
+
   // Returns the cosine of the angle between the viewing direction and VEC.
   // VEC must be in this intersection's normal frame, and must be
   // normalized.
@@ -95,16 +114,39 @@ public:
   // A frame of reference corresponding to the surface-normal.  Most
   // lighting calculations are done in this frame of reference.
   //
-  // The position of intersection and the surface normal in world space
-  // are "normal_frame.origin" and "normal_frame.z" respectively;
-  // "normal_frame.x" and "normal_frame.y" are orthogonal surface
-  // tangent vectors.
+  // The position of intersection and the surface normal in world
+  // space are "normal_frame.origin" and "normal_frame.z"
+  // respectively; "normal_frame.x" and "normal_frame.y" are
+  // orthogonal surface tangent vectors.
+  //
+  // This frame is kept in a "flipped" state, so that the eye-vector V
+  // is in the same hemisphere as the normal.
   //
   Frame normal_frame;
 
-  // A unit vector pointing towards the viewer, in the normal frame.
+  // A frame of reference roughly similar to NORMAL_FRAME, but
+  // corresponding to the true surface geometry, with no normal
+  // perturbations (by bump-mapping etc) applied.
+  //
+  // Unlike NORMAL_FRAME, GEOM_FRAME is not "flipped" to place the
+  // normal is in the same hemisphere as the eye-vector.
+  //
+  Frame geom_frame;
+
+  // The eye vector, a unit vector pointing towards the viewer, in the
+  // normal frame.
   //
   Vec v;
+
+  // The geometric surface normal (corresponding to the true surface
+  // geometry, with no normal perturbations applied), in the normal
+  // frame.
+  //
+  // Unlike GEOM_FRAME, GEOM_N is flipped so that it is always in the
+  // same hemisphere as the lighting normal (i.e., GEOM_N.z is always
+  // positive).
+  //
+  Vec geom_n;
 
   // True if RAY hit the back of SURFACE (relative to the normal).
   //
@@ -138,9 +180,9 @@ public:
 
 private:
 
-  // Finish initialization in a constructor.
+  // Finish initialization.  This method is called by all constructors.
   //
-  void finish_init ();
+  void finish_init (const UV &dTds, const UV &dTdt);
 };
 
 
