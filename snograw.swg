@@ -78,6 +78,7 @@
 #include "xform-tex.h"
 #include "check-tex.h"
 #include "misc-tex.h"
+#include "misc-map-tex.h"
 
   static char static_rep_buf[255];
 
@@ -1062,6 +1063,36 @@ namespace snogray {
 					 const TexVal<float> &tex2)
     {
       return new Check3dTex<float> (tex1, tex2);
+    }
+
+    // PlaneMapTex
+    static Ref<Tex<Color> > plane_map_tex (const Ref<Tex<Color> > &tex)
+    {
+      return new PlaneMapTex<Color> (tex);
+    }
+    static Ref<Tex<float> > plane_map_tex (const Ref<Tex<float> > &tex)
+    {
+      return new PlaneMapTex<float> (tex);
+    }
+
+    // CylinderMapTex
+    static Ref<Tex<Color> > cylinder_map_tex (const Ref<Tex<Color> > &tex)
+    {
+      return new CylinderMapTex<Color> (tex);
+    }
+    static Ref<Tex<float> > cylinder_map_tex (const Ref<Tex<float> > &tex)
+    {
+      return new CylinderMapTex<float> (tex);
+    }
+
+    // LatLongMapTex
+    static Ref<Tex<Color> > lat_long_map_tex (const Ref<Tex<Color> > &tex)
+    {
+      return new LatLongMapTex<Color> (tex);
+    }
+    static Ref<Tex<float> > lat_long_map_tex (const Ref<Tex<float> > &tex)
+    {
+      return new LatLongMapTex<float> (tex);
     }
 
   }

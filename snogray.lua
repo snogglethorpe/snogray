@@ -982,6 +982,10 @@ end
 sin_tex = raw.sin_tex
 tri_tex = raw.tri_tex
 
+plane_map_tex = raw.plane_map_tex
+cylinder_map_tex = raw.cylinder_map_tex
+lat_long_map_tex = raw.lat_long_map_tex
+
 ----------------------------------------------------------------
 --
 -- File handling
