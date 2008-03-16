@@ -1124,7 +1124,7 @@ namespace snogray {
     DEF_TEX_OP_T_T(snogray::Color, *, MUL)
     DEF_TEX_OP_T_CONST(snogray::Color, *, MUL, snogray::Color)
     DEF_TEX_OP_T_CONST(snogray::Color, *, MUL, float)
-    DEF_TEX_OP_T_T(snogray::Color, /, ADD)
+    DEF_TEX_OP_T_T(snogray::Color, /, DIV)
     DEF_TEX_OP_T_CONST(snogray::Color, /, DIV, snogray::Color)
     DEF_TEX_OP_T_CONST(snogray::Color, /, DIV, float)
 
@@ -1141,7 +1141,7 @@ namespace snogray {
     DEF_TEX_OP_T_CONST(float, -, SUB, float)
     DEF_TEX_OP_T_T(float, *, MUL)
     DEF_TEX_OP_T_CONST(float, *, MUL, float)
-    DEF_TEX_OP_T_T(float, /, ADD)
+    DEF_TEX_OP_T_T(float, /, DIV)
     DEF_TEX_OP_T_CONST(float, /, DIV, float)
 
     Ref<snogray::Tex<float> > operator* (const Xform &xform)
