@@ -79,6 +79,7 @@
 #include "check-tex.h"
 #include "misc-tex.h"
 #include "misc-map-tex.h"
+#include "perlin-tex.h"
 
   static char static_rep_buf[255];
 
@@ -1093,6 +1094,12 @@ namespace snogray {
     static Ref<Tex<float> > lat_long_map_tex (const Ref<Tex<float> > &tex)
     {
       return new LatLongMapTex<float> (tex);
+    }
+
+    // PerlinTex
+    static Ref<Tex<float> > perlin_tex ()
+    {
+      return new PerlinTex ();
     }
 
   }

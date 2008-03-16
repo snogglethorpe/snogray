@@ -940,6 +940,8 @@ plane_map_tex = singleton_tex_fun ('plane', raw.plane_map_tex)
 cylinder_map_tex = singleton_tex_fun ('cylinder', raw.cylinder_map_tex)
 lat_long_map_tex = singleton_tex_fun ('lat_long', raw.lat_long_map_tex)
 
+perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
+
 
 ----------------------------------------------------------------
 --
