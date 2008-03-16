@@ -889,7 +889,7 @@ image = raw.image
 
 ----------------------------------------------------------------
 --
--- Textures
+-- Miscellaneous texture sources and operators
 
 -- Image textures (read from a file)
 --
@@ -907,6 +907,49 @@ function grey_tex (val) return raw.grey_tex (float_tex_val (val)) end
 -- floating-point texture.
 --
 function intens_tex (val) return raw.intens_tex (color_tex_val (val)) end
+
+-- Return a "check" texture, which evaluates to either TEX1 or TEX2 in a
+-- check pattern.
+--
+function check_tex (tex1, tex2)
+   return raw.check_tex (tex_vals (tex1, tex2))
+end
+function check3d_tex (tex1, tex2)
+   return raw.check3d_tex (tex_vals (tex1, tex2))
+end
+
+sin_tex = raw.sin_tex
+tri_tex = raw.tri_tex
+
+plane_map_tex = raw.plane_map_tex
+cylinder_map_tex = raw.cylinder_map_tex
+lat_long_map_tex = raw.lat_long_map_tex
+
+
+----------------------------------------------------------------
+--
+-- Texture transformations
+
+-- Return a texture which transforms TEX by the transform XFORM.
+--
+-- Actually it's the texture coordinates which are transformed (before
+-- giving them to TEX), so for instance, to make TEX get "smaller", you
+-- would use a value of XFORM which scales by an amount greater than 1.
+--
+function xform_tex (xform, tex)
+   return raw.xform_tex (xform, tex_val (tex))
+end
+
+-- Convenience functions for various sorts of texture transformations.
+--
+function scale_tex (amount, tex) return xform_tex (scale (amount), tex) end
+function rotate_tex (amount, tex) return xform_tex (rotate (amount), tex) end
+rot_tex = rotate_tex
+
+
+----------------------------------------------------------------
+--
+-- Texture arithmetic
 
 -- Encoding for arith_tex operations.
 --
@@ -934,8 +977,12 @@ end
 function sub_tex (tex1, tex2)
    return arith_tex ('SUB', tex1, tex2)
 end
-function mul_tex (tex1, tex2)
-   return arith_tex ('MUL', tex1, tex2)
+function mul_tex (tex1, tex2_or_xform)
+   if is_xform (tex2_or_xform) then
+      return xform_tex (tex2_or_xform, tex1)
+   else
+      return arith_tex ('MUL', tex1, tex2_or_xform)
+   end
 end
 function div_tex (tex1, tex2)
    return arith_tex ('DIV', tex1, tex2)
@@ -965,36 +1012,23 @@ function neg_tex (tex)
    return arith_tex ('SUB', 0, tex)
 end
 
--- Return a texture which transforms TEX by the transform XFORM.
+-- Install operator overloads for the texture metatable MT.
 --
--- Actually it's the texture coordinates which are transformed (before
--- giving them to TEX), so for instance, to make TEX get "smaller", you
--- would use a value of XFORM which scales by an amount greater than 1.
---
-function xform_tex (xform, tex)
-   return raw.xform_tex (xform, tex_val (tex))
+local function setup_tex_metatable (mt)
+   mt.__add = add_tex
+   mt.__sub = sub_tex
+   mt.__mul = mul_tex
+   mt.__div = div_tex
+   mt.__unm = neg_tex
+   mt.__pow = pow_tex
 end
 
-function scale_tex (amount, tex) return xform_tex (scale (amount), tex) end
-function rotate_tex (amount, tex) return xform_tex (rotate (amount), tex) end
-rot_tex = rotate_tex
-
--- Return a "check" texture, which evaluates to either TEX1 or TEX2 in a
--- check pattern.
+-- There's a metatable for each underlying texture datatype, currently
+-- Color and float.  We install the same overload functions for both.
 --
-function check_tex (tex1, tex2)
-   return raw.check_tex (tex_vals (tex1, tex2))
-end
-function check3d_tex (tex1, tex2)
-   return raw.check3d_tex (tex_vals (tex1, tex2))
-end
+setup_tex_metatable (getmetatable (sin_tex ()))	  -- float
+setup_tex_metatable (getmetatable (grey_tex (5))) -- Color
 
-sin_tex = raw.sin_tex
-tri_tex = raw.tri_tex
-
-plane_map_tex = raw.plane_map_tex
-cylinder_map_tex = raw.cylinder_map_tex
-lat_long_map_tex = raw.lat_long_map_tex
 
 ----------------------------------------------------------------
 --
