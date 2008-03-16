@@ -312,6 +312,16 @@ local function color_tex_val (val)
    return raw.ColorTexVal (val)
 end
 
+-- Return TEX, which should be a texture, converted into a
+-- floating-poing texture if it isn't one already.
+--
+local function float_tex (tex)
+   if is_color_tex (tex) then
+      tex = raw.intens_tex (raw.ColorTexVal (tex))
+   end
+   return tex
+end
+
 -- Return VAL, which should either be a number or a float texture, boxed
 -- into a TexVal<float> container.
 --
@@ -405,7 +415,7 @@ end
 local function postproc_material (mat, params)
    if type (params) == 'table' then
       local bump = params.bump_map or params.bump
-      if bump then mat.bump_map = bump end
+      if bump then mat.bump_map = float_tex (bump) end
    end
    return mat
 end   
