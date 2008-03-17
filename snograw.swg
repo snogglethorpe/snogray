@@ -80,6 +80,7 @@
 #include "misc-tex.h"
 #include "misc-map-tex.h"
 #include "perlin-tex.h"
+#include "interp-tex.h"
 
   static char static_rep_buf[255];
 
@@ -1100,6 +1101,34 @@ namespace snogray {
     static Ref<Tex<float> > perlin_tex ()
     {
       return new PerlinTex ();
+    }
+
+    // LinterpTex
+    static Ref<Tex<Color> > linterp_tex (const TexVal<float> &control,
+					 const TexVal<Color> &val1,
+					 const TexVal<Color> &val2)
+    {
+      return new LinterpTex<Color> (control, val1, val2);
+    }
+    static Ref<Tex<float> > linterp_tex (const TexVal<float> &control,
+					 const TexVal<float> &val1,
+					 const TexVal<float> &val2)
+    {
+      return new LinterpTex<float> (control, val1, val2);
+    }
+
+    // SinterpTex
+    static Ref<Tex<Color> > sinterp_tex (const TexVal<float> &control,
+					 const TexVal<Color> &val1,
+					 const TexVal<Color> &val2)
+    {
+      return new SinterpTex<Color> (control, val1, val2);
+    }
+    static Ref<Tex<float> > sinterp_tex (const TexVal<float> &control,
+					 const TexVal<float> &val1,
+					 const TexVal<float> &val2)
+    {
+      return new SinterpTex<float> (control, val1, val2);
     }
 
   }

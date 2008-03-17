@@ -918,6 +918,16 @@ function check3d_tex (tex1, tex2)
    return raw.check3d_tex (tex_vals (tex1, tex2))
 end
 
+-- Return an interpolation texture, which interpolates between two
+-- textures according to the value of its control parameter.
+--
+function linterp_tex (control, val1, val2)
+   return raw.linterp_tex (float_tex_val (control), tex_vals (val1, val2))
+end
+function sinterp_tex (control, val1, val2)
+   return raw.sinterp_tex (float_tex_val (control), tex_vals (val1, val2))
+end
+
 -- A cache of "singleton" texture sources, whose instances have no
 -- state, and really only one shared instance is needed.
 --
