@@ -1070,6 +1070,7 @@ local function setup_tex_metatable (mt)
    mt.__div = div_tex
    mt.__unm = neg_tex
    mt.__pow = pow_tex
+   mt.__mod = mod_tex
 end
 
 -- There's a metatable for each underlying texture datatype, currently
