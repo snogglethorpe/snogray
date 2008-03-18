@@ -1059,6 +1059,38 @@ setup_tex_metatable (getmetatable (grey_tex (5))) -- Color
 
 ----------------------------------------------------------------
 --
+-- Texture comparison
+
+-- Encoding for cmp_tex operations.
+--
+local cmp_tex_ops = { EQ = 0, NE = 1, LT = 2, LE = 3, GT = 4, GE = 5 }
+
+-- Return a texture which compares CVAL1 to CVAL2 using the comparison
+-- operator OP, and returns the value of RVAL1 if the result is true,
+-- and RVAL2 otherwise.  CVAL1 and CVAL2 are interpreted as
+-- floating-point textures.  RVAL1 and RVAL2 may be either color or
+-- floating-point textures (a mixture of both results in the
+-- floating-point texture being converted to color before applying the
+-- operation).
+--
+function cmp_tex (op, cval1, cval2, rval1, rval2)
+   op = cmp_tex_ops[op]
+   return raw.cmp_tex (op, float_tex_val (cval1), float_tex_val (cval2),
+   		       tex_vals (rval1, rval2))
+end
+
+-- Convenient aliases for the various cmp_tex operations.
+--
+function eq_tex (...) return cmp_tex ('EQ', ...) end
+function ne_tex (...) return cmp_tex ('NE', ...) end
+function lt_tex (...) return cmp_tex ('LT', ...) end
+function le_tex (...) return cmp_tex ('LE', ...) end
+function gt_tex (...) return cmp_tex ('GT', ...) end
+function ge_tex (...) return cmp_tex ('GE', ...) end
+
+
+----------------------------------------------------------------
+--
 -- File handling
 
 include_path = { "." }

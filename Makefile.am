@@ -168,10 +168,11 @@ libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
 #
 
 libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
-	check-tex.h coord-tex.h cubemap.cc cubemap.h envmap.cc envmap.h	\
-	grey-tex.h intens-tex.h matrix-linterp.h matrix-tex.cc		\
-	matrix-tex.h matrix-tex.tcc misc-tex.h misc-map-tex.h perlin.cc	\
-	perlin.h perlin-tex.h spheremap.cc spheremap.h xform-tex.h
+	check-tex.h cmp-tex.cc cmp-tex.h cmp-tex.tcc coord-tex.h	\
+	cubemap.cc cubemap.h envmap.cc envmap.h grey-tex.h intens-tex.h	\
+	matrix-linterp.h matrix-tex.cc matrix-tex.h matrix-tex.tcc	\
+	misc-tex.h misc-map-tex.h perlin.cc perlin.h perlin-tex.h	\
+	spheremap.cc spheremap.h xform-tex.h
 
 
 ################################################################

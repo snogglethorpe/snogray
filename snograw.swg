@@ -82,6 +82,7 @@
 #include "perlin-tex.h"
 #include "coord-tex.h"
 #include "interp-tex.h"
+#include "cmp-tex.h"
 
   static char static_rep_buf[255];
 
@@ -1007,6 +1008,26 @@ namespace snogray {
 				  const TexVal<float> &arg2)
     {
       return new ArithTex<float> (ArithTex<float>::Op (op), arg1, arg2);
+    }
+
+    // CmpTex
+    static Ref<Tex<Color> > cmp_tex (unsigned op,
+				     const TexVal<float> &cval1,
+				     const TexVal<float> &cval2,
+				     const TexVal<Color> &rval1,
+				     const TexVal<Color> &rval2)
+    {
+      return new CmpTex<Color> (CmpTex<Color>::Op (op), cval1, cval2,
+				rval1, rval2);
+    }
+    static Ref<Tex<float> > cmp_tex (unsigned op,
+				     const TexVal<float> &cval1,
+				     const TexVal<float> &cval2,
+				     const TexVal<float> &rval1,
+				     const TexVal<float> &rval2)
+    {
+      return new CmpTex<float> (CmpTex<float>::Op (op), cval1, cval2,
+				rval1, rval2);
     }
 
     // SinTex
