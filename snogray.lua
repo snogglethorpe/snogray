@@ -937,6 +937,22 @@ function sinterp_tex (control, val1, val2)
    return raw.sinterp_tex (float_tex_val (control), tex_vals (val1, val2))
 end
 
+-- Return a texture which rescales VAL from the range [IN_MIN, IN_MAX]
+-- to the range [OUT_MIN, OUT_MAX].  The default output range is [0,1].
+--
+function rescale_tex (val, in_min, in_max, out_min, out_max)
+   val = tex_val (val)
+   out_min = out_min or 0
+   out_max = out_max or 1
+   if nice_type (val) == 'TexVal<Color>' then
+      in_min = color (in_min)
+      in_max = color (in_max)
+      out_min = color (out_min)
+      out_max = color (out_max)
+   end
+   return raw.rescale_tex (val, in_min, in_max, out_min, out_max)
+end
+
 plane_map_tex = raw.plane_map_tex
 cylinder_map_tex = raw.cylinder_map_tex
 lat_long_map_tex = raw.lat_long_map_tex

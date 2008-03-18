@@ -84,6 +84,7 @@
 #include "interp-tex.h"
 #include "cmp-tex.h"
 #include "perturb-tex.h"
+#include "rescale-tex.h"
 
   static char static_rep_buf[255];
 
@@ -1158,6 +1159,22 @@ namespace snogray {
 					 const TexVal<float> &val2)
     {
       return new SinterpTex<float> (control, val1, val2);
+    }
+
+    // RescaleTex
+    static Ref<Tex<Color> > rescale_tex (const TexVal<Color> &val,
+					 const Color &in_min,
+					 const Color &in_max,
+					 const Color &out_min,
+					 const Color &out_max)
+    {
+      return new RescaleTex<Color> (val, in_min, in_max, out_min, out_max);
+    }
+    static Ref<Tex<float> > rescale_tex (const TexVal<float> &val,
+					 float in_min, float in_max,
+					 float out_min, float out_max)
+    {
+      return new RescaleTex<float> (val, in_min, in_max, out_min, out_max);
     }
 
     // PerturbPosTex
