@@ -77,7 +77,6 @@
 #include "intens-tex.h"
 #include "xform-tex.h"
 #include "check-tex.h"
-#include "misc-tex.h"
 #include "misc-map-tex.h"
 #include "perlin-tex.h"
 #include "coord-tex.h"
@@ -1030,17 +1029,6 @@ namespace snogray {
     {
       return new CmpTex<float> (CmpTex<float>::Op (op), cval1, cval2,
 				rval1, rval2);
-    }
-
-    // SinTex
-    static Ref<Tex<float> > sin_tex ()
-    {
-      return new SinTex<float> ();
-    }
-    // TriTex
-    static Ref<Tex<float> > tri_tex ()
-    {
-      return new TriTex<float> ();
     }
 
     // GreyTex
