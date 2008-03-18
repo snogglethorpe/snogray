@@ -918,6 +918,15 @@ function check3d_tex (tex1, tex2)
    return raw.check3d_tex (tex_vals (tex1, tex2))
 end
 
+function perturb_pos_tex (src, x, y, z)
+   return raw.perturb_pos_tex (tex_val (src), float_tex_val (x),
+			       float_tex_val (y), float_tex_val (z))
+end
+function perturb_uv_tex (src, u, v)
+   return raw.perturb_pos_tex (tex_val (src),
+			       float_tex_val (u), float_tex_val (v))
+end
+
 -- Return an interpolation texture, which interpolates between two
 -- textures according to the value of its control parameter.
 --

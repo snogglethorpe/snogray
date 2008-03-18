@@ -83,6 +83,7 @@
 #include "coord-tex.h"
 #include "interp-tex.h"
 #include "cmp-tex.h"
+#include "perturb-tex.h"
 
   static char static_rep_buf[255];
 
@@ -1157,6 +1158,36 @@ namespace snogray {
 					 const TexVal<float> &val2)
     {
       return new SinterpTex<float> (control, val1, val2);
+    }
+
+    // PerturbPosTex
+    static Ref<Tex<Color> > perturb_pos_tex (const TexVal<Color> &source,
+					     const TexVal<float> &x,
+					     const TexVal<float> &y,
+					     const TexVal<float> &z)
+    {
+      return new PerturbPosTex<Color> (source, x, y, z);
+    }
+    static Ref<Tex<float> > perturb_pos_tex (const TexVal<float> &source,
+					     const TexVal<float> &x,
+					     const TexVal<float> &y,
+					     const TexVal<float> &z)
+    {
+      return new PerturbPosTex<float> (source, x, y, z);
+    }
+
+    // PerturbUvTex
+    static Ref<Tex<Color> > perturb_uv_tex (const TexVal<Color> &source,
+					    const TexVal<float> &u,
+					    const TexVal<float> &v)
+    {
+      return new PerturbUvTex<Color> (source, u, v);
+    }
+    static Ref<Tex<float> > perturb_uv_tex (const TexVal<float> &source,
+					    const TexVal<float> &u,
+					    const TexVal<float> &v)
+    {
+      return new PerturbUvTex<float> (source, u, v);
     }
 
   }
