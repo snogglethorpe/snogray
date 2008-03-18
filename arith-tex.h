@@ -29,8 +29,11 @@ public:
   enum Op
   {
     ADD, SUB, MUL, DIV, MOD, POW,
+    FLOOR, CEIL, TRUNC,		// floor/ceil/trunc (X / Y) * Y
     MIN, MAX, AVG,
-    MIRROR,			// abs (x - y)
+    MIRROR,			// abs (X - Y)
+    SIN, COS, TAN,		// sin/cos/tan (X * 2 * PI / Y)
+    ATAN2
   };
 
   ArithTex (Op _op, const TexVal<T> &_arg1, const TexVal<T> &_arg2)

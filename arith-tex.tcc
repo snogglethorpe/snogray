@@ -16,6 +16,7 @@
 #include "config.h"
 
 #include "color.h"
+#include "color-math.h"
 
 
 namespace snogray {
@@ -44,6 +45,12 @@ ArithTex<T>::eval (const TexCoords &tex_coords) const
       return fmod (val1, val2);
     case POW:
       return pow (val1, val2);
+    case FLOOR:
+      return floor (val1 / val2) * val2;
+    case CEIL:
+      return ceil (val1 / val2) * val2;
+    case TRUNC:
+      return trunc (val1 / val2) * val2;
     case MIN:
       return min (val1, val2);
     case MAX:
@@ -52,6 +59,16 @@ ArithTex<T>::eval (const TexCoords &tex_coords) const
       return (val1 + val2) / 2;
     case MIRROR:
       return abs (val1 - val2);
+    case SIN:
+      return sin (val1 * 2 * PI / val2);
+    case COS:
+      return cos (val1 * 2 * PI / val2);
+    case TAN:
+      return tan (val1 * 2 * PI / val2);
+    case ATAN2:
+      return atan2 (val1, val2);
+    default:
+      return val1;		// no meaning, just cheap
     };
 }
 

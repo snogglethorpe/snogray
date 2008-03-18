@@ -982,8 +982,11 @@ rot_tex = rotate_tex
 --
 local arith_tex_ops = {
    ADD = 0, SUB = 1, MUL = 2, DIV = 3, MOD = 4, POW = 5,
-   MIN = 6, MAX = 7, AVG = 8,
-   MIRROR = 9,			-- abs (x - y)
+   FLOOR = 6, CEIL = 7, TRUNC = 8, -- floor/ceil/trunc (X / Y) * Y
+   MIN = 9, MAX = 10, AVG = 11,
+   MIRROR = 12,			   -- abs (X - Y)
+   SIN = 13, COS = 14, TAN = 15,   -- sin/cos/tan (X * 2 * PI / Y)
+   ATAN2 = 16
 }
 
 -- Return a texture which performs operation OP on input textures ARG1
@@ -996,14 +999,11 @@ function arith_tex (op, arg1, arg2)
    return raw.arith_tex (op, tex_vals (arg1, arg2))
 end
 
--- Convenient aliases for the various arith_tex operations.
+-- Alias for the arith_tex MUL operation.  This function treats the
+-- second operand specially because it is used to overload the "*"
+-- operator for textures, which we want to work for texture-xform
+-- operations too.
 --
-function add_tex (tex1, tex2)
-   return arith_tex ('ADD', tex1, tex2)
-end
-function sub_tex (tex1, tex2)
-   return arith_tex ('SUB', tex1, tex2)
-end
 function mul_tex (tex1, tex2_or_xform)
    if is_xform (tex2_or_xform) then
       return xform_tex (tex2_or_xform, tex1)
@@ -1011,33 +1011,27 @@ function mul_tex (tex1, tex2_or_xform)
       return arith_tex ('MUL', tex1, tex2_or_xform)
    end
 end
-function div_tex (tex1, tex2)
-   return arith_tex ('DIV', tex1, tex2)
-end
-function mod_tex (tex1, tex2)
-   return arith_tex ('MOD', tex1, tex2)
-end
-function pow_tex (tex1, tex2)
-   return arith_tex ('POW', tex1, tex2)
-end
-function min_tex (tex1, tex2)
-   return arith_tex ('MIN', tex1, tex2)
-end
-function max_tex (tex1, tex2)
-   return arith_tex ('MAX', tex1, tex2)
-end
-function avg_tex (tex1, tex2)
-   return arith_tex ('AVG', tex1, tex2)
-end
-function mirror_tex (tex1, tex2)
-   return arith_tex ('MIRROR', tex1, tex2)
-end
-function abs_tex (tex)
-   return arith_tex ('MIRROR', tex, 0)
-end
-function neg_tex (tex)
-   return arith_tex ('SUB', 0, tex)
-end
+
+-- Convenient aliases for the various other arith_tex operations.
+--
+function add_tex (...) return arith_tex ('ADD', ...) end
+function sub_tex (...) return arith_tex ('SUB', ...) end
+function div_tex (...) return arith_tex ('DIV', ...) end
+function mod_tex (...) return arith_tex ('MOD', ...) end
+function pow_tex (...) return arith_tex ('POW', ...) end
+function floor_tex (x, y) return arith_tex ('FLOOR', x, y or 1) end
+function ceil_tex (x, y) return arith_tex ('CEIL', x, y or 1) end
+function trunc_tex (x, y) return arith_tex ('TRUNC', x, y or 1) end
+function min_tex (...) return arith_tex ('MIN', ...) end
+function max_tex (...) return arith_tex ('MAX', ...) end
+function avg_tex (...) return arith_tex ('AVG', ...) end
+function mirror_tex (...) return arith_tex ('MIRROR', ...) end
+function abs_tex (tex) return arith_tex ('MIRROR', tex, 0) end
+function neg_tex (tex) return arith_tex ('SUB', 0, tex) end
+function sin_tex (x, y) return arith_tex ('SIN', x, y or 2*math.pi) end
+function cos_tex (x, y) return arith_tex ('COS', x, y or 2*math.pi) end
+function tan_tex (x, y) return arith_tex ('TAN', x, y or 2*math.pi) end
+function atan2_tex (...) return arith_tex ('ATAN2', ...) end
 
 -- Install operator overloads for the texture metatable MT.
 --
