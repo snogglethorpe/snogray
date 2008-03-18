@@ -947,9 +947,6 @@ local function singleton_tex_fun (name, create)
 	  end
 end
 
-sin_tex = singleton_tex_fun ('sin', raw.sin_tex)
-tri_tex = singleton_tex_fun ('tri', raw.tri_tex)
-
 perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
 
 x_tex = singleton_tex_fun ('x', function () return raw.coord_tex(0) end)
@@ -1053,8 +1050,8 @@ end
 -- There's a metatable for each underlying texture datatype, currently
 -- Color and float.  We install the same overload functions for both.
 --
-setup_tex_metatable (getmetatable (sin_tex ()))	  -- float
-setup_tex_metatable (getmetatable (grey_tex (5))) -- Color
+setup_tex_metatable (getmetatable (intens_tex (0))) -- float
+setup_tex_metatable (getmetatable (grey_tex (0))) -- Color
 
 
 ----------------------------------------------------------------
