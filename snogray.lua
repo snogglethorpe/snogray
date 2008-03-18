@@ -1088,6 +1088,58 @@ function ge_tex (...) return cmp_tex ('GE', ...) end
 
 ----------------------------------------------------------------
 --
+-- Perlin fourier-series textures
+
+function fourier_series_tex (source_tex, params)
+   local sum = nil
+   local cur_max_pow = 0
+
+   local function add_term (pow, factor)
+      if factor and factor ~= 0 then
+	 local pow_scale = 2^pow
+	 local term = source_tex * scale (pow_scale) * (factor / pow_scale)
+
+	 if sum then
+	    sum = sum + term
+	 else
+	    sum = term
+	 end
+
+	 max_pow = pow
+      end
+   end
+
+   local max_pow
+   if type (params) == 'table' then
+      for pow, factor in ipairs (params) do
+	 add_term (pow, factor)
+      end
+      max_pow = params.max_pow or params.max
+   else
+      max_pow = params
+   end
+
+   if max_pow then
+      while cur_max_pow <= max_pow do
+	 add_term (cur_max_pow, 1)
+	 cur_max_pow = cur_max_pow + 1
+      end
+   end
+
+   return sum * 0.5
+end
+
+function perlin_series_tex (params)
+   return (fourier_series_tex (perlin_tex(), params) + 1) * 0.5
+end
+
+function perlin_abs_series_tex (params)
+   return fourier_series_tex (abs_tex (perlin_tex()), params)
+end
+
+
+----------------------------------------------------------------
+--
 -- File handling
 
 include_path = { "." }
