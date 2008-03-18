@@ -928,6 +928,10 @@ function sinterp_tex (control, val1, val2)
    return raw.sinterp_tex (float_tex_val (control), tex_vals (val1, val2))
 end
 
+plane_map_tex = raw.plane_map_tex
+cylinder_map_tex = raw.cylinder_map_tex
+lat_long_map_tex = raw.lat_long_map_tex
+
 -- A cache of "singleton" texture sources, whose instances have no
 -- state, and really only one shared instance is needed.
 --
@@ -945,10 +949,6 @@ end
 
 sin_tex = singleton_tex_fun ('sin', raw.sin_tex)
 tri_tex = singleton_tex_fun ('tri', raw.tri_tex)
-
-plane_map_tex = singleton_tex_fun ('plane', raw.plane_map_tex)
-cylinder_map_tex = singleton_tex_fun ('cylinder', raw.cylinder_map_tex)
-lat_long_map_tex = singleton_tex_fun ('lat_long', raw.lat_long_map_tex)
 
 perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
 
