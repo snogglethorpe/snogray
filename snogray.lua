@@ -952,6 +952,12 @@ tri_tex = singleton_tex_fun ('tri', raw.tri_tex)
 
 perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
 
+x_tex = singleton_tex_fun ('x', function () return raw.coord_tex(0) end)
+y_tex = singleton_tex_fun ('y', function () return raw.coord_tex(1) end)
+z_tex = singleton_tex_fun ('z', function () return raw.coord_tex(2) end)
+u_tex = singleton_tex_fun ('u', function () return raw.coord_tex(3) end)
+v_tex = singleton_tex_fun ('v', function () return raw.coord_tex(4) end)
+
 
 ----------------------------------------------------------------
 --

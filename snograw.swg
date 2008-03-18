@@ -80,6 +80,7 @@
 #include "misc-tex.h"
 #include "misc-map-tex.h"
 #include "perlin-tex.h"
+#include "coord-tex.h"
 #include "interp-tex.h"
 
   static char static_rep_buf[255];
@@ -1101,6 +1102,12 @@ namespace snogray {
     static Ref<Tex<float> > perlin_tex ()
     {
       return new PerlinTex ();
+    }
+
+    // CoordTex
+    static Ref<Tex<float> > coord_tex (unsigned kind)
+    {
+      return new CoordTex (CoordTex::Kind (kind));
     }
 
     // LinterpTex
