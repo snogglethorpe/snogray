@@ -32,7 +32,7 @@ void
 Subspace::make_space (TraceContext &context) const
 {
   std::auto_ptr<SpaceBuilder> space_builder
-    (context.space_builder_builder->make_space_builder ());
+    (context.space_builder_factory->make_space_builder ());
 
   surface->add_to_space (*space_builder);
 

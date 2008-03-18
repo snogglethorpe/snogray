@@ -53,9 +53,9 @@ public:
     Octree *octree;
   };
 
-  // Subclass of SpaceBuilderBuilder for making octree builders.
+  // Subclass of SpaceBuilderFactory for making octree builders.
   //
-  class BuilderBuilder : public SpaceBuilderBuilder
+  class BuilderFactory : public SpaceBuilderFactory
   {
   public:
 

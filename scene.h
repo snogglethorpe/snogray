@@ -91,9 +91,9 @@ public:
   void add (Light *light);
 
   // Construct the search accelerator for this scene.
-  // SPACE_BUILDER_BUILDER says how to do it.
+  // SPACE_BUILDER_FACTORY says how to do it.
   //
-  void build_space (const SpaceBuilderBuilder *space_builder_builder);
+  void build_space (const SpaceBuilderFactory *space_builder_factory);
 
   // Scene input
   //

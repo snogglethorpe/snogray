@@ -1,6 +1,6 @@
 // space-builder.h -- Builder for Space objects
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -47,11 +47,11 @@ public:
 
 // This class makes a SpaceBuilder object.
 //
-class SpaceBuilderBuilder
+class SpaceBuilderFactory
 {
 public:
 
-  virtual ~SpaceBuilderBuilder () { }
+  virtual ~SpaceBuilderFactory () { }
 
   // Return a new SpaceBuilder object.
   //

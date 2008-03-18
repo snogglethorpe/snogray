@@ -68,15 +68,15 @@ Scene::add (Light *light)
 }
 
 // Construct the search accelerator for this scene.
-// SPACE_BUILDER_BUILDER says how to do it.
+// SPACE_BUILDER_FACTORY says how to do it.
 //
 void
-Scene::build_space (const SpaceBuilderBuilder *space_builder_builder)
+Scene::build_space (const SpaceBuilderFactory *space_builder_factory)
 {
   if (! space)
     {
       std::auto_ptr<SpaceBuilder> space_builder
-	(space_builder_builder->make_space_builder ());
+	(space_builder_factory->make_space_builder ());
 
       surfaces.add_to_space (*space_builder);
 

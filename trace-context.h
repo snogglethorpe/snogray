@@ -66,7 +66,7 @@ public:
 
   TraceStats stats;
 
-  std::auto_ptr<SpaceBuilderBuilder> space_builder_builder;
+  std::auto_ptr<SpaceBuilderFactory> space_builder_factory;
 };
 
 
