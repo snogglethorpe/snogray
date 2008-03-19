@@ -40,9 +40,9 @@ ArithTex<T>::eval (const TexCoords &tex_coords) const
     case MUL:
       return val1 * val2;
     case DIV:
-      return val1 / val2;
+      return val2 == 0 ? 0 : val1 / val2;
     case MOD:
-      return fmod (val1, val2);
+      return val2 == 0 ? 0 : fmod (val1, val2);
     case POW:
       return pow (val1, val2);
     case FLOOR:
