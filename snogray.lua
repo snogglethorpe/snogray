@@ -1116,14 +1116,52 @@ function ge_tex (...) return cmp_tex ('GE', ...) end
 --
 -- Perlin fourier-series textures
 
+-- Return a fourier-series summation of SOURCE_TEX, according to PARAMS:
+--
+--   Sum[i = 1 to MAX] of (SOURCE_TEX * F_i * Scale(2^(i-1)) / 2^(i-1))
+--
+-- where MAX is the maximum term index to use, F_i are perm-term user
+-- multiplicative factors (defaulting to 1), "... * Scale(2^(i-1))"
+-- means to scale the input coordinates to SOURCE_TEX by 2^(i-1), and
+-- "... / 2^(i-1)" means to divide the resulting value of the term by
+-- 2^(i-1).
+--
+-- If PARAMS is a number, then all F_i are 1, and MAX = PARAMS.
+--
+-- If PARAMS is a table, then F_i is taken from the array entry i in
+-- PARAMS (so F_1 is PARAMS[], F_2 is PARAMS[2], etc), and MAX =
+-- PARAMS.max, or if there is no "max" entry in PARAMS, then the number
+-- of array members of PARAMS.
+--
+-- Note that the F_i values do not need to be constants, they can also
+-- be textures.
+--
+-- The result is automatically scaled by the inverse of the constant
+-- portions of the sum, Sum[...] (F_i / 2^(i-1)), so that it should have
+-- roughly the same magnitude as SOURCE_TEX.  Any non-constant F_i
+-- values are ignored for the purposes of auto-scaling.
+--
 function fourier_series_tex (source_tex, params)
    local sum = nil
    local cur_max_pow = 0
+   local const_factor_sum = 0
 
    local function add_term (pow, factor)
       if factor and factor ~= 0 then
-	 local pow_scale = 2^pow
-	 local term = source_tex * scale (pow_scale) * (factor / pow_scale)
+	 local inv_pow_factor = 2^pow
+	 local pow_factor = 1 / inv_pow_factor
+	 local term_factor = factor * pow_factor
+
+	 local term = source_tex * scale (inv_pow_factor)
+	 if type (term_factor) ~= 'number' or term_factor ~= 1 then
+	    term = term * term_factor
+	 end
+
+	 local const_factor = pow_factor
+	 if type (factor) == 'number' then
+	    const_factor = const_factor * factor
+	 end
+	 const_factor_sum = const_factor_sum + const_factor
 
 	 if sum then
 	    sum = sum + term
@@ -1137,8 +1175,8 @@ function fourier_series_tex (source_tex, params)
 
    local max_pow
    if type (params) == 'table' then
-      for pow, factor in ipairs (params) do
-	 add_term (pow, factor)
+      for i, factor in ipairs (params) do
+	 add_term (i-1, factor)
       end
       max_pow = params.max_pow or params.max
    else
@@ -1152,13 +1190,24 @@ function fourier_series_tex (source_tex, params)
       end
    end
 
-   return sum * 0.5
+   if const_factor_sum ~= 1 then
+      sum = sum * (1 / const_factor_sum)
+   end
+
+   return sum
 end
 
+-- Call fourier_series_tex using perlin noise as the input texture.
+-- See description of fourier_series_tex for an explanation of PARAMS.
+--
 function perlin_series_tex (params)
-   return (fourier_series_tex (perlin_tex(), params) + 1) * 0.5
+   return fourier_series_tex (perlin_tex(), params)
 end
 
+-- Call fourier_series_tex using the absolute value of perlin noise as
+-- the input texture.  See description of fourier_series_tex for an
+-- explanation of PARAMS.
+--
 function perlin_abs_series_tex (params)
    return fourier_series_tex (abs_tex (perlin_tex()), params)
 end
