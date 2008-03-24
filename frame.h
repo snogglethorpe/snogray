@@ -1,6 +1,6 @@
 // frame.h -- Frame of reference
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ public:
   Frame (const Vec &_z)
     : origin (0,0,0),
       x (_z.perpendicular ().unit ()),
-      y (cross (_z, x).unit ()),
+      y (cross (x, _z).unit ()),
       z (_z)
     { }
 
@@ -63,7 +63,7 @@ public:
   Frame (const Pos &org, const Vec &_z)
     : origin (org),
       x (_z.perpendicular ().unit ()),
-      y (cross (_z, x).unit ()),
+      y (cross (x, _z).unit ()),
       z (_z)
     { }
 
