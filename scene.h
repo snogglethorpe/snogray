@@ -22,8 +22,6 @@
 #include "intersect.h"
 #include "material.h"
 #include "trace.h"
-#include "camera.h"
-#include "envmap.h"
 #include "shadow-ray.h"
 
 
@@ -31,6 +29,8 @@ namespace snogray {
 
 
 class Space;
+class Envmap;
+class Camera;
 
 
 class Scene
