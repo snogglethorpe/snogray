@@ -22,13 +22,25 @@
 #include "val-table.h"
 #include "tuple-adaptor.h"
 
+// Use OpenEXR "half" datatype as default matrix storage element if possible.
+//
+#if HAVE_LIBEXR
+# include <half.h>
+#endif
+
 namespace snogray {
 
 
 class ImageInput;
 class ImageOutput;
 
+// Use OpenEXR "half" datatype for default matrix storage element if possible.
+//
+#if HAVE_LIBEXR
+typedef half default_tuple_element_type;
+#else
 typedef float default_tuple_element_type;
+#endif
 
 
 
