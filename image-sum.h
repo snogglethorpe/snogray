@@ -46,7 +46,7 @@ public:
 	  if (col != 0 && row != 0)
 	    sum -= sat (col - 1, row - 1);
 
-	  sat.put (col, row, sum);
+	  sat (col, row) = sum;
 	}
   }
 
@@ -131,7 +131,7 @@ private:
       for (unsigned x = 0; x < image.width; x++)
 	{
 	  Color p = image (x, y);
-	  sq.put (x, y, p * p);
+	  sq (x, y) = p * p;
 	}
 
     return sq;

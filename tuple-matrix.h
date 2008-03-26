@@ -163,19 +163,13 @@ public:
     : TMD (TA::TUPLE_LEN, *base, offs_x, offs_y, w, h)
   { }
 
-  T operator() (unsigned x, unsigned y) const
-  {
-    return get (x, y);
-  }
-
-  T get (unsigned x, unsigned y) const
+  TupleAdaptor<T, const DT> operator() (unsigned x, unsigned y) const
   {
     return TupleAdaptor<T, const DT> (TupleMatrix<T,DT>::tuple (x, y));
   }
-
-  void put (unsigned x, unsigned y, const T &val)
+  TupleAdaptor<T, DT> operator() (unsigned x, unsigned y)
   {
-    TupleAdaptor<T, DT> (TupleMatrix<T,DT>::tuple (x, y)) = val;
+    return TupleAdaptor<T, DT> (TupleMatrix<T,DT>::tuple (x, y));
   }
 
 };

@@ -44,8 +44,9 @@ Spheremap<LatLongMapping>::light_map () const
 
   float avg_scale = 1.f / (lmap_block_size * lmap_block_size);
 
-  for (MatrixTex<Color>::const_iterator p = tex.begin ();
-       p != tex.end (); ++p)
+  Image &img = *lmap;
+
+  for (MatrixTex<Color>::const_iterator p = tex.begin (); p != tex.end (); ++p)
     {
       unsigned x = p.x () / lmap_block_size;
       unsigned y = h - p.y () / lmap_block_size - 1;
@@ -57,7 +58,7 @@ Spheremap<LatLongMapping>::light_map () const
       if (x >= w || y >= h)
 	continue;
 
-      lmap->put (x, y, lmap->get (x, y) + p.val () * avg_scale);
+      img (x, y) = img (x, y) + p.val () * avg_scale;
     }
 
   return lmap;

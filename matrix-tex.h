@@ -83,9 +83,9 @@ private:
     // Returns the value of the texture where the iterator points;
     // slightly faster than doing a normal texture lookup.
     //
-    T val () const { return mat.matrix->get (_x, _y); }
+    T val () const { return (*mat.matrix) (_x, _y); }
 
-    void set (const T &val) const { mat.matrix->put (_x, _y, val); }
+    void set (const T &val) const { (*mat.matrix) (_x, _y) = val; }
 
     MT &mat;
 

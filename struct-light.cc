@@ -1,6 +1,6 @@
 // struct-light.cc -- A structured light source
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -140,9 +140,9 @@ StructLight::Region::dump (const Image &orig_image, Image &image)
       for (unsigned x = x_min; x < x_lim; x++)
 	for (unsigned y = y_min; y < y_lim; y++)
 	  if (x > (x_min + 3 * x_lim) / 4 && y > (y_min + 3 * y_lim) / 4)
-	    image.put (x, image.height - y - 1, intensity);
+	    image (x, image.height - y - 1) = intensity;
 	  else
-	    image.put (x, image.height - y - 1, orig_image (x, y));
+	    image (x, image.height - y - 1) = orig_image (x, y);
     }
   else
     {
@@ -158,14 +158,14 @@ StructLight::Region::dump (const Image &orig_image, Image &image)
 	  unsigned x_split
 	    = unsigned (float (image.width) * sub_region_1->u_min + 0.5f);
 	  for (unsigned y = y_min; y < y_lim; y++)
-	    image.put (x_split, image.height - y - 1, div_color);
+	    image (x_split, image.height - y - 1) = div_color;
 	}
       else
 	{
 	  unsigned y_split
 	    = unsigned (float (image.height) * sub_region_1->v_min + 0.5f);
 	  for (unsigned x = x_min; x < x_lim; x++)
-	    image.put (x, image.height - y_split - 1, div_color);
+	    image (x, image.height - y_split - 1) = div_color;
 	}
     }
 }
