@@ -71,6 +71,7 @@
 #include "cook-torrance.h"
 #include "lambert.h"
 #include "image.h"
+#include "envmap.h"
 #include "matrix-tex.h"
 #include "arith-tex.h"
 #include "grey-tex.h"
@@ -844,8 +845,8 @@ namespace snogray {
     static ValTable NONE;
   };
 
-  %ignore TupleMatrixData;
-  class TupleMatrixData
+  template<class T>
+  class TupleMatrix
   {
   public:
 
@@ -855,16 +856,7 @@ namespace snogray {
       const;
 
     const unsigned tuple_len;
-    unsigned width, height;
-  };
-
-  template<class T>
-  class TupleMatrix : public TupleMatrixData
-  {
-  public:
-    T operator() (unsigned x, unsigned y) const;
-    T get (unsigned x, unsigned y) const;
-    void put (unsigned x, unsigned y, const T &val);
+    const unsigned width, height;
   };
   %extend TupleMatrix<Color>
   {
@@ -876,7 +868,6 @@ namespace snogray {
     }
   }
   %template(Image) TupleMatrix<Color>;
-  %template(ImageRef) Ref<TupleMatrix<Color> >;
 
 }
 

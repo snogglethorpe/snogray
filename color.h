@@ -17,6 +17,7 @@
 
 #include "rand.h"
 #include "snogmath.h"
+#include "tuple-adaptor.h"
 
 
 namespace snogray {
@@ -40,10 +41,6 @@ public:
   // Number of color components stored.
   //
   static const unsigned NUM_COMPONENTS = 3; // RGB
-
-  // Tuple length for reading and writing images.
-  //
-  static const unsigned TUPLE_LEN = NUM_COMPONENTS;
 
   // Default constructor.
   //
@@ -81,24 +78,6 @@ public:
   {
     for (unsigned c = 0; c < NUM_COMPONENTS; c++)
       _components[c] = grey;
-  }
-
-  // Constructor for making from an image tuple; there must be at least
-  // TUPLE_LEN floats available at tuple.
-  //
-  explicit Color (const float tuple[])
-  {
-    for (unsigned c = 0; c < TUPLE_LEN; c++)
-      _components[c] = tuple[c];
-  }
-
-  // Store this color into the floating-poing tuple TUPLE; there must be
-  // at least TUPLE_LEN floats available at tuple.
-  //
-  void store (float tuple[]) const
-  {
-    for (unsigned c = 0; c < TUPLE_LEN; c++)
-      tuple[c] = _components[c];
   }
 
   const Color &operator+= (const Color &col2)
@@ -455,6 +434,36 @@ inline Color min (const Color &col1, const Color &col2)
 }
 
 extern std::ostream& operator<< (std::ostream &os, const snogray::Color &col);
+
+
+// An adaptor for converting Colors to/from tuples of type DT*.
+//
+template<typename DT>
+class TupleAdaptor<Color, DT>
+{
+public:
+
+  static const unsigned TUPLE_LEN = 3;
+
+  TupleAdaptor (DT *_tuple) : tuple (_tuple) { }
+
+  operator Color () const
+  {
+    float r = tuple[0], g = tuple[1], b = tuple[2];
+    return Color (r, g, b);
+  }
+
+  TupleAdaptor &operator= (const Color &col)
+  {
+    for (unsigned c = 0; c < TUPLE_LEN; c++)
+      tuple[c] = col[c];
+    return *this;
+  }
+
+private:
+
+  DT *tuple;
+};
 
 
 }

@@ -25,30 +25,30 @@
 namespace snogray {
 
 
-template<typename T>
-MatrixTex<T>::MatrixTex (const std::string &filename)
-  : matrix (new TupleMatrix<T> (filename)),
+template<typename T, typename DT>
+MatrixTex<T,DT>::MatrixTex (const std::string &filename)
+  : matrix (new TupleMatrix<T,DT> (filename)),
     interp (matrix->width, matrix->height)
 { }
 
-template<typename T>
-MatrixTex<T>::MatrixTex (const Ref<TupleMatrix<T> > &contents)
+template<typename T, typename DT>
+MatrixTex<T,DT>::MatrixTex (const Ref<TupleMatrix<T, DT> > &contents)
   : matrix (contents), interp (matrix->width, matrix->height)
 { }
 
-template<typename T>
-MatrixTex<T>::MatrixTex (const TupleMatrix<T> &base,
-			 unsigned offs_x, unsigned offs_y,
-			 unsigned w, unsigned h)
-  : matrix (new TupleMatrix<T> (base, offs_x, offs_y, w, h)),
+template<typename T, typename DT>
+MatrixTex<T,DT>::MatrixTex (const TupleMatrix<T,DT> &base,
+			    unsigned offs_x, unsigned offs_y,
+			    unsigned w, unsigned h)
+  : matrix (new TupleMatrix<T,DT> (base, offs_x, offs_y, w, h)),
     interp (matrix->width, matrix->height)
 { }
 
 // Evaluate this texture at TEX_COORDS.
 //
-template<typename T>
+template<typename T, typename DT>
 T
-MatrixTex<T>::eval (const TexCoords &tex_coords) const
+MatrixTex<T,DT>::eval (const TexCoords &tex_coords) const
 {
   unsigned xi_lo, yi_lo, xi_hi, yi_hi;
   float x_lo_fr, y_lo_fr, x_hi_fr, y_hi_fr;

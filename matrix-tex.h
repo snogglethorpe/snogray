@@ -26,7 +26,7 @@ namespace snogray {
 
 // A 2d texture based on a matrix tuple (probably loaded from an image).
 //
-template<typename T>
+template<typename T, typename DT = default_tuple_element_type>
 class MatrixTex : public Tex<T>
 {
 public:
@@ -35,12 +35,12 @@ public:
 
   // This constructor stores a (ref-counted) reference to CONTENTS.
   //
-  MatrixTex (const Ref<TupleMatrix<T> > &contents);
+  MatrixTex (const Ref<TupleMatrix<T, DT> > &contents);
 
   // This constructor _copies_ the specified region of BASE (and so
   // doesn't reference BASE).
   //
-  MatrixTex (const TupleMatrix<T> &base,
+  MatrixTex (const TupleMatrix<T, DT> &base,
 	     unsigned offs_x, unsigned offs_y, unsigned w, unsigned h);
 
   // Evaluate this texture at TEX_COORDS.
@@ -107,7 +107,7 @@ public:
 
   // Matrix holding data for this texture.
   //
-  Ref<TupleMatrix<T> > matrix;
+  Ref<TupleMatrix<T, DT> > matrix;
 
 private:
 
@@ -117,9 +117,11 @@ private:
 
 } // namespace snogray
 
+
 // Include method definitions
 //
 #include "matrix-tex.tcc"
+
 
 #endif // __MATRIX_TEX_H__
 

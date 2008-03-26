@@ -1,6 +1,6 @@
-// tuple-matrix.h -- Matrices of tuples of floating-point numbers
+// tuple-matrix.h -- Generic matrix storage type
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,21 +13,29 @@
 #ifndef __TUPLE_MATRIX_H__
 #define __TUPLE_MATRIX_H__
 
+#include "config.h"
+
 #include <vector>
 
 #include "ref.h"
-#include "val-table.h"
 #include "color.h"
-
+#include "val-table.h"
+#include "tuple-adaptor.h"
 
 namespace snogray {
+
 
 class ImageInput;
 class ImageOutput;
 
-// This is the low-level storage class for tuple matrices, holding a
-// matrix of floating-point values, grouped into fixed-length tuples.
+typedef float default_tuple_element_type;
+
+
+
+// This is the low-level storage class for tuple matrices, holding a matrix
+// of "data" values of type DT, grouped into fixed-length tuples.
 //
+template<typename DT = default_tuple_element_type>
 class TupleMatrixData : public RefCounted
 {
 public:
@@ -55,26 +63,14 @@ public:
 
   // Return a pointer to the first element of the tuple at location X, Y
   //
-  const float *tuple (unsigned x, unsigned y) const
+  const DT *tuple (unsigned x, unsigned y) const
   {
     return &data[(y * width + x) * tuple_len];
   }
-  float *tuple (unsigned x, unsigned y)
+  DT *tuple (unsigned x, unsigned y)
   {
     return &data[(y * width + x) * tuple_len];
   }
-
-  // Return a color from the tuple at location X, Y; if the tuple length is
-  // not the same as a Color, only Color::TUPLE_LEN members are returned,
-  // and any missing components set to zero.
-  //
-  Color pixel (unsigned x, unsigned y) const;
-
-  // Set the tuple at location X, Y from the color COL; if the tuple length
-  // is not the same as a Color, only the first TUPLE_LEN members are
-  // copied, and any missing components set to zero.
-  //
-  void set_pixel (unsigned x, unsigned y, const Color &col);
 
   // Load tuple matrix from the file FILENAME.  PARAMS contains various
   // tuple-format-specific parameters that might be needed.  The loaded
@@ -98,111 +94,58 @@ public:
   //
   void save (ImageOutput &out) const;
 
-  // Store a value of type T into a tuple (assuming the tuple length is
-  // correct).
-  //
-  // For otherwise unknown types, we assume they're a class, and try to use
-  // for a "store" method which they should define.
-  //
-  // For some common non-class scalar types we just convert to a float and
-  // store that.
-  //
-  template<typename T>
-  void store (unsigned x, unsigned y, const T &val)
-  {
-    val.store (tuple (x, y));
-  }
-  void store (unsigned x, unsigned y, float val) { *tuple (x, y) = val; }
-  void store (unsigned x, unsigned y, double val) { *tuple (x, y) = val; }
-  void store (unsigned x, unsigned y, int val) { *tuple (x, y) = val; }
-  void store (unsigned x, unsigned y, unsigned val) { *tuple (x, y) = val; }
-
-  template<typename T>
-  T load (unsigned x, unsigned y) const
-  {
-    return T (tuple (x, y));
-  }
-
   // Number of elements in each tuple tuple; should be greater than 0.
   //
   const unsigned tuple_len;
 
   // The width and height of the tuple matrix.
   //
-  unsigned width, height;
-
-protected:
-
-  // For otherwise unknown types, we assume they're a class, and try to use
-  // for a static const field "TUPLE_LEN" they should define.
-  //
-  // For some common non-class scalar types we just return 1.
-  //
-  template<typename T>
-  inline unsigned type_tuple_len () { return T::TUPLE_LEN; }
+  const unsigned width, height;
 
 private:
 
-  std::vector<float> data;
+  // Return a color from the tuple at location X, Y; if the tuple length is
+  // not the same as a Color, only Color::TUPLE_LEN members are returned,
+  // and any missing components set to zero.
+  //
+  Color pixel (unsigned x, unsigned y) const;
 
+  // Set the tuple at location X, Y from the color COL; if the tuple length
+  // is not the same as a Color, only the first TUPLE_LEN members are
+  // copied, and any missing components set to zero.
+  //
+  void set_pixel (unsigned x, unsigned y, const Color &col);
+
+  std::vector<DT> data;
 };
-
-template<>
-inline float
-TupleMatrixData::load<float> (unsigned x, unsigned y) const
-{
-  return *tuple (x, y);
-}
-template<>
-inline double
-TupleMatrixData::load<double> (unsigned x, unsigned y) const
-{
-  return *tuple (x, y);
-}
-template<>
-inline int
-TupleMatrixData::load<int> (unsigned x, unsigned y) const
-{
-  return int (*tuple (x, y));
-}
-template<>
-inline unsigned
-TupleMatrixData::load<unsigned> (unsigned x, unsigned y) const
-{
-  return unsigned (*tuple (x, y));
-}
-
-template<>
-inline unsigned TupleMatrixData::type_tuple_len<float> () { return 1; }
-template<>
-inline unsigned TupleMatrixData::type_tuple_len<int> () { return 1; }
-template<>
-inline unsigned TupleMatrixData::type_tuple_len<double> () { return 1; }
 
 
 
-// This is the high-level tuple-matrix class, a matrix of tuples of type T.
+// This is the high-level tuple-matrix class, a matrix of values of type T.
 //
-template<class T>
-class TupleMatrix : public TupleMatrixData
+template<typename T, typename DT = default_tuple_element_type>
+class TupleMatrix : public TupleMatrixData<DT>
 {
 public:
 
+  typedef TupleAdaptor<T, DT> TA;
+  typedef TupleMatrixData<DT> TMD;
+
   TupleMatrix (unsigned _width, unsigned _height)
-    : TupleMatrixData (type_tuple_len<T> (), _width, _height)
+    : TMD (TA::TUPLE_LEN, _width, _height)
   { }
 
   // Constructors for a matrix loaded from an image file.
   //
   TupleMatrix (const std::string &filename, unsigned border = 0)
-    : TupleMatrixData (type_tuple_len<T> (), filename, border)
+    : TMD (TA::TUPLE_LEN, filename, border)
   { }
   TupleMatrix (const std::string &filename, const ValTable &params,
 	       unsigned border = 0)
-    : TupleMatrixData (type_tuple_len<T> (), filename, params, border)
+    : TMD (TA::TUPLE_LEN, filename, params, border)
   { }
   TupleMatrix (ImageInput &src, unsigned border = 0)
-    : TupleMatrixData (type_tuple_len<T> (), src, border)
+    : TMD (TA::TUPLE_LEN, src, border)
   { }
 
   // Constructor for extracting a sub-matrix of BASE.  If W or H are 0, the
@@ -212,12 +155,12 @@ public:
   TupleMatrix (const TupleMatrix &base,
 	       unsigned offs_x = 0, unsigned offs_y = 0,
 	       unsigned w = 0, unsigned h = 0)
-    : TupleMatrixData (type_tuple_len<T> (), base, offs_x, offs_y, w, h)
+    : TMD (TA::TUPLE_LEN, base, offs_x, offs_y, w, h)
   { }
   TupleMatrix (const Ref<TupleMatrix> &base,
 	       unsigned offs_x = 0, unsigned offs_y = 0,
 	       unsigned w = 0, unsigned h = 0)
-    : TupleMatrixData (type_tuple_len<T> (), *base, offs_x, offs_y, w, h)
+    : TMD (TA::TUPLE_LEN, *base, offs_x, offs_y, w, h)
   { }
 
   T operator() (unsigned x, unsigned y) const
@@ -227,17 +170,23 @@ public:
 
   T get (unsigned x, unsigned y) const
   {
-    return load<T> (x, y);
+    return TupleAdaptor<T, const DT> (TupleMatrix<T,DT>::tuple (x, y));
   }
 
   void put (unsigned x, unsigned y, const T &val)
   {
-    store (x, y, val);
+    TupleAdaptor<T, DT> (TupleMatrix<T,DT>::tuple (x, y)) = val;
   }
 
 };
 
 }
+
+
+// Include method definitions
+//
+#include "tuple-matrix.tcc"
+
 
 #endif /* __TUPLE_MATRIX_H__ */
 

@@ -1,6 +1,6 @@
 // image-sum.h -- Quick calculation of the sum of regions in an image
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,7 +26,8 @@ class ImageSum
 {
 public:
 
-  ImageSum (const Image &image)
+  template<typename DT>
+  ImageSum (const TupleMatrix<Color, DT> &image)
     : sat (image.width, image.height)
   {
     // Fill in summed-area-table
@@ -96,7 +97,11 @@ public:
   // The "summed area table": each pixel holds the sum of all pixels in the
   // input image to the left and right of its position.
   //
-  Image sat;
+  // We don't use the default Image data type because it is optimized for
+  // space, and doesn't always have enough range to hold the large values
+  // used for sums.
+  //
+  DeepImage sat;
 };
 
 
@@ -110,15 +115,17 @@ class ImageSquareSum : public ImageSum
 {
 public:
 
-  ImageSquareSum (const Image &image)
+  template<typename DT>
+  ImageSquareSum (const TupleMatrix<Color, DT> &image)
     : ImageSum (squared_image (image))
   { }
 
 private:
 
-  static Image squared_image (const Image &image)
+  template<typename DT>
+  static DeepImage squared_image (const TupleMatrix<Color, DT> &image)
   {
-    Image sq (image.width, image.height);
+    DeepImage sq (image.width, image.height);
 
     for (unsigned y = 0; y < image.height; y++)
       for (unsigned x = 0; x < image.width; x++)
