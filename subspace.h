@@ -1,6 +1,6 @@
 // subspace.h -- A surface encapsulated into its own subspace
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #ifndef __SUBSPACE_H__
 #define __SUBSPACE_H__
 
+#include <memory>
 
 #include "surface.h"
 
@@ -29,7 +30,7 @@ class Subspace : public Surface
 {
 public:
 
-  Subspace (Surface *surf) : Surface (0), surface (surf), space (0) { }
+  Subspace (Surface *surf) : Surface (0), surface (surf) { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
   // to reflect the point of intersection, and return a Surface::IsecInfo
@@ -57,11 +58,11 @@ private:
 
   // Top-level surface in our subspace.
   //
-  Surface *surface;
+  std::auto_ptr<Surface> surface;
 
   // Space holding everything from SURFACE..
   //
-  mutable const Space *space;
+  mutable std::auto_ptr<const Space> space;
 };
 
 

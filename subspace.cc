@@ -26,14 +26,14 @@ using namespace snogray;
 inline void
 Subspace::ensure_space (GlobalTraceState &global) const
 {
-  if (! space)
+  if (! space.get ())
     {
       std::auto_ptr<SpaceBuilder> space_builder
 	(global.space_builder_builder->make_space_builder ());
 
       surface->add_to_space (*space_builder);
 
-      space =  space_builder->make_space ();
+      space.reset (space_builder->make_space ());
     }
 }
 
