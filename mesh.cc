@@ -11,7 +11,6 @@
 //
 
 #include <iostream>
-#include <fstream>
 
 #include "globals.h"
 #include "excepts.h"
