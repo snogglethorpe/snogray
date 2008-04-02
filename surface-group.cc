@@ -26,6 +26,17 @@ SurfaceGroup::~SurfaceGroup ()
 }
 
 
+
+// Add SURFACE to this group.
+//
+void
+SurfaceGroup::add (const Surface *surface)
+{
+  surfaces.push_back (surface);
+  _bbox += surface->bbox ();
+}
+
+
 // Add this (or some other) surfaces to the space being built by
 // SPACE_BUILDER.
 //

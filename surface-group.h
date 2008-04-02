@@ -33,11 +33,7 @@ public:
 
   // Add SURFACE to this group.
   //
-  void add (Surface *surface)
-  {
-    surfaces.push_back (surface);
-    _bbox += surface->bbox ();
-  }
+  void add (const Surface *surface);
 
   // Return a bounding box for this surface.
   //
