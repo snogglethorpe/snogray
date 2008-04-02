@@ -74,11 +74,11 @@ public:
 
   // Add a surface.
   //
-  const Surface *add (const Surface *surface);
+  void add (const Surface *surface);
 
   // Add a light.
   //
-  const Light *add (Light *light);
+  void add (Light *light);
 
   // Construct the search accelerator for this scene.
   // SPACE_BUILDER_BUILDER says how to do it.

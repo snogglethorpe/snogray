@@ -45,7 +45,7 @@ Scene::~Scene ()
 
 // Add a surface.
 //
-const Surface *
+void
 Scene::add (const Surface *surface)
 {
   if (space)
@@ -55,18 +55,15 @@ Scene::add (const Surface *surface)
     }
 
   surfaces.add (surface);
-
-  return surface;
 }
 
 // Add a light.
 //
-const Light *
+void
 Scene::add (Light *light)
 {
   light->num = num_lights();	// Give LIGHT an index
   lights.push_back (light);
-  return light;
 }
 
 // Construct the search accelerator for this scene.

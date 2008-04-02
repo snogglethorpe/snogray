@@ -816,8 +816,8 @@ namespace snogray {
   {
   public:
 
-    Surface *add (Surface *surface);
-    Light *add (Light *light);
+    void add (Surface *surface);
+    void add (Light *light);
 
     void set_background (const Color &col);
 
