@@ -539,18 +539,17 @@ namespace snogray {
   {
   };
 
-  class Subspace : public Surface
+  %ignore Subspace;
+  class Subspace
   {
-  public:
-
-    Subspace (Surface *surf);
   };
+  %template(SubspaceRef) Ref<Subspace>;
 
   class Instance : public LocalSurface
   {
   public:
 
-    Instance (Subspace *subspace, const Xform &local_to_world_xform);
+    Instance (const Ref<Subspace> &subspace, const Xform &local_to_world_xform);
   };
 
   class SurfaceGroup : public Surface
@@ -887,6 +886,12 @@ namespace snogray {
 //
 %inline %{
   namespace snogray {
+
+    // Subspace
+    static Ref<Subspace> subspace (Surface *surf)
+    {
+      return new Subspace (surf);
+    }
 
     // Lambert
     static Ref<Material> lambert (const TexVal<Color> &col)

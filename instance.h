@@ -26,7 +26,7 @@ class Instance : public LocalSurface
 {
 public:
 
-  Instance (Subspace *_subspace, const Xform &local_to_world_xform)
+  Instance (const Ref<Subspace> &_subspace, const Xform &local_to_world_xform)
     : LocalSurface (0, local_to_world_xform), subspace (_subspace)
   { }
 
@@ -78,7 +78,7 @@ private:
 
   // Subspace that we're transforming.
   //
-  Subspace *subspace;
+  Ref<Subspace> subspace;
 };
 
 

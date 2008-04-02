@@ -15,54 +15,77 @@
 
 #include <memory>
 
+#include "ref.h"
+#include "space.h"
 #include "surface.h"
+#include "material.h"
+#include "shadow-ray.h"
 
 
 namespace snogray {
 
-class Space;
 
-
-// This is a surface wrapper that puts wrapped surfaces into a separate
-// subspace (acceleration structure).
+// A surface with its own unique "subspace" (acceleration structure).
 //
-class Subspace : public Surface
+// This is for use with an Instance.
+//
+class Subspace : public RefCounted
 {
 public:
 
-  Subspace (Surface *surf) : Surface (0), surface (surf) { }
+  Subspace (Surface *surf) : surface (surf), space (0) { }
+  ~Subspace ();
 
-  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return a Surface::IsecInfo
-  // object describing the intersection (which should be allocated using
-  // placement-new with ISEC_CTX); otherwise return zero.
+  // If the associated surface intersects RAY, change RAY's maximum bound
+  // (Ray::t1) to reflect the point of intersection, and return a
+  // Surface::IsecInfo object describing the intersection (which should be
+  // allocated using placement-new with ISEC_CTX); otherwise return zero.
   //
-  virtual const IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const;
+  const Surface::IsecInfo *intersect (Ray &ray,
+				      const Surface::IsecCtx &isec_ctx)
+    const
+  {
+    ensure_space (isec_ctx.trace.global);
+    return space->intersect (ray, isec_ctx);
+  }
 
-  // Return the strongest type of shadowing effect this surface has on
-  // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
+  // Return the strongest type of shadowing effect the associated surface
+  // has on RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  virtual Material::ShadowType shadow (const ShadowRay &ray) const;
+  Material::ShadowType shadow (const ShadowRay &sray) const
+  {
+    Trace &trace = sray.isec.trace;
+    ensure_space (trace.global);
+    return space->shadow (sray, trace);
+  }
 
-  // Return a bounding box for this surface.
+  // Return a bounding box for the associated surface.
   //
-  virtual BBox bbox () const;
+  BBox bbox () const { return surface->bbox (); }
 
 private:
 
   // Make sure our acceleration structure is set up.
   //
-  void ensure_space (GlobalTraceState &global) const;
+  void ensure_space (GlobalTraceState &global) const
+  {
+    if (! space)
+      make_space (global);
+  }
 
-  // Top-level surface in our subspace.
+  // Setup our acceleration structure.
+  //
+  void make_space (GlobalTraceState &global) const;
+
+  // The top-level surface in this subspace.
   //
   std::auto_ptr<Surface> surface;
 
   // Space holding everything from SURFACE..
   //
-  mutable std::auto_ptr<const Space> space;
+  mutable const Space *space;
 };
 
 

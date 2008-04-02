@@ -845,7 +845,7 @@ function subspace (surf)
       end
    end
 
-   local ss = raw.Subspace (surf)
+   local ss = raw.subspace (surf)
 
    -- Record the GC link between SS and SURF.
    --

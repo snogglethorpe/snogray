@@ -13,7 +13,6 @@
 #include <memory>
 
 #include "space.h"
-#include "shadow-ray.h"
 
 #include "subspace.h"
 
@@ -21,52 +20,21 @@
 using namespace snogray;
 
 
-// Make sure our acceleration structure is set up.
-//
-inline void
-Subspace::ensure_space (GlobalTraceState &global) const
+Subspace::~Subspace ()
 {
-  if (! space.get ())
-    {
-      std::auto_ptr<SpaceBuilder> space_builder
-	(global.space_builder_builder->make_space_builder ());
-
-      surface->add_to_space (*space_builder);
-
-      space.reset (space_builder->make_space ());
-    }
+  delete space;
 }
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with ISEC_CTX); otherwise return zero.
+// Setup our acceleration structure.
 //
-const Surface::IsecInfo *
-Subspace::intersect (Ray &ray, const IsecCtx &isec_ctx) const
+void
+Subspace::make_space (GlobalTraceState &global) const
 {
-  ensure_space (isec_ctx.trace.global);
-  return space->intersect (ray, isec_ctx);
-}
+  std::auto_ptr<SpaceBuilder> space_builder
+    (global.space_builder_builder->make_space_builder ());
 
-// Return the strongest type of shadowing effect this surface has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
-//
-Material::ShadowType
-Subspace::shadow (const ShadowRay &sray) const
-{
-  Trace &trace = sray.isec.trace;
-  ensure_space (trace.global);
-  return space->shadow (sray, trace);
-}
+  surface->add_to_space (*space_builder);
 
-// Return a bounding box for this surface.
-//
-BBox
-Subspace::bbox () const
-{
-  return surface->bbox ();
+  space = space_builder->make_space ();
 }
