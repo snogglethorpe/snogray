@@ -1,6 +1,6 @@
 // surface-group.cc -- Group of surfaces
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,6 +16,14 @@
 
 
 using namespace snogray;
+
+
+SurfaceGroup::~SurfaceGroup ()
+{
+  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+       si != surfaces.end(); ++si)
+    delete *si;
+}
 
 
 // Add this (or some other) surfaces to the space being built by
