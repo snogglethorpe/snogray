@@ -562,10 +562,9 @@ int main (int argc, char *const *argv)
 
   if (! quiet)
     cout << "* scene: "
-	 << commify_with_units (scene.surfaces.size (),
+	 << commify_with_units (scene.num_surfaces(),
 				"top-level surface", "top-level surfaces")
-	 << ", " << commify_with_units (scene.lights.size (),
-					"light", "lights")
+	 << ", " << commify_with_units (scene.num_lights (), "light", "lights")
 	 << endl;
 
 

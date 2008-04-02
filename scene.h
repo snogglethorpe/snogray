@@ -23,6 +23,7 @@
 #include "material.h"
 #include "trace.h"
 #include "shadow-ray.h"
+#include "surface-group.h"
 
 
 namespace snogray {
@@ -89,7 +90,7 @@ public:
   void load (const std::string &file_name, const std::string &fmt,
 	     Camera &camera);
 
-  unsigned num_surfaces () const { return surfaces.size (); }
+  unsigned num_surfaces () const { return surfaces.num_surfaces (); }
   unsigned num_lights () const { return lights.size (); }
 
   void set_background (const Color &col);
@@ -97,7 +98,7 @@ public:
 
   void set_light_map (const Ref<Envmap> &lmap);
 
-  std::vector<const Surface *> surfaces;
+  SurfaceGroup surfaces;
 
   std::vector<const Light *> lights;
 

@@ -32,9 +32,6 @@ Scene::Scene ()
 //
 Scene::~Scene ()
 {
-  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
-       si != surfaces.end(); ++si)
-    delete *si;
   for (std::vector<const Light *>::const_iterator li = lights.begin();
        li != lights.end(); ++li)
     delete *li;
@@ -57,7 +54,8 @@ Scene::add (const Surface *surface)
       space = 0;
     }
 
-  surfaces.push_back (surface);
+  surfaces.add (surface);
+
   return surface;
 }
 
@@ -82,11 +80,9 @@ Scene::build_space (const SpaceBuilderBuilder *space_builder_builder)
       std::auto_ptr<SpaceBuilder> space_builder
 	(space_builder_builder->make_space_builder ());
 
-      for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
-	   si != surfaces.end(); ++si)
-	(*si)->add_to_space (*space_builder);
+      surfaces.add_to_space (*space_builder);
 
-      space =  space_builder->make_space ();
+      space = space_builder->make_space ();
     }
 }
 
