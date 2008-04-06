@@ -167,12 +167,13 @@ libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
 # Snogray texture library, libsnogtex.a
 #
 
-libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		 \
-	check-tex.h cmp-tex.cc cmp-tex.h cmp-tex.tcc coord-tex.h	 \
-	cubemap.cc cubemap.h envmap.cc envmap.h grey-tex.h intens-tex.h	 \
-	interp-tex.h matrix-linterp.h matrix-tex.cc matrix-tex.h	 \
-	matrix-tex.tcc misc-map-tex.h perlin.cc perlin.h perlin-tex.h	 \
-	perturb-tex.h rescale-tex.h spheremap.cc spheremap.h xform-tex.h
+libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
+	check-tex.h cmp-tex.cc cmp-tex.h cmp-tex.tcc coord-tex.h	\
+	cubemap.cc cubemap.h envmap.cc envmap.h grey-tex.h intens-tex.h	\
+	interp-tex.h matrix-linterp.h matrix-tex.cc matrix-tex.h	\
+	matrix-tex.tcc misc-map-tex.h perlin.cc perlin.h perlin-tex.h	\
+	perturb-tex.h rescale-tex.h spheremap.cc spheremap.h worley.cc	\
+	worley.h worley-tex.h xform-tex.h
 
 
 ################################################################

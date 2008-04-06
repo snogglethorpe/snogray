@@ -80,6 +80,7 @@
 #include "check-tex.h"
 #include "misc-map-tex.h"
 #include "perlin-tex.h"
+#include "worley-tex.h"
 #include "coord-tex.h"
 #include "interp-tex.h"
 #include "cmp-tex.h"
@@ -1109,6 +1110,22 @@ namespace snogray {
     static Ref<Tex<float> > perlin_tex ()
     {
       return new PerlinTex ();
+    }
+
+    // WorleyTex
+    static Ref<Tex<float> > worley_tex (float C0, float C1 = 0,
+					float C2 = 0, float C3 = 0)
+    {
+      float coefs[WorleyTex::MAX_N] = { C0, C1, C2, C3 };
+      return new WorleyTex (coefs);
+    }
+    static Ref<Tex<float> > worley_id_tex (int kind, float min)
+    {
+      return new WorleyIdTex (WorleyIdTex::Kind (kind), min);
+    }
+    static Ref<Tex<float> > worley_id_tex (int kind, float min, float max)
+    {
+      return new WorleyIdTex (WorleyIdTex::Kind (kind), min, max);
     }
 
     // CoordTex

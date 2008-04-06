@@ -1015,6 +1015,32 @@ z_tex = singleton_tex_fun ('z', function () return raw.coord_tex(2) end)
 u_tex = singleton_tex_fun ('u', function () return raw.coord_tex(3) end)
 v_tex = singleton_tex_fun ('v', function () return raw.coord_tex(4) end)
 
+worley_tex = raw.worley_tex
+
+local worley_id_kinds = { SCALE = 0, MOD = 1, scale = 0, mod = 1 }
+
+function worley_id_tex (kind, min, max)
+   if kind then
+      if worley_id_kinds[kind] then
+	 kind = worley_id_kinds[kind]
+      end
+   else
+      kind = worley_id_kinds['scale']
+   end
+
+   if min then
+      if not max then
+	 max = min
+	 min = 0
+      end
+   else
+      min = 0
+      max = 1
+   end
+
+   return raw.worley_id_tex (kind, min, max)
+end
+
 
 ----------------------------------------------------------------
 --
