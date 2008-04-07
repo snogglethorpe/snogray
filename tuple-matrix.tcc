@@ -233,6 +233,7 @@ TupleMatrixData<DT>::TupleMatrixData (unsigned _tuple_len,
 // declarations at the end of "tuple-matrix.cc".
 // 
 #if HAVE_EXTERN_TEMPLATE
+extern template class TupleMatrixData<default_tuple_element_type>;
 extern template class TupleMatrix<Color>;
 extern template class TupleMatrix<float>;
 #endif

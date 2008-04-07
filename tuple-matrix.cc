@@ -28,7 +28,7 @@ using namespace snogray;
 // declarations at the end of "arith-tex.tcc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-template class TupleMatrixData<float>;
+template class TupleMatrixData<default_tuple_element_type>;
 template class TupleMatrix<float>;
 template class TupleMatrix<Color>;
 #endif
