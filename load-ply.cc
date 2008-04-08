@@ -187,6 +187,10 @@ snogray::load_ply_file (const std::string &filename, Mesh &mesh,
 
 	  mesh.reserve (nverts, ntris);
 
+	  // Ply files use a right-handed coordinate system by convention.
+	  //
+	  mesh.left_handed = false;
+
 	  ply_read (ply);
 	}
 
