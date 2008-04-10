@@ -341,6 +341,8 @@ int main (int argc, char *const *argv)
 
   // This speeds up I/O on cin/cout by not syncing with C stdio.
   //
+  // [Note that in some implementations this leaks about 100KB of memory.]
+  //
   ios::sync_with_stdio (false);
 
 
