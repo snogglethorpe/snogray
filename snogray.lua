@@ -168,6 +168,24 @@ local function nice_type (obj)
 end
 
 
+-- "scene_obj_gc_protect" is true if it's dangerous to let scene objects
+-- be gced after they've been added to a scene (or to some
+-- surface-group).
+--
+-- scene_obj_gc_protect is false if swig offers the "disown" feature
+-- (which was supported for Lua starting with swig 1.3.35), because the
+-- snograw interfaces uses that feature to transfer ownership of objects
+-- to the C++ code, avoiding problems with Lua gcing those objects.  If
+-- the "disown" feature is not available, then it's not possible to do
+-- this, so Lua may gc objects after they've been added to the scene.
+--
+-- In the case where scene_obj_gc_protect is true, we work around the
+-- problem by explicitly keeping links between objects to prevent Lua
+-- from gcing the referenced objects.
+--
+local scene_obj_gc_protect = (not raw.HAVE_SWIG_DISOWN)
+
+
 ----------------------------------------------------------------
 
 -- Return a table containing every key in KEYS as a key, with value true.
@@ -698,7 +716,7 @@ end
 local function init_scene (raw_scene)
    scene = raw_scene		-- this is exported
 
-   if not has_index_wrappers (scene) then
+   if scene_obj_gc_protect and not has_index_wrappers (scene) then
       local wrap = index_wrappers (scene)
 
       function wrap:add (thing)
@@ -853,21 +871,29 @@ function subspace (surf)
 
    local ss = raw.subspace (surf)
 
-   -- Record the GC link between SS and SURF.
-   --
-   gc_ref (ss, surf)
+   if scene_obj_gc_protect then
+      -- Record the GC link between SS and SURF.
+      --
+      gc_ref (ss, surf)
+   end
 
    return ss
 end
 
--- Wrap the instance constructor to record the GC link between an
--- instance and its subspace.
+-- If we need to protect against scene-object gcing, wrap the instance
+-- constructor to record the GC link between an instance and its
+-- subspace.
 --
-function instance (subspace, xform)
-   local inst = raw.Instance (subspace, xform)
-   gc_ref (inst, subspace)
-   return inst
+if scene_obj_gc_protect then
+   function instance (subspace, xform)
+      local inst = raw.Instance (subspace, xform)
+      gc_ref (inst, subspace)
+      return inst
+   end
+else
+   instance = raw.Instance	-- just use raw constructor
 end
+
 
 -- Wrap the surface_group constructor to add some method wrappers to it,
 -- and support adding a table of surfaces as well.
@@ -890,7 +916,9 @@ function surface_group (surfs)
 	       self:add (v)
 	    end
 	 else
-	    gc_ref (self, surf)
+	    if scene_obj_gc_protect then
+	       gc_ref (self, surf)
+	    end
 	    nowrap_meth_call (self, "add", surf)
 	 end
       end
