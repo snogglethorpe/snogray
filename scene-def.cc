@@ -1,6 +1,6 @@
 // scene-def.h -- Scene definition object
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,6 +20,9 @@
 #include "camera-cmds.h"
 #include "cmdlineparser.h"
 #include "octree.h"
+#if USE_LUA
+# include "load-lua.h"
+#endif
 
 #include "scene-def.h"
 
@@ -125,6 +128,16 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   if (camera_cmds.length () > 0)
     interpret_camera_cmds (camera_cmds, camera, scene);
+
+  // Cleanup Lua loader state if necessary.
+  //
+  // Note that we can't do this if swig doesn't support the "disown"
+  // feature, as without that, scene objects will still be considered
+  // "owned" by swig, and deallocated if we cleanup Lua state.
+  //
+#if USE_LUA && HAVE_SWIG_DISOWN
+  cleanup_load_lua_state ();
+#endif
 }
 
 
