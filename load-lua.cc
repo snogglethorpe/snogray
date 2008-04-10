@@ -106,6 +106,21 @@ setup_lua ()
 }
 
 
+// Lua cleanup
+
+// Cleanup and free all global Lua state.
+//
+void
+snogray::cleanup_load_lua_state ()
+{
+  if (L)
+    {
+      lua_close (L);
+      L = 0;
+    }
+}
+
+
 // Lua scene loading
 
 // If FILENAME is a format that has a Lua scene loader, load the file named
