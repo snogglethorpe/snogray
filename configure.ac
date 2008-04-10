@@ -508,6 +508,34 @@ AC_MSG_RESULT([$use_lua_pretty])
 AM_CONDITIONAL([use_lua], [test $use_lua = yes])
 
 
+# Whether we can use the swig "disown" feature to transfer object
+# ownership from Lua to C++.  This is only implemented for Lua starting
+# with swig version 1.3.35.
+#
+if test $use_lua = yes; then
+  if test $have_swig = yes; then
+    AC_MSG_CHECKING([whether swig "disown" feature is supported])
+
+    cat > conftest.swg <<EOF
+%module test;
+%apply SWIGTYPE* DISOWN {X *}
+EOF
+    if $SWIG 2>/dev/null -Werror -o /dev/null -c++ -lua conftest.swg; then
+      have_swig_disown=yes
+    else
+      have_swig_disown=no
+    fi
+    rm -f conftest.swg
+
+    AC_MSG_RESULT([$have_swig_disown])
+
+    if test "$have_swig_disown" = yes; then
+      AC_DEFINE([HAVE_SWIG_DISOWN], [1], [Define if swig supports "disown" feature for Lua])
+    fi
+  fi
+fi
+
+
 ##
 ## ----------------------------------------------------------------
 ## Try to set optimization flags based on the type of CPU being used

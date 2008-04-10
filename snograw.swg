@@ -495,6 +495,14 @@ namespace snogray {
     virtual BBox bbox () const;
   };
 
+#if HAVE_SWIG_DISOWN
+  // The only time we pass Surface pointers is when handing over control
+  // of Surface objects to C++, in which case we want to avoid any GC by
+  // Lua.
+  //
+  %apply SWIGTYPE* DISOWN {Surface *}
+#endif
+
   class Sphere : public Surface
   {
   public:
@@ -784,6 +792,14 @@ namespace snogray {
   class Light
   {
   };
+
+#if HAVE_SWIG_DISOWN
+  // The only time we pass Light pointers is when handing over control
+  // of Light objects to C++, in which case we want to avoid any GC by
+  // Lua.
+  //
+  %apply SWIGTYPE* DISOWN {Light *}
+#endif
 
   class PointLight : public Light
   {
