@@ -1,6 +1,6 @@
 // global-tstate.h -- Global tracing state
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #ifndef __GLOBAL_TSTATE_H__
 #define __GLOBAL_TSTATE_H__
 
+#include <memory>
 
 #include "trace-stats.h"
 #include "trace-params.h"
@@ -57,7 +58,7 @@ public:
 
   TraceStats stats;
 
-  SpaceBuilderBuilder *space_builder_builder;
+  std::auto_ptr<SpaceBuilderBuilder> space_builder_builder;
 };
 
 
