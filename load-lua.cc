@@ -1,6 +1,6 @@
 // load-lua.cc -- Load lua scene file
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -55,6 +55,7 @@ do_call (lua_State *L, int nargs, int nres)
 // Module "pre-loading"
 
 extern "C" int luaopen_lpeg (lua_State *L);
+extern "C" int luaopen_snograw (lua_State *L);
 
 struct preload_module
 {
@@ -67,6 +68,7 @@ struct preload_module
 // them).
 //
 static preload_module preloaded_modules[] = {
+  { "snograw", luaopen_snograw },
   { "lpeg", luaopen_lpeg },
   { 0, 0 }
 };
@@ -84,7 +86,6 @@ setup_lua ()
   L = lua_open();
 
   luaL_openlibs (L);		// load standard libraries
-  luaopen_snograw (L);		// load the wrapped module
 
   // register preloaded modules
   //
@@ -96,14 +97,6 @@ setup_lua ()
       lua_setfield (L, -2, pm->name);
     }
   lua_pop (L, 1);		// pop package.preload table
-
-  // Mark the low-level "snograw" module as loaded.
-  //
-  lua_getfield (L, LUA_GLOBALSINDEX, "package");
-  lua_getfield (L, -1, "loaded");
-  lua_getfield (L, LUA_GLOBALSINDEX, "snograw");
-  lua_setfield (L, -2, "snograw");
-  lua_pop (L, 1);
 
   // require ("snogray")
   //
