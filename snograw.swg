@@ -86,6 +86,7 @@
 #include "cmp-tex.h"
 #include "perturb-tex.h"
 #include "rescale-tex.h"
+#include "tessel-param.h"
 
   static char static_rep_buf[255];
 
@@ -884,6 +885,16 @@ namespace snogray {
     }
   }
   %template(Image) TupleMatrix<Color>;
+
+  // Simple object tesselation functions
+  //
+  void tessel_sphere (Mesh *mesh,
+		      const Pos &origin, dist_t radius, dist_t max_err);
+  void tessel_sinc (Mesh *mesh,
+		    const Pos &origin, dist_t radius, dist_t max_err);
+  void tessel_torus (Mesh *mesh,
+		     const Pos &origin, dist_t radius, dist_t hole_radius,
+		     dist_t max_err);
 
 }
 

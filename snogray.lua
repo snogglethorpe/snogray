@@ -674,6 +674,15 @@ xform_flip_z = scale (1, 1, -1)
 
 ----------------------------------------------------------------
 --
+-- Tessellation
+
+tessel_sphere = raw.tessel_sphere
+tessel_sinc = raw.tessel_sinc
+tessel_torus = raw.tessel_torus
+
+
+----------------------------------------------------------------
+--
 -- GC protection
 --
 -- Swig's handling of garbage collection trips us up in various cases:
