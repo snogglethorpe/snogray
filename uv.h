@@ -27,6 +27,7 @@ class TUV
 public:
 
   TUV (T _u, T _v) : u (_u), v (_v) { }
+  TUV () { }
 
   TUV operator* (const XformBase<T> &xform) const
   {
