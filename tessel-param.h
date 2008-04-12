@@ -177,15 +177,6 @@ private:
   dist_t radius_perturb;
 };
 
-// Simple interface to SphereTesselFun
-//
-inline void
-tessel_sphere (Mesh *mesh, const Pos &origin, dist_t radius, dist_t max_err)
-{
-  SphereTesselFun fun (origin, radius);
-  fun.tessellate (mesh, max_err);
-}
-
 
 
 class SincTesselFun : public ParamTesselFun
@@ -234,15 +225,6 @@ private:
   Pos origin;
   dist_t radius;
 };
-
-// Simple interface to SincTesselFun
-//
-inline void
-tessel_sinc (Mesh *mesh, const Pos &origin, dist_t radius, dist_t max_err)
-{
-  SincTesselFun fun (origin, radius);
-  fun.tessellate (mesh, max_err);
-}
 
 
 
@@ -302,16 +284,6 @@ private:
   dist_t radius, hole_radius;
   dist_t radius_perturb;
 };
-
-// Simple interface to TorusTesselFun
-//
-inline void
-tessel_torus (Mesh *mesh, const Pos &origin, dist_t radius, dist_t hole_radius,
-	      dist_t max_err)
-{
-  TorusTesselFun fun (origin, radius, hole_radius);
-  fun.tessellate (mesh, max_err);
-}
 
 
 }

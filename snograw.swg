@@ -86,7 +86,7 @@
 #include "cmp-tex.h"
 #include "perturb-tex.h"
 #include "rescale-tex.h"
-#include "tessel-param.h"
+#include "tessel-funs.h"
 
   static char static_rep_buf[255];
 
@@ -888,13 +888,16 @@ namespace snogray {
 
   // Simple object tesselation functions
   //
-  void tessel_sphere (Mesh *mesh,
-		      const Pos &origin, dist_t radius, dist_t max_err);
-  void tessel_sinc (Mesh *mesh,
-		    const Pos &origin, dist_t radius, dist_t max_err);
-  void tessel_torus (Mesh *mesh,
-		     const Pos &origin, dist_t radius, dist_t hole_radius,
-		     dist_t max_err);
+  %newobject tessel_sphere;
+  Mesh *tessel_sphere (const Ref<Material> &mat,
+		       const Pos &origin, dist_t radius, dist_t max_err);
+  %newobject tessel_sinc;
+  Mesh *tessel_sinc (const Ref<Material> &mat,
+		     const Pos &origin, dist_t radius, dist_t max_err);
+  %newobject tessel_torus;
+  Mesh *tessel_torus (const Ref<Material> &mat,
+		      const Pos &origin, dist_t radius, dist_t hole_radius,
+		      dist_t max_err);
 
 }
 
