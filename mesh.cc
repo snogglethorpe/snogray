@@ -208,6 +208,26 @@ Mesh::add_normals (const std::vector<MVec> &new_normals, vert_index_t base_vert)
 			 new_normals.begin(), new_normals.end());
 }
 
+// Add all the UV values in NEW_UVS as vertex UV values in this mesh,
+// corresponding to all the vertices starting from BASE_VERT (which
+// should be a value returned from an earlier call to
+// Mesh::add_vertices).
+//
+void
+Mesh::add_uvs (const std::vector<UV> &new_uvs, vert_index_t base_vert)
+{
+  // Not sure what to do if uvs after BASE_VERT already exist, if
+  // if vertices before BASE_VERT don't have uvs yet, so just barf
+  // in those cases.
+  //
+  if (base_vert != vertex_uvs.size ())
+    throw runtime_error ("BASE_VERT incorrect in Mesh::add_uvs");
+  if (base_vert + new_uvs.size() != vertices.size ())
+    throw runtime_error ("Size of NEW_UVS incorrect in Mesh::add_uvs");
+
+  vertex_uvs.insert (vertex_uvs.end(), new_uvs.begin(), new_uvs.end());
+}
+
 // Add new triangles to the mesh using vertices from TRI_VERT_INDICES.
 // TRI_VERT_INDICES should contain three entries for each new triangle;
 // the indices in TRI_VERT_INDICES are relative to BASE_VERT (which
@@ -334,6 +354,32 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
   else
     normal_frame = geom_frame;
 
+  // Mesh UV values for the three vertices of the triangle.
+  //
+  UV uv0, uv1, uv2;
+  if (triangle->mesh.vertex_uvs.empty ())
+    {
+      uv0 = UV (0, 0);
+      uv1 = UV (1, 0);
+      uv2 = UV (0, 1);
+    }
+  else
+    {
+      uv0 = triangle->vuv (0);
+      uv1 = triangle->vuv (1);
+      uv2 = triangle->vuv (2);
+    }
+
+  // Change in UV values for edge1 and edge2 of the triangle.
+  //
+  UV e1_uv_delta = uv1 - uv0;
+  UV e2_uv_delta = uv2 - uv0;
+
+  // Final UV values for POINT, used for texturing (as opposed to the
+  // "raw" triangle UV value in the variables "u" and "v").
+  //
+  UV uv = uv0 + e1_uv_delta * u + e2_uv_delta * v;
+
   // Calculate partial derivatives of texture coordinates dTds and dTdt,
   // where T is the texture coordinates (for bump mapping).
   //
@@ -341,16 +387,16 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
   Vec e2 = triangle->v(2) - triangle->v(0); // triangle edge 2
   Vec oe1 = normal_frame.to (e1);	    // E1 in object space
   Vec oe2 = normal_frame.to (e2);	    // E2 in object space
-  dist_t duds = oe1.x ? 1 / oe1.x : 0;
-  dist_t dudt = oe1.y ? 1 / oe1.y : 0;
-  dist_t dvds = oe2.x ? 1 / oe2.x : 0;
-  dist_t dvdt = oe2.y ? 1 / oe2.y : 0;
+  dist_t duds = oe1.x ? e1_uv_delta.u / oe1.x : 0;
+  dist_t dudt = oe1.y ? e1_uv_delta.u / oe1.y : 0;
+  dist_t dvds = oe2.x ? e2_uv_delta.v / oe2.x : 0;
+  dist_t dvdt = oe2.y ? e2_uv_delta.v / oe2.y : 0;
   UV dTds (duds, dvds), dTdt (dudt, dvdt);
 
   // Make the intersect object.
   //
   Intersect isec (ray, triangle, normal_frame, geom_frame,
-		  UV (u, v), dTds, dTdt, trace);
+		  uv, dTds, dTdt, trace);
 
   isec.no_self_shadowing = true;
   isec.smoothing_group = static_cast<const void *>(&triangle->mesh);

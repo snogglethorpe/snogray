@@ -108,6 +108,13 @@ public:
   void add_normals (const std::vector<MVec> &new_normals,
 		    vert_index_t base_vert);
 
+  // Add all the UV values in NEW_UVS as vertex UV values in this mesh,
+  // corresponding to all the vertices starting from BASE_VERT (which
+  // should be a value returned from an earlier call to
+  // Mesh::add_vertices).
+  //
+  void add_uvs (const std::vector<UV> &new_uvs, vert_index_t base_vert);
+
   // Add new triangles to the mesh using vertices from TRI_VERT_INDICES.
   // TRI_VERT_INDICES should contain three entries for each new triangle;
   // the indices in TRI_VERT_INDICES are relative to BASE_VERT (which
@@ -163,6 +170,14 @@ public:
   void reserve_normals ()
   {
     vertex_normals.reserve (num_vertices ());
+  }
+
+  // Resize the internal data structures so that room is reserved for as as
+  // many vertex UV values as there are currently vertices.
+  //
+  void reserve_uvs ()
+  {
+    vertex_uvs.reserve (num_vertices ());
   }
 
   // Return a bounding box for the entire mesh
@@ -240,6 +255,13 @@ private:
       return Vec (mesh.vertex_normals[vi[num]]);
     }
 
+    // UV value of vertex NUM (assuming this mesh contains vertex UV values!)
+    //
+    UV vuv (unsigned num) const
+    {
+      return mesh.vertex_uvs[vi[num]];
+    }
+
     // These both return the "raw" normal of this triangle, not doing
     // any normal interpolation.  Note that they return ordinary
     // double-precision vectors, not the single-precision vectors used
@@ -287,11 +309,17 @@ private:
   // A list of vertices used in this part.
   //
   std::vector<MPos> vertices;
-  std::vector<MVec> vertex_normals;
 
   // A vector of Mesh::Triangle surfaces that use this part.
   //
   std::vector<Triangle> triangles;
+
+  // Vectors of various per-vertext properties.  In general, these vectors
+  // may be empty (meaning the given property is not known), otherwise they
+  // are assumed to contain information for every vertex.
+  //
+  std::vector<MVec> vertex_normals;
+  std::vector<UV> vertex_uvs;
 
   // Cached bounding box for the entire mesh.
   //
