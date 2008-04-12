@@ -36,18 +36,17 @@ protected:
     param_t u, v;
   };
 
-  // Calculate a midpoint between two angular parameters.
+  // Return a parameter value halfway between P1 and P2, given that
+  // parameter values wrap around from 1 to 0.  The nearest of the two
+  // possible midpoints chosen.
   //
-  param_t angular_midpoint (param_t p1, param_t p2) const
+  param_t wrapped_midpoint (param_t p1, param_t p2) const
   {
-    param_t mid = (p1 + p2) / 2;
-    param_t diff = p1 - p2;
-    if (diff >= PI || diff <= -PI)
-      mid += PI;
-    if (mid >= PI * 2)
-      mid -= PI * 2;
-    else if (mid <= -PI * 2)
-      mid += PI * 2;
+    param_t mid = (p1 + p2) * 0.5f;
+    if (abs (p1 - p2) > 0.5f)
+      mid += 0.5f;
+    if (mid >= 1)
+      mid -= 1;
     return mid;
   }
 
@@ -88,6 +87,15 @@ protected:
 		 LinkedList<Tessel::Vertex>::iterator vertices_beg,
 		 LinkedList<Tessel::Vertex>::iterator vertices_end,
 		 std::vector<SVec> &normals)
+    const;
+
+  // Add UV values for the vertices in the list from VERTICES_BEG to
+  // VERTICES_END, to UVS.
+  //
+  virtual void get_vertex_uvs (
+		 LinkedList<Tessel::Vertex>::iterator vertices_beg,
+		 LinkedList<Tessel::Vertex>::iterator vertices_end,
+		 std::vector<UV> &uvs)
     const;
 
   //

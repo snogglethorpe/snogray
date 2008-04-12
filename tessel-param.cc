@@ -1,6 +1,6 @@
 // tessel-param.cc -- Tessellation of parametric surfaces
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -79,6 +79,24 @@ ParamTesselFun::can_calc_vertex_normals () const
   return true;
 }
 
+// Add UV values for the vertices in the list from VERTICES_BEG to
+// VERTICES_END, to UVS.
+//
+void
+ParamTesselFun::get_vertex_uvs (
+	       LinkedList<Tessel::Vertex>::iterator vertices_beg,
+	       LinkedList<Tessel::Vertex>::iterator vertices_end,
+	       std::vector<UV> &uvs)
+  const
+{
+  for (LinkedList<Tessel::Vertex>::iterator vi = vertices_beg;
+       vi != vertices_end; vi++)
+    {
+      const Vertex &vert = static_cast<const Vertex &>(*vi);
+      uvs.push_back (UV (vert.u, vert.v));
+    }
+}
+
 
 // Sphere tessellation
 
@@ -96,11 +114,11 @@ SphereTesselFun::define_basis (Tessel &tessel) const
   // Define our basis.  We use a diamond shape with the pointy ends at the
   // poles.
 
-  const Vertex *p1   = add_vertex (tessel, PI/2, 0);
-  const Vertex *p2   = add_vertex (tessel, -PI/2, 0);
-  const Vertex *mid1 = add_vertex (tessel, 0, 0);
-  const Vertex *mid2 = add_vertex (tessel, 0, 2 * PI / 3);
-  const Vertex *mid3 = add_vertex (tessel, 0, 4 * PI / 3);
+  const Vertex *p1   = add_vertex (tessel, 0, 1);
+  const Vertex *p2   = add_vertex (tessel, 0, 0);
+  const Vertex *mid1 = add_vertex (tessel, 0, 0.5f);
+  const Vertex *mid2 = add_vertex (tessel, 1.f / 3.f, 0.5f);
+  const Vertex *mid3 = add_vertex (tessel, 2.f / 3.f, 0.5f);
   
   add_cell (tessel, p1, mid1, mid2);
   add_cell (tessel, p1, mid2, mid3);
@@ -131,18 +149,18 @@ SphereTesselFun::midpoint (Tessel &tessel,
   param_t u1 = vert1->u, v1 = vert1->v;
   param_t u2 = vert2->u, v2 = vert2->v;
 
-  // If either vertex is at a "pole" ([u = pi/2] or [u = -pi/2]), align its
-  // v-value with the v-value of the other vertex, so that the resulting
-  // midpoint makes sense (we can freely do this because at a pole, the
-  // v-value is meaningless).
+  // If either vertex is at a "pole" (v = 0 or v = 1), align its
+  // u-value with the u-value of the other vertex, so that the
+  // resulting midpoint makes sense (we can freely do this because
+  // at a pole, the u-value is meaningless).
   //
-  if (u1 >= PI/2 - Eps || u1 <= -PI/2 + Eps)
-    v1 = v2;
-  else if (u2 >= PI/2 - Eps || u2 <= -PI/2 + Eps)
-    v2 = v1;
+  if (v1 >= 1 - Eps || v1 <= Eps)
+    u1 = u2;
+  else if (v2 >= 1 - Eps || v2 <= Eps)
+    u2 = u1;
 
-  param_t u = angular_midpoint (u1, u2);
-  param_t v = angular_midpoint (v1, v2);
+  param_t u = wrapped_midpoint (u1, u2);
+  param_t v = (v1 + v2) / 2;
 
   return add_vertex (tessel, u, v);
 }
@@ -157,12 +175,13 @@ SphereTesselFun::surface_pos (param_t u, param_t v) const
   if (radius_perturb != 0)
     r *= random (1 - radius_perturb, 1 + radius_perturb);
 
-  coord_t sin_u = sin (u), cos_u = cos (u);
-  coord_t sin_v = sin (v), cos_v = cos (v);
+  coord_t theta = u * 2 * PIf;
+  coord_t phi = (v - 0.5f) * PIf;
 
-  return Pos (cos_v * cos_u * r + origin.x,
-	      sin_u 	    * r + origin.y,
-	      sin_v * cos_u * r + origin.z);
+  coord_t sin_theta = sin (theta), cos_theta = cos (theta);
+  coord_t sin_phi = sin (phi), cos_phi = cos (phi);
+
+  return origin + Vec (cos_theta * cos_phi, sin_phi, sin_theta * cos_phi) * r;
 }
 
 // Return true if this function can calculate vertex normals.
@@ -201,9 +220,9 @@ SincTesselFun::define_basis (Tessel &tessel) const
   typedef Tessel::Vertex V;
 
   const V *mid  = add_vertex (tessel, 0, 0);
-  const V *c1   = add_vertex (tessel, 1, 0);
-  const V *c2   = add_vertex (tessel, 1, 2 * PI / 3);
-  const V *c3   = add_vertex (tessel, 1, 4 * PI / 3);
+  const V *c1   = add_vertex (tessel, 0, 1);
+  const V *c2   = add_vertex (tessel, 1.f / 3.f, 1);
+  const V *c3   = add_vertex (tessel, 2.f / 3.f, 1);
 
   add_cell (tessel, c2, mid, c1);
   add_cell (tessel, c3, mid, c2);
@@ -230,18 +249,18 @@ SincTesselFun::midpoint (Tessel &tessel,
   param_t u1 = vert1->u, v1 = vert1->v;
   param_t u2 = vert2->u, v2 = vert2->v;
 
-  // If either vertex is the origin ([u = 0]), align its v-value with the
-  // v-value of the other vertex, so that the resulting midpoint makes
-  // sense (we can freely do this because at a pole, the v-value is
-  // meaningless).
+  // If either vertex is the origin (v = 0), align its u-value with
+  // the u-value of the other vertex, so that the resulting midpoint
+  // makes sense (we can freely do this because at a pole, the
+  // u-value is meaningless).
   //
-  if (u1 <= Eps)
-    v1 = v2;
-  else if (u2 <= Eps)
-    v2 = v1;
+  if (v1 <= Eps)
+    u1 = u2;
+  else if (v2 <= Eps)
+    u2 = u1;
 
-  param_t u = (u1 + u2) / 2;
-  param_t v = angular_midpoint (v1, v2);
+  param_t u = wrapped_midpoint (u1, u2);
+  param_t v = (v1 + v2) / 2;
 
   return add_vertex (tessel, u, v);
 }
@@ -254,11 +273,13 @@ SincTesselFun::midpoint (Tessel &tessel,
 Pos
 SincTesselFun::surface_pos (param_t u, param_t v) const
 {
-  param_t t = u * SINC_X_COMP;
+  param_t theta = u * 2 * PIf;
+  param_t t = v * SINC_X_COMP;
   dist_t sinc = t < Eps ? 1.0 : sin (t) / t;
-  return origin + Vec (cos (v) * u * radius,
-		       sinc * radius * (1 / SINC_Y_COMP),
-		       sin (v) * u * radius);
+  return
+    origin
+    + (Vec (cos (theta) * v, sinc * (1 / SINC_Y_COMP), sin (theta) * v)
+       * radius);
 }
 
 // Return the surface normal of VERTEX.
@@ -266,12 +287,12 @@ SincTesselFun::surface_pos (param_t u, param_t v) const
 Vec
 SincTesselFun::vertex_normal (const Vertex &vertex) const
 {
-  param_t u = vertex.u, v = vertex.v;
-  param_t t = u * SINC_X_COMP;
+  param_t theta = vertex.u * 2 * PIf;
+  param_t t = vertex.v * SINC_X_COMP;
   dist_t deriv = t < Eps ? 0 : (cos (t) / t - sin (t) / (t * t));
   dist_t norm_x = -deriv;
   dist_t norm_y = SINC_Y_COMP / SINC_X_COMP;
-  return Vec (cos (v) * norm_x, norm_y, sin (v) * norm_x).unit ();
+  return Vec (cos (theta) * norm_x, norm_y, sin (theta) * norm_x).unit ();
 }
 
 
@@ -297,7 +318,7 @@ TorusTesselFun::define_basis (Tessel &tessel) const
 
   for (unsigned r = 0; r < 3; r++)
     for (unsigned v = 0; v < 3; v++)
-      verts[r][v] = add_vertex (tessel, r * 2 * PI / 3, v * 2 * PI / 3);
+      verts[r][v] = add_vertex (tessel, r / 3.f, v / 3.f);
   
   for (unsigned r = 0; r < 3; r++)
     for (unsigned v = 0; v < 3; v++)
@@ -329,8 +350,8 @@ TorusTesselFun::midpoint (Tessel &tessel,
   param_t u1 = vert1->u, v1 = vert1->v;
   param_t u2 = vert2->u, v2 = vert2->v;
 
-  param_t u = angular_midpoint (u1, u2);
-  param_t v = angular_midpoint (v1, v2);
+  param_t u = wrapped_midpoint (u1, u2);
+  param_t v = wrapped_midpoint (v1, v2);
 
   return add_vertex (tessel, u, v);
 }
@@ -340,15 +361,17 @@ TorusTesselFun::midpoint (Tessel &tessel,
 Pos
 TorusTesselFun::surface_pos (param_t u, param_t v) const
 {
+  dist_t theta = u * 2 * PIf;
+  dist_t phi = v * 2 * PIf;
   dist_t ring_radius = (radius - hole_radius) / 2;
 
   if (radius_perturb != 0)
     ring_radius *= random (1 - radius_perturb, 1 + radius_perturb);
 
-  dist_t x_offs = ring_radius * cos (v) + hole_radius + ring_radius;
-  dist_t y_offs = ring_radius * sin (v);
+  dist_t x_offs = ring_radius * cos (phi) + hole_radius + ring_radius;
+  dist_t y_offs = ring_radius * sin (phi);
 
-  return origin + Vec (cos (u) * x_offs, y_offs, sin (u) * x_offs);
+  return origin + Vec (cos (theta) * x_offs, y_offs, sin (theta) * x_offs);
 }
 
 // Return true if this function can calculate vertex normals.
@@ -367,10 +390,11 @@ TorusTesselFun::can_calc_vertex_normals () const
 Vec
 TorusTesselFun::vertex_normal (const Vertex &vertex) const
 {
-  param_t u = vertex.u, v = vertex.v;
-  dist_t x_norm = cos (v);
-  dist_t y_norm = sin (v);
-  return Vec (cos (u) * x_norm, y_norm, sin (u) * x_norm).unit ();
+  dist_t theta = vertex.u * 2 * PIf;
+  dist_t phi = vertex.v * 2 * PIf;
+  dist_t x_norm = cos (phi);
+  dist_t y_norm = sin (phi);
+  return Vec (cos (theta) * x_norm, y_norm, sin (theta) * x_norm).unit ();
 }
 
 

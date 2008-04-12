@@ -1,6 +1,6 @@
 // tessel.cc -- Surface tessellation
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -145,6 +145,19 @@ Tessel::add_to_mesh (Mesh *mesh)
 
   if (! mesh_normals.empty ())
     mesh->add_normals (mesh_normals, base_vert);
+
+  //
+  // Add UV values
+  //
+
+  std::vector<UV> mesh_uvs;
+
+  // We know nothing about UV values, so FUN must deal with them.
+  //
+  fun.get_vertex_uvs (vertices.begin(), vertices.end(), mesh_uvs);
+
+  if (! mesh_uvs.empty ())
+    mesh->add_uvs (mesh_uvs, base_vert);
 }
 
 

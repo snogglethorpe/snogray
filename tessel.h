@@ -1,6 +1,6 @@
 // tessel.h -- Surface tessellation
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,6 +19,7 @@
 
 #include "pos.h"
 #include "vec.h"
+#include "uv.h"
 #include "llist.h"
 #include "freelist.h"
 
@@ -142,6 +143,16 @@ public:
 				     LinkedList<Vertex>::iterator vertices_end,
 				     std::vector<SVec> &normals)
       const = 0;
+
+    // Add UV values for the vertices in the list from VERTICES_BEG
+    // to VERTICES_END, to UVS.
+    //
+    virtual void get_vertex_uvs (LinkedList<Vertex>::iterator /*vertices_beg*/,
+				 LinkedList<Vertex>::iterator /*vertices_end*/,
+				 std::vector<UV> &/*uvs*/)
+      const
+    {
+    }
 
   protected:
 
