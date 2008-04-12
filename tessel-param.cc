@@ -59,24 +59,12 @@ void ParamTesselFun::get_vertex_normals (
 		       std::vector<SVec> &normals)
   const
 {
-  if (can_calc_vertex_normals ())
-    for (LinkedList<Tessel::Vertex>::iterator vi = vertices_beg;
-	 vi != vertices_end; vi++)
-      {
-	const Vertex &vert = static_cast<const Vertex &>(*vi);
-	normals.push_back (SVec (vertex_normal (vert)));
-      }
-}
-
-// Return true if this function can calculate vertex normals.
-// If so, the `vertex_normal' method will be called to get each vertex's
-// normal.  Note that the default is true, so this method need only be
-// overridden for subclasses which _can't_ calculate vertex normals.
-//
-bool
-ParamTesselFun::can_calc_vertex_normals () const
-{
-  return true;
+  for (LinkedList<Tessel::Vertex>::iterator vi = vertices_beg;
+       vi != vertices_end; vi++)
+    {
+      const Vertex &vert = static_cast<const Vertex &>(*vi);
+      normals.push_back (SVec (vertex_normal (vert)));
+    }
 }
 
 // Add UV values for the vertices in the list from VERTICES_BEG to
@@ -172,9 +160,6 @@ SphereTesselFun::surface_pos (param_t u, param_t v) const
 {
   dist_t r = radius;
 
-  if (radius_perturb != 0)
-    r *= random (1 - radius_perturb, 1 + radius_perturb);
-
   coord_t theta = u * 2 * PIf;
   coord_t phi = (v - 0.5f) * PIf;
 
@@ -182,17 +167,6 @@ SphereTesselFun::surface_pos (param_t u, param_t v) const
   coord_t sin_phi = sin (phi), cos_phi = cos (phi);
 
   return origin + Vec (cos_theta * cos_phi, sin_theta * cos_phi, sin_phi) * r;
-}
-
-// Return true if this function can calculate vertex normals.
-// If so, the `vertex_normal' method will be called to get each vertex's
-// normal.  Note that the default is true, so this method need only be
-// overridden for subclasses which _can't_ calculate vertex normals.
-//
-bool
-SphereTesselFun::can_calc_vertex_normals () const
-{
-  return radius_perturb == 0;
 }
 
 // Return the surface normal of VERTEX.
@@ -365,24 +339,10 @@ TorusTesselFun::surface_pos (param_t u, param_t v) const
   dist_t phi = v * 2 * PIf;
   dist_t ring_radius = (radius - hole_radius) / 2;
 
-  if (radius_perturb != 0)
-    ring_radius *= random (1 - radius_perturb, 1 + radius_perturb);
-
   dist_t x_offs = ring_radius * cos (phi) + hole_radius + ring_radius;
   dist_t y_offs = ring_radius * sin (phi);
 
   return origin + Vec (cos (theta) * x_offs, sin (theta) * x_offs, y_offs);
-}
-
-// Return true if this function can calculate vertex normals.
-// If so, the `vertex_normal' method will be called to get each vertex's
-// normal.  Note that the default is true, so this method need only be
-// overridden for subclasses which _can't_ calculate vertex normals.
-//
-bool
-TorusTesselFun::can_calc_vertex_normals () const
-{
-  return radius_perturb == 0;
 }
 
 // Return the surface normal of VERTEX.

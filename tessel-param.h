@@ -107,13 +107,6 @@ protected:
   //
   virtual Pos surface_pos (param_t u, param_t v) const = 0;
 
-  // Return true if this function can calculate vertex normals.
-  // If so, the `vertex_normal' method will be called to get each vertex's
-  // normal.  Note that the default is true, so this method need only be
-  // overridden for subclasses which _can't_ calculate vertex normals.
-  //
-  virtual bool can_calc_vertex_normals () const;
-
   // Return the surface normal corresponding for VERTEX.
   // Subclass should override this method.
   //
@@ -126,8 +119,8 @@ class SphereTesselFun : public ParamTesselFun
 {
 public:
 
-  SphereTesselFun (Pos _origin, dist_t _radius, dist_t perturb = 0)
-    : origin (_origin), radius (_radius), radius_perturb (perturb)
+  SphereTesselFun (Pos _origin, dist_t _radius)
+    : origin (_origin), radius (_radius)
   { }
 
 protected:
@@ -158,13 +151,6 @@ protected:
   //
   virtual Pos surface_pos (param_t u, param_t v) const;
 
-  // Return true if this function can calculate vertex normals.
-  // If so, the `vertex_normal' method will be called to get each vertex's
-  // normal.  Note that the default is true, so this method need only be
-  // overridden for subclasses which _can't_ calculate vertex normals.
-  //
-  virtual bool can_calc_vertex_normals () const;
-
   // Return the surface normal corresponding for VERTEX.
   // Subclass should override this method.
   //
@@ -174,7 +160,6 @@ private:
 
   Pos origin;
   dist_t radius;
-  dist_t radius_perturb;
 };
 
 
@@ -232,10 +217,8 @@ class TorusTesselFun : public ParamTesselFun
 {
 public:
 
-  TorusTesselFun (Pos _origin, dist_t _radius, dist_t _hole_radius,
-		  dist_t perturb = 0)
-    : origin (_origin), radius (_radius), hole_radius (_hole_radius),
-      radius_perturb (perturb)
+  TorusTesselFun (Pos _origin, dist_t _radius, dist_t _hole_radius)
+    : origin (_origin), radius (_radius), hole_radius (_hole_radius)
   { }
 
 protected:
@@ -266,13 +249,6 @@ protected:
   //
   virtual Pos surface_pos (param_t u, param_t v) const;
 
-  // Return true if this function can calculate vertex normals.
-  // If so, the `vertex_normal' method will be called to get each vertex's
-  // normal.  Note that the default is true, so this method need only be
-  // overridden for subclasses which _can't_ calculate vertex normals.
-  //
-  virtual bool can_calc_vertex_normals () const;
-
   // Return the surface normal corresponding for VERTEX.
   // Subclass should override this method.
   //
@@ -282,7 +258,6 @@ private:
 
   Pos origin;
   dist_t radius, hole_radius;
-  dist_t radius_perturb;
 };
 
 
