@@ -120,13 +120,13 @@ SphereTesselFun::define_basis (Tessel &tessel) const
   const Vertex *mid2 = add_vertex (tessel, 1.f / 3.f, 0.5f);
   const Vertex *mid3 = add_vertex (tessel, 2.f / 3.f, 0.5f);
   
-  add_cell (tessel, p1, mid1, mid2);
-  add_cell (tessel, p1, mid2, mid3);
-  add_cell (tessel, p1, mid3, mid1);
+  add_cell (tessel, p1, mid2, mid1);
+  add_cell (tessel, p1, mid3, mid2);
+  add_cell (tessel, p1, mid1, mid3);
   
-  add_cell (tessel, p2, mid2, mid1);
-  add_cell (tessel, p2, mid3, mid2);
-  add_cell (tessel, p2, mid1, mid3);
+  add_cell (tessel, p2, mid1, mid2);
+  add_cell (tessel, p2, mid2, mid3);
+  add_cell (tessel, p2, mid3, mid1);
 }
 
 // Add to TESSEL and return a new vertex which is on this function's
@@ -181,7 +181,7 @@ SphereTesselFun::surface_pos (param_t u, param_t v) const
   coord_t sin_theta = sin (theta), cos_theta = cos (theta);
   coord_t sin_phi = sin (phi), cos_phi = cos (phi);
 
-  return origin + Vec (cos_theta * cos_phi, sin_phi, sin_theta * cos_phi) * r;
+  return origin + Vec (cos_theta * cos_phi, sin_theta * cos_phi, sin_phi) * r;
 }
 
 // Return true if this function can calculate vertex normals.
@@ -224,9 +224,9 @@ SincTesselFun::define_basis (Tessel &tessel) const
   const V *c2   = add_vertex (tessel, 1.f / 3.f, 1);
   const V *c3   = add_vertex (tessel, 2.f / 3.f, 1);
 
-  add_cell (tessel, c2, mid, c1);
-  add_cell (tessel, c3, mid, c2);
-  add_cell (tessel, c1, mid, c3);
+  add_cell (tessel, c2, c1, mid);
+  add_cell (tessel, c3, c2, mid);
+  add_cell (tessel, c1, c3, mid);
 }
 
 // Add to TESSEL and return a new vertex which is on this function's
@@ -278,7 +278,7 @@ SincTesselFun::surface_pos (param_t u, param_t v) const
   dist_t sinc = t < Eps ? 1.0 : sin (t) / t;
   return
     origin
-    + (Vec (cos (theta) * v, sinc * (1 / SINC_Y_COMP), sin (theta) * v)
+    + (Vec (cos (theta) * v, sin (theta) * v, sinc * (1 / SINC_Y_COMP))
        * radius);
 }
 
@@ -292,7 +292,7 @@ SincTesselFun::vertex_normal (const Vertex &vertex) const
   dist_t deriv = t < Eps ? 0 : (cos (t) / t - sin (t) / (t * t));
   dist_t norm_x = -deriv;
   dist_t norm_y = SINC_Y_COMP / SINC_X_COMP;
-  return Vec (cos (theta) * norm_x, norm_y, sin (theta) * norm_x).unit ();
+  return Vec (cos (theta) * norm_x, sin (theta) * norm_x, norm_y).unit ();
 }
 
 
@@ -325,8 +325,8 @@ TorusTesselFun::define_basis (Tessel &tessel) const
       {
 	unsigned next_r = (r + 1) % 3;
 	unsigned next_v = (v + 1) % 3;
-	add_cell (tessel, verts[r][v], verts[next_r][next_v], verts[r][next_v]);
-	add_cell (tessel, verts[r][v], verts[next_r][v], verts[next_r][next_v]);
+	add_cell (tessel, verts[r][v], verts[r][next_v], verts[next_r][next_v]);
+	add_cell (tessel, verts[r][v], verts[next_r][next_v], verts[next_r][v]);
       }
 }
 
@@ -371,7 +371,7 @@ TorusTesselFun::surface_pos (param_t u, param_t v) const
   dist_t x_offs = ring_radius * cos (phi) + hole_radius + ring_radius;
   dist_t y_offs = ring_radius * sin (phi);
 
-  return origin + Vec (cos (theta) * x_offs, y_offs, sin (theta) * x_offs);
+  return origin + Vec (cos (theta) * x_offs, sin (theta) * x_offs, y_offs);
 }
 
 // Return true if this function can calculate vertex normals.
@@ -394,7 +394,7 @@ TorusTesselFun::vertex_normal (const Vertex &vertex) const
   dist_t phi = vertex.v * 2 * PIf;
   dist_t x_norm = cos (phi);
   dist_t y_norm = sin (phi);
-  return Vec (cos (theta) * x_norm, y_norm, sin (theta) * x_norm).unit ();
+  return Vec (cos (theta) * x_norm, sin (theta) * x_norm, y_norm).unit ();
 }
 
 
