@@ -153,13 +153,13 @@ libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
-	coords.h dist.h frame.h material-dict.cc material-dict.h	\
-	material.cc material.h matrix4.h medium.h octree.cc octree.h	\
-	pos.h quadratic-roots.h scene.cc scene.h space.cc space.h	\
-	space-builder.h sphere-isec.h surface.cc surface.h tex.h	\
-	tex-coords.h tripar-isec.h tuple3.h uv.h vec.h xform.h		\
-	xform-base.h
+libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	 \
+	coords.h dist.h frame.h material-dict.cc material-dict.h	 \
+	material.cc material.h matrix4.cc matrix4.h matrix4.tcc medium.h \
+	octree.cc octree.h pos.h quadratic-roots.h scene.cc scene.h	 \
+	space.cc space.h space-builder.h sphere-isec.h surface.cc	 \
+	surface.h tex.h tex-coords.h tripar-isec.h tuple3.h uv.h vec.h	 \
+	xform.h xform-base.h
 
 
 ################################################################
