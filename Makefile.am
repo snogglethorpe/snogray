@@ -216,7 +216,8 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 	instance.cc instance.h local-surface.cc local-surface.h mesh.cc	\
 	mesh.h sphere.cc sphere.h sphere2.cc sphere2.h subspace.cc	\
 	subspace.h surface-group.cc surface-group.h tessel.cc tessel.h	\
-	tessel-funs.h tessel-param.cc tessel-param.h tripar.cc tripar.h
+	tessel-funs.cc tessel-funs.h tessel-param.cc tessel-param.h	\
+	tripar.cc tripar.h
 
 
 ################################################################

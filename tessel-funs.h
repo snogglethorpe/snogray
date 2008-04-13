@@ -13,47 +13,47 @@
 #ifndef __TESSEL_FUNS_H__
 #define __TESSEL_FUNS_H__
 
-#include "tessel-param.h"
-#include "mesh.h"
+#include "ref.h"
+#include "material.h"
+#include "xform.h"
 
 
 namespace snogray {
 
+class Mesh;
 
-inline Mesh *
-tessel_sphere (const Ref<const Material> &mat,
-	       const Pos &origin, dist_t radius, dist_t max_err)
-{
-  Mesh *mesh = new Mesh (mat);
-  SphereTesselFun fun (origin, radius);
-  fun.tessellate (mesh, max_err);
-  return mesh;
-}
+
+// Simple interface to SphereTesselFun
+//
+Mesh *tessel_sphere (const Ref<const Material> &mat,
+		     const Xform &xform, dist_t max_err);
+Mesh *tessel_sphere (const Ref<const Material> &mat,
+		     const Pos &origin, const Vec &axis, dist_t max_err);
+Mesh *tessel_sphere (const Ref<const Material> &mat,
+		     const Pos &origin, const Vec &axis, const Vec &radius,
+		     dist_t max_err);
 
 // Simple interface to SincTesselFun
 //
-inline Mesh *
-tessel_sinc (const Ref<const Material> &mat,
-	     const Pos &origin, dist_t radius, dist_t max_err)
-{
-  Mesh *mesh = new Mesh (mat);
-  SincTesselFun fun (origin, radius);
-  fun.tessellate (mesh, max_err);
-  return mesh;
-}
+Mesh *tessel_sinc (const Ref<const Material> &mat,
+		   const Xform &xform, dist_t max_err);
+Mesh *tessel_sinc (const Ref<const Material> &mat,
+		   const Pos &origin, const Vec &axis, const Vec &radius,
+		   dist_t max_err);
+Mesh *tessel_sinc (const Ref<const Material> &mat,
+		   const Pos &origin, const Vec &axis, dist_t radius,
+		   dist_t max_err);
 
 // Simple interface to TorusTesselFun
 //
-inline Mesh *
-tessel_torus (const Ref<const Material> &mat,
-	      const Pos &origin, dist_t radius, dist_t hole_radius,
-	      dist_t max_err)
-{
-  Mesh *mesh = new Mesh (mat);
-  TorusTesselFun fun (origin, radius, hole_radius);
-  fun.tessellate (mesh, max_err);
-  return mesh;
-}
+Mesh *tessel_torus (const Ref<const Material> &mat,
+		    const Xform &xform, dist_t hole_frac, dist_t max_err);
+Mesh *tessel_torus (const Ref<const Material> &mat,
+		    const Pos &origin, const Vec &axis, const Vec &radius,
+		    dist_t max_err);
+Mesh *tessel_torus (const Ref<const Material> &mat,
+		    const Pos &origin, const Vec &axis, dist_t radius,
+		    dist_t max_err);
 
 
 }

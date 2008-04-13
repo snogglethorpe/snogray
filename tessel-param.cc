@@ -59,11 +59,13 @@ void ParamTesselFun::get_vertex_normals (
 		       std::vector<SVec> &normals)
   const
 {
+  Xform norm_xform = xform.inverse ().transpose ();
+
   for (LinkedList<Tessel::Vertex>::iterator vi = vertices_beg;
        vi != vertices_end; vi++)
     {
       const Vertex &vert = static_cast<const Vertex &>(*vi);
-      normals.push_back (SVec (vertex_normal (vert)));
+      normals.push_back (SVec (vertex_normal (vert) * norm_xform).unit ());
     }
 }
 
@@ -86,12 +88,27 @@ ParamTesselFun::get_vertex_uvs (
 }
 
 
+
+// Add to TESSEL, and return, a vertex with parameter values U and V.
+// The position of the new vertex is automatically calculated using the
+// `surface_pos' method.
+//
+ParamTesselFun::Vertex *
+ParamTesselFun::add_vertex (Tessel &tessel, param_t u, param_t v) const
+{
+  Pos pos = surface_pos (u, v) * xform;
+  Vertex *vert = new (alloc_vertex (tessel)) Vertex (u, v, pos);
+  Tessel::Function::add_vertex (tessel, vert);
+  return vert;
+}
+
+
 // Sphere tessellation
 
 dist_t
 SphereTesselFun::sample_resolution (Tessel::err_t max_err) const
 {
-  return sqrt (2 * radius * max_err - max_err * max_err);
+  return sqrt (2 * max_err - max_err * max_err);
 }
 
 // Define the initial basis edges in TESSEL.
@@ -158,23 +175,24 @@ SphereTesselFun::midpoint (Tessel &tessel,
 Pos
 SphereTesselFun::surface_pos (param_t u, param_t v) const
 {
-  dist_t r = radius;
-
   coord_t theta = u * 2 * PIf;
   coord_t phi = (v - 0.5f) * PIf;
 
   coord_t sin_theta = sin (theta), cos_theta = cos (theta);
   coord_t sin_phi = sin (phi), cos_phi = cos (phi);
 
-  return origin + Vec (cos_theta * cos_phi, sin_theta * cos_phi, sin_phi) * r;
+  return Pos (cos_theta * cos_phi, sin_theta * cos_phi, sin_phi);
 }
 
 // Return the surface normal of VERTEX.
 //
+// The result need not be normalized (it's the caller's
+// responsibility to do so).
+//
 Vec
 SphereTesselFun::vertex_normal (const Vertex &vertex) const
 {
-  return (vertex.pos - origin).unit ();
+  return Vec (SphereTesselFun::surface_pos (vertex.u, vertex.v));
 }
 
 
@@ -240,7 +258,6 @@ SincTesselFun::midpoint (Tessel &tessel,
 }
 
 #define SINC_X_COMP (5.5 * PI)
-#define SINC_Y_COMP (1 / 0.7)
 
 // Return the surface position corresponding to the parameters U, V.
 //
@@ -250,13 +267,13 @@ SincTesselFun::surface_pos (param_t u, param_t v) const
   param_t theta = u * 2 * PIf;
   param_t t = v * SINC_X_COMP;
   dist_t sinc = t < Eps ? 1.0 : sin (t) / t;
-  return
-    origin
-    + (Vec (cos (theta) * v, sin (theta) * v, sinc * (1 / SINC_Y_COMP))
-       * radius);
+  return Pos (cos (theta) * v, sin (theta) * v, sinc);
 }
 
 // Return the surface normal of VERTEX.
+//
+// The result need not be normalized (it's the caller's
+// responsibility to do so).
 //
 Vec
 SincTesselFun::vertex_normal (const Vertex &vertex) const
@@ -265,8 +282,8 @@ SincTesselFun::vertex_normal (const Vertex &vertex) const
   param_t t = vertex.v * SINC_X_COMP;
   dist_t deriv = t < Eps ? 0 : (cos (t) / t - sin (t) / (t * t));
   dist_t norm_x = -deriv;
-  dist_t norm_y = SINC_Y_COMP / SINC_X_COMP;
-  return Vec (cos (theta) * norm_x, sin (theta) * norm_x, norm_y).unit ();
+  dist_t norm_y = 1 / SINC_X_COMP;
+  return Vec (cos (theta) * norm_x, sin (theta) * norm_x, norm_y);
 }
 
 
@@ -275,7 +292,7 @@ SincTesselFun::vertex_normal (const Vertex &vertex) const
 dist_t
 TorusTesselFun::sample_resolution (Tessel::err_t max_err) const
 {
-  dist_t ring_radius = (radius - hole_radius) / 2;
+  dist_t ring_radius = (1 - hole_radius) / 2;
   dist_t r = ring_radius < hole_radius ? ring_radius : hole_radius;
   return sqrt (2 * r * max_err - max_err * max_err);
 }
@@ -337,15 +354,18 @@ TorusTesselFun::surface_pos (param_t u, param_t v) const
 {
   dist_t theta = u * 2 * PIf;
   dist_t phi = v * 2 * PIf;
-  dist_t ring_radius = (radius - hole_radius) / 2;
+  dist_t ring_radius = (1 - hole_radius) / 2;
 
   dist_t x_offs = ring_radius * cos (phi) + hole_radius + ring_radius;
   dist_t y_offs = ring_radius * sin (phi);
 
-  return origin + Vec (cos (theta) * x_offs, sin (theta) * x_offs, y_offs);
+  return Pos (cos (theta) * x_offs, sin (theta) * x_offs, y_offs);
 }
 
 // Return the surface normal of VERTEX.
+//
+// The result need not be normalized (it's the caller's
+// responsibility to do so).
 //
 Vec
 TorusTesselFun::vertex_normal (const Vertex &vertex) const
@@ -354,7 +374,7 @@ TorusTesselFun::vertex_normal (const Vertex &vertex) const
   dist_t phi = vertex.v * 2 * PIf;
   dist_t x_norm = cos (phi);
   dist_t y_norm = sin (phi);
-  return Vec (cos (theta) * x_norm, sin (theta) * x_norm, y_norm).unit ();
+  return Vec (cos (theta) * x_norm, sin (theta) * x_norm, y_norm);
 }
 
 

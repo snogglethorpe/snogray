@@ -14,6 +14,7 @@
 #define __TESSEL_PARAM_H__
 
 #include "tessel.h"
+#include "xform.h"
 
 namespace snogray {
 
@@ -22,6 +23,8 @@ class ParamTesselFun : public Tessel::Function
 public:
 
   typedef dist_t param_t;
+
+  ParamTesselFun (const Xform &_xform) : xform (_xform) { }
 
 protected:
 
@@ -50,17 +53,11 @@ protected:
     return mid;
   }
 
-  // Add to TESSEL and return a vertex with parameter values U and V.
+  // Add to TESSEL, and return, a vertex with parameter values U and V.
   // The position of the new vertex is automatically calculated using the
   // `surface_pos' method.
   //
-  Vertex *add_vertex (Tessel &tessel, param_t u, param_t v) const
-  {
-    Pos pos = surface_pos (u, v);
-    Vertex *vert = new (alloc_vertex (tessel)) Vertex (u, v, pos);
-    Tessel::Function::add_vertex (tessel, vert);
-    return vert;
-  }
+  Vertex *add_vertex (Tessel &tessel, param_t u, param_t v) const;
 
   // Add to TESSEL and return a new vertex which is on this function's
   // surface midway between VERT1 and VERT2 (for some definition of
@@ -111,6 +108,10 @@ protected:
   // Subclass should override this method.
   //
   virtual Vec vertex_normal (const Vertex &vertex) const = 0;
+
+  // Object to world-space transformation.
+  //
+  Xform xform;
 };
 
 
@@ -119,9 +120,7 @@ class SphereTesselFun : public ParamTesselFun
 {
 public:
 
-  SphereTesselFun (Pos _origin, dist_t _radius)
-    : origin (_origin), radius (_radius)
-  { }
+  SphereTesselFun (const Xform &_xform) : ParamTesselFun (_xform) { }
 
 protected:
 
@@ -155,11 +154,6 @@ protected:
   // Subclass should override this method.
   //
   virtual Vec vertex_normal (const Vertex &vertex) const;
-
-private:
-
-  Pos origin;
-  dist_t radius;
 };
 
 
@@ -168,9 +162,7 @@ class SincTesselFun : public ParamTesselFun
 {
 public:
 
-  SincTesselFun (Pos _origin, dist_t _radius)
-    : origin (_origin), radius (_radius)
-  { }
+  SincTesselFun (const Xform &_xform) : ParamTesselFun (_xform) { }
 
 protected:
 
@@ -204,11 +196,6 @@ protected:
   // Subclass should override this method.
   //
   virtual Vec vertex_normal (const Vertex &vertex) const;
-
-private:
-
-  Pos origin;
-  dist_t radius;
 };
 
 
@@ -217,9 +204,9 @@ class TorusTesselFun : public ParamTesselFun
 {
 public:
 
-  TorusTesselFun (Pos _origin, dist_t _radius, dist_t _hole_radius)
-    : origin (_origin), radius (_radius), hole_radius (_hole_radius)
-  { }
+  TorusTesselFun (float hole_frac, const Xform &_xform)
+    : ParamTesselFun (_xform), hole_radius (hole_frac)
+    { }
 
 protected:
 
@@ -250,14 +237,16 @@ protected:
   virtual Pos surface_pos (param_t u, param_t v) const;
 
   // Return the surface normal corresponding for VERTEX.
-  // Subclass should override this method.
+  // Subclasses should override this method.
+  //
+  // The result need not be normalized (it's the caller's
+  // responsibility to do so).
   //
   virtual Vec vertex_normal (const Vertex &vertex) const;
 
 private:
 
-  Pos origin;
-  dist_t radius, hole_radius;
+  dist_t hole_radius;
 };
 
 

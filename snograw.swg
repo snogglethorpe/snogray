@@ -886,17 +886,39 @@ namespace snogray {
   }
   %template(Image) TupleMatrix<Color>;
 
-  // Simple object tesselation functions
+  // Simple interface to SphereTesselFun
   //
   %newobject tessel_sphere;
   Mesh *tessel_sphere (const Ref<Material> &mat,
-		       const Pos &origin, dist_t radius, dist_t max_err);
+		       const Xform &xform, dist_t max_err);
+  Mesh *tessel_sphere (const Ref<Material> &mat,
+		       const Pos &origin, const Vec &axis, dist_t max_err);
+  Mesh *tessel_sphere (const Ref<Material> &mat,
+		       const Pos &origin, const Vec &axis, const Vec &radius,
+		       dist_t max_err);
+
+  // Simple interface to SincTesselFun
+  //
   %newobject tessel_sinc;
   Mesh *tessel_sinc (const Ref<Material> &mat,
-		     const Pos &origin, dist_t radius, dist_t max_err);
+		     const Xform &xform, dist_t max_err);
+  Mesh *tessel_sinc (const Ref<Material> &mat,
+		     const Pos &origin, const Vec &axis, const Vec &radius,
+		     dist_t max_err);
+  Mesh *tessel_sinc (const Ref<Material> &mat,
+		     const Pos &origin, const Vec &axis, dist_t radius,
+		     dist_t max_err);
+
+  // Simple interface to TorusTesselFun
+  //
   %newobject tessel_torus;
   Mesh *tessel_torus (const Ref<Material> &mat,
-		      const Pos &origin, dist_t radius, dist_t hole_radius,
+		      const Xform &xform, dist_t hole_frac, dist_t max_err);
+  Mesh *tessel_torus (const Ref<Material> &mat,
+		      const Pos &origin, const Vec &axis, const Vec &radius,
+		      dist_t max_err);
+  Mesh *tessel_torus (const Ref<Material> &mat,
+		      const Pos &origin, const Vec &axis, dist_t radius,
 		      dist_t max_err);
 
 }
