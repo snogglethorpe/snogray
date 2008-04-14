@@ -29,13 +29,13 @@ Xform cyl_xform (const Pos &origin, const Vec &axis, const Vec &radius,
 {
   Vec az = axis.unit ();
   Vec ax = radius.unit ();
-  Vec zy = cross (ax, az);
+  Vec ay = cross (ax, az);
 
   dist_t radius_len = radius.length ();
 
   Xform xf;
   xf.scale (radius_len, radius_len, height);
-  xf.to_basis (ax, zy, az);
+  xf.to_basis (ax, ay, az);
   xf.translate (Vec (origin));
   return xf;
 }
@@ -46,12 +46,12 @@ Xform cyl_xform (const Pos &origin, const Vec &axis,
 		 dist_t radius, dist_t height)
 {
   Vec az = axis.unit ();
-  Vec ax = axis.perpendicular ();
-  Vec zy = cross (ax, az);
+  Vec ax = axis.perpendicular ().unit ();
+  Vec ay = cross (ax, az);
 
   Xform xf;
   xf.scale (radius, radius, height);
-  xf.to_basis (ax, zy, az);
+  xf.to_basis (ax, ay, az);
   xf.translate (Vec (origin));
   return xf;
 }
@@ -137,7 +137,7 @@ snogray::tessel_torus (const Ref<const Material> &mat,
 		       dist_t max_err)
 {
   dist_t radius_len = radius.length ();
-  dist_t hole_frac = (radius_len - axis.length ()) / radius_len;
+  dist_t hole_frac = (radius_len - axis.length () * 2) / radius_len;
   Xform xform = cyl_xform (origin, axis, radius, radius_len);
   return tessel_torus (mat, xform, hole_frac, max_err);
 }
@@ -147,7 +147,7 @@ snogray::tessel_torus (const Ref<const Material> &mat,
 		       const Pos &origin, const Vec &axis, dist_t radius,
 		       dist_t max_err)
 {
-  dist_t hole_frac = (radius - axis.length ()) / radius;
+  dist_t hole_frac = (radius - axis.length () * 2) / radius;
   Xform xform = cyl_xform (origin, axis, radius, radius);
   return tessel_torus (mat, xform, hole_frac, max_err);
 }
