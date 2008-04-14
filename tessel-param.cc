@@ -20,6 +20,10 @@ using namespace snogray;
 
 
 
+ParamTesselFun::ParamTesselFun (const Xform &_xform)
+  : xform (_xform), reversed_handedness (xform.reverses_handedness ())
+{ }
+
 // The size of vertex objects used by this Function (which should be a
 // subclass of Tessel::Vertex).
 //
@@ -28,6 +32,8 @@ ParamTesselFun::vertex_size () const
 {
   return sizeof (Vertex);
 }
+
+
 
 // Add to TESSEL and return a new vertex which is on this function's
 // surface midway between VERT1 and VERT2 (for some definition of
@@ -209,12 +215,10 @@ SincTesselFun::define_basis (Tessel &tessel) const
 {
   // We use a pyramid (4 faces) as a basis
 
-  typedef Tessel::Vertex V;
-
-  const V *mid  = add_vertex (tessel, 0, 0);
-  const V *c1   = add_vertex (tessel, 0, 1);
-  const V *c2   = add_vertex (tessel, 1.f / 3.f, 1);
-  const V *c3   = add_vertex (tessel, 2.f / 3.f, 1);
+  const Vertex *mid  = add_vertex (tessel, 0, 0);
+  const Vertex *c1   = add_vertex (tessel, 0, 1);
+  const Vertex *c2   = add_vertex (tessel, 1.f / 3.f, 1);
+  const Vertex *c3   = add_vertex (tessel, 2.f / 3.f, 1);
 
   add_cell (tessel, c2, c1, mid);
   add_cell (tessel, c3, c2, mid);

@@ -24,7 +24,7 @@ public:
 
   typedef dist_t param_t;
 
-  ParamTesselFun (const Xform &_xform) : xform (_xform) { }
+  ParamTesselFun (const Xform &_xform);
 
 protected:
 
@@ -58,6 +58,22 @@ protected:
   // `surface_pos' method.
   //
   Vertex *add_vertex (Tessel &tessel, param_t u, param_t v) const;
+
+  // Add a triangular cell with the given vertices to TESSEL.
+  //
+  void add_cell (Tessel &tessel,
+		 const Vertex *v1, const Vertex *v2, const Vertex *v3)
+    const
+  {
+    if (reversed_handedness)
+      {
+	const Vertex *tmp = v2;
+	v2 = v3;
+	v3 = tmp;
+      }
+
+    Tessel::Function::add_cell (tessel, v1, v2, v3);
+  }
 
   // Add to TESSEL and return a new vertex which is on this function's
   // surface midway between VERT1 and VERT2 (for some definition of
@@ -112,6 +128,10 @@ protected:
   // Object to world-space transformation.
   //
   Xform xform;
+
+  // True if XFORM reverses handedness.
+  //
+  bool reversed_handedness;
 };
 
 
