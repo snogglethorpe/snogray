@@ -293,12 +293,23 @@ SincTesselFun::vertex_normal (const Vertex &vertex) const
 
 // Torus tessellation
 
+TorusTesselFun::TorusTesselFun (dist_t _r2, const Xform &_xform)
+  : ParamTesselFun (_xform), r1 (1 - _r2), r2 (_r2)
+{
+  // There's an annoying singularity if r1 == r2, so very slightly
+  // perturb r1 and r2 in that case.
+  //
+  if (r1 == r2)
+    {
+      r1 -= 0.0001;
+      r2 += 0.0001;
+    }
+}
+
 dist_t
 TorusTesselFun::sample_resolution (Tessel::err_t max_err) const
 {
-  dist_t ring_radius = (1 - hole_radius) / 2;
-  dist_t r = ring_radius < hole_radius ? ring_radius : hole_radius;
-  return sqrt (2 * r * max_err - max_err * max_err);
+  return sqrt (2 * min (r1, r2) * max_err - max_err * max_err);
 }
 
 // Define the initial basis edges in TESSEL.
@@ -358,10 +369,9 @@ TorusTesselFun::surface_pos (param_t u, param_t v) const
 {
   dist_t theta = u * 2 * PIf;
   dist_t phi = v * 2 * PIf;
-  dist_t ring_radius = (1 - hole_radius) / 2;
 
-  dist_t x_offs = ring_radius * cos (phi) + hole_radius + ring_radius;
-  dist_t y_offs = ring_radius * sin (phi);
+  dist_t x_offs = r2 * cos (phi) + r1;
+  dist_t y_offs = r2 * sin (phi);
 
   return Pos (cos (theta) * x_offs, sin (theta) * x_offs, y_offs);
 }

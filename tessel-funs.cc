@@ -123,10 +123,10 @@ snogray::tessel_sinc (const Ref<const Material> &mat,
 
 Mesh *
 snogray::tessel_torus (const Ref<const Material> &mat,
-		       const Xform &xform, dist_t hole_frac, dist_t max_err)
+		       const Xform &xform, float r2_frac, dist_t max_err)
 {
   Mesh *mesh = new Mesh (mat);
-  TorusTesselFun fun (hole_frac, xform);
+  TorusTesselFun fun (r2_frac, xform);
   fun.tessellate (mesh, max_err);
   return mesh;
 }
@@ -137,9 +137,9 @@ snogray::tessel_torus (const Ref<const Material> &mat,
 		       dist_t max_err)
 {
   dist_t radius_len = radius.length ();
-  dist_t hole_frac = (radius_len - axis.length () * 2) / radius_len;
+  float r2_frac = axis.length () / radius_len;
   Xform xform = cyl_xform (origin, axis, radius, radius_len);
-  return tessel_torus (mat, xform, hole_frac, max_err);
+  return tessel_torus (mat, xform, r2_frac, max_err);
 }
 
 Mesh *
@@ -147,7 +147,7 @@ snogray::tessel_torus (const Ref<const Material> &mat,
 		       const Pos &origin, const Vec &axis, dist_t radius,
 		       dist_t max_err)
 {
-  dist_t hole_frac = (radius - axis.length () * 2) / radius;
+  float r2_frac = axis.length() / radius;
   Xform xform = cyl_xform (origin, axis, radius, radius);
-  return tessel_torus (mat, xform, hole_frac, max_err);
+  return tessel_torus (mat, xform, r2_frac, max_err);
 }

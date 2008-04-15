@@ -224,9 +224,7 @@ class TorusTesselFun : public ParamTesselFun
 {
 public:
 
-  TorusTesselFun (float hole_frac, const Xform &_xform)
-    : ParamTesselFun (_xform), hole_radius (hole_frac)
-    { }
+  TorusTesselFun (dist_t _r2, const Xform &_xform);
 
 protected:
 
@@ -266,7 +264,13 @@ protected:
 
 private:
 
-  dist_t hole_radius;
+  // The radius of the center-line of the torus body.
+  //
+  dist_t r1;
+
+  // The radius of the torus body.  R1 + R2 usually should be 1.
+  //
+  dist_t r2;
 };
 
 
