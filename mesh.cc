@@ -354,49 +354,90 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
   else
     normal_frame = geom_frame;
 
-  // Mesh UV values for the three vertices of the triangle.
+  // Texture-coordinates for the three vertices of the triangle.
   //
-  UV uv0, uv1, uv2;
+  // If this mesh doesn't have per-vertex UV values, then they are just the
+  // raw barycentric coordinates of the vertices.
+  //
+  UV T0, T1, T2;
   if (triangle->mesh.vertex_uvs.empty ())
     {
-      uv0 = UV (0, 0);
-      uv1 = UV (1, 0);
-      uv2 = UV (0, 1);
+      T0 = UV (0, 0);
+      T1 = UV (1, 0);
+      T2 = UV (0, 1);
     }
   else
     {
-      uv0 = triangle->vuv (0);
-      uv1 = triangle->vuv (1);
-      uv2 = triangle->vuv (2);
+      T0 = triangle->vuv (0);
+      T1 = triangle->vuv (1);
+      T2 = triangle->vuv (2);
     }
 
   // Change in UV values for edge1 and edge2 of the triangle.
   //
-  UV e1_uv_delta = uv1 - uv0;
-  UV e2_uv_delta = uv2 - uv0;
+  UV dTdu = T1 - T0;
+  UV dTdv = T2 - T0;
 
-  // Final UV values for POINT, used for texturing (as opposed to the
-  // "raw" triangle UV value in the variables "u" and "v").
+  // Texture-coordinates for POINT (as opposed to the "raw" triangle UV
+  // value in the variables "u" and "v").
   //
-  UV uv = uv0 + e1_uv_delta * u + e2_uv_delta * v;
+  UV T = T0 + dTdu * u + dTdv * v;
 
-  // Calculate partial derivatives of texture coordinates dTds and dTdt,
-  // where T is the texture coordinates (for bump mapping).
   //
-  Vec e1 = triangle->v(1) - triangle->v(0); // triangle edge 1
-  Vec e2 = triangle->v(2) - triangle->v(0); // triangle edge 2
-  Vec oe1 = normal_frame.to (e1);	    // E1 in object space
-  Vec oe2 = normal_frame.to (e2);	    // E2 in object space
-  dist_t duds = oe1.x ? e1_uv_delta.u / oe1.x : 0;
-  dist_t dudt = oe1.y ? e1_uv_delta.u / oe1.y : 0;
-  dist_t dvds = oe2.x ? e2_uv_delta.v / oe2.x : 0;
-  dist_t dvdt = oe2.y ? e2_uv_delta.v / oe2.y : 0;
-  UV dTds (duds, dvds), dTdt (dudt, dvdt);
+  // We calculate the texture-coordinate partial derivatives as:
+  //
+  //    dT/ds = du/ds * dT/du + dv/ds * dT/dv
+  //    dT/dt = du/dt * dT/du + dv/dt * dT/dv
+  //
+  // e1 and e2 are the coordinate deltas of triangle edges 1 (vertex 0 -
+  // vertex 1) and 2 (vertex 0 - vertex 2), in normal space, so "x" is
+  // really "s", "y", is "t", and "z" is normal to the surface:
+  //   
+  //                            e2.y + e2.z
+  //    du/ds = -------------------------------------------
+  //            e1.x * (e2.y + e2.z) - e2.x * (e1.y + e1.z)
+  //   
+  //                               -e2.x
+  //    du/dt = -------------------------------------------
+  //            e1.x * (e2.y + e2.z) - e2.x * (e1.y + e1.z)
+  //   
+  //                            e1.y + e1.z
+  //    dv/ds = -------------------------------------------
+  //            e2.x * (e1.y + e1.z) - e1.x * (e2.y + e2.z)
+  //   
+  //                               -e1.x
+  //    dv/dt = -------------------------------------------
+  //            e2.x * (e1.y + e1.z) - e1.x * (e2.y + e2.z)
+  //
+  // and dT/du and dT/dv are basically the deltas of texture coordinates
+  // for edges 1 and 2.
+  //
+
+  // Edge coordinate deltas in normal space.
+  //
+  Vec w_e1 = triangle->v(1) - triangle->v(0); // triangle edge 1 in workd space
+  Vec w_e2 = triangle->v(2) - triangle->v(0); // triangle edge 2 in workd space
+  Vec e1 = normal_frame.to (w_e1);	      // E1 in normal space
+  Vec e2 = normal_frame.to (w_e2);	      // E2 in normal space
+
+  // Calculate du/ds, du/dt, dv/ds, and dv/dt.
+  //
+  float du_den = e1.x * (e2.y + e2.z) - e2.x * (e1.y + e1.z);
+  float duds = (e2.y + e2.z) / du_den;
+  float dudt = -e2.x / du_den;
+  float dv_den = e2.x * (e1.y + e1.z) - e1.x * (e2.y + e2.z);
+  float dvds = (e1.y + e1.z) / dv_den;
+  float dvdt = -e1.x / dv_den;
+
+  // Calculate texture coordinate partial derivatives, in normal space.
+  //
+  UV dTds = dTdu * duds + dTdv * dvds;
+  UV dTdt = dTdu * dudt + dTdv * dvdt;
 
   // Make the intersect object.
   //
   Intersect isec (ray, triangle, normal_frame, geom_frame,
-		  uv, dTds, dTdt, trace);
+		  T, dTds, dTdt, trace);
 
   isec.no_self_shadowing = true;
   isec.smoothing_group = static_cast<const void *>(&triangle->mesh);
