@@ -415,10 +415,10 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
 
   // Edge coordinate deltas in normal space.
   //
-  Vec w_e1 = triangle->v(1) - triangle->v(0); // triangle edge 1 in workd space
-  Vec w_e2 = triangle->v(2) - triangle->v(0); // triangle edge 2 in workd space
-  Vec e1 = normal_frame.to (w_e1);	      // E1 in normal space
-  Vec e2 = normal_frame.to (w_e2);	      // E2 in normal space
+  Vec e1_w = triangle->v(1) - triangle->v(0); // triangle edge 1 in world space
+  Vec e2_w = triangle->v(2) - triangle->v(0); // triangle edge 2 in world space
+  Vec e1 = normal_frame.to (e1_w);	      // edge 1 in normal space
+  Vec e2 = normal_frame.to (e2_w);	      // edge 2 in normal space
 
   // Calculate du/ds, du/dt, dv/ds, and dv/dt.
   //
