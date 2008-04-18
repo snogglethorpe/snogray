@@ -1,6 +1,6 @@
 // image-png.cc -- PNG format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -79,7 +79,7 @@ PngImageSink::PngImageSink (const std::string &_filename,
     {
       png_destroy_write_struct (&libpng_struct, &libpng_info);
       fclose (stream);
-      open_err ("Error writing PNG file");
+      throw_libpng_err ();
     }
 
   // Write file header
@@ -170,7 +170,7 @@ PngImageSource::PngImageSource (const std::string &_filename,
     {
       png_destroy_read_struct (&libpng_struct, &libpng_info, 0);
       fclose (stream);
-      open_err ("Error writing PNG file");
+      throw_libpng_err ();
     }
 
   // Read file header
