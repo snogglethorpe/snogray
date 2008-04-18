@@ -1,6 +1,6 @@
 // envmap.cc -- Environment maps
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ using namespace std;
 // actual filename); if FMT is "auto", SPEC will be left untouched, and
 // an attempt will be made to guess the format based on the image size.
 //
-Envmap *
+Ref<Envmap>
 snogray::load_envmap (const string &spec, const string &_fmt)
 {
   string filename = spec;
@@ -70,7 +70,7 @@ snogray::load_envmap (const string &spec, const string &_fmt)
 // from direction to image coordinates).  If FMT is "" or "auto", an
 // attempt will be made to guess the format based on the image size.
 //
-Envmap *
+Ref<Envmap>
 snogray::make_envmap (const Ref<Image> &image, const string &_fmt)
 {
   string fmt = _fmt;
