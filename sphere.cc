@@ -54,19 +54,31 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
     s = norm.perpendicular ();	// degenerate case where NORM == AXIS
   Vec t = cross (s, norm);
 
-  dist_t inv_radius = 1 / sphere->radius;	      // 1 / radius
-  dist_t inv_circum = inv_radius * INV_PIf * 0.5f;    // 1 / circumference
+  // 1 divided by the radius/circumference of the sphere.
+  //
+  dist_t inv_radius = 1 / sphere->radius;
+  dist_t inv_circum = inv_radius * INV_PIf * 0.5f;
+
+  // Intersection point in object space.
+  //
+  Vec opoint = sphere->frame.to (point);
+
+  // 1 divided by the radius/circumference of a horizontal cut (in "object
+  // space") through the sphere at the current location (height == z).
+  //
+  dist_t z_radius = sqrt (opoint.x*opoint.x + opoint.y*opoint.y);
+  dist_t inv_z_radius = z_radius ? 1 / z_radius : 0;
+  dist_t inv_z_circum = inv_z_radius * INV_PIf * 0.5f;
 
   // Calculate texture coordinates, T.
   //
-  Vec opoint = sphere->frame.to (point);
   UV T (atan2 (opoint.y, opoint.x) * INV_PIf * 0.5f + 0.5f,
 	asin (clamp (opoint.z * inv_radius, -1.f, 1.f)) * INV_PIf + 0.5f);
 
   // Calculate partial derivatives of texture coordinates dTds and dTdt,
   // where T is the texture coordinates (for bump mapping).
   //
-  UV dTds (inv_circum, 0), dTdt (0, inv_circum * 2);
+  UV dTds (inv_z_circum, 0), dTdt (0, inv_circum * 2);
 
   Intersect isec (ray, sphere, Frame (point, s, t, norm), T, dTds, dTdt, trace);
 
