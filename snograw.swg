@@ -1260,6 +1260,11 @@ namespace snogray {
       return new PerturbUvTex<float> (source, u, v);
     }
 
+    static Ref<Envmap> envmap (const Ref<Image> &image, const char *fmt = "")
+    {
+      return make_envmap (image, fmt);
+    }
+
   }
 %}
 
