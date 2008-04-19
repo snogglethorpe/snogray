@@ -76,7 +76,7 @@ FarLight::filter_samples (const Intersect &isec,
   Vec light_normal_dir = isec.normal_frame.to (frame.z);
 
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
-    if (s->light_dist == 0 && dot (s->dir, light_normal_dir) <= max_cos)
+    if (s->light_dist == 0 && dot (s->dir, light_normal_dir) >= min_cos)
       {
 	s->light_val = intensity;
 	s->light_pdf = pdf;

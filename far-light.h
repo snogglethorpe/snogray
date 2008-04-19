@@ -1,6 +1,6 @@
 // far-light.h -- Light at infinite distance
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@ public:
   //
   FarLight (const Vec &_dir, float _angle, const Color &_intensity)
     : intensity (_intensity), angle (_angle), frame (_dir.unit ()),
-      pdf (1 / angle), max_cos (cos (_angle / 2))
+      pdf (1 / angle), min_cos (cos (_angle / 2))
   { }
 
   // Generate around NUM samples of this light and add them to SAMPLES.
@@ -65,10 +65,12 @@ private:
   //
   const float pdf;
 
-  // The maximum cosine of the angle between a sample and this light --
-  // any samples beyond that do not hit the light.
+  // The minimum cosine of the angle between a sample and this light.
+  // Any samples where the cosine is less than this (meaning the angle
+  // between the sample and the light direction is greater) do not hit
+  // the light.
   //
-  dist_t max_cos;
+  dist_t min_cos;
 };
 
 }
