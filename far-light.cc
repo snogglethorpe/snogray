@@ -31,7 +31,7 @@ FarLight::gen_samples (const Intersect &isec, unsigned num,
   // ISEC's surface normal.
   //
   float cos_n_dir_angle = isec.cos_n (isec.normal_frame.to (frame.z));
-  float n_dir_angle = acos (cos_n_dir_angle);
+  float n_dir_angle = acos (clamp (cos_n_dir_angle, -1.f, 1.f));
   float min_angle = n_dir_angle - angle / 2;
 
   if (min_angle >= 2 * PIf)
