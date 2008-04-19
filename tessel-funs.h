@@ -47,7 +47,7 @@ Mesh *tessel_sinc (const Ref<const Material> &mat,
 // Simple interface to TorusTesselFun
 //
 Mesh *tessel_torus (const Ref<const Material> &mat,
-		    const Xform &xform, dist_t hole_frac, dist_t max_err);
+		    const Xform &xform, dist_t r2_frac, dist_t max_err);
 Mesh *tessel_torus (const Ref<const Material> &mat,
 		    const Pos &origin, const Vec &axis, const Vec &radius,
 		    dist_t max_err);
