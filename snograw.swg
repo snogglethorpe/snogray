@@ -990,7 +990,7 @@ namespace snogray {
     }
     static Ref<Material>
     mirror (float _ior, const TexVal<Color> &_reflectance,
-	    const Ref<Material> &underlying_material)
+    	    const Ref<Material> &underlying_material)
     {
       return new Mirror (_ior, _reflectance, underlying_material);
     }
@@ -1009,9 +1009,14 @@ namespace snogray {
     }      
 
     // Glow, NormGlow
-    static Ref<Material> glow (const Color &col)
+    static Ref<Material> glow (const TexVal<Color> &col)
     {
       return new Glow (col);
+    }
+    static Ref<Material> glow (const TexVal<Color> &col,
+			       const Ref<Material> &underlying_material)
+    {
+      return new Glow (col, underlying_material);
     }
     static Ref<Material> norm_glow (float intens)
     {

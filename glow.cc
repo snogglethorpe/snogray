@@ -16,13 +16,41 @@
 using namespace snogray;
 
 
+Glow::Glow (const TexVal<Color> &col)
+  : Material (Material::SHADOW_NONE, true), color (col)
+{ }
+
+Glow::Glow (const TexVal<Color> &col,
+	    const Ref<const Material> &_underlying_material)
+  : Material (_underlying_material->shadow_type, true),
+    color (col), underlying_material (_underlying_material)
+{
+  bump_map = _underlying_material->bump_map;
+}
+
 // Return emitted radiance from this light, at the point described by ISEC.
 //
 Color
 Glow::le (const Intersect &isec) const
 {
-  return isec.back ? 0 : color;
+  return isec.back ? 0 : color.eval (isec);
 }
+
+// Return a new BRDF object for this material instantiated at ISEC.
+//
+Brdf *
+Glow::get_brdf (const Intersect &isec) const
+{
+  return underlying_material ? underlying_material->get_brdf (isec) : 0;
+}
+
+// Return the medium of this material (used only for refraction).
+//
+const Medium *
+Glow::medium () const
+{
+  return underlying_material ? underlying_material->medium () : 0;
+} 
 
 
 // arch-tag: af19d9b6-7b4a-49ec-aee4-529be6aba253

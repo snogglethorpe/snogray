@@ -582,8 +582,13 @@ function glass (params)
    return postproc_material (raw.glass (raw.Medium (_ior, _absorb)), params)
 end
 
-function glow (col)
-   return raw.glow (color (col))
+function glow (col, underlying)
+   col = color_tex_val (col)
+   if underlying then
+      return raw.glow (col, underlying)
+   else
+      return raw.glow (col)
+   end
 end   
 
 function norm_glow (intens)

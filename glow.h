@@ -13,6 +13,8 @@
 #ifndef __GLOW_H__
 #define __GLOW_H__
 
+#include "tex.h"
+
 #include "material.h"
 
 
@@ -23,17 +25,32 @@ class Glow : public Material
 {
 public:
 
-  Glow (const Color &_color)
-    : Material (Material::SHADOW_NONE, true), color (_color)
-  { }
+  Glow (const TexVal<Color> &col);
+  Glow (const TexVal<Color> &col,
+	const Ref<const Material> &_underlying_material);
 
   // Return emitted radiance from this light, at the point described by ISEC.
   //
   virtual Color le (const Intersect &isec) const;
 
+  // Return a new BRDF object for this material instantiated at ISEC.
+  //
+  virtual Brdf *get_brdf (const Intersect &isec) const;
+
+  // Return the medium of this material (used only for refraction).
+  //
+  virtual const Medium *medium () const;
+
 private:
 
-  Color color;
+  // Amount of glow.
+  //
+  TexVal<Color> color;
+
+  // Material to handled reflected light.  This may be zero, for "emissive
+  // only" surfaces.
+  //
+  Ref<const Material> underlying_material;
 };
 
 
