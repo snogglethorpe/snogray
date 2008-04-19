@@ -957,6 +957,10 @@ function rect_light (corner, side1, side2, intens)
    return raw.RectLight (corner, side1, side2, color (intens))
 end
 
+function far_light (dir, angle, intens)
+   return raw.FarLight (dir, angle, color (intens))
+end
+
 
 ----------------------------------------------------------------
 --

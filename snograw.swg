@@ -68,6 +68,7 @@
 #include "point-light.h"
 #include "rect-light.h"
 #include "sphere-light.h"
+#include "far-light.h"
 #include "cook-torrance.h"
 #include "lambert.h"
 #include "image.h"
@@ -822,6 +823,13 @@ namespace snogray {
   public:
 
     SphereLight (const Pos &_pos, float _radius, const Color &_intensity);
+  };
+
+  class FarLight : public Light
+  {
+  public:
+
+    FarLight (const Vec &_dir, float _angle, const Color &_intensity);
   };
 
   %ignore Envmap;
