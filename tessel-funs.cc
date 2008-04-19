@@ -47,7 +47,7 @@ Xform cyl_xform (const Pos &origin, const Vec &axis,
 {
   Vec az = axis.unit ();
   Vec ax = axis.perpendicular ().unit ();
-  Vec ay = cross (ax, az);
+  Vec ay = cross (az, ax);
 
   Xform xf;
   xf.scale (radius, radius, height);
