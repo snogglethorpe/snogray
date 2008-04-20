@@ -47,6 +47,7 @@ endif
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =							\
+	README							\
 	snogray.lua						\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg						\
