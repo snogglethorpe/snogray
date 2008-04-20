@@ -1,0 +1,184 @@
+
+Snogray renderer
+
+   Snogray is a program for rendering 3d scenes, using monte-carlo
+   ray-tracing. It is "physically based", meaning that it tries to
+   calculate light transport in a physically plausible way when that is
+   practical. For instance, all light-falloff is inherently 1 / r2
+   (unlike some older ray-tracers) and reflection/refraction are
+   calculated using Fresnel's formulas).
+
+
+Building
+
+   Snogray uses the GNU autotools.  To build it, one must first run the
+   "configure" shell script; this produces a "Makefile", which allows
+   one to compile snogray by running the "make" program.  If there are
+   missing dependencies, the configure script will given an error.
+
+   [If this is a development snapshot, there may not be a "configure"
+   script.  In such a case the "autogen.sh" script may be run to
+   produce the configure script; however, this requires that the GNU
+   autotools be installed.]
+
+   Build steps (these commands should be given to a command-line prompt):
+
+    (0) OPTIONAL:  if there is no "configure" script, generate
+        "configure" by running autogen.sh:
+
+           ./autogen.sh
+
+    (1) Run the "configure" script to generate a Makefile:
+
+           ./configure
+
+    (2) Use make to build snogray:
+
+           make
+
+
+   In step (1), the configure script will try to examine your system to
+   see what libraries, etc, are available.  There are very few
+   libraries which are actually _necessary_ to compile snogray, but
+   many are desirable -- e.g., libjpeg (for jpeg image handling),
+   OpenEXR (for .exr format HDR image handling), Lua (for lua scene
+   files) etc.  To use Lua, it may be also necessary to have the "swig"
+   interface generator installed (this is not always true, because
+   a pre-generated interface may be included with the distribution).
+	   
+
+Usage
+
+   Basic usage of snogray is very simple (on the command-line):
+
+      ./snogray SCENE_FILE OUTPUT_IMAGE_FILE
+
+   SCENE_FILE is the scene to render, usually written in Lua (but also,
+   3ds etc files should work).  OUTPUT_IMAGE_FILE is the image file
+   snogray will create (it will choose the type of file based on the
+   file extension you give, e.g., ".jpg" for jpeg files, ".png" for
+   PNG, etc).
+
+   Snogray understands various command-line options as well.  Invoking
+   snogray with the "--help" option will give a list of options (though
+   it's probably a bit of out date).
+
+   Some of the more useful options include options include:
+
+     -s WIDTHxHEIGHT
+
+	  Set the output image size to WIDTH by HEIGHT pixels.
+
+     -a NUM
+
+          Anti-alias using a NUM x NUM grid per output pixel.
+
+     -b ENV_MAP_IMAGE_FILE
+
+	  Use ENV_MAP_IMAGE_FILE as an environment map, i.e., as the
+	  scene background.  ENV_MAP_IMAGE_FILE should be an image file
+	  in "latitude-longitude" format (covering a full 360 degree
+	  sphere).
+
+	  By default, ENV_MAP_IMAGE_FILE is used for both background
+	  and lighting, so light will come "from" the background image.
+	  For this reason it is best if it is an HDR (high-dynamic
+	  range) image, e.g., with an .exr or .hdr extension.
+
+	  [The "-l" option is similar, but only applies to scene
+	  lighting, not the actual background; -b and -l may be used
+	  together to specify two separate images for the two purposes
+	  (one for lighting, one for background).]
+
+     -c CMDS
+
+	  Move the camera following the commands in the string CMDS.
+	  CMDS is a comma-separated list of simple one-or-two-letter
+	  commands; e.g., -coy20,mf5,z2 has the following commands:
+
+	    "oy20" means "orbit around y-axis 20 degrees"
+	    "mf5"  means "move forward by 5 scene units"
+	    "z2"   means "zoom in by a factor of 2"
+
+	  A more complete list of camera commands may be seen using
+	  "snogray --help".
+
+
+Snogray development goals:
+
+   Snogray's goals include:
+
+   1. A "rich" scene description language which is easy and practical
+      for humans (and especially programmers) to write, in the style of
+      POVray. This is in contrast to many other modern renderers that
+      use human-unfriendly scene description formats, and essentially
+      require scenes to be created using a separate GUI modelling
+      program. To do this, snogray uses the Lua language as its main
+      scene description language. Lua is elegant and very friendly (for
+      both beginners and experts).
+
+   2. A wide variety of input and output formats, so the user can use
+      input files directly without converting them. In addition to Lua,
+      one may use 3DS and NFF scene files, PLY and other mesh formats,
+      and many image formats (including HDR formats such as OpenEXR and
+      RGBE/.hdr/.pic).
+
+   3. Modern rendering features. Currently snogray supports such
+      features as object instancing, area-lights, image-based lighting,
+      depth-of-field, and both image-based and procedural texturing
+      (including bump-mapping). It is planned to add many other
+      features, most importantly global illumination methods such as
+      photon-mapping and instant-radiosity (currently the only supported
+      mechanism for indirect illumination is fairly naïve recursive
+      tracing, which is of course very slow, although usable for some
+      scenes).
+
+
+Current status
+
+   Snogray currently works reasonably well, but is still very rough. In
+   particular, it has no real notion of being "installed" — it expects
+   to find any files it needs to load relative to the current directory.
+
+
+Authors
+
+   Most of snogray was written by Miles Bader.
+
+   There are a few files written by other people included with the
+   distribution (in general, these are not modified from their original
+   source):
+
+     * rply.c and rply.h:  Diego Nehab
+
+     * lpeg.c and lpeg.html:  Roberto Ierusalimschy
+
+     * Lua (if Lua is included in the distribution):  see http://www.lua.org
+
+
+Licensing
+
+   Most of source files in snogray are licensed under the GNU GPL
+   license, version 3 or greater; see the COPYING file for details.
+
+   Some files from external sources have different licenses:
+
+    * rply.c and reply.h use the "MIT" license
+
+    * lpeg.c uses a "BSD-like" license
+
+    * If the Lua sources are included with this distribution, they use a
+      "BSD-like" license
+
+   All licenses are compatible with the GNU GPL v3 (and because most of
+   the non-GPL licenses are more liberal than the GNU GPL, snogray as a
+   whole may be considered to use the GNU GPL v3).
+
+
+Download / Sources
+
+   Homepage:		   http://snogray.nongnu.org
+
+   Savannah project page:  http://savannah.nongnu.org/projects/snogray
+
+   GIT source repository:  http://git.savannah.nongnu.org/gitweb/?p=snogray.git
