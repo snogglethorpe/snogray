@@ -16,7 +16,9 @@
 #include "tessel.h"
 #include "xform.h"
 
+
 namespace snogray {
+
 
 class ParamTesselFun : public Tessel::Function
 {
@@ -125,6 +127,8 @@ protected:
   //
   virtual Vec vertex_normal (const Vertex &vertex) const = 0;
 
+
+
   // Object to world-space transformation.
   //
   Xform xform;
@@ -132,145 +136,6 @@ protected:
   // True if XFORM reverses handedness.
   //
   bool reversed_handedness;
-};
-
-
-
-class SphereTesselFun : public ParamTesselFun
-{
-public:
-
-  SphereTesselFun (const Xform &_xform) : ParamTesselFun (_xform) { }
-
-protected:
-
-  // Define the initial basis edges in TESSEL.
-  //
-  virtual void define_basis (Tessel &tessel) const;
-
-  // Returns the desired sample resolution needed, given a certain error
-  // limit.
-  //
-  virtual dist_t sample_resolution (Tessel::err_t max_err) const;
-
-  // Add to TESSEL and return a new vertex which is on this function's
-  // surface midway between VERT1 and VERT2 (for some definition of
-  // "midway").  This is the basic operation used during tessellation.
-  // VERT1 and VERT2 are guaranteed to have come from either the original
-  // basis defined by `define_basis', or from a previous call to
-  // `midpoint'; thus it is safe for subclasses to down-cast them to
-  // whatever Vertex subclass they use.
-  //
-  virtual Tessel::Vertex *midpoint (Tessel &tessel,
-				    const Tessel::Vertex *vert1,
-				    const Tessel::Vertex *vert2)
-    const;
-
-  // Return the surface position corresponding to the parameters U, V.
-  //
-  virtual Pos surface_pos (param_t u, param_t v) const;
-
-  // Return the surface normal corresponding for VERTEX.
-  // Subclass should override this method.
-  //
-  virtual Vec vertex_normal (const Vertex &vertex) const;
-};
-
-
-
-class SincTesselFun : public ParamTesselFun
-{
-public:
-
-  SincTesselFun (const Xform &_xform) : ParamTesselFun (_xform) { }
-
-protected:
-
-  // Define the initial basis edges in TESSEL.
-  //
-  virtual void define_basis (Tessel &tessel) const;
-
-  // Returns the desired sample resolution needed, given a certain error
-  // limit.
-  //
-  virtual dist_t sample_resolution (Tessel::err_t max_err) const;
-
-  // Add to TESSEL and return a new vertex which is on this function's
-  // surface midway between VERT1 and VERT2 (for some definition of
-  // "midway").  This is the basic operation used during tessellation.
-  // VERT1 and VERT2 are guaranteed to have come from either the original
-  // basis defined by `define_basis', or from a previous call to
-  // `midpoint'; thus it is safe for subclasses to down-cast them to
-  // whatever Vertex subclass they use.
-  //
-  virtual Tessel::Vertex *midpoint (Tessel &tessel,
-				    const Tessel::Vertex *vert1,
-				    const Tessel::Vertex *vert2)
-    const;
-
-  // Return the surface position corresponding to the parameters U, V.
-  //
-  virtual Pos surface_pos (param_t u, param_t v) const;
-
-  // Return the surface normal corresponding for VERTEX.
-  // Subclass should override this method.
-  //
-  virtual Vec vertex_normal (const Vertex &vertex) const;
-};
-
-
-
-class TorusTesselFun : public ParamTesselFun
-{
-public:
-
-  TorusTesselFun (dist_t _r2, const Xform &_xform);
-
-protected:
-
-  // Define the initial basis edges in TESSEL.
-  //
-  virtual void define_basis (Tessel &tessel) const;
-
-  // Returns the desired sample resolution needed, given a certain error
-  // limit.
-  //
-  virtual dist_t sample_resolution (Tessel::err_t max_err) const;
-
-  // Add to TESSEL and return a new vertex which is on this function's
-  // surface midway between VERT1 and VERT2 (for some definition of
-  // "midway").  This is the basic operation used during tessellation.
-  // VERT1 and VERT2 are guaranteed to have come from either the original
-  // basis defined by `define_basis', or from a previous call to
-  // `midpoint'; thus it is safe for subclasses to down-cast them to
-  // whatever Vertex subclass they use.
-  //
-  virtual Tessel::Vertex *midpoint (Tessel &tessel,
-				    const Tessel::Vertex *vert1,
-				    const Tessel::Vertex *vert2)
-    const;
-
-  // Return the surface position corresponding to the parameters U, V.
-  //
-  virtual Pos surface_pos (param_t u, param_t v) const;
-
-  // Return the surface normal corresponding for VERTEX.
-  // Subclasses should override this method.
-  //
-  // The result need not be normalized (it's the caller's
-  // responsibility to do so).
-  //
-  virtual Vec vertex_normal (const Vertex &vertex) const;
-
-private:
-
-  // The radius of the center-line of the torus body.
-  //
-  dist_t r1;
-
-  // The radius of the torus body.  R1 + R2 usually should be 1.
-  //
-  dist_t r2;
 };
 
 

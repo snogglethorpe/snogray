@@ -154,13 +154,14 @@ libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	 \
-	coords.h dist.h frame.h material-dict.cc material-dict.h	 \
-	material.cc material.h matrix4.cc matrix4.h matrix4.tcc medium.h \
-	octree.cc octree.h pos.h quadratic-roots.h scene.cc scene.h	 \
-	space.cc space.h space-builder.h sphere-isec.h surface.cc	 \
-	surface.h tex.h tex-coords.h tripar-isec.h tuple3.h uv.h vec.h	 \
-	xform.h xform-base.h
+libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
+	coords.h cyl-xform.cc cyl-xform.h dist.h frame.h		\
+	material-dict.cc material-dict.h material.cc material.h		\
+	matrix4.cc matrix4.h matrix4.tcc medium.h octree.cc octree.h	\
+	pos.h quadratic-roots.h scene.cc scene.h space.cc space.h	\
+	space-builder.h sphere-isec.h surface.cc surface.h tex.h	\
+	tex-coords.h tripar-isec.h tuple3.h uv.h vec.h xform.h		\
+	xform-base.h
 
 
 ################################################################
@@ -217,7 +218,8 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 	instance.cc instance.h local-surface.cc local-surface.h mesh.cc	\
 	mesh.h sphere.cc sphere.h sphere2.cc sphere2.h subspace.cc	\
 	subspace.h surface-group.cc surface-group.h tessel.cc tessel.h	\
-	tessel-funs.cc tessel-funs.h tessel-param.cc tessel-param.h	\
+	tessel-param.cc tessel-param.h tessel-sinc.cc tessel-sinc.h	\
+	tessel-sphere.cc tessel-sphere.h tessel-torus.cc tessel-torus.h	\
 	tripar.cc tripar.h
 
 

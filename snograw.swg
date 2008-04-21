@@ -87,7 +87,9 @@
 #include "cmp-tex.h"
 #include "perturb-tex.h"
 #include "rescale-tex.h"
-#include "tessel-funs.h"
+#include "tessel-sphere.h"
+#include "tessel-sinc.h"
+#include "tessel-torus.h"
 
   static char static_rep_buf[255];
 
