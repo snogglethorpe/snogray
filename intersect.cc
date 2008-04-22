@@ -84,8 +84,6 @@ bump_map (Frame &normal_frame, const Ref<const Tex<float> > &tex,
 void
 Intersect::finish_init (const UV &dTds, const UV &dTdt)
 {
-  Frame old_normal_frame = normal_frame;
-
   if (material->bump_map)
     bump_map (normal_frame, material->bump_map, tex_coords, dTds, dTdt);
 
