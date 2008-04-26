@@ -1,6 +1,6 @@
 // vec.h -- Vector datatype
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -112,10 +112,7 @@ public:
   TVec unit () const
   {
     T len = length ();
-    if (len == 0)
-      return TVec (0, 0, 0);
-    else
-      return operator* (1 / len);
+    return operator* (1 / len);
   }
 
   // Return an arbitrary vector which is perpendicular to this one.
