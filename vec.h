@@ -120,13 +120,8 @@ public:
   //
   TVec perpendicular () const
   {
-    // If VEC is pointing along the y-axis, just return some other axis.
-    // Otherwise, return VEC x (VEC x (0,1,0)).
-    //
-    if (abs (x) < Eps && abs (z) < Eps)
-      return TVec (y, 0, 0);
-    else
-      return TVec (x * y, -(z * z) - (x * x), y * z);
+    // This is [x,y,z] x [-z,x,y]
+    return TVec (y*y - x*z, -z*z - x*y, x*x + y*z);
   }
 
   T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
