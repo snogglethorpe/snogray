@@ -13,6 +13,7 @@
 #include "intersect.h"
 #include "grid-iter.h"
 #include "tripar-isec.h"
+#include "scene.h"
 
 #include "rect-light.h"
 
@@ -45,9 +46,10 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
       && isec.cos_n (org + s1 + s2) < 0)
     return 0;
 
-  // The light normal in the intersection normal frame of reference.
+  // The light normal in the intersection normal frame of reference
+  // (we actually use the negative of it in calculation below).
   //
-  Vec light_norm (isec.normal_frame.to (normal));
+  Vec neg_light_norm = -isec.normal_frame.to (normal);
 
   GridIter grid_iter (num);
 
@@ -65,9 +67,9 @@ RectLight::gen_samples (const Intersect &isec, unsigned num,
 	  const Vec s_dir = s_vec * inv_dist;
 
 	  // Area to solid-angle conversion, dw/dA
-	  //   = cos (light_normal, -sample_dir) / distance^2
+	  //   = cos (-light_normal, sample_dir) / distance^2
 	  //
-	  float dw_dA = dot (light_norm, s_dir) * inv_dist * inv_dist;
+	  float dw_dA = dot (neg_light_norm, s_dir) * inv_dist * inv_dist;
 
 	  if (dw_dA > Eps)
 	    {
@@ -97,25 +99,29 @@ RectLight::filter_samples (const Intersect &isec,
 			   const IllumSampleVec::iterator &end_sample)
   const
 {
-  // The light normal in the intersection normal frame of reference.
+  // The light normal in the intersection normal frame of reference
+  // (we actually use the negative of it in calculation below).
   //
-  Vec light_norm (isec.normal_frame.to (normal));
+  Vec neg_light_norm = -isec.normal_frame.to (normal);
+  dist_t horizon = isec.trace.scene.horizon;
 
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
     {
+      dist_t min_dist = s->light_dist;
+      if (min_dist == 0)
+	min_dist = horizon;
+
       dist_t dist, u, v;
       Ray ray (isec.normal_frame.origin,
 	       isec.normal_frame.from (s->dir),
-	       s->light_dist);
+	       min_dist);
 
       if (parallelogram_intersect (pos, side1, side2, ray, dist, u, v))
 	{
-	  dist_t dist = ray.t1;
-
 	  // Area to solid-angle conversion, dw/dA
-	  //   = cos (light_normal, -sample_dir) / distance^2
+	  //   = cos (-light_normal, sample_dir) / distance^2
 	  //
-	  float dw_dA = -dot (light_norm, s->dir) / (dist * dist);
+	  float dw_dA = dot (neg_light_norm, s->dir) / (dist * dist);
 
 	  if (dw_dA > Eps)
 	    {

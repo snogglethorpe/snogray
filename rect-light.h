@@ -27,7 +27,7 @@ public:
 	     const Color &_intensity)
     : pos (_pos), side1 (_side1), side2 (_side2),
       intensity (_intensity), area (cross (side1, side2).length ()),
-      normal (cross (_side1, _side2).unit ())
+      normal (cross (_side2, _side1).unit ())
   { }
 
   // Generate around NUM samples of this light and add them to SAMPLES.
