@@ -511,6 +511,7 @@ namespace snogray {
   {
   public:
 
+    Sphere (const Ref<Material> &mat, dist_t radius, const Frame &_frame);
     Sphere (const Ref<Material> &mat, const Pos &_center, dist_t _radius);
     Sphere (const Ref<Material> &mat, const Pos &_center, const Vec &_radius);
   };
