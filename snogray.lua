@@ -794,6 +794,8 @@ end
 --
 -- Misc surface types
 
+frame = raw.Frame
+
 sphere = raw.Sphere
 sphere2 = raw.Sphere2
 
