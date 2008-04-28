@@ -19,6 +19,7 @@
 #include "snogmath.h"
 #include "tuple3.h"
 #include "xform-base.h"
+#include "compiler.h"
 
 
 namespace snogray {
@@ -120,8 +121,11 @@ public:
   //
   TVec perpendicular () const
   {
-    // This is [x,y,z] x [-z,x,y]
-    return TVec (y*y - x*z, -z*z - x*y, x*x + y*z);
+    // This is [x,y,z] x [-z,x,y]; to avoid degenerate behavior in the
+    // case where x = z = -y, we flip z's sign if x == z.
+    //
+    T nz = unlikely (x == z) ? z : -z;
+    return TVec (y*y + x*nz, nz*nz - x*y, x*x - y*nz);
   }
 
   T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
