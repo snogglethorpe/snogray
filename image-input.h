@@ -1,6 +1,6 @@
 // image-input.h -- High-level image input
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,6 +29,10 @@ public:
     : source (ImageSource::open (filename, params)),
       width (source->width), height (source->height)
   { }
+
+  // Return true if the input has an alpha (opacity) channel.
+  //
+  bool has_alpha_channel () const { return source->has_alpha_channel (); }
 
   // Reads a row of image data into ROW
   void read_row (ImageRow &row) { source->read_row (row); }
