@@ -487,7 +487,6 @@ int main (int argc, char *const *argv)
 	width = unsigned (height * ar);
     }
 
-
   Rusage scene_end_ru;		// stop timing scene definition
 
 
@@ -535,6 +534,12 @@ int main (int argc, char *const *argv)
 	}
     }
 
+  // If the scene has a non-default background alpha set, then make sure
+  // there's an alpha-channel in the output image.
+  //
+  if (scene.background_alpha() != 1)
+    image_params.set ("alpha-channel", true);
+
   // Create output image.  The size of what we output is the same as the
   // limit (which defaults to, but is not the same as the nominal output
   // image size).
@@ -544,6 +549,15 @@ int main (int argc, char *const *argv)
   // we create the image before printing any normal output.
   //
   ImageOutput output (file_name, limit_width, limit_height, image_params);
+
+  if (image_params.get_bool ("alpha-channel,alpha")
+      && !output.has_alpha_channel())
+    {
+      std::cerr << clp.err_pfx() << file_name
+		<< ": alpha-channel not supported"
+		<< std::endl;
+      return 1;
+    }
 
   if (recover_input)
     {
