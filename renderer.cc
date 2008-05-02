@@ -162,13 +162,23 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       Ray camera_ray = camera.eye_ray (u, v, fs->u, fs->v);
       camera_ray.t1 = scene.horizon;
 
+      //
       // Cast the camera ray and calculate image color from that direction.
       //
-      Color color = illum_mgr.li (camera_ray, trace);
+
+      Ray intersected_ray (camera_ray);
+      const Surface::IsecInfo *isec_info
+	= scene.intersect (intersected_ray, trace);
+
+      Tint tint;
+      if (isec_info)
+	tint = illum_mgr.li (isec_info, trace);
+      else
+	tint = scene.background_with_alpha (camera_ray);
 
       trace.global.mempool.reset ();
 
-      output.add_sample (sx - lim_x, sy - lim_y, color);
+      output.add_sample (sx - lim_x, sy - lim_y, tint);
     }
 }
 
