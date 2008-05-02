@@ -1,6 +1,6 @@
 // val_table.h -- Tables of named values
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,22 +26,25 @@ class Val
 {
 public:
 
-  enum Type { STRING, INT, UINT, FLOAT };
+  enum Type { STRING, INT, UINT, FLOAT, BOOL };
 
   Val (std::string val) : type (STRING), _string_val (val) { }
   Val (int val) : type (INT), _int_val (val) { }
   Val (unsigned val) : type (UINT), _uint_val (val) { }
   Val (float val) : type (FLOAT), _float_val (val) { }
+  Val (bool val) : type (BOOL), _bool_val (val) { }
 
   std::string as_string () const;
   int as_int () const;
   unsigned as_uint () const;
   float as_float () const;
+  bool as_bool () const;
 
   void set (std::string val) { type = STRING; _string_val = val; }
   void set (int val) { type = INT; _int_val = val; }
   void set (unsigned val) { type = UINT; _uint_val = val; }
   void set (float val) { type = FLOAT; _float_val = val; }
+  void set (bool val) { type = BOOL; _bool_val = val; }
 
   Type type;
 
@@ -55,6 +58,7 @@ private:
     int _int_val;
     unsigned _uint_val;
     float _float_val;
+    bool _bool_val;
   };
 };
 
@@ -117,6 +121,11 @@ public:
   {
     const Val *v = get (name);
     return v ? v->as_float () : default_val;
+  }
+  bool get_bool (const std::string &name, bool default_val = false) const
+  {
+    const Val *v = get (name);
+    return v ? v->as_bool () : default_val;
   }
 
   template<typename T>

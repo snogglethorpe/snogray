@@ -1,6 +1,6 @@
 // val-table.cc -- General value lists
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@ Val::as_string () const
 	case INT: s << _int_val; break;
 	case UINT: s << _uint_val; break;
 	case FLOAT: s << _float_val; break;
+	case BOOL: s << _bool_val; break;
 	case STRING:; // make gcc happy
 	}
 
@@ -89,6 +90,8 @@ Val::as_int () const
       if (float (int (_float_val)) != _float_val)
 	type_err ("not an integer");
       return int (_float_val);
+    case BOOL:
+      return _bool_val;
     }
   return 0;	    // gcc can't seem to detect that this is unreachable?!
 }
@@ -116,6 +119,8 @@ Val::as_uint () const
       if (float (unsigned (_float_val)) != _float_val)
 	type_err ("not an integer");
       return unsigned (_float_val);
+    case BOOL:
+      return _bool_val;
     }
   return 0;	    // gcc can't seem to detect that this is unreachable?!
 }
@@ -139,7 +144,46 @@ Val::as_float () const
       return float (_uint_val);
     case FLOAT:
       return _float_val;
+    case BOOL:
+      invalid ("float");
     }
+  return 0;	    // gcc can't seem to detect that this is unreachable?!
+}
+
+bool
+Val::as_bool () const
+{
+  switch (type)
+    {
+    case STRING:
+      if (_string_val.length() == 1)
+	{
+	  char ch = _string_val[0];
+	  if (ch == '0' || ch == 'n' || ch == 'N' || ch == 'f' || ch == 'F')
+	    return false;
+	  else if(ch == '1' || ch == 'y' || ch == 'Y' || ch == 't' || ch == 'T')
+	    return true;
+	}
+      else if (_string_val == "no" || _string_val == "NO"
+	       || _string_val == "false" || _string_val == "FALSE"
+	       || _string_val == "off" || _string_val == "OFF")
+	return false;
+      else if (_string_val == "yes" || _string_val == "YES"
+	       || _string_val == "true" || _string_val == "TRUE"
+	       || _string_val == "on" || _string_val == "on")
+	return true;
+      break;
+    case INT:
+    case UINT:
+      if (! (_uint_val & ~1))
+	return _uint_val;
+      break;
+    case FLOAT:
+      break;
+    case BOOL:
+      return _bool_val;
+    }
+  invalid ("bool");
   return 0;	    // gcc can't seem to detect that this is unreachable?!
 }
 
@@ -192,6 +236,12 @@ ValTable::parse (const std::string &input)
 
   if (p_assn < inp_len)
     set (input.substr (0, p_assn), input.substr (p_assn + 1));
+  else if (input[0] == '!')
+    set (input.substr (1), false);
+  else if (input[0] == 'no-')
+    set (input.substr (3), false);
+  else
+    set (input, true);
 }
 
 void
