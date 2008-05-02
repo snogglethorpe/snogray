@@ -1,6 +1,6 @@
 // image-io.h -- Low-level image input and output
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -95,9 +95,12 @@ public:
   // std::string because most uses of this function pass constant strings
   // and std::string can create amazingly bloated code.
   //
+  void err (const std::string &msg, bool use_errno = false)
+    __attribute__ ((noreturn));
   void err (const char *msg, bool use_errno = false)
     __attribute__ ((noreturn));
-  void open_err (const char *dir, const char *msg = "", bool use_errno = false)
+  void open_err (const char *dir, const std::string &msg,
+		 bool use_errno = false)
     __attribute__ ((noreturn));
 
   std::string filename;
@@ -133,6 +136,8 @@ public:
 
   void open_err (const char *msg = "", bool use_errno = false)
     __attribute__ ((noreturn));
+  void open_err (const std::string &msg, bool use_errno = false)
+    __attribute__ ((noreturn));
 
 protected:
 
@@ -155,6 +160,8 @@ public:
   virtual ~ImageSource ();
 
   void open_err (const char *msg = "", bool use_errno = false)
+    __attribute__ ((noreturn));
+  void open_err (const std::string &msg, bool use_errno = false)
     __attribute__ ((noreturn));
 
   virtual void read_row (ImageRow &row) = 0;
