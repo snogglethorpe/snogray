@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "snogmath.h"
-#include "color.h"
+#include "tint.h"
 #include "val-table.h"
 
 
@@ -25,39 +25,43 @@ namespace snogray {
 
 // A row in an image.
 //
-class ImageRow : std::vector<Color>
+class ImageRow : std::vector<Tint>
 {
 public:
 
   ImageRow (unsigned _width = 0)
-    : std::vector<Color> (_width, 0), width (_width)
+    : std::vector<Tint> (_width, Tint (0, 0)), width (_width)
   { }
 
   // Set the value of all elements in this row to zero.
   //
-  void clear () { for (unsigned i = 0; i < width; i++) (*this)[i] = 0; }
+  void clear ()
+  {
+    for (unsigned i = 0; i < width; i++)
+      (*this)[i] = Tint (0, 0);
+  }
 
   // Set the width of this row to W, without initializing any new elements.
   //
   void resize (unsigned w)
   {
-    std::vector<Color>::resize (w);
+    std::vector<Tint>::resize (w);
     width = w;
   }
 
   // Set the width of this row to W, initializing any new elements to INIT_VAL.
   //
-  void resize (unsigned w, const Color &init_val)
+  void resize (unsigned w, const Tint &init_val)
   {
-    std::vector<Color>::resize (w, init_val);
+    std::vector<Tint>::resize (w, init_val);
     width = w;
   }
 
   // Inherit some stuff from vector
   //
-  using std::vector<Color>::operator[];
-  using std::vector<Color>::size;
-  using std::vector<Color>::at;
+  using std::vector<Tint>::operator[];
+  using std::vector<Tint>::size;
+  using std::vector<Tint>::at;
 
   unsigned width;
 };
@@ -90,6 +94,10 @@ public:
   ImageIo (const std::string &_filename, unsigned _width, unsigned _height)
     : filename (_filename), width (_width), height (_height)
   { }
+
+  // Return true if we have an alpha (opacity) channel.
+  //
+  virtual bool has_alpha_channel () const { return false; }  // by default, no
 
   // Handy functions to throw an error.  We use C strings instead of
   // std::string because most uses of this function pass constant strings
