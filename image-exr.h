@@ -25,13 +25,13 @@ class ExrImageSink : public ImageSink
 public:
 
   ExrImageSink (const std::string &filename, unsigned width, unsigned height,
-		const ValTable &params = ValTable::NONE)
-    : ImageSink (filename, width, height, params),
-      outf (filename.c_str(), width, height),
-      row_buf (width), cur_y (0)
+		const ValTable &params = ValTable::NONE);
+
+  // Return true if output has an alpha (opacity) channel.
+  //
+  virtual bool has_alpha_channel () const
   {
-    if (params.contains ("gamma"))
-      open_err ("OpenEXR format does not use gamma correction");
+    return outf.channels() & Imf::WRITE_A;
   }
 
   virtual void write_row (const ImageRow &row);
@@ -50,23 +50,20 @@ class ExrImageSource : public ImageSource
 public:
 
   ExrImageSource (const std::string &filename,
-		  const ValTable &params = ValTable::NONE)
-    : ImageSource (filename, params), outf (filename.c_str()), cur_y (0)
+		  const ValTable &params = ValTable::NONE);
+
+  // Return true if input has an alpha (opacity) channel.
+  //
+  virtual bool has_alpha_channel () const
   {
-    const Imf::Header &hdr = outf.header ();
-    const Imath::Box2i &data_window = hdr.dataWindow ();
-
-    width = data_window.max.x - data_window.min.x + 1;
-    height = data_window.max.y - data_window.min.y + 1;
-
-    row_buf.resize (width);
+    return inf.channels() & Imf::WRITE_A;
   }
 
   virtual void read_row (ImageRow &row);
 
 private:
 
-  Imf::RgbaInputFile outf;
+  Imf::RgbaInputFile inf;
 
   std::vector<Imf::Rgba> row_buf;
 

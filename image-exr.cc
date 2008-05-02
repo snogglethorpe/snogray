@@ -12,15 +12,37 @@
 
 #include "image-exr.h"
 
+
 using namespace snogray;
+
+
+// output
+
+ExrImageSink::ExrImageSink (const std::string &filename,
+			    unsigned width, unsigned height,
+			    const ValTable &params)
+  : ImageSink (filename, width, height, params),
+    outf (filename.c_str(), width, height,
+	  (params.get_bool ("alpha-channel,alpha")
+	   ? Imf::WRITE_RGBA
+	   : Imf::WRITE_RGB)),
+    row_buf (width), cur_y (0)
+{
+  if (params.contains ("gamma"))
+    open_err ("OpenEXR format does not use gamma correction");
+}
 
 void
 ExrImageSink::write_row (const ImageRow &row)
 {
   for (unsigned x = 0; x < row.width; x++)
     {
-      const Color &col = row[x];
-      Imf::Rgba rgba (col.r(), col.g(), col.b(), 1);
+      const Tint &tint = row[x];
+
+      // Note that EXR files use pre-multiplied alpha like we do.
+      //
+      Imf::Rgba rgba (tint.r(), tint.g(), tint.b(), tint.alpha);
+
       row_buf[x] = rgba;
     }
 
@@ -30,16 +52,40 @@ ExrImageSink::write_row (const ImageRow &row)
   cur_y++;
 }
 
+
+// input
+
+ExrImageSource::ExrImageSource (const std::string &filename,
+				const ValTable &params)
+  : ImageSource (filename, params), inf (filename.c_str()), cur_y (0)
+{
+  const Imf::Header &hdr = inf.header ();
+  const Imath::Box2i &data_window = hdr.dataWindow ();
+
+  width = data_window.max.x - data_window.min.x + 1;
+  height = data_window.max.y - data_window.min.y + 1;
+
+  row_buf.resize (width);
+}
+
+
 void
 ExrImageSource::read_row (ImageRow &row)
 {
-  outf.setFrameBuffer (&row_buf[0] - cur_y * row.width, 1, row.width);
-  outf.readPixels (cur_y);
+  inf.setFrameBuffer (&row_buf[0] - cur_y * row.width, 1, row.width);
+  inf.readPixels (cur_y);
 
   for (unsigned x = 0; x < row.width; x++)
     {
       const Imf::Rgba &rgba = row_buf[x];
-      row[x].set_rgb (rgba.r, rgba.g, rgba.b);
+
+      // Note that EXR files use pre-multiplied alpha like we do.
+      //
+      Tint tint;
+      tint.set_rgb (rgba.r, rgba.g, rgba.b);
+      tint.alpha = rgba.a;
+
+      row[x] = tint;
     }
 
   cur_y++;
