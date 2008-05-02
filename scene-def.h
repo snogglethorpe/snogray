@@ -1,6 +1,6 @@
 // scene-def.h -- Scene definition object
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
  Scene options:\n\
   -b, --background=BG        Use BG as a background and light-source;\n\
                                BG may be a color or a cube-map specification\n\
+  -A, --background-alpha=ALPHA Use ALPHA as the opacity of the background\n\
   -l, --light-map=LMAP       Use LMAP as an environmental light-source\n\
                                (overriding any light-source from --background)\n\
   -I, --scene-options=OPTS   Set scene options; OPTS has the format\n\
@@ -42,28 +43,33 @@
                                r[xyz] A    Rotate A degrees around [xyz]-axis\n\
                                o[xyz] A    Orbit A degrees around [xyz]-axis"
 //
-#define SCENE_DEF_SHORT_OPTIONS		"b:l:I:c:"
+#define SCENE_DEF_SHORT_OPTIONS		"b:A:l:I:c:"
 //
 #define SCENE_DEF_LONG_OPTIONS						\
     { "background",     required_argument, 0, 'b' },			\
+    { "background-alpha", required_argument, 0, 'A' },			\
+    { "bg-alpha",	required_argument, 0, 'A' },			\
     { "light-map",	required_argument, 0, 'l' },			\
     { "scene-options", 	required_argument, 0, 'I' },			\
     { "camera",		required_argument, 0, 'c' },			\
 
-#define SCENE_DEF_OPTION_CASES(clp, scene_def)				      \
-  case 'b':								      \
-    scene_def.params.set ("background", clp.opt_arg ());		      \
-    break;								      \
-  case 'l':								      \
-    scene_def.params.set ("light-map", clp.opt_arg ());			      \
-    break;								      \
-									      \
-  case 'I':								      \
+#define SCENE_DEF_OPTION_CASES(clp, scene_def)				\
+  case 'b':								\
+    scene_def.params.set ("background", clp.opt_arg ());		\
+    break;								\
+  case 'A':								\
+    scene_def.params.set ("background-alpha", clp.float_opt_arg ());	\
+    break;								\
+  case 'l':								\
+    scene_def.params.set ("light-map", clp.opt_arg ());			\
+    break;								\
+									\
+  case 'I':								\
     scene_def.params.parse (clp.opt_arg ());				\
-    break;								      \
-									      \
-  case 'c':								      \
-    scene_def.camera_cmds += clp.opt_arg ();				      \
+    break;								\
+									\
+  case 'c':								\
+    scene_def.camera_cmds += clp.opt_arg ();				\
     break;
 
 namespace snogray {

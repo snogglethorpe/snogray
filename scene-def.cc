@@ -91,6 +91,9 @@ SceneDef::load (Scene &scene, Camera &camera)
 	scene.set_light_map (load_envmap (lmap_spec, fmt));
     }
 
+  float bg_alpha = params.get_float ("background-alpha", 1);
+  scene.set_background_alpha (bg_alpha);
+
   // By default, use an environment map as a light-map too.
   //
   if (scene.env_map && !scene.light_map)
