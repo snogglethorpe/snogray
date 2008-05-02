@@ -34,7 +34,7 @@ public:
 
     void resize (unsigned width)
     {
-      pixels.resize (width, 0);
+      pixels.resize (width, Tint (0, 0));
       weights.resize (width, 0);
     }
 
@@ -52,22 +52,22 @@ public:
 	       const ValTable &params = ValTable::NONE);
   ~ImageOutput ();
 
-  // Add a sample with value COLOR at floating point position SX, SY.
-  // COLOR's contribution to adjacent pixels is determined by the
+  // Add a sample with value TINT at floating point position SX, SY.
+  // TINT's contribution to adjacent pixels is determined by the
   // anti-aliasing filter in effect; if there is none, then it is basically
   // just added to the nearest pixel.  The floating-point center of a pixel
   // is at its integer coordinates + (0.5, 0.5).
   //
-  void add_sample (float sx, float sy, const Color &color)
+  void add_sample (float sx, float sy, const Tint &tint)
   {
-    Color col = color;
+    Tint clamped = tint;
 
     if (exposure != 0)
-      col *= intensity_scale;
+      clamped *= intensity_scale;
     if (max_intens != 0)
-      col = col.clamp (max_intens);
+      clamped = clamped.clamp (max_intens);
 
-    filter_conv.add_sample (sx, sy, col, *this);
+    filter_conv.add_sample (sx, sy, clamped, *this);
   }
 
   // Write the completed portion of the output image to disk, if possible.
@@ -97,17 +97,17 @@ public:
   //
   unsigned filter_radius () const { return filter_conv.filter_radius; }
 
-  // Add a sample with value COLOR at integer coordinates PX, PY.  WEIGHT
+  // Add a sample with value TINT at integer coordinates PX, PY.  WEIGHT
   // controls how much this sample counts relative to other samples added
-  // at the same coordinates.  It is assumed that COLOR has already been
+  // at the same coordinates.  It is assumed that TINT has already been
   // scaled by WEIGHT.
   //
   // [This method is a callback used by Filterconv<ImageOutput>.]
   //
-  void add_sample (int px, int py, const Color &color, float weight)
+  void add_sample (int px, int py, const Tint &tint, float weight)
   {
     SampleRow &r = row (py);
-    r.pixels[px] += color;
+    r.pixels[px] += tint;
     r.weights[px] += weight;
   }
 
@@ -164,7 +164,7 @@ private:
   //
   std::auto_ptr<ImageSink> sink;
 
-  FilterConv<ImageOutput> filter_conv;
+  FilterConv<ImageOutput, Tint> filter_conv;
 
   // Number of rows kept buffered in memory.
   //

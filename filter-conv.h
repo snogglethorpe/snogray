@@ -1,6 +1,6 @@
 // filter-conv.h -- "Filter Convolver" for convolving samples through a filter
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -67,11 +67,11 @@ public:
 //
 // Dst should support the following methods:
 //
-//   // Add a sample with value COLOR at integer coordinates PX, PY.
+//   // Add a sample with value SAMP at integer coordinates PX, PY.
 //   // WEIGHT controls how much this sample counts relative to other samples
 //   // added at the same coordinates.
 //   //
-//   void add_sample (int px, int py, const Color &color, float weight);
+//   void add_sample (int px, int py, const Samp &samp, float weight);
 //
 //   // Return true if the given X or Y coordinate is valid.
 //   //
@@ -80,15 +80,15 @@ public:
 //   bool valid_x (int px) { return px >= 0 && px < int (width); }
 //   bool valid_y (int py) { return py >= min_y && py < int (height); }
 //
-template<class Dst>
+template<class Dst, typename Samp>
 class FilterConv : public FilterConvBase
 {
 public:
 
   FilterConv (const ValTable &params) : FilterConvBase (params) { }
 
-  // Add a sample with value COLOR at floating point position SX, SY.
-  // COLOR's contribution to adjacent pixels is determined by the
+  // Add a sample with value SAMP at floating point position SX, SY.
+  // SAMP's contribution to adjacent pixels is determined by the
   // anti-aliasing filter in effect; if there is none, then it is
   // basically just added to the nearest pixel.
 #if 1
@@ -103,7 +103,7 @@ public:
   // point coordinates.
 #endif
   //
-  void add_sample (float sx, float sy, const Color &color, Dst &dst)
+  void add_sample (float sx, float sy, const Samp &samp, Dst &dst)
   {
     // The center pixel affected
     //
@@ -111,7 +111,7 @@ public:
 
     if (filter)
       {
-	// Add the light from COLOR to all pixels supported by the
+	// Add the light from SAMP to all pixels supported by the
 	// output filter.
 	//
 	for (int fy = -filter_radius; fy <= filter_radius; fy++)
@@ -130,7 +130,7 @@ public:
 		  // be, where the filter's support area goes past the edge of
 		  // the output image), find the filter magnitude of position
 		  // SX, SY using PX, PY as the filter's center position.
-		  // This is the amount by which we scale COLOR's (which was
+		  // This is the amount by which we scale SAMP's (which was
 		  // calculated at SX, SY) contribution to the pixel PX, PY.
 		  //
 		  if (dst.valid_x (px))
@@ -141,7 +141,7 @@ public:
 
 		      // The sample weighted by the filter.
 		      //
-		      Color samp = color * w;
+		      Samp weighted_samp = samp * w;
 
 		      // Give negative filter values some special handling
 		      //
@@ -156,7 +156,7 @@ public:
 			  // some "blooming" of very bright regions, but
 			  // that's a much more pleasing effect).
 			  //
-			  float min_comp = samp.min_component ();
+			  float min_comp = weighted_samp.min_component ();
 
 			  // If the minimum color component (which should be
 			  // negative, because W is) is less that NEG_CLAMP,
@@ -167,11 +167,11 @@ public:
 			    {
 			      float clamp_scale = neg_clamp / min_comp;
 			      w *= clamp_scale;
-			      samp *= clamp_scale;
+			      weighted_samp *= clamp_scale;
 			    }
 			}
 
-		      dst.add_sample (px, py, samp, w);
+		      dst.add_sample (px, py, weighted_samp, w);
 		    }
 		}
 	  }
@@ -179,7 +179,7 @@ public:
     else
       // There's no filter, so just add to the nearest pixel
       //
-      dst.add_sample (x, y, color, 1);
+      dst.add_sample (x, y, samp, 1);
   }
 };
 
