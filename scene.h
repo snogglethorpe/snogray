@@ -19,6 +19,7 @@
 
 #include "surface.h"
 #include "light.h"
+#include "tint.h"
 #include "intersect.h"
 #include "material.h"
 #include "trace.h"
@@ -47,6 +48,17 @@ public:
   //
   Color background (const Vec &dir) const;
   Color background (const Ray &ray) const { return background (ray.dir); }
+
+  // Return the background color, with the scene "background alpha" added.
+  //
+  Tint background_with_alpha (const Vec &dir) const
+  {
+    return Tint (background (dir), bg_alpha);
+  }
+  Tint background_with_alpha (const Ray &ray) const
+  {
+    return Tint (background (ray), bg_alpha);
+  }
 
   // Return the closest surface in this scene which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
@@ -94,6 +106,10 @@ public:
   unsigned num_lights () const { return lights.size (); }
 
   void set_background (const Color &col);
+
+  float background_alpha () const { return bg_alpha; }
+  void set_background_alpha (float alpha) { bg_alpha = alpha; }
+
   void set_background (const Ref<Envmap> &env_map);
 
   void set_light_map (const Ref<Envmap> &lmap);
@@ -111,6 +127,10 @@ public:
   Color bg_color;
   Ref<Envmap> env_map;
   bool bg_set;			// true if background is non-default
+
+  // Alpha value to use for background (either BG_COLOR or ENV_MAP).
+  //
+  float bg_alpha;
 
   // Environment map used for lighting; currently this is only a
   // convenient storage place -- the actual light creation is done
