@@ -1,6 +1,6 @@
 // image-output.h -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -76,6 +76,10 @@ public:
   // a PNG output image, as that can make the resulting compression worse).
   //
   void flush () { sink->flush (); }
+
+  // Return true if the output has an alpha (opacity) channel.
+  //
+  bool has_alpha_channel () const { return sink->has_alpha_channel (); }
 
   // Make sure at least NUM rows are buffered in memory before being written.
   // NUM is a minimum -- more rows may be buffered if necessary to support
