@@ -1,6 +1,6 @@
 // image-jpeg.cc -- JPEG format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "excepts.h"
+#include "string-funs.h"
 
 #include "image-jpeg.h"
 
@@ -100,6 +101,19 @@ JpegImageSink::JpegImageSink (const std::string &filename,
 
   if (quality < 0 || quality > 100)
     open_err ("Invalid quality setting; must be in the range 0-100");
+
+  if (bytes_per_component != 1)
+    open_err ("jpeg format does not support "
+	      + stringify (bytes_per_component)
+	      + " bytes-per-component");
+
+  // Turn off any alpha-channel.
+  //
+  if (pixel_format_has_alpha_channel (pixel_format))
+    pixel_format = pixel_format_base (pixel_format);
+
+  if (pixel_format != PIXEL_FORMAT_RGB)
+    open_err ("jpeg only supports the RGB pixel format");
 
   // Open output file
 
@@ -200,8 +214,15 @@ JpegImageSource::JpegImageSource (const std::string &filename,
   else
     jpeg_err.throw_err ();
 
-  set_specs (jpeg_info.output_width, jpeg_info.output_height,
-	     jpeg_info.output_components, 8);
+  PixelFormat pxfmt;
+  if (jpeg_info.output_components == 1)
+    pxfmt = PIXEL_FORMAT_GREY;
+  else if (jpeg_info.output_components == 3)
+    pxfmt = PIXEL_FORMAT_RGB;
+  else
+    open_err ("unknown number of channels");
+
+  set_specs (jpeg_info.output_width, jpeg_info.output_height, pxfmt, 1);
 }
 
 JpegImageSource::~JpegImageSource ()

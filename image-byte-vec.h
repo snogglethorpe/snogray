@@ -1,6 +1,6 @@
 // image-byte-vec.h -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,60 +18,207 @@
 #include "snogmath.h"
 #include "image-io.h"
 
+
 namespace snogray {
 
-// Output
 
-class ByteVecImageSink : public ImageSink
+// Common data and types for byte-vec I/O.
+//
+class ByteVecIo
 {
 public:
 
+  // Supported pixel formats.
+  //
+  enum PixelFormat
+  {
+    PIXEL_FORMAT_GREY		= 1, // one grey component
+    PIXEL_FORMAT_RGB		= 2, // red, green, blue components
+
+    PIXEL_FORMAT_BASE_MASK	= 3,
+
+    PIXEL_FORMAT_ALPHA_FLAG	= 4, // additional alpha (opacity) channel
+
+    PIXEL_FORMAT_GREY_ALPHA	= PIXEL_FORMAT_GREY | PIXEL_FORMAT_ALPHA_FLAG,
+    PIXEL_FORMAT_RGBA		= PIXEL_FORMAT_RGB | PIXEL_FORMAT_ALPHA_FLAG
+  };
+
   typedef unsigned char byte;
   typedef std::vector<byte> ByteVec;
+
+  static const float DEFAULT_TARGET_GAMMA = 2.2;
+
+  ByteVecIo (PixelFormat pxfmt, unsigned _bytes_per_component,
+	     float _target_gamma);
+  ByteVecIo (const ValTable &params);
+
+  // Set the pixel format.
+  //
+  void set_pixel_format (PixelFormat pxfmt, unsigned _bytes_per_component);
+
+  // Set the target gamma correction factor that should be used when
+  // converting image bytes into internal linear values.
+  //
+  void set_target_gamma (float _target_gamma)
+  {
+    target_gamma = _target_gamma;
+  }
+
+  // Methods for operating on a PixelFormat.
+  //
+  bool pixel_format_has_alpha_channel (PixelFormat pixel_format) const
+  {
+    return pixel_format & PIXEL_FORMAT_ALPHA_FLAG;
+  }
+  PixelFormat pixel_format_base (PixelFormat pixel_format) const
+  {
+    return PixelFormat (pixel_format & ~PIXEL_FORMAT_ALPHA_FLAG);
+  }
+  PixelFormat pixel_format_add_alpha_channel (PixelFormat pixel_format) const
+  {
+    return PixelFormat (pixel_format | PIXEL_FORMAT_ALPHA_FLAG);
+  }
+
+  // What pixel format is being used.
+  //
+  PixelFormat pixel_format;
+
+  // Name of that format (used for error messages).
+  //
+  std::string pixel_format_name;
+
+  // Number of components in each pixel.
+  //
+  unsigned num_channels;
+
+  // Bytes per pixel-component (1 or 2)
+  //
+  unsigned bytes_per_component;
+
+  // TARGET_GAMMA is the gamma factor the final _target_ (e.g. a
+  // display) would file would use when displaying an image being read:
+  //
+  //    DISPLAY_VAL = FILE_VAL ^ TARGET_GAMMA.
+  //
+  // The actual transformation we apply depends on the I/O direction;
+  // for reading, it's the same as TARGET_GAMMA (as we're "the target"),
+  // and for writing it's the inverse (as we want to correct for the
+  // eventual transformation the real target will apply, thus the term
+  // "gamma correction").
+  //
+  // This value should be set by subclass when appropriate (in many
+  // cases it's read from the file header, so can't actually be passed
+  // during superclass construction time, but should be set as soon as
+  // it is known).
+  //
+  // Note that in some cases, the value stored in a file may be it may
+  // be the inverse of this.  For instance in the case of the PNG
+  // format, the value in a "gAMA chunk" is the correction value
+  // _applied at image encoding time_; we invert that upon reading to
+  // get TARGET_GAMMA.
+  //
+  float target_gamma;
+};
+
+
+// Output
+
+class ByteVecImageSink : public ImageSink, public ByteVecIo
+{
+public:
 
   ByteVecImageSink (const std::string &filename,
 		    unsigned width, unsigned height,
 		    const ValTable &params = ValTable::NONE);
 
-  // We define these
+  // Return true if output has an alpha (opacity) channel.
+  //
+  virtual bool has_alpha_channel () const
+  {
+    return pixel_format_has_alpha_channel (pixel_format);
+  }
+
+  // We define these, and our superclass calls them.
   //
   virtual void write_row (const ImageRow &row);
   virtual float max_intens () const;
 
-  // Subclasses should define this instead of the generic write_row
+  // Subclasses should define this (instead of the generic write_row),
+  // and we will call it.
   //
   virtual void write_row (const ByteVec &byte_vec) = 0;
 
-  // Floating-point to byte conversion
+protected:
+
+  // Floating-point to integer and range conversion for color
+  // components.
   //
-  byte color_component_to_byte (Color::component_t com)
+  unsigned color_component_to_int (Color::component_t com) const
   {
-    if (com < 0)
-      return 0;
+    com = max (com, 0.f);
 
     if (gamma_correction != 0)
       com = pow (com, gamma_correction);
 
-    if (com >= 0.9999)
-      return 255;
-    else
-      return byte (256.0 * com);
+    return unsigned (min (com * component_scale, max_component));
   }
 
-  // TARGET_GAMMA is the gamma correction factor the _target_ (e.g. a display)
-  // uses when it eventually reads the image we're writing:
+  // Floating-point to integer and range conversion for alpha
+  // component (which isn't gamma corrected).
   //
-  //   DISPLAY_VAL = IMAGE_VAL ^ TARGET_GAMMA.
+  unsigned alpha_component_to_int (Tint::alpha_t alpha) const
+  {
+    return unsigned (clamp (alpha * component_scale, 0.f, max_component));
+  }
+
+  void put_int_component (ByteVec::iterator &byte_ptr, unsigned com) const
+  {
+    // Assumes big-endian
+
+    if (bytes_per_component == 2)
+      *byte_ptr++ = (com >> 8) & 0xFF;
+
+    *byte_ptr++ = com & 0xFF;
+  }
+
+  void put_color_component (ByteVec::iterator &byte_ptr,
+			    Color::component_t com)
+    const
+  {
+    put_int_component (byte_ptr, color_component_to_int (com));
+  }
+  void put_alpha_component (ByteVec::iterator &byte_ptr,
+			    Color::component_t com)
+    const
+  {
+    put_int_component (byte_ptr, alpha_component_to_int (com));
+  }
+
+  // Scale factor to convert from our internal range of [0, 1] to the
+  // external representation's integer range of [0, 2^bit_depth - 1].
   //
+  // This is just 2^bit_depth (note that this isn't the reciprocal of
+  // the scale factor used during input).
+  //
+  Color::component_t component_scale;
+
+  // Maximum component value.
+  //
+  Color::component_t max_component;
+
   // GAMMA_CORRECTION is the gamma-correction factor _we_ use to
-  // "correct" for the target's calculation:
+  // "correct" for the final target's gamma.  The final target
+  // essentially applies the transformation:
   //
-  //   IMAGE_VAL = SOURCE_VAL ^ GAMMA_CORRECTION.
+  //   DISPLAY_VAL = FILE_VAL ^ TARGET_GAMMA.
   //
-  // Since GAMMA_CORRECTION == 1 / TARGET_GAMMA, the overall result is
-  // that DISPLAY_VAL == SOURCE_VAL, which is our goal.
+  // so to compensate for this, when writing to the file, we do:
   //
-  float target_gamma, gamma_correction;
+  //   FILE_VAL = SOURCE_VAL ^ (1 / TARGET_GAMMA)
+  //
+  // Thus GAMMA_CORRECTION == 1 / TARGET_GAMMA.
+  //
+  float gamma_correction;
 
 private:
 
@@ -83,41 +230,27 @@ private:
 
 // Input
 
-class ByteVecImageSource : public ImageSource
+class ByteVecImageSource : public ImageSource, public ByteVecIo
 {
 public:
-
-  typedef unsigned char byte;
-  typedef std::vector<byte> ByteVec;
-
-  static const float DEFAULT_SOURCE_GAMMA = 2.2;
  
   ByteVecImageSource (const std::string &filename, const ValTable &params);
 
-  // We define this
+  // Return true if input has an alpha (opacity) channel.
+  //
+  virtual bool has_alpha_channel () const
+  {
+    return pixel_format_has_alpha_channel (pixel_format);
+  }
+
+  // We define this, and our superclass calls it.
   //
   virtual void read_row (ImageRow &row);
 
-  // Subclasses should define this instead of the generic read_row.
+  // Subclasses should define this (instead of the generic read_row),
+  // and we will call it.
   //
   virtual void read_row (std::vector<byte> &byte_vec) = 0;
-
-  // Explicit gamma-correction factor:
-  //
-  //    FINAL_VAL = IMAGE_VAL ^ GAMMA_CORRECTION
-  //
-  // Should be set by subclass when appropriate (in many cases it's read
-  // from the file header, so can't actually be passed during superclass
-  // construction time, but should be set as soon as it is known).
-  //
-  // Note that when the gamma correction is stored in the file itself,
-  // it may be the inverse of this -- for instance in the case of the
-  // PNG format, the value in a "gAMA chunk" is the correction value
-  // _applied at image encoding time_; our value of GAMMA_CORRECTION
-  // needs to be the inverse of that, to invert the encoding
-  // transformation.
-  //
-  float gamma_correction;
 
 protected:
 
@@ -125,31 +258,25 @@ protected:
   // setting up stuff.
   //
   void set_specs (unsigned _width, unsigned _height,
-		  unsigned _num_channels = 3, unsigned bit_depth = 8);
+		  PixelFormat pxfmt = PIXEL_FORMAT_RGB,
+		  unsigned _bytes_per_component = 1);
 
-  // Set the gamma correction factor that should be used when converting
-  // image bytes into internal linear values.
-  //
-  void set_gamma_correction (float _gamma_correction)
-  {
-    gamma_correction = _gamma_correction;
-  }
-
-  Color::component_t int_to_color_component (unsigned int_cc)
+  Color::component_t int_to_color_component (unsigned int_cc) const
   {
     Color::component_t com = int_cc * component_scale;
-    com = pow (com, gamma_correction); // undo gamma correction
+    com = pow (com, target_gamma); // undo gamma correction
     return com;
   }
-  Color::component_t int_to_alpha_component (unsigned int_alpha)
+  Color::component_t int_to_alpha_component (unsigned int_alpha) const
   {
-    return int_alpha * component_scale;
+    return int_alpha * component_scale; // alpha doesn't use gamma correction
   }
 
-  unsigned next_int_component (ByteVec::const_iterator &byte_ptr)
+  unsigned get_int_component (ByteVec::const_iterator &byte_ptr) const
   {
     if (bytes_per_component == 2)
       {
+	// Assumes big-endian
 	byte b0 = *byte_ptr++;
 	byte b1 = *byte_ptr++;
 	return b1 + (b0 << 8);
@@ -159,43 +286,36 @@ protected:
   }
 
   Color::component_t
-  next_color_component (ByteVec::const_iterator &byte_ptr)
+  get_color_component (ByteVec::const_iterator &byte_ptr) const
   {
-    return int_to_color_component (next_int_component (byte_ptr));
+    return int_to_color_component (get_int_component (byte_ptr));
   }
   Color::component_t
-  next_alpha_component (ByteVec::const_iterator &byte_ptr)
+  get_alpha_component (ByteVec::const_iterator &byte_ptr) const
   {
-    return int_to_alpha_component (next_int_component (byte_ptr));
+    return int_to_alpha_component (get_int_component (byte_ptr));
   }
 
 private:
 
-  // A single row of bytes we use as temporary storage during input
+  // Scale factor to convert from the external representation's integer
+  // range of [0, 2^bit_depth - 1] to our internal range of [0, 1].
   //
-  ByteVec input_row;
-
-  // Bytes per pixel-component (1 or 2)
-  //
-  unsigned bytes_per_component;
-
-  // Scale we use for each pixel component, converting from the integer
-  // range [0, 2^bit_depth) to [0, 1]
+  // To ensure that the source input range covers the full destination
+  // range, this is 1 / (2^bit_depth - 1).  Note that this isn't the
+  // reciprocal of the scale factor used during output.
   //
   Color::component_t component_scale;
 
-  // Number of components in each pixel:  1 is grey-scale, 2 is
-  // grey-scale-with-alpha, 3 is RGB, and 4 is RGBA.  We expect
-  // components of each pixel to be packed into the rows in exactly
-  // those orders (G, GA, RGB, RGBA), and 2-byte components to be in
-  // big-endian order.  [These follow libpng's conventions, and are
-  // sufficient to support libjpeg]
+  // A single row of bytes we use as temporary storage during input
   //
-  unsigned num_channels;
+  ByteVec input_row;
 };
+
 
 }
 
-#endif /* __IMAGE_INT_VEC_H__ */
+#endif // __IMAGE_BYTE_VEC_H__
+
 
 // arch-tag: e442d880-ba85-423e-8b1c-e3c4d9500528

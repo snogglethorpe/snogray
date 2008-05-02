@@ -49,8 +49,23 @@ PngImageSink::PngImageSink (const std::string &_filename,
   : ByteVecImageSink (_filename, width, height, params),
     PngErrState (filename)
 {
-  // Open output file
+  volatile unsigned color_type;	// volatile because we use setjmp below
+  switch (pixel_format)
+    {
+    case PIXEL_FORMAT_GREY:
+      color_type = PNG_COLOR_TYPE_GRAY; break;
+    case PIXEL_FORMAT_GREY_ALPHA:
+      color_type = PNG_COLOR_TYPE_GRAY_ALPHA; break;
+    case PIXEL_FORMAT_RGB:
+      color_type = PNG_COLOR_TYPE_RGB; break;
+    case PIXEL_FORMAT_RGBA:
+      color_type = PNG_COLOR_TYPE_RGB_ALPHA; break;
+    default:
+      open_err ("unsupported pixel-format: " + pixel_format_name);
+    }
 
+  // Open output file
+  //
   stream = fopen (filename.c_str(), "wb");
   if (! stream)
     open_err ("", true);
@@ -85,7 +100,7 @@ PngImageSink::PngImageSink (const std::string &_filename,
   // Write file header
 
   png_set_IHDR (libpng_struct, libpng_info, width, height,
-		8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+		bytes_per_component * 8, color_type, PNG_INTERLACE_NONE,
 		PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
   png_set_gAMA (libpng_struct, libpng_info, gamma_correction);
 
@@ -188,19 +203,19 @@ PngImageSource::PngImageSource (const std::string &_filename,
 
   double encoding_gamma_correction;
   if (png_get_gAMA (libpng_struct, libpng_info, &encoding_gamma_correction))
-    set_gamma_correction (1 / encoding_gamma_correction);
+    set_target_gamma (1 / encoding_gamma_correction);
 
-  unsigned _num_channels;
+  PixelFormat pxfmt;
   switch (color_type)
     {
-    case PNG_COLOR_TYPE_GRAY:		_num_channels = 1; break;
-    case PNG_COLOR_TYPE_GRAY_ALPHA:	_num_channels = 2; break;
-    case PNG_COLOR_TYPE_RGB:		_num_channels = 3; break;
-    case PNG_COLOR_TYPE_RGB_ALPHA:	_num_channels = 4; break;
+    case PNG_COLOR_TYPE_GRAY:	    pxfmt = PIXEL_FORMAT_GREY; break;
+    case PNG_COLOR_TYPE_GRAY_ALPHA: pxfmt = PIXEL_FORMAT_GREY_ALPHA; break;
+    case PNG_COLOR_TYPE_RGB:	    pxfmt = PIXEL_FORMAT_RGB; break;
+    case PNG_COLOR_TYPE_RGB_ALPHA:  pxfmt = PIXEL_FORMAT_RGBA; break;
 
     case PNG_COLOR_TYPE_PALETTE:
       png_set_palette_to_rgb (libpng_struct);
-      _num_channels = 3;
+      pxfmt = PIXEL_FORMAT_RGB;
       break;
 
     default:
@@ -216,14 +231,17 @@ PngImageSource::PngImageSource (const std::string &_filename,
 
   // Convert a tRNS chunk to a full alpha channel.
   //
-  if (png_get_valid (libpng_struct, libpng_info, PNG_INFO_tRNS)
-      && (_num_channels == 1 || _num_channels == 3))
+  if (png_get_valid (libpng_struct, libpng_info, PNG_INFO_tRNS))
     {
       png_set_tRNS_to_alpha (libpng_struct);
-      _num_channels++;
+      pxfmt = pixel_format_add_alpha_channel (pxfmt);
     }
 
-  set_specs (_width, _height, _num_channels, _bit_depth);
+  // We allocate either one or two bytes per pixel per channel
+  //
+  unsigned _bytes_per_component = (_bit_depth <= 8) ? 1 : 2;
+
+  set_specs (_width, _height, pxfmt, _bytes_per_component);
 }
 
 PngImageSource::~PngImageSource ()
