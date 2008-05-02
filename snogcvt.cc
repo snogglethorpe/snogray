@@ -1,6 +1,6 @@
 // snogcvt.cc -- Image-type conversion utility
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -186,9 +186,20 @@ int main (int argc, char *const *argv)
 	dst_params.set ("filter", "none");
     }
 
+  // If the input has an alpha-channel, try to preserve it.
+  //
+  if (src.has_alpha_channel ())
+    dst_params.set ("alpha-channel", true);
+
   // Open the output image.
   //
-  ImageOutput dst (clp.get_arg(), dst_width, dst_height, dst_params);
+  std::string dst_name = clp.get_arg ();
+  ImageOutput dst (dst_name, dst_width, dst_height, dst_params);
+
+  if (src.has_alpha_channel() && !dst.has_alpha_channel())
+    std::cerr << clp.err_pfx()
+	      << dst_name << ": warning: alpha-channel not preserved"
+	      << std::endl;
 
   // Open the underlay image if necessary.
   //
