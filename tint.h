@@ -1,6 +1,6 @@
 // tint.h -- Tint is color + alpha channel
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,103 +15,131 @@
 
 #include "color.h"
 
+
 namespace snogray {
 
+
+// A "tint" is a color with an added alpha (opacity) channel.
+//
+// A "pre-multiplied alpha" representation is used, meaning each color
+// component implicitly reflects the alpha value.  This makes
+// calculations much simpler (the downside is precision, but we have
+// plenty).
+//
 class Tint : public Color
 {
 public:
 
-  typedef float alpha_t;
+  typedef Color::component_t alpha_t;
 
-  static const Tint black, white, funny;
+  // As with Color, the default constructor doesn't initialize anything
+  // (see the Color::Color comment for more detail).
+  //
+  Tint () { }
 
-  Tint (component_t _r = 0, component_t _g = 0, component_t _b = 0,
-	alpha_t _a = 1)
-    : Color (_r, _g, _b), a (_a)
+  Tint (const Tint &tint) : Color (tint), alpha (tint.alpha) { }
+
+  // For our constructor, we accept anything convertible to a color.
+  //
+  template<typename T>
+  Tint (const T &col, alpha_t _alpha = 1)
+    : Color (col * _alpha), alpha (_alpha)
   { }
 
-  Tint lit_by (const Tint &light_color) const
+  // Addition doesn't necessarily make much sense for a tint in general,
+  // but is useful for accumulating samples.
+  //
+  Tint &operator+= (const Tint &tint)
   {
-    return Tint (r * light_color.r, g * light_color.g, b * light_color.b, a);
+    Color::operator+= (tint);
+    alpha += tint.alpha;
+    return *this;
   }
 
-  bool operator== (const Tint &tint2) const
-  {
-    return r == tint2.r && g == tint2.g && b == tint2.b && a == tint2.a;
-  }
-  bool operator== (const Color &col2) const
-  {
-    return r * a == col2.r && g * a == col2.g && b * a == col2.b;
-  }
+  // Multiplication by a scalar.
+  //
+  Tint operator* (float scale) const	{ return mul (scale); }
+  Tint operator* (double scale) const	{ return mul (scale); }
+  Tint operator* (int scale) const	{ return mul (scale); }
+  //Tint operator* (unsigned scale) const { return mul (scale); }
+  Tint &operator*= (float scale)	{ return mul_assn (scale); }
+  Tint &operator*= (double scale)	{ return mul_assn (scale); }
+  Tint &operator*= (int scale)		{ return mul_assn (scale); }
+  Tint &operator*= (unsigned scale)	{ return mul_assn (scale); }
 
-  Tint operator+ (const Tint &tint2) const
-  {
-    if (a == tint2.a)
-      return Tint (r + tint2.r, g + tint2.g, b + tint2.b, a);
-    else if (alpa > tint2.a)
-      {
-	a_t adj2 = tint2.a / a;
-	return Tint (r + adj2 * tint2.r, g + adj2 * tint2.g, b + adj2 * tint2.b,
-		     a);
-      }
-    else // tint2.a > a
-      {
-	a_t adj = a / tint2.a;
-	return Tint (adj * r + tint2.r, adj * g + tint2.g, adj * b + tint2.b,
-		     tint2.a);
-      }
-  }
+  // Division by a scalar.
+  //
+  Tint operator/ (float denom) const	{ return div (denom); }
+  Tint operator/ (double denom) const	{ return div (denom); }
+  Tint operator/ (int denom) const	{ return div (denom); }
+  Tint operator/ (unsigned denom) const { return div (denom); }
+  Tint &operator/= (float denom)	{ return div_assn (denom); }
+  Tint &operator/= (double denom)	{ return div_assn (denom); }
+  Tint &operator/= (int denom)		{ return div_assn (denom); }
+  Tint &operator/= (unsigned denom)	{ return div_assn (denom); }
 
-  void operator+= (const Tint &tint2)
+  Tint clamp (float max_intens) const
   {
-    if (a == tint2.a)
-      {
-	r += tint2.r;
-	g += tint2.g;
-	b += tint2.b;
-      }
-    else if (alpa > tint2.a)
-      {
-	alpha_t adj2 = tint2.a / a;
-	r += adj2 * tint2.r;
-	g += adj2 * tint2.g;
-	b += adj2 * tint2.b;
-      }
-    else // tint2.a > a
-      {
-	alpha_t adj = a / tint2.a;
-	r = adj * r + tint2.r;
-	g = adj * g + tint2.g;
-	b = adj * b + tint2.b;
-	a = tint2.a;
-      }
+    Tint rval;
+    for (unsigned c = 0; c < NUM_COMPONENTS; c++)
+      rval[c] = min ((*this)[c], max_intens);
+    rval.alpha = alpha;
+    return rval;
+  }
+  Color clamp (float min_intens, float max_intens) const
+  {
+    Tint rval;
+    for (unsigned c = 0; c < NUM_COMPONENTS; c++)
+      rval[c] = min (max ((*this)[c], min_intens), max_intens);
+    rval.alpha = alpha;
+    return rval;
   }
 
-  float intensity () const { return a * (r + g + b) / 3; }
+  alpha_t alpha;
 
-  Color clamp (float max_intens) const
+private:
+
+  template<typename T>
+  Tint mul (T scale) const
   {
-    component_t _r = r, _g = g, _b = b;
-    if (_r > max_intens)
-      _r = max_intens;
-    if (_g > max_intens)
-      _g = max_intens;
-    if (_b > max_intens)
-      _b = max_intens;
-    return Tint (_r, _g, _b, a);
+    // The following loop is basically the Color operator* definition,
+    // manually expanded.  Just invoking the existing definition doesn't
+    // seem to generate good code, probably because the compiler gets
+    // confused passing temporary objects around.
+
+    Tint rval;
+    for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
+      rval[c] = (*this)[c] * scale;
+
+    rval.alpha = alpha * scale;
+
+    return rval;
   }
 
-  alpha_t a;
+  template<typename T>
+  Tint &mul_assn (T scale)
+  {
+    Color::operator*= (scale);
+    alpha *= scale;
+    return *this;
+  }
+
+  template<typename T>
+  Tint div (T denom) const
+  {
+    return operator* (1 / component_t (denom));
+  }
+
+  template<typename T>
+  Tint &div_assn (T denom)
+  {
+    return operator*= (1 / component_t (denom));
+  }
 };
 
-// Convert from Tint to Color
-static inline Color operator(Color) (const Tint &tint)
-{
-  return Color (tint.a * tint.r, tint.a * tint.g, tint.a * tint.b);
-}
 
 }
 
-#endif /* __TINT_H__ */
+#endif // __TINT_H__
 
 // arch-tag: 1177d068-efe9-45fb-a517-379d07bd3609

@@ -324,7 +324,7 @@ libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
 	file-funs.h freelist.cc freelist.h globals.cc globals.h grab.h	\
 	interp.h llist.h mempool.cc mempool.h pool.h rand.h ref.h	\
 	rusage.h snogmath.h string-funs.cc string-funs.h timeval.cc	\
-	timeval.h val-table.cc val-table.h
+	timeval.h tint.h val-table.cc val-table.h
 
 
 ################################################################
