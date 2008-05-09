@@ -241,24 +241,7 @@ ByteVecImageSource::read_row (ImageRow &row)
       else
 	g = b = r;
 
-      if (alpha_channel)
-	{
-	  a = get_alpha_component (p);
-
-	  // We use a "pre-multiplied alpha" representation, whereas
-	  // most byte-oriented RGBA formats use a "separate alpha"
-	  // representation (because that avoids precision problems with
-	  // the small range of the components).
-	  //
-	  // Convert the input representation to pre-multiplied form by
-	  // multiplying each color component by the alpha value.
-	  //
-	  r *= a;
-	  g *= a;
-	  b *= a;
-	}
-      else
-	a = 1;
+      a = alpha_channel ? get_alpha_component (p) : 1;
 
       row[x] = Tint (Color (r, g, b), a);
     }
