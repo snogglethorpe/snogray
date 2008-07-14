@@ -674,6 +674,12 @@ namespace snogray {
 
     void compute_vertex_normals (float max_angle = 45 * PIf / 180);
 
+    Pos vertex (vert_index_t index) const;
+    Vec vertex_normal (vert_index_t index) const;
+
+    unsigned num_vertices () const;
+    unsigned num_triangles () const;
+
     void transform (Xform &xform);
 
     bool left_handed;
