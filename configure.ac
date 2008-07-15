@@ -558,18 +558,19 @@ if test "$GXX" = yes; then
 
   # g++ flags for architecture-independent floating-point optimization.
   #
-  # When given the -ffast-math option, g++ will by default speculatively
-  # evaluate floating-point expressions even if they may trap (e.g.,
-  # divide).  The -ftrapping-math option causes g++ to be more careful
-  # in such cases, so use that if we're going to enable floating-point
-  # exceptions.
+  # -ffast-math turns on -ffinite-math-only by default, but in rare cases,
+  # it's possible for infinity to be generated, so we use
+  # -fno-finite-math-only to override that.
   #
+  # When given the -ffast-math option, g++ will by default speculatively
+  # evaluate floating-point expressions even if they may trap (e.g., divide).
+  # The -ftrapping-math option causes g++ to be more careful in such cases,
+  # so use that if we're going to enable floating-point exceptions.
+  #
+  CXX_MATH_OPT_FLAGS="-ffast-math"
+  CXX_MATH_REQ_FLAGS="-fno-finite-math-only"   # we allow infinity
   if test "$use_fp_exceptions" = yes; then
-    CXX_MATH_OPT_FLAGS="-ffast-math"
-    CXX_MATH_REQ_FLAGS="-ftrapping-math"
-  else
-    CXX_MATH_OPT_FLAGS="-ffast-math"
-    CXX_MATH_REQ_FLAGS=""
+    CXX_MATH_REQ_FLAGS="$CXX_MATH_REQ_FLAGS -ftrapping-math"
   fi
 
   # Validate extra optimization flags.

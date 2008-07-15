@@ -71,11 +71,16 @@ enable_fp_exceptions ()
 
   fexcept_t fexcepts = 0;
 
+  //
+  // We don't enable exceptions for underflow or overflow, because these can
+  // occur in normal usage, especially using single-precision floating point
+  // (although even then, overflow is pretty rare), it's somewhat annoying to
+  // explicitly guard against them, and typically the best thing to do is
+  // just let them become zero or infinity.
+  //
+
 #ifdef FE_DIVBYZERO
   fexcepts |= FE_DIVBYZERO;
-#endif
-#ifdef FE_OVERFLOW
-  fexcepts |= FE_OVERFLOW;
 #endif
 #ifdef FE_INVALID
   fexcepts |= FE_INVALID;

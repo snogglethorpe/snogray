@@ -117,6 +117,13 @@ RecursIllum::lo (const Intersect &isec,
 	    val = isec.trace.scene.background (isec.normal_frame.from (s->dir));
 	  }
 
+	//
+	// The multiplications below are a potential point of overflow.  When
+	// a that happens, VAL becomes an IEEE infinity.  However, perhaps it
+	// would be better to clamp VAL to FLT_MAX instead of letting the
+	// infinity propagate?
+	//
+
 	val *= s->brdf_val;
 
 	if (s->brdf_pdf > Eps)
