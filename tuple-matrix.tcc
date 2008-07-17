@@ -159,7 +159,7 @@ TupleMatrixData<DT>::load (ImageInput &src, unsigned border)
       src.read_row (row);
 
       for (unsigned x = 0; x < src.width; x++)
-	set_pixel (x + border, y + border, row[x]);
+	set_pixel (x + border, y + border, row[x].color);
 
       for (unsigned b = 0; b < border; b++)
 	{

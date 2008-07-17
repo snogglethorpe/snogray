@@ -1,6 +1,6 @@
 // image-ppm.cc -- PPM/PGM/PBM format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ PpmImageSink::write_row (const ImageRow &row)
 
   for (unsigned x = 0; x < width; x++)
     {
-      const Color &col = row[x];
+      const Color &col = row[x].alpha_scaled_color ();
       PPM_ASSIGN (output_row[x],
 		  color_component_to_pixval (col.r()),
 		  color_component_to_pixval (col.g()),

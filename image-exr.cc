@@ -1,6 +1,6 @@
 // image-exr.cc -- EXR format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -38,10 +38,11 @@ ExrImageSink::write_row (const ImageRow &row)
   for (unsigned x = 0; x < row.width; x++)
     {
       const Tint &tint = row[x];
+      const Color &col = tint.alpha_scaled_color ();
 
       // Note that EXR files use pre-multiplied alpha like we do.
       //
-      Imf::Rgba rgba (tint.r(), tint.g(), tint.b(), tint.alpha);
+      Imf::Rgba rgba (col.r(), col.g(), col.b(), tint.alpha);
 
       row_buf[x] = rgba;
     }
@@ -82,8 +83,7 @@ ExrImageSource::read_row (ImageRow &row)
       // Note that EXR files use pre-multiplied alpha like we do.
       //
       Tint tint;
-      tint.set_rgb (rgba.r, rgba.g, rgba.b);
-      tint.alpha = rgba.a;
+      tint.set_scaled_rgba (rgba.r, rgba.g, rgba.b, rgba.a);
 
       row[x] = tint;
     }

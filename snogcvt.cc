@@ -245,8 +245,7 @@ int main (int argc, char *const *argv)
 	  underlay->read_row (underlay_row);
 
 	  for (unsigned x = 0; x < src.width; x++)
-	    if (underlay_row[x] > src_row[x])
-	      src_row[x] = underlay_row[x];
+	    src_row[x] = max (src_row[x], underlay_row[x]);
 	}
 
       // Write to the output image, scaling as necessary.

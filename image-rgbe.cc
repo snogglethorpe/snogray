@@ -1,6 +1,6 @@
 // image-rgbe.cc -- Radiance RGBE / .hdr (aka .pic) format image handling
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -146,7 +146,7 @@ RgbeImageSink::write_row (const ImageRow &row)
   // Transform our internal color format to RGBE encoded colors.
   //
   for (unsigned i = 0; i < width; i++)
-    row_buf[i] = row[i];
+    row_buf[i] = row[i].alpha_scaled_color ();
 
   // Write the various components of the RGBE-encoded colors in
   // run-length-encoded form.

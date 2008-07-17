@@ -1,6 +1,6 @@
 // snogdiff.cc -- Image-comparison utility
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -131,7 +131,7 @@ int main (int argc, char *const *argv)
 
       for (unsigned x = 0; x < width; x++)
 	{
-	  Color p = row1[x] - row2[x];
+	  Color p = row1[x].alpha_scaled_color() - row2[x].alpha_scaled_color();
 
 	  // We care about the absolute value of the difference
 	  // (negative values aren't useful), so invert any negative

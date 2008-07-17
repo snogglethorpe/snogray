@@ -19,17 +19,18 @@
 namespace snogray {
 
 
-// A "tint" is a color with an added alpha (opacity) channel.
+// A "tint" is a color plus an alpha (opacity) channel.
 //
-// A "pre-multiplied alpha" representation is used, meaning each color
-// component implicitly reflects the alpha value.  This makes
-// calculations much simpler (the downside is precision, but we have
-// plenty).
+// The color component is kept using a "pre-multiplied alpha"
+// representation, meaning each color component implicitly reflects the
+// alpha value.  This makes calculations much simpler (the downside is
+// precision, but we have plenty).
 //
-class Tint : public Color
+class Tint
 {
 public:
 
+  typedef Color::component_t component_t;
   typedef Color::component_t alpha_t;
 
   // As with Color, the default constructor doesn't initialize anything
@@ -37,21 +38,42 @@ public:
   //
   Tint () { }
 
-  Tint (const Tint &tint) : Color (tint), alpha (tint.alpha) { }
+  Tint (const Tint &tint) : color (tint.color), alpha (tint.alpha) { }
 
   // For our constructor, we accept anything convertible to a color.
   //
   template<typename T>
-  Tint (const T &col, alpha_t _alpha = 1)
-    : Color (col * _alpha), alpha (_alpha)
+  Tint (const T &col, alpha_t _alpha)
+    : color (col * _alpha), alpha (_alpha)
   { }
+  template<typename T>
+  Tint (const T &col)
+    : color (col), alpha (1)
+  { }
+
+  // Return the color portion of this tint, scaled by the alpha value.
+  //
+  // As that is the form Tint stores the value in, this method just
+  // returns a reference to the stored value.
+  //
+  const Color &alpha_scaled_color () const { return color; }
+
+  // Return the color portion of this tint, unscaled by any alpha value.
+  //
+  Color unscaled_color () const
+  {
+    if (alpha == 0)
+      return 0;
+    else
+      return color / alpha;
+  }
 
   // Addition doesn't necessarily make much sense for a tint in general,
   // but is useful for accumulating samples.
   //
   Tint &operator+= (const Tint &tint)
   {
-    Color::operator+= (tint);
+    color += tint.color;
     alpha += tint.alpha;
     return *this;
   }
@@ -81,20 +103,57 @@ public:
   Tint clamp (float max_intens) const
   {
     Tint rval;
-    for (unsigned c = 0; c < NUM_COMPONENTS; c++)
-      rval[c] = min ((*this)[c], max_intens);
+    rval.color = color.clamp (max_intens);
     rval.alpha = alpha;
     return rval;
   }
-  Color clamp (float min_intens, float max_intens) const
+  Tint clamp (float min_intens, float max_intens) const
   {
     Tint rval;
-    for (unsigned c = 0; c < NUM_COMPONENTS; c++)
-      rval[c] = min (max ((*this)[c], min_intens), max_intens);
+    rval.color = color.clamp (min_intens, max_intens);
     rval.alpha = alpha;
     return rval;
   }
 
+  // Inherit Color behavior for these methods.  Note that they will operate
+  // on the color scaled by alpha.
+  //
+  component_t min_component () const { return color.min_component(); }
+  component_t max_component () const { return color.max_component(); }
+
+  // Set this tint to the color R,G,B and alpha A, where R, G, and B have
+  // already been scaled by A.
+  //
+  void set_scaled_rgba (component_t r, component_t g, component_t b, alpha_t a)
+  {
+    color.set_rgb (r, g, b);
+    alpha = a;
+  }
+
+  // Set this tint to the color R,G,B and alpha A, where R, G, and B have
+  // have _not_ been scaled by A.
+  //
+  void set_unscaled_rgba (component_t r, component_t g, component_t b,
+			  alpha_t a)
+  {
+    color.set_rgb (r * a, g * a, b * a);
+    alpha = a;
+  }
+
+  // Set this tint to the color R,G,B and an alpha of 1.
+  //
+  void set_rgb (component_t r, component_t g, component_t b)
+  {
+    color.set_rgb (r, g, b);
+    alpha = 1;
+  }
+
+  // The color of this tint in pre-multiplied alpha form.
+  //
+  Color color;
+
+  // The alpha channel.
+  //
   alpha_t alpha;
 
 private:
@@ -102,24 +161,16 @@ private:
   template<typename T>
   Tint mul (T scale) const
   {
-    // The following loop is basically the Color operator* definition,
-    // manually expanded.  Just invoking the existing definition doesn't
-    // seem to generate good code, probably because the compiler gets
-    // confused passing temporary objects around.
-
     Tint rval;
-    for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
-      rval[c] = (*this)[c] * scale;
-
+    rval.color = color * scale;
     rval.alpha = alpha * scale;
-
     return rval;
   }
 
   template<typename T>
   Tint &mul_assn (T scale)
   {
-    Color::operator*= (scale);
+    color *= scale;
     alpha *= scale;
     return *this;
   }
@@ -136,6 +187,15 @@ private:
     return operator*= (1 / component_t (denom));
   }
 };
+
+
+inline Tint max (const Tint &tint1, const Tint &tint2)
+{
+  Tint rval;
+  rval.color = max (tint1.color, tint2.color);
+  rval.alpha = max (tint1.alpha, tint2.alpha);
+  return rval;
+}
 
 
 }

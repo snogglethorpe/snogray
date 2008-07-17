@@ -159,25 +159,23 @@ ByteVecImageSink::write_row (const ImageRow &row)
       // one), because we actually want the scaled "dimmer" colors to be
       // written to a color only image.
       //
-      Tint::alpha_t alpha = 1, inv_alpha = 1;
-
+      Color color;
       if (alpha_channel)
-	{
-	  alpha = tint.alpha;
-	  inv_alpha = (alpha != 1 && alpha != 0) ? 1 / alpha : 1;
-	}
+	color = tint.unscaled_color ();
+      else
+	color = tint.alpha_scaled_color ();
 
       if (rgb)
 	{
-	  put_color_component (p, tint.r () * inv_alpha);
-	  put_color_component (p, tint.g () * inv_alpha);
-	  put_color_component (p, tint.b () * inv_alpha);
+	  put_color_component (p, color.r ());
+	  put_color_component (p, color.g ());
+	  put_color_component (p, color.b ());
 	}
       else
-	put_color_component (p, tint.intensity () * inv_alpha);
+	put_color_component (p, color.intensity ());
 
       if (alpha_channel)
-	put_alpha_component (p, alpha);
+	put_alpha_component (p, tint.alpha);
     }
 
   write_row (output_row);

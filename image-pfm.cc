@@ -1,6 +1,6 @@
 // image-pfm.cc -- PFM ("Portable Float Map") format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ PfmImageSink::write_row (const ImageRow &row)
 
   for (unsigned x = 0; x < row.width; x++)
     {
-      const Color &col = row[x];
+      const Color &col = row[x].alpha_scaled_color ();
 
       *p++ = col.r();
       *p++ = col.g();
