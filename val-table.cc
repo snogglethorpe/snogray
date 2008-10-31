@@ -15,6 +15,7 @@
 #include <climits>
 
 #include "excepts.h"
+#include "string-funs.h"
 
 #include "val-table.h"
 
@@ -238,7 +239,7 @@ ValTable::parse (const std::string &input)
     set (input.substr (0, p_assn), input.substr (p_assn + 1));
   else if (input[0] == '!')
     set (input.substr (1), false);
-  else if (input[0] == 'no-')
+  else if (begins_with (input, "no-"))
     set (input.substr (3), false);
   else
     set (input, true);
