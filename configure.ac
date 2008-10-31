@@ -234,7 +234,7 @@ if test "$enable_fp_exceptions" = yes; then
 fi
 
 AC_MSG_CHECKING([whether to enable floating-point exceptions])
-AC_MSG_RESULT([$enable_fp_exceptions])
+AC_MSG_RESULT([$use_fp_exceptions])
 if test "$use_fp_exceptions" = yes; then
   AC_DEFINE([USE_FP_EXCEPTIONS], [1],
   	    [Define if enabling floating-point exceptions])
