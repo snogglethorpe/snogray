@@ -9,7 +9,7 @@
 //
 // Written by Miles Bader <miles@gnu.org>
 //
-#include<iostream>
+
 #include <sstream>
 #include <cstdlib>
 #include <climits>
