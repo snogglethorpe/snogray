@@ -1,6 +1,6 @@
 AC_INIT([snogray], [0.1], [Miles Bader <miles@gnu.org>])
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 
 AC_CONFIG_HEADERS([config.h])
 
