@@ -442,7 +442,7 @@ fi
 if test $have_lib3ds = yes; then
 
   _OLD_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CFLAGS $LIB3DS_CFLAGS"
+  CPPFLAGS="$CPPFLAGS $LIB3DS_CFLAGS"
 
   AC_MSG_CHECKING([for lib3ds_matrix_mult])
   AC_TRY_COMPILE([#include <lib3ds/matrix.h>],
