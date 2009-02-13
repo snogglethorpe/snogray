@@ -62,7 +62,7 @@ sample_disk (float u, float v, float &dx, float &dy)
 	    }
 	}
 
-      theta *= INV_PIf / 4.f;
+      theta *= PIf / 2.f;
 
       dx = r * cos (theta);
       dy = r * sin (theta);
