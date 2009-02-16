@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -92,6 +92,72 @@ Camera::transform (const Xform &xform)
 {
   pos *= xform;
   rotate (xform);
+}
+
+
+// Camera::eye_ray
+
+// Return an eye-ray from this camera for position (U, V) on the film
+// plane, with the random perturbation (FOCUS_U, FOCUS_V) for
+// depth-of-field simulation no depth-of-field.  All paramters have a
+// range of 0-1.
+//
+Ray
+Camera::eye_ray (float u, float v, float focus_u, float focus_v) const
+{
+  // The source of the camera ray, which is the camera position
+  // (actually the optical center of the lens), possibly perturbed for
+  // depth-of-field simulation
+  //
+  Pos src = pos;
+
+  // A vector from SRC to the point on the virtual film plane (one
+  // unit in front of the camera position, projected from the actual
+  // film plane which lies behind the camera position) which is the
+  // end of the camera ray.
+  //
+  Vec targ = eye_vec (u, v);
+
+  if (aperture != 0)
+    {
+      // The radius of the camera aperture in scene units.
+      //
+      float aperture_radius = aperture / 2 / scene_unit;
+
+      // The camera aperture is circular, so convert the independent
+      // random variables FOCUS_U and FOCUS_V into a sample uniformly
+      // distributed on a disk.
+      //
+      float coc_x, coc_y;	// "Circle of Confusion"
+      sample_disk (focus_u, focus_v, coc_x, coc_y);
+
+      // How much we will randomly perturb the camera position to simulate
+      // depth-of-field.
+      //
+      float src_perturb_x = aperture_radius * coc_x;
+      float src_perturb_y = aperture_radius * coc_y;
+
+      // The end of the camera-ray pointed to by TARG should be perturbed
+      // slightly less than SRC, by a factor of 1 / FOCUS_DISTANCE.
+      // [Note that if FOCUS_DISTANCE is exactly 1, the end of the camera
+      // ray won't be perturbed at all, meaning that everything at a
+      // distance of 1 will be in focus, as expected.]
+      //
+      float targ_perturb_adj = -1 / focus_distance ();
+      float targ_perturb_x = src_perturb_x * targ_perturb_adj;
+      float targ_perturb_y = src_perturb_y * targ_perturb_adj;
+
+      // Perturb the camera position.
+      //
+      src += right * src_perturb_x + up * src_perturb_y;
+
+      // Add the compensation factor to TARG so that the end of
+      // the camera-ray is perturbed slightly less than SRC.
+      //
+      targ += right * targ_perturb_x + up * targ_perturb_y;
+    }
+
+  return Ray (src, targ);
 }
 
 
