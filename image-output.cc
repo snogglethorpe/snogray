@@ -38,6 +38,7 @@ ImageOutput::ImageOutput (const std::string &filename,
     num_user_buffered_rows (0),
     rows (num_buffered_rows), buf_y (0),
     intensity_scale (exposure == 0 ? 1.f : pow (2.f, exposure)),
+    intensity_power (params.get_float ("contrast", 1)),
     max_intens (sink->max_intens ())
 {
   for (unsigned i = 0; i < rows.size (); i++)

@@ -1,6 +1,6 @@
 // image-output.h -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -64,6 +64,9 @@ public:
 
     if (exposure != 0)
       clamped *= intensity_scale;
+    if (intensity_power != 1)
+      clamped = Tint (pow (clamped.unscaled_color(), intensity_power),
+		      clamped.alpha);
     if (max_intens != 0)
       clamped = clamped.clamp (max_intens);
 
@@ -182,7 +185,8 @@ private:
   //
   int buf_y;
 
-  float intensity_scale;	// 2^exposure
+  float intensity_scale;   // intensity multiplier (2^exposure)
+  float intensity_power;   // power which intensity is raised to (1 == nop)
 
   Color::component_t max_intens;
 };
