@@ -62,11 +62,25 @@
     params.set ("filter", clp.opt_arg ());		\
     break;						\
   case 'e':						\
-    params.set ("exposure", pow (2.f, clp.float_opt_arg ()));	\
+    parse_image_exposure_option (clp, params);		\
     break;						\
   case 'O':						\
     params.parse (clp.opt_arg ());			\
     break;
+
+
+namespace snogray {
+
+class ValTable;
+class CmdLineParser;
+
+// Parse the argument of a command-line exposure option, storing the
+// resulting parameters into PARAMS.  Parameters possibly affected are
+// "exposure" and "contrast".
+//
+void parse_image_exposure_option (CmdLineParser &clp, ValTable &params);
+
+}
 
 
 #endif /* __IMAGE_CMDLINE_H__ */
