@@ -31,13 +31,12 @@ ImageOutput::ImageOutput (const std::string &filename,
 			  const ValTable &params)
   : width (_width), height (_height),
     min_y (0),
-    exposure (params.get_float ("exposure", 0)),
     sink (ImageSink::open (filename, _width, _height, params)),
     filter_conv (params),
     num_buffered_rows (filter_conv.filter_radius * 2 + 1),
     num_user_buffered_rows (0),
     rows (num_buffered_rows), buf_y (0),
-    intensity_scale (exposure == 0 ? 1.f : pow (2.f, exposure)),
+    intensity_scale (params.get_float ("exposure", 1)),
     intensity_power (params.get_float ("contrast", 1)),
     max_intens (sink->max_intens ())
 {
@@ -136,7 +135,7 @@ void ImageOutput::add_sample (float sx, float sy, const Tint &tint)
 {
   Tint clamped = tint;
 
-  if (exposure != 0)
+  if (intensity_scale != 1)
     clamped *= intensity_scale;
   if (intensity_power != 1)
     clamped = Tint (pow (clamped.unscaled_color(), intensity_power),

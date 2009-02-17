@@ -133,10 +133,6 @@ public:
   //
   int min_y;
 
-  // The intensity of the output image is scaled by 2^exposure.
-  //
-  float exposure;
-
 
 private:
 
@@ -172,7 +168,7 @@ private:
   //
   int buf_y;
 
-  float intensity_scale;   // intensity multiplier (2^exposure)
+  float intensity_scale;   // intensity multiplier (1 == nop)
   float intensity_power;   // power which intensity is raised to (1 == nop)
 
   Color::component_t max_intens;
