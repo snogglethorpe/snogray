@@ -58,20 +58,7 @@ public:
   // just added to the nearest pixel.  The floating-point center of a pixel
   // is at its integer coordinates + (0.5, 0.5).
   //
-  void add_sample (float sx, float sy, const Tint &tint)
-  {
-    Tint clamped = tint;
-
-    if (exposure != 0)
-      clamped *= intensity_scale;
-    if (intensity_power != 1)
-      clamped = Tint (pow (clamped.unscaled_color(), intensity_power),
-		      clamped.alpha);
-    if (max_intens != 0)
-      clamped = clamped.clamp (max_intens);
-
-    filter_conv.add_sample (sx, sy, clamped, *this);
-  }
+  void add_sample (float sx, float sy, const Tint &tint);
 
   // Write the completed portion of the output image to disk, if possible.
   // This may flush I/O buffers etc., but will not in any way change the

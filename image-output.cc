@@ -1,6 +1,6 @@
 // image-output.cc -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -121,6 +121,30 @@ ImageOutput::_row (int y)
     flush_min_row ();
 
   return rows[y % num_buffered_rows];
+}
+
+
+// ImageOutput::add_sample
+
+// Add a sample with value TINT at floating point position SX, SY.
+// TINT's contribution to adjacent pixels is determined by the
+// anti-aliasing filter in effect; if there is none, then it is basically
+// just added to the nearest pixel.  The floating-point center of a pixel
+// is at its integer coordinates + (0.5, 0.5).
+//
+void ImageOutput::add_sample (float sx, float sy, const Tint &tint)
+{
+  Tint clamped = tint;
+
+  if (exposure != 0)
+    clamped *= intensity_scale;
+  if (intensity_power != 1)
+    clamped = Tint (pow (clamped.unscaled_color(), intensity_power),
+		    clamped.alpha);
+  if (max_intens != 0)
+    clamped = clamped.clamp (max_intens);
+
+  filter_conv.add_sample (sx, sy, clamped, *this);
 }
 
 
