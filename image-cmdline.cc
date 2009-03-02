@@ -48,7 +48,7 @@ snogray::parse_image_exposure_option (CmdLineParser &clp, ValTable &params)
   if (eop == '+' || eop == '-' || eop == '*' || eop == '/')
     {
       char *end;
-      float val = strtod (arg, &end);
+      float val = strtod (++arg, &end);
 
       if (end != arg)
 	{
