@@ -205,7 +205,8 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
 
   Trace trace (scene, trace_context);
 
-  if (scene.intersect (probe, trace))
+  Surface::IsecCtx isec_ctx (trace, trace_context);
+  if (scene.intersect (probe, isec_ctx))
     return probe.dir * probe.length ();
   else
     return Vec (0,0,0);

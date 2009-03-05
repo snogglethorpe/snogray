@@ -167,8 +167,9 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       //
 
       Ray intersected_ray (camera_ray);
+      Surface::IsecCtx isec_ctx (trace, trace.context);
       const Surface::IsecInfo *isec_info
-	= scene.intersect (intersected_ray, trace);
+	= scene.intersect (intersected_ray, isec_ctx);
 
       Tint tint;
       if (isec_info)

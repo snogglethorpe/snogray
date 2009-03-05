@@ -1,6 +1,6 @@
 // surface.h -- Physical surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -88,11 +88,17 @@ public:
   {
   public:
 
-    IsecCtx (Trace &_trace) : trace (_trace) { }
+    IsecCtx (Trace &_trace, TraceContext &_context)
+      : trace (_trace), context (_context)
+    { }
 
     // Trace object representing global context of intersection.
     //
     Trace &trace;
+
+    // Global tracing context.
+    //
+    TraceContext &context;
   };
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)

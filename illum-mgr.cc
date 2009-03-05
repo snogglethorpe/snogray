@@ -82,7 +82,9 @@ IllumMgr::li (const Ray &ray, Trace &trace) const
   const Scene &scene = trace.scene;
   Ray intersected_ray (ray);
 
-  const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, trace);
+  Surface::IsecCtx isec_ctx (trace, trace.context);
+  const Surface::IsecInfo *isec_info
+    = scene.intersect (intersected_ray, isec_ctx);
 
   if (isec_info)
     return li (isec_info, trace);
@@ -377,7 +379,7 @@ IllumMgr::lo (const Intersect &isec) const
 
 	      dist_t min_dist = context.params.min_trace;
 
-	      Surface::IsecCtx isec_ctx (trace);
+	      Surface::IsecCtx isec_ctx (trace, context);
 
 	      for (IllumSampleVec::iterator s = bs_beg; s != end; ++s)
 		{
