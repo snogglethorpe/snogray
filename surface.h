@@ -91,6 +91,9 @@ public:
     IsecCtx (Trace &_trace, TraceContext &_context)
       : trace (_trace), context (_context)
     { }
+    IsecCtx (const Intersect &isec)
+      : trace (isec.trace), context (isec.context)
+    { }
 
     // Trace object representing global context of intersection.
     //
