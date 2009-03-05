@@ -1,6 +1,6 @@
 // global-tstate.h -- Global tracing state
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,8 +25,6 @@
 
 namespace snogray {
 
-class IllumGlobalState;
-
 
 class GlobalTraceState
 {
@@ -36,8 +34,6 @@ public:
   ~GlobalTraceState ();
 
   const TraceParams &params;
-
-  IllumGlobalState *illum_global_state;
 
   // This mempool is reset every time control returns to the top level
   // of a trace tree, so should not be used for anything longer-lived
