@@ -180,6 +180,10 @@ IllumMgr::lo (const Intersect &isec) const
   //
   unsigned pending_uses = any_uses;
 
+  // Info passed to intersection methods.
+  //
+  Surface::IsecCtx isec_ctx (trace, context);
+
   // Iterate over illuminators, passing them whichever BRDF samples
   // mask the flags they specify.
   //
@@ -378,8 +382,6 @@ IllumMgr::lo (const Intersect &isec) const
 		}
 
 	      dist_t min_dist = context.params.min_trace;
-
-	      Surface::IsecCtx isec_ctx (trace, context);
 
 	      for (IllumSampleVec::iterator s = bs_beg; s != end; ++s)
 		{
