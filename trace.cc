@@ -1,6 +1,6 @@
 // trace.cc -- State during tracing
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -72,9 +72,9 @@ Trace::enclosing_medium ()
 
   while (enclosure_level >= 0 && ts)
     {
-      if (ts->type == REFRACTION_IN || ts->type == SHADOW_REFR_IN)
+      if (ts->type == REFRACTION_IN)
 	enclosure_level--;
-      else if (ts->type == REFRACTION_OUT || ts->type == SHADOW_REFR_OUT)
+      else if (ts->type == REFRACTION_OUT)
 	enclosure_level++;
 
       ts = ts->parent;

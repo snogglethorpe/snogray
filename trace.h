@@ -1,6 +1,6 @@
 // trace.h -- State during tracing
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -41,10 +41,6 @@ public:
     REFLECTION,
     REFRACTION_IN,		// entering a transparent surface
     REFRACTION_OUT,		// exiting it
-    TRANSMISSION,		// transmission through a thin surface
-    SHADOW,			// only used for non-opaque shadows
-    SHADOW_REFR_IN,
-    SHADOW_REFR_OUT,
     NUM_TRACE_TYPES
   };
 
