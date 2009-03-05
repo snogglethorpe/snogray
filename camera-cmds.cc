@@ -1,6 +1,6 @@
 // camera-cmds.cc -- Parsing of camera command strings
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "trace-params.h"
-#include "global-tstate.h"
+#include "trace-context.h"
 
 #include "camera-cmds.h"
 
@@ -199,11 +199,11 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   //
   ValTable render_params;
   TraceParams trace_params (render_params);
-  GlobalTraceState global_tstate (trace_params);
+  TraceContext trace_context (trace_params);
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 
-  Trace trace (scene, global_tstate);
+  Trace trace (scene, trace_context);
 
   if (scene.intersect (probe, trace))
     return probe.dir * probe.length ();

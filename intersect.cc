@@ -1,6 +1,6 @@
 // intersect.cc -- Datatype for recording surface-ray intersection results
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 #include "brdf.h"
 #include "trace.h"
 #include "scene.h"
-#include "global-tstate.h"
+#include "trace-context.h"
 
 #include "intersect.h"
 

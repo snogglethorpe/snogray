@@ -1,6 +1,6 @@
 // scene.cc -- Scene description datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
 
 #include <memory>		// for auto_ptr
 
-#include "global-tstate.h"
+#include "trace-context.h"
 #include "space.h"
 #include "envmap.h"
 
@@ -95,7 +95,7 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 {
   Trace &trace = isec_ctx.trace;
 
-  trace.global.stats.scene_intersect_calls++;
+  trace.context.stats.scene_intersect_calls++;
 
   // If there's a horizon hint, try to use it to reduce the horizon
   // before searching -- space searching can dramatically improve given
@@ -107,14 +107,14 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
     {
       hint_isec_info = hint->intersect (ray, isec_ctx);
 
-      trace.global.stats.intersect.surface_intersects_tests++;
+      trace.context.stats.intersect.surface_intersects_tests++;
 
       if (hint_isec_info)
-	trace.global.stats.horizon_hint_hits++;
+	trace.context.stats.horizon_hint_hits++;
       else
 	{
 	  trace.horizon_hint = 0; // clear the hint
-	  trace.global.stats.horizon_hint_misses++;
+	  trace.context.stats.horizon_hint_misses++;
 	}
     }
 
@@ -140,7 +140,7 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 Material::ShadowType
 Scene::shadow (const ShadowRay &ray, Trace &trace) const
 {
-  trace.global.stats.scene_shadow_tests++;
+  trace.context.stats.scene_shadow_tests++;
 
   // See if this light has a shadow hint (the last surface that cast a
   // shadow from it); if it does, then try that surface first, as it
@@ -165,13 +165,13 @@ Scene::shadow (const ShadowRay &ray, Trace &trace) const
 
 	  if (shadow_type == Material::SHADOW_OPAQUE)
 	    {
-	      trace.global.stats.shadow_hint_hits++;
+	      trace.context.stats.shadow_hint_hits++;
 	      return shadow_type;
 	    }
 	  else
 	    // It didn't work; clear this hint out.
 	    {
-	      trace.global.stats.shadow_hint_misses++;
+	      trace.context.stats.shadow_hint_misses++;
 	      trace.shadow_hints[ray.light->num] = 0;
 	    }
 	}
@@ -187,7 +187,7 @@ Scene::shadow (const ShadowRay &ray, Trace &trace) const
 bool
 Scene::shadows (const ShadowRay &ray, Trace &trace) const
 {
-  trace.global.stats.scene_shadow_tests++;
+  trace.context.stats.scene_shadow_tests++;
 
   // See if this light has a shadow hint (the last surface that cast a
   // shadow from it); if it does, then try that surface first, as it
@@ -212,13 +212,13 @@ Scene::shadows (const ShadowRay &ray, Trace &trace) const
 
 	  if (shadow_type != Material::SHADOW_NONE)
 	    {
-	      trace.global.stats.shadow_hint_hits++;
+	      trace.context.stats.shadow_hint_hits++;
 	      return shadow_type;
 	    }
 	  else
 	    // It didn't work; clear this hint out.
 	    {
-	      trace.global.stats.shadow_hint_misses++;
+	      trace.context.stats.shadow_hint_misses++;
 	      trace.shadow_hints[ray.light->num] = 0;
 	    }
 	}

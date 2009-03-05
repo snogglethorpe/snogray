@@ -1,6 +1,6 @@
 // illum-mgr.cc -- Sample-based manager for illuminators
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -128,9 +128,9 @@ IllumMgr::lo (const Intersect &isec) const
 {
   Trace &trace = isec.trace;
   const Scene &scene = trace.scene;
-  GlobalTraceState &global = trace.global;
+  TraceContext &context = trace.context;
 
-  global.stats.illum_calls++;
+  context.stats.illum_calls++;
 
   // Accumulated radiance.
   //
@@ -222,8 +222,8 @@ IllumMgr::lo (const Intersect &isec) const
 	  //
 	  if (pending_uses & Illum::USES_BRDF_SAMPLES)
 	    {
-	      unsigned local_brdf_samples = global.params.num_brdf_samples;
-	      unsigned global_brdf_samples = global.params.max_brdf_samples;
+	      unsigned local_brdf_samples = context.params.num_brdf_samples;
+	      unsigned global_brdf_samples = context.params.max_brdf_samples;
 
 	      if (global_brdf_samples != 0)
 		{
@@ -241,7 +241,7 @@ IllumMgr::lo (const Intersect &isec) const
 		  end = brdf_samples.end ();
 		  bs_beg = bs_end = brdf_samples.begin ();
 
-		  global.stats.illum_samples += brdf_samples.size ();
+		  context.stats.illum_samples += brdf_samples.size ();
 		}
 
 	      pending_uses &= ~Illum::USES_BRDF_SAMPLES;
@@ -299,7 +299,7 @@ IllumMgr::lo (const Intersect &isec) const
 	      // test, possibly ignoring any samples that failed the
 	      // "light test" above.
 	      //
-	      dist_t min_dist = global.params.min_trace;
+	      dist_t min_dist = context.params.min_trace;
 	      for (IllumSampleVec::iterator s = bs_beg; s != end; ++s)
 		if (!prune_direct_samples_against_lights
 		    || (s->light && s->light_val > 0))
@@ -375,7 +375,7 @@ IllumMgr::lo (const Intersect &isec) const
 		    &= ~(Illum::USES_INTERSECT_INFO | Illum::USES_DIRECT_INFO);
 		}
 
-	      dist_t min_dist = global.params.min_trace;
+	      dist_t min_dist = context.params.min_trace;
 
 	      Surface::IsecCtx isec_ctx (trace);
 

@@ -11,7 +11,7 @@
 //
 
 #include "scene.h"
-#include "global-tstate.h"
+#include "trace-context.h"
 
 #include "trace.h"
 
@@ -19,8 +19,8 @@ using namespace snogray;
 
 // Constructor for root Trace
 //
-Trace::Trace (const Scene &_scene, GlobalTraceState &_global)
-  : scene (_scene), parent (0), global (_global),
+Trace::Trace (const Scene &_scene, TraceContext &_context)
+  : scene (_scene), parent (0), context (_context),
     type (SPONTANEOUS), origin (0), horizon_hint (0),
     complexity (1), depth (0), medium (0)
 {
@@ -30,7 +30,7 @@ Trace::Trace (const Scene &_scene, GlobalTraceState &_global)
 // Constructor for sub-traces
 //
 Trace::Trace (Type _type, Trace *_parent)
-  : scene (_parent->scene), parent (_parent), global (_parent->global),
+  : scene (_parent->scene), parent (_parent), context (_parent->context),
     type (_type), origin (0), horizon_hint (0),
     complexity (1), depth (_parent->depth + 1),
     medium (parent->medium)

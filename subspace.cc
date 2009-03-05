@@ -1,6 +1,6 @@
 // subspace.cc -- A surface encapsulated into its own subspace
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,10 +29,10 @@ Subspace::~Subspace ()
 // Setup our acceleration structure.
 //
 void
-Subspace::make_space (GlobalTraceState &global) const
+Subspace::make_space (TraceContext &context) const
 {
   std::auto_ptr<SpaceBuilder> space_builder
-    (global.space_builder_builder->make_space_builder ());
+    (context.space_builder_builder->make_space_builder ());
 
   surface->add_to_space (*space_builder);
 

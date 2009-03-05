@@ -1,6 +1,6 @@
 // subspace.h -- A surface encapsulated into its own subspace
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -45,7 +45,7 @@ public:
 				      const Surface::IsecCtx &isec_ctx)
     const
   {
-    ensure_space (isec_ctx.trace.global);
+    ensure_space (isec_ctx.trace.context);
     return space->intersect (ray, isec_ctx);
   }
 
@@ -57,7 +57,7 @@ public:
   Material::ShadowType shadow (const ShadowRay &sray) const
   {
     Trace &trace = sray.isec.trace;
-    ensure_space (trace.global);
+    ensure_space (trace.context);
     return space->shadow (sray, trace);
   }
 
@@ -69,15 +69,15 @@ private:
 
   // Make sure our acceleration structure is set up.
   //
-  void ensure_space (GlobalTraceState &global) const
+  void ensure_space (TraceContext &context) const
   {
     if (! space)
-      make_space (global);
+      make_space (context);
   }
 
   // Setup our acceleration structure.
   //
-  void make_space (GlobalTraceState &global) const;
+  void make_space (TraceContext &context) const;
 
   // The top-level surface in this subspace.
   //

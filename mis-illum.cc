@@ -1,6 +1,6 @@
 // mis-illum.cc -- Direct illumination using multiple importance sampling
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -72,10 +72,10 @@ MisIllum::lo (const Intersect &isec,
   const std::vector<const Light *> &lights = scene.lights;
   unsigned num_lights = lights.size ();
 
-  GlobalTraceState &global = isec.trace.global;
+  TraceContext &context = isec.trace.context;
 
-  unsigned global_light_samples = global.params.max_light_samples;
-  unsigned local_light_samples = global.params.num_light_samples;
+  unsigned global_light_samples = context.params.max_light_samples;
+  unsigned local_light_samples = context.params.num_light_samples;
   unsigned desired_light_samples
     = clamp (unsigned (global_light_samples / isec.trace.complexity + 0.5f),
 	     1u, local_light_samples);
@@ -120,7 +120,7 @@ MisIllum::lo (const Intersect &isec,
 	num_light_samples
 	  = light->gen_samples (isec, lparams.num_samples, light_samples);
 
-      global.stats.illum_samples += num_light_samples;
+      context.stats.illum_samples += num_light_samples;
 
       // Process light samples for this light.
       //

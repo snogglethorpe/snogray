@@ -1,6 +1,6 @@
 // sample-map.cc -- Visual representation of sample distribution
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 #include "camera.h"
 #include "trace.h"
 #include "illum-mgr.h"
-#include "global-tstate.h"
+#include "trace-context.h"
 
 #include "sample-map.h"
 
@@ -32,8 +32,8 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
-  GlobalTraceState global_tstate (trace_params);
-  Trace trace (scene, global_tstate);
+  TraceContext trace_context (trace_params);
+  Trace trace (scene, trace_context);
 
   const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, trace);
   if (isec_info)

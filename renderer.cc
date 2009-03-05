@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
     sample_gen (_sample_gen), focus_sample_gen (_focus_sample_gen),
-    global_tstate (trace_params)
+    trace_context (trace_params)
 {
   output.set_num_buffered_rows (max_y_block_size);
 }
@@ -103,7 +103,7 @@ Renderer::render_block (int x, int y, int w, int h)
       // for each block as the state at the end of the previous block is
       // probably not too useful anyway.
       //
-      Trace trace (scene, global_tstate);
+      Trace trace (scene, trace_context);
 
       // Render the desired rows row by row, and pixel by pixel
       //
@@ -176,7 +176,7 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       else
 	tint = scene.background_with_alpha (camera_ray);
 
-      trace.global.mempool.reset ();
+      trace.context.mempool.reset ();
 
       output.add_sample (sx - lim_x, sy - lim_y, tint);
     }

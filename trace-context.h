@@ -1,4 +1,4 @@
-// global-tstate.h -- Global tracing state
+// trace-context.h -- Context in which tracing occurrs
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GLOBAL_TSTATE_H__
-#define __GLOBAL_TSTATE_H__
+#ifndef __TRACE_CONTEXT_H__
+#define __TRACE_CONTEXT_H__
 
 #include <memory>
 
@@ -26,12 +26,15 @@
 namespace snogray {
 
 
-class GlobalTraceState
+// Context in which tracing occurs.  This structure holds per-thread global
+// information, such as caches and statistics, etc.
+//
+class TraceContext
 {
 public:
 
-  GlobalTraceState (const TraceParams &_params);
-  ~GlobalTraceState ();
+  TraceContext (const TraceParams &_params);
+  ~TraceContext ();
 
   const TraceParams &params;
 
@@ -60,7 +63,7 @@ public:
 
 }
 
-#endif /* __GLOBAL_TSTATE_H__ */
+#endif /* __TRACE_CONTEXT_H__ */
 
 
 // arch-tag: f3691316-99dd-4b9c-a405-8c816ba4e361

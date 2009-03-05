@@ -1,6 +1,6 @@
-// global-tstate.cc -- Global tracing state
+// trace-context.cc -- Trace tracing state
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,18 +13,18 @@
 #include "mis-illum.h"
 #include "octree.h"
 
-#include "global-tstate.h"
+#include "trace-context.h"
 
 
 using namespace snogray;
 
 
-GlobalTraceState::GlobalTraceState (const TraceParams &_params)
+TraceContext::TraceContext (const TraceParams &_params)
   : params (_params),
     space_builder_builder (new Octree::BuilderBuilder) // hardwired for now
 { }
 
-GlobalTraceState::~GlobalTraceState ()
+TraceContext::~TraceContext ()
 {
 }
 

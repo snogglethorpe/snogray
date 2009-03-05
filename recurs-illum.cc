@@ -1,6 +1,6 @@
 // recurs-illum.cc -- Illuminator using recursive tracing.
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ RecursIllum::lo (const Intersect &isec,
   bool calculated_refr_medium = false;
 
   bool use_rr
-    = ((isec.trace.complexity >= isec.trace.global.params.max_brdf_samples)
+    = ((isec.trace.complexity >= isec.trace.context.params.max_brdf_samples)
        || isec.trace.depth > 10);
 
   float branch_factor = 0;

@@ -1,6 +1,6 @@
 // space.cc -- Space-division abstraction (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -75,7 +75,7 @@ Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
   ClosestIntersectCallback closest_isec_cb (ray, isec_ctx, trace.horizon_hint);
 
   for_each_possible_intersector (ray, closest_isec_cb, trace,
-				 trace.global.stats.intersect);
+				 trace.context.stats.intersect);
 
   return closest_isec_cb.closest;
 }
@@ -158,7 +158,7 @@ Space::shadow (const ShadowRay &ray, Trace &trace, const Light *hint_light)
   ShadowCallback shadow_cb (ray, trace, hint_light, reject);
 
   for_each_possible_intersector (ray, shadow_cb, trace,
-				 trace.global.stats.shadow);
+				 trace.context.stats.shadow);
 
   return shadow_cb.shadow_type;
 }
@@ -231,7 +231,7 @@ Space::shadows (const ShadowRay &ray, Trace &trace, const Light *hint_light)
   SimpleShadowCallback shadow_cb (ray, trace, hint_light, reject);
 
   for_each_possible_intersector (ray, shadow_cb, trace,
-				 trace.global.stats.shadow);
+				 trace.context.stats.shadow);
 
   return shadow_cb.shadows;
 }

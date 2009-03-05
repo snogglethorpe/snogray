@@ -1,6 +1,6 @@
 // octree.cc -- Voxel tree datatype (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -91,7 +91,7 @@ Octree::for_each_possible_intersector (const Ray &ray,
 
 	  // Get an IsecCache object.
 	  //
-	  Grab<IsecCache> isec_cache_grab (trace.global.isec_cache_pool);
+	  Grab<IsecCache> isec_cache_grab (trace.context.isec_cache_pool);
 
 	  SearchState ss (callback, *isec_cache_grab);
 

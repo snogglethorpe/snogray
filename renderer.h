@@ -1,6 +1,6 @@
 // renderer.h -- Outer rendering loop
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #define __RENDERER_H__
 
 #include "image-output.h"
-#include "global-tstate.h"
+#include "trace-context.h"
 #include "illum-mgr.h"
 
 
@@ -55,7 +55,7 @@ public:
   //
   void render_pixel (int x, int y, Trace &trace);
 
-  TraceStats trace_stats () const { return global_tstate.stats; }
+  TraceStats trace_stats () const { return trace_context.stats; }
 
 
 private:
@@ -94,7 +94,7 @@ private:
 
   // Global R/W state during tracing.
   //
-  GlobalTraceState global_tstate;
+  TraceContext trace_context;
 
 #if 0
   // Wire-frame state.  We create this object regardless of whether

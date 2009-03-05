@@ -1,6 +1,6 @@
 // envmap-light.cc -- Lighting from an environment map
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -114,7 +114,7 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
 			  IllumSampleVec &samples)
   const
 {
-  float intens_frac = isec.trace.global.params.envlight_intens_frac;
+  float intens_frac = isec.trace.context.params.envlight_intens_frac;
   float hemi_frac = 1 - intens_frac;
 
   float inv_hemi_frac = (hemi_frac == 0) ? 0 : 1 / hemi_frac;
@@ -227,7 +227,7 @@ EnvmapLight::filter_samples (const Intersect &isec,
 			     const IllumSampleVec::iterator &end_sample)
   const
 {
-  float intens_frac = isec.trace.global.params.envlight_intens_frac;
+  float intens_frac = isec.trace.context.params.envlight_intens_frac;
   float hemi_frac = 1 - intens_frac;
 
   // True if we should use high-resolution intensity data.  Doing so

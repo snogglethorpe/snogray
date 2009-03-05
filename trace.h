@@ -17,7 +17,7 @@
 #include "color.h"
 #include "medium.h"
 #include "isec-cache.h"
-#include "global-tstate.h"
+#include "trace-context.h"
 
 
 namespace snogray {
@@ -29,7 +29,7 @@ class Light;
 class Scene;
 class Intersect;
 class ShadowRay;
-class GlobalTraceState;
+class TraceContext;
 
 
 class Trace
@@ -44,7 +44,7 @@ public:
     NUM_TRACE_TYPES
   };
 
-  Trace (const Scene &_scene, GlobalTraceState &_global);
+  Trace (const Scene &_scene, TraceContext &_context);
   Trace (Type _type, Trace *_parent);
   ~Trace ();
 
@@ -85,7 +85,7 @@ public:
 
   // Return a mempool for temporary allocations.
   //
-  Mempool &mempool () const { return global.mempool; }
+  Mempool &mempool () const { return context.mempool; }
 
 
   const Scene &scene;
@@ -96,7 +96,7 @@ public:
 
   // Stuff that's only allocated once.
   //
-  GlobalTraceState &global;
+  TraceContext &context;
 
   // What kind of trace this is
   //
