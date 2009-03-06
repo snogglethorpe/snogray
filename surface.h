@@ -22,8 +22,8 @@
 
 namespace snogray {
 
-class Material;
 class SpaceBuilder;
+class ShadowRay;
 class Trace;
 
 

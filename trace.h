@@ -13,10 +13,7 @@
 #ifndef __TRACE_H__
 #define __TRACE_H__
 
-#include "ray.h"
-#include "color.h"
 #include "medium.h"
-#include "isec-cache.h"
 #include "trace-context.h"
 
 
@@ -24,11 +21,8 @@ namespace snogray {
 
 
 class Surface;
-class Brdf;
-class Light;
 class Scene;
 class Intersect;
-class ShadowRay;
 class TraceContext;
 
 
