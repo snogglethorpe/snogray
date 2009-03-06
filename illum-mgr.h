@@ -1,6 +1,6 @@
 // illum-mgr.h -- Sample-based manager for illuminators
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,11 +33,6 @@ public:
 
   IllumMgr () : any_uses (0) { }
   virtual ~IllumMgr () { }
-
-  // Return the color perceived by looking along RAY.  This is the
-  // basic ray-tracing method.  "li" means "light incoming".
-  //
-  Color li (const Ray &ray, Trace &trace) const;
 
   // Calculate the color incoming from the previously calculated
   // intersection described by ISEC_INFO.  "li" means "light incoming".

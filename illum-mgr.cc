@@ -73,25 +73,6 @@ IllumMgr::li (const Surface::IsecInfo *isec_info, Trace &trace) const
   return radiance;
 }
 
-// Calculate the color perceived by looking along RAY.  This is the
-// basic ray-tracing method.  "li" means "light incoming".
-//
-Color
-IllumMgr::li (const Ray &ray, Trace &trace) const
-{
-  const Scene &scene = trace.scene;
-  Ray intersected_ray (ray);
-
-  Surface::IsecCtx isec_ctx (trace, trace.context);
-  const Surface::IsecInfo *isec_info
-    = scene.intersect (intersected_ray, isec_ctx);
-
-  if (isec_info)
-    return li (isec_info, trace);
-  else
-    return scene.background (ray);
-}
-
 
 
 // Partition samples in the between BEG and END, so that all "matching"
