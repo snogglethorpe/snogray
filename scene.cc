@@ -94,8 +94,9 @@ const Surface::IsecInfo *
 Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 {
   Trace &trace = isec_ctx.trace;
+  TraceContext &context = isec_ctx.context;
 
-  trace.context.stats.scene_intersect_calls++;
+  context.stats.scene_intersect_calls++;
 
   // If there's a horizon hint, try to use it to reduce the horizon
   // before searching -- space searching can dramatically improve given
@@ -107,14 +108,14 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
     {
       hint_isec_info = hint->intersect (ray, isec_ctx);
 
-      trace.context.stats.intersect.surface_intersects_tests++;
+      context.stats.intersect.surface_intersects_tests++;
 
       if (hint_isec_info)
-	trace.context.stats.horizon_hint_hits++;
+	context.stats.horizon_hint_hits++;
       else
 	{
 	  trace.horizon_hint = 0; // clear the hint
-	  trace.context.stats.horizon_hint_misses++;
+	  context.stats.horizon_hint_misses++;
 	}
     }
 

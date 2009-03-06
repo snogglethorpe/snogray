@@ -72,7 +72,7 @@ MisIllum::lo (const Intersect &isec,
   const std::vector<const Light *> &lights = scene.lights;
   unsigned num_lights = lights.size ();
 
-  TraceContext &context = isec.trace.context;
+  TraceContext &context = isec.context;
 
   unsigned global_light_samples = context.params.max_light_samples;
   unsigned local_light_samples = context.params.num_light_samples;

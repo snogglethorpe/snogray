@@ -114,7 +114,7 @@ EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
 			  IllumSampleVec &samples)
   const
 {
-  float intens_frac = isec.trace.context.params.envlight_intens_frac;
+  float intens_frac = isec.context.params.envlight_intens_frac;
   float hemi_frac = 1 - intens_frac;
 
   float inv_hemi_frac = (hemi_frac == 0) ? 0 : 1 / hemi_frac;
@@ -227,7 +227,7 @@ EnvmapLight::filter_samples (const Intersect &isec,
 			     const IllumSampleVec::iterator &end_sample)
   const
 {
-  float intens_frac = isec.trace.context.params.envlight_intens_frac;
+  float intens_frac = isec.context.params.envlight_intens_frac;
   float hemi_frac = 1 - intens_frac;
 
   // True if we should use high-resolution intensity data.  Doing so

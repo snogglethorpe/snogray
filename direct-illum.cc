@@ -31,7 +31,7 @@ DirectIllum::shadow_test (const Intersect &isec,
 {
   Trace &trace = isec.trace;
   const Scene &scene = trace.scene;
-  TraceContext &context = trace.context;
+  TraceContext &context = isec.context;
 
   dist_t min_dist = context.params.min_trace;
 

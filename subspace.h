@@ -45,7 +45,7 @@ public:
 				      const Surface::IsecCtx &isec_ctx)
     const
   {
-    ensure_space (isec_ctx.trace.context);
+    ensure_space (isec_ctx.context);
     return space->intersect (ray, isec_ctx);
   }
 

@@ -167,7 +167,7 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       //
 
       Ray intersected_ray (camera_ray);
-      Surface::IsecCtx isec_ctx (trace, trace.context);
+      Surface::IsecCtx isec_ctx (trace, trace_context);
       const Surface::IsecInfo *isec_info
 	= scene.intersect (intersected_ray, isec_ctx);
 
@@ -177,7 +177,7 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       else
 	tint = scene.background_with_alpha (camera_ray);
 
-      trace.context.mempool.reset ();
+      trace_context.mempool.reset ();
 
       output.add_sample (sx - lim_x, sy - lim_y, tint);
     }

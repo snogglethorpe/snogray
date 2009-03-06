@@ -130,7 +130,7 @@ IllumMgr::lo (const Intersect &isec) const
 {
   Trace &trace = isec.trace;
   const Scene &scene = trace.scene;
-  TraceContext &context = trace.context;
+  TraceContext &context = isec.context;
 
   context.stats.illum_calls++;
 
