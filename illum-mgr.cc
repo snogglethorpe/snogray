@@ -325,7 +325,7 @@ IllumMgr::lo (const Intersect &isec) const
 		      const_cast<Intersect &>(isec).no_self_shadowing
 			= false;
 
-		    if (! scene.shadows (ray, trace))
+		    if (! scene.shadows (ray, isec_ctx))
 		      s->flags |= IllumSample::DIRECT;
 
 		    /// XXX hack continued XXX

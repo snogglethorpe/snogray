@@ -138,9 +138,12 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Scene::shadow (const ShadowRay &ray, Trace &trace) const
+Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 {
-  trace.context.stats.scene_shadow_tests++;
+  Trace &trace = isec_ctx.trace;
+  TraceContext &context = isec_ctx.context;
+
+  context.stats.scene_shadow_tests++;
 
   // See if this light has a shadow hint (the last surface that cast a
   // shadow from it); if it does, then try that surface first, as it
@@ -165,19 +168,19 @@ Scene::shadow (const ShadowRay &ray, Trace &trace) const
 
 	  if (shadow_type == Material::SHADOW_OPAQUE)
 	    {
-	      trace.context.stats.shadow_hint_hits++;
+	      context.stats.shadow_hint_hits++;
 	      return shadow_type;
 	    }
 	  else
 	    // It didn't work; clear this hint out.
 	    {
-	      trace.context.stats.shadow_hint_misses++;
+	      context.stats.shadow_hint_misses++;
 	      trace.shadow_hints[ray.light->num] = 0;
 	    }
 	}
     }
 
-  return space->shadow (ray, trace, ray.light);
+  return space->shadow (ray, isec_ctx, ray.light);
 }
 
 // Return true if any surface blocks RAY.  This is the fastest
@@ -185,9 +188,12 @@ Scene::shadow (const ShadowRay &ray, Trace &trace) const
 // intersection.
 //
 bool
-Scene::shadows (const ShadowRay &ray, Trace &trace) const
+Scene::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 {
-  trace.context.stats.scene_shadow_tests++;
+  Trace &trace = isec_ctx.trace;
+  TraceContext &context = isec_ctx.context;
+
+  context.stats.scene_shadow_tests++;
 
   // See if this light has a shadow hint (the last surface that cast a
   // shadow from it); if it does, then try that surface first, as it
@@ -212,19 +218,19 @@ Scene::shadows (const ShadowRay &ray, Trace &trace) const
 
 	  if (shadow_type != Material::SHADOW_NONE)
 	    {
-	      trace.context.stats.shadow_hint_hits++;
+	      context.stats.shadow_hint_hits++;
 	      return shadow_type;
 	    }
 	  else
 	    // It didn't work; clear this hint out.
 	    {
-	      trace.context.stats.shadow_hint_misses++;
+	      context.stats.shadow_hint_misses++;
 	      trace.shadow_hints[ray.light->num] = 0;
 	    }
 	}
     }
 
-  return space->shadows (ray, trace, ray.light);
+  return space->shadows (ray, isec_ctx, ray.light);
 }
 
 

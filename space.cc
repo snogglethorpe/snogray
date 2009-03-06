@@ -147,7 +147,8 @@ struct ShadowCallback : Space::IntersectCallback
 // shadow.
 //
 Material::ShadowType
-Space::shadow (const ShadowRay &ray, Trace &trace, const Light *hint_light)
+Space::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
+	       const Light *hint_light)
   const
 {
   // If possible, prime the negative intersect cache with the current
@@ -155,10 +156,10 @@ Space::shadow (const ShadowRay &ray, Trace &trace, const Light *hint_light)
   //
   const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  ShadowCallback shadow_cb (ray, trace, hint_light, reject);
+  ShadowCallback shadow_cb (ray, isec_ctx.trace, hint_light, reject);
 
-  for_each_possible_intersector (ray, shadow_cb, trace,
-				 trace.context.stats.shadow);
+  for_each_possible_intersector (ray, shadow_cb, isec_ctx.trace,
+				 isec_ctx.context.stats.shadow);
 
   return shadow_cb.shadow_type;
 }
@@ -220,7 +221,8 @@ struct SimpleShadowCallback : Space::IntersectCallback
 // shadow.
 //
 bool
-Space::shadows (const ShadowRay &ray, Trace &trace, const Light *hint_light)
+Space::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
+		const Light *hint_light)
   const
 {
   // If possible, prime the negative intersect cache with the current
@@ -228,10 +230,10 @@ Space::shadows (const ShadowRay &ray, Trace &trace, const Light *hint_light)
   //
   const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  SimpleShadowCallback shadow_cb (ray, trace, hint_light, reject);
+  SimpleShadowCallback shadow_cb (ray, isec_ctx.trace, hint_light, reject);
 
-  for_each_possible_intersector (ray, shadow_cb, trace,
-				 trace.context.stats.shadow);
+  for_each_possible_intersector (ray, shadow_cb, isec_ctx.trace,
+				 isec_ctx.context.stats.shadow);
 
   return shadow_cb.shadows;
 }

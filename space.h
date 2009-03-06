@@ -1,6 +1,6 @@
 // space.h -- Space-division abstraction (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2005, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ public:
   // should be updated to hold the first object which results in an opaque
   // shadow.
   //
-  Material::ShadowType shadow (const ShadowRay &ray, Trace &trace,
+  Material::ShadowType shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
 			       const Light *hint_light = 0)
     const;
 
@@ -53,7 +53,8 @@ public:
   // should be updated to hold the first object which results in an opaque
   // shadow.
   //
-  bool shadows (const ShadowRay &ray, Trace &trace, const Light *hint_light = 0)
+  bool shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
+		const Light *hint_light = 0)
     const;
 
   // A callback for `for_each_possible_intersector'.  Users of

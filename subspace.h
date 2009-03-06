@@ -56,9 +56,12 @@ public:
   //
   Material::ShadowType shadow (const ShadowRay &sray) const
   {
-    Trace &trace = sray.isec.trace;
-    ensure_space (trace.context);
-    return space->shadow (sray, trace);
+    const Intersect &isec = sray.isec;
+
+    ensure_space (isec.context);
+
+    Surface::IsecCtx isec_ctx (isec);
+    return space->shadow (sray, isec_ctx);
   }
 
   // Return a bounding box for the associated surface.
