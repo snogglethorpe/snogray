@@ -15,6 +15,7 @@
 
 #include "ray.h"
 #include "surface.h"
+#include "trace-context.h"
 
 
 namespace snogray {
@@ -82,12 +83,12 @@ public:
 
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
-  // directly on the resulting surfaces).  TRACE is used to access
+  // directly on the resulting surfaces).  CONTEXT is used to access
   // various cache data structures.  ISEC_STATS will be updated.
   //
   virtual void for_each_possible_intersector (const Ray &ray,
 					      IntersectCallback &callback,
-					      Trace &trace,
+					      TraceContext &context,
 					      TraceStats::IsecStats &isec_stats)
     const = 0;
 

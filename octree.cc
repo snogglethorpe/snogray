@@ -30,7 +30,7 @@ using namespace std;
 void
 Octree::for_each_possible_intersector (const Ray &ray,
 				       IntersectCallback &callback,
-				       Trace &trace,
+				       TraceContext &context,
 				       TraceStats::IsecStats &isec_stats)
   const
 {
@@ -91,7 +91,7 @@ Octree::for_each_possible_intersector (const Ray &ray,
 
 	  // Get an IsecCache object.
 	  //
-	  Grab<IsecCache> isec_cache_grab (trace.context.isec_cache_pool);
+	  Grab<IsecCache> isec_cache_grab (context.isec_cache_pool);
 
 	  SearchState ss (callback, *isec_cache_grab);
 

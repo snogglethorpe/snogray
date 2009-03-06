@@ -68,14 +68,15 @@ const Surface::IsecInfo *
 Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 {
   Trace &trace = isec_ctx.trace;
+  TraceContext &context = isec_ctx.context;
 
   // A callback which is called for each surface in this space
   // that may intersect RAY.
   //
   ClosestIntersectCallback closest_isec_cb (ray, isec_ctx, trace.horizon_hint);
 
-  for_each_possible_intersector (ray, closest_isec_cb, trace,
-				 trace.context.stats.intersect);
+  for_each_possible_intersector (ray, closest_isec_cb, context,
+				 context.stats.intersect);
 
   return closest_isec_cb.closest;
 }
@@ -158,7 +159,7 @@ Space::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
 
   ShadowCallback shadow_cb (ray, isec_ctx.trace, hint_light, reject);
 
-  for_each_possible_intersector (ray, shadow_cb, isec_ctx.trace,
+  for_each_possible_intersector (ray, shadow_cb, isec_ctx.context,
 				 isec_ctx.context.stats.shadow);
 
   return shadow_cb.shadow_type;
@@ -232,7 +233,7 @@ Space::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
 
   SimpleShadowCallback shadow_cb (ray, isec_ctx.trace, hint_light, reject);
 
-  for_each_possible_intersector (ray, shadow_cb, isec_ctx.trace,
+  for_each_possible_intersector (ray, shadow_cb, isec_ctx.context,
 				 isec_ctx.context.stats.shadow);
 
   return shadow_cb.shadows;
