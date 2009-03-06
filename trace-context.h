@@ -63,6 +63,29 @@ public:
 
 }
 
+
+// The user can use this via placement new: "new (CONTEXT) T (...)".
+// The resulting object cannot be deleted using delete, but should be
+// destructed (if necessary) explicitly:  "OBJ->~T()".
+//
+// All memory allocated from a context object is automatically freed at
+// some appropriate point, and should not be used after a trace has
+// completed (i.e., this is temporary storage).
+//
+inline void *operator new (size_t size, snogray::TraceContext &context)
+{
+  return operator new (size, context.mempool);
+}
+
+// There's no syntax for user to use this, but the compiler may call it
+// during exception handling.
+//
+inline void operator delete (void *mem, snogray::TraceContext &context)
+{
+  operator delete (mem, context.mempool);
+}
+
+
 #endif /* __TRACE_CONTEXT_H__ */
 
 

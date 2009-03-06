@@ -18,6 +18,7 @@
 #include "frame.h"
 #include "color.h"
 #include "trace.h"
+#include "trace-context.h"
 #include "tex-coords.h"
 
 
@@ -100,7 +101,7 @@ public:
 
   // Return a mempool for intersection-related allocations.
   //
-  Mempool &mempool () const { return trace.mempool (); }
+  Mempool &mempool () const { return context.mempool; }
 
   // Ray which intersected something; its endpoint is the point of intersection.
   //
@@ -203,7 +204,7 @@ private:
 //
 inline void *operator new (size_t size, const snogray::Intersect &isec)
 {
-  return operator new (size, isec.trace);
+  return operator new (size, isec.context);
 }
 
 // There's no syntax for user to use this, but the compiler may call it
@@ -211,7 +212,7 @@ inline void *operator new (size_t size, const snogray::Intersect &isec)
 //
 inline void operator delete (void *mem, const snogray::Intersect &isec)
 {
-  operator delete (mem, isec.trace);
+  operator delete (mem, isec.context);
 }
 
 

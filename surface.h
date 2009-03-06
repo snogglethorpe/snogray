@@ -152,7 +152,7 @@ public:
 inline void *
 operator new (size_t size, const snogray::Surface::IsecCtx &isec_ctx)
 {
-  return operator new (size, isec_ctx.trace);
+  return operator new (size, isec_ctx.context);
 }
 
 // There's no syntax for user to use this, but the compiler may call it
@@ -161,7 +161,7 @@ operator new (size_t size, const snogray::Surface::IsecCtx &isec_ctx)
 inline void
 operator delete (void *mem, const snogray::Surface::IsecCtx &isec_ctx)
 {
-  operator delete (mem, isec_ctx.trace);
+  operator delete (mem, isec_ctx.context);
 }
 
 
