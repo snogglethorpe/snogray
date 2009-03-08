@@ -74,6 +74,17 @@ public:
   //
   const Medium *enclosing_medium ();
 
+  // Rreturn the depth of tracing at this trace.  1 == the main
+  // (camera/eye) ray.
+  //
+  unsigned depth () const
+  {
+    unsigned d = 1;
+    for (const Trace *t = parent; t; t = t->parent)
+      d++;
+    return d;
+  }
+
 
   // Parent state
   //
@@ -116,10 +127,6 @@ public:
   // depth).
   //
   float complexity;
-
-  // Depth of tracing at this trace.  1 == the main (camera/eye) ray.
-  //
-  unsigned depth;
 
   // The medium this trace is through.  Zero means "air".
   //

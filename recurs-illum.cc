@@ -38,10 +38,11 @@ RecursIllum::lo (const Intersect &isec,
 
   const Medium *refr_medium = 0;
   bool calculated_refr_medium = false;
+  unsigned depth = isec.trace.depth ();
 
   bool use_rr
     = ((isec.trace.complexity >= isec.context.params.max_brdf_samples)
-       || isec.trace.depth > 10);
+       || depth > 10);
 
   float branch_factor = 0;
   for (IllumSampleVec::iterator s = brdf_samples_beg;
@@ -65,7 +66,7 @@ RecursIllum::lo (const Intersect &isec,
 	      {
 		// Use russian-roulette
 
-		rr_adj = isec.trace.depth;
+		rr_adj = depth;
 
 		rr_adj /= s->brdf_val.intensity ();
 		if (s->brdf_pdf)

@@ -22,7 +22,7 @@ using namespace snogray;
 Trace::Trace (TraceContext &_context)
   : parent (0), context (_context),
     type (SPONTANEOUS), horizon_hint (0),
-    complexity (1), depth (0), medium (0)
+    complexity (1), medium (0)
 {
   _init ();
 }
@@ -32,8 +32,7 @@ Trace::Trace (TraceContext &_context)
 Trace::Trace (Type _type, Trace *_parent)
   : parent (_parent), context (_parent->context),
     type (_type), horizon_hint (0),
-    complexity (1), depth (_parent->depth + 1),
-    medium (parent->medium)
+    complexity (1), medium (parent->medium)
 {
   _init ();
 }
