@@ -199,7 +199,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   //
   ValTable render_params;
   TraceParams trace_params (render_params);
-  TraceContext trace_context (trace_params);
+  TraceContext trace_context (scene, trace_params);
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 

@@ -32,7 +32,7 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
-  TraceContext trace_context (trace_params);
+  TraceContext trace_context (scene, trace_params);
   Trace trace (scene, trace_context);
 
   const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, trace);

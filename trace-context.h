@@ -33,8 +33,12 @@ class TraceContext
 {
 public:
 
-  TraceContext (const TraceParams &_params);
+  TraceContext (const Scene &_scene, const TraceParams &_params);
   ~TraceContext ();
+
+  // Scene being rendered.
+  //
+  const Scene &scene;
 
   const TraceParams &params;
 

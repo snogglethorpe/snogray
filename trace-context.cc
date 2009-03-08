@@ -19,8 +19,8 @@
 using namespace snogray;
 
 
-TraceContext::TraceContext (const TraceParams &_params)
-  : params (_params),
+TraceContext::TraceContext (const Scene &_scene, const TraceParams &_params)
+  : scene (_scene), params (_params),
     space_builder_builder (new Octree::BuilderBuilder) // hardwired for now
 { }
 

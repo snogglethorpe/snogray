@@ -32,7 +32,7 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
     sample_gen (_sample_gen), focus_sample_gen (_focus_sample_gen),
-    trace_context (trace_params)
+    trace_context (scene, trace_params)
 {
   output.set_num_buffered_rows (max_y_block_size);
 }
