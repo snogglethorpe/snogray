@@ -133,11 +133,11 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 
 libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h grid-iter.h	\
 	grid.cc grid.h illum.h illum-mgr.cc illum-mgr.h illum-sample.h	\
-	intersect.cc intersect.h isec-cache.h mis-illum.cc mis-illum.h	\
-	ray.cc ray.h recurs-illum.cc recurs-illum.h sample-disk.h	\
-	sample2-gen.h shadow-ray.h trace-params.h trace-stats.cc	\
-	trace.cc trace.h trace-cache.cc trace-cache.h trace-context.cc	\
-	trace-context.h trace-stats.h
+	intersect.cc intersect.h isec-cache.h isec-ctx.h mis-illum.cc	\
+	mis-illum.h ray.cc ray.h recurs-illum.cc recurs-illum.h		\
+	sample-disk.h sample2-gen.h shadow-ray.h trace-params.h		\
+	trace-stats.cc trace.cc trace.h trace-cache.cc trace-cache.h	\
+	trace-context.cc trace-context.h trace-stats.h
 
 
 ################################################################

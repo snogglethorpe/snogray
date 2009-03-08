@@ -37,7 +37,7 @@ DirectIllum::shadow_test (const Intersect &isec,
 
   // Info passed to intersection methods.
   //
-  Surface::IsecCtx isec_ctx (isec);
+  IsecCtx isec_ctx (isec);
 
   for (IllumSampleVec::iterator s = beg; s != end; ++s)
     if (s->light_val > 0)

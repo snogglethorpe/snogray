@@ -41,9 +41,7 @@ public:
   // Surface::IsecInfo object describing the intersection (which should be
   // allocated using placement-new with ISEC_CTX); otherwise return zero.
   //
-  const Surface::IsecInfo *intersect (Ray &ray,
-				      const Surface::IsecCtx &isec_ctx)
-    const
+  const Surface::IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const
   {
     ensure_space (isec_ctx.context);
     return space->intersect (ray, isec_ctx);
@@ -54,8 +52,7 @@ public:
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  Material::ShadowType shadow (const ShadowRay &sray,
-			       const Surface::IsecCtx &isec_ctx)
+  Material::ShadowType shadow (const ShadowRay &sray, const IsecCtx &isec_ctx)
     const
   {
     ensure_space (sray.isec.context);

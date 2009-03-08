@@ -163,7 +163,7 @@ IllumMgr::lo (const Intersect &isec) const
 
   // Info passed to intersection methods.
   //
-  Surface::IsecCtx isec_ctx (isec);
+  IsecCtx isec_ctx (isec);
 
   // Iterate over illuminators, passing them whichever BRDF samples
   // mask the flags they specify.

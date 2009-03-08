@@ -31,9 +31,7 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface::IsecInfo *intersect (Ray &ray,
-				      const Surface::IsecCtx &isec_ctx)
-    const;
+  const Surface::IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const;
 
   // Return the strongest type of shadowing effect any object in this space
   // has on RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
@@ -45,7 +43,7 @@ public:
   // shadow.
   //
   Material::ShadowType shadow (const ShadowRay &ray,
-			       const Surface::IsecCtx &isec_ctx,
+			       const IsecCtx &isec_ctx,
 			       const Light *hint_light = 0)
     const;
 
@@ -55,7 +53,7 @@ public:
   // should be updated to hold the first object which results in an opaque
   // shadow.
   //
-  bool shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
+  bool shadows (const ShadowRay &ray, IsecCtx &isec_ctx,
 		const Light *hint_light = 0)
     const;
 

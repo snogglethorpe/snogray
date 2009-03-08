@@ -205,7 +205,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 
-  Surface::IsecCtx isec_ctx (trace_context, root_cache);
+  IsecCtx isec_ctx (trace_context, root_cache);
   if (scene.intersect (probe, isec_ctx))
     return probe.dir * probe.length ();
   else

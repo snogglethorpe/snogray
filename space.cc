@@ -26,7 +26,7 @@ using namespace snogray;
 
 struct ClosestIntersectCallback : Space::IntersectCallback
 {
-  ClosestIntersectCallback (Ray &_ray, const Surface::IsecCtx &_isec_ctx,
+  ClosestIntersectCallback (Ray &_ray, const IsecCtx &_isec_ctx,
 			    const Surface *_reject = 0)
     : ray (_ray), closest (0), isec_ctx (_isec_ctx), reject (_reject)
   { }
@@ -53,7 +53,7 @@ struct ClosestIntersectCallback : Space::IntersectCallback
   //
   const Surface::IsecInfo *closest;
 
-  const Surface::IsecCtx &isec_ctx;
+  const IsecCtx &isec_ctx;
 
   // If non-zero, this surface is always immediately rejected.
   //
@@ -66,7 +66,7 @@ struct ClosestIntersectCallback : Space::IntersectCallback
 // to reflect the point of intersection.
 //
 const Surface::IsecInfo *
-Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
+Space::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   TraceContext &context = isec_ctx.context;
   TraceCache &cache = isec_ctx.cache;
@@ -87,7 +87,7 @@ Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 
 struct ShadowCallback : Space::IntersectCallback
 {
-  ShadowCallback (const ShadowRay &_ray, const Surface::IsecCtx &_isec_ctx,
+  ShadowCallback (const ShadowRay &_ray, const IsecCtx &_isec_ctx,
 		  const Light *_hint_light, const Surface *_reject = 0)
     : ray (_ray),
       shadow_type (Material::SHADOW_NONE),
@@ -129,7 +129,7 @@ struct ShadowCallback : Space::IntersectCallback
   //
   Material::ShadowType shadow_type;
 
-  const Surface::IsecCtx &isec_ctx;
+  const IsecCtx &isec_ctx;
 
   const Light *hint_light;
 
@@ -149,7 +149,7 @@ struct ShadowCallback : Space::IntersectCallback
 // shadow.
 //
 Material::ShadowType
-Space::shadow (const ShadowRay &ray, const Surface::IsecCtx &isec_ctx,
+Space::shadow (const ShadowRay &ray, const IsecCtx &isec_ctx,
 	       const Light *hint_light)
   const
 {
@@ -171,7 +171,7 @@ Space::shadow (const ShadowRay &ray, const Surface::IsecCtx &isec_ctx,
 
 struct SimpleShadowCallback : Space::IntersectCallback
 {
-  SimpleShadowCallback (const ShadowRay &_ray, Surface::IsecCtx &_isec_ctx,
+  SimpleShadowCallback (const ShadowRay &_ray, IsecCtx &_isec_ctx,
 			const Light *_hint_light, const Surface *_reject = 0)
     : ray (_ray), shadows (false),
       isec_ctx (_isec_ctx), hint_light (_hint_light), reject (_reject)
@@ -206,7 +206,7 @@ struct SimpleShadowCallback : Space::IntersectCallback
   //
   bool shadows;
 
-  Surface::IsecCtx &isec_ctx;
+  IsecCtx &isec_ctx;
 
   const Light *hint_light;
 
@@ -223,7 +223,7 @@ struct SimpleShadowCallback : Space::IntersectCallback
 // shadow.
 //
 bool
-Space::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
+Space::shadows (const ShadowRay &ray, IsecCtx &isec_ctx,
 		const Light *hint_light)
   const
 {

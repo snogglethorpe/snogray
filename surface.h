@@ -18,6 +18,7 @@
 #include "bbox.h"
 #include "intersect.h"
 #include "material.h"
+#include "isec-ctx.h"
 
 
 namespace snogray {
@@ -81,29 +82,6 @@ public:
     Ray ray;
   };
 
-  // A special object passed into the Surface::intersect method, which
-  // can be used with placement new to allocate a IsecInfo object.
-  //
-  class IsecCtx
-  {
-  public:
-
-    IsecCtx (TraceContext &_context, TraceCache &_cache)
-      : context (_context), cache (_cache)
-    { }
-    IsecCtx (const Intersect &isec)
-      : context (isec.context), cache (isec.trace.cache)
-    { }
-
-    // Global tracing context.
-    //
-    TraceContext &context;
-
-    // Information cached at this point in the trace.
-    //
-    TraceCache &cache;
-  };
-
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
   // to reflect the point of intersection, and return a Surface::IsecInfo
   // object describing the intersection (which should be allocated using
@@ -141,29 +119,6 @@ public:
 };
 
 
-}
-
-
-// The user can use this via placement new: "new (ISEC_CTX) T (...)".
-// The resulting object cannot be deleted using delete, but should be
-// destructed (if necessary) explicitly:  "OBJ->~T()".
-//
-// All memory allocated from an Surface::IsecCtx object is automatically
-// freed at some appropriate point.
-//
-inline void *
-operator new (size_t size, const snogray::Surface::IsecCtx &isec_ctx)
-{
-  return operator new (size, isec_ctx.context);
-}
-
-// There's no syntax for user to use this, but the compiler may call it
-// during exception handling.
-//
-inline void
-operator delete (void *mem, const snogray::Surface::IsecCtx &isec_ctx)
-{
-  operator delete (mem, isec_ctx.context);
 }
 
 

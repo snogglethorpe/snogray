@@ -92,7 +92,7 @@ Scene::build_space (const SpaceBuilderBuilder *space_builder_builder)
 // to reflect the point of intersection.
 //
 const Surface::IsecInfo *
-Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
+Scene::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   TraceContext &context = isec_ctx.context;
   TraceCache &cache = isec_ctx.cache;
@@ -140,7 +140,7 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
+Scene::shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
   TraceContext &context = isec_ctx.context;
   TraceCache &cache = isec_ctx.cache;
@@ -190,7 +190,7 @@ Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 // intersection.
 //
 bool
-Scene::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
+Scene::shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
   TraceContext &context = isec_ctx.context;
   TraceCache &cache = isec_ctx.cache;

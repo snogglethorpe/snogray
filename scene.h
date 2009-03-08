@@ -64,23 +64,20 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface::IsecInfo *intersect (Ray &ray,
-				      const Surface::IsecCtx &isec_ctx)
-    const;
+  const Surface::IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const;
 
   // Return the strongest type of shadowing effect this scene has on
   // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  Material::ShadowType shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx)
-    const;
+  Material::ShadowType shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const;
 
   // Return true if any surface blocks RAY.  This is the fastest
   // intersection method, because it can return as soon as it it finds any
   // intersection.
   //
-  bool shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const;
+  bool shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const;
 
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.
