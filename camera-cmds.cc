@@ -203,7 +203,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 
-  Trace trace (scene, trace_context);
+  Trace trace (trace_context);
 
   Surface::IsecCtx isec_ctx (trace, trace_context);
   if (scene.intersect (probe, isec_ctx))

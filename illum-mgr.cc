@@ -110,8 +110,8 @@ Color
 IllumMgr::lo (const Intersect &isec) const
 {
   Trace &trace = isec.trace;
-  const Scene &scene = trace.scene;
   TraceContext &context = isec.context;
+  const Scene &scene = context.scene;
 
   context.stats.illum_calls++;
 

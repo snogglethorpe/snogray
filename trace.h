@@ -21,7 +21,6 @@ namespace snogray {
 
 
 class Surface;
-class Scene;
 class Intersect;
 class TraceContext;
 
@@ -38,7 +37,7 @@ public:
     NUM_TRACE_TYPES
   };
 
-  Trace (const Scene &_scene, TraceContext &_context);
+  Trace (TraceContext &_context);
   Trace (Type _type, Trace *_parent);
   ~Trace ();
 
@@ -77,8 +76,6 @@ public:
   //
   const Medium *enclosing_medium ();
 
-
-  const Scene &scene;
 
   // Parent state
   //

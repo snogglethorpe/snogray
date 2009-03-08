@@ -19,8 +19,8 @@ using namespace snogray;
 
 // Constructor for root Trace
 //
-Trace::Trace (const Scene &_scene, TraceContext &_context)
-  : scene (_scene), parent (0), context (_context),
+Trace::Trace (TraceContext &_context)
+  : parent (0), context (_context),
     type (SPONTANEOUS), origin (0), horizon_hint (0),
     complexity (1), depth (0), medium (0)
 {
@@ -30,7 +30,7 @@ Trace::Trace (const Scene &_scene, TraceContext &_context)
 // Constructor for sub-traces
 //
 Trace::Trace (Type _type, Trace *_parent)
-  : scene (_parent->scene), parent (_parent), context (_parent->context),
+  : parent (_parent), context (_parent->context),
     type (_type), origin (0), horizon_hint (0),
     complexity (1), depth (_parent->depth + 1),
     medium (parent->medium)
@@ -41,7 +41,7 @@ Trace::Trace (Type _type, Trace *_parent)
 void
 Trace::_init ()
 {
-  unsigned num_lights = scene.num_lights ();
+  unsigned num_lights = context.scene.num_lights ();
 
   shadow_hints = new const Surface*[num_lights];
   for (unsigned i = 0; i < num_lights; i++)

@@ -103,7 +103,7 @@ Renderer::render_block (int x, int y, int w, int h)
       // for each block as the state at the end of the previous block is
       // probably not too useful anyway.
       //
-      Trace trace (scene, trace_context);
+      Trace trace (trace_context);
 
       // Render the desired rows row by row, and pixel by pixel
       //

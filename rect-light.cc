@@ -1,6 +1,6 @@
 // rect-light.cc -- Rectangular light
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -103,7 +103,7 @@ RectLight::filter_samples (const Intersect &isec,
   // (we actually use the negative of it in calculation below).
   //
   Vec neg_light_norm = -isec.normal_frame.to (normal);
-  dist_t horizon = isec.trace.scene.horizon;
+  dist_t horizon = isec.context.scene.horizon;
 
   for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
     {

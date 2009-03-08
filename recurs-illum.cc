@@ -113,9 +113,7 @@ RecursIllum::lo (const Intersect &isec,
 	    val *= rr_adj;
 	  }
 	else
-	  {
-	    val = isec.trace.scene.background (isec.normal_frame.from (s->dir));
-	  }
+	  val = isec.context.scene.background (isec.normal_frame.from (s->dir));
 
 	//
 	// The multiplications below are a potential point of overflow.  When
