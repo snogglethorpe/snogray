@@ -54,13 +54,13 @@ public:
   Trace &subtrace (float branch_factor, Trace::Type type, const Medium *medium)
     const
   {
-    return trace.subtrace (branch_factor, type, medium, surface);
+    return trace.subtrace (branch_factor, type, medium);
   }
   // For sub-traces with no specified medium, propagate the current one.
   //
   Trace &subtrace (float branch_factor, Trace::Type type) const
   {
-    return trace.subtrace (branch_factor, type, surface);
+    return trace.subtrace (branch_factor, type);
   }
 
   // Returns the cosine of the angle between the surface normal and VEC.

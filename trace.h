@@ -45,8 +45,7 @@ public:
   // type (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  Trace &subtrace (float branch_factor, Type type, const Medium *_medium,
-		   const Surface *_origin)
+  Trace &subtrace (float branch_factor, Type type, const Medium *_medium)
   {
     Trace *sub = subtraces[type];
 
@@ -59,7 +58,6 @@ public:
     // make sure fields are up-to-date
     //
     sub->complexity = complexity * branch_factor;
-    sub->origin = _origin;
     sub->medium = _medium;
 
     return *sub;
@@ -67,9 +65,9 @@ public:
 
   // For sub-traces with no specified medium, propagate the current one.
   //
-  Trace &subtrace (float branch_factor, Type type, const Surface *_origin)
+  Trace &subtrace (float branch_factor, Type type)
   {
-    return subtrace (branch_factor, type, medium, _origin);
+    return subtrace (branch_factor, type, medium);
   }
 
   // Searches back through the trace history to find the enclosing medium.
@@ -88,10 +86,6 @@ public:
   // What kind of trace this is
   //
   Type type;
-
-  // The surface this trace originated from (or zero for spontaneous)
-  //
-  const Surface *origin;
 
   // If non-zero, the last surface we found as the closest intersection.
   // When we do a new trace, we first test that surface for intersection;

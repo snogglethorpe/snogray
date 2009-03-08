@@ -163,7 +163,7 @@ Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
     {
       const Surface *hint = trace.shadow_hints[ray.light->num];
 
-      if (hint && hint != trace.origin)
+      if (hint)
 	{
 	  Material::ShadowType shadow_type = hint->shadow (ray);
 
@@ -213,7 +213,7 @@ Scene::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
     {
       const Surface *hint = trace.shadow_hints[ray.light->num];
 
-      if (hint && hint != trace.origin)
+      if (hint)
 	{
 	  Material::ShadowType shadow_type = hint->shadow (ray);
 
