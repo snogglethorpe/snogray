@@ -87,11 +87,11 @@ Space::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 
 struct ShadowCallback : Space::IntersectCallback
 {
-  ShadowCallback (const ShadowRay &_ray, TraceCache &_cache,
+  ShadowCallback (const ShadowRay &_ray, const Surface::IsecCtx &_isec_ctx,
 		  const Light *_hint_light, const Surface *_reject = 0)
     : ray (_ray),
       shadow_type (Material::SHADOW_NONE),
-      cache (_cache), hint_light (_hint_light), reject (_reject)
+      isec_ctx (_isec_ctx), hint_light (_hint_light), reject (_reject)
   { }
 
   virtual bool operator() (const Surface *surf)
@@ -99,7 +99,7 @@ struct ShadowCallback : Space::IntersectCallback
     if (surf == reject)
       return false;
 
-    Material::ShadowType stype = surf->shadow (ray);
+    Material::ShadowType stype = surf->shadow (ray, isec_ctx);
 
     if (stype > shadow_type)
       {
@@ -111,7 +111,7 @@ struct ShadowCallback : Space::IntersectCallback
 	    // next time.
 	    //
 	    if (hint_light)
-	      cache.shadow_hints[hint_light->num] = surf;
+	      isec_ctx.cache.shadow_hints[hint_light->num] = surf;
 
 	    // A simple opaque surface blocks everything; we can
 	    // immediately return it; stop looking any further.
@@ -129,7 +129,7 @@ struct ShadowCallback : Space::IntersectCallback
   //
   Material::ShadowType shadow_type;
 
-  TraceCache &cache;
+  const Surface::IsecCtx &isec_ctx;
 
   const Light *hint_light;
 
@@ -149,7 +149,7 @@ struct ShadowCallback : Space::IntersectCallback
 // shadow.
 //
 Material::ShadowType
-Space::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
+Space::shadow (const ShadowRay &ray, const Surface::IsecCtx &isec_ctx,
 	       const Light *hint_light)
   const
 {
@@ -158,7 +158,7 @@ Space::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
   //
   const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  ShadowCallback shadow_cb (ray, isec_ctx.cache, hint_light, reject);
+  ShadowCallback shadow_cb (ray, isec_ctx, hint_light, reject);
 
   for_each_possible_intersector (ray, shadow_cb, isec_ctx.context,
 				 isec_ctx.context.stats.shadow);
@@ -171,10 +171,10 @@ Space::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
 
 struct SimpleShadowCallback : Space::IntersectCallback
 {
-  SimpleShadowCallback (const ShadowRay &_ray, TraceCache &_cache,
-		  const Light *_hint_light, const Surface *_reject = 0)
+  SimpleShadowCallback (const ShadowRay &_ray, Surface::IsecCtx &_isec_ctx,
+			const Light *_hint_light, const Surface *_reject = 0)
     : ray (_ray), shadows (false),
-      cache (_cache), hint_light (_hint_light), reject (_reject)
+      isec_ctx (_isec_ctx), hint_light (_hint_light), reject (_reject)
   { }
 
   virtual bool operator() (const Surface *surf)
@@ -182,7 +182,7 @@ struct SimpleShadowCallback : Space::IntersectCallback
     if (surf == reject)
       return false;
 
-    shadows = (surf->shadow (ray) != Material::SHADOW_NONE);
+    shadows = (surf->shadow (ray, isec_ctx) != Material::SHADOW_NONE);
 
     if (shadows)
       {
@@ -190,7 +190,7 @@ struct SimpleShadowCallback : Space::IntersectCallback
 	// next time.
 	//
 	if (hint_light)
-	  cache.shadow_hints[hint_light->num] = surf;
+	  isec_ctx.cache.shadow_hints[hint_light->num] = surf;
 
 	// We can immediately return it; stop looking any further.
 	//
@@ -206,7 +206,7 @@ struct SimpleShadowCallback : Space::IntersectCallback
   //
   bool shadows;
 
-  TraceCache &cache;
+  Surface::IsecCtx &isec_ctx;
 
   const Light *hint_light;
 
@@ -232,7 +232,7 @@ Space::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
   //
   const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  SimpleShadowCallback shadow_cb (ray, isec_ctx.cache, hint_light, reject);
+  SimpleShadowCallback shadow_cb (ray, isec_ctx, hint_light, reject);
 
   for_each_possible_intersector (ray, shadow_cb, isec_ctx.context,
 				 isec_ctx.context.stats.shadow);

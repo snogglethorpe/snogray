@@ -1,6 +1,6 @@
 // sphere2.cc -- Alternative sphere surface
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -91,7 +91,7 @@ Sphere2::IsecInfo::make_intersect (Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Sphere2::shadow (const ShadowRay &sray) const
+Sphere2::shadow (const ShadowRay &sray, const IsecCtx &) const
 {
   Ray oray = world_to_local (sray.as_ray ());
   dist_t t = sphere_intersect (dist_t(1), Vec (oray.origin), oray.dir, oray.t0);

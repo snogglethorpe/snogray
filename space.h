@@ -44,7 +44,8 @@ public:
   // should be updated to hold the first object which results in an opaque
   // shadow.
   //
-  Material::ShadowType shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx,
+  Material::ShadowType shadow (const ShadowRay &ray,
+			       const Surface::IsecCtx &isec_ctx,
 			       const Light *hint_light = 0)
     const;
 

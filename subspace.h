@@ -54,13 +54,11 @@ public:
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  Material::ShadowType shadow (const ShadowRay &sray) const
+  Material::ShadowType shadow (const ShadowRay &sray,
+			       const Surface::IsecCtx &isec_ctx)
+    const
   {
-    const Intersect &isec = sray.isec;
-
-    ensure_space (isec.context);
-
-    Surface::IsecCtx isec_ctx (isec);
+    ensure_space (sray.isec.context);
     return space->shadow (sray, isec_ctx);
   }
 

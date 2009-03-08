@@ -1,6 +1,6 @@
 // sphere.cc -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -92,7 +92,8 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
 // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
-Material::ShadowType Sphere::shadow (const ShadowRay &ray) const
+Material::ShadowType Sphere::shadow (const ShadowRay &ray, const IsecCtx &)
+  const
 {
   dist_t t
     = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);

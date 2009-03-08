@@ -116,7 +116,9 @@ public:
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  virtual Material::ShadowType shadow (const ShadowRay &ray) const;
+  virtual Material::ShadowType shadow (const ShadowRay &ray,
+				       const IsecCtx &isec_ctx)
+    const;
 
   // Return a bounding box for this surface.
   //

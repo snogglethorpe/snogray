@@ -1,6 +1,6 @@
 // instance.h -- Transformed virtual instance of a surface
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -42,7 +42,9 @@ public:
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  virtual Material::ShadowType shadow (const ShadowRay &ray) const;
+  virtual Material::ShadowType shadow (const ShadowRay &ray,
+				       const IsecCtx &isec_ctx)
+    const;
 
   // Return a bounding box for this surface.
   //

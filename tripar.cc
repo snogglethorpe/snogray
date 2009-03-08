@@ -1,6 +1,6 @@
 // tripar.cc -- Triangle/parallelogram surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -78,7 +78,7 @@ Tripar::IsecInfo::make_intersect (Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Tripar::shadow (const ShadowRay &ray) const
+Tripar::shadow (const ShadowRay &ray, const IsecCtx &) const
 {
   dist_t t, u, v;
   if (intersects (ray, t, u, v))

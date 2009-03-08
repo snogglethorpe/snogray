@@ -1,6 +1,6 @@
 // mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -455,7 +455,7 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
 // have a different coordinate system than RAY).
 //
 Material::ShadowType
-Mesh::Triangle::shadow (const ShadowRay &ray) const
+Mesh::Triangle::shadow (const ShadowRay &ray, const IsecCtx &) const
 {
   // We have to convert the types to match that of RAY first.
   //

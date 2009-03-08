@@ -166,7 +166,7 @@ Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 
       if (hint)
 	{
-	  Material::ShadowType shadow_type = hint->shadow (ray);
+	  Material::ShadowType shadow_type = hint->shadow (ray, isec_ctx);
 
 	  if (shadow_type == Material::SHADOW_OPAQUE)
 	    {
@@ -216,7 +216,7 @@ Scene::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 
       if (hint)
 	{
-	  Material::ShadowType shadow_type = hint->shadow (ray);
+	  Material::ShadowType shadow_type = hint->shadow (ray, isec_ctx);
 
 	  if (shadow_type != Material::SHADOW_NONE)
 	    {

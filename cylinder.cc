@@ -1,6 +1,6 @@
 // cylinder.cc -- Cylindrical surface
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -127,7 +127,7 @@ Cylinder::IsecInfo::make_intersect (Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Cylinder::shadow (const ShadowRay &sray) const
+Cylinder::shadow (const ShadowRay &sray, const IsecCtx &) const
 {
   Ray oray = world_to_local (sray.as_ray ());
 

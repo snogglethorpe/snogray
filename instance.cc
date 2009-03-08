@@ -1,6 +1,6 @@
 // instance.cc -- Transformed object subspace
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -80,12 +80,12 @@ Instance::IsecInfo::make_intersect (Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Instance::shadow (const ShadowRay &sray) const
+Instance::shadow (const ShadowRay &sray, const IsecCtx &isec_ctx) const
 {
   // Transform the ray for searching our subspace.
   //
   ShadowRay xformed_sray = world_to_local (sray);
-  return subspace->shadow (xformed_sray);
+  return subspace->shadow (xformed_sray, isec_ctx);
 }
 
 // Return a bounding box for this surface.
