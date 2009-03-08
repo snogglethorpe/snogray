@@ -19,7 +19,6 @@
 namespace snogray {
 
 
-class Surface;
 class TraceContext;
 class TraceCache;
 
@@ -44,11 +43,11 @@ public:
   // Constructor for sub-traces
   //
   Trace (float branch_factor, Type type, const Medium &_medium,
-	 Trace &_parent);
+	 const Trace &_parent);
 
   // Searches back through the trace history to find the enclosing medium.
   //
-  const Medium &enclosing_medium ();
+  const Medium &enclosing_medium () const;
 
   // Return the depth of tracing at this trace.  1 == (camera/eye) ray.
   //
@@ -63,11 +62,13 @@ public:
 
   // Parent state
   //
-  Trace *parent;
+  const Trace *parent;
 
-  // Stuff that's only allocated once.
+  // Stuff that's only allocated once.  The context is generally
+  // modifiable (e.g., for memory allocation or stats) even when a Trace
+  // is const, so mark it as mutable.
   //
-  TraceContext &context;
+  mutable TraceContext &context;
 
   // What kind of trace this is
   //
@@ -85,9 +86,11 @@ public:
   //
   const Medium &medium;
 
-  // Downward tree of cached information at this trace point.
+  // Downward tree of cached information at this trace point.  The cache
+  // is generally modifiable even when a Trace is const, so mark it as
+  // mutable.
   //
-  TraceCache &cache;
+  mutable TraceCache &cache;
 
 private:
 

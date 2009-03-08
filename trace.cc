@@ -10,7 +10,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "scene.h"
 #include "trace-context.h"
 #include "trace-cache.h"
 
@@ -30,7 +29,7 @@ Trace::Trace (TraceContext &_context, TraceCache &_root_cache)
 // Constructor for sub-traces
 //
 Trace::Trace (float branch_factor, Type _type, const Medium &_medium,
-	      Trace &_parent)
+	      const Trace &_parent)
   : parent (&_parent), context (_parent.context), type (_type),
     complexity (_parent.complexity * branch_factor), medium (_medium),
     cache (parent->cache.sub_cache (type, context))
@@ -39,7 +38,7 @@ Trace::Trace (float branch_factor, Type _type, const Medium &_medium,
 // Searches back through the trace history to find the enclosing medium.
 //
 const Medium &
-Trace::enclosing_medium ()
+Trace::enclosing_medium () const
 {
   const Trace *ts = this;
 

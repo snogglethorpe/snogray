@@ -109,9 +109,9 @@ IllumMgr::IllumHandler::partition_samples (IllumSampleVec::iterator beg,
 Color
 IllumMgr::lo (const Intersect &isec) const
 {
-  Trace &trace = isec.trace;
   TraceContext &context = isec.context;
   const Scene &scene = context.scene;
+  const Trace &trace = isec.trace;
 
   context.stats.illum_calls++;
 

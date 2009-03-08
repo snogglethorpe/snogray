@@ -87,7 +87,7 @@ public:
   //
   Mempool &mempool () const { return context.mempool; }
 
-  // Ray which intersected something; its endpoint is the point of intersection.
+  // Ray which intersected something; its endpoint is the point of intersectio.n
   //
   Ray ray;
 
@@ -161,7 +161,7 @@ public:
 
   // Trace this intersection came from.
   //
-  Trace &trace;
+  const Trace &trace;
 
   // Global tracing context.
   //
