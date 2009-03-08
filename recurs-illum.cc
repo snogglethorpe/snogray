@@ -106,8 +106,8 @@ RecursIllum::lo (const Intersect &isec,
 		new_medium = refr_medium;
 	      }
 
-	    Trace &sub_trace
-	      = isec.subtrace (branch_factor, subtrace_type, new_medium);
+	    Trace sub_trace (branch_factor, subtrace_type, new_medium,
+			     isec.trace);
 
 	    val = illum_mgr.li (s->isec_info, sub_trace);
 

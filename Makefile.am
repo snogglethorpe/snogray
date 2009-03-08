@@ -136,7 +136,8 @@ libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h grid-iter.h	\
 	intersect.cc intersect.h isec-cache.h mis-illum.cc mis-illum.h	\
 	ray.cc ray.h recurs-illum.cc recurs-illum.h sample-disk.h	\
 	sample2-gen.h shadow-ray.h trace-params.h trace-stats.cc	\
-	trace-stats.h trace.cc trace.h trace-context.cc trace-context.h
+	trace.cc trace.h trace-cache.cc trace-cache.h trace-context.cc	\
+	trace-context.h trace-stats.h
 
 
 ################################################################

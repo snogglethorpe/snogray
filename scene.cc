@@ -12,9 +12,10 @@
 
 #include <memory>		// for auto_ptr
 
-#include "trace-context.h"
 #include "space.h"
 #include "envmap.h"
+#include "trace-context.h"
+#include "trace-cache.h"
 
 #include "scene.h"
 
@@ -93,8 +94,8 @@ Scene::build_space (const SpaceBuilderBuilder *space_builder_builder)
 const Surface::IsecInfo *
 Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 {
-  Trace &trace = isec_ctx.trace;
   TraceContext &context = isec_ctx.context;
+  TraceCache &cache = isec_ctx.cache;
 
   context.stats.scene_intersect_calls++;
 
@@ -103,7 +104,7 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
   // a limited search space.
   //
   const Surface::IsecInfo *hint_isec_info = 0;
-  const Surface *hint = trace.horizon_hint;
+  const Surface *hint = cache.horizon_hint;
   if (hint)
     {
       hint_isec_info = hint->intersect (ray, isec_ctx);
@@ -114,7 +115,7 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 	context.stats.horizon_hint_hits++;
       else
 	{
-	  trace.horizon_hint = 0; // clear the hint
+	  cache.horizon_hint = 0; // clear the hint
 	  context.stats.horizon_hint_misses++;
 	}
     }
@@ -126,7 +127,7 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
   // (which will be zero if that didn't work out either).
   //
   if (isec_info)
-    trace.horizon_hint = isec_info->outermost_surface ();
+    cache.horizon_hint = isec_info->outermost_surface ();
   else
     isec_info = hint_isec_info;
 
@@ -141,8 +142,8 @@ Scene::intersect (Ray &ray, const Surface::IsecCtx &isec_ctx) const
 Material::ShadowType
 Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 {
-  Trace &trace = isec_ctx.trace;
   TraceContext &context = isec_ctx.context;
+  TraceCache &cache = isec_ctx.cache;
 
   context.stats.scene_shadow_tests++;
 
@@ -161,7 +162,7 @@ Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
   //
   if (ray.light)
     {
-      const Surface *hint = trace.shadow_hints[ray.light->num];
+      const Surface *hint = cache.shadow_hints[ray.light->num];
 
       if (hint)
 	{
@@ -176,7 +177,7 @@ Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 	    // It didn't work; clear this hint out.
 	    {
 	      context.stats.shadow_hint_misses++;
-	      trace.shadow_hints[ray.light->num] = 0;
+	      cache.shadow_hints[ray.light->num] = 0;
 	    }
 	}
     }
@@ -191,8 +192,8 @@ Scene::shadow (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 bool
 Scene::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 {
-  Trace &trace = isec_ctx.trace;
   TraceContext &context = isec_ctx.context;
+  TraceCache &cache = isec_ctx.cache;
 
   context.stats.scene_shadow_tests++;
 
@@ -211,7 +212,7 @@ Scene::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
   //
   if (ray.light)
     {
-      const Surface *hint = trace.shadow_hints[ray.light->num];
+      const Surface *hint = cache.shadow_hints[ray.light->num];
 
       if (hint)
 	{
@@ -226,7 +227,7 @@ Scene::shadows (const ShadowRay &ray, Surface::IsecCtx &isec_ctx) const
 	    // It didn't work; clear this hint out.
 	    {
 	      context.stats.shadow_hint_misses++;
-	      trace.shadow_hints[ray.light->num] = 0;
+	      cache.shadow_hints[ray.light->num] = 0;
 	    }
 	}
     }

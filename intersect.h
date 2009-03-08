@@ -47,22 +47,6 @@ public:
 
   ~Intersect ();
 
-  // Returns a pointer to the trace for a subtrace of the given
-  // type (possibly creating a new one, if no such subtrace has yet been
-  // encountered).
-  //
-  Trace &subtrace (float branch_factor, Trace::Type type, const Medium *medium)
-    const
-  {
-    return trace.subtrace (branch_factor, type, medium);
-  }
-  // For sub-traces with no specified medium, propagate the current one.
-  //
-  Trace &subtrace (float branch_factor, Trace::Type type) const
-  {
-    return trace.subtrace (branch_factor, type);
-  }
-
   // Returns the cosine of the angle between the surface normal and VEC.
   // VEC must be in this intersection's normal frame, and must be
   // normalized.

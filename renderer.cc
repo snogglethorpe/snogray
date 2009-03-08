@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "filter.h"
 #include "sample2-gen.h"
+#include "trace-cache.h"
 
 #include "renderer.h"
 
@@ -98,18 +99,13 @@ Renderer::render_block (int x, int y, int w, int h)
       if (filt_rad != 0 && x + w == max_x)
 	w += filt_rad;
 
-      // This is basically a cache to speed up tracing by holding hints
-      // that take advantage of spatial coherency.  We create a new one
-      // for each block as the state at the end of the previous block is
-      // probably not too useful anyway.
-      //
-      Trace trace (trace_context);
+      TraceCache root_cache (trace_context);
 
       // Render the desired rows row by row, and pixel by pixel
       //
       for (int py = y; py < y + h; py++)
 	for (int px = x; px < x + w; px++)
-	  render_pixel (px, py, trace);
+	  render_pixel (px, py, root_cache);
     }
 }
 
@@ -121,7 +117,7 @@ Renderer::render_block (int x, int y, int w, int h)
 // included in an in-bound pixel by the output filter).
 //
 void
-Renderer::render_pixel (int x, int y, Trace &trace)
+Renderer::render_pixel (int x, int y, TraceCache &root_cache)
 {
   // Generate samples within the pixel
   //
@@ -167,13 +163,15 @@ Renderer::render_pixel (int x, int y, Trace &trace)
       //
 
       Ray intersected_ray (camera_ray);
-      Surface::IsecCtx isec_ctx (trace, trace_context);
+      Surface::IsecCtx isec_ctx (trace_context, root_cache);
       const Surface::IsecInfo *isec_info
 	= scene.intersect (intersected_ray, isec_ctx);
 
+      Trace camera_trace (trace_context, root_cache);
+
       Tint tint;
       if (isec_info)
-	tint = illum_mgr.li (isec_info, trace);
+	tint = illum_mgr.li (isec_info, camera_trace);
       else
 	tint = scene.background_with_alpha (camera_ray);
 

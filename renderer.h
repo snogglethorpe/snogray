@@ -26,7 +26,6 @@ class Camera;
 class ImageSink;
 class Filter;
 class Sample2Gen;
-class Trace;
 
 
 class Renderer
@@ -53,7 +52,7 @@ public:
   // out-of-bounds pixels may still affect the output, if they are included
   // in an in-bound pixel by the output filter).
   //
-  void render_pixel (int x, int y, Trace &trace);
+  void render_pixel (int x, int y, TraceCache &root_cache);
 
   TraceStats trace_stats () const { return trace_context.stats; }
 

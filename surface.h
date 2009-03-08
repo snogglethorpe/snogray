@@ -88,20 +88,20 @@ public:
   {
   public:
 
-    IsecCtx (Trace &_trace, TraceContext &_context)
-      : trace (_trace), context (_context)
+    IsecCtx (TraceContext &_context, TraceCache &_cache)
+      : context (_context), cache (_cache)
     { }
     IsecCtx (const Intersect &isec)
-      : trace (isec.trace), context (isec.context)
+      : context (isec.context), cache (isec.trace.cache)
     { }
-
-    // Trace object representing global context of intersection.
-    //
-    Trace &trace;
 
     // Global tracing context.
     //
     TraceContext &context;
+
+    // Information cached at this point in the trace.
+    //
+    TraceCache &cache;
   };
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)

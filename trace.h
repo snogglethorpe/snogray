@@ -14,15 +14,14 @@
 #define __TRACE_H__
 
 #include "medium.h"
-#include "trace-context.h"
 
 
 namespace snogray {
 
 
 class Surface;
-class Intersect;
 class TraceContext;
+class TraceCache;
 
 
 class Trace
@@ -37,45 +36,21 @@ public:
     NUM_TRACE_TYPES
   };
 
-  Trace (TraceContext &_context);
-  Trace (Type _type, Trace *_parent);
-  ~Trace ();
 
-  // Returns a pointer to the trace for a subtrace of the given
-  // type (possibly creating a new one, if no such subtrace has yet been
-  // encountered).
+  // Constructor for a camera/eye Trace.
   //
-  Trace &subtrace (float branch_factor, Type type, const Medium *_medium)
-  {
-    Trace *sub = subtraces[type];
+  Trace (TraceContext &_context, TraceCache &_root_cache);
 
-    if (! sub)
-      {
-	sub = new Trace (type, this);
-	subtraces[type] = sub;
-      }
-
-    // make sure fields are up-to-date
-    //
-    sub->complexity = complexity * branch_factor;
-    sub->medium = _medium;
-
-    return *sub;
-  }
-
-  // For sub-traces with no specified medium, propagate the current one.
+  // Constructor for sub-traces
   //
-  Trace &subtrace (float branch_factor, Type type)
-  {
-    return subtrace (branch_factor, type, medium);
-  }
+  Trace (float branch_factor, Type type, const Medium *_medium,
+	 Trace &_parent);
 
   // Searches back through the trace history to find the enclosing medium.
   //
   const Medium *enclosing_medium ();
 
-  // Rreturn the depth of tracing at this trace.  1 == the main
-  // (camera/eye) ray.
+  // Return the depth of tracing at this trace.  1 == (camera/eye) ray.
   //
   unsigned depth () const
   {
@@ -98,28 +73,6 @@ public:
   //
   Type type;
 
-  // If non-zero, the last surface we found as the closest intersection.
-  // When we do a new trace, we first test that surface for intersection;
-  // if it intersects, it is used to set the initial ray horizon, which
-  // can drastically reduce the search space by excluding all further
-  // surfaces.
-  //
-  const Surface *horizon_hint;
-
-  // An array, indexed by "light number".  Each non-zero entry is an
-  // surface previously found to shadow the given light.  Because nearby
-  // points are often shadowed from a given light by the same surface(s),
-  // testing these surfaces often yields a shadow surface without searching.
-  //
-  const Surface **shadow_hints;
-
-  // traces for various possible sub-traces of this trace (or zero
-  // when a given subtrace-type hasn't yet been encountered at this
-  // level).  traces form a tree with the primary trace as the
-  // root, and various possible recursive traces as children.
-  //
-  Trace *subtraces[NUM_TRACE_TYPES];
-
   // This is a very rough guess at the number of paths will reach this
   // point in the rendering tree.  It is computed simply by multiplying
   // by the branching factor with each recursive trace (and so would
@@ -131,6 +84,10 @@ public:
   // The medium this trace is through.  Zero means "air".
   //
   const Medium *medium;
+
+  // Downward tree of cached information at this trace point.
+  //
+  TraceCache &cache;
 
 private:
 

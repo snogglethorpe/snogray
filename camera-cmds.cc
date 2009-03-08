@@ -20,6 +20,7 @@
 #include "camera.h"
 #include "trace-params.h"
 #include "trace-context.h"
+#include "trace-cache.h"
 
 #include "camera-cmds.h"
 
@@ -200,12 +201,11 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   ValTable render_params;
   TraceParams trace_params (render_params);
   TraceContext trace_context (scene, trace_params);
+  TraceCache root_cache (trace_context);
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 
-  Trace trace (trace_context);
-
-  Surface::IsecCtx isec_ctx (trace, trace_context);
+  Surface::IsecCtx isec_ctx (trace_context, root_cache);
   if (scene.intersect (probe, isec_ctx))
     return probe.dir * probe.length ();
   else

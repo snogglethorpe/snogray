@@ -12,53 +12,29 @@
 
 #include "scene.h"
 #include "trace-context.h"
+#include "trace-cache.h"
 
 #include "trace.h"
 
 using namespace snogray;
 
+
 // Constructor for root Trace
 //
-Trace::Trace (TraceContext &_context)
-  : parent (0), context (_context),
-    type (SPONTANEOUS), horizon_hint (0),
-    complexity (1), medium (0)
-{
-  _init ();
-}
+Trace::Trace (TraceContext &_context, TraceCache &_root_cache)
+  : parent (0), context (_context), type (SPONTANEOUS),
+    complexity (1), medium (0),
+    cache (_root_cache)
+{ }
 
 // Constructor for sub-traces
 //
-Trace::Trace (Type _type, Trace *_parent)
-  : parent (_parent), context (_parent->context),
-    type (_type), horizon_hint (0),
-    complexity (1), medium (parent->medium)
-{
-  _init ();
-}
-
-void
-Trace::_init ()
-{
-  unsigned num_lights = context.scene.num_lights ();
-
-  shadow_hints = new const Surface*[num_lights];
-  for (unsigned i = 0; i < num_lights; i++)
-    shadow_hints[i] = 0;
-
-  for (unsigned i = 0; i < NUM_TRACE_TYPES; i++)
-    subtraces[i] = 0;
-}
-
-Trace::~Trace ()
-{
-  for (unsigned i = 0; i < NUM_TRACE_TYPES; i++)
-    delete subtraces[i];
-
-  delete[] shadow_hints;
-}
-
-
+Trace::Trace (float branch_factor, Type _type, const Medium *_medium,
+	      Trace &_parent)
+  : parent (&_parent), context (_parent.context), type (_type),
+    complexity (_parent.complexity * branch_factor), medium (_medium),
+    cache (parent->cache.sub_cache (type, context))
+{ }
 
 // Searches back through the trace history to find the enclosing medium.
 //
