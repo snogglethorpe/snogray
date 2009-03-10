@@ -19,6 +19,7 @@
 #include "trace-params.h"
 #include "space-builder.h"
 #include "mempool.h"
+#include "medium.h"
 #include "pool.h"
 #include "isec-cache.h"
 
@@ -41,6 +42,10 @@ public:
   const Scene &scene;
 
   const TraceParams &params;
+
+  // Medium assumed to surround all objects.
+  //
+  Medium default_medium;
 
   // This mempool is reset every time control returns to the top level
   // of a trace tree, so should not be used for anything longer-lived
