@@ -1,6 +1,6 @@
 // cook-torrance.cc -- Cook-Torrance material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -180,6 +180,7 @@ private:
     const Vec &l = s->dir;
     const Vec h = (isec.v + l).unit ();
     s->brdf_val = val (l, h, s->brdf_pdf);
+    s->flags |= IllumSample::REFLECTIVE;
   }
 
   // M value used.
