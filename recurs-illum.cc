@@ -109,6 +109,7 @@ RecursIllum::lo (const Intersect &isec,
 		  }
 		new_medium = refr_medium;
 	      }
+	    assert (new_medium, "RecursIllum::lo -- zero medium");
 
 	    Trace sub_trace (branch_factor, subtrace_type, *new_medium,
 			     isec.trace);
