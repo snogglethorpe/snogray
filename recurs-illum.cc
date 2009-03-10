@@ -79,9 +79,8 @@ RecursIllum::lo (const Intersect &isec,
 		  continue;
 	      }
 
-	    assert (s->flags & IllumSample::SAMPLE_DIR,
-		    "RecursIllum::lo -- sample has no direction");
-
+	    // Calculate the type of the new trace segment, and its medium.
+	    //
 	    Trace::Type subtrace_type;
 	    const Medium *new_medium;
 	    if (s->flags & IllumSample::REFLECTIVE)
@@ -89,24 +88,26 @@ RecursIllum::lo (const Intersect &isec,
 		subtrace_type = Trace::REFLECTION;
 		new_medium = &isec.trace.medium; // reflection, new same as old
 	      }
-	    else if (isec.back)
-	      {
-		subtrace_type = Trace::REFRACTION_OUT;
-		if (! calculated_refr_medium)
-		  {
-		    refr_medium = &isec.trace.enclosing_medium ();
-		    calculated_refr_medium = true;
-		  }
-		new_medium = refr_medium;
-	      }
 	    else
 	      {
-		subtrace_type = Trace::REFRACTION_IN;
+		// Must be transmissive
+
+		assert (s->flags & IllumSample::TRANSMISSIVE,
+			"RecursIllum::lo -- sample has no direction");
+
+		subtrace_type
+		  = isec.back ? Trace::REFRACTION_OUT : Trace::REFRACTION_IN;
+
 		if (! calculated_refr_medium)
 		  {
-		    refr_medium = isec.material->medium ();
+		    refr_medium
+		      = (isec.back
+			 ? &isec.trace.enclosing_medium ()
+			 : isec.material->medium ());
+
 		    calculated_refr_medium = true;
 		  }
+
 		new_medium = refr_medium;
 	      }
 	    assert (new_medium, "RecursIllum::lo -- zero medium");
