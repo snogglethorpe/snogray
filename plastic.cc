@@ -1,6 +1,6 @@
 // plastic.h -- Plastic (thin, transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -37,7 +37,7 @@ public:
     // Calculate fresnel surface reflection at the ray angle
     //
     float cos_xmit_angle = isec.cos_n (isec.v);
-    float medium_ior = isec.trace.medium ? isec.trace.medium->ior : 1;
+    float medium_ior = isec.trace.medium.ior;
     float refl = Fresnel (medium_ior, plastic.ior).reflectance (cos_xmit_angle);
 
     // Render transmitted light (some light is lost due to fresnel reflection

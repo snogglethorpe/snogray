@@ -23,13 +23,13 @@ using namespace snogray;
 //
 Trace::Trace (TraceContext &_context, TraceCache &_root_cache)
   : parent (0), context (_context), type (SPONTANEOUS),
-    complexity (1), medium (0),
+    complexity (1), medium (_context.default_medium),
     cache (_root_cache)
 { }
 
 // Constructor for sub-traces
 //
-Trace::Trace (float branch_factor, Type _type, const Medium *_medium,
+Trace::Trace (float branch_factor, Type _type, const Medium &_medium,
 	      Trace &_parent)
   : parent (&_parent), context (_parent.context), type (_type),
     complexity (_parent.complexity * branch_factor), medium (_medium),
@@ -55,7 +55,7 @@ Trace::enclosing_medium ()
       ts = ts->parent;
     }
 
-  return ts ? ts->medium : 0;
+  return ts ? &ts->medium : &context.default_medium;
 }
 
 

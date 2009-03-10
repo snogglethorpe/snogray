@@ -43,7 +43,7 @@ public:
 
   // Constructor for sub-traces
   //
-  Trace (float branch_factor, Type type, const Medium *_medium,
+  Trace (float branch_factor, Type type, const Medium &_medium,
 	 Trace &_parent);
 
   // Searches back through the trace history to find the enclosing medium.
@@ -83,7 +83,7 @@ public:
 
   // The medium this trace is through.  Zero means "air".
   //
-  const Medium *medium;
+  const Medium &medium;
 
   // Downward tree of cached information at this trace point.
   //

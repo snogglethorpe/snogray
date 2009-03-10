@@ -87,7 +87,7 @@ RecursIllum::lo (const Intersect &isec,
 	    if (s->flags & IllumSample::REFLECTIVE)
 	      {
 		subtrace_type = Trace::REFLECTION;
-		new_medium = isec.trace.medium; // reflection, new same as old
+		new_medium = &isec.trace.medium; // reflection, new same as old
 	      }
 	    else if (isec.back)
 	      {
@@ -110,7 +110,7 @@ RecursIllum::lo (const Intersect &isec,
 		new_medium = refr_medium;
 	      }
 
-	    Trace sub_trace (branch_factor, subtrace_type, new_medium,
+	    Trace sub_trace (branch_factor, subtrace_type, *new_medium,
 			     isec.trace);
 
 	    val = illum_mgr.li (s->isec_info, sub_trace);

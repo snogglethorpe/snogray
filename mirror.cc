@@ -1,6 +1,6 @@
 // mirror.cc -- Mirror (reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ public:
       underlying_brdf (_mirror.underlying_material
 		       ? _mirror.underlying_material->get_brdf (_isec)
 		       : 0),
-      fres (isec.trace.medium ? isec.trace.medium->ior : 1, _mirror.ior),
+      fres (isec.trace.medium.ior, _mirror.ior),
       reflectance (_mirror.reflectance.eval (isec))
   { }
 

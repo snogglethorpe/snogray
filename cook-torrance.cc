@@ -45,7 +45,7 @@ public:
       diff_weight (diff_col.intensity ()),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
-      fres (isec.trace.medium ? isec.trace.medium->ior : 1, ct.ior),
+      fres (isec.trace.medium.ior, ct.ior),
       nv (isec.cos_n (isec.v)), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv),
       spec_flags (m < GLOSSY_M ? IllumSample::GLOSSY : IllumSample::DIFFUSE)
   { }
