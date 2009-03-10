@@ -29,10 +29,8 @@ public:
 
   GlassBrdf (const Glass &glass, const Intersect &isec)
     : Brdf (isec), entering (! isec.back),
-      old_medium (entering ? &isec.trace.medium : &glass._medium),
-      new_medium (entering ? &glass._medium : &isec.trace.enclosing_medium ()),
-      old_ior (old_medium ? old_medium->ior : 1),
-      new_ior (new_medium ? new_medium->ior : 1)
+      old_ior ((entering ? isec.trace.medium : glass._medium).ior),
+      new_ior ((entering ? glass._medium : isec.trace.enclosing_medium ()).ior)
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.
@@ -121,10 +119,6 @@ private:
   // Are we entering or exiting the medium enclosed by the glass surface?
   //
   bool entering;
-
-  // The old (from which the eye ray is coming) and new media.
-  //
-  const Medium *old_medium, *new_medium;
 
   // The indices of refraction of OLD_MEDIUM and NEW_MEDIUM.
   //
