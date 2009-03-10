@@ -81,7 +81,7 @@ public:
   //
   float complexity;
 
-  // The medium this trace is through.  Zero means "air".
+  // The medium this trace is through.
   //
   const Medium &medium;
 
