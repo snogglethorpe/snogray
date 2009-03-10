@@ -48,7 +48,7 @@ public:
 
   // Searches back through the trace history to find the enclosing medium.
   //
-  const Medium *enclosing_medium ();
+  const Medium &enclosing_medium ();
 
   // Return the depth of tracing at this trace.  1 == (camera/eye) ray.
   //

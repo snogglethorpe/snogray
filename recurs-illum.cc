@@ -94,7 +94,7 @@ RecursIllum::lo (const Intersect &isec,
 		subtrace_type = Trace::REFRACTION_OUT;
 		if (! calculated_refr_medium)
 		  {
-		    refr_medium = isec.trace.enclosing_medium ();
+		    refr_medium = &isec.trace.enclosing_medium ();
 		    calculated_refr_medium = true;
 		  }
 		new_medium = refr_medium;

@@ -38,7 +38,7 @@ Trace::Trace (float branch_factor, Type _type, const Medium &_medium,
 
 // Searches back through the trace history to find the enclosing medium.
 //
-const Medium *
+const Medium &
 Trace::enclosing_medium ()
 {
   const Trace *ts = this;
@@ -55,7 +55,7 @@ Trace::enclosing_medium ()
       ts = ts->parent;
     }
 
-  return ts ? &ts->medium : &context.default_medium;
+  return ts ? ts->medium : context.default_medium;
 }
 
 
