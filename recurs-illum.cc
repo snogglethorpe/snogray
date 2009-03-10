@@ -12,6 +12,7 @@
 
 #include "scene.h"
 #include "illum-mgr.h"
+#include "snogassert.h"
 
 #include "recurs-illum.h"
 
@@ -77,6 +78,9 @@ RecursIllum::lo (const Intersect &isec,
 		else if (random (rr_adj) > 1)
 		  continue;
 	      }
+
+	    assert (s->flags & IllumSample::SAMPLE_DIR,
+		    "RecursIllum::lo -- sample has no direction");
 
 	    Trace::Type subtrace_type;
 	    const Medium *new_medium;
