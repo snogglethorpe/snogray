@@ -1,4 +1,4 @@
-// trace.h -- State during tracing
+// trace.h -- Tracing path
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
@@ -23,10 +23,21 @@ class TraceContext;
 class TraceCache;
 
 
+// A node in a tracing path.
+//
+// A Trace object corresponds to a single segment in the tracing path,
+// starting from a vertex where it continues from the previous segment.
+//
+// The Trace::type field describes the type of the originating vertex of
+// the segment, usually describing the mechanism by which the direction
+// change happened (or SPONTANEOUS meaning there is no previous segment).
+//
 class Trace
 {
 public:
 
+  // The type of transition from one Trace node to another.
+  //
   enum Type {
     SPONTANEOUS,
     REFLECTION,
@@ -36,7 +47,7 @@ public:
   };
 
 
-  // Constructor for a camera/eye Trace.
+  // Constructor for a root (camera/eye) Trace.
   //
   Trace (TraceContext &_context, TraceCache &_root_cache);
 
@@ -49,7 +60,9 @@ public:
   //
   const Medium &enclosing_medium () const;
 
-  // Return the depth of tracing at this trace.  1 == (camera/eye) ray.
+  // Return the depth of tracing at this trace, i.e., the number of
+  // segments from the first segment to this one, inclusive.
+  // The value will be 1 for a camera/eye ray.
   //
   unsigned depth () const
   {
@@ -60,7 +73,8 @@ public:
   }
 
 
-  // Source trace, or zero if this is the first.
+  // The previous segment in the trace path, or zero if this is the first
+  // segment (in which case, the type should be SPONTANEOUS).
   //
   const Trace *source;
 
@@ -70,7 +84,8 @@ public:
   //
   mutable TraceContext &context;
 
-  // What kind of trace this is
+  // The type of transition from the previous segment in the trace path
+  // (pointed to by the "source" field) to this segment.
   //
   Type type;
 

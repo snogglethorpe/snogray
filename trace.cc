@@ -1,4 +1,4 @@
-// trace.cc -- State during tracing
+// trace.cc -- Tracing path
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
@@ -56,8 +56,6 @@ Trace::enclosing_medium () const
 
   return ts ? ts->medium : context.default_medium;
 }
-
-
 
 
 // arch-tag: 03555891-462c-40bb-80b8-5f889c4cba44
