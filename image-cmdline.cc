@@ -37,12 +37,12 @@ snogray::parse_image_exposure_option (CmdLineParser &clp, ValTable &params)
   // First look for an exposure; it can either an explicit multiplicative
   // factor, prefixed by "*" or "/", or an adjustment in "stops", prefixed
   // by "+" or "-" (+N is equivalent to *(2^N)).  A number with no prefix
-  // is treated as if it were preceded by "+".
+  // is treated as if it were preceded by "*".
   //
   char eop = *arg;
   if (isdigit (eop))
     {
-      eop = '+';
+      eop = '*';
       arg--;	// pretend we saw something
     }
   if (eop == '+' || eop == '-' || eop == '*' || eop == '/')
