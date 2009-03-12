@@ -91,11 +91,8 @@ public:
   // mutable.
   //
   mutable TraceCache &cache;
-
-private:
-
-  void _init ();
 };
+
 
 }
 
