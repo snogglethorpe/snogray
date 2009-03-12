@@ -43,7 +43,7 @@ public:
   // Constructor for sub-traces
   //
   Trace (float branch_factor, Type type, const Medium &_medium,
-	 const Trace &_parent);
+	 const Trace &_source);
 
   // Searches back through the trace history to find the enclosing medium.
   //
@@ -54,15 +54,15 @@ public:
   unsigned depth () const
   {
     unsigned d = 1;
-    for (const Trace *t = parent; t; t = t->parent)
+    for (const Trace *t = source; t; t = t->source)
       d++;
     return d;
   }
 
 
-  // Parent state
+  // Source trace, or zero if this is the first.
   //
-  const Trace *parent;
+  const Trace *source;
 
   // Stuff that's only allocated once.  The context is generally
   // modifiable (e.g., for memory allocation or stats) even when a Trace
