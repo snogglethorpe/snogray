@@ -29,7 +29,6 @@ DirectIllum::shadow_test (const Intersect &isec,
 			  IllumSampleVec::iterator end)
   const
 {
-  Trace &trace = isec.trace;
   TraceContext &context = isec.context;
   const Scene &scene = context.scene;
 
