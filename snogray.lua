@@ -1,6 +1,6 @@
 -- snogray.lua -- Lua scene interface for snogray
 --
---  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -580,6 +580,33 @@ function glass (params)
    _absorb = color (_absorb)
 
    return postproc_material (raw.glass (raw.Medium (_ior, _absorb)), params)
+end
+
+-- Return a plastic material.
+-- PARAMS can be:
+--   IOR
+--   {ior=IOR, color=COLOR}
+--   {COLOR, ior=IOR}
+-- etc
+--
+function plastic (params)
+   local _ior = 1.5
+   local _color = white
+
+   if type (params) == "number" then
+      _ior = params
+   elseif type (params) == "table"
+      and (params.ior or params.color or params.col)
+   then
+      _ior = params.ior or params[1] or _ior
+      _color = params.color or params.col or params[2] or _color
+   else
+      _color = params
+   end
+
+   _color = color (_color)
+
+   return postproc_material (raw.plastic (_color, _ior), params)
 end
 
 function glow (col, underlying)
