@@ -1,6 +1,6 @@
 // plastic.h -- Plastic (thin, transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,6 +29,9 @@ public:
 
   Plastic (const Color &col, float _ior = 1.5)
     : Material (Material::SHADOW_MEDIUM), color (col), ior (_ior)
+  { }
+  Plastic (float _ior = 1.5)
+    : Material (Material::SHADOW_MEDIUM), color (1), ior (_ior)
   { }
 
   // Return a new BRDF object for this material instantiated at ISEC.
