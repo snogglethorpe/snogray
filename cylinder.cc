@@ -117,8 +117,8 @@ Cylinder::IsecInfo::make_intersect (Trace &trace) const
   //
   UV dTds (INV_PIf * 0.5f, 0), dTdt (0, 0.5f);
 
-  return Intersect (ray, cylinder, Frame (point, s, t, norm),
-		    tex_coords, dTds, dTdt, trace);
+  return Intersect (trace, cylinder, Frame (point, s, t, norm),
+		    tex_coords, dTds, dTdt);
 }
 
 // Return the strongest type of shadowing effect this surface has on

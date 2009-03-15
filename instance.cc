@@ -56,7 +56,6 @@ Instance::IsecInfo::make_intersect (Trace &trace) const
 
   // Now transform parts of it to be in the global space.
   //
-  isec.ray = ray;
   isec.normal_frame.origin
     = instance->local_to_world (isec.normal_frame.origin);
   isec.normal_frame.x

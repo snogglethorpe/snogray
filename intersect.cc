@@ -89,7 +89,7 @@ Intersect::finish_init (const UV &dTds, const UV &dTdt)
 
   // Eye ray in the world frame.
   //
-  Vec wv = -ray.dir.unit ();
+  Vec wv = -trace.ray.dir.unit ();
 
   // Now that bump-mapping has been done, calculate stuff that depends
   // on on the normal frame.
@@ -133,10 +133,10 @@ Intersect::finish_init (const UV &dTds, const UV &dTdt)
 
 
 
-Intersect::Intersect (const Ray &_ray, const Surface *_surface,
-		      const Frame &_normal_frame, const UV &_tex_coords,
-		      const UV &dTds, const UV &dTdt, Trace &_trace)
-  : ray (_ray), surface (_surface),
+Intersect::Intersect (Trace &_trace, const Surface *_surface,
+		      const Frame &_normal_frame,
+		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
+  : surface (_surface),
     normal_frame (_normal_frame), geom_frame (_normal_frame),
     // v and back are initialized by Intersect::finish_init
     material (&*_surface->material), brdf (0),
@@ -147,11 +147,10 @@ Intersect::Intersect (const Ray &_ray, const Surface *_surface,
   finish_init (dTds, dTdt);
 }
 
-Intersect::Intersect (const Ray &_ray, const Surface *_surface,
+Intersect::Intersect (Trace &_trace, const Surface *_surface,
 		      const Frame &_normal_frame, const Frame &_geom_frame,
-		      const UV &_tex_coords,
-		      const UV &dTds, const UV &dTdt, Trace &_trace)
-  : ray (_ray), surface (_surface),
+		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
+  : surface (_surface),
     normal_frame (_normal_frame), geom_frame (_geom_frame),
     // v, geom_n, and back are initialized by Intersect::finish_init
     material (&*_surface->material), brdf (0),

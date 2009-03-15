@@ -80,7 +80,7 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
   //
   UV dTds (inv_z_circum, 0), dTdt (0, inv_circum * 2);
 
-  Intersect isec (ray, sphere, Frame (point, s, t, norm), T, dTds, dTdt, trace);
+  Intersect isec (trace, sphere, Frame (point, s, t, norm), T, dTds, dTdt);
 
   isec.no_self_shadowing = !isec.back;
 

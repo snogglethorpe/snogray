@@ -37,13 +37,12 @@ class Intersect
 {
 public:
 
-  Intersect (const Ray &_ray, const Surface *_surface,
-	     const Frame &_normal_frame, const UV &_tex_coords,
-	     const UV &dTds, const UV &dTdt, Trace &_trace);
-  Intersect (const Ray &_ray, const Surface *_surface,
+  Intersect (Trace &_trace, const Surface *_surface,
+	     const Frame &_normal_frame,
+	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
+  Intersect (Trace &_trace, const Surface *_surface,
 	     const Frame &_normal_frame, const Frame &_geom_frame,
-	     const UV &_tex_coords,
-	     const UV &dTds, const UV &dTdt, Trace &_trace);
+	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
 
   ~Intersect ();
 
@@ -87,12 +86,9 @@ public:
   //
   Mempool &mempool () const { return context.mempool; }
 
-  // Ray which intersected something; its endpoint is the point of intersectio.n
-  //
-  Ray ray;
-
-  // The surface which RAY intersected.  This should always be non-zero
-  // (it's not a reference because all uses are as a pointer).
+  // The surface which the source ray intersected.  This should always
+  // be non-zero (it's not a reference because all uses are as a
+  // pointer).
   //
   const Surface *surface;
 
@@ -133,7 +129,7 @@ public:
   //
   Vec geom_n;
 
-  // True if RAY hit the back of SURFACE (relative to the normal).
+  // True if the source ray hit the back of SURFACE (relative to the normal).
   //
   bool back;
 

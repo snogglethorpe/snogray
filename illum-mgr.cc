@@ -68,7 +68,7 @@ IllumMgr::li (const Surface::IsecInfo *isec_info, Trace &trace) const
   // medium.
   //
   if (&trace.medium != &trace.context.default_medium)
-    radiance = trace.medium.attenuate (radiance, isec.ray.t1);
+    radiance = trace.medium.attenuate (radiance, trace.ray.t1);
 
   return radiance;
 }
