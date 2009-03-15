@@ -116,7 +116,7 @@ RecursIllum::lo (const Intersect &isec,
 	      }
 	    assert (new_medium, "RecursIllum::lo -- zero medium");
 
-	    Trace sub_trace (branch_factor, subtrace_type, *new_medium,
+	    Trace sub_trace (subtrace_type, *new_medium, branch_factor,
 			     isec.trace);
 
 	    val = illum_mgr.li (s->isec_info, sub_trace);

@@ -53,7 +53,7 @@ public:
 
   // Constructor for sub-traces
   //
-  Trace (float branch_factor, Type type, const Medium &_medium,
+  Trace (Type type, const Medium &_medium, float branch_factor,
 	 const Trace &_source);
 
   // Searches back through the trace history to find the enclosing medium.

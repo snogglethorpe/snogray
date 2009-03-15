@@ -28,7 +28,7 @@ Trace::Trace (TraceContext &_context, TraceCache &_root_cache)
 
 // Constructor for sub-traces
 //
-Trace::Trace (float branch_factor, Type _type, const Medium &_medium,
+Trace::Trace (Type _type, const Medium &_medium, float branch_factor,
 	      const Trace &_source)
   : source (&_source), context (_source.context), type (_type),
     complexity (_source.complexity * branch_factor), medium (_medium),
