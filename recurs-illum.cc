@@ -100,10 +100,14 @@ RecursIllum::lo (const Intersect &isec,
 
 		if (! calculated_refr_medium)
 		  {
-		    refr_medium
-		      = (isec.back
-			 ? &isec.trace.enclosing_medium ()
-			 : isec.material->medium ());
+		    if (isec.back)
+		      refr_medium = &isec.trace.enclosing_medium ();
+		    else
+		      {
+			refr_medium = isec.material->medium ();
+			if (! refr_medium)
+			  refr_medium = &isec.trace.medium;
+		      }
 
 		    calculated_refr_medium = true;
 		  }
