@@ -13,6 +13,7 @@
 #ifndef __TRACE_H__
 #define __TRACE_H__
 
+#include "ray.h"
 #include "medium.h"
 
 
@@ -49,11 +50,11 @@ public:
 
   // Constructor for a root (camera/eye) Trace.
   //
-  Trace (TraceContext &_context, TraceCache &_root_cache);
+  Trace (const Ray &ray, TraceContext &_context, TraceCache &_root_cache);
 
   // Constructor for sub-traces
   //
-  Trace (Type type, const Medium &_medium, float branch_factor,
+  Trace (Type type, const Ray &ray, const Medium &_medium, float branch_factor,
 	 const Trace &_source);
 
   // Searches back through the trace history to find the enclosing medium.
@@ -88,6 +89,11 @@ public:
   // (pointed to by the "source" field) to this segment.
   //
   Type type;
+
+  // Ray describing the physical extent of this segment, starting from
+  // the point where intersects the previous segment in the trace path.
+  //
+  Ray ray;
 
   // This is a very rough guess at the number of paths will reach this
   // point in the rendering tree.  It is computed simply by multiplying

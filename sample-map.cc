@@ -33,11 +33,14 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
   TraceContext trace_context (scene, trace_params);
-  Trace trace (scene, trace_context);
 
-  const Surface::IsecInfo *isec_info = scene.intersect (intersected_ray, trace);
+  IsecCtx isec_ctx (trace_context, root_cache);
+  const Surface::IsecInfo *isec_info
+    = scene.intersect (intersected_ray, isec_ctx);
+
   if (isec_info)
     {
+      Trace trace (isec_info->ray, trace_context, root_cache);
       Intersect isec = isec_info->make_intersect (trace);
       unsigned num = illum_mgr.gen_samples (isec, samples);
 

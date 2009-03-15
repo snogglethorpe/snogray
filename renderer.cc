@@ -167,7 +167,7 @@ Renderer::render_pixel (int x, int y, TraceCache &root_cache)
       const Surface::IsecInfo *isec_info
 	= scene.intersect (intersected_ray, isec_ctx);
 
-      Trace camera_trace (trace_context, root_cache);
+      Trace camera_trace (isec_info->ray, trace_context, root_cache);
 
       Tint tint;
       if (isec_info)
