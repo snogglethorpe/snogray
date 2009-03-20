@@ -57,8 +57,6 @@ public:
   TraceStats trace_stats () const { return trace_context.stats; }
 
 
-private:
-
   // The scene and camera being rendered.
   //
   const Scene &scene;

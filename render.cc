@@ -1,6 +1,6 @@
 // render.cc -- Main rendering loop
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,31 +28,25 @@ using namespace snogray;
 
 
 static void
-render_by_rows (const Scene &scene, const Camera &camera,
-		unsigned width, unsigned height,
-		ImageOutput &output, unsigned offs_x, unsigned offs_y,
-		IllumMgr &illum_mgr,
-		Sample2Gen &sample_gen, Sample2Gen &focus_sample_gen,
-		const TraceParams &trace_params, TraceStats &stats,
+render_by_rows (Renderer &renderer,
 		std::ostream &prog_stream, Progress::Verbosity verbosity)
 {
+  ImageOutput &output = renderer.output;
+
   // Start progress indicator
   //
-  Progress prog (prog_stream, "line", offs_y, offs_y + output.height,
+  Progress prog (prog_stream, "line",
+		 renderer.lim_y, renderer.lim_y + output.height,
 		 verbosity);
 
   prog.start ();
 
-  Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     1, illum_mgr, sample_gen, focus_sample_gen, trace_params);
-
   for (unsigned row_offs = 0; row_offs < output.height; row_offs++)
     {
-      renderer.render_block (offs_x, offs_y + row_offs, output.width, 1);
-      prog.update (offs_y + row_offs);
+      renderer.render_block (renderer.lim_x, renderer.lim_y + row_offs,
+			     output.width, 1);
+      prog.update (renderer.lim_y + row_offs);
     }
-
-  stats = renderer.trace_stats ();
 
   prog.end ();
 }
@@ -60,15 +54,12 @@ render_by_rows (const Scene &scene, const Camera &camera,
 
 
 static void
-render_by_blocks (unsigned block_width, unsigned block_height,
-		  const Scene &scene, const Camera &camera,
-		  unsigned width, unsigned height,
-		  ImageOutput &output, unsigned offs_x, unsigned offs_y,
-		  IllumMgr &illum_mgr,
-		  Sample2Gen &sample_gen, Sample2Gen &focus_sample_gen,
-		  const TraceParams &trace_params, TraceStats &stats,
+render_by_blocks (Renderer &renderer,
+		  unsigned block_width, unsigned block_height,
 		  std::ostream &prog_stream, Progress::Verbosity verbosity)
 {
+  ImageOutput &output = renderer.output;
+
   unsigned num_block_rows = (output.height + block_height - 1) / block_height;
   unsigned num_block_cols = (output.width + block_width - 1) / block_width;
   unsigned num_blocks = num_block_cols * num_block_rows;
@@ -78,10 +69,6 @@ render_by_blocks (unsigned block_width, unsigned block_height,
   Progress prog (prog_stream, "block", 0, num_blocks, verbosity);
 
   prog.start ();
-
-  Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     block_height, illum_mgr, sample_gen, focus_sample_gen,
-		     trace_params);
 
   unsigned cur_block_num = 0;
 
@@ -107,7 +94,8 @@ render_by_blocks (unsigned block_width, unsigned block_height,
 	       ? output.height - block_y_offs
 	       : block_height);
 
-	  renderer.render_block (offs_x + block_x_offs, offs_y + block_y_offs,
+	  renderer.render_block (renderer.lim_x + block_x_offs,
+				 renderer.lim_y + block_y_offs,
 				 cur_block_width, cur_block_height);
 
 	  prog.update (cur_block_num++);
@@ -115,8 +103,6 @@ render_by_blocks (unsigned block_width, unsigned block_height,
 
       output.flush ();
     }
-
-  stats = renderer.trace_stats ();
 
   prog.end ();
 }
@@ -162,19 +148,21 @@ snogray::render (const Scene &scene, const Camera &camera,
 	throw std::runtime_error ("Unknown algorithm \"" + algo + "\"");
     }
 
+  bool by_rows = params.get_int ("render-by-rows", 0);
+
+  Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
+		     by_rows ? 1 : 16,
+		     illum_mgr, *sample_gen, *focus_sample_gen,
+		     trace_params);
+
   // Do the actual rendering.
   //
-  if (params.get_int ("render-by-rows", 0))
-    render_by_rows (scene, camera, width, height, output, offs_x, offs_y,
-		    illum_mgr, *sample_gen, *focus_sample_gen,
-		    trace_params, stats,
-		    progress_stream, verbosity);
+  if (by_rows)
+    render_by_rows (renderer, progress_stream, verbosity);
   else
-    render_by_blocks (16, 16,
-		      scene, camera, width, height, output, offs_x, offs_y,
-		      illum_mgr, *sample_gen, *focus_sample_gen,
-		      trace_params, stats,
-		      progress_stream, verbosity);
+    render_by_blocks (renderer, 16, 16, progress_stream, verbosity);
+
+  stats = renderer.trace_stats ();
 }
 
 // arch-tag: cbd1f440-1ebb-465b-a4e3-bd17777245f9
