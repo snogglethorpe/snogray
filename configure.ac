@@ -567,10 +567,26 @@ if test "$GXX" = yes; then
   # The -ftrapping-math option causes g++ to be more careful in such cases,
   # so use that if we're going to enable floating-point exceptions.
   #
+  # Currently, -ftrapping-math causes g++ to automatically disable
+  # -fassociative-math, but prints an annoying warning in the process.
+  # To avoid this, we check for the warning, and if found, explicitly
+  # use -fno-associative-math to silence it.
+  #
   CXX_MATH_OPT_FLAGS="-ffast-math"
   CXX_MATH_REQ_FLAGS="-fno-finite-math-only"   # we allow infinity
   if test "$use_fp_exceptions" = yes; then
     CXX_MATH_REQ_FLAGS="$CXX_MATH_REQ_FLAGS -ftrapping-math"
+
+    # Check for "-fassociative-math disabled" warning, and if found,
+    # explicitly use -fno-associative-math to silence it.
+    #
+    assoc_math_disabled_warning=yes
+    AC_MSG_CHECKING([for "-fassociative-math disabled" warning])
+    AC_EGREP_CPP([fassociative-math disabled], [], [assoc_math_disabled_warning=no])
+    AC_MSG_RESULT([$assoc_math_disabled_warning])
+    if test "$assoc_math_disabled_warning" = yes; then
+      CXX_MATH_REQ_FLAGS="$CXX_MATH_REQ_FLAGS -fno-associative-math"
+    fi
   fi
 
   # Validate extra optimization flags.
@@ -756,6 +772,7 @@ fi
 AC_CONFIG_FILES([Makefile])
 
 AC_OUTPUT
+
 
 m4_if(dnl	Do not change this comment
    arch-tag: 336310fb-78ae-4d49-94a3-d6ede54ce9dd
