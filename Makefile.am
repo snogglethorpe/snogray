@@ -88,6 +88,11 @@ OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 OPT_SIZE = $(CXX_OPT_SIZE_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
 
+# EXTRA_COMPILE_FLAGS can be used by the user to add compiler options at
+# make-time (usually for testing or debugging).
+#
+EXTRA_CXX_FLAGS =
+
 # Override automake's default values for CFLAGS and CXXFLAGS.  If the
 # user specifies his own values on the command line, his values will
 # override these (make ignores assignments to variables with a value
@@ -104,8 +109,8 @@ CXXFLAGS =
 # wants to change the optimization or debug settings, he should set one
 # of those on the make command line.
 #
-AM_CFLAGS = $(OPT) $(DEBUG) $(MISC_COMPILE_FLAGS)
-AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS) $(MISC_COMPILE_FLAGS)
+AM_CFLAGS = $(OPT) $(DEBUG) $(EXTRA_COMPILE_FLAGS)
+AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
 
 # These options are required for correctness, and _must_ come _after_
 # any optimization options (gcc isn't very bright about parsing options:
