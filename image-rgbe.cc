@@ -1,6 +1,6 @@
 // image-rgbe.cc -- Radiance RGBE / .hdr (aka .pic) format image handling
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ RgbeImageSink::write_rle_component (byte RgbeColor::*component)
 
   while (i < width)
     {
-      unsigned run_start, run_len;
+      unsigned run_start, run_len = 0;
 
       // find start of a run
 
