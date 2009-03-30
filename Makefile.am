@@ -81,17 +81,12 @@ endif
 #
 # General compilation flags.  "OPT" and "DEBUG" intentionally have short
 # names so that it's easy for a user to override them from the command
-# line.  CXX_OPT_FLAGS, CXX_OPT_SIZE_FLAGS, CXX_MACH_FLAGS and
-# CXX_EXTRA_OPT_FLAGS are set by configure.
+# line.  CXX_OPT_FLAGS, CXX_OPT_SIZE_FLAGS, CXX_MACH_FLAGS,
+# CXX_EXTRA_OPT_FLAGS, and EXTRA_COMPILE_FLAGS are set by configure.
 #
 OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 OPT_SIZE = $(CXX_OPT_SIZE_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
-
-# EXTRA_COMPILE_FLAGS can be used by the user to add compiler options at
-# make-time (usually for testing or debugging).
-#
-EXTRA_CXX_FLAGS =
 
 # Override automake's default values for CFLAGS and CXXFLAGS.  If the
 # user specifies his own values on the command line, his values will

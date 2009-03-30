@@ -762,6 +762,12 @@ else
 
 fi
 
+# This variable can be set by the user to pass in extra compiler
+# options, in addition to optimization and debug options (which are
+# usually set by other means).
+#
+AC_SUBST([EXTRA_COMPILE_FLAGS], [])
+
 
 ##
 ## ----------------------------------------------------------------
