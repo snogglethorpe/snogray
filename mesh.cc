@@ -436,7 +436,7 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
 
   // Make the intersect object.
   //
-  Intersect isec (trace, triangle, normal_frame, geom_frame, T, dTds, dTdt);
+  Intersect isec (ray, trace, triangle, normal_frame, geom_frame, T, dTds,dTdt);
 
   isec.no_self_shadowing = true;
   isec.smoothing_group = static_cast<const void *>(&triangle->mesh);

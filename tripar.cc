@@ -65,7 +65,7 @@ Tripar::IsecInfo::make_intersect (Trace &trace) const
   dist_t dvdt = oe2.y ? 1 / oe2.y : 0;
   UV dTds (duds, dvds), dTdt (0, dvdt);
 
-  Intersect isec (trace, tripar, normal_frame, UV (u, v), dTds, dTdt);
+  Intersect isec (ray, trace, tripar, normal_frame, UV (u, v), dTds, dTdt);
 
   isec.no_self_shadowing = true;
 

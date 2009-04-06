@@ -81,7 +81,7 @@ Sphere2::IsecInfo::make_intersect (Trace &trace) const
   //
   UV dTds (INV_PIf * 0.5f, 0), dTdt (0, INV_PIf);
 
-  return Intersect (trace, sphere, Frame (point, s, t, norm),
+  return Intersect (ray, trace, sphere, Frame (point, s, t, norm),
 		    tex_coords, dTds, dTdt);
 }
 

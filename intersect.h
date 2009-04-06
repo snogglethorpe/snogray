@@ -37,10 +37,13 @@ class Intersect
 {
 public:
 
-  Intersect (Trace &_trace, const Surface *_surface,
+  // Note that the RAY may be in a local coordinate system, whereas
+  // TRACE's ray information is always in world coordinates.
+  //
+  Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
 	     const Frame &_normal_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
-  Intersect (Trace &_trace, const Surface *_surface,
+  Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
 	     const Frame &_normal_frame, const Frame &_geom_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
 
@@ -167,7 +170,7 @@ private:
 
   // Finish initialization.  This method is called by all constructors.
   //
-  void finish_init (const UV &dTds, const UV &dTdt);
+  void finish_init (const Ray &ray, const UV &dTds, const UV &dTdt);
 };
 
 
