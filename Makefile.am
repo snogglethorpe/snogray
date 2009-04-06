@@ -346,7 +346,7 @@ CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
 LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogload2.a	\
 	$(libsnogload2_LIBS)
 IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS)
-MISC_LIBS = libsnogutil.a $(LIBS)
+MISC_LIBS = libsnogutil.a
 
 
 ###############################################################
