@@ -31,10 +31,21 @@ Subspace::~Subspace ()
 void
 Subspace::make_space (TraceContext &context) const
 {
-  std::auto_ptr<SpaceBuilder> space_builder
-    (context.space_builder_factory->make_space_builder ());
+#ifdef HAVE_BOOST_THREAD_HPP
+  make_space_lock.lock ();
+#endif
 
-  surface->add_to_space (*space_builder);
+  if (! space)
+    {
+      std::auto_ptr<SpaceBuilder> space_builder
+	(context.space_builder_factory->make_space_builder ());
 
-  space = space_builder->make_space ();
+      surface->add_to_space (*space_builder);
+
+      space = space_builder->make_space ();
+    }
+
+#ifdef HAVE_BOOST_THREAD_HPP
+  make_space_lock.unlock ();
+#endif
 }

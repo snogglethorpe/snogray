@@ -15,6 +15,10 @@
 
 #include <memory>
 
+#ifdef HAVE_BOOST_THREAD_HPP
+#include <boost/thread/thread.hpp>
+#endif
+
 #include "ref.h"
 #include "space.h"
 #include "surface.h"
@@ -84,6 +88,15 @@ private:
   // Space holding everything from SURFACE..
   //
   mutable const Space *space;
+
+#ifdef HAVE_BOOST_THREAD_HPP
+  // A lock used to serialize initialization of the Subspace::space field.
+  //
+  // Only used by Subspace::make_space (which is only called if
+  // Subspace::space is zero).
+  //
+  mutable boost::mutex make_space_lock;
+#endif
 };
 
 
