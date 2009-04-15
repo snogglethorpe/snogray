@@ -53,7 +53,7 @@ snogray::parse_image_exposure_option (CmdLineParser &clp, ValTable &params)
       if (end != arg)
 	{
 	  if (eop == '+' || eop == '-')
-	    val = pow (2., val);
+	    val = pow (2.f, val);
 	  if (eop == '/' || eop == '-')
 	    val = 1 / val;
 
