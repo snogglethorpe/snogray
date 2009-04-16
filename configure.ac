@@ -328,13 +328,27 @@ fi
 # distribution doesn't support pkg-config).
 #
 if test $have_liblua = no; then
-   AC_LANG_PUSH(C)
-   AC_CHECK_LIB([lua], [lua_close], [have_liblua=yes], [have_liblua=no], [-lm])
-   if test $have_liblua = yes; then
-     AC_SUBST([liblua_CFLAGS], [])
-     AC_SUBST([liblua_LIBS], [-llua])
-   fi
-   AC_LANG_POP(C)
+  AC_LANG_PUSH(C)
+  have_lua_h=no
+  lua_include_flags=""
+  AC_CHECK_HEADER([lua.h], [have_lua_h=yes])
+  if test $have_lua_h = no; then
+    SNOGRAY_CHECK_SUBDIR_HEADER(
+       [lua_include_dir], [<lua.h>],
+       [lua5.1 lua-5.1 lua51 lua],
+       [have_lua_h=yes; lua_include_flags="-I$lua_include_dir"])
+  fi
+  if test $have_lua_h = yes; then
+    for lua_lib_name in lua lua5.1 lua-5.1 lua51; do
+      AC_CHECK_LIB([$lua_lib_name], [lua_close], [have_liblua=yes], [have_liblua=no], [-lm])
+      if test $have_liblua = yes; then
+	AC_SUBST([liblua_CFLAGS], ["$lua_include_flags"])
+	AC_SUBST([liblua_LIBS], ["-l$lua_lib_name"])
+	break
+      fi
+    done
+  fi
+  AC_LANG_POP(C)
 fi
 if test $have_liblua = yes; then
   AC_DEFINE([HAVE_LIBLUA], [1], [Define if liblua is installed])
