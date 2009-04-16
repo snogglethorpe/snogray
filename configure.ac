@@ -318,10 +318,7 @@ fi
 # Next, try using pkg-config (as present on e.g. debian).
 #
 if test $have_liblua = no; then
-  PKG_CHECK_MODULES([liblua], [lua5.1],
-    [have_liblua=yes],
-    [have_liblua=no
-     AC_MSG_RESULT([no])])
+  PKG_CHECK_MODULES([liblua], [lua5.1], [have_liblua=yes], [:])
 fi
 #
 # If we couldn't find it using pkg-config, try without (the default lua
@@ -357,10 +354,8 @@ AM_CONDITIONAL([have_liblua], [test $have_liblua = yes])
 
 # Check for PNG image library
 #
-PKG_CHECK_MODULES([libpng], [libpng],
-  [have_libpng=yes],
-  [have_libpng=no
-   AC_MSG_RESULT([no])])
+have_libpng=no
+PKG_CHECK_MODULES([libpng], [libpng], [have_libpng=yes], [:])
 if test $have_libpng = yes; then
   AC_DEFINE([HAVE_LIBPNG], [1], [Define if libpng is installed])
 fi
@@ -368,10 +363,8 @@ AM_CONDITIONAL([have_libpng], [test $have_libpng = yes])
 
 # Check for OpenEXR image library
 #
-PKG_CHECK_MODULES([libexr], [OpenEXR],
-  [have_libexr=yes],
-  [have_libexr=no
-   AC_MSG_RESULT([no])])
+have_libexr=no
+PKG_CHECK_MODULES([libexr], [OpenEXR], [have_libexr=yes], [:])
 if test $have_libexr = yes; then
   AC_DEFINE([HAVE_LIBEXR], [1], [Define if libOpenEXR is installed])
 fi
