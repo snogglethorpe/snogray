@@ -268,6 +268,42 @@ m4_define_default([PKG_CHECK_MODULES],
 ##
 
 
+# Tries to find the header file $2 (in C <> or "" syntax) with the
+# various include directories specified in $3 (space-separated) added to
+# the include path.
+#
+# If found, then the absolute include directory used is assigned to $1
+# and the shell statement in $4 is evaluted; if not found anywhere, $1
+# is set to "", and the shell statement in $5 are evaluated.
+#
+AC_DEFUN([SNOGRAY_CHECK_SUBDIR_HEADER], [
+    _SAVED_CPPFLAGS="$CPPFLAGS"
+    AC_MSG_CHECKING([for $2 include dir])
+    _snogray_check_subdir_header_dir=""
+    for _snogray_check_subdir_header_root in "$includedir" "/usr/local/include" "/usr/include"
+    do
+      for _snogray_check_subdir_header_sfx in $3; do
+	_snogray_check_subdir_header_dir="$_snogray_check_subdir_header_root/$_snogray_check_subdir_header_sfx"
+	CPPFLAGS="$_SAVED_CPPFLAGS -I$_snogray_check_subdir_header_dir"
+	AC_COMPILE_IFELSE(AC_LANG_SOURCE([[#include $2]]), [break 2])
+	_snogray_check_subdir_header_dir=""
+      done
+    done
+    CPPFLAGS="$_SAVED_CPPFLAGS"
+    _snogray_check_subdir_header_result=
+    if test x"$_snogray_check_subdir_header_dir" != x""; then
+      _snogray_check_subdir_header_result="$_snogray_check_subdir_header_dir"
+      $1="$_snogray_check_subdir_header_dir"
+      $4
+    else
+      _snogray_check_subdir_header_result=none
+      $1=""
+      $5
+    fi
+    AC_MSG_RESULT([$_snogray_check_subdir_header_result])
+])
+
+
 # Check for lua library.
 #
 # First see if we're using our own builtin copy of Lua
