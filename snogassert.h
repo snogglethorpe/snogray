@@ -16,6 +16,12 @@
 #include "compiler.h"
 
 
+// In case some library header defined "assert" as a macro, get rid of that
+// definition.
+//
+#undef assert
+
+
 namespace snogray {
 
 
