@@ -406,7 +406,7 @@ if build_lua
 if build_lua_in_src_dir
 
 liblua.a:
-	(cd $(LUA_SRC); $(MAKE) $(AM_MAKEFLAGS) liblua.a)
+	(cd $(LUA_SRC); $(MAKE) $(AM_MAKEFLAGS) MYCFLAGS='$(EXTRA_COMPILE_FLAGS)' liblua.a)
 	cp -p $(LUA_SRC)/liblua.a .
 clean-local:
 	-rm -rf $(LUA_SRC)/liblua.a
@@ -416,7 +416,7 @@ mostlyclean-local:
 else !build_lua_in_src_dir
 
 liblua.a:
-	$(MAKE) -f $(LUA_SRC)/Makefile $(AM_MAKEFLAGS) VPATH=$(LUA_SRC) liblua.a
+	$(MAKE) -f $(LUA_SRC)/Makefile $(AM_MAKEFLAGS) MYCFLAGS='$(EXTRA_COMPILE_FLAGS)' VPATH=$(LUA_SRC) liblua.a
 
 endif
 
