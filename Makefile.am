@@ -107,6 +107,12 @@ CXXFLAGS =
 AM_CFLAGS = $(OPT) $(DEBUG) $(EXTRA_COMPILE_FLAGS)
 AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
 
+# Versions of AM_CFLAGS and AM_CXXFLAGS for situations where we want to
+# optimize for size.
+#
+AM_CFLAGS_SIZE = $(OPT_SIZE) $(DEBUG) $(EXTRA_COMPILE_FLAGS)
+AM_CXXFLAGS_SIZE = $(OPT_SIZE) $(DEBUG) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
+
 # These options are required for correctness, and _must_ come _after_
 # any optimization options (gcc isn't very bright about parsing options:
 # later options always override earlier ones, even if the earlier one
@@ -447,11 +453,9 @@ endif
 
 libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 
-# Note that we don't copy AM_CFLAGS -- that's because we want to use a
-# different optimization setting, $(OPT_SIZE) instead of $(OPT)
+# Note that we use AM_CXXFLAGS_SIZE to optimize for size.
 #
-libsnograw_a_CXXFLAGS = $(OPT_SIZE) $(DEBUG) $(CXX_CHECK_FLAGS)	\
-			-fno-strict-aliasing -Wno-unused
+libsnograw_a_CXXFLAGS = $(AM_CXXFLAGS_SIZE) -fno-strict-aliasing -Wno-unused
 
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl
