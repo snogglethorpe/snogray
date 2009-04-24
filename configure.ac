@@ -532,6 +532,20 @@ if test $have_lib3ds = yes; then
 fi
 
 
+# Check for unique_ptr (the c++0x version of auto_ptr)
+#
+AC_MSG_CHECKING([for std::unique_ptr])
+AC_LINK_IFELSE([#include <memory>
+		int main () { int x; std::unique_ptr<int> y (&x); return 0; }],
+	       [have_std_unique_ptr=yes],
+	       [have_std_unique_ptr=no])
+AC_MSG_RESULT([$have_std_unique_ptr])
+if test $have_std_unique_ptr = yes; then
+  AC_DEFINE([HAVE_STD_UNIQUE_PTR], [1],
+    [Define if std::unique_ptr is supported])
+fi  
+
+
 # Check for the boost threading library
 #
 AC_CHECK_HEADERS([boost/thread.hpp])
