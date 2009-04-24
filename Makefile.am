@@ -105,13 +105,13 @@ CXXFLAGS =
 # of those on the make command line.
 #
 AM_CFLAGS = $(OPT) $(DEBUG) $(EXTRA_COMPILE_FLAGS)
-AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
+AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_STD_FLAGS) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
 
 # Versions of AM_CFLAGS and AM_CXXFLAGS for situations where we want to
 # optimize for size.
 #
 AM_CFLAGS_SIZE = $(OPT_SIZE) $(DEBUG) $(EXTRA_COMPILE_FLAGS)
-AM_CXXFLAGS_SIZE = $(OPT_SIZE) $(DEBUG) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
+AM_CXXFLAGS_SIZE = $(OPT_SIZE) $(DEBUG) $(CXX_STD_FLAGS) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
 
 # These options are required for correctness, and _must_ come _after_
 # any optimization options (gcc isn't very bright about parsing options:

@@ -191,9 +191,38 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
     CXXFLAGS="$_SAVED_CXXFLAGS"
 ])
 
+
+# Try to choose a compiler support level option.
+#
+AC_MSG_CHECKING([compiler standard support])
+AC_LANG_ASSERT(C++)
+_SAVED_CXXFLAGS="$CXXFLAGS"
+for opt in -std=c++0x -std=c++98; do
+  CXXFLAGS="$_SAVED_CXXFLAGS $opt"
+  AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
+  if test "$opt_ok" = yes; then
+    break
+  fi
+  CXXFLAGS="$_SAVED_CXXFLAGS"
+done
+cxx_level=none
+case "$opt" in
+  "-std="*)
+    cxx_level=`echo "$opt" | sed 's@^-std=@@'`
+    ;;
+  .*)
+    cxx_level="$opt"
+    ;;
+esac
+AC_MSG_RESULT([$cxx_level])
+AC_SUBST([CXX_STD_FLAGS], [$opt])
+# Note that we also leave the option in CXXFLAGS so following configure
+# tests use it.
+
+
 # Try to be very picky, if the compiler lets us.
 #
-SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra -std=c++98])
+SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra])
 
 
 ##
