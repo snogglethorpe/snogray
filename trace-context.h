@@ -13,8 +13,6 @@
 #ifndef __TRACE_CONTEXT_H__
 #define __TRACE_CONTEXT_H__
 
-#include <memory>
-
 #include "trace-stats.h"
 #include "trace-params.h"
 #include "space-builder.h"
@@ -22,6 +20,7 @@
 #include "medium.h"
 #include "pool.h"
 #include "isec-cache.h"
+#include "unique-ptr.h"
 
 
 namespace snogray {
@@ -66,7 +65,7 @@ public:
 
   TraceStats stats;
 
-  std::auto_ptr<SpaceBuilderFactory> space_builder_factory;
+  UniquePtr<SpaceBuilderFactory> space_builder_factory;
 };
 
 

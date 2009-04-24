@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "excepts.h"
+#include "unique-ptr.h"
 
 #include "renderer.h"
 #include "progress.h"
@@ -126,8 +127,8 @@ snogray::render (const Scene &scene, const Camera &camera,
 		 const ValTable &params, TraceStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
-  std::auto_ptr<Sample2Gen> sample_gen (make_aa_sample_gen (params));
-  std::auto_ptr<Sample2Gen> focus_sample_gen (sample_gen->clone ());
+  UniquePtr<Sample2Gen> sample_gen (make_aa_sample_gen (params));
+  UniquePtr<Sample2Gen> focus_sample_gen (sample_gen->clone ());
   TraceParams trace_params (params);
 
   std::string algo = params.get_string ("algo", "rt");

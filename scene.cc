@@ -10,12 +10,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <memory>		// for auto_ptr
-
 #include "space.h"
 #include "envmap.h"
 #include "trace-context.h"
 #include "trace-cache.h"
+#include "unique-ptr.h"
 
 #include "scene.h"
 
@@ -75,7 +74,7 @@ Scene::build_space (const SpaceBuilderFactory *space_builder_factory)
 {
   if (! space)
     {
-      std::auto_ptr<SpaceBuilder> space_builder
+      UniquePtr<SpaceBuilder> space_builder
 	(space_builder_factory->make_space_builder ());
 
       surfaces.add_to_space (*space_builder);

@@ -13,8 +13,6 @@
 #ifndef __SUBSPACE_H__
 #define __SUBSPACE_H__
 
-#include <memory>
-
 #ifdef HAVE_BOOST_THREAD_HPP
 #include <boost/thread/thread.hpp>
 #endif
@@ -23,6 +21,7 @@
 #include "space.h"
 #include "surface.h"
 #include "material.h"
+#include "unique-ptr.h"
 #include "shadow-ray.h"
 
 
@@ -83,7 +82,7 @@ private:
 
   // The top-level surface in this subspace.
   //
-  std::auto_ptr<Surface> surface;
+  UniquePtr<Surface> surface;
 
   // Space holding everything from SURFACE..
   //

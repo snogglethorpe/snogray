@@ -1,6 +1,6 @@
 // image-input.h -- High-level image input
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,8 +13,7 @@
 #ifndef __IMAGE_INPUT_H__
 #define __IMAGE_INPUT_H__
 
-#include <memory>
-
+#include "unique-ptr.h"
 #include "image-io.h"
 
 
@@ -39,7 +38,7 @@ public:
 
 private:
 
-  std::auto_ptr<ImageSource> source;
+  UniquePtr<ImageSource> source;
 
 public:
 

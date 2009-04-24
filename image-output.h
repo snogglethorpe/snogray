@@ -13,9 +13,9 @@
 #ifndef __IMAGE_OUTPUT_H__
 #define __IMAGE_OUTPUT_H__
 
-#include <memory>
 #include <string>
 
+#include "unique-ptr.h"
 #include "filter-conv.h"
 #include "image-io.h"
 
@@ -148,7 +148,7 @@ private:
 
   // Where the output goes.
   //
-  std::auto_ptr<ImageSink> sink;
+  UniquePtr<ImageSink> sink;
 
   FilterConv<ImageOutput, Tint> filter_conv;
 

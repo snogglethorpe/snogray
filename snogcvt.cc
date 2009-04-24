@@ -1,6 +1,6 @@
 // snogcvt.cc -- Image-type conversion utility
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,7 +11,6 @@
 //
 
 #include <iostream>
-#include <memory>		// auto_ptr
 #include <cstring>
 
 #include "cmdlineparser.h"
@@ -19,6 +18,7 @@
 #include "image-output.h"
 #include "image-cmdline.h"
 #include "string-funs.h"
+#include "unique-ptr.h"
 
 using namespace snogray;
 using namespace std;
