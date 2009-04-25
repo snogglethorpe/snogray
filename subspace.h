@@ -13,16 +13,13 @@
 #ifndef __SUBSPACE_H__
 #define __SUBSPACE_H__
 
-#ifdef HAVE_BOOST_THREAD_HPP
-#include <boost/thread/thread.hpp>
-#endif
-
 #include "ref.h"
 #include "space.h"
 #include "surface.h"
 #include "material.h"
 #include "unique-ptr.h"
 #include "shadow-ray.h"
+#include "mutex.h"
 
 
 namespace snogray {
@@ -88,14 +85,12 @@ private:
   //
   mutable const Space *space;
 
-#ifdef HAVE_BOOST_THREAD_HPP
   // A lock used to serialize initialization of the Subspace::space field.
   //
   // Only used by Subspace::make_space (which is only called if
   // Subspace::space is zero).
   //
-  mutable boost::mutex make_space_lock;
-#endif
+  mutable Mutex make_space_lock;
 };
 
 

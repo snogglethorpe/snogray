@@ -31,9 +31,7 @@ Subspace::~Subspace ()
 void
 Subspace::make_space (TraceContext &context) const
 {
-#ifdef HAVE_BOOST_THREAD_HPP
   make_space_lock.lock ();
-#endif
 
   if (! space)
     {
@@ -45,7 +43,5 @@ Subspace::make_space (TraceContext &context) const
       space = space_builder->make_space ();
     }
 
-#ifdef HAVE_BOOST_THREAD_HPP
   make_space_lock.unlock ();
-#endif
 }
