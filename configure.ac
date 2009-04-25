@@ -74,7 +74,7 @@ fi
 if test $have_extern_template = yes; then
   AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
 	    [Define if C++ compiler supports "extern template" extension])
-fi  
+fi
 
 
 ##
@@ -105,7 +105,7 @@ build_lua_in_src_dir=no
 if test "$lua_src" != none; then
   AC_SUBST([LUA_DIST], [$lua_dist])
   AC_SUBST([LUA_SRC], [$lua_src])
-  
+
   # We use two different methods for building liblua.a, depending on whether
   # we're using a separate build directory or not, and whether the Lua source
   # directory is a subdirectory (and thus is "ours"):
@@ -277,7 +277,7 @@ fi
 
 
 # Check for pkg-config program, used for configuring some libraries.
-# 
+#
 m4_define_default([PKG_PROG_PKG_CONFIG],
   [AC_MSG_CHECKING([pkg-config])
    AC_MSG_RESULT([no])])
@@ -445,15 +445,15 @@ if test $have_lib3ds = yes; then
 
   AC_MSG_CHECKING([whether lib3ds supports object_flags])
   AC_TRY_COMPILE([#include <lib3ds/mesh.h>],
-  	         [extern Lib3dsMesh *m; m->object_flags = LIB3DS_OBJECT_HIDDEN;],
+  		 [extern Lib3dsMesh *m; m->object_flags = LIB3DS_OBJECT_HIDDEN;],
 		 [have_lib3ds_object_flags=yes],
 		 [have_lib3ds_object_flags=no])
   AC_MSG_RESULT([$have_lib3ds_object_flags])
 
   if test $have_lib3ds_object_flags = yes; then
     AC_DEFINE([HAVE_LIB3DS_OBJECT_FLAGS], [1],
-              [Define if lib3ds has "object_flags" support])
-  fi  
+	      [Define if lib3ds has "object_flags" support])
+  fi
 
   CPPFLAGS="$_OLD_CPPFLAGS"
 fi
@@ -471,15 +471,15 @@ if test $have_lib3ds = yes && test $have_lib3ds_object_flags = no; then
 
   AC_MSG_CHECKING([whether lib3ds supports obj_flags extension])
   AC_TRY_COMPILE([#include <lib3ds/mesh.h>],
-  	         [extern Lib3dsMesh *m; m->obj_flags = LIB3DS_OBJF_HIDDEN;],
+  		 [extern Lib3dsMesh *m; m->obj_flags = LIB3DS_OBJF_HIDDEN;],
 		 [have_lib3ds_obj_flags=yes],
 		 [have_lib3ds_obj_flags=no])
   AC_MSG_RESULT([$have_lib3ds_obj_flags])
 
   if test $have_lib3ds_obj_flags = yes; then
     AC_DEFINE([HAVE_LIB3DS_OBJ_FLAGS], [1],
-              [Define if lib3ds has "obj_flags" support])
-  fi  
+	      [Define if lib3ds has "obj_flags" support])
+  fi
 
   CPPFLAGS="$_OLD_CPPFLAGS"
 fi
@@ -494,15 +494,15 @@ if test $have_lib3ds = yes; then
 
   AC_MSG_CHECKING([whether lib3ds supports the HIDDEN node flag])
   AC_TRY_COMPILE([#include <lib3ds/node.h>],
-  	         [extern Lib3dsNode *n; n->flags1 = LIB3DS_HIDDEN;],
+  		 [extern Lib3dsNode *n; n->flags1 = LIB3DS_HIDDEN;],
 		 [have_lib3ds_node_hidden_flag=yes],
 		 [have_lib3ds_node_hidden_flag=no])
   AC_MSG_RESULT([$have_lib3ds_node_hidden_flag])
 
   if test $have_lib3ds_node_hidden_flag = yes; then
     AC_DEFINE([HAVE_LIB3DS_NODE_HIDDEN_FLAG], [1],
-              [Define if lib3ds defines the node LIB3DS_HIDDEN flag])
-  fi  
+	      [Define if lib3ds defines the node LIB3DS_HIDDEN flag])
+  fi
 
   CPPFLAGS="$_OLD_CPPFLAGS"
 fi
@@ -518,15 +518,15 @@ if test $have_lib3ds = yes; then
 
   AC_MSG_CHECKING([for lib3ds_matrix_mult])
   AC_TRY_COMPILE([#include <lib3ds/matrix.h>],
-  	         [Lib3dsMatrix N, M; lib3ds_matrix_mult (N, M);],
+  		 [Lib3dsMatrix N, M; lib3ds_matrix_mult (N, M);],
 		 [have_lib3ds_matrix_mult=yes],
 		 [have_lib3ds_matrix_mult=no])
   AC_MSG_RESULT([$have_lib3ds_matrix_mult])
 
   if test $have_lib3ds_matrix_mult = yes; then
     AC_DEFINE([HAVE_LIB3DS_MATRIX_MULT], [1],
-              [Define if lib3ds defines "lib3ds_matrix_mult"])
-  fi  
+	      [Define if lib3ds defines "lib3ds_matrix_mult"])
+  fi
 
   CPPFLAGS="$_OLD_CPPFLAGS"
 fi
@@ -543,7 +543,7 @@ AC_MSG_RESULT([$have_std_unique_ptr])
 if test $have_std_unique_ptr = yes; then
   AC_DEFINE([HAVE_STD_UNIQUE_PTR], [1],
     [Define if std::unique_ptr is supported])
-fi  
+fi
 
 
 # Check for the boost threading library
@@ -651,7 +651,7 @@ if test "$GXX" = yes; then
   #
   #   -O5 can result in some bloat, but does genuinely seem to be faster
   #   on our code than lower optimization levels.
-  # 
+  #
   #   -fomit-frame-pointer seems to increase code size appreciably when
   #   used with -Os, so we omit it in that case.
   #
@@ -807,22 +807,22 @@ if test "$GXX" = yes; then
     extra_arch_opts=""
     case "$host_cpu" in
       i686|pentium3)
-        archs="pentium3"
+	archs="pentium3"
 	extra_arch_opts="-mfpmath=sse" ;;
       i786|pentium4)
-        archs="pentium4"
+	archs="pentium4"
 	extra_arch_opts="-mfpmath=sse" ;;
       pentium-m)
-        archs="pentium-m pentium3"
+	archs="pentium-m pentium3"
 	extra_arch_opts="-mfpmath=sse" ;;
       x86[-_]64)
-        archs="k8 athlon"
+	archs="k8 athlon"
 	extra_arch_opts="-mfpmath=sse" ;;
       opteron)
-        archs="opteron athlon"
+	archs="opteron athlon"
 	extra_arch_opts="-mfpmath=sse" ;;
       athlon)
-        archs="athlon"
+	archs="athlon"
 	extra_arch_opts="-mfpmath=sse" ;;
     esac
 
@@ -849,7 +849,7 @@ if test "$GXX" = yes; then
 	#
 	if test x"$CXX_MACH_FLAGS" = x; then
 	  CXX_MACH_FLAGS="$CXX_MARCH"
-	fi	
+	fi
       fi
     done
   fi
