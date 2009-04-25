@@ -549,16 +549,21 @@ fi
 # Check for the boost threading library
 #
 AC_CHECK_HEADERS([boost/thread.hpp])
-_OLD_LIBS="$LIBS"
-LIBS="$LIBS -lboost_thread-mt"
-AC_MSG_CHECKING([for -lboost_thread-mt])
-AC_LINK_IFELSE([#include <boost/thread.hpp>
-		int main () { boost::this_thread::yield (); return 0; }],
-	       [have_lib_boost_thread_mt=yes],
-	       [have_lib_boost_thread_mt=no])
-AC_MSG_RESULT([$have_lib_boost_thread_mt])
-if test "$have_lib_boost_thread_mt" != yes; then
-  LIBS="$_OLD_LIBS"
+if test "$ac_cv_header_boost_thread_hpp" = yes; then
+  _OLD_LIBS="$LIBS"
+  LIBS="$LIBS -lboost_thread-mt"
+  AC_MSG_CHECKING([for -lboost_thread-mt])
+  AC_LINK_IFELSE([#include <boost/thread.hpp>
+      int main () { boost::this_thread::yield (); return 0; }],
+    [have_lib_boost_thread_mt=yes],
+    [have_lib_boost_thread_mt=no])
+  AC_MSG_RESULT([$have_lib_boost_thread_mt])
+  if test "$have_lib_boost_thread_mt" = yes; then
+    AC_DEFINE([HAVE_BOOST_THREAD], [1],
+      [Define if boost thread support is available])
+  else
+    LIBS="$_OLD_LIBS"
+  fi
 fi
 
 
