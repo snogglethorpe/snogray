@@ -197,14 +197,35 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
 AC_MSG_CHECKING([compiler standard support])
 AC_LANG_ASSERT(C++)
 _SAVED_CXXFLAGS="$CXXFLAGS"
+cxx_level_note=""
+
 for opt in -std=c++0x -std=c++98; do
   CXXFLAGS="$_SAVED_CXXFLAGS $opt"
   AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
+
+  if test "$opt_ok" = yes && test x"$opt" = x"-std=c++0x"; then
+    # Some versions of g++ 4.3 have broken support for c++0x, so use a simple
+    # test for that, and revert to c++98 if we detect it.
+    AC_COMPILE_IFELSE(
+      AC_LANG_SOURCE(
+        [#include <iostream>
+    	 bool file_exists () { return true; }
+	 using namespace std;
+	 bool test () { return file_exists (); }]),
+      [broken_cxx0x=no],
+      [broken_cxx0x=yes])
+    if test "$broken_cxx0x" = yes; then
+      opt_ok=false
+      cxx_level_note=" (c++0x support broken)"
+    fi
+  fi
+
   if test "$opt_ok" = yes; then
     break
   fi
   CXXFLAGS="$_SAVED_CXXFLAGS"
 done
+
 cxx_level=none
 case "$opt" in
   "-std="*)
@@ -214,7 +235,8 @@ case "$opt" in
     cxx_level="$opt"
     ;;
 esac
-AC_MSG_RESULT([$cxx_level])
+
+AC_MSG_RESULT([$cxx_level$cxx_level_note])
 AC_SUBST([CXX_STD_FLAGS], [$opt])
 # Note that we also leave the option in CXXFLAGS so following configure
 # tests use it.
