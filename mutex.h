@@ -23,9 +23,9 @@
 
 #include "config.h"
 
-#if HAVE_STD_MUTEX
+#if USE_STD_THREAD
 #include <mutex>
-#elif HAVE_BOOST_THREAD
+#elif USE_BOOST_THREAD
 #include <boost/thread/mutex.hpp>
 #endif
 
@@ -33,15 +33,15 @@
 namespace snogray {
 
 
-#if HAVE_STD_MUTEX
+#if USE_STD_THREAD
 
 typedef std::mutex RealMutex;
 
-#elif HAVE_BOOST_THREAD
+#elif USE_BOOST_THREAD
 
 typedef boost::mutex RealMutex;
 
-#else // !HAVE_STD_MUTEX && !HAVE_BOOST_THREAD
+#else // !USE_STD_THREAD && !USE_BOOST_THREAD
 
 // A nop mutex class.
 //
@@ -53,7 +53,7 @@ public:
   void unlock () { }
 };
 
-#endif // !HAVE_STD_MUTEX && !HAVE_BOOST_THREAD
+#endif // !USE_STD_THREAD && !USE_BOOST_THREAD
 
 
 // Mutex is a thin wrapper that just inherits a selected set of

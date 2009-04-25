@@ -554,30 +554,52 @@ AC_LINK_IFELSE([#include <mutex>
 	       [have_std_mutex=yes],
 	       [have_std_mutex=no])
 AC_MSG_RESULT([$have_std_mutex])
-if test $have_std_mutex = yes; then
-  AC_DEFINE([HAVE_STD_MUTEX], [1], [Define if std::mutex is supported])
-fi
 
 
-# Check for the boost threading library
+# Check for standard C++ thread support
 #
+AC_MSG_CHECKING([for std::thread])
+AC_LINK_IFELSE([#include <thread>
+		void f () { }
+		int main () { std::thread t (f); }],
+	       [have_std_thread=yes],
+	       [have_std_thread=no])
+AC_MSG_RESULT([$have_std_thread])
+
+
+# Check for the boost thread library
+#
+have_boost_thread=no
 AC_CHECK_HEADERS([boost/thread.hpp])
 if test "$ac_cv_header_boost_thread_hpp" = yes; then
   _OLD_LIBS="$LIBS"
-  LIBS="$LIBS -lboost_thread-mt"
+  boost_thread_lib="-lboost_thread-mt"
+  LIBS="$LIBS $boost_thread_lib"
   AC_MSG_CHECKING([for -lboost_thread-mt])
   AC_LINK_IFELSE([#include <boost/thread.hpp>
       int main () { boost::this_thread::yield (); return 0; }],
     [have_lib_boost_thread_mt=yes],
     [have_lib_boost_thread_mt=no])
   AC_MSG_RESULT([$have_lib_boost_thread_mt])
-  if test "$have_lib_boost_thread_mt" = yes; then
-    AC_DEFINE([HAVE_BOOST_THREAD], [1],
-      [Define if boost thread support is available])
-  else
-    LIBS="$_OLD_LIBS"
-  fi
+  have_boost_thread=$have_lib_boost_thread_mt
+  LIBS="$_OLD_LIBS"
 fi
+
+
+# Choose which thread interface to use
+#
+AC_MSG_CHECKING([which thread interface to use])
+if test "$have_std_thread,$have_std_mutex" = "yes,yes"; then
+  AC_DEFINE([USE_STD_THREAD], [1], [Define if using c++ std thread interface])
+  thread_api_name="std (c++0x)"
+elif test $have_boost_thread = yes; then
+  AC_DEFINE([USE_BOOST_THREAD], [1], [Define if using boost thread library])
+  LIBS="$LIBS $boost_thread_lib"
+  thread_api_name="boost"
+else
+  thread_api_name=none
+fi
+AC_MSG_RESULT([$thread_api_name])
 
 
 ##
