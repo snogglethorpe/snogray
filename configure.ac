@@ -546,6 +546,19 @@ if test $have_std_unique_ptr = yes; then
 fi
 
 
+# Check for standard C++ mutex support
+#
+AC_MSG_CHECKING([for std::mutex])
+AC_LINK_IFELSE([#include <mutex>
+		int main () { std::mutex m; m.lock(); m.unlock (); }],
+	       [have_std_mutex=yes],
+	       [have_std_mutex=no])
+AC_MSG_RESULT([$have_std_mutex])
+if test $have_std_mutex = yes; then
+  AC_DEFINE([HAVE_STD_MUTEX], [1], [Define if std::mutex is supported])
+fi
+
+
 # Check for the boost threading library
 #
 AC_CHECK_HEADERS([boost/thread.hpp])
