@@ -67,6 +67,24 @@ public:
   using RealMutex::unlock;
 };
 
+// A LockGuard holds a mutex locked for the duration of its existance.
+//
+// This is a standard class in c++0x std threads and boost threads, but
+// it's so simple that it's easier just to reimplement it ourselves.
+//
+template<typename M>
+class LockGuard
+{
+public:
+
+  LockGuard (M &_m) : m (_m) { m.lock (); }
+  ~LockGuard () { m.unlock (); }
+
+private:
+
+  M &m;
+};
+
 
 }
 
