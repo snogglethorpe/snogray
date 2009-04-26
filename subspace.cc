@@ -31,7 +31,7 @@ Subspace::~Subspace ()
 void
 Subspace::make_space (TraceContext &context) const
 {
-  make_space_lock.lock ();
+  LockGuard<Mutex> guard (make_space_lock);
 
   if (! space)
     {
@@ -42,6 +42,4 @@ Subspace::make_space (TraceContext &context) const
 
       space = space_builder->make_space ();
     }
-
-  make_space_lock.unlock ();
 }
