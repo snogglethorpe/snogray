@@ -832,7 +832,11 @@ if test "$GXX" = yes; then
 	    /^cpu family[ \t]*:/ { family = $NF; next }
 	    /^model[ \t]*:/ { model = $NF; next }
 	    /^model name[ \t]*:/ {
-	      sub (/^.*: */, ""); gsub (/ *\([^)]*\)/, ""); name = $0
+	      sub (/^.*: */, "")
+	      gsub (/ *\([^)]*\)/, "")
+	      gsub (/[ \t]+/, " ")
+	      sub (/ *@ *[0-9.]+[GM][Hh][Zz] *$/, "")
+	      name = $0
 	      next
 	    }
 	    END { print family "/" model "/" name }
@@ -850,12 +854,20 @@ if test "$GXX" = yes; then
 	      cpuinfo_cpu=pentium-m ;;
 	    *"Opteron"*)
 	      cpuinfo_cpu=opteron ;;
+	    *"Core2"*)
+	      cpuinfo_cpu=core2 ;;
+	    *"Phenom"*)
+	      cpuinfo_cpu=amdfam10 ;;
 	    15/65/*)
 	      cpuinfo_cpu=opteron ;;
 	    15/*)
 	      cpuinfo_cpu=pentium4 ;;
+	    16/*)
+	      cpuinfo_cpu=amdfam10 ;;
 	    6/9/*)
 	      cpuinfo_cpu=pentium4 ;;
+            6/23/*)
+	      cpuinfo_cpu=core2 ;;
 	  esac
 	  ;;
       esac]
@@ -879,6 +891,12 @@ if test "$GXX" = yes; then
 	extra_arch_opts="-mfpmath=sse" ;;
       x86[-_]64)
 	archs="k8 athlon"
+	extra_arch_opts="-mfpmath=sse" ;;
+      amdfam10)
+	archs="amdfam10 opteron k8 athlon"
+	extra_arch_opts="-mfpmath=sse" ;;
+      core2)
+	archs="core2 pentium-m pentium3"
 	extra_arch_opts="-mfpmath=sse" ;;
       opteron)
 	archs="opteron athlon"
@@ -912,6 +930,8 @@ if test "$GXX" = yes; then
 	if test x"$CXX_MACH_FLAGS" = x; then
 	  CXX_MACH_FLAGS="$CXX_MARCH"
 	fi
+
+	break
       fi
     done
   fi
