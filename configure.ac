@@ -709,15 +709,13 @@ if test "$GXX" = yes; then
 
   # These flags should always be accepted by g++
   #
-  # The following settings are based on g++ 4.1 compiling for the pentium 4:
+  # The following settings are based on g++ 4.4, compiling for the Intel
+  # core2.
   #
-  #   -O5 can result in some bloat, but does genuinely seem to be faster
-  #   on our code than lower optimization levels.
+  # -fomit-frame-pointer seems to increase code size appreciably when
+  # used with -Os, so we omit it in that case.
   #
-  #   -fomit-frame-pointer seems to increase code size appreciably when
-  #   used with -Os, so we omit it in that case.
-  #
-  AC_SUBST([CXX_OPT_FLAGS], ["-O5 -fomit-frame-pointer"])
+  AC_SUBST([CXX_OPT_FLAGS], ["-O3 -fomit-frame-pointer"])
   AC_SUBST([CXX_OPT_SIZE_FLAGS], ["-Os"])
 
   # g++ flags for architecture-independent floating-point optimization.
