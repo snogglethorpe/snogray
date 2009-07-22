@@ -31,8 +31,8 @@ AM_CONDITIONAL([never], [false])
 # parameter).
 #
 AC_ARG_ENABLE([float-coords],
-    AS_HELP_STRING([--enable-float-coords],
-		   [Enable single-precision coordinates]),
+    AS_HELP_STRING([--disable-float-coords],
+		   [Use double-precision coordinates]),
     [enable_float_coords="$enableval"],
     [enable_float_coords=yes])
 AC_MSG_CHECKING([whether to use single-precision coordinates])
@@ -54,8 +54,8 @@ fi
 # (currently this is a g++ extension).
 
 AC_ARG_ENABLE([extern-template],
-    AS_HELP_STRING([--enable-extern-template],
-		   [Use C++ "extern template" extension]),
+    AS_HELP_STRING([--disable-extern-template],
+		   [Disable use of C++ "extern template" extension]),
     [enable_extern_template="$enableval"],
     [enable_extern_template=yes])
 
@@ -259,8 +259,8 @@ AC_CHECK_HEADERS([stdint.h])
 # Allow point exceptions to be enabled (which can make debugging much easier).
 
 AC_ARG_ENABLE([fp-exceptions],
-    AS_HELP_STRING([--enable-fp-exceptions],
-		   [Enable floating-point exceptions]),
+    AS_HELP_STRING([--disable-fp-exceptions],
+		   [Disable floating-point exceptions]),
     [enable_fp_exceptions="$enableval"],
     [enable_fp_exceptions=yes])
 
