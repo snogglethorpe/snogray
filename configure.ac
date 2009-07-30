@@ -160,7 +160,7 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAGS], [
     for OPT in $2; do
       CXXFLAGS="$_SAVED_CXXFLAGS $OPT"
       AC_MSG_CHECKING(whether C++ compiler accepts "$OPT" option)
-      AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
+      AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]), [opt_ok=yes], [opt_ok=no])
       AC_MSG_RESULT([$opt_ok])
       if test "$opt_ok" = yes; then
 	if test "$OK_FLAGS" = ""; then
@@ -183,7 +183,7 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
     CXXFLAGS="$CXXFLAGS $2"
     case "$2" in *' '*) S=s;; *) S="";; esac
     AC_MSG_CHECKING([whether C++ compiler accepts "$2" option$S])
-    AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
+    AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]), [opt_ok=yes], [opt_ok=no])
     AC_MSG_RESULT([$opt_ok])
     if test "$opt_ok" = yes; then
       AC_SUBST([$1], ["$2"])
@@ -201,7 +201,7 @@ cxx_level_note=""
 
 for opt in -std=c++0x -std=c++98; do
   CXXFLAGS="$_SAVED_CXXFLAGS $opt"
-  AC_COMPILE_IFELSE(AC_LANG_SOURCE([]), [opt_ok=yes], [opt_ok=no])
+  AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]), [opt_ok=yes], [opt_ok=no])
 
   if test "$opt_ok" = yes && test x"$opt" = x"-std=c++0x"; then
     # Some versions of g++ 4.3 have broken support for c++0x, so use a simple
