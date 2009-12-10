@@ -557,6 +557,9 @@ namespace snogray {
   %ignore Subspace;
   class Subspace
   {
+  public:
+
+    virtual BBox bbox () const;
   };
   %template(SubspaceRef) Ref<Subspace>;
 
