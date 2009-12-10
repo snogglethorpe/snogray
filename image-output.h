@@ -170,8 +170,6 @@ private:
 
   float intensity_scale;   // intensity multiplier (1 == nop)
   float intensity_power;   // power which intensity is raised to (1 == nop)
-
-  Color::component_t max_intens;
 };
 
 }

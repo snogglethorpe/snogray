@@ -37,8 +37,7 @@ ImageOutput::ImageOutput (const std::string &filename,
     num_user_buffered_rows (0),
     rows (num_buffered_rows), buf_y (0),
     intensity_scale (params.get_float ("exposure", 1)),
-    intensity_power (params.get_float ("contrast", 1)),
-    max_intens (sink->max_intens ())
+    intensity_power (params.get_float ("contrast", 1))
 {
   for (unsigned i = 0; i < rows.size (); i++)
     rows[i].resize (width);
@@ -140,8 +139,6 @@ void ImageOutput::add_sample (float sx, float sy, const Tint &tint)
   if (intensity_power != 1)
     clamped = Tint (pow (clamped.unscaled_color(), intensity_power),
 		    clamped.alpha);
-  if (max_intens != 0)
-    clamped = clamped.clamp (max_intens);
 
   filter_conv.add_sample (sx, sy, clamped, *this);
 }
