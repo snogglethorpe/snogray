@@ -54,9 +54,19 @@ ImageOutput::flush_min_row ()
 
   for (unsigned x = 0; x < width; x++)
     {
+      Tint pixel = r.pixels[x];
+
       float weight = r.weights[x];
       if (weight > 0)
-	r.pixels[x] /= weight;
+	pixel /= weight;
+
+      if (intensity_scale != 1)
+	pixel *= intensity_scale;
+      if (intensity_power != 1)
+	pixel = Tint (pow (pixel.unscaled_color(), intensity_power),
+		      pixel.alpha);
+
+      r.pixels[x] = pixel;
     }
 
   sink->write_row (r.pixels);
@@ -132,15 +142,7 @@ ImageOutput::_row (int y)
 //
 void ImageOutput::add_sample (float sx, float sy, const Tint &tint)
 {
-  Tint clamped = tint;
-
-  if (intensity_scale != 1)
-    clamped *= intensity_scale;
-  if (intensity_power != 1)
-    clamped = Tint (pow (clamped.unscaled_color(), intensity_power),
-		    clamped.alpha);
-
-  filter_conv.add_sample (sx, sy, clamped, *this);
+  filter_conv.add_sample (sx, sy, tint, *this);
 }
 
 
