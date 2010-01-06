@@ -1,6 +1,6 @@
 // recurs-illum.cc -- Illuminator using recursive tracing.
 //
-//  Copyright (C) 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ RecursIllum::lo (const Intersect &isec,
 		rr_adj = depth;
 
 		rr_adj /= s->brdf_val.intensity ();
-		if (s->brdf_pdf)
+		if (! (s->flags & IllumSample::SPECULAR))
 		  rr_adj *= s->brdf_pdf;
 
 		if (rr_adj < 1)
@@ -135,7 +135,7 @@ RecursIllum::lo (const Intersect &isec,
 
 	val *= s->brdf_val;
 
-	if (s->brdf_pdf > Eps)
+	if (! (s->flags & IllumSample::SPECULAR))
 	  val *= brdf_sample_weight / s->brdf_pdf;
 
 	radiance += val;

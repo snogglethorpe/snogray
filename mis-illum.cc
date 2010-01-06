@@ -1,6 +1,6 @@
 // mis-illum.cc -- Direct illumination using multiple importance sampling
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -194,7 +194,7 @@ MisIllum::lo (const Intersect &isec,
 		// We can only do MIS for non-specular samples (specular
 		// samples just get the value unmodified.
 		//
-		if (s->brdf_pdf != 0)
+		if (! (s->flags & IllumSample::SPECULAR))
 		  {
 		    // Weight to adjust for multiple importance sampling
 		    //
