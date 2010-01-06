@@ -75,6 +75,16 @@ public:
       light_val (0), light_pdf (0), light_dist (0), light (0)
   { }
 
+  // An impossible sample; intensity and pdf are both zero, no flags are
+  // set, and the direction etc undefined.  This is basically an
+  // out-of-band value, useful to represent "no sample."
+  //
+  IllumSample ()
+    : flags (0), isec_info (0),
+      brdf_val (0), brdf_pdf (0),
+      light_val (0), light_pdf (0), light_dist (0), light (0)
+  { }
+
 
   // The sample direction (the origin is implicit), in the
   // surface-normal coordinate system (where the surface normal is
