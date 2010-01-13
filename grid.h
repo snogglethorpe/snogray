@@ -1,6 +1,6 @@
-// grid.h -- 2d sample generator using a simple grid
+// grid.h -- sample generator using a simple jittered grid
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,34 +13,38 @@
 #ifndef __GRID_H__
 #define __GRID_H__
 
-#include "sample2-gen.h"
+#include "sample-gen.h"
+
 
 namespace snogray {
 
-class Grid : public Sample2Gen
+
+class Grid : public SampleGen
 {
 public:
 
-  Grid (unsigned _u_steps, unsigned _v_steps, bool _jitter = true)
-    : Sample2Gen (_u_steps * _v_steps),
-      u_steps (_u_steps), v_steps (_v_steps),
-      u_step (1 / float (_u_steps)), v_step (1 / float (_v_steps)),
-      jitter (_jitter)
-  { }
+  Grid (unsigned num_samples);
 
-  virtual Sample2Gen *clone () const
-  {
-    return new Grid (u_steps, v_steps, true); // XXX note we force jitter on...
-  }
+protected:
 
-  virtual void generate ();
+  // The actual sample generating methods.
+  //
+  virtual std::vector<float> *gen_float_samples ();
+  virtual std::vector<UV> *gen_uv_samples ();
+
+private:
 
   unsigned u_steps, v_steps;
 
+  // Step size used for U and V dimensions in UV samples.
+  //
   float u_step, v_step;
 
-  bool jitter;
+  // Step size used for float samples.
+  //
+  float n_step;
 };
+
 
 }
 

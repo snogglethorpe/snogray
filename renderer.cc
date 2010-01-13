@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,8 @@
 #include "scene.h"
 #include "camera.h"
 #include "filter.h"
-#include "sample2-gen.h"
+#include "sample-gen.h"
+#include "sample-set.h"
 #include "trace-cache.h"
 
 #include "renderer.h"
@@ -25,14 +26,14 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 		    unsigned max_y_block_size,
 		    IllumMgr &_illum_mgr,
-		    Sample2Gen &_sample_gen, Sample2Gen &_focus_sample_gen,
+		    SampleGen &_sample_gen,
 		    const TraceParams &trace_params)
   : scene (_scene), camera (_camera), width (_width), height (_height),
     illum_mgr (_illum_mgr),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
-    sample_gen (_sample_gen), focus_sample_gen (_focus_sample_gen),
+    sample_gen (_sample_gen),
     trace_context (scene, trace_params)
 {
   output.set_num_buffered_rows (max_y_block_size);
@@ -119,32 +120,19 @@ Renderer::render_block (int x, int y, int w, int h)
 void
 Renderer::render_pixel (int x, int y, TraceCache &root_cache)
 {
-  // Generate samples within the pixel
-  //
-  sample_gen.generate ();
+  SampleSet samples (sample_gen);
 
-  // Generate samples for depth-of-field simulation.  There are the same
-  // number as anti-alising samples, but their position should not be
-  // correlated.
-  //
-  // We only need these samples when the camera's "aperture" is non-zero,
-  // but for simplicity we always step through the samples, so we need to
-  // generate the focus samples the first time even in the zero-aperture
-  // case just to make sure the sample vector is full.
-  //
-  if (camera.aperture != 0 || focus_sample_gen.size () == 0)
-    {
-      focus_sample_gen.generate ();
-      focus_sample_gen.shuffle (); // de-correlate from antialiasing samples
-    }
+  SampleSet::Channel<UV> camera_samples = samples.add_channel<UV> ();
+  SampleSet::Channel<UV> focus_samples = samples.add_channel<UV> ();
 
-  for (Sample2Gen::iterator s = sample_gen.begin(),
-	 fs = focus_sample_gen.begin ();
-       s != sample_gen.end(); ++s, ++fs)
+  for (unsigned snum = 0; snum < sample_gen.num_samples; snum++)
     {
+      UV camera_samp = samples.get (camera_samples, snum);
+      UV focus_samp = samples.get (focus_samples, snum);
+
       // The X/Y coordinates of the specific sample S
       //
-      float sx = x + s->u, sy = y + s->v;
+      float sx = x + camera_samp.u, sy = y + camera_samp.v;
 
       // Calculate normalized image coordinates U and V (we flip the V
       // coordinate vertically because the output image has zero at the
@@ -155,7 +143,7 @@ Renderer::render_pixel (int x, int y, TraceCache &root_cache)
       // Translate the image position U, V into a ray coming from the
       // camera.
       //
-      Ray camera_ray = camera.eye_ray (u, v, fs->u, fs->v);
+      Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
       camera_ray.t1 = scene.horizon;
 
       //

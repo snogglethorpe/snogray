@@ -1,6 +1,6 @@
 // renderer.h -- Outer rendering loop
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ class Scene;
 class Camera;
 class ImageSink;
 class Filter;
-class Sample2Gen;
+class SampleGen;
 
 
 class Renderer
@@ -37,7 +37,7 @@ public:
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 	    unsigned max_y_block_size,
 	    IllumMgr &_illum_mgr,
-	    Sample2Gen &_sample_gen, Sample2Gen &_focus_sample_gen,
+	    SampleGen &_sample_gen,
 	    const TraceParams &trace_params);
 
   // Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
@@ -83,11 +83,7 @@ public:
 
   // Sample generator used to generate samples within a pixel.
   //
-  Sample2Gen &sample_gen;
-
-  // Sample generator used to generate focus samples.
-  //
-  Sample2Gen &focus_sample_gen;
+  SampleGen &sample_gen;
 
   // Global R/W state during tracing.
   //

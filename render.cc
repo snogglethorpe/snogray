@@ -1,6 +1,6 @@
 // render.cc -- Main rendering loop
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
 #include "renderer.h"
 #include "progress.h"
 #include "grid.h"
-#include "sample2-gen.h"
+#include "sample-gen.h"
 #include "mis-illum.h"
 #include "recurs-illum.h"
 #include "illum-mgr.h"
@@ -112,12 +112,11 @@ render_by_blocks (Renderer &renderer,
 
 // Return an appropriate sample generator for anti-aliasing.
 //
-static Sample2Gen *
+static SampleGen *
 make_aa_sample_gen (const ValTable &params)
 {
   unsigned oversample = params.get_uint ("oversample", 1);
-  unsigned jitter = params.get_uint ("jitter", 1);
-  return new Grid (oversample, oversample, jitter);
+  return new Grid (oversample);
 }
 
 void
@@ -127,8 +126,7 @@ snogray::render (const Scene &scene, const Camera &camera,
 		 const ValTable &params, TraceStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
-  UniquePtr<Sample2Gen> sample_gen (make_aa_sample_gen (params));
-  UniquePtr<Sample2Gen> focus_sample_gen (sample_gen->clone ());
+  UniquePtr<SampleGen> sample_gen (make_aa_sample_gen (params));
   TraceParams trace_params (params);
 
   std::string algo = params.get_string ("algo", "rt");
@@ -152,9 +150,7 @@ snogray::render (const Scene &scene, const Camera &camera,
   bool by_rows = params.get_int ("render-by-rows", 0);
 
   Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     by_rows ? 1 : 16,
-		     illum_mgr, *sample_gen, *focus_sample_gen,
-		     trace_params);
+		     by_rows ? 1 : 16, illum_mgr, *sample_gen, trace_params);
 
   // Do the actual rendering.
   //
