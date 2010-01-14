@@ -100,7 +100,7 @@ Renderer::render_block (int x, int y, int w, int h)
       if (filt_rad != 0 && x + w == max_x)
 	w += filt_rad;
 
-      TraceCache root_cache (render_context);
+      TraceCache root_cache (scene.num_lights ());
 
       // Render the desired rows row by row, and pixel by pixel
       //

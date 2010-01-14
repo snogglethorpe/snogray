@@ -12,7 +12,6 @@
 
 #include "scene.h"
 #include "trace.h"
-#include "render-context.h"
 
 #include "trace-cache.h"
 
@@ -20,11 +19,9 @@
 using namespace snogray;
 
 
-TraceCache::TraceCache (const RenderContext &context)
-  : horizon_hint (0)
+TraceCache::TraceCache (unsigned _num_lights)
+  : horizon_hint (0), num_lights (_num_lights)
 {
-  unsigned num_lights = context.scene.num_lights ();
-
   shadow_hints = new const Surface*[num_lights];
   for (unsigned i = 0; i < num_lights; i++)
     shadow_hints[i] = 0;

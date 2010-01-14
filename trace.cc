@@ -32,7 +32,7 @@ Trace::Trace (Type _type, const Ray &_ray, const Medium &_medium,
 	      float branch_factor, const Trace &_source)
   : source (&_source), context (_source.context), type (_type), ray (_ray),
     complexity (_source.complexity * branch_factor), medium (_medium),
-    cache (source->cache.sub_cache (type, context))
+    cache (source->cache.sub_cache (type))
 { }
 
 // Searches back through the trace history to find the enclosing medium.

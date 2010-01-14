@@ -21,6 +21,7 @@
 #include "render-params.h"
 #include "render-context.h"
 #include "trace-cache.h"
+#include "scene.h"
 
 #include "camera-cmds.h"
 
@@ -201,7 +202,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   ValTable render_param_table;
   RenderParams render_params (render_param_table);
   RenderContext render_context (scene, render_params);
-  TraceCache root_cache (render_context);
+  TraceCache root_cache (scene.num_lights ());
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 

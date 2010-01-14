@@ -37,20 +37,20 @@ class TraceCache
 {
 public:
 
-  TraceCache (const RenderContext &context);
+  TraceCache (unsigned num_lights);
   ~TraceCache ();
 
   // Returns a pointer to a cache for a subtrace of the given type
   // (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  TraceCache &sub_cache (Trace::Type type, const RenderContext &context)
+  TraceCache &sub_cache (Trace::Type type)
   {
     TraceCache *sub = sub_caches[type];
 
     if (! sub)
       {
-	sub = new TraceCache (context);
+	sub = new TraceCache (num_lights);
 	sub_caches[type] = sub;
       }
 
@@ -77,6 +77,10 @@ public:
   // each trace type.
   //
   TraceCache *sub_caches[Trace::NUM_TRACE_TYPES];
+
+  // Number of lights we use.
+  //
+  unsigned num_lights;
 };
 
 
