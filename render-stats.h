@@ -1,6 +1,6 @@
-// trace-stats.h -- Print post-rendering statistics
+// render-stats.h -- Print post-rendering statistics
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRACE_STATS_H__
-#define __TRACE_STATS_H__
+#ifndef __RENDER_STATS_H__
+#define __RENDER_STATS_H__
 
 #include <ostream>
 
@@ -21,9 +21,9 @@ namespace snogray {
 
 class Scene;
 
-struct TraceStats
+struct RenderStats
 {
-  TraceStats ()
+  RenderStats ()
     : scene_intersect_calls (0),
       scene_shadow_tests (0), shadow_hint_hits (0), shadow_hint_misses (0),
       scene_slow_shadow_traces (0), surface_slow_shadow_traces (0),
@@ -65,6 +65,6 @@ struct TraceStats
 
 }
 
-#endif /*__TRACE_STATS_H__ */
+#endif /*__RENDER_STATS_H__ */
 
 // arch-tag: b7800699-80ca-46da-9f30-732a78beb547

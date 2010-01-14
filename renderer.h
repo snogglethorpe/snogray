@@ -54,7 +54,7 @@ public:
   //
   void render_pixel (int x, int y, TraceCache &root_cache);
 
-  TraceStats trace_stats () const { return render_context.stats; }
+  RenderStats render_stats () const { return render_context.stats; }
 
 
   // The scene and camera being rendered.

@@ -84,7 +84,7 @@ public:
   virtual void for_each_possible_intersector (const Ray &ray,
 					      IntersectCallback &callback,
 					      RenderContext &context,
-					      TraceStats::IsecStats &isec_stats)
+					      RenderStats::IsecStats &isec_stats)
     const;
     
   // Octree statistics.
@@ -131,7 +131,7 @@ private:
     // Update the global statistical counters in ISEC_STATS with the
     // results from this search.
     //
-    void update_isec_stats (TraceStats::IsecStats &isec_stats)
+    void update_isec_stats (RenderStats::IsecStats &isec_stats)
     {
       isec_stats.neg_cache_collisions += neg_cache_collisions;
       isec_stats.neg_cache_hits	      += neg_cache_hits;

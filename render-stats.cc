@@ -1,6 +1,6 @@
-// trace-stats.cc -- Print post-rendering statistics
+// render-stats.cc -- Print post-rendering statistics
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 #include "scene.h"
 #include "string-funs.h"
 
-#include "trace-stats.h"
+#include "render-stats.h"
 
 using namespace snogray;
 using namespace std;
@@ -38,7 +38,7 @@ static float fraction (long long num, long long den)
 // Print post-rendering scene statistics
 //
 void
-TraceStats::print (ostream &os)
+RenderStats::print (ostream &os)
 {
   long long sc  = scene_intersect_calls;
   long long tnc = intersect.space_node_intersect_calls;

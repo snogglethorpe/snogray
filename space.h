@@ -88,7 +88,7 @@ public:
   virtual void for_each_possible_intersector (const Ray &ray,
 					      IntersectCallback &callback,
 					      RenderContext &context,
-					      TraceStats::IsecStats &isec_stats)
+					      RenderStats::IsecStats &isec_stats)
     const = 0;
 
 
@@ -107,7 +107,7 @@ protected:
     // Update the global statistical counters in ISEC_STATS with the
     // results from this search.
     //
-    void update_isec_stats (TraceStats::IsecStats &isec_stats)
+    void update_isec_stats (RenderStats::IsecStats &isec_stats)
     {
       isec_stats.surface_intersects_tests   += surf_isec_tests;
       isec_stats.surface_intersects_hits    += surf_isec_hits;

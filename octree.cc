@@ -31,7 +31,7 @@ void
 Octree::for_each_possible_intersector (const Ray &ray,
 				       IntersectCallback &callback,
 				       RenderContext &context,
-				       TraceStats::IsecStats &isec_stats)
+				       RenderStats::IsecStats &isec_stats)
   const
 {
   if (root)

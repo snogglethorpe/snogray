@@ -13,7 +13,7 @@
 #ifndef __RENDER_CONTEXT_H__
 #define __RENDER_CONTEXT_H__
 
-#include "trace-stats.h"
+#include "render-stats.h"
 #include "render-params.h"
 #include "space-builder.h"
 #include "mempool.h"
@@ -63,7 +63,7 @@ public:
   //
   Pool<IsecCache> isec_cache_pool;
 
-  TraceStats stats;
+  RenderStats stats;
 
   UniquePtr<SpaceBuilderFactory> space_builder_factory;
 };

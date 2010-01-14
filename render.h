@@ -1,6 +1,6 @@
 // render.h -- Main rendering loop
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,13 +22,13 @@ namespace snogray {
 class Scene;
 class Camera;
 class ImageOutput;
-class TraceStats;
+class RenderStats;
 
 extern void
 render (const Scene &scene, const Camera &camera,
 	unsigned width, unsigned height,
 	ImageOutput &output, unsigned offs_x, unsigned offs_y,
-	const ValTable &render_params, TraceStats &stats,
+	const ValTable &render_params, RenderStats &stats,
 	std::ostream &progress_stream, Progress::Verbosity verbosity);
 
 }

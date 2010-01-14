@@ -1,6 +1,6 @@
 // snogray.cc -- Main driver for snogray ray tracer
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@
 #include "image-cmdline.h"
 #include "render-cmdline.h"
 #include "scene-def.h"
-#include "trace-stats.h"
+#include "render-stats.h"
 
 
 using namespace snogray;
@@ -589,13 +589,13 @@ int main (int argc, char *const *argv)
 	 << endl;
 
 
-  TraceStats trace_stats;
+  RenderStats render_stats;
 
   // Create the image.
   //
   Rusage render_beg_ru;
   render (scene, camera, width, height, output, limit_x, limit_y,
-	  render_params, trace_stats, cout, verbosity);
+	  render_params, render_stats, cout, verbosity);
   Rusage render_end_ru;
 
 
@@ -606,7 +606,7 @@ int main (int argc, char *const *argv)
   //
   if (! quiet)
     {
-      trace_stats.print (cout);
+      render_stats.print (cout);
 
       long num_eye_rays = limit_width * limit_height;
 
@@ -621,8 +621,8 @@ int main (int argc, char *const *argv)
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time << endl;
 
-      long long sc  = trace_stats.scene_intersect_calls;
-      long long sst = trace_stats.scene_shadow_tests;
+      long long sc  = render_stats.scene_intersect_calls;
+      long long sst = render_stats.scene_shadow_tests;
       double rps = render_time == 0 ? 0 : double (sc + sst) / render_time;
       double erps = render_time == 0 ? 0 : double (num_eye_rays) / render_time;
       cout << "  rays per second:    "

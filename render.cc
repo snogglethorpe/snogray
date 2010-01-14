@@ -123,7 +123,7 @@ void
 snogray::render (const Scene &scene, const Camera &camera,
 		 unsigned width, unsigned height,
 		 ImageOutput &output, unsigned offs_x, unsigned offs_y,
-		 const ValTable &params, TraceStats &stats,
+		 const ValTable &params, RenderStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
   UniquePtr<SampleGen> sample_gen (make_aa_sample_gen (params));
@@ -159,7 +159,7 @@ snogray::render (const Scene &scene, const Camera &camera,
   else
     render_by_blocks (renderer, 16, 16, progress_stream, verbosity);
 
-  stats = renderer.trace_stats ();
+  stats = renderer.render_stats ();
 }
 
 // arch-tag: cbd1f440-1ebb-465b-a4e3-bd17777245f9
