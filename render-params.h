@@ -1,6 +1,6 @@
-// trace-params.h -- Parameters for tracing
+// render-params.h -- Rendering parameters
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,15 +10,15 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRACE_PARAMS_H__
-#define __TRACE_PARAMS_H__
+#ifndef __RENDER_PARAMS_H__
+#define __RENDER_PARAMS_H__
 
 #include "coords.h"
 #include "val-table.h"
 
 namespace snogray {
 
-class TraceParams
+class RenderParams
 {
 public:
 
@@ -55,7 +55,7 @@ public:
 
   static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
 
-  TraceParams ()
+  RenderParams ()
     : num_brdf_samples (DEFAULT_BRDF_SAMPLES),
       max_brdf_samples (num_brdf_samples * DEFAULT_MAX_BRDF_SAMPLE_MULT),
       num_light_samples (DEFAULT_LIGHT_SAMPLES),
@@ -63,7 +63,7 @@ public:
       min_trace (DEFAULT_MIN_TRACE),
       envlight_intens_frac (DEFAULT_ENVLIGHT_INTENS_FRAC)
   { }
-  TraceParams (const ValTable &params)
+  RenderParams (const ValTable &params)
     : num_brdf_samples (
 	params.get_uint ("brdf-samples", DEFAULT_BRDF_SAMPLES)),
       max_brdf_samples (
@@ -113,6 +113,6 @@ public:
 
 }
 
-#endif /* __TRACE_PARAMS_H__ */
+#endif /* __RENDER_PARAMS_H__ */
 
 // arch-tag: eeaa2e45-8ad3-4174-bac9-6814468841ee

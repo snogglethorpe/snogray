@@ -14,7 +14,7 @@
 #define __RENDER_CONTEXT_H__
 
 #include "trace-stats.h"
-#include "trace-params.h"
+#include "render-params.h"
 #include "space-builder.h"
 #include "mempool.h"
 #include "medium.h"
@@ -33,14 +33,14 @@ class RenderContext
 {
 public:
 
-  RenderContext (const Scene &_scene, const TraceParams &_params);
+  RenderContext (const Scene &_scene, const RenderParams &_params);
   ~RenderContext ();
 
   // Scene being rendered.
   //
   const Scene &scene;
 
-  const TraceParams &params;
+  const RenderParams &params;
 
   // Medium assumed to surround all objects.
   //

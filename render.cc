@@ -127,7 +127,7 @@ snogray::render (const Scene &scene, const Camera &camera,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
   UniquePtr<SampleGen> sample_gen (make_aa_sample_gen (params));
-  TraceParams trace_params (params);
+  RenderParams render_params (params);
 
   std::string algo = params.get_string ("algo", "rt");
 
@@ -150,7 +150,7 @@ snogray::render (const Scene &scene, const Camera &camera,
   bool by_rows = params.get_int ("render-by-rows", 0);
 
   Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     by_rows ? 1 : 16, illum_mgr, *sample_gen, trace_params);
+		     by_rows ? 1 : 16, illum_mgr, *sample_gen, render_params);
 
   // Do the actual rendering.
   //

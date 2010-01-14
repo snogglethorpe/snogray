@@ -18,7 +18,7 @@
 #include "val-table.h"
 #include "scene.h"
 #include "camera.h"
-#include "trace-params.h"
+#include "render-params.h"
 #include "render-context.h"
 #include "trace-cache.h"
 
@@ -198,9 +198,9 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
 {
   // Dummy values to make renderer happy
   //
-  ValTable render_params;
-  TraceParams trace_params (render_params);
-  RenderContext render_context (scene, trace_params);
+  ValTable render_param_table;
+  RenderParams render_params (render_param_table);
+  RenderContext render_context (scene, render_params);
   TraceCache root_cache (render_context);
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);

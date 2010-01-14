@@ -27,14 +27,14 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned max_y_block_size,
 		    IllumMgr &_illum_mgr,
 		    SampleGen &_sample_gen,
-		    const TraceParams &trace_params)
+		    const RenderParams &render_params)
   : scene (_scene), camera (_camera), width (_width), height (_height),
     illum_mgr (_illum_mgr),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
     sample_gen (_sample_gen),
-    render_context (scene, trace_params)
+    render_context (scene, render_params)
 {
   output.set_num_buffered_rows (max_y_block_size);
 }

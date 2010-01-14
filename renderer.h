@@ -38,7 +38,7 @@ public:
 	    unsigned max_y_block_size,
 	    IllumMgr &_illum_mgr,
 	    SampleGen &_sample_gen,
-	    const TraceParams &trace_params);
+	    const RenderParams &render_params);
 
   // Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
   // are clamped to fit the global rendering limit.

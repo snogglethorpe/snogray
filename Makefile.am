@@ -137,13 +137,13 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 # Snogray core rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h grid-iter.h	\
-	grid.cc grid.h illum.h illum-mgr.cc illum-mgr.h illum-sample.h	\
-	intersect.cc intersect.h isec-cache.h isec-ctx.h mis-illum.cc	\
-	mis-illum.h ray.cc ray.h recurs-illum.cc recurs-illum.h		\
-	render-context.cc render-context.h sample-disk.h sample-gen.cc	\
-	sample-gen.h sample-set.cc sample-set.h shadow-ray.h		\
-	trace-params.h trace-stats.cc trace.cc trace.h trace-cache.cc	\
+libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h grid-iter.h	 \
+	grid.cc grid.h illum.h illum-mgr.cc illum-mgr.h illum-sample.h	 \
+	intersect.cc intersect.h isec-cache.h isec-ctx.h mis-illum.cc	 \
+	mis-illum.h ray.cc ray.h recurs-illum.cc recurs-illum.h		 \
+	render-context.cc render-context.h render-params.h sample-disk.h \
+	sample-gen.cc sample-gen.h sample-set.cc sample-set.h		 \
+	shadow-ray.h trace-stats.cc trace.cc trace.h trace-cache.cc	 \
 	trace-cache.h trace-stats.h
 
 

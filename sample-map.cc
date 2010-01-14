@@ -27,12 +27,12 @@ using namespace std;
 //
 unsigned
 SampleMap::sample (const Ray &eye_ray, Scene &scene,
-		   const TraceParams &trace_params,
+		   const RenderParams &render_params,
 		   const IllumMgr &illum_mgr)
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
-  RenderContext render_context (scene, trace_params);
+  RenderContext render_context (scene, render_params);
 
   IsecCtx isec_ctx (render_context, root_cache);
   const Surface::IsecInfo *isec_info
