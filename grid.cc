@@ -57,7 +57,10 @@ Grid::gen_uv_samples ()
       float u_offs = 0;
 
       for (unsigned j = 0; j < u_steps; j++)
-	*cur_samp++ = UV (u_offs + random (u_step), v_offs + random (v_step));
+	{
+	  *cur_samp++ = UV (u_offs + random (u_step), v_offs + random (v_step));
+	  u_offs += u_step;
+	}
 
       v_offs += v_step;
     }
