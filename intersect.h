@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording scene-ray intersection result
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
 #include "frame.h"
 #include "color.h"
 #include "trace.h"
-#include "trace-context.h"
+#include "render-context.h"
 #include "tex-coords.h"
 
 
@@ -164,7 +164,7 @@ public:
 
   // Global tracing context.
   //
-  TraceContext &context;
+  RenderContext &context;
 
 private:
 

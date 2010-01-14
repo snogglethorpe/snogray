@@ -1,6 +1,6 @@
 // trace-cache.cc -- Cache for data that persists between traces
 //
-//  Copyright (C) 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
 
 #include "scene.h"
 #include "trace.h"
-#include "trace-context.h"
+#include "render-context.h"
 
 #include "trace-cache.h"
 
@@ -20,7 +20,7 @@
 using namespace snogray;
 
 
-TraceCache::TraceCache (const TraceContext &context)
+TraceCache::TraceCache (const RenderContext &context)
   : horizon_hint (0)
 {
   unsigned num_lights = context.scene.num_lights ();

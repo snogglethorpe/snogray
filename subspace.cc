@@ -1,6 +1,6 @@
 // subspace.cc -- A surface encapsulated into its own subspace
 //
-//  Copyright (C) 2007, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ Subspace::~Subspace ()
 // Setup our acceleration structure.
 //
 void
-Subspace::make_space (TraceContext &context) const
+Subspace::make_space (RenderContext &context) const
 {
   LockGuard<Mutex> guard (make_space_lock);
 

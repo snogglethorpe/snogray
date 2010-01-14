@@ -1,6 +1,6 @@
-// trace-context.cc -- Trace tracing state
+// render-context.cc -- "semi-global" information used during rendering
 //
-//  Copyright (C) 2006, 2007, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,18 +13,18 @@
 #include "mis-illum.h"
 #include "octree.h"
 
-#include "trace-context.h"
+#include "render-context.h"
 
 
 using namespace snogray;
 
 
-TraceContext::TraceContext (const Scene &_scene, const TraceParams &_params)
+RenderContext::RenderContext (const Scene &_scene, const TraceParams &_params)
   : scene (_scene), params (_params),
     space_builder_factory (new Octree::BuilderFactory) // hardwired for now
 { }
 
-TraceContext::~TraceContext ()
+RenderContext::~RenderContext ()
 {
 }
 

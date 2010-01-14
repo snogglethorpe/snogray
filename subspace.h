@@ -1,6 +1,6 @@
 // subspace.h -- A surface encapsulated into its own subspace
 //
-//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ private:
 
   // Make sure our acceleration structure is set up.
   //
-  void ensure_space (TraceContext &context) const
+  void ensure_space (RenderContext &context) const
   {
     if (! space)
       make_space (context);
@@ -75,7 +75,7 @@ private:
 
   // Setup our acceleration structure.
   //
-  void make_space (TraceContext &context) const;
+  void make_space (RenderContext &context) const;
 
   // The top-level surface in this subspace.
   //

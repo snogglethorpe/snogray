@@ -1,6 +1,6 @@
 // scene.cc -- Scene description datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
 
 #include "space.h"
 #include "envmap.h"
-#include "trace-context.h"
+#include "render-context.h"
 #include "trace-cache.h"
 #include "unique-ptr.h"
 
@@ -93,7 +93,7 @@ Scene::build_space (const SpaceBuilderFactory *space_builder_factory)
 const Surface::IsecInfo *
 Scene::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
-  TraceContext &context = isec_ctx.context;
+  RenderContext &context = isec_ctx.context;
   TraceCache &cache = isec_ctx.cache;
 
   context.stats.scene_intersect_calls++;
@@ -141,7 +141,7 @@ Scene::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 Material::ShadowType
 Scene::shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
-  TraceContext &context = isec_ctx.context;
+  RenderContext &context = isec_ctx.context;
   TraceCache &cache = isec_ctx.cache;
 
   context.stats.scene_shadow_tests++;
@@ -191,7 +191,7 @@ Scene::shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const
 bool
 Scene::shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
-  TraceContext &context = isec_ctx.context;
+  RenderContext &context = isec_ctx.context;
   TraceCache &cache = isec_ctx.cache;
 
   context.stats.scene_shadow_tests++;

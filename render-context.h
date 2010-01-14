@@ -1,6 +1,6 @@
-// trace-context.h -- Context in which tracing occurrs
+// render-context.h --  "semi-global" information used during rendering
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRACE_CONTEXT_H__
-#define __TRACE_CONTEXT_H__
+#ifndef __RENDER_CONTEXT_H__
+#define __RENDER_CONTEXT_H__
 
 #include "trace-stats.h"
 #include "trace-params.h"
@@ -29,12 +29,12 @@ namespace snogray {
 // Context in which tracing occurs.  This structure holds per-thread global
 // information, such as caches and statistics, etc.
 //
-class TraceContext
+class RenderContext
 {
 public:
 
-  TraceContext (const Scene &_scene, const TraceParams &_params);
-  ~TraceContext ();
+  RenderContext (const Scene &_scene, const TraceParams &_params);
+  ~RenderContext ();
 
   // Scene being rendered.
   //
@@ -80,7 +80,7 @@ public:
 // some appropriate point, and should not be used after a trace has
 // completed (i.e., this is temporary storage).
 //
-inline void *operator new (size_t size, snogray::TraceContext &context)
+inline void *operator new (size_t size, snogray::RenderContext &context)
 {
   return operator new (size, context.mempool);
 }
@@ -88,13 +88,13 @@ inline void *operator new (size_t size, snogray::TraceContext &context)
 // There's no syntax for user to use this, but the compiler may call it
 // during exception handling.
 //
-inline void operator delete (void *mem, snogray::TraceContext &context)
+inline void operator delete (void *mem, snogray::RenderContext &context)
 {
   operator delete (mem, context.mempool);
 }
 
 
-#endif /* __TRACE_CONTEXT_H__ */
+#endif /* __RENDER_CONTEXT_H__ */
 
 
 // arch-tag: f3691316-99dd-4b9c-a405-8c816ba4e361

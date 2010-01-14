@@ -1,6 +1,6 @@
 // sample-map.cc -- Visual representation of sample distribution
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 #include "camera.h"
 #include "trace.h"
 #include "illum-mgr.h"
-#include "trace-context.h"
+#include "render-context.h"
 
 #include "sample-map.h"
 
@@ -32,15 +32,15 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 {
   Ray intersected_ray (eye_ray, Scene::DEFAULT_HORIZON);
 
-  TraceContext trace_context (scene, trace_params);
+  RenderContext render_context (scene, trace_params);
 
-  IsecCtx isec_ctx (trace_context, root_cache);
+  IsecCtx isec_ctx (render_context, root_cache);
   const Surface::IsecInfo *isec_info
     = scene.intersect (intersected_ray, isec_ctx);
 
   if (isec_info)
     {
-      Trace trace (isec_info->ray, trace_context, root_cache);
+      Trace trace (isec_info->ray, render_context, root_cache);
       Intersect isec = isec_info->make_intersect (trace);
       unsigned num = illum_mgr.gen_samples (isec, samples);
 

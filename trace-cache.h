@@ -1,6 +1,6 @@
 // trace-cache.h -- Cache for data that persists between traces
 //
-//  Copyright (C) 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -37,14 +37,14 @@ class TraceCache
 {
 public:
 
-  TraceCache (const TraceContext &context);
+  TraceCache (const RenderContext &context);
   ~TraceCache ();
 
   // Returns a pointer to a cache for a subtrace of the given type
   // (possibly creating a new one, if no such subtrace has yet been
   // encountered).
   //
-  TraceCache &sub_cache (Trace::Type type, const TraceContext &context)
+  TraceCache &sub_cache (Trace::Type type, const RenderContext &context)
   {
     TraceCache *sub = sub_caches[type];
 

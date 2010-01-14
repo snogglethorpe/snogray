@@ -1,6 +1,6 @@
 // space.h -- Space-division abstraction (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2005, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 
 #include "ray.h"
 #include "surface.h"
-#include "trace-context.h"
+#include "render-context.h"
 
 
 namespace snogray {
@@ -87,7 +87,7 @@ public:
   //
   virtual void for_each_possible_intersector (const Ray &ray,
 					      IntersectCallback &callback,
-					      TraceContext &context,
+					      RenderContext &context,
 					      TraceStats::IsecStats &isec_stats)
     const = 0;
 

@@ -14,7 +14,7 @@
 #define __RENDERER_H__
 
 #include "image-output.h"
-#include "trace-context.h"
+#include "render-context.h"
 #include "illum-mgr.h"
 
 
@@ -54,7 +54,7 @@ public:
   //
   void render_pixel (int x, int y, TraceCache &root_cache);
 
-  TraceStats trace_stats () const { return trace_context.stats; }
+  TraceStats trace_stats () const { return render_context.stats; }
 
 
   // The scene and camera being rendered.
@@ -87,7 +87,7 @@ public:
 
   // Global R/W state during tracing.
   //
-  TraceContext trace_context;
+  RenderContext render_context;
 
 #if 0
   // Wire-frame state.  We create this object regardless of whether

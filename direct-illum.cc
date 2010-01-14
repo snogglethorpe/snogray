@@ -1,6 +1,6 @@
 // direct-illum.cc -- Direct illumination superclass
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ DirectIllum::shadow_test (const Intersect &isec,
 			  IllumSampleVec::iterator end)
   const
 {
-  TraceContext &context = isec.context;
+  RenderContext &context = isec.context;
   const Scene &scene = context.scene;
 
   dist_t min_dist = context.params.min_trace;

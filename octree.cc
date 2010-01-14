@@ -1,6 +1,6 @@
 // octree.cc -- Voxel tree datatype (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ using namespace std;
 void
 Octree::for_each_possible_intersector (const Ray &ray,
 				       IntersectCallback &callback,
-				       TraceContext &context,
+				       RenderContext &context,
 				       TraceStats::IsecStats &isec_stats)
   const
 {

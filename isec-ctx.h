@@ -1,6 +1,6 @@
 // isec-ctx.h -- Context information for intersection testing
 //
-//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 namespace snogray {
 
 
-class TraceContext;
+class RenderContext;
 class TraceCache;
 
 
@@ -29,7 +29,7 @@ class IsecCtx
 {
 public:
 
-  IsecCtx (TraceContext &_context, TraceCache &_cache)
+  IsecCtx (RenderContext &_context, TraceCache &_cache)
     : context (_context), cache (_cache)
   { }
   IsecCtx (const Intersect &isec)
@@ -38,7 +38,7 @@ public:
 
   // Global tracing context.
   //
-  TraceContext &context;
+  RenderContext &context;
 
   // Information cached at this point in the trace.
   //

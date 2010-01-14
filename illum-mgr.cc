@@ -1,6 +1,6 @@
 // illum-mgr.cc -- Sample-based manager for illuminators
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -109,7 +109,7 @@ IllumMgr::IllumHandler::partition_samples (IllumSampleVec::iterator beg,
 Color
 IllumMgr::lo (const Intersect &isec) const
 {
-  TraceContext &context = isec.context;
+  RenderContext &context = isec.context;
   const Scene &scene = context.scene;
   const Trace &trace = isec.trace;
 

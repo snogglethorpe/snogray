@@ -34,7 +34,7 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
     sample_gen (_sample_gen),
-    trace_context (scene, trace_params)
+    render_context (scene, trace_params)
 {
   output.set_num_buffered_rows (max_y_block_size);
 }
@@ -100,7 +100,7 @@ Renderer::render_block (int x, int y, int w, int h)
       if (filt_rad != 0 && x + w == max_x)
 	w += filt_rad;
 
-      TraceCache root_cache (trace_context);
+      TraceCache root_cache (render_context);
 
       // Render the desired rows row by row, and pixel by pixel
       //
@@ -151,20 +151,20 @@ Renderer::render_pixel (int x, int y, TraceCache &root_cache)
       //
 
       Ray intersected_ray (camera_ray);
-      IsecCtx isec_ctx (trace_context, root_cache);
+      IsecCtx isec_ctx (render_context, root_cache);
       const Surface::IsecInfo *isec_info
 	= scene.intersect (intersected_ray, isec_ctx);
 
       Tint tint;
       if (isec_info)
 	{
-	  Trace camera_trace (isec_info->ray, trace_context, root_cache);
+	  Trace camera_trace (isec_info->ray, render_context, root_cache);
 	  tint = illum_mgr.li (isec_info, camera_trace);
 	}
       else
 	tint = scene.background_with_alpha (camera_ray);
 
-      trace_context.mempool.reset ();
+      render_context.mempool.reset ();
 
       output.add_sample (sx - lim_x, sy - lim_y, tint);
     }

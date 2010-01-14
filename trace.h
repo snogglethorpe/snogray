@@ -1,6 +1,6 @@
 // trace.h -- Tracing path
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 namespace snogray {
 
 
-class TraceContext;
+class RenderContext;
 class TraceCache;
 
 
@@ -50,7 +50,7 @@ public:
 
   // Constructor for a root (camera/eye) Trace.
   //
-  Trace (const Ray &ray, TraceContext &_context, TraceCache &_root_cache);
+  Trace (const Ray &ray, RenderContext &_context, TraceCache &_root_cache);
 
   // Constructor for sub-traces
   //
@@ -83,7 +83,7 @@ public:
   // modifiable (e.g., for memory allocation or stats) even when a Trace
   // is const, so mark it as mutable.
   //
-  mutable TraceContext &context;
+  mutable RenderContext &context;
 
   // The type of transition from the previous segment in the trace path
   // (pointed to by the "source" field) to this segment.

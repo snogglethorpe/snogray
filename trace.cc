@@ -1,6 +1,6 @@
 // trace.cc -- Tracing path
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "trace-context.h"
+#include "render-context.h"
 #include "trace-cache.h"
 
 #include "trace.h"
@@ -20,7 +20,7 @@ using namespace snogray;
 
 // Constructor for root Trace
 //
-Trace::Trace (const Ray &_ray, TraceContext &_context, TraceCache &_root_cache)
+Trace::Trace (const Ray &_ray, RenderContext &_context, TraceCache &_root_cache)
   : source (0), context (_context), type (SPONTANEOUS), ray (_ray),
     complexity (1), medium (_context.default_medium),
     cache (_root_cache)
