@@ -1,0 +1,68 @@
+// integ.h -- Light integrator interface
+//
+//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//
+// This source code is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation; either version 3, or (at
+// your option) any later version.  See the file COPYING for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
+#ifndef __INTEG_H__
+#define __INTEG_H__
+
+#include "ray.h"
+#include "tint.h"
+
+
+namespace snogray {
+
+class Scene;
+class SampleSet;
+class SampleGen;
+class RenderContext;
+
+
+class Integ
+{
+public:
+
+  // Global state for this integrator, for rendering an entire scene.
+  //
+  class GlobalState
+  {
+  public:
+
+    GlobalState (const Scene &_scene) : scene (_scene) { }
+
+    // Return a new integrator, allocated in context.
+    //
+    virtual Integ *make_integrator (SampleSet &sample, RenderContext &context) = 0;
+
+    const Scene &scene;
+  };
+
+  // Return light from the scene arriving from the direction of RAY at its
+  // origin.  SAMPLE_NUM is the sample to use.
+  //
+  virtual Tint li (const Ray &ray, unsigned sample_num) = 0;
+
+protected:
+
+  // Integrator state for rendering a group of related samples.
+  //
+  Integ (SampleSet &_samples, RenderContext &_context)
+    : samples (_samples), context (_context)
+  { }
+
+  SampleSet &samples;
+
+  RenderContext &context;
+};
+
+
+}
+
+#endif // __INTEG_H__
