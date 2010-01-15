@@ -13,9 +13,9 @@
 #include "scene.h"
 #include "camera.h"
 #include "filter.h"
-#include "sample-gen.h"
 #include "sample-set.h"
 #include "trace-cache.h"
+#include "unique-ptr.h"
 
 #include "renderer.h"
 
@@ -25,11 +25,11 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned _width, unsigned _height,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 		    unsigned max_y_block_size,
-		    IllumMgr &_illum_mgr,
+		    Integ::GlobalState &_integ_global_state,
 		    SampleGen &_sample_gen,
 		    const RenderParams &render_params)
   : scene (_scene), camera (_camera), width (_width), height (_height),
-    illum_mgr (_illum_mgr),
+    integ_global_state (_integ_global_state),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
@@ -100,13 +100,11 @@ Renderer::render_block (int x, int y, int w, int h)
       if (filt_rad != 0 && x + w == max_x)
 	w += filt_rad;
 
-      TraceCache root_cache (scene.num_lights ());
-
       // Render the desired rows row by row, and pixel by pixel
       //
       for (int py = y; py < y + h; py++)
 	for (int px = x; px < x + w; px++)
-	  render_pixel (px, py, root_cache);
+	  render_pixel (px, py);
     }
 }
 
@@ -118,12 +116,15 @@ Renderer::render_block (int x, int y, int w, int h)
 // included in an in-bound pixel by the output filter).
 //
 void
-Renderer::render_pixel (int x, int y, TraceCache &root_cache)
+Renderer::render_pixel (int x, int y)
 {
   SampleSet samples (sample_gen);
 
   SampleSet::Channel<UV> camera_samples = samples.add_channel<UV> ();
   SampleSet::Channel<UV> focus_samples = samples.add_channel<UV> ();
+
+  UniquePtr<Integ> integ
+    (integ_global_state.make_integrator (samples, render_context));
 
   for (unsigned snum = 0; snum < sample_gen.num_samples; snum++)
     {
@@ -146,23 +147,7 @@ Renderer::render_pixel (int x, int y, TraceCache &root_cache)
       Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
       camera_ray.t1 = scene.horizon;
 
-      //
-      // Cast the camera ray and calculate image color from that direction.
-      //
-
-      Ray intersected_ray (camera_ray);
-      IsecCtx isec_ctx (render_context, root_cache);
-      const Surface::IsecInfo *isec_info
-	= scene.intersect (intersected_ray, isec_ctx);
-
-      Tint tint;
-      if (isec_info)
-	{
-	  Trace camera_trace (isec_info->ray, render_context, root_cache);
-	  tint = illum_mgr.li (isec_info, camera_trace);
-	}
-      else
-	tint = scene.background_with_alpha (camera_ray);
+      Tint tint = integ->li (camera_ray, snum);
 
       render_context.mempool.reset ();
 

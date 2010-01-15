@@ -19,9 +19,7 @@
 #include "progress.h"
 #include "grid.h"
 #include "sample-gen.h"
-#include "mis-illum.h"
-#include "recurs-illum.h"
-#include "illum-mgr.h"
+#include "old-integ.h"
 
 #include "render.h"
 
@@ -113,10 +111,16 @@ render_by_blocks (Renderer &renderer,
 // Return an appropriate sample generator for anti-aliasing.
 //
 static SampleGen *
-make_aa_sample_gen (const ValTable &params)
+make_sample_gen (const ValTable &params)
 {
   unsigned oversample = params.get_uint ("oversample", 1);
   return new Grid (oversample);
+}
+
+static Integ::GlobalState *
+make_integ_global_state (const Scene &scene, const ValTable &params)
+{
+  return new OldInteg::GlobalState (scene, params);
 }
 
 void
@@ -126,31 +130,18 @@ snogray::render (const Scene &scene, const Camera &camera,
 		 const ValTable &params, RenderStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
-  UniquePtr<SampleGen> sample_gen (make_aa_sample_gen (params));
+  UniquePtr<SampleGen> sample_gen (make_sample_gen (params));
+
+  UniquePtr<Integ::GlobalState>
+      integ_global_state (make_integ_global_state (scene, params));
+
   RenderParams render_params (params);
-
-  std::string algo = params.get_string ("algo", "rt");
-
-  IllumMgr illum_mgr;
-
-  if (algo == "ppt" || algo == "pure-path-trace" || algo == "purepathtrace")
-    illum_mgr.add_illum (new RecursIllum (scene), 0);
-  else
-    {
-      illum_mgr.add_illum (new MisIllum (scene), IllumSample::DIRECT);
-
-      if (algo == "pt" || algo == "path-trace" || algo == "pathtrace")
-	illum_mgr.add_illum (new RecursIllum (scene), 0);
-      else if (algo == "rt" || algo == "ray-trace" || algo == "raytrace")
-	illum_mgr.add_illum (new RecursIllum (scene), IllumSample::SPECULAR);
-      else
-	throw std::runtime_error ("Unknown algorithm \"" + algo + "\"");
-    }
 
   bool by_rows = params.get_int ("render-by-rows", 0);
 
   Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     by_rows ? 1 : 16, illum_mgr, *sample_gen, render_params);
+		     by_rows ? 1 : 16, *integ_global_state,
+		     *sample_gen, render_params);
 
   // Do the actual rendering.
   //

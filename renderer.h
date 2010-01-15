@@ -15,7 +15,7 @@
 
 #include "image-output.h"
 #include "render-context.h"
-#include "illum-mgr.h"
+#include "integ.h"
 
 
 namespace snogray {
@@ -36,7 +36,7 @@ public:
 	    unsigned _width, unsigned _height,
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 	    unsigned max_y_block_size,
-	    IllumMgr &_illum_mgr,
+	    Integ::GlobalState &integ_global_state,
 	    SampleGen &_sample_gen,
 	    const RenderParams &render_params);
 
@@ -52,7 +52,7 @@ public:
   // out-of-bounds pixels may still affect the output, if they are included
   // in an in-bound pixel by the output filter).
   //
-  void render_pixel (int x, int y, TraceCache &root_cache);
+  void render_pixel (int x, int y);
 
   RenderStats render_stats () const { return render_context.stats; }
 
@@ -67,9 +67,9 @@ public:
   //
   float width, height;
 
-  // Illumination manager for calculating illumination.
+  // Global state for scene integrator.
   //
-  IllumMgr &illum_mgr;
+  Integ::GlobalState &integ_global_state;
 
   // Where the results are written.  This may be smaller than the nominal
   // output image defined by WIDTH and HEIGHT.
