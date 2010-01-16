@@ -1,6 +1,6 @@
 // glass.h -- Glass (transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,9 +26,7 @@ class Glass : public Material
 {
 public:
 
-  Glass (const Medium &medium)
-    : Material (Material::SHADOW_MEDIUM), _medium (medium)
-  { }
+  Glass (const Medium &medium) : _medium (medium) { }
 
   // Return a new BRDF object for this material instantiated at ISEC.
   //

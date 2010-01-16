@@ -1,6 +1,6 @@
 // material.h -- Surface material datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,13 +31,8 @@ class Material : public RefCounted
 {
 public:
 
-  // Types of shadow, from none to completely opaque.  Greater values
-  // are "stronger" (block more).
-  //
-  enum ShadowType { SHADOW_NONE, SHADOW_MEDIUM, SHADOW_OPAQUE };
-
-  Material (ShadowType _shadow_type = SHADOW_OPAQUE, bool emits_light = false)
-    : shadow_type (_shadow_type), bump_map (0), _emits_light (emits_light)
+  Material (bool emits_light = false)
+    : bump_map (0), _emits_light (emits_light)
   { }
   virtual ~Material () { }
 
@@ -56,11 +51,6 @@ public:
   // Return true if this material emits light.
   //
   bool emits_light () const { return _emits_light; }
-
-  // The general sort of shadow this material will cast.  This value
-  // should never change for a given material, so can be cached.
-  //
-  const ShadowType shadow_type;
 
   Ref<const Tex<float> > bump_map;
 

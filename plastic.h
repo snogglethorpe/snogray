@@ -28,10 +28,10 @@ class Plastic : public Material
 public:
 
   Plastic (const Color &col, float _ior = 1.5)
-    : Material (Material::SHADOW_MEDIUM), color (col), ior (_ior)
+    : color (col), ior (_ior)
   { }
   Plastic (float _ior = 1.5)
-    : Material (Material::SHADOW_MEDIUM), color (1), ior (_ior)
+    : color (1), ior (_ior)
   { }
 
   // Return a new BRDF object for this material instantiated at ISEC.
