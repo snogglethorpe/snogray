@@ -288,7 +288,9 @@ IllumMgr::lo (const Intersect &isec) const
 		    || (s->light && s->light_val > 0))
 		  {
 		    dist_t max_dist
-		      = s->light_dist ? s->light_dist : scene.horizon;
+		      = (s->light_dist
+			 ? s->light_dist - min_dist
+			 : scene.horizon);
 
 		    ShadowRay ray (isec, isec.normal_frame.from (s->dir),
 				   min_dist, max_dist, s->light);
@@ -363,7 +365,9 @@ IllumMgr::lo (const Intersect &isec) const
 	      for (IllumSampleVec::iterator s = bs_beg; s != end; ++s)
 		{
 		  dist_t max_dist
-		    = s->light_dist ? s->light_dist : scene.horizon;
+		    = (s->light_dist
+		       ? s->light_dist - min_dist
+		       : scene.horizon);
 
 		  Ray ray (isec.normal_frame.origin,
 			   isec.normal_frame.from (s->dir),
