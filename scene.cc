@@ -104,7 +104,7 @@ bool
 Scene::shadows (const ShadowRay &ray, RenderContext &context) const
 {
   context.stats.scene_shadow_tests++;
-  return space->shadows (ray, context);
+  return space->intersects (ray, context);
 }
 
 

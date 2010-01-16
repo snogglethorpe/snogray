@@ -35,7 +35,7 @@ public:
 
   // Return true if any object intersects RAY.
   //
-  bool shadows (const ShadowRay &ray, RenderContext &context) const;
+  bool intersects (const ShadowRay &ray, RenderContext &context) const;
 
   // A callback for `for_each_possible_intersector'.  Users of
   // `for_each_possible_intersector' must subclass this, providing their

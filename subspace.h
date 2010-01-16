@@ -52,7 +52,7 @@ public:
   bool intersects (const ShadowRay &sray, RenderContext &context) const
   {
     ensure_space (sray.isec.context);
-    return space->shadows (sray, context);
+    return space->intersects (sray, context);
   }
 
   // Return a bounding box for the associated surface.

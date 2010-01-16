@@ -113,7 +113,7 @@ struct SimpleShadowCallback : Space::IntersectCallback
 // Return true if any object intersects RAY.
 //
 bool
-Space::shadows (const ShadowRay &ray, RenderContext &context) const
+Space::intersects (const ShadowRay &ray, RenderContext &context) const
 {
   // If possible, prime the negative intersect cache with the current
   // surface, to avoid wasting time test it for intersection.
