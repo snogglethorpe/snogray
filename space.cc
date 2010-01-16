@@ -21,7 +21,7 @@ using namespace snogray;
 
 
 // "Closest" intersection testing (tests all surfaces for intersection
-// with a ray, returns the distance to the closest intersection)
+// with a ray, information about the closest intersection)
 
 struct ClosestIntersectCallback : Space::IntersectCallback
 {
@@ -71,13 +71,13 @@ Space::intersect (Ray &ray, RenderContext &context) const
 }
 
 
-// Simple shadow intersection testing
+// Simple (boolean) intersection testing
 
-struct SimpleShadowCallback : Space::IntersectCallback
+struct IntersectsCallback : Space::IntersectCallback
 {
-  SimpleShadowCallback (const ShadowRay &_ray, RenderContext &_context,
-			const Surface *_reject = 0)
-    : ray (_ray), shadows (false),
+  IntersectsCallback (const ShadowRay &_ray, RenderContext &_context,
+		      const Surface *_reject = 0)
+    : ray (_ray), intersects (false),
       context (_context), reject (_reject)
   { }
 
@@ -86,21 +86,21 @@ struct SimpleShadowCallback : Space::IntersectCallback
     if (surf == reject)
       return false;
 
-    shadows = surf->intersects (ray, context);
+    intersects = surf->intersects (ray, context);
 
-    if (shadows)
+    if (intersects)
       // We can immediately return it; stop looking any further.
       //
       stop_iteration ();
 
-    return shadows;
+    return intersects;
   }
 
   const ShadowRay &ray;
 
-  // True if we found a shadowing object.
+  // True if we found an intersecting object.
   //
-  bool shadows;
+  bool intersects;
 
   RenderContext &context;
 
@@ -120,11 +120,12 @@ Space::intersects (const ShadowRay &ray, RenderContext &context) const
   //
   const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  SimpleShadowCallback shadow_cb (ray, context, reject);
+  IntersectsCallback intersects_cb (ray, context, reject);
 
-  for_each_possible_intersector (ray, shadow_cb, context, context.stats.shadow);
+  for_each_possible_intersector (ray, intersects_cb, context,
+				 context.stats.shadow);
 
-  return shadow_cb.shadows;
+  return intersects_cb.intersects;
 }
 
 
