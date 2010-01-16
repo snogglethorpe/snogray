@@ -67,11 +67,9 @@ public:
   const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context)
     const;
 
-  // Return true if any surface blocks RAY.  This is the fastest
-  // intersection method, because it can return as soon as it it finds any
-  // intersection.
+  // Return true if any surface blocks RAY.
   //
-  bool shadows (const ShadowRay &ray, RenderContext &context) const;
+  bool intersects (const ShadowRay &ray, RenderContext &context) const;
 
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.

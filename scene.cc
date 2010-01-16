@@ -96,12 +96,10 @@ Scene::intersect (Ray &ray, RenderContext &context) const
   return space->intersect (ray, context);
 }
 
-// Return true if any surface blocks RAY.  This is the fastest
-// intersection method, because it can return as soon as it it finds any
-// intersection.
+// Return true if any surface blocks RAY.
 //
 bool
-Scene::shadows (const ShadowRay &ray, RenderContext &context) const
+Scene::intersects (const ShadowRay &ray, RenderContext &context) const
 {
   context.stats.scene_shadow_tests++;
   return space->intersects (ray, context);
