@@ -23,6 +23,7 @@
 #include "intersect.h"
 #include "material.h"
 #include "trace.h"
+#include "space.h"
 #include "shadow-ray.h"
 #include "surface-group.h"
 
@@ -65,11 +66,19 @@ public:
   // to reflect the point of intersection.
   //
   const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context)
-    const;
+    const
+  {
+    context.stats.scene_intersect_calls++;
+    return space->intersect (ray, context);
+  }
 
   // Return true if any surface blocks RAY.
   //
-  bool intersects (const ShadowRay &ray, RenderContext &context) const;
+  bool intersects (const ShadowRay &ray, RenderContext &context) const
+  {
+    context.stats.scene_shadow_tests++;
+    return space->intersects (ray, context);
+  }
 
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.

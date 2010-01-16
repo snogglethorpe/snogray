@@ -83,29 +83,6 @@ Scene::build_space (const SpaceBuilderFactory *space_builder_factory)
 }
 
 
-// Intersection testing
-
-// Return the closest surface in this scene which intersects the
-// bounded-ray RAY, or zero if there is none.  RAY's length is shortened
-// to reflect the point of intersection.
-//
-const Surface::IsecInfo *
-Scene::intersect (Ray &ray, RenderContext &context) const
-{
-  context.stats.scene_intersect_calls++;
-  return space->intersect (ray, context);
-}
-
-// Return true if any surface blocks RAY.
-//
-bool
-Scene::intersects (const ShadowRay &ray, RenderContext &context) const
-{
-  context.stats.scene_shadow_tests++;
-  return space->intersects (ray, context);
-}
-
-
 // Scene background rendering
 
 // Returns the background color in the given direction.
