@@ -42,8 +42,6 @@ public:
 
     friend class OldInteg;
 
-    TraceCache root_cache;
-
     IllumMgr illum_mgr;
   };
 

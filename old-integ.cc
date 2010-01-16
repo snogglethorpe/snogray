@@ -22,8 +22,7 @@ using namespace snogray;
 
 
 OldInteg::GlobalState::GlobalState (const Scene &_scene, const ValTable &params)
-  : SurfaceInteg::GlobalState (_scene),
-    root_cache (_scene.num_lights ())
+  : SurfaceInteg::GlobalState (_scene)
 {
   std::string algo = params.get_string ("algo", "rt");
 
