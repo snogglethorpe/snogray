@@ -72,19 +72,13 @@ Tripar::IsecInfo::make_intersect (Trace &trace) const
   return isec;
 }
 
-// Return the strongest type of shadowing effect this surface has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
+// Return true if this surface intersects RAY.
 //
-Material::ShadowType
-Tripar::shadow (const ShadowRay &ray, RenderContext &) const
+bool
+Tripar::intersects (const ShadowRay &ray, RenderContext &) const
 {
   dist_t t, u, v;
-  if (intersects (ray, t, u, v))
-    return material->shadow_type;
-  else
-    return Material::SHADOW_NONE;
+  return intersects (ray, t, u, v);
 }
 
 // Return a bounding box for this surface.

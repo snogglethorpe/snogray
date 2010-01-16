@@ -444,17 +444,10 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
   return isec;
 }
 
-// Return the strongest type of shadowing effect this surface has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
+// Return true if this surface intersects RAY.
 //
-// ISEC is the intersection from which RAY emanates; only "absolute"
-// elements of ISEC should be used (positions and vectors in ISEC may
-// have a different coordinate system than RAY).
-//
-Material::ShadowType
-Mesh::Triangle::shadow (const ShadowRay &ray, RenderContext &) const
+bool
+Mesh::Triangle::intersects (const ShadowRay &ray, RenderContext &) const
 {
   // We have to convert the types to match that of RAY first.
   //
@@ -481,7 +474,7 @@ Mesh::Triangle::shadow (const ShadowRay &ray, RenderContext &) const
 		= dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
 
 	      if (real_back != other_back)
-		return Material::SHADOW_NONE;
+		return false;
 
 #if 0
 	      // Vertex indices of this and the other triangle
@@ -509,10 +502,10 @@ Mesh::Triangle::shadow (const ShadowRay &ray, RenderContext &) const
 	}
 #endif
 
-      return material->shadow_type;
+      return true;
     }
 
-  return Material::SHADOW_NONE;
+  return false;
 }
 
 // Return a bounding box for this surface.

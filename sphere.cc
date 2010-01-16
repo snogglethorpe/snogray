@@ -87,20 +87,14 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
   return isec;
 }
 
-// Return the strongest type of shadowing effect this surface has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
+// Return true if this surface intersects RAY.
 //
-Material::ShadowType
-Sphere::shadow (const ShadowRay &ray, RenderContext &) const
+bool
+Sphere::intersects (const ShadowRay &ray, RenderContext &) const
 {
   dist_t t
     = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);
-  if (t > ray.t0 && t < ray.t1)
-    return material->shadow_type;
-  else
-    return Material::SHADOW_NONE;
+  return (t > ray.t0 && t < ray.t1);
 }
 
 // Return a bounding box for this surface.

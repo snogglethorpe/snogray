@@ -40,14 +40,9 @@ public:
   //
   virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
 
-  // Return the strongest type of shadowing effect this surface has on
-  // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-  // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-  // returned; otherwise, Material::SHADOW_MEDIUM is returned.
+  // Return true if this surface intersects RAY.
   //
-  virtual Material::ShadowType shadow (const ShadowRay &ray,
-				       RenderContext &context)
-    const;
+  virtual bool intersects (const ShadowRay &ray, RenderContext &context) const;
 
 private:
 

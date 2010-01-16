@@ -73,18 +73,15 @@ Instance::IsecInfo::make_intersect (Trace &trace) const
   return isec;
 }
 
-// Return the strongest type of shadowing effect this surface has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
+// Return true if this surface intersects RAY.
 //
-Material::ShadowType
-Instance::shadow (const ShadowRay &sray, RenderContext &context) const
+bool
+Instance::intersects (const ShadowRay &sray, RenderContext &context) const
 {
   // Transform the ray for searching our subspace.
   //
   ShadowRay xformed_sray = world_to_local (sray);
-  return subspace->shadow (xformed_sray, context);
+  return subspace->shadow (xformed_sray, context) != Material::SHADOW_NONE;
 }
 
 // Return a bounding box for this surface.

@@ -121,20 +121,13 @@ Cylinder::IsecInfo::make_intersect (Trace &trace) const
 		    tex_coords, dTds, dTdt);
 }
 
-// Return the strongest type of shadowing effect this surface has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
+// Return true if this surface intersects RAY.
 //
-Material::ShadowType
-Cylinder::shadow (const ShadowRay &sray, RenderContext &) const
+bool
+Cylinder::intersects (const ShadowRay &sray, RenderContext &) const
 {
   Ray oray = world_to_local (sray.as_ray ());
-
-  if (cylinder_intersect (oray) != 0)
-    return material->shadow_type;
-  else
-    return Material::SHADOW_NONE;
+  return (cylinder_intersect (oray) != 0);
 }
 
 

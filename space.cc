@@ -86,7 +86,7 @@ struct SimpleShadowCallback : Space::IntersectCallback
     if (surf == reject)
       return false;
 
-    shadows = (surf->shadow (ray, context) != Material::SHADOW_NONE);
+    shadows = surf->intersects (ray, context);
 
     if (shadows)
       // We can immediately return it; stop looking any further.

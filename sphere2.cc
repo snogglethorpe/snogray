@@ -85,21 +85,14 @@ Sphere2::IsecInfo::make_intersect (Trace &trace) const
 		    tex_coords, dTds, dTdt);
 }
 
-// Return the strongest type of shadowing effect this surface has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
+// Return true if this surface intersects RAY.
 //
-Material::ShadowType
-Sphere2::shadow (const ShadowRay &sray, RenderContext &) const
+bool
+Sphere2::intersects (const ShadowRay &sray, RenderContext &) const
 {
   Ray oray = world_to_local (sray.as_ray ());
   dist_t t = sphere_intersect (dist_t(1), Vec (oray.origin), oray.dir, oray.t0);
-
-  if (t > oray.t0 && t < oray.t1)
-    return material->shadow_type;
-  else
-    return Material::SHADOW_NONE;
+  return (t > oray.t0 && t < oray.t1);
 }
 
 
