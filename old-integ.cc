@@ -67,7 +67,7 @@ OldInteg::li (const Ray &ray, unsigned sample_num)
   Tint tint;
   if (isec_info)
     {
-      Trace camera_trace (isec_info->ray, context, global.root_cache);
+      Trace camera_trace (isec_info->ray, context);
       return global.illum_mgr.li (isec_info, camera_trace);
     }
   else

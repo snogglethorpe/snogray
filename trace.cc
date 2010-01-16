@@ -20,10 +20,9 @@ using namespace snogray;
 
 // Constructor for root Trace
 //
-Trace::Trace (const Ray &_ray, RenderContext &_context, TraceCache &_root_cache)
+Trace::Trace (const Ray &_ray, RenderContext &_context)
   : source (0), context (_context), type (SPONTANEOUS), ray (_ray),
-    complexity (1), medium (_context.default_medium),
-    cache (_root_cache)
+    complexity (1), medium (_context.default_medium)
 { }
 
 // Constructor for sub-traces
@@ -31,8 +30,7 @@ Trace::Trace (const Ray &_ray, RenderContext &_context, TraceCache &_root_cache)
 Trace::Trace (Type _type, const Ray &_ray, const Medium &_medium,
 	      float branch_factor, const Trace &_source)
   : source (&_source), context (_source.context), type (_type), ray (_ray),
-    complexity (_source.complexity * branch_factor), medium (_medium),
-    cache (source->cache.sub_cache (type))
+    complexity (_source.complexity * branch_factor), medium (_medium)
 { }
 
 // Searches back through the trace history to find the enclosing medium.

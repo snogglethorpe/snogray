@@ -21,7 +21,6 @@ namespace snogray {
 
 
 class RenderContext;
-class TraceCache;
 
 
 // A node in a tracing path.
@@ -50,7 +49,7 @@ public:
 
   // Constructor for a root (camera/eye) Trace.
   //
-  Trace (const Ray &ray, RenderContext &_context, TraceCache &_root_cache);
+  Trace (const Ray &ray, RenderContext &_context);
 
   // Constructor for sub-traces
   //
@@ -106,12 +105,6 @@ public:
   // The medium this trace is through.
   //
   const Medium &medium;
-
-  // Downward tree of cached information at this trace point.  The cache
-  // is generally modifiable even when a Trace is const, so mark it as
-  // mutable.
-  //
-  mutable TraceCache &cache;
 };
 
 

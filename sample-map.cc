@@ -40,7 +40,7 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 
   if (isec_info)
     {
-      Trace trace (isec_info->ray, render_context, root_cache);
+      Trace trace (isec_info->ray, render_context);
       Intersect isec = isec_info->make_intersect (trace);
       unsigned num = illum_mgr.gen_samples (isec, samples);
 
