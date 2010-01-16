@@ -47,16 +47,12 @@ public:
     return space->intersect (ray, context);
   }
 
-  // Return the strongest type of shadowing effect the associated surface
-  // has on RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-  // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-  // returned; otherwise, Material::SHADOW_MEDIUM is returned.
+  // Return true if something in this subspace intersects RAY.
   //
-  Material::ShadowType shadow (const ShadowRay &sray, RenderContext &context)
-    const
+  bool intersects (const ShadowRay &sray, RenderContext &context) const
   {
     ensure_space (sray.isec.context);
-    return space->shadow (sray, context);
+    return space->shadows (sray, context);
   }
 
   // Return a bounding box for the associated surface.

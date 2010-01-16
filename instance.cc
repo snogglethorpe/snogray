@@ -81,7 +81,7 @@ Instance::intersects (const ShadowRay &sray, RenderContext &context) const
   // Transform the ray for searching our subspace.
   //
   ShadowRay xformed_sray = world_to_local (sray);
-  return subspace->shadow (xformed_sray, context) != Material::SHADOW_NONE;
+  return subspace->intersects (xformed_sray, context);
 }
 
 // Return a bounding box for this surface.
