@@ -26,21 +26,17 @@ using namespace snogray;
 
 struct ClosestIntersectCallback : Space::IntersectCallback
 {
-  ClosestIntersectCallback (Ray &_ray, const IsecCtx &_isec_ctx,
-			    const Surface *_reject = 0)
-    : ray (_ray), closest (0), isec_ctx (_isec_ctx), reject (_reject)
+  ClosestIntersectCallback (Ray &_ray, const IsecCtx &_isec_ctx)
+    : ray (_ray), closest (0), isec_ctx (_isec_ctx)
   { }
 
   virtual bool operator() (const Surface *surf)
   {
-    if (surf != reject)
+    const Surface::IsecInfo *isec_info = surf->intersect (ray, isec_ctx);
+    if (isec_info)
       {
-	const Surface::IsecInfo *isec_info = surf->intersect (ray, isec_ctx);
-	if (isec_info)
-	  {
-	    closest = isec_info;
-	    return true;
-	  }
+	closest = isec_info;
+	return true;
       }
 
     return false;
@@ -54,10 +50,6 @@ struct ClosestIntersectCallback : Space::IntersectCallback
   const Surface::IsecInfo *closest;
 
   const IsecCtx &isec_ctx;
-
-  // If non-zero, this surface is always immediately rejected.
-  //
-  const Surface *reject;
 };
 
 
@@ -69,12 +61,11 @@ const Surface::IsecInfo *
 Space::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   RenderContext &context = isec_ctx.context;
-  TraceCache &cache = isec_ctx.cache;
 
   // A callback which is called for each surface in this space
   // that may intersect RAY.
   //
-  ClosestIntersectCallback closest_isec_cb (ray, isec_ctx, cache.horizon_hint);
+  ClosestIntersectCallback closest_isec_cb (ray, isec_ctx);
 
   for_each_possible_intersector (ray, closest_isec_cb, context,
 				 context.stats.intersect);
