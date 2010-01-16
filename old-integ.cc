@@ -60,7 +60,7 @@ Tint
 OldInteg::li (const Ray &ray, unsigned sample_num)
 {
   Ray intersected_ray (ray);
-  IsecCtx isec_ctx (context, global.root_cache);
+  IsecCtx isec_ctx (context);
   const Surface::IsecInfo *isec_info
     = global.scene.intersect (intersected_ray, isec_ctx);
 

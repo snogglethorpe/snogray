@@ -20,7 +20,6 @@ namespace snogray {
 
 
 class RenderContext;
-class TraceCache;
 
 
 // A container for various context information used for intersection test.
@@ -29,20 +28,16 @@ class IsecCtx
 {
 public:
 
-  IsecCtx (RenderContext &_context, TraceCache &_cache)
-    : context (_context), cache (_cache)
+  IsecCtx (RenderContext &_context)
+    : context (_context)
   { }
   IsecCtx (const Intersect &isec)
-    : context (isec.context), cache (isec.trace.cache)
+    : context (isec.context)
   { }
 
   // Global tracing context.
   //
   RenderContext &context;
-
-  // Information cached at this point in the trace.
-  //
-  TraceCache &cache;
 };
 
 

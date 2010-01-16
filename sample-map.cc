@@ -34,7 +34,7 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 
   RenderContext render_context (scene, render_params);
 
-  IsecCtx isec_ctx (render_context, root_cache);
+  IsecCtx isec_ctx (render_context);
   const Surface::IsecInfo *isec_info
     = scene.intersect (intersected_ray, isec_ctx);
 

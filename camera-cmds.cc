@@ -202,11 +202,10 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   ValTable render_param_table;
   RenderParams render_params (render_param_table);
   RenderContext render_context (scene, render_params);
-  TraceCache root_cache (scene.num_lights ());
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 
-  IsecCtx isec_ctx (render_context, root_cache);
+  IsecCtx isec_ctx (render_context);
   if (scene.intersect (probe, isec_ctx))
     return probe.dir * probe.length ();
   else
