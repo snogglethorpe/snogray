@@ -1,6 +1,6 @@
 // glow.cc -- Constant-color reflectance function
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@ using namespace snogray;
 
 
 Glow::Glow (const TexVal<Color> &col)
-  : Material (Material::SHADOW_NONE, true), color (col)
+  : Material (Material::SHADOW_OPAQUE, true), color (col)
 { }
 
 Glow::Glow (const TexVal<Color> &col,
