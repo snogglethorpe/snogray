@@ -42,17 +42,11 @@ RenderStats::print (ostream &os)
 {
   long long sc  = scene_intersect_calls;
   long long tnc = intersect.space_node_intersect_calls;
-  long long hhh = horizon_hint_hits;
-  long long hhm = horizon_hint_misses;
 
   os << endl;
   os << "Rendering stats:" << endl;
   os << "  intersect:" << endl;
   os << "     rays:            " << setw (16) << commify (sc) << endl;
-  os << "     horizon hint hits:" << setw (15) << commify (hhh)
-     << " (" << setw(2) << percent (hhh, sc) << "%)" << endl;
-  os << "     horizon hint misses:" << setw (13) << commify (hhm)
-     << " (" << setw(2) << percent (hhm, sc) << "%)" << endl;
   os << "     tree node tests: " << setw (16) << commify (tnc) << endl;
 
   {
@@ -74,8 +68,6 @@ RenderStats::print (ostream &os)
 
   if (sst != 0)
     {
-      long long shh = shadow_hint_hits;
-      long long shm = shadow_hint_misses;
       long long sss = scene_slow_shadow_traces;
       long long oss = surface_slow_shadow_traces;
       long long tnt = shadow.space_node_intersect_calls;
@@ -83,10 +75,6 @@ RenderStats::print (ostream &os)
       os << "  shadow:" << endl;
       os << "     rays:            " << setw (16) << commify (sst)
 	 << endl;
-      os << "     shadow hint hits:" << setw (16) << commify (shh)
-	 << " (" << setw(2) << percent (shh, sst) << "%)" << endl;
-      os << "     shadow hint misses:" << setw (14) << commify (shm)
-	 << " (" << setw(2) << percent (shm, sst) << "%)" << endl;
       if (sss != 0)
 	os << "     non-opaque traces: " << setw (14) << commify (sss)
 	   << " (" << setw(2) << percent (sss, sst) << "%"
