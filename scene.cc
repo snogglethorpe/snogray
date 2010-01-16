@@ -13,7 +13,6 @@
 #include "space.h"
 #include "envmap.h"
 #include "render-context.h"
-#include "trace-cache.h"
 #include "unique-ptr.h"
 
 #include "scene.h"
@@ -94,43 +93,8 @@ const Surface::IsecInfo *
 Scene::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 {
   RenderContext &context = isec_ctx.context;
-  TraceCache &cache = isec_ctx.cache;
-
   context.stats.scene_intersect_calls++;
-
-  // If there's a horizon hint, try to use it to reduce the horizon
-  // before searching -- space searching can dramatically improve given
-  // a limited search space.
-  //
-  const Surface::IsecInfo *hint_isec_info = 0;
-  const Surface *hint = cache.horizon_hint;
-  if (hint)
-    {
-      hint_isec_info = hint->intersect (ray, isec_ctx);
-
-      context.stats.intersect.surface_intersects_tests++;
-
-      if (hint_isec_info)
-	context.stats.horizon_hint_hits++;
-      else
-	{
-	  cache.horizon_hint = 0; // clear the hint
-	  context.stats.horizon_hint_misses++;
-	}
-    }
-
-  const Surface::IsecInfo *isec_info = space->intersect (ray, isec_ctx);
-
-  // If the search worked (ISEC_INFO is non-zero), update the horizon hint
-  // to reflect the new intersection, otherwise, use HINT_ISEC_INFO instead
-  // (which will be zero if that didn't work out either).
-  //
-  if (isec_info)
-    cache.horizon_hint = isec_info->outermost_surface ();
-  else
-    isec_info = hint_isec_info;
-
-  return isec_info;
+  return space->intersect (ray, isec_ctx);
 }
 
 // Return the strongest type of shadowing effect this scene has on
