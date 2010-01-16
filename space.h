@@ -39,7 +39,12 @@ public:
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
   Material::ShadowType shadow (const ShadowRay &ray, RenderContext &context)
-    const;
+    const
+  {
+    return shadows (ray, context)
+      ? Material::SHADOW_OPAQUE
+      : Material::SHADOW_NONE;
+  }
 
   // Return true if any object intersects RAY.
   //

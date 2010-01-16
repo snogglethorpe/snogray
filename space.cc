@@ -71,73 +71,6 @@ Space::intersect (Ray &ray, RenderContext &context) const
 }
 
 
-// Shadow intersection testing
-
-struct ShadowCallback : Space::IntersectCallback
-{
-  ShadowCallback (const ShadowRay &_ray, RenderContext &_context,
-		  const Surface *_reject = 0)
-    : ray (_ray),
-      shadow_type (Material::SHADOW_NONE),
-      context (_context), reject (_reject)
-  { }
-
-  virtual bool operator() (const Surface *surf)
-  {
-    if (surf == reject)
-      return false;
-
-    Material::ShadowType stype = surf->shadow (ray, context);
-
-    if (stype > shadow_type)
-      {
-	shadow_type = stype;
-
-	if (stype == Material::SHADOW_OPAQUE)
-	  // A simple opaque surface blocks everything; we can
-	  // immediately return it; stop looking any further.
-	  //
-	  stop_iteration ();
-      }
-
-    return stype != Material::SHADOW_NONE;
-  }
-
-  const ShadowRay &ray;
-
-  // Strongest type of shadow discovered.
-  //
-  Material::ShadowType shadow_type;
-
-  RenderContext &context;
-
-  // If non-zero, this surface is always immediately rejected.
-  //
-  const Surface *reject;
-};
-
-
-// Return the strongest type of shadowing effect any object in this space
-// has on RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
-//
-Material::ShadowType
-Space::shadow (const ShadowRay &ray, RenderContext &context) const
-{
-  // If possible, prime the negative intersect cache with the current
-  // surface, to avoid wasting time test it for intersection.
-  //
-  const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
-
-  ShadowCallback shadow_cb (ray, context, reject);
-
-  for_each_possible_intersector (ray, shadow_cb, context, context.stats.shadow);
-
-  return shadow_cb.shadow_type;
-}
-
-
 // Simple shadow intersection testing
 
 struct SimpleShadowCallback : Space::IntersectCallback
