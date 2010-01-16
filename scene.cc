@@ -96,18 +96,6 @@ Scene::intersect (Ray &ray, RenderContext &context) const
   return space->intersect (ray, context);
 }
 
-// Return the strongest type of shadowing effect this scene has on
-// RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
-// otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
-// returned; otherwise, Material::SHADOW_MEDIUM is returned.
-//
-Material::ShadowType
-Scene::shadow (const ShadowRay &ray, RenderContext &context) const
-{
-  context.stats.scene_shadow_tests++;
-  return space->shadow (ray, context);
-}
-
 // Return true if any surface blocks RAY.  This is the fastest
 // intersection method, because it can return as soon as it it finds any
 // intersection.
