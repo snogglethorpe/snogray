@@ -37,7 +37,8 @@ DirectIllum::shadow_test (const Intersect &isec,
   for (IllumSampleVec::iterator s = beg; s != end; ++s)
     if (s->light_val > 0)
       {
-	dist_t max_dist = s->light_dist ? s->light_dist : scene.horizon;
+	dist_t max_dist
+	  = s->light_dist ? s->light_dist - min_dist : scene.horizon;
 
 	ShadowRay ray (isec, isec.normal_frame.from (s->dir),
 		       min_dist, max_dist, s->light);
