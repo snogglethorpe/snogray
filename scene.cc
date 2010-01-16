@@ -107,7 +107,7 @@ Scene::shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
   RenderContext &context = isec_ctx.context;
   context.stats.scene_shadow_tests++;
-  return space->shadow (ray, isec_ctx, ray.light);
+  return space->shadow (ray, isec_ctx);
 }
 
 // Return true if any surface blocks RAY.  This is the fastest
@@ -119,7 +119,7 @@ Scene::shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
   RenderContext &context = isec_ctx.context;
   context.stats.scene_shadow_tests++;
-  return space->shadows (ray, isec_ctx, ray.light);
+  return space->shadows (ray, isec_ctx);
 }
 
 

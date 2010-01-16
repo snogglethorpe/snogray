@@ -38,24 +38,12 @@ public:
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  // If HINT_LIGHT is non-zero, then the shadow-hint entry for HINT_LIGHT
-  // should be updated to hold the first object which results in an opaque
-  // shadow.
-  //
-  Material::ShadowType shadow (const ShadowRay &ray,
-			       const IsecCtx &isec_ctx,
-			       const Light *hint_light = 0)
+  Material::ShadowType shadow (const ShadowRay &ray, const IsecCtx &isec_ctx)
     const;
 
   // Return true if any object intersects RAY.
   //
-  // If HINT_LIGHT is non-zero, then the shadow-hint entry for HINT_LIGHT
-  // should be updated to hold the first object which results in an opaque
-  // shadow.
-  //
-  bool shadows (const ShadowRay &ray, IsecCtx &isec_ctx,
-		const Light *hint_light = 0)
-    const;
+  bool shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const;
 
   // A callback for `for_each_possible_intersector'.  Users of
   // `for_each_possible_intersector' must subclass this, providing their

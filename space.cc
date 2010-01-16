@@ -88,10 +88,10 @@ Space::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 struct ShadowCallback : Space::IntersectCallback
 {
   ShadowCallback (const ShadowRay &_ray, const IsecCtx &_isec_ctx,
-		  const Light *_hint_light, const Surface *_reject = 0)
+		  const Surface *_reject = 0)
     : ray (_ray),
       shadow_type (Material::SHADOW_NONE),
-      isec_ctx (_isec_ctx), hint_light (_hint_light), reject (_reject)
+      isec_ctx (_isec_ctx), reject (_reject)
   { }
 
   virtual bool operator() (const Surface *surf)
@@ -106,18 +106,10 @@ struct ShadowCallback : Space::IntersectCallback
 	shadow_type = stype;
 
 	if (stype == Material::SHADOW_OPAQUE)
-	  {
-	    // Remember which surface we found, so we can try it first
-	    // next time.
-	    //
-	    if (hint_light)
-	      isec_ctx.cache.shadow_hints[hint_light->num] = surf;
-
-	    // A simple opaque surface blocks everything; we can
-	    // immediately return it; stop looking any further.
-	    //
-	    stop_iteration ();
-	  }
+	  // A simple opaque surface blocks everything; we can
+	  // immediately return it; stop looking any further.
+	  //
+	  stop_iteration ();
       }
 
     return stype != Material::SHADOW_NONE;
@@ -131,8 +123,6 @@ struct ShadowCallback : Space::IntersectCallback
 
   const IsecCtx &isec_ctx;
 
-  const Light *hint_light;
-
   // If non-zero, this surface is always immediately rejected.
   //
   const Surface *reject;
@@ -144,21 +134,15 @@ struct ShadowCallback : Space::IntersectCallback
 // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
-// If HINT_LIGHT is non-zero, then the shadow-hint entry for HINT_LIGHT
-// should be updated to hold the first object which results in an opaque
-// shadow.
-//
 Material::ShadowType
-Space::shadow (const ShadowRay &ray, const IsecCtx &isec_ctx,
-	       const Light *hint_light)
-  const
+Space::shadow (const ShadowRay &ray, const IsecCtx &isec_ctx) const
 {
   // If possible, prime the negative intersect cache with the current
   // surface, to avoid wasting time test it for intersection.
   //
   const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  ShadowCallback shadow_cb (ray, isec_ctx, hint_light, reject);
+  ShadowCallback shadow_cb (ray, isec_ctx, reject);
 
   for_each_possible_intersector (ray, shadow_cb, isec_ctx.context,
 				 isec_ctx.context.stats.shadow);
@@ -172,9 +156,9 @@ Space::shadow (const ShadowRay &ray, const IsecCtx &isec_ctx,
 struct SimpleShadowCallback : Space::IntersectCallback
 {
   SimpleShadowCallback (const ShadowRay &_ray, IsecCtx &_isec_ctx,
-			const Light *_hint_light, const Surface *_reject = 0)
+			const Surface *_reject = 0)
     : ray (_ray), shadows (false),
-      isec_ctx (_isec_ctx), hint_light (_hint_light), reject (_reject)
+      isec_ctx (_isec_ctx), reject (_reject)
   { }
 
   virtual bool operator() (const Surface *surf)
@@ -185,17 +169,9 @@ struct SimpleShadowCallback : Space::IntersectCallback
     shadows = (surf->shadow (ray, isec_ctx) != Material::SHADOW_NONE);
 
     if (shadows)
-      {
-	// Remember which surface we found, so we can try it first
-	// next time.
-	//
-	if (hint_light)
-	  isec_ctx.cache.shadow_hints[hint_light->num] = surf;
-
-	// We can immediately return it; stop looking any further.
-	//
-	stop_iteration ();
-      }
+      // We can immediately return it; stop looking any further.
+      //
+      stop_iteration ();
 
     return shadows;
   }
@@ -208,8 +184,6 @@ struct SimpleShadowCallback : Space::IntersectCallback
 
   IsecCtx &isec_ctx;
 
-  const Light *hint_light;
-
   // If non-zero, this surface is always immediately rejected.
   //
   const Surface *reject;
@@ -218,21 +192,15 @@ struct SimpleShadowCallback : Space::IntersectCallback
 
 // Return true if any object intersects RAY.
 //
-// If HINT_LIGHT is non-zero, then the shadow-hint entry for HINT_LIGHT
-// should be updated to hold the first object which results in an opaque
-// shadow.
-//
 bool
-Space::shadows (const ShadowRay &ray, IsecCtx &isec_ctx,
-		const Light *hint_light)
-  const
+Space::shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
   // If possible, prime the negative intersect cache with the current
   // surface, to avoid wasting time test it for intersection.
   //
   const Surface *reject = ray.isec.no_self_shadowing ? ray.isec.surface : 0;
 
-  SimpleShadowCallback shadow_cb (ray, isec_ctx, hint_light, reject);
+  SimpleShadowCallback shadow_cb (ray, isec_ctx, reject);
 
   for_each_possible_intersector (ray, shadow_cb, isec_ctx.context,
 				 isec_ctx.context.stats.shadow);
