@@ -142,45 +142,7 @@ Material::ShadowType
 Scene::shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
   RenderContext &context = isec_ctx.context;
-  TraceCache &cache = isec_ctx.cache;
-
   context.stats.scene_shadow_tests++;
-
-  // See if this light has a shadow hint (the last surface that cast a
-  // shadow from it); if it does, then try that surface first, as it
-  // stands a better chance of hitting than usual (because nearby points
-  // are often obscured from a given light by the same surface).
-  //
-  // Note that in the case where the hint refers to non-opaque surface,
-  // we will return it immediately, just like an opaque surface.  This
-  // will not cause errors, because the shadow-tracing "slow path" (which
-  // will get used if a non-opaque surface is returned) still does the
-  // right thing in this case, simply more slowly; in the case where a
-  // new opaque surface is found, the hint will be updated elsewhere (in
-  // Material::shadow actually).
-  //
-  if (ray.light)
-    {
-      const Surface *hint = cache.shadow_hints[ray.light->num];
-
-      if (hint)
-	{
-	  Material::ShadowType shadow_type = hint->shadow (ray, isec_ctx);
-
-	  if (shadow_type == Material::SHADOW_OPAQUE)
-	    {
-	      context.stats.shadow_hint_hits++;
-	      return shadow_type;
-	    }
-	  else
-	    // It didn't work; clear this hint out.
-	    {
-	      context.stats.shadow_hint_misses++;
-	      cache.shadow_hints[ray.light->num] = 0;
-	    }
-	}
-    }
-
   return space->shadow (ray, isec_ctx, ray.light);
 }
 
@@ -192,45 +154,7 @@ bool
 Scene::shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const
 {
   RenderContext &context = isec_ctx.context;
-  TraceCache &cache = isec_ctx.cache;
-
   context.stats.scene_shadow_tests++;
-
-  // See if this light has a shadow hint (the last surface that cast a
-  // shadow from it); if it does, then try that surface first, as it
-  // stands a better chance of hitting than usual (because nearby points
-  // are often obscured from a given light by the same surface).
-  //
-  // Note that in the case where the hint refers to non-opaque surface,
-  // we will return it immediately, just like an opaque surface.  This
-  // will not cause errors, because the shadow-tracing "slow path" (which
-  // will get used if a non-opaque surface is returned) still does the
-  // right thing in this case, simply more slowly; in the case where a
-  // new opaque surface is found, the hint will be updated elsewhere (in
-  // Material::shadow actually).
-  //
-  if (ray.light)
-    {
-      const Surface *hint = cache.shadow_hints[ray.light->num];
-
-      if (hint)
-	{
-	  Material::ShadowType shadow_type = hint->shadow (ray, isec_ctx);
-
-	  if (shadow_type != Material::SHADOW_NONE)
-	    {
-	      context.stats.shadow_hint_hits++;
-	      return shadow_type;
-	    }
-	  else
-	    // It didn't work; clear this hint out.
-	    {
-	      context.stats.shadow_hint_misses++;
-	      cache.shadow_hints[ray.light->num] = 0;
-	    }
-	}
-    }
-
   return space->shadows (ray, isec_ctx, ray.light);
 }
 
