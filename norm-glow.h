@@ -21,13 +21,15 @@ class NormGlow : public Material
 {
 public:
 
-  NormGlow (Color::component_t _intens)
-    : Material (true), intens (_intens)
-  { }
+  NormGlow (Color::component_t _intens) : intens (_intens) { }
 
   // Return emitted radiance from this light, at the point described by ISEC.
   //
   virtual Color le (const Intersect &isec) const;
+
+  // Return true if this material emits light.
+  //
+  virtual bool emits_light () const { return true; }
 
 private:
 

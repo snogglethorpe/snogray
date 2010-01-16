@@ -17,12 +17,12 @@ using namespace snogray;
 
 
 Glow::Glow (const TexVal<Color> &col)
-  : Material (true), color (col)
+  : color (col)
 { }
 
 Glow::Glow (const TexVal<Color> &col,
 	    const Ref<const Material> &_underlying_material)
-  : Material (true), color (col), underlying_material (_underlying_material)
+  : color (col), underlying_material (_underlying_material)
 {
   bump_map = _underlying_material->bump_map;
 }

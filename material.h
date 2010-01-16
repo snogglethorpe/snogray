@@ -31,9 +31,7 @@ class Material : public RefCounted
 {
 public:
 
-  Material (bool emits_light = false)
-    : bump_map (0), _emits_light (emits_light)
-  { }
+  Material () : bump_map (0) { }
   virtual ~Material () { }
 
   // Return a new BRDF object for this material instantiated at ISEC.
@@ -50,15 +48,9 @@ public:
 
   // Return true if this material emits light.
   //
-  bool emits_light () const { return _emits_light; }
+  virtual bool emits_light () const { return false; }
 
   Ref<const Tex<float> > bump_map;
-
-private:
-
-  // Cache this info for speed...
-  //
-  bool _emits_light;
 };
 
 

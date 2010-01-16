@@ -1,6 +1,6 @@
 // glow.h -- Constant-color reflectance function
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,10 +29,6 @@ public:
   Glow (const TexVal<Color> &col,
 	const Ref<const Material> &_underlying_material);
 
-  // Return emitted radiance from this light, at the point described by ISEC.
-  //
-  virtual Color le (const Intersect &isec) const;
-
   // Return a new BRDF object for this material instantiated at ISEC.
   //
   virtual Brdf *get_brdf (const Intersect &isec) const;
@@ -40,6 +36,14 @@ public:
   // Return the medium of this material (used only for refraction).
   //
   virtual const Medium *medium () const;
+
+  // Return emitted radiance from this light, at the point described by ISEC.
+  //
+  virtual Color le (const Intersect &isec) const;
+
+  // Return true if this material emits light.
+  //
+  virtual bool emits_light () const { return true; }
 
 private:
 
