@@ -34,10 +34,6 @@ DirectIllum::shadow_test (const Intersect &isec,
 
   dist_t min_dist = context.params.min_trace;
 
-  // Info passed to intersection methods.
-  //
-  IsecCtx isec_ctx (isec);
-
   for (IllumSampleVec::iterator s = beg; s != end; ++s)
     if (s->light_val > 0)
       {
@@ -46,7 +42,7 @@ DirectIllum::shadow_test (const Intersect &isec,
 	ShadowRay ray (isec, isec.normal_frame.from (s->dir),
 		       min_dist, max_dist, s->light);
 
-	if (scene.shadows (ray, isec_ctx))
+	if (scene.shadows (ray, context))
 	  s->light_val = 0;
       }
 }

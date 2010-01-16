@@ -1,6 +1,6 @@
 // sphere.cc -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -23,17 +23,17 @@ using namespace snogray;
 // If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
 // reflect the point of intersection, and return a Surface::IsecInfo object
 // describing the intersection (which should be allocated using
-// placement-new with ISEC_CTX); otherwise return zero.
+// placement-new with CONTEXT); otherwise return zero.
 //
 const Surface::IsecInfo *
-Sphere::intersect (Ray &ray, const IsecCtx &isec_ctx) const
+Sphere::intersect (Ray &ray, RenderContext &context) const
 {
   dist_t t
     = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);
   if (t > ray.t0 && t < ray.t1)
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (ray, this);
+      return new (context) IsecInfo (ray, this);
     }
   else
     return false;
@@ -92,8 +92,8 @@ Sphere::IsecInfo::make_intersect (Trace &trace) const
 // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
-Material::ShadowType Sphere::shadow (const ShadowRay &ray, const IsecCtx &)
-  const
+Material::ShadowType
+Sphere::shadow (const ShadowRay &ray, RenderContext &) const
 {
   dist_t t
     = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);

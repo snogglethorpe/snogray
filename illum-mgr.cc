@@ -161,10 +161,6 @@ IllumMgr::lo (const Intersect &isec) const
   //
   unsigned pending_uses = any_uses;
 
-  // Info passed to intersection methods.
-  //
-  IsecCtx isec_ctx (isec);
-
   // Iterate over illuminators, passing them whichever BRDF samples
   // mask the flags they specify.
   //
@@ -306,7 +302,7 @@ IllumMgr::lo (const Intersect &isec) const
 		      const_cast<Intersect &>(isec).no_self_shadowing
 			= false;
 
-		    if (! scene.shadows (ray, isec_ctx))
+		    if (! scene.shadows (ray, context))
 		      s->flags |= IllumSample::DIRECT;
 
 		    /// XXX hack continued XXX
@@ -373,7 +369,7 @@ IllumMgr::lo (const Intersect &isec) const
 			   isec.normal_frame.from (s->dir),
 			   min_dist, max_dist);
 
-		  s->isec_info = scene.intersect (ray, isec_ctx);
+		  s->isec_info = scene.intersect (ray, context);
 
 		  if (s->isec_info)
 		    //

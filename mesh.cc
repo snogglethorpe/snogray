@@ -1,6 +1,6 @@
 // mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -258,10 +258,10 @@ Mesh::add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
 // If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
 // reflect the point of intersection, and return a Surface::IsecInfo object
 // describing the intersection (which should be allocated using
-// placement-new with ISEC_CTX); otherwise return zero.
+// placement-new with CONTEXT); otherwise return zero.
 //
 const Surface::IsecInfo *
-Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
+Mesh::Triangle::intersect (Ray &ray, RenderContext &context) const
 {
   // We have to convert the types to match that of RAY first.
   //
@@ -272,7 +272,7 @@ Mesh::Triangle::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (triangle_intersect (corner, edge1, edge2, ray, t, u, v))
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (ray, this, u, v);
+      return new (context) IsecInfo (ray, this, u, v);
     }
 
   return 0;
@@ -454,7 +454,7 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
 // have a different coordinate system than RAY).
 //
 Material::ShadowType
-Mesh::Triangle::shadow (const ShadowRay &ray, const IsecCtx &) const
+Mesh::Triangle::shadow (const ShadowRay &ray, RenderContext &) const
 {
   // We have to convert the types to match that of RAY first.
   //

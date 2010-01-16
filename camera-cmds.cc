@@ -20,7 +20,6 @@
 #include "camera.h"
 #include "render-params.h"
 #include "render-context.h"
-#include "trace-cache.h"
 #include "scene.h"
 
 #include "camera-cmds.h"
@@ -205,8 +204,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 
-  IsecCtx isec_ctx (render_context);
-  if (scene.intersect (probe, isec_ctx))
+  if (scene.intersect (probe, render_context))
     return probe.dir * probe.length ();
   else
     return Vec (0,0,0);

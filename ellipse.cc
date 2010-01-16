@@ -1,6 +1,6 @@
 // ellipse.cc -- Ellipse surface
 //
-//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,16 +22,16 @@ using namespace snogray;
 // If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
 // reflect the point of intersection, and return a Surface::IsecInfo object
 // describing the intersection (which should be allocated using
-// placement-new with ISEC_CTX); otherwise return zero.
+// placement-new with CONTEXT); otherwise return zero.
 //
 const Surface::IsecInfo *
-Ellipse::intersect (Ray &ray, const IsecCtx &isec_ctx) const
+Ellipse::intersect (Ray &ray, RenderContext &context) const
 {
   dist_t t, u, v;
   if (intersects (ray, t, u, v))
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (ray, this);
+      return new (context) IsecInfo (ray, this);
     }
   return 0;
 }
@@ -92,7 +92,7 @@ Ellipse::IsecInfo::make_intersect (Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Ellipse::shadow (const ShadowRay &ray, const IsecCtx &) const
+Ellipse::shadow (const ShadowRay &ray, RenderContext &) const
 {
   dist_t t, u, v;
   if (intersects (ray, t, u, v))

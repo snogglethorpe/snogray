@@ -1,6 +1,6 @@
 // scene.h -- Scene description datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -64,20 +64,22 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const;
+  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context)
+    const;
 
   // Return the strongest type of shadowing effect this scene has on
   // RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  Material::ShadowType shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const;
+  Material::ShadowType shadow (const ShadowRay &ray, RenderContext &context)
+    const;
 
   // Return true if any surface blocks RAY.  This is the fastest
   // intersection method, because it can return as soon as it it finds any
   // intersection.
   //
-  bool shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const;
+  bool shadows (const ShadowRay &ray, RenderContext &context) const;
 
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.

@@ -13,7 +13,6 @@
 #ifndef __OLD_INTEG_H__
 #define __OLD_INTEG_H__
 
-#include "trace-cache.h"
 #include "illum-mgr.h"
 
 #include "surface-integ.h"

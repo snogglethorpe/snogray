@@ -1,6 +1,6 @@
 // instance.cc -- Transformed object subspace
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -24,22 +24,22 @@ using namespace snogray;
 // If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
 // reflect the point of intersection, and return a Surface::IsecInfo object
 // describing the intersection (which should be allocated using
-// placement-new with ISEC_CTX); otherwise return zero.
+// placement-new with CONTEXT); otherwise return zero.
 //
 Surface::IsecInfo *
-Instance::intersect (Ray &ray, const IsecCtx &isec_ctx) const
+Instance::intersect (Ray &ray, RenderContext &context) const
 {
   // Transform the ray for searching our subspace.
   //
   Ray xformed_ray = world_to_local (ray);
 
   const Surface::IsecInfo *subspace_isec_info
-    = subspace->intersect (xformed_ray, isec_ctx);
+    = subspace->intersect (xformed_ray, context);
 
   if (subspace_isec_info)
     {
       ray.t1 = xformed_ray.t1;
-      return new (isec_ctx) IsecInfo (ray, this, subspace_isec_info);
+      return new (context) IsecInfo (ray, this, subspace_isec_info);
     }
   else
     return 0;
@@ -79,12 +79,12 @@ Instance::IsecInfo::make_intersect (Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Instance::shadow (const ShadowRay &sray, const IsecCtx &isec_ctx) const
+Instance::shadow (const ShadowRay &sray, RenderContext &context) const
 {
   // Transform the ray for searching our subspace.
   //
   ShadowRay xformed_sray = world_to_local (sray);
-  return subspace->shadow (xformed_sray, isec_ctx);
+  return subspace->shadow (xformed_sray, context);
 }
 
 // Return a bounding box for this surface.

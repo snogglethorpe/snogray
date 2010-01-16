@@ -90,11 +90,10 @@ Scene::build_space (const SpaceBuilderFactory *space_builder_factory)
 // to reflect the point of intersection.
 //
 const Surface::IsecInfo *
-Scene::intersect (Ray &ray, const IsecCtx &isec_ctx) const
+Scene::intersect (Ray &ray, RenderContext &context) const
 {
-  RenderContext &context = isec_ctx.context;
   context.stats.scene_intersect_calls++;
-  return space->intersect (ray, isec_ctx);
+  return space->intersect (ray, context);
 }
 
 // Return the strongest type of shadowing effect this scene has on
@@ -103,11 +102,10 @@ Scene::intersect (Ray &ray, const IsecCtx &isec_ctx) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Scene::shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const
+Scene::shadow (const ShadowRay &ray, RenderContext &context) const
 {
-  RenderContext &context = isec_ctx.context;
   context.stats.scene_shadow_tests++;
-  return space->shadow (ray, isec_ctx);
+  return space->shadow (ray, context);
 }
 
 // Return true if any surface blocks RAY.  This is the fastest
@@ -115,11 +113,10 @@ Scene::shadow (const ShadowRay &ray, IsecCtx &isec_ctx) const
 // intersection.
 //
 bool
-Scene::shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const
+Scene::shadows (const ShadowRay &ray, RenderContext &context) const
 {
-  RenderContext &context = isec_ctx.context;
   context.stats.scene_shadow_tests++;
-  return space->shadows (ray, isec_ctx);
+  return space->shadows (ray, context);
 }
 
 

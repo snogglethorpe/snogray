@@ -31,19 +31,19 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const;
+  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const;
 
   // Return the strongest type of shadowing effect any object in this space
   // has on RAY.  If no shadow is cast, Material::SHADOW_NONE is returned;
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  Material::ShadowType shadow (const ShadowRay &ray, const IsecCtx &isec_ctx)
+  Material::ShadowType shadow (const ShadowRay &ray, RenderContext &context)
     const;
 
   // Return true if any object intersects RAY.
   //
-  bool shadows (const ShadowRay &ray, IsecCtx &isec_ctx) const;
+  bool shadows (const ShadowRay &ray, RenderContext &context) const;
 
   // A callback for `for_each_possible_intersector'.  Users of
   // `for_each_possible_intersector' must subclass this, providing their

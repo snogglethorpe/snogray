@@ -11,7 +11,6 @@
 //
 
 #include "render-context.h"
-#include "trace-cache.h"
 
 #include "trace.h"
 

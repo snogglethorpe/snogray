@@ -1,6 +1,6 @@
 // cylinder.cc -- Cylindrical surface
 //
-//  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -80,10 +80,10 @@ cylinder_intersect (Ray &ray)
 // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
 // to reflect the point of intersection, and return a Surface::IsecInfo
 // object describing the intersection (which should be allocated using
-// placement-new with ISEC_CTX); otherwise return zero.
+// placement-new with CONTEXT); otherwise return zero.
 //
 const Surface::IsecInfo *
-Cylinder::intersect (Ray &ray, const IsecCtx &isec_ctx) const
+Cylinder::intersect (Ray &ray, RenderContext &context) const
 {
   Ray oray = world_to_local (ray);
   dist_t t = cylinder_intersect (oray);
@@ -91,7 +91,7 @@ Cylinder::intersect (Ray &ray, const IsecCtx &isec_ctx) const
   if (t != 0)
     {
       ray.t1 = t;
-      return new (isec_ctx) IsecInfo (ray, this, oray.extension (t));
+      return new (context) IsecInfo (ray, this, oray.extension (t));
     }
   else
     return 0;
@@ -127,7 +127,7 @@ Cylinder::IsecInfo::make_intersect (Trace &trace) const
 // returned; otherwise, Material::SHADOW_MEDIUM is returned.
 //
 Material::ShadowType
-Cylinder::shadow (const ShadowRay &sray, const IsecCtx &) const
+Cylinder::shadow (const ShadowRay &sray, RenderContext &) const
 {
   Ray oray = world_to_local (sray.as_ray ());
 

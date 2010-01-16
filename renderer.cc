@@ -14,7 +14,6 @@
 #include "camera.h"
 #include "filter.h"
 #include "sample-set.h"
-#include "trace-cache.h"
 #include "unique-ptr.h"
 
 #include "renderer.h"

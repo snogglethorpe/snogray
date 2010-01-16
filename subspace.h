@@ -39,12 +39,12 @@ public:
   // If the associated surface intersects RAY, change RAY's maximum bound
   // (Ray::t1) to reflect the point of intersection, and return a
   // Surface::IsecInfo object describing the intersection (which should be
-  // allocated using placement-new with ISEC_CTX); otherwise return zero.
+  // allocated using placement-new with CONTEXT); otherwise return zero.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, const IsecCtx &isec_ctx) const
+  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const
   {
-    ensure_space (isec_ctx.context);
-    return space->intersect (ray, isec_ctx);
+    ensure_space (context);
+    return space->intersect (ray, context);
   }
 
   // Return the strongest type of shadowing effect the associated surface
@@ -52,11 +52,11 @@ public:
   // otherwise if RAY is completely blocked, Material::SHADOW_OPAQUE is
   // returned; otherwise, Material::SHADOW_MEDIUM is returned.
   //
-  Material::ShadowType shadow (const ShadowRay &sray, const IsecCtx &isec_ctx)
+  Material::ShadowType shadow (const ShadowRay &sray, RenderContext &context)
     const
   {
     ensure_space (sray.isec.context);
-    return space->shadow (sray, isec_ctx);
+    return space->shadow (sray, context);
   }
 
   // Return a bounding box for the associated surface.
