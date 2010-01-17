@@ -44,10 +44,13 @@ public:
     IllumMgr illum_mgr;
   };
 
-  // Return light from the scene arriving from the direction of RAY at its
-  // origin.  SAMPLE_NUM is the sample to use.
+  // Return the color emitted from the ray-surface intersection ISEC.
+  // "lo" means "light outgoing".
   //
-  virtual Tint li (const Ray &ray, unsigned sample_num);
+  virtual Color lo (const Intersect &isec, unsigned) const
+  {
+    return global.illum_mgr.lo (isec);
+  }
 
 protected:
 

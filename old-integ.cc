@@ -50,24 +50,3 @@ OldInteg::GlobalState::make_integrator (SampleSet &samples,
 {
   return new OldInteg (samples, context, *this);
 }
-
-
-// Return light from the scene arriving from the direction of RAY at its
-// origin.  SAMPLE_NUM is the sample to use.
-//
-Tint
-OldInteg::li (const Ray &ray, unsigned sample_num)
-{
-  Ray intersected_ray (ray);
-  const Surface::IsecInfo *isec_info
-    = global.scene.intersect (intersected_ray, context);
-
-  Tint tint;
-  if (isec_info)
-    {
-      Trace camera_trace (isec_info->ray, context);
-      return global.illum_mgr.li (isec_info, camera_trace);
-    }
-  else
-    return global.scene.background_with_alpha (ray);
-}
