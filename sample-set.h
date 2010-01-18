@@ -72,6 +72,14 @@ public:
     unsigned base_offset;
   };
 
+  // A vector of channels, for cases where we need more than one.
+  //
+  template<typename T>
+  struct ChannelVec : public std::vector<Channel<T> >
+  {
+  };
+
+
   // Construct a new sample set, using the specified sample generator.
   //
   SampleSet (unsigned _num_samples, SampleGen &_gen)
@@ -140,6 +148,19 @@ public:
 				 num_total_samples);
 
     return Channel<T> (base_sample_offset, num_sub_samples);
+  }
+
+  // Allocate and return a vector of channels in this set, each
+  // containing NUM_SUB_SAMPLES samples per top-level sample.  The type
+  // of sample must be specified as the first template parameter.
+  //
+  template<typename T>
+  ChannelVec<T> add_channel_vec (unsigned size, unsigned num_sub_samples)
+  {
+    ChannelVec<T> vec (size);
+    for (unsigned i = 0; i < size; i++)
+      vec[i] = add_channel<T> (num_sub_samples);
+    return vec;
   }
 
   // Number of top-level samples.
