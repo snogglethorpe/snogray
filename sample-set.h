@@ -163,6 +163,16 @@ public:
     return vec;
   }
 
+  // Removes all samples from this sample-set, invalidating any previously
+  // created channels.  To subsequently generate more samples, new channels
+  // must be added.
+  //
+  void clear ()
+  {
+    float_samples.clear ();
+    uv_samples.clear ();
+  }
+
   // Number of top-level samples.
   //
   unsigned num_samples;
