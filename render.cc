@@ -111,10 +111,9 @@ render_by_blocks (Renderer &renderer,
 // Return an appropriate sample generator for anti-aliasing.
 //
 static SampleGen *
-make_sample_gen (const ValTable &params)
+make_sample_gen (const ValTable &)
 {
-  unsigned oversample = params.get_uint ("oversample", 1);
-  return new Grid (oversample);
+  return new Grid;
 }
 
 static Integ::GlobalState *
@@ -137,11 +136,14 @@ snogray::render (const Scene &scene, const Camera &camera,
 
   RenderParams render_params (params);
 
+  unsigned num_samples = params.get_uint ("oversample", 1);
+
   bool by_rows = params.get_int ("render-by-rows", 0);
 
-  Renderer renderer (scene, camera, width, height, output, offs_x, offs_y,
-		     by_rows ? 1 : 16, *integ_global_state,
-		     *sample_gen, render_params);
+  Renderer renderer (scene, camera, width, height,num_samples,
+		     output, offs_x, offs_y, by_rows ? 1 : 16,
+		     *integ_global_state, *sample_gen,
+		     render_params);
 
   // Do the actual rendering.
   //

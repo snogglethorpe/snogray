@@ -15,28 +15,27 @@
 using namespace snogray;
 
 
-SampleSet::~SampleSet ()
-{
-  for (std::vector<std::vector<float> *>::iterator i = float_tables.begin();
-       i != float_tables.end(); ++i)
-    delete *i;
-  for (std::vector<std::vector<UV> *>::iterator i = uv_tables.begin();
-       i != uv_tables.end(); ++i)
-    delete *i;
-}
-
-
-// Just adds TABLE to our list of tables; out-of-line to avoid bloat.
+// Add enough entries to the end of our sample table for samples of
+// type T to hold NUM_SAMPLES samples, and return the offset of the
+// first entry so allocated.
 //
+// These specializations are out-of-line to try and avoid bloat a little bit.
+
 template<>
-void
-SampleSet::add_table (std::vector<float> *table)
+unsigned
+SampleSet::add_sample_space<float> (unsigned num_samples)
 {
-  float_tables.push_back (table);
+  unsigned base_offset = float_samples.size ();
+  float_samples.resize (base_offset + num_samples);
+  return base_offset;
 }
+
 template<>
-void
-SampleSet::add_table<UV> (std::vector<UV> *table)
+unsigned
+SampleSet::add_sample_space<UV> (unsigned num_samples)
 {
-  uv_tables.push_back (table);
+  unsigned base_offset = uv_samples.size ();
+  uv_samples.resize (base_offset + num_samples);
+  return base_offset;
 }
+

@@ -42,72 +42,161 @@ public:
     // Default constructor zero-initializes, hopefully resulting in a
     // segfault if an otherwise uninitialized channel is used by mistake.
     //
-    Channel () : table (0) {}
+    Channel () {}
 
     // Copy constructor
     //
-    Channel (const Channel &from) : table (from.table) {}
+    Channel (const Channel &from)
+      : size (from.size), base_offset (from.base_offset)
+    {}
+
+    // Number of nsub-samples this channel contains.  There are this many
+    // sub-samples per top-level sample.
+    //
+    unsigned size;
 
   private:
 
-    Channel (const std::vector<T> *_table) : table (_table) {}
-
     friend class SampleSet;
-    const std::vector<T> *table;
-  };
 
+    // Normal constructor.  This is private, as BASE_OFFSET is an
+    // implementation detail.
+    //
+    Channel (unsigned _base_offset, unsigned _size)
+      : size (_size), base_offset (_base_offset)
+    {}
+
+    // Offset of our first sample in the appropriate sample vector of
+    // our SampleSet.
+    //
+    unsigned base_offset;
+  };
 
   // Construct a new sample set, using the specified sample generator.
   //
-  SampleSet (SampleGen &_gen) : gen (_gen) {}
+  SampleSet (unsigned _num_samples, SampleGen &_gen)
+    : num_samples (_num_samples), gen (_gen)
+  {}
 
-  ~SampleSet ();
 
-
-  // Return sample NUM from the sample channel CHANNEL.
+  // Return sample for top-level sample SAMPLE_NUM, and sub-sample
+  // SUB_SAMPLE_NUM, from the sample channel CHANNEL.  SUB_SAMPLE_NUM
+  // may be omitted if there's only one sample per top-level sample.
   //
   template<typename T>
-  T get (Channel<T> channel, unsigned num) { return table (channel) [num]; }
-
-  // Allocate a new sample-channel in this set.  The type of sample must be
-  // specified as the first template parameter.
-  //
-  template<typename T>
-  Channel<T> add_channel ()
+  T get (const Channel<T> &channel,
+	 unsigned sample_num, unsigned sub_sample_num = 0)
   {
-    std::vector<T> *table = gen.gen_shuffled_samples<T> ();
-    add_table (table);
-    return Channel<T> (table);
+    return sample<T> (channel.base_offset)
+      [sample_num * channel.size + sub_sample_num];
   }
+
+  // Return an iterator pointing to the first sub-sample for top-level
+  // sample SAMPLE_NUM from the sample channel CHANNEL.
+  //
+  template<typename T>
+  typename std::vector<T>::iterator
+  begin (const Channel<T> &channel, unsigned sample_num) const
+  {
+    return sample<T> (channel.base_offset) + (sample_num * channel.size);
+  }
+
+  // Return an iterator pointing just past the end of the last
+  // sub-sample for top-level sample SAMPLE_NUM from the sample channel
+  // CHANNEL.
+  //
+  template<typename T>
+  typename std::vector<T>::iterator
+  end (const Channel<T> &channel, unsigned sample_num) const
+  {
+    return begin (channel, sample_num) + channel.size;
+  }
+
+  // Allocate a new sample-channel in this set, containing
+  // NUM_SUB_SAMPLES samples per top-level sample (which defaults to 1).
+  // The type of sample must be specified as the first template
+  // parameter.
+  //
+  template<typename T>
+  Channel<T> add_channel (unsigned num_sub_samples = 1)
+  {
+    // There's NUM_SUB_SAMPLES per top-level sample, so calculate the
+    // total number of samples for this channel.
+    //
+    unsigned num_total_samples = num_samples * num_sub_samples;
+
+    // Some sample generators may want a slightly different number of
+    // samples.
+    //
+    num_total_samples = gen.adjust_sample_count<T> (num_total_samples);
+
+    // Add enough room to our sample array for all the samples.
+    //
+    unsigned base_sample_offset = add_sample_space<T> (num_total_samples);
+
+    // Generate (and shuffle) the actual samples.
+    //
+    gen.gen_shuffled_samples<T> (sample<T> (base_sample_offset),
+				 num_total_samples);
+
+    return Channel<T> (base_sample_offset, num_sub_samples);
+  }
+
+  // Number of top-level samples.
+  //
+  unsigned num_samples;
 
 private:
 
-  template<typename T>
-  const std::vector<T> &table (Channel<T> channel) { return *channel.table; }
-  
-  // Just adds TABLE to our list of tables; out-of-line to avoid bloat.
+  // Returns an iterator pointing into sample space for samples of type
+  // T at offset OFFSET.
   //
   template<typename T>
-  void add_table (std::vector<T> *table);
+  const typename std::vector<T>::iterator sample (unsigned offset);
+  
+  // Add enough entries to the end of our sample table for samples of
+  // type T to hold NUM samples, and return the offset of the
+  // first entry so allocated.
+  //
+  template<typename T>
+  unsigned add_sample_space (unsigned num);
 
-  std::vector<std::vector<float> *> float_tables;
-  std::vector<std::vector<UV> *> uv_tables;
+  std::vector<float> float_samples;
+  std::vector<UV> uv_samples;
 
   SampleGen &gen;
 };
 
 
 //
-// Declarations for specialized SampleSet::add_table methods.
+// Declarations for specialized SampleSet::add_sample_space methods.
 //
 
 template<>
-void
-SampleSet::add_table (std::vector<float> *table);
+unsigned
+SampleSet::add_sample_space<float> (unsigned num_samples);
 
 template<>
-void
-SampleSet::add_table<UV> (std::vector<UV> *table);
+unsigned
+SampleSet::add_sample_space<UV> (unsigned num_samples);
+
+//
+// Specializations of SampleGen::base_sample for supported sample types.
+//
+
+template<>
+inline const std::vector<float>::iterator
+SampleSet::sample<float> (unsigned offset)
+{
+  return float_samples.begin() + offset;
+}
+
+template<>
+inline const std::vector<UV>::iterator
+SampleSet::sample<UV> (unsigned offset)
+{
+  return uv_samples.begin() + offset;
+}
 
 
 }

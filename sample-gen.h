@@ -31,26 +31,47 @@ class SampleGen
 {
 public:
 
+  // Generate NUM shuffled samples and store them in TABLE.
+  //
   template<typename T>
-  std::vector<T> *gen_shuffled_samples ();
+  void gen_shuffled_samples (const typename std::vector<T>::iterator &table,
+			     unsigned num)
+    const;
 
+  // Generate NUM samples and store them in TABLE.
+  //
   template<typename T>
-  std::vector<T> *gen_samples ();
+  void gen_samples (const typename std::vector<T>::iterator &table,
+		    unsigned num)
+    const;
+
+  // Return the number of samples we'd like to generate instead of NUM.
+  //
+  template<typename T>
+  unsigned adjust_sample_count (unsigned num) const;
 
 protected:
 
-  SampleGen (unsigned _num_samples) : num_samples (_num_samples) { }
-
   // The actual sample generating methods, defined by subclasses.
   //
-  virtual std::vector<float> *gen_float_samples () = 0;
-  virtual std::vector<UV> *gen_uv_samples () = 0;
+  virtual void gen_float_samples (const std::vector<float>::iterator &table,
+				  unsigned num)
+    const = 0;
+  virtual void gen_uv_samples (const std::vector<UV>::iterator &table,
+			       unsigned num)
+    const = 0;
 
-public:
-
-  // The number of samples this generator will generate.
+  // Sample-count adjusting methods defined by subclasses.  By default,
+  // NUM is returned unchanged.
   //
-  unsigned num_samples;
+  virtual unsigned adjust_float_sample_count (unsigned num) const
+  {
+    return num;
+  }
+  virtual unsigned adjust_uv_sample_count (unsigned num) const
+  {
+    return num;
+  }
 };
 
 
@@ -59,10 +80,16 @@ public:
 //
 
 template<>
-std::vector<float> *SampleGen::gen_shuffled_samples ();
+void
+SampleGen::gen_shuffled_samples<float> (const std::vector<float>::iterator &table,
+					unsigned num)
+  const;
 
 template<>
-std::vector<UV> *SampleGen::gen_shuffled_samples ();
+void
+SampleGen::gen_shuffled_samples<UV> (const std::vector<UV>::iterator &table,
+				     unsigned num)
+  const;
 
 
 //
@@ -70,19 +97,42 @@ std::vector<UV> *SampleGen::gen_shuffled_samples ();
 //
 
 template<>
-inline std::vector<float> *
-SampleGen::gen_samples ()
+inline void
+SampleGen::gen_samples<float> (const std::vector<float>::iterator &table,
+			       unsigned num)
+  const
 {
-  return gen_float_samples ();
+  gen_float_samples (table, num);
 }
 
 template<>
-inline std::vector<UV> *
-SampleGen::gen_samples ()
+inline void
+SampleGen::gen_samples<UV> (const std::vector<UV>::iterator &table,
+			    unsigned num)
+  const
 {
-  return gen_uv_samples ();
+  gen_uv_samples (table, num);
 }
 
+
+//
+// Specializations of SampleGen::adjust_sample_count for supported
+// sample types.
+//
+
+template<>
+inline unsigned
+SampleGen::adjust_sample_count<float> (unsigned num) const
+{
+  return adjust_float_sample_count (num);
+}
+
+template<>
+inline unsigned
+SampleGen::adjust_sample_count<UV> (unsigned num) const
+{
+  return adjust_uv_sample_count (num);
+}
 
 }
 

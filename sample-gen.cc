@@ -24,19 +24,21 @@ using namespace snogray;
 //
 
 template<>
-std::vector<float> *
-SampleGen::gen_shuffled_samples ()
+void
+SampleGen::gen_shuffled_samples<float> (const std::vector<float>::iterator &table,
+					unsigned num)
+  const
 {
-  std::vector<float> *table = gen_samples<float> ();
-  random_shuffle (table->begin (), table->end ());
-  return table;
+  gen_samples<float> (table, num);
+  random_shuffle (table, table + num);
 }
 
 template<>
-std::vector<UV> *
-SampleGen::gen_shuffled_samples ()
+void
+SampleGen::gen_shuffled_samples<UV> (const std::vector<UV>::iterator &table,
+				     unsigned num)
+  const
 {
-  std::vector<UV> *table = gen_samples<UV> ();
-  random_shuffle (table->begin (), table->end ());
-  return table;
+  gen_samples<UV> (table, num);
+  random_shuffle (table, table + num);
 }

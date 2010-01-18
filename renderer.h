@@ -34,6 +34,7 @@ public:
 
   Renderer (const Scene &_scene, const Camera &_camera,
 	    unsigned _width, unsigned _height,
+	    unsigned num_samples,
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 	    unsigned max_y_block_size,
 	    Integ::GlobalState &integ_global_state,
@@ -84,6 +85,10 @@ public:
   // Sample generator used to generate samples within a pixel.
   //
   SampleGen &sample_gen;
+
+  // Number of camera samples to use per pixel.
+  //
+  unsigned num_samples;
 
   // Global R/W state during tracing.
   //

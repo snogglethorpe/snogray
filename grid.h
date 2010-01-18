@@ -21,28 +21,18 @@ namespace snogray {
 
 class Grid : public SampleGen
 {
-public:
-
-  Grid (unsigned num_samples);
-
 protected:
 
   // The actual sample generating methods.
   //
-  virtual std::vector<float> *gen_float_samples ();
-  virtual std::vector<UV> *gen_uv_samples ();
+  virtual void gen_float_samples (const std::vector<float>::iterator &table,
+				  unsigned num)
+    const;
+  virtual void gen_uv_samples (const std::vector<UV>::iterator &table,
+			       unsigned num)
+    const;
 
-private:
-
-  unsigned u_steps, v_steps;
-
-  // Step size used for U and V dimensions in UV samples.
-  //
-  float u_step, v_step;
-
-  // Step size used for float samples.
-  //
-  float n_step;
+  virtual unsigned adjust_uv_sample_count (unsigned num) const;
 };
 
 
