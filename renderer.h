@@ -15,6 +15,7 @@
 
 #include "image-output.h"
 #include "render-context.h"
+#include "sample-set.h"
 #include "integ.h"
 
 
@@ -82,13 +83,12 @@ public:
   //
   int lim_x, lim_y, lim_w, lim_h;
 
-  // Sample generator used to generate samples within a pixel.
+  // SampleSet used to hold samples for rendering a pixel.  This is cleared
+  // and refilled for each pixel; the main intent of keeping it here
+  // (instead of as a local object in Renderer::render_pixel) is to avoid
+  // memory allocation churn.
   //
-  SampleGen &sample_gen;
-
-  // Number of camera samples to use per pixel.
-  //
-  unsigned num_samples;
+  SampleSet samples;
 
   // Global R/W state during tracing.
   //

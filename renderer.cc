@@ -33,7 +33,7 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
-    sample_gen (_sample_gen), num_samples (_num_samples),
+    samples (_num_samples, _sample_gen),
     render_context (scene, render_params)
 {
   output.set_num_buffered_rows (max_y_block_size);
@@ -118,7 +118,7 @@ Renderer::render_block (int x, int y, int w, int h)
 void
 Renderer::render_pixel (int x, int y)
 {
-  SampleSet samples (num_samples, sample_gen);
+  samples.clear ();
 
   SampleSet::Channel<UV> camera_samples = samples.add_channel<UV> ();
   SampleSet::Channel<UV> focus_samples = samples.add_channel<UV> ();
@@ -126,7 +126,7 @@ Renderer::render_pixel (int x, int y)
   UniquePtr<Integ> integ
     (integ_global_state.make_integrator (samples, render_context));
 
-  for (unsigned snum = 0; snum < num_samples; snum++)
+  for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
       UV camera_samp = samples.get (camera_samples, snum);
       UV focus_samp = samples.get (focus_samples, snum);
