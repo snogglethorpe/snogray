@@ -126,6 +126,8 @@ Renderer::render_pixel (int x, int y)
   UniquePtr<SurfaceInteg> surface_integ
     (surface_integ_global_state.make_integrator (samples, render_context));
 
+  samples.generate ();
+
   for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
       UV camera_samp = samples.get (camera_samples, snum);

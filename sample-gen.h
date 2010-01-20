@@ -31,13 +31,6 @@ class SampleGen
 {
 public:
 
-  // Generate NUM shuffled samples and store them in TABLE.
-  //
-  template<typename T>
-  void gen_shuffled_samples (const typename std::vector<T>::iterator &table,
-			     unsigned num)
-    const;
-
   // Generate NUM samples and store them in TABLE.
   //
   template<typename T>
@@ -73,23 +66,6 @@ protected:
     return num;
   }
 };
-
-
-//
-// Declarations of SampleGen::gen_shuffled_samples for supported sample types.
-//
-
-template<>
-void
-SampleGen::gen_shuffled_samples<float> (const std::vector<float>::iterator &table,
-					unsigned num)
-  const;
-
-template<>
-void
-SampleGen::gen_shuffled_samples<UV> (const std::vector<UV>::iterator &table,
-				     unsigned num)
-  const;
 
 
 //

@@ -142,12 +142,7 @@ public:
     //
     unsigned base_sample_offset = add_sample_space<T> (num_total_samples);
 
-    // Generate (and shuffle) the actual samples.
-    //
-    gen.gen_shuffled_samples<T> (sample<T> (base_sample_offset),
-				 num_total_samples);
-
-    return Channel<T> (base_sample_offset, num_sub_samples);
+    return _add_channel<T> (Channel<T> (base_sample_offset, num_sub_samples));
   }
 
   // Allocate and return a vector of channels in this set, each
@@ -167,11 +162,11 @@ public:
   // created channels.  To subsequently generate more samples, new channels
   // must be added.
   //
-  void clear ()
-  {
-    float_samples.clear ();
-    uv_samples.clear ();
-  }
+  void clear ();
+
+  // Compute a completely new set of sample values in all channels.
+  //
+  void generate ();
 
   // Number of top-level samples.
   //
@@ -191,9 +186,17 @@ private:
   //
   template<typename T>
   unsigned add_sample_space (unsigned num);
+  
+  // Add CHANNEL to the appropriate vector of channels, and return it.
+  //
+  template<typename T>
+  Channel<T> _add_channel (const Channel<T> &chan);
 
   std::vector<float> float_samples;
   std::vector<UV> uv_samples;
+
+  std::vector<Channel<float> > float_channels;
+  std::vector<Channel<UV> > uv_channels;
 
   SampleGen &gen;
 };
@@ -227,6 +230,26 @@ inline const std::vector<UV>::iterator
 SampleSet::sample<UV> (unsigned offset)
 {
   return uv_samples.begin() + offset;
+}
+
+//
+// Specializations of SampleGen::_add_channel for supported sample types.
+//
+  
+template<>
+inline SampleSet::Channel<float>
+SampleSet::_add_channel (const Channel<float> &chan)
+{
+  float_channels.push_back (chan);
+  return chan;
+}
+  
+template<>
+inline SampleSet::Channel<UV>
+SampleSet::_add_channel (const Channel<UV> &chan)
+{
+  uv_channels.push_back (chan);
+  return chan;
 }
 
 
