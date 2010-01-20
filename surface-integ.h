@@ -13,6 +13,8 @@
 #ifndef __SURFACE_INTEG_H__
 #define __SURFACE_INTEG_H__
 
+#include "intersect.h"
+
 #include "integ.h"
 
 
@@ -22,6 +24,21 @@ namespace snogray {
 class SurfaceInteg : public Integ
 {
 public:
+
+  // Global state for this integrator, for rendering an entire scene.
+  //
+  class GlobalState : public Integ::GlobalState
+  {
+  public:
+
+    GlobalState (const Scene &_scene) : Integ::GlobalState (_scene) { }
+
+    // Return a new surface integrator, allocated in context.
+    //
+    virtual SurfaceInteg *make_integrator (SampleSet &sample,
+					   RenderContext &context)
+      = 0;
+  };
 
   // Return light from the scene arriving from the direction of RAY at its
   // origin.  SAMPLE_NUM is the sample to use.

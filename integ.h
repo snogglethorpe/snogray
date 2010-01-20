@@ -37,10 +37,6 @@ public:
 
     GlobalState (const Scene &_scene) : scene (_scene) { }
 
-    // Return a new integrator, allocated in context.
-    //
-    virtual Integ *make_integrator (SampleSet &sample, RenderContext &context) = 0;
-
     const Scene &scene;
   };
 

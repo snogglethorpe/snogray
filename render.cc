@@ -116,7 +116,7 @@ make_sample_gen (const ValTable &)
   return new Grid;
 }
 
-static Integ::GlobalState *
+static SurfaceInteg::GlobalState *
 make_integ_global_state (const Scene &scene, const ValTable &params)
 {
   return new OldInteg::GlobalState (scene, params);
@@ -131,8 +131,8 @@ snogray::render (const Scene &scene, const Camera &camera,
 {
   UniquePtr<SampleGen> sample_gen (make_sample_gen (params));
 
-  UniquePtr<Integ::GlobalState>
-      integ_global_state (make_integ_global_state (scene, params));
+  UniquePtr<SurfaceInteg::GlobalState>
+    surface_integ_global_state (make_integ_global_state (scene, params));
 
   RenderParams render_params (params);
 
@@ -142,7 +142,7 @@ snogray::render (const Scene &scene, const Camera &camera,
 
   Renderer renderer (scene, camera, width, height,num_samples,
 		     output, offs_x, offs_y, by_rows ? 1 : 16,
-		     *integ_global_state, *sample_gen,
+		     *surface_integ_global_state, *sample_gen,
 		     render_params);
 
   // Do the actual rendering.

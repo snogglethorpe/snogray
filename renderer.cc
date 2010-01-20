@@ -25,11 +25,11 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned _num_samples,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 		    unsigned max_y_block_size,
-		    Integ::GlobalState &_integ_global_state,
+		    SurfaceInteg::GlobalState &_surface_integ_global_state,
 		    SampleGen &_sample_gen,
 		    const RenderParams &render_params)
   : scene (_scene), camera (_camera), width (_width), height (_height),
-    integ_global_state (_integ_global_state),
+    surface_integ_global_state (_surface_integ_global_state),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
@@ -123,8 +123,8 @@ Renderer::render_pixel (int x, int y)
   SampleSet::Channel<UV> camera_samples = samples.add_channel<UV> ();
   SampleSet::Channel<UV> focus_samples = samples.add_channel<UV> ();
 
-  UniquePtr<Integ> integ
-    (integ_global_state.make_integrator (samples, render_context));
+  UniquePtr<SurfaceInteg> surface_integ
+    (surface_integ_global_state.make_integrator (samples, render_context));
 
   for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
@@ -147,7 +147,7 @@ Renderer::render_pixel (int x, int y)
       Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
       camera_ray.t1 = scene.horizon;
 
-      Tint tint = integ->li (camera_ray, snum);
+      Tint tint = surface_integ->li (camera_ray, snum);
 
       render_context.mempool.reset ();
 

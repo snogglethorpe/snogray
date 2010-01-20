@@ -16,7 +16,7 @@
 #include "image-output.h"
 #include "render-context.h"
 #include "sample-set.h"
-#include "integ.h"
+#include "surface-integ.h"
 
 
 namespace snogray {
@@ -38,7 +38,7 @@ public:
 	    unsigned num_samples,
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 	    unsigned max_y_block_size,
-	    Integ::GlobalState &integ_global_state,
+	    SurfaceInteg::GlobalState &surface_integ_global_state,
 	    SampleGen &_sample_gen,
 	    const RenderParams &render_params);
 
@@ -71,7 +71,7 @@ public:
 
   // Global state for scene integrator.
   //
-  Integ::GlobalState &integ_global_state;
+  SurfaceInteg::GlobalState &surface_integ_global_state;
 
   // Where the results are written.  This may be smaller than the nominal
   // output image defined by WIDTH and HEIGHT.

@@ -44,7 +44,7 @@ OldInteg::GlobalState::GlobalState (const Scene &_scene, const ValTable &params)
 
 // Return a new integrator, allocated in context.
 //
-Integ *
+SurfaceInteg *
 OldInteg::GlobalState::make_integrator (SampleSet &samples,
 					RenderContext &context)
 {

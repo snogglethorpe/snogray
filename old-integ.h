@@ -33,9 +33,10 @@ public:
 
     GlobalState (const Scene &_scene, const ValTable &params);
 
-    // Return a new integrator, allocated in context.
+    // Return a new surface integrator, allocated in context.
     //
-    virtual Integ *make_integrator (SampleSet &samples, RenderContext &context);
+    virtual SurfaceInteg *make_integrator (SampleSet &samples,
+					   RenderContext &context);
 
   private:
 
