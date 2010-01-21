@@ -35,6 +35,8 @@ RecursIllum::lo (const Intersect &isec,
 		 const IllumMgr &illum_mgr)
   const
 {
+  RenderContext &context = isec.context;
+
   float brdf_sample_weight = num_brdf_samples ? 1.f / num_brdf_samples : 1.f;
 
   const Medium *refr_medium = 0;
@@ -42,7 +44,7 @@ RecursIllum::lo (const Intersect &isec,
   unsigned depth = isec.trace.depth ();
 
   bool use_rr
-    = ((isec.trace.complexity >= isec.context.params.max_brdf_samples)
+    = ((isec.trace.complexity >= context.params.max_brdf_samples)
        || depth > 10);
 
   float branch_factor = 0;
@@ -102,8 +104,7 @@ RecursIllum::lo (const Intersect &isec,
 		  {
 		    if (isec.back)
 		      refr_medium
-			= &isec.trace.enclosing_medium (
-					isec.context.default_medium);
+			= &isec.trace.enclosing_medium (context.default_medium);
 		    else
 		      {
 			refr_medium = isec.material->medium ();
@@ -121,12 +122,25 @@ RecursIllum::lo (const Intersect &isec,
 	    Trace sub_trace (subtrace_type, s->isec_info->ray, *new_medium,
 			     branch_factor, isec.trace);
 
-	    val = illum_mgr.li (s->isec_info, sub_trace);
+	    // Get more intersection info.
+	    //
+	    Intersect isec = s->isec_info->make_intersect (sub_trace, context);
+
+	    // Calculate the appearance of the point on the surface we hit
+	    //
+	    val = illum_mgr.lo (isec);
+
+	    // If we are looking through something other than air,
+	    // attentuate the surface appearance due to transmission
+	    // through the current medium.
+	    //
+	    val *= context.volume_integ->transmittance (s->isec_info->ray,
+							*new_medium);
 
 	    val *= rr_adj;
 	  }
 	else
-	  val = isec.context.scene.background (isec.normal_frame.from (s->dir));
+	  val = context.scene.background (isec.normal_frame.from (s->dir));
 
 	//
 	// The multiplications below are a potential point of overflow.  When
