@@ -20,9 +20,6 @@
 namespace snogray {
 
 
-class RenderContext;
-
-
 // A node in a tracing path.
 //
 // A Trace object corresponds to a single segment in the tracing path,
@@ -49,7 +46,7 @@ public:
 
   // Constructor for a root (camera/eye) Trace.
   //
-  Trace (const Ray &ray, RenderContext &_context);
+  Trace (const Ray &ray, const Medium &_medium);
 
   // Constructor for sub-traces
   //
@@ -78,12 +75,6 @@ public:
   // segment (in which case, the type should be SPONTANEOUS).
   //
   const Trace *source;
-
-  // Stuff that's only allocated once.  The context is generally
-  // modifiable (e.g., for memory allocation or stats) even when a Trace
-  // is const, so mark it as mutable.
-  //
-  mutable RenderContext &context;
 
   // The type of transition from the previous segment in the trace path
   // (pointed to by the "source" field) to this segment.

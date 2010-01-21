@@ -150,7 +150,7 @@ Renderer::render_pixel (int x, int y)
       Tint tint;
       if (isec_info)
 	{
-	  Trace trace (isec_info->ray, context);
+	  Trace trace (isec_info->ray, context.default_medium);
 	  Intersect isec = isec_info->make_intersect (trace, context);
 	  tint = surface_integ.lo (isec, snum);
 	}

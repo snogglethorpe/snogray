@@ -10,8 +10,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "render-context.h"
-
 #include "trace.h"
 
 using namespace snogray;
@@ -19,16 +17,16 @@ using namespace snogray;
 
 // Constructor for root Trace
 //
-Trace::Trace (const Ray &_ray, RenderContext &_context)
-  : source (0), context (_context), type (SPONTANEOUS), ray (_ray),
-    complexity (1), medium (_context.default_medium)
+Trace::Trace (const Ray &_ray, const Medium &_medium)
+  : source (0), type (SPONTANEOUS), ray (_ray),
+    complexity (1), medium (_medium)
 { }
 
 // Constructor for sub-traces
 //
 Trace::Trace (Type _type, const Ray &_ray, const Medium &_medium,
 	      float branch_factor, const Trace &_source)
-  : source (&_source), context (_source.context), type (_type), ray (_ray),
+  : source (&_source), type (_type), ray (_ray),
     complexity (_source.complexity * branch_factor), medium (_medium)
 { }
 
