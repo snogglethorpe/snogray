@@ -119,6 +119,8 @@ Renderer::render_pixel (int x, int y)
 
   samples.generate ();
 
+  SurfaceInteg &surface_integ = *render_context.surface_integ;
+
   for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
       UV camera_samp = samples.get (camera_samples, snum);
@@ -140,7 +142,20 @@ Renderer::render_pixel (int x, int y)
       Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
       camera_ray.t1 = scene.horizon;
 
-      Tint tint = render_context.surface_integ->li (camera_ray, snum);
+      Ray intersected_ray (camera_ray);
+      const Surface::IsecInfo *isec_info
+	= scene.intersect (intersected_ray, render_context);
+
+      Tint tint;
+      if (isec_info)
+	{
+	  Trace trace (isec_info->ray, render_context);
+	  Intersect isec = isec_info->make_intersect (trace);
+	  tint = trace.medium.attenuate (surface_integ.lo (isec, snum),
+					 trace.ray.t1);
+	}
+      else
+	tint = scene.background_with_alpha (camera_ray);
 
       render_context.mempool.reset ();
 

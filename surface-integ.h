@@ -38,14 +38,6 @@ public:
     virtual SurfaceInteg *make_integrator (RenderContext &context) = 0;
   };
 
-  // Return light from the scene arriving from the direction of RAY at its
-  // origin.  SAMPLE_NUM is the sample to use.
-  // "li" means "light incoming" (to ray).
-  //
-  // The SurfaceInteg definition of this implements li in terms of lo.
-  //
-  virtual Tint li (const Ray &ray, unsigned sample_num);
-
   // Return the color emitted from the ray-surface intersection ISEC.
   // "lo" means "light outgoing".
   //
