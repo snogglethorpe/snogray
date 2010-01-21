@@ -87,7 +87,6 @@ IllumMgr::lo (const Intersect &isec) const
 {
   RenderContext &context = isec.context;
   const Scene &scene = context.scene;
-  const Trace &trace = isec.trace;
 
   context.stats.illum_calls++;
 
@@ -186,7 +185,8 @@ IllumMgr::lo (const Intersect &isec) const
 	      if (global_brdf_samples != 0)
 		{
 		  unsigned desired_brdf_samples
-		    = clamp (unsigned (global_brdf_samples / trace.complexity
+		    = clamp (unsigned (global_brdf_samples
+				       / isec.trace.complexity
 				       + 0.5f),
 			     1u, local_brdf_samples);
 
