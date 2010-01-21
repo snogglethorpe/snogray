@@ -69,10 +69,6 @@ public:
   //
   float width, height;
 
-  // Global state for scene integrator.
-  //
-  SurfaceInteg::GlobalState &surface_integ_global_state;
-
   // Where the results are written.  This may be smaller than the nominal
   // output image defined by WIDTH and HEIGHT.
   //
@@ -83,16 +79,14 @@ public:
   //
   int lim_x, lim_y, lim_w, lim_h;
 
-  // SampleSet used to hold samples for rendering a pixel.  This is cleared
-  // and refilled for each pixel; the main intent of keeping it here
-  // (instead of as a local object in Renderer::render_pixel) is to avoid
-  // memory allocation churn.
-  //
-  SampleSet samples;
-
   // Global R/W state during tracing.
   //
   RenderContext render_context;
+
+  // Sample channels in SAMPLES for camera and camera-focus samples.
+  //
+  SampleSet::Channel<UV> camera_samples;
+  SampleSet::Channel<UV> focus_samples;
 
 #if 0
   // Wire-frame state.  We create this object regardless of whether

@@ -22,19 +22,22 @@ using namespace snogray;
 
 Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned _width, unsigned _height,
-		    unsigned _num_samples,
+		    unsigned num_samples,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 		    unsigned max_y_block_size,
-		    SurfaceInteg::GlobalState &_surface_integ_global_state,
-		    SampleGen &_sample_gen,
+		    SurfaceInteg::GlobalState &surface_integ_global_state,
+		    SampleGen &sample_gen,
 		    const RenderParams &render_params)
   : scene (_scene), camera (_camera), width (_width), height (_height),
-    surface_integ_global_state (_surface_integ_global_state),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
-    samples (_num_samples, _sample_gen),
-    render_context (scene, render_params)
+    render_context (scene,
+		    num_samples, sample_gen,
+		    surface_integ_global_state,
+		    render_params),
+    camera_samples (render_context.samples.add_channel<UV> ()),
+    focus_samples (render_context.samples.add_channel<UV> ())
 {
   output.set_num_buffered_rows (max_y_block_size);
 }
@@ -118,13 +121,7 @@ Renderer::render_block (int x, int y, int w, int h)
 void
 Renderer::render_pixel (int x, int y)
 {
-  samples.clear ();
-
-  SampleSet::Channel<UV> camera_samples = samples.add_channel<UV> ();
-  SampleSet::Channel<UV> focus_samples = samples.add_channel<UV> ();
-
-  UniquePtr<SurfaceInteg> surface_integ
-    (surface_integ_global_state.make_integrator (samples, render_context));
+  SampleSet &samples = render_context.samples;
 
   samples.generate ();
 
@@ -149,7 +146,7 @@ Renderer::render_pixel (int x, int y)
       Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
       camera_ray.t1 = scene.horizon;
 
-      Tint tint = surface_integ->li (camera_ray, snum);
+      Tint tint = render_context.surface_integ->li (camera_ray, snum);
 
       render_context.mempool.reset ();
 

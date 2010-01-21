@@ -20,6 +20,8 @@
 #include "camera.h"
 #include "render-params.h"
 #include "render-context.h"
+#include "grid.h"
+#include "zero-surface-integ.h"
 #include "scene.h"
 
 #include "camera-cmds.h"
@@ -200,7 +202,11 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   //
   ValTable render_param_table;
   RenderParams render_params (render_param_table);
-  RenderContext render_context (scene, render_params);
+  Grid grid;
+  ZeroSurfaceInteg::GlobalState surface_integ_global_state (scene);
+  RenderContext render_context (scene, 1, grid,
+				surface_integ_global_state,
+				render_params);
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 

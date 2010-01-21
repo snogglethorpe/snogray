@@ -19,6 +19,8 @@
 #include "mempool.h"
 #include "medium.h"
 #include "pool.h"
+#include "sample-set.h"
+#include "surface-integ.h"
 #include "isec-cache.h"
 #include "unique-ptr.h"
 
@@ -33,14 +35,15 @@ class RenderContext
 {
 public:
 
-  RenderContext (const Scene &_scene, const RenderParams &_params);
+  RenderContext (const Scene &_scene, 
+		 unsigned num_samples, SampleGen &sample_gen,
+		 SurfaceInteg::GlobalState &surface_integ_global_state,
+		 const RenderParams &_params);
   ~RenderContext ();
 
   // Scene being rendered.
   //
   const Scene &scene;
-
-  const RenderParams &params;
 
   // Medium assumed to surround all objects.
   //
@@ -51,6 +54,12 @@ public:
   // that that.
   //
   Mempool mempool;
+
+  // SampleSet used to hold samples for rendering each pixel.
+  // The actual samples are regenerated for each pixel, but the
+  // sample-set object also holds a set of "channels", which persist.
+  //
+  SampleSet samples;
 
   // Pool of intersection caches.
   //
@@ -66,6 +75,16 @@ public:
   RenderStats stats;
 
   UniquePtr<SpaceBuilderFactory> space_builder_factory;
+
+  const RenderParams &params;
+
+  // Surface integrator.  This should be one of the last fields, so it
+  // will be initialized after other fields -- the integrator creation
+  // method is passed a reference to the RenderContext object, so we
+  // want as much RenderContext state as possible to be valid at that
+  // point.
+  //
+  UniquePtr<SurfaceInteg> surface_integ;
 };
 
 
