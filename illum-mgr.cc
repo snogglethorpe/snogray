@@ -67,8 +67,8 @@ IllumMgr::li (const Surface::IsecInfo *isec_info, Trace &trace) const
   // the surface appearance due to transmission through the current
   // medium.
   //
-  if (&trace.medium != &trace.context.default_medium)
-    radiance = trace.medium.attenuate (radiance, trace.ray.t1);
+  radiance *= trace.context.volume_integ->transmittance (trace.ray,
+							 trace.medium);
 
   return radiance;
 }
