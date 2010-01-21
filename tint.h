@@ -1,6 +1,6 @@
 // tint.h -- Tint is color + alpha channel
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -99,6 +99,14 @@ public:
   Tint &operator/= (double denom)	{ return div_assn (denom); }
   Tint &operator/= (int denom)		{ return div_assn (denom); }
   Tint &operator/= (unsigned denom)	{ return div_assn (denom); }
+
+  // Multiplication by a color, which is useful for filtering.
+  //
+  Tint &operator*= (const Color &col)
+  {
+    color *= col;
+    return *this;
+  }
 
   Tint clamp (float max_intens) const
   {
