@@ -1,6 +1,6 @@
 // medium.h -- Representation of physical medium
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,6 +30,14 @@ public:
   Medium (float _ior = 1, const Color &_absorb = 0)
     : ior (_ior), absorption (_absorb)
   { }
+
+  // Return the amount by which light is attenuated by travelling DISTANCE
+  // through this medium.
+  //
+  Color transmittance (dist_t distance) const
+  {
+    return pow (Color (E), -absorption * distance);
+  }
 
   // Return LIGHT attenuated by travelling DISTANCE through this medium.
   //
