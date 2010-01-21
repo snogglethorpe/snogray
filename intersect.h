@@ -40,10 +40,12 @@ public:
   // Note that the RAY may be in a local coordinate system, whereas
   // TRACE's ray information is always in world coordinates.
   //
-  Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
+  Intersect (const Ray &ray, Trace &_trace, RenderContext &context,
+	     const Surface *_surface,
 	     const Frame &_normal_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
-  Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
+  Intersect (const Ray &ray, Trace &_trace, RenderContext &context,
+	     const Surface *_surface,
 	     const Frame &_normal_frame, const Frame &_geom_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
 

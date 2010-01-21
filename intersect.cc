@@ -133,7 +133,8 @@ Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
 
 
 
-Intersect::Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
+Intersect::Intersect (const Ray &ray, Trace &_trace, RenderContext &_context,
+		      const Surface *_surface,
 		      const Frame &_normal_frame,
 		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
   : surface (_surface),
@@ -142,12 +143,13 @@ Intersect::Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
     material (&*_surface->material), brdf (0),
     smoothing_group (0), no_self_shadowing (false),
     tex_coords (normal_frame.origin, _tex_coords),
-    trace (_trace), context (trace.context)
+    trace (_trace), context (_context)
 {
   finish_init (ray, dTds, dTdt);
 }
 
-Intersect::Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
+Intersect::Intersect (const Ray &ray, Trace &_trace, RenderContext &_context,
+		      const Surface *_surface,
 		      const Frame &_normal_frame, const Frame &_geom_frame,
 		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
   : surface (_surface),
@@ -156,7 +158,7 @@ Intersect::Intersect (const Ray &ray, Trace &_trace, const Surface *_surface,
     material (&*_surface->material), brdf (0),
     smoothing_group (0), no_self_shadowing (false),
     tex_coords (normal_frame.origin, _tex_coords),
-    trace (_trace), context (trace.context)
+    trace (_trace), context (_context)
 {
   finish_init (ray, dTds, dTdt);
 }

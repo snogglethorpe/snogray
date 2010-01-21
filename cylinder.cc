@@ -117,7 +117,7 @@ Cylinder::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
   //
   UV dTds (INV_PIf * 0.5f, 0), dTdt (0, 0.5f);
 
-  return Intersect (ray, trace, cylinder, Frame (point, s, t, norm),
+  return Intersect (ray, trace, context, cylinder, Frame (point, s, t, norm),
 		    tex_coords, dTds, dTdt);
 }
 

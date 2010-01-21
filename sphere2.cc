@@ -43,7 +43,7 @@ Sphere2::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Sphere2::IsecInfo::make_intersect (Trace &trace, RenderContext &) const
+Sphere2::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
 {
   Pos point = ray.end ();
 
@@ -81,7 +81,7 @@ Sphere2::IsecInfo::make_intersect (Trace &trace, RenderContext &) const
   //
   UV dTds (INV_PIf * 0.5f, 0), dTdt (0, INV_PIf);
 
-  return Intersect (ray, trace, sphere, Frame (point, s, t, norm),
+  return Intersect (ray, trace, context, sphere, Frame (point, s, t, norm),
 		    tex_coords, dTds, dTdt);
 }
 
