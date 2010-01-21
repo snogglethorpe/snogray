@@ -201,12 +201,8 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   // Dummy values to make renderer happy
   //
   ValTable render_param_table;
-  RenderParams render_params (render_param_table);
-  Grid grid;
-  ZeroSurfaceInteg::GlobalState surface_integ_global_state (scene);
-  RenderContext render_context (scene, 1, grid,
-				surface_integ_global_state,
-				render_params);
+  GlobalRenderState global_render_state (scene, render_param_table);
+  RenderContext render_context (global_render_state);;
 
   Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
 

@@ -35,12 +35,9 @@ public:
 
   Renderer (const Scene &_scene, const Camera &_camera,
 	    unsigned _width, unsigned _height,
-	    unsigned num_samples,
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 	    unsigned max_y_block_size,
-	    SurfaceInteg::GlobalState &surface_integ_global_state,
-	    SampleGen &_sample_gen,
-	    const RenderParams &render_params);
+	    const GlobalRenderState &global_state);
 
   // Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
   // are clamped to fit the global rendering limit.

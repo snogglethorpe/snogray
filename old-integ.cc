@@ -14,9 +14,9 @@
 #include "excepts.h"
 #include "mis-illum.h"
 #include "recurs-illum.h"
-#include "illum-mgr.h"
 
 #include "old-integ.h"
+
 
 using namespace snogray;
 

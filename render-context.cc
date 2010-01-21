@@ -18,16 +18,13 @@
 
 using namespace snogray;
 
-
-RenderContext::RenderContext (const Scene &_scene,
-			      unsigned num_samples, SampleGen &sample_gen,
-			      SurfaceInteg::GlobalState &surface_integ_global_state,
-			      const RenderParams &_params)
-  : scene (_scene),
-    samples (num_samples, sample_gen),
-    space_builder_factory (new Octree::BuilderFactory), // hardwired for now
-    params (_params),
-    surface_integ (surface_integ_global_state.make_integrator (*this))
+RenderContext::RenderContext (const GlobalRenderState &_global_state)
+  : scene (_global_state.scene),
+    samples (_global_state.num_samples, *_global_state.sample_gen),
+    global_state (_global_state),
+    params (_global_state.params),
+    surface_integ (
+      _global_state.surface_integ_global_state->make_integrator (*this))
 { }
 
 RenderContext::~RenderContext ()

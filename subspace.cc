@@ -36,7 +36,7 @@ Subspace::make_space (RenderContext &context) const
   if (! space)
     {
       UniquePtr<SpaceBuilder> space_builder
-	(context.space_builder_factory->make_space_builder ());
+	(context.global_state.space_builder_factory->make_space_builder ());
 
       surface->add_to_space (*space_builder);
 

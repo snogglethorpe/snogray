@@ -10,18 +10,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <memory>
-
-#include "excepts.h"
-#include "unique-ptr.h"
-
 #include "renderer.h"
 #include "progress.h"
-#include "grid.h"
-#include "sample-gen.h"
-#include "old-integ.h"
 
 #include "render.h"
+
 
 using namespace snogray;
 
@@ -108,20 +101,6 @@ render_by_blocks (Renderer &renderer,
 
 
 
-// Return an appropriate sample generator for anti-aliasing.
-//
-static SampleGen *
-make_sample_gen (const ValTable &)
-{
-  return new Grid;
-}
-
-static SurfaceInteg::GlobalState *
-make_integ_global_state (const Scene &scene, const ValTable &params)
-{
-  return new OldInteg::GlobalState (scene, params);
-}
-
 void
 snogray::render (const Scene &scene, const Camera &camera,
 		 unsigned width, unsigned height,
@@ -129,21 +108,13 @@ snogray::render (const Scene &scene, const Camera &camera,
 		 const ValTable &params, RenderStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
-  UniquePtr<SampleGen> sample_gen (make_sample_gen (params));
-
-  UniquePtr<SurfaceInteg::GlobalState>
-    surface_integ_global_state (make_integ_global_state (scene, params));
-
-  RenderParams render_params (params);
-
-  unsigned num_samples = params.get_uint ("oversample", 1);
+  GlobalRenderState global_render_state (scene, params);
 
   bool by_rows = params.get_int ("render-by-rows", 0);
 
-  Renderer renderer (scene, camera, width, height,num_samples,
+  Renderer renderer (scene, camera, width, height,
 		     output, offs_x, offs_y, by_rows ? 1 : 16,
-		     *surface_integ_global_state, *sample_gen,
-		     render_params);
+		     global_render_state);
 
   // Do the actual rendering.
   //

@@ -22,20 +22,14 @@ using namespace snogray;
 
 Renderer::Renderer (const Scene &_scene, const Camera &_camera,
 		    unsigned _width, unsigned _height,
-		    unsigned num_samples,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
 		    unsigned max_y_block_size,
-		    SurfaceInteg::GlobalState &surface_integ_global_state,
-		    SampleGen &sample_gen,
-		    const RenderParams &render_params)
+		    const GlobalRenderState &_global_state)
   : scene (_scene), camera (_camera), width (_width), height (_height),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
-    render_context (scene,
-		    num_samples, sample_gen,
-		    surface_integ_global_state,
-		    render_params),
+    render_context (_global_state),
     camera_samples (render_context.samples.add_channel<UV> ()),
     focus_samples (render_context.samples.add_channel<UV> ())
 {

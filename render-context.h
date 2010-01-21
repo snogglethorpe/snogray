@@ -13,9 +13,9 @@
 #ifndef __RENDER_CONTEXT_H__
 #define __RENDER_CONTEXT_H__
 
+#include "global-render-state.h"
 #include "render-stats.h"
 #include "render-params.h"
-#include "space-builder.h"
 #include "mempool.h"
 #include "medium.h"
 #include "pool.h"
@@ -35,10 +35,7 @@ class RenderContext
 {
 public:
 
-  RenderContext (const Scene &_scene, 
-		 unsigned num_samples, SampleGen &sample_gen,
-		 SurfaceInteg::GlobalState &surface_integ_global_state,
-		 const RenderParams &_params);
+  RenderContext (const GlobalRenderState &global_state);
   ~RenderContext ();
 
   // Scene being rendered.
@@ -74,9 +71,13 @@ public:
 
   RenderStats stats;
 
-  UniquePtr<SpaceBuilderFactory> space_builder_factory;
+  // Global state shared by all render-contexts.
+  //
+  const GlobalRenderState &global_state;
 
-  const RenderParams &params;
+  // Commonly used rendering parameters.
+  //
+  const RenderParams params;
 
   // Surface integrator.  This should be one of the last fields, so it
   // will be initialized after other fields -- the integrator creation
