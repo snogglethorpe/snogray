@@ -51,30 +51,6 @@ IllumMgr::add_illum (Illum *illum, unsigned mask, unsigned invert)
 
 
 
-// Calculate the color incoming from the previously calculated
-// intersection described by ISEC_INFO.  "li" means "light incoming".
-//
-Color
-IllumMgr::li (const Surface::IsecInfo *isec_info, Trace &trace) const
-{
-  Intersect isec = isec_info->make_intersect (trace, trace.context);
-
-  // Calculate the appearance of the point on the surface we hit
-  //
-  Color radiance = lo (isec);
-
-  // If we are looking through something other than air, attentuate
-  // the surface appearance due to transmission through the current
-  // medium.
-  //
-  radiance *= trace.context.volume_integ->transmittance (trace.ray,
-							 trace.medium);
-
-  return radiance;
-}
-
-
-
 // Partition samples in the between BEG and END, so that all "matching"
 // samples come before all "non-matching" samples.  The partition point
 // (first non-matching sample) is returned.

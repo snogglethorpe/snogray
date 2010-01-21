@@ -34,11 +34,6 @@ public:
   IllumMgr () : any_uses (0) { }
   virtual ~IllumMgr () { }
 
-  // Calculate the color incoming from the previously calculated
-  // intersection described by ISEC_INFO.  "li" means "light incoming".
-  //
-  Color li (const Surface::IsecInfo *isec_info, Trace &trace) const;
-
   // Return the color emitted from the ray-surface intersection ISEC.
   // "lo" means "light outgoing".
   //
