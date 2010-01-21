@@ -145,7 +145,7 @@ libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
 	recurs-illum.cc recurs-illum.h render-context.cc		\
 	render-context.h render-params.h render-stats.cc render-stats.h	\
 	sample-disk.h sample-gen.h sample-set.cc sample-set.h		\
-	shadow-ray.h surface-integ.h trace.cc trace.h			\
+	shadow-ray.h surface-integ.h trace.cc trace.h volume-integ.h	\
 	zero-surface-integ.h
 
 
