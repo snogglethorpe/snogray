@@ -120,6 +120,7 @@ Renderer::render_pixel (int x, int y)
   samples.generate ();
 
   SurfaceInteg &surface_integ = *context.surface_integ;
+  VolumeInteg &volume_integ = *context.volume_integ;
 
   for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
@@ -151,11 +152,15 @@ Renderer::render_pixel (int x, int y)
 	{
 	  Trace trace (isec_info->ray, context);
 	  Intersect isec = isec_info->make_intersect (trace);
-	  tint = trace.medium.attenuate (surface_integ.lo (isec, snum),
-					 trace.ray.t1);
+	  tint = surface_integ.lo (isec, snum);
 	}
       else
 	tint = scene.background_with_alpha (camera_ray);
+
+      tint *= volume_integ.transmittance (intersected_ray,
+					  context.default_medium);
+
+      tint += volume_integ.li (intersected_ray, context.default_medium, snum);
 
       context.mempool.reset ();
 
