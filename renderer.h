@@ -53,7 +53,7 @@ public:
   //
   void render_pixel (int x, int y);
 
-  RenderStats render_stats () const { return render_context.stats; }
+  RenderStats render_stats () const { return context.stats; }
 
 
   // The scene and camera being rendered.
@@ -78,7 +78,7 @@ public:
 
   // Global R/W state during tracing.
   //
-  RenderContext render_context;
+  RenderContext context;
 
   // Sample channels in SAMPLES for camera and camera-focus samples.
   //

@@ -29,9 +29,9 @@ Renderer::Renderer (const Scene &_scene, const Camera &_camera,
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),
-    render_context (_global_state),
-    camera_samples (render_context.samples.add_channel<UV> ()),
-    focus_samples (render_context.samples.add_channel<UV> ())
+    context (_global_state),
+    camera_samples (context.samples.add_channel<UV> ()),
+    focus_samples (context.samples.add_channel<UV> ())
 {
   output.set_num_buffered_rows (max_y_block_size);
 }
@@ -115,11 +115,11 @@ Renderer::render_block (int x, int y, int w, int h)
 void
 Renderer::render_pixel (int x, int y)
 {
-  SampleSet &samples = render_context.samples;
+  SampleSet &samples = context.samples;
 
   samples.generate ();
 
-  SurfaceInteg &surface_integ = *render_context.surface_integ;
+  SurfaceInteg &surface_integ = *context.surface_integ;
 
   for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
@@ -144,12 +144,12 @@ Renderer::render_pixel (int x, int y)
 
       Ray intersected_ray (camera_ray);
       const Surface::IsecInfo *isec_info
-	= scene.intersect (intersected_ray, render_context);
+	= scene.intersect (intersected_ray, context);
 
       Tint tint;
       if (isec_info)
 	{
-	  Trace trace (isec_info->ray, render_context);
+	  Trace trace (isec_info->ray, context);
 	  Intersect isec = isec_info->make_intersect (trace);
 	  tint = trace.medium.attenuate (surface_integ.lo (isec, snum),
 					 trace.ray.t1);
@@ -157,7 +157,7 @@ Renderer::render_pixel (int x, int y)
       else
 	tint = scene.background_with_alpha (camera_ray);
 
-      render_context.mempool.reset ();
+      context.mempool.reset ();
 
       output.add_sample (sx - lim_x, sy - lim_y, tint);
     }
