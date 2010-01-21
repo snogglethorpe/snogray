@@ -41,11 +41,6 @@ public:
     const Scene &scene;
   };
 
-  // Return light from the scene arriving from the direction of RAY at its
-  // origin.  SAMPLE_NUM is the sample to use.
-  //
-  virtual Tint li (const Ray &ray, unsigned sample_num) = 0;
-
 protected:
 
   // Integrator state for rendering a group of related samples.
