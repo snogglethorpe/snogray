@@ -27,6 +27,8 @@ class Integ
 {
 public:
 
+  virtual ~Integ () { } 
+
   // Global state for this integrator, for rendering an entire scene.
   //
   class GlobalState
@@ -34,6 +36,7 @@ public:
   public:
 
     GlobalState (const Scene &_scene) : scene (_scene) { }
+    virtual ~GlobalState () { } 
 
     const Scene &scene;
   };
