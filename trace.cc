@@ -35,7 +35,7 @@ Trace::Trace (Type _type, const Ray &_ray, const Medium &_medium,
 // Searches back through the trace history to find the enclosing medium.
 //
 const Medium &
-Trace::enclosing_medium () const
+Trace::enclosing_medium (const Medium &default_medium) const
 {
   const Trace *ts = this;
 
@@ -51,7 +51,7 @@ Trace::enclosing_medium () const
       ts = ts->source;
     }
 
-  return ts ? ts->medium : context.default_medium;
+  return ts ? ts->medium : default_medium;
 }
 
 

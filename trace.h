@@ -57,8 +57,9 @@ public:
 	 const Trace &_source);
 
   // Searches back through the trace history to find the enclosing medium.
+  // If none is found, returns DEFAULT_MEDIUM.
   //
-  const Medium &enclosing_medium () const;
+  const Medium &enclosing_medium (const Medium &default_medium) const;
 
   // Return the depth of tracing at this trace, i.e., the number of
   // segments from the first segment to this one, inclusive.

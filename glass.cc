@@ -1,6 +1,6 @@
 // glass.h -- Glass (transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ public:
   GlassBrdf (const Glass &glass, const Intersect &isec)
     : Brdf (isec), entering (! isec.back),
       old_ior ((entering ? isec.trace.medium : glass._medium).ior),
-      new_ior ((entering ? glass._medium : isec.trace.enclosing_medium ()).ior)
+      new_ior ((entering ? glass._medium : isec.trace.enclosing_medium (isec.context.default_medium)).ior)
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.
