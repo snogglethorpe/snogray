@@ -57,7 +57,7 @@ IllumMgr::add_illum (Illum *illum, unsigned mask, unsigned invert)
 Color
 IllumMgr::li (const Surface::IsecInfo *isec_info, Trace &trace) const
 {
-  Intersect isec = isec_info->make_intersect (trace);
+  Intersect isec = isec_info->make_intersect (trace, trace.context);
 
   // Calculate the appearance of the point on the surface we hit
   //

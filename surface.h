@@ -56,7 +56,8 @@ public:
 
     // Create an Intersect object for this intersection.
     //
-    virtual Intersect make_intersect (Trace &trace) const = 0;
+    virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+      const = 0;
 
     // Return the intersecting surface.
     //

@@ -326,7 +326,8 @@ Mesh::Triangle::IsecInfo::make_frame (const Pos &origin, const Vec &norm) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Mesh::Triangle::IsecInfo::make_intersect (Trace &trace) const
+Mesh::Triangle::IsecInfo::make_intersect (Trace &trace, RenderContext &)
+  const
 {
   Vec norm = triangle->raw_normal ();
 

@@ -59,7 +59,8 @@ private:
     IsecInfo (const Ray &ray, const Sphere *_sphere)
       : Surface::IsecInfo (ray), sphere (_sphere)
     { }
-    virtual Intersect make_intersect (Trace &trace) const;
+    virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+      const;
     virtual const Surface *surface () const { return sphere; }
     const Sphere *sphere;
   };

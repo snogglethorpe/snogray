@@ -281,7 +281,8 @@ private:
 	: Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
       { }
 
-      virtual Intersect make_intersect (Trace &trace) const;
+      virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+	const;
       virtual const Surface *surface () const { return triangle; }
 
       // Return a normal frame FRAME at ORIGIN, with basis vectors

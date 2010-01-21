@@ -43,7 +43,7 @@ Sphere2::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Sphere2::IsecInfo::make_intersect (Trace &trace) const
+Sphere2::IsecInfo::make_intersect (Trace &trace, RenderContext &) const
 {
   Pos point = ray.end ();
 

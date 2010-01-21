@@ -39,7 +39,7 @@ Ellipse::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Ellipse::IsecInfo::make_intersect (Trace &trace) const
+Ellipse::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
 {
   Pos point = ray.end ();
 

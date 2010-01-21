@@ -100,7 +100,7 @@ Cylinder::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Cylinder::IsecInfo::make_intersect (Trace &trace) const
+Cylinder::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
 {
   Pos point = ray.end ();
 

@@ -52,7 +52,8 @@ private:
       : Surface::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
     { }
 
-    virtual Intersect make_intersect (Trace &trace) const;
+    virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+      const;
 
     virtual const Surface *surface () const { return sphere; }
 
