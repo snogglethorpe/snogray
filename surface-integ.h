@@ -13,12 +13,12 @@
 #ifndef __SURFACE_INTEG_H__
 #define __SURFACE_INTEG_H__
 
-#include "intersect.h"
-
 #include "integ.h"
 
 
 namespace snogray {
+
+class Intersect;
 
 
 class SurfaceInteg : public Integ
