@@ -16,6 +16,7 @@
 #include "space-builder.h"
 #include "sample-gen.h"
 #include "surface-integ.h"
+#include "volume-integ.h"
 #include "val-table.h"
 #include "unique-ptr.h"
 
@@ -62,6 +63,14 @@ public:
   //
   UniquePtr<SurfaceInteg::GlobalState> surface_integ_global_state;
 
+  // Global state for volume integrators.  This should be one of the last
+  // fields, so it will be initialized after other fields -- the integrator
+  // creation method is passed a reference to the GlobalRenderState object, so
+  // we want as much GlobalRenderState state as possible to be valid at that
+  // point.
+  //
+  UniquePtr<VolumeInteg::GlobalState> volume_integ_global_state;
+
 private:
 
   //
@@ -74,6 +83,9 @@ private:
   static SurfaceInteg::GlobalState *make_surface_integ_global_state (
 				      const Scene &scene,
 				      const ValTable &params);
+  static VolumeInteg::GlobalState *make_volume_integ_global_state (
+				     const Scene &scene,
+				     const ValTable &params);
 };
 
 

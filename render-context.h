@@ -86,6 +86,14 @@ public:
   // point.
   //
   UniquePtr<SurfaceInteg> surface_integ;
+
+  // Volume integrator.  This should be one of the last fields, so it
+  // will be initialized after other fields -- the integrator creation
+  // method is passed a reference to the RenderContext object, so we
+  // want as much RenderContext state as possible to be valid at that
+  // point.
+  //
+  UniquePtr<VolumeInteg> volume_integ;
 };
 
 

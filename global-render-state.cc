@@ -14,6 +14,7 @@
 #include "octree.h"
 #include "grid.h"
 #include "old-integ.h"
+#include "filter-volume-integ.h"
 
 #include "global-render-state.h"
 
@@ -29,7 +30,9 @@ GlobalRenderState::GlobalRenderState (const Scene &_scene,
     sample_gen (make_sample_gen (_params)),
     space_builder_factory (make_space_builder_factory (_params)),
     surface_integ_global_state (
-      make_surface_integ_global_state (_scene, _params))
+      make_surface_integ_global_state (_scene, _params)),
+    volume_integ_global_state (
+      make_volume_integ_global_state (_scene, _params))
 { }
 
 
@@ -54,4 +57,10 @@ SurfaceInteg::GlobalState *
 GlobalRenderState::make_surface_integ_global_state (const Scene &scene, const ValTable &params)
 {
   return new OldInteg::GlobalState (scene, params);
+}
+
+VolumeInteg::GlobalState *
+GlobalRenderState::make_volume_integ_global_state (const Scene &scene, const ValTable &)
+{
+  return new FilterVolumeInteg::GlobalState (scene);
 }
