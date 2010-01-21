@@ -35,9 +35,7 @@ public:
 
     // Return a new surface integrator, allocated in context.
     //
-    virtual SurfaceInteg *make_integrator (SampleSet &sample,
-					   RenderContext &context)
-      = 0;
+    virtual SurfaceInteg *make_integrator (RenderContext &context) = 0;
   };
 
   // Return light from the scene arriving from the direction of RAY at its
@@ -55,9 +53,7 @@ public:
 
 protected:
 
-  SurfaceInteg (SampleSet &samples, RenderContext &_context)
-    : Integ (samples, _context)
-  { }
+  SurfaceInteg (RenderContext &_context) : Integ (_context) { }
 };
 
 

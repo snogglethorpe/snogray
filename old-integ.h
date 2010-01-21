@@ -35,8 +35,7 @@ public:
 
     // Return a new surface integrator, allocated in context.
     //
-    virtual SurfaceInteg *make_integrator (SampleSet &samples,
-					   RenderContext &context);
+    virtual SurfaceInteg *make_integrator (RenderContext &context);
 
   private:
 
@@ -57,9 +56,8 @@ protected:
 
   // Integrator state for rendering a group of related samples.
   //
-  OldInteg (SampleSet &samples, RenderContext &context,
-	    GlobalState &global_state)
-    : SurfaceInteg (samples, context), global (global_state)
+  OldInteg (RenderContext &context, GlobalState &global_state)
+    : SurfaceInteg (context), global (global_state)
   { }
 
 private:

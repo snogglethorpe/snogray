@@ -36,10 +36,9 @@ public:
 
     // Return a new surface integrator, allocated in context.
     //
-    virtual SurfaceInteg *make_integrator (SampleSet &samples,
-					   RenderContext &context)
+    virtual SurfaceInteg *make_integrator (RenderContext &context)
     {
-      return new ZeroSurfaceInteg (samples, context);
+      return new ZeroSurfaceInteg (context);
     }
   };
 
@@ -52,9 +51,7 @@ protected:
 
   // Integrator state for rendering a group of related samples.
   //
-  ZeroSurfaceInteg (SampleSet &samples, RenderContext &context)
-    : SurfaceInteg (samples, context)
-  { }
+  ZeroSurfaceInteg (RenderContext &context) : SurfaceInteg (context) { }
 };
 
 

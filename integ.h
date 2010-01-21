@@ -20,8 +20,6 @@
 namespace snogray {
 
 class Scene;
-class SampleSet;
-class SampleGen;
 class RenderContext;
 
 
@@ -49,11 +47,7 @@ protected:
 
   // Integrator state for rendering a group of related samples.
   //
-  Integ (SampleSet &_samples, RenderContext &_context)
-    : samples (_samples), context (_context)
-  { }
-
-  SampleSet &samples;
+  Integ (RenderContext &_context) : context (_context) { }
 
   RenderContext &context;
 };
