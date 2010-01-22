@@ -13,6 +13,8 @@
 #ifndef __SURFACE_INTEG_H__
 #define __SURFACE_INTEG_H__
 
+#include "sample-set.h"
+
 #include "integ.h"
 
 
@@ -41,7 +43,8 @@ public:
   // Return the color emitted from the ray-surface intersection ISEC.
   // "lo" means "light outgoing".
   //
-  virtual Color lo (const Intersect &isec, unsigned sample_num) const = 0;
+  virtual Color lo (const Intersect &isec, const SampleSet::Sample &sample)
+    const = 0;
 
 protected:
 

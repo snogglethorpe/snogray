@@ -124,8 +124,10 @@ Renderer::render_pixel (int x, int y)
 
   for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
-      UV camera_samp = samples.get (camera_samples, snum);
-      UV focus_samp = samples.get (focus_samples, snum);
+      SampleSet::Sample sample (samples, snum);
+
+      UV camera_samp = sample.get (camera_samples);
+      UV focus_samp = sample.get (focus_samples);
 
       // The X/Y coordinates of the specific sample S
       //
@@ -147,12 +149,13 @@ Renderer::render_pixel (int x, int y)
       const Surface::IsecInfo *isec_info
 	= scene.intersect (intersected_ray, context);
 
+
       Tint tint;
       if (isec_info)
 	{
 	  Trace trace (isec_info->ray, context.default_medium);
 	  Intersect isec = isec_info->make_intersect (trace, context);
-	  tint = surface_integ.lo (isec, snum);
+	  tint = surface_integ.lo (isec, sample);
 	}
       else
 	tint = scene.background_with_alpha (camera_ray);
@@ -160,7 +163,7 @@ Renderer::render_pixel (int x, int y)
       tint *= volume_integ.transmittance (intersected_ray,
 					  context.default_medium);
 
-      tint += volume_integ.li (intersected_ray, context.default_medium, snum);
+      tint += volume_integ.li (intersected_ray, context.default_medium, sample);
 
       context.mempool.reset ();
 

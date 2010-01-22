@@ -13,6 +13,8 @@
 #ifndef __VOLUME_INTEG_H__
 #define __VOLUME_INTEG_H__
 
+#include "sample-set.h"
+
 #include "integ.h"
 
 
@@ -44,7 +46,8 @@ public:
   //
   // "li" means "light incoming" (to ray).
   //
-  virtual Tint li (const Ray &ray, const Medium &medium, unsigned sample_num)
+  virtual Tint li (const Ray &ray, const Medium &medium,
+		   const SampleSet::Sample &sample)
     const = 0;
 
   // Return the amount by which light travelling from the endpoint of RAY
