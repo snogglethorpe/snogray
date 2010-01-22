@@ -179,6 +179,8 @@ private:
   //
   template<typename T>
   const typename std::vector<T>::iterator sample (unsigned offset);
+  template<typename T>
+  const typename std::vector<T>::const_iterator sample (unsigned offset) const;
   
   // Add enough entries to the end of our sample table for samples of
   // type T to hold NUM samples, and return the offset of the
@@ -215,7 +217,7 @@ unsigned
 SampleSet::add_sample_space<UV> (unsigned num_samples);
 
 //
-// Specializations of SampleGen::base_sample for supported sample types.
+// Specializations of SampleGen::sample for supported sample types.
 //
 
 template<>
@@ -228,6 +230,20 @@ SampleSet::sample<float> (unsigned offset)
 template<>
 inline const std::vector<UV>::iterator
 SampleSet::sample<UV> (unsigned offset)
+{
+  return uv_samples.begin() + offset;
+}
+
+template<>
+inline const std::vector<float>::const_iterator
+SampleSet::sample<float> (unsigned offset) const
+{
+  return float_samples.begin() + offset;
+}
+
+template<>
+inline const std::vector<UV>::const_iterator
+SampleSet::sample<UV> (unsigned offset) const
 {
   return uv_samples.begin() + offset;
 }
