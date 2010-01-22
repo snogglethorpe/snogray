@@ -45,13 +45,13 @@ public:
   // "li" means "light incoming" (to ray).
   //
   virtual Tint li (const Ray &ray, const Medium &medium, unsigned sample_num)
-     = 0;
+    const = 0;
 
   // Return the amount by which light travelling from the endpoint of RAY
   // to its origin is attenuated by the intervening volume.  MEDIUM is the
   // medium which the ray travels through.
   //
-  virtual Color transmittance (const Ray &ray, const Medium &medium) = 0;
+  virtual Color transmittance (const Ray &ray, const Medium &medium) const = 0;
 
 protected:
 

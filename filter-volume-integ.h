@@ -50,7 +50,7 @@ public:
   //
   // "li" means "light incoming" (to ray).
   //
-  virtual Tint li (const Ray &, const Medium &, unsigned)
+  virtual Tint li (const Ray &, const Medium &, unsigned) const
   {
     return 0;
   }
@@ -59,7 +59,7 @@ public:
   // to its origin is attenuated by the volume intervening volume.  MEDIUM
   // is the medium which the ray travels through.
   //
-  virtual Color transmittance (const Ray &ray, const Medium &medium)
+  virtual Color transmittance (const Ray &ray, const Medium &medium) const
   {
     return medium.transmittance (ray.length ());
   }
