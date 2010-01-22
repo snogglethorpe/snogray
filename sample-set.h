@@ -80,6 +80,60 @@ public:
   };
 
 
+  // A reference to a single top-level sample in a sample-set.
+  //
+  // This is just a convenient package to hold the set and a
+  // sample-number.
+  //
+  class Sample
+  {
+  public:
+
+    Sample (const SampleSet &_set, unsigned _sample_num)
+      : set (_set), sample_num (_sample_num)
+    { }
+
+    // Return sub-sample SUB_SAMPLE_NUM, from the sample-channel
+    // CHANNEL.  SUB_SAMPLE_NUM may be omitted if there's only one
+    // sample per top-level sample.
+    //
+    template<typename T>
+    T get (const Channel<T> &channel, unsigned sub_sample_num = 0) const
+    {
+      return set.get<T> (channel, sample_num, sub_sample_num);
+    }
+
+    // Return an iterator pointing to the first sub-sample from
+    // sample-channel CHANNEL.
+    //
+    template<typename T>
+    typename std::vector<T>::iterator
+    begin (const Channel<T> &channel) const
+    {
+      return set.begin<T> (channel, sample_num);
+    }
+
+    // Return an iterator pointing just past the end of the last
+    // sub-sample for top-level sample SAMPLE_NUM from the sample channel
+    // CHANNEL.
+    //
+    template<typename T>
+    typename std::vector<T>::iterator
+    end (const Channel<T> &channel, unsigned sample_num) const
+    {
+      return set.end<T> (channel, sample_num);
+    }
+
+    // The SampleSet this sample is from.
+    //
+    const SampleSet &set;
+
+    // The top-level sample-number of this sample in SET.
+    //
+    unsigned sample_num;
+  };
+
+
   // Construct a new sample set, using the specified sample generator.
   //
   SampleSet (unsigned _num_samples, SampleGen &_gen)
