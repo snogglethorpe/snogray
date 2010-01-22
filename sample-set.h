@@ -94,6 +94,7 @@ public:
   template<typename T>
   T get (const Channel<T> &channel,
 	 unsigned sample_num, unsigned sub_sample_num = 0)
+    const
   {
     return sample<T> (channel.base_offset)
       [sample_num * channel.size + sub_sample_num];
