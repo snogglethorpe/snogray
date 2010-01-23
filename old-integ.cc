@@ -36,6 +36,8 @@ OldInteg::GlobalState::GlobalState (const Scene &_scene, const ValTable &params)
 	illum_mgr.add_illum (new RecursIllum (scene), 0);
       else if (algo == "rt" || algo == "ray-trace" || algo == "raytrace")
 	illum_mgr.add_illum (new RecursIllum (scene), IllumSample::SPECULAR);
+      else if (algo == "direct")
+	;
       else
 	throw std::runtime_error ("Unknown algorithm \"" + algo + "\"");
     }
