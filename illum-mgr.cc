@@ -268,7 +268,7 @@ IllumMgr::lo (const Intersect &isec) const
 			 : scene.horizon);
 
 		    ShadowRay ray (isec, isec.normal_frame.from (s->dir),
-				   min_dist, max_dist, s->light);
+				   min_dist, max_dist);
 
 		    // XXX HACK: the "no_self_shadowing" flag in ISEC can be
 		    // incorrect for refractive samples, so temporarily turn

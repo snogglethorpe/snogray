@@ -40,8 +40,7 @@ DirectIllum::shadow_test (const Intersect &isec,
 	dist_t max_dist
 	  = s->light_dist ? s->light_dist - min_dist : scene.horizon;
 
-	ShadowRay ray (isec, isec.normal_frame.from (s->dir),
-		       min_dist, max_dist, s->light);
+	ShadowRay ray (isec, isec.normal_frame.from (s->dir), min_dist, max_dist);
 
 	if (scene.intersects (ray, context))
 	  s->light_val = 0;

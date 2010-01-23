@@ -1,6 +1,6 @@
 // shadow-ray.h -- Special type of Ray used for shadowing calculations
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,9 +22,6 @@
 namespace snogray {
 
 
-class Light;
-
-
 // A shadow ray is a subclass of Ray used in shadowing calculations; it
 // carries some additional miscellaneous info which can sometimes be
 // useful.
@@ -33,27 +30,24 @@ class ShadowRay : public Ray
 {
 public:
 
-  // Make a shadow ray.  Note that the light is optional, and is only used
-  // for optimization purposes.
+  // Make a shadow ray.
   //
   ShadowRay (const Intersect &_isec, const Vec &light_dir,
-	     dist_t min_dist, dist_t max_dist,
-	     const Light *_light = 0)
-    : Ray (_isec.normal_frame.origin, light_dir, min_dist, max_dist),
-      isec (_isec), light (_light)
+	     dist_t min_dist, dist_t max_dist)
+    : Ray (_isec.normal_frame.origin, light_dir, min_dist, max_dist), isec (_isec)
   { }
 
   // Ray-to-shadow-ray conversion.
   //
-  ShadowRay (const Ray &ray, const Intersect &_isec, const Light *_light = 0)
-    : Ray (ray), isec (_isec), light (_light)
+  ShadowRay (const Ray &ray, const Intersect &_isec)
+    : Ray (ray), isec (_isec)
   { }
 
   // Ray transformation.
   //
   ShadowRay operator* (const XformBase<dist_t> &xform) const
   {
-    return ShadowRay (as_ray() * xform, isec, light);
+    return ShadowRay (as_ray() * xform, isec);
   }
 
   // Return a reference to our Ray base-class.  This is useful for
@@ -68,10 +62,6 @@ public:
   // Intersection from which the shadow-ray came.
   //
   const Intersect &isec;
-
-  // Light to which the shadow-ray is associated.  This may be zero.
-  //
-  const Light *light;
 };   
 
 
