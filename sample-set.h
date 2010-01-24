@@ -107,7 +107,7 @@ public:
     // sample-channel CHANNEL.
     //
     template<typename T>
-    typename std::vector<T>::iterator
+    typename std::vector<T>::const_iterator
     begin (const Channel<T> &channel) const
     {
       return set.begin<T> (channel, sample_num);
@@ -118,8 +118,8 @@ public:
     // CHANNEL.
     //
     template<typename T>
-    typename std::vector<T>::iterator
-    end (const Channel<T> &channel, unsigned sample_num) const
+    typename std::vector<T>::const_iterator
+    end (const Channel<T> &channel) const
     {
       return set.end<T> (channel, sample_num);
     }
@@ -158,7 +158,7 @@ public:
   // sample SAMPLE_NUM from the sample channel CHANNEL.
   //
   template<typename T>
-  typename std::vector<T>::iterator
+  typename std::vector<T>::const_iterator
   begin (const Channel<T> &channel, unsigned sample_num) const
   {
     return sample<T> (channel.base_offset) + (sample_num * channel.size);
@@ -169,7 +169,7 @@ public:
   // CHANNEL.
   //
   template<typename T>
-  typename std::vector<T>::iterator
+  typename std::vector<T>::const_iterator
   end (const Channel<T> &channel, unsigned sample_num) const
   {
     return begin (channel, sample_num) + channel.size;
