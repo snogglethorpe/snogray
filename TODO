@@ -1,5 +1,31 @@
 Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
+* TODO Implement better integrators
+
+  "OldInteg" is overly complicated, hard to control, and probably wrong.
+  It should be removed once there's a decent replacement.
+
+  * TODO Simple direct integrator
+
+  * TODO Path-tracing integrator
+
+  * TODO Photon-mapping integrator
+
+* TODO Figure out the whole damn cos-wo thing
+
+  Some BRDF formulations include an implicit cos-wo term (to correct for
+  projected area; "wo" is the angle between the surface normal and the
+  light source), whereas others don't, and only include the raw BRDF
+  function, but it's very confusing which is which, as sometimes this
+  term is actually hidden deep within the BRDF formulas for efficiency.
+
+  Ugh.  I'm totally confused by it, as I don't really understand the
+  math behind half the BRDFs out there, but it has to be sorted out so
+  everything's correct.
+
+  Plan: BRDF sampling and evaluation functions should only use the raw
+  function, and let the integrators deal with adding the cos-wo term.
+
 * TODO Efficient Global Illumination.
 
   * TODO Photon mapping, as described by Henrik Wann Jensen
