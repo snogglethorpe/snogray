@@ -51,9 +51,11 @@ public:
 
   ~Intersect ();
 
-  // Returns the cosine of the angle between the surface normal and VEC.
+  // Return the cosine of the angle between the surface normal and VEC.
   // VEC must be in this intersection's normal frame, and must be
   // normalized.
+  //
+  // If VEC is a null vector, containing all zeroes, then return 0.
   //
   dist_t cos_n (const Vec &vec) const
   {
@@ -63,13 +65,15 @@ public:
     return vec.z;
   }
 
-  // Returns the cosine of the angle between the geometric surface
-  // normal and VEC.  VEC must be in this intersection's normal frame,
-  // and must be normalized.
+  // Return the cosine of the angle between the geometric surface normal
+  // and VEC.  VEC must be in this intersection's normal frame, and must
+  // be normalized.
   //
   // This may be different from Intersect::cos_n when the surface normal
   // has been perturbed due to bump-mapping or normal interpolation in
   // meshes.
+  //
+  // If VEC is a null vector, containing all zeroes, then return 0.
   //
   dist_t cos_geom_n (const Vec &vec) const
   {
@@ -78,9 +82,11 @@ public:
     return dot (vec, geom_n);
   }
 
-  // Returns the cosine of the angle between the viewing direction and VEC.
-  // VEC must be in this intersection's normal frame, and must be
+  // Return the cosine of the angle between the viewing direction and
+  // VEC.  VEC must be in this intersection's normal frame, and must be
   // normalized.
+  //
+  // If VEC is a null vector, containing all zeroes, then return 0.
   //
   dist_t cos_v (const Vec &vec) const
   {
