@@ -1,6 +1,6 @@
 -- snogray.lua -- Lua scene interface for snogray
 --
---  Copyright (C) 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -232,8 +232,7 @@ end
 
 local color_keys = set{
    'r', 'red', 'g', 'green', 'b', 'blue', 'grey', 'gray',
-   'i', 'intens', 'intensity', 'bright', 'brightness',
-   's', 'scale'
+   'i', 'intens', 'intensity', 'bright', 'brightness'
 }
 
 function is_color_spec (obj)
