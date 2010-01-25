@@ -48,9 +48,9 @@ public:
   // its origin and arriving at its origin.  MEDIUM is the medium which the
   // ray travels through.  SAMPLE_NUM is the sample to use.
   //
-  // "li" means "light incoming" (to ray).
+  // "Li" means "Light incoming" (to ray).
   //
-  virtual Tint li (const Ray &, const Medium &, const SampleSet::Sample &) const
+  virtual Tint Li (const Ray &, const Medium &, const SampleSet::Sample &) const
   {
     return 0;
   }

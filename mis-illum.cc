@@ -62,7 +62,7 @@ mis_sample_weight (float pdf, float num_samples,
 // ILLUM_MGR can be used for recursively calculating illumination.
 //
 Color
-MisIllum::lo (const Intersect &isec,
+MisIllum::Lo (const Intersect &isec,
 	      const IllumSampleVec::iterator &brdf_samples_beg,
 	      const IllumSampleVec::iterator &brdf_samples_end,
 	      unsigned num_brdf_samples,

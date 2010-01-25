@@ -28,7 +28,7 @@ using namespace snogray;
 // ILLUM_MGR can be used for recursively calculating illumination.
 //
 Color
-RecursIllum::lo (const Intersect &isec,
+RecursIllum::Lo (const Intersect &isec,
 		 const IllumSampleVec::iterator &brdf_samples_beg,
 		 const IllumSampleVec::iterator &brdf_samples_end,
 		 unsigned num_brdf_samples,
@@ -128,7 +128,7 @@ RecursIllum::lo (const Intersect &isec,
 
 	    // Calculate the appearance of the point on the surface we hit
 	    //
-	    val = illum_mgr.lo (isec);
+	    val = illum_mgr.Lo (isec);
 
 	    // If we are looking through something other than air,
 	    // attentuate the surface appearance due to transmission

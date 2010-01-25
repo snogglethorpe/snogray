@@ -155,7 +155,7 @@ Renderer::render_pixel (int x, int y)
 	{
 	  Trace trace (isec_info->ray, context.default_medium);
 	  Intersect isec = isec_info->make_intersect (trace, context);
-	  tint = surface_integ.lo (isec, sample);
+	  tint = surface_integ.Lo (isec, sample);
 	}
       else
 	tint = scene.background_with_alpha (camera_ray);
@@ -163,7 +163,7 @@ Renderer::render_pixel (int x, int y)
       tint *= volume_integ.transmittance (intersected_ray,
 					  context.default_medium);
 
-      tint += volume_integ.li (intersected_ray, context.default_medium, sample);
+      tint += volume_integ.Li (intersected_ray, context.default_medium, sample);
 
       context.mempool.reset ();
 

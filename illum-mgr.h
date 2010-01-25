@@ -1,6 +1,6 @@
 // illum-mgr.h -- Sample-based manager for illuminators
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,9 +35,9 @@ public:
   virtual ~IllumMgr () { }
 
   // Return the color emitted from the ray-surface intersection ISEC.
-  // "lo" means "light outgoing".
+  // "Lo" means "Light outgoing".
   //
-  Color lo (const Intersect &isec) const;
+  Color Lo (const Intersect &isec) const;
 
   // Add the illuminator ILLUM to the list of illuminators.  It will be
   // applied only to BRDF samples who have some flags in MASK which are

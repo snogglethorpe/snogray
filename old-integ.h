@@ -45,11 +45,11 @@ public:
   };
 
   // Return the color emitted from the ray-surface intersection ISEC.
-  // "lo" means "light outgoing".
+  // "Lo" means "Light outgoing".
   //
-  virtual Color lo (const Intersect &isec, const SampleSet::Sample &) const
+  virtual Color Lo (const Intersect &isec, const SampleSet::Sample &) const
   {
-    return global.illum_mgr.lo (isec);
+    return global.illum_mgr.Lo (isec);
   }
 
 protected:

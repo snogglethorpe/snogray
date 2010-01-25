@@ -80,10 +80,10 @@ IllumMgr::IllumHandler::partition_samples (IllumSampleVec::iterator beg,
 // IllumMgr::lo
 
 // Return the color emitted from the ray-intersection ISEC.
-// "lo" means "light outgoing".
+// "Lo" means "Light outgoing".
 //
 Color
-IllumMgr::lo (const Intersect &isec) const
+IllumMgr::Lo (const Intersect &isec) const
 {
   RenderContext &context = isec.context;
   const Scene &scene = context.scene;
@@ -387,7 +387,7 @@ IllumMgr::lo (const Intersect &isec) const
 
       // Call the illuminator with the BRDF samples it wanted.
       //
-      radiance += ih->illum->lo (isec, bs_beg, bs_end, num_brdf_samples, *this);
+      radiance += ih->illum->Lo (isec, bs_beg, bs_end, num_brdf_samples, *this);
 
       // Advance BS_BEG for the next illuminator.
       //

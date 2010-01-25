@@ -1,6 +1,6 @@
 // illum.h -- Illuminator
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ public:
   //
   // ILLUM_MGR can be used for recursively calculating illumination.
   //
-  virtual Color lo (const Intersect &isec,
+  virtual Color Lo (const Intersect &isec,
 		    const IllumSampleVec::iterator &brdf_samples_beg,
 		    const IllumSampleVec::iterator &brdf_samples_end,
 		    unsigned num_brdf_samples,
