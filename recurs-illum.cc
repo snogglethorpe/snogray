@@ -137,6 +137,8 @@ RecursIllum::lo (const Intersect &isec,
 	    val *= context.volume_integ->transmittance (s->isec_info->ray,
 							*new_medium);
 
+	    val *= abs (isec.cos_n (s->dir));
+
 	    val *= rr_adj;
 	  }
 	else

@@ -42,28 +42,54 @@ public:
     //
     Vec xmit_dir = (-isec.v).refraction (Vec (0, 0, 1), old_ior, new_ior);
 
-    // Proportion of transmitted light, 0-1.  Note that in the case of total
-    // internal reflection, XMIT_DIR will be a null vector (all zeros).
+    // The cosine of the angle between the transmitted ray and the
+    // reverse-surface-normal (on the transmission side of the
+    // material).
     //
-    float xmit = (xmit_dir.null() ? 0 : transmittance (-isec.cos_n (xmit_dir)));
+    // Since that angle is 180 minus the angle with the front-surface
+    // normal, we just calculate the cosine of the latter instead, and
+    // then negate it, as cos (180 - theta) = -cos (theta).
+    //
+    // In the case of total internal reflection, XMIT_DIR will be a null
+    // vector, which will cause Intersect::cos_n to return zero.
+    //
+    float cos_xmit_angle = -isec.cos_n (xmit_dir);
 
-    // Proportion of reflected light, 0-1
+    // The cosine of the angle between the reflected ray and the surface
+    // normal.  For reflection this angle is the same as the angle
+    // between the view ray and the normal.
     //
-    float refl = reflectance (isec.cos_n (isec.v));
+    float cos_refl_angle = isec.cos_n (isec.v);
 
-    // Transmitted sample.
-    //
-    if (xmit > Eps)
-      samples.push_back (
-		IllumSample (xmit_dir, xmit, 0,
-			     IllumSample::SPECULAR|IllumSample::TRANSMISSIVE));
+    if (cos_xmit_angle != 0)
+      {
+	// Proportion of transmitted light.
+	//
+	float xmit = transmittance (cos_xmit_angle) / cos_xmit_angle;
 
-    // Reflected sample.
-    //
-    if (refl > Eps)
-      samples.push_back (
-		IllumSample (isec.v.mirror (Vec (0, 0, 1)), refl, 0,
-			     IllumSample::SPECULAR|IllumSample::REFLECTIVE));
+	// Transmitted sample.
+	//
+	if (xmit > Eps)
+	  samples.push_back (
+		    IllumSample (xmit_dir, xmit, 0,
+				 IllumSample::SPECULAR
+				 |IllumSample::TRANSMISSIVE));
+      }
+
+    if (cos_refl_angle != 0)
+      {
+	// Proportion of reflected light.
+	//
+	float refl = reflectance (cos_refl_angle) / cos_refl_angle;
+
+	// Reflected sample.
+	//
+	if (refl > Eps)
+	  samples.push_back (
+		    IllumSample (isec.v.mirror (Vec (0, 0, 1)), refl, 0,
+				 IllumSample::SPECULAR
+				 |IllumSample::REFLECTIVE));
+      }
 
     // All our samples are specular, which "don't count".
     //

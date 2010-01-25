@@ -1,6 +1,6 @@
 // cook-torrance.cc -- Cook-Torrance material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -46,7 +46,8 @@ public:
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.trace.medium.ior, ct.ior),
-      nv (isec.cos_n (isec.v)), inv_pi_nv (nv == 0 ? 0 : INV_PIf / nv),
+      nv (isec.cos_n (isec.v)),
+      inv_4_nv ((nv != 0) ? 1 / (4 * nv) : 0),
       spec_flags (m < GLOSSY_M ? IllumSample::GLOSSY : IllumSample::DIFFUSE)
   { }
 
@@ -118,6 +119,11 @@ private:
   {
     float nh = isec.cos_n (h), nl = isec.cos_n (l);
 
+    // Avoid divide-by-zero if NL == 0.  Not a good situation, but I'm
+    // not sure what else to do...
+    //
+    float inv_nl = (nl != 0) ? (1 / nl) : 0; 
+
     // Angle between view angle and half-way vector (also between
     // light-angle and half-way vector -- lh == vh).
     //
@@ -125,19 +131,19 @@ private:
 
     // The Cook-Torrance specular term is:
     //
-    //    f_s = (F / PI) * D * G / (N dot V)
+    //    f_s = F * D * G / (4 * (N dot V) * (N dot L))
     //
     // We sample the specular term using the D component only, so the pdf
     // is only based on that.
     //
-    float spec = F (vh) * D (nh) * G (vh, nh, nl) * inv_pi_nv;
+    float spec = F (vh) * D (nh) * G (vh, nh, nl) * inv_4_nv * inv_nl;
     float spec_pdf = D_pdf (nh, vh);
 
-    // Diffuse term is a simple lambertian (cosine) distriution, and its
-    // pdf is exact.
+    // Diffuse term is a simple lambertian (cosine) distribution, and
+    // its pdf is constant.
     //
-    float diff = diff_dist.pdf (nl);
-    float diff_pdf = diff;	// identical
+    float diff = INV_PIf;
+    float diff_pdf = diff_dist.pdf (nl);
 
     pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
 
@@ -210,9 +216,10 @@ private:
   //
   const Fresnel fres;
 
-  // (N dot V) and 1 / (PI * N dot V).
+  // N dot V, which is the cosine of the angle between the eye ray (V),
+  // and the surface normal (N), and 1 / (4 * (N dot V)).
   //
-  const float nv, inv_pi_nv;
+  float nv, inv_4_nv;
 
   // IllumSample flags to use for "specular" samples.
   //

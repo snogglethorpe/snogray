@@ -169,6 +169,7 @@ MisIllum::lo (const Intersect &isec,
 		radiance
 		  += (s->light_val * s->brdf_val
 		      * mis_weight * light_sample_weight
+		      * abs (isec.cos_n (s->dir))
 		      / s->light_pdf);
 	      }
 	}
@@ -203,6 +204,7 @@ MisIllum::lo (const Intersect &isec,
 					   s->light_pdf, num_light_samples);
 
 		    val *= mis_weight * sample_weight / s->brdf_pdf;
+		    val *= abs (isec.cos_n (s->dir));
 		  }
 
 		radiance += val;

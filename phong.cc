@@ -1,6 +1,6 @@
 // phong.cc -- Phong material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -89,8 +89,8 @@ private:
     float spec = phong_dist.pdf (nh);
     float spec_pdf = spec / (4 * vh);
 
-    float diff = diff_dist.pdf (nl);
-    float diff_pdf = diff;	// identical
+    float diff = INV_PIf;
+    float diff_pdf = diff_dist.pdf (nl);
 
     pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
 

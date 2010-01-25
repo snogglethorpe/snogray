@@ -1,6 +1,6 @@
 // mirror.cc -- Mirror (reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -48,13 +48,25 @@ public:
   //
   virtual unsigned gen_samples (unsigned num, IllumSampleVec &samples) const
   {
-    // Generate specular sample.
+    // The cosine of the angle between the reflected ray and the surface
+    // normal.  For reflection this angle is the same as the angle
+    // between the view ray and the normal.
     //
-    Color refl = reflectance * fres.reflectance (isec.cos_n (isec.v));
-    if (refl > Eps && isec.cos_geom_n (isec.v) > 0 /* XXX ??? XXX ????  */)
-      samples.push_back (
-		IllumSample (isec.v.mirror (Vec (0, 0, 1)), refl, 0,
-			     IllumSample::SPECULAR|IllumSample::REFLECTIVE));
+    float cos_refl_angle = isec.cos_n (isec.v);
+
+    if (cos_refl_angle != 0)
+      {
+	// Generate specular sample.
+	//
+	Color refl
+	  = reflectance * fres.reflectance (cos_refl_angle) / cos_refl_angle;
+
+	if (refl > Eps && isec.cos_geom_n (isec.v) > 0 /* XXX ??? XXX ????  */)
+	  samples.push_back (
+		    IllumSample (isec.v.mirror (Vec (0, 0, 1)), refl, 0,
+				 IllumSample::SPECULAR
+				 |IllumSample::REFLECTIVE));
+      }
 
     // If we have an underlying BRDF, generate samples from that too.
     //
