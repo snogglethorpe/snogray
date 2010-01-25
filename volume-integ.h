@@ -46,8 +46,8 @@ public:
   //
   // "Li" means "Light incoming" (to ray).
   //
-  virtual Tint Li (const Ray &ray, const Medium &medium,
-		   const SampleSet::Sample &sample)
+  virtual Color Li (const Ray &ray, const Medium &medium,
+		    const SampleSet::Sample &sample)
     const = 0;
 
   // Return the amount by which light travelling from the endpoint of RAY
