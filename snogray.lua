@@ -703,6 +703,9 @@ xform_flip_y = scale (1, -1, 1)
 xform_flip_z = scale (1, 1, -1)
 
 
+xform_identity = scale (1)
+
+
 ----------------------------------------------------------------
 --
 -- Tessellation
