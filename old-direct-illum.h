@@ -1,6 +1,6 @@
-// direct-illum.h -- Direct illuminator
+// old-direct-illum.h -- Direct illuminator
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __DIRECT_ILLUM_H__
-#define __DIRECT_ILLUM_H__
+#ifndef __OLD_DIRECT_ILLUM_H__
+#define __OLD_DIRECT_ILLUM_H__
 
 #include <vector>
 
@@ -26,15 +26,15 @@ class Trace;
 class IllumMgr;
 
 
-class DirectIllum : public Illum
+class OldDirectIllum : public Illum
 {
 public:
 
-  DirectIllum (const Scene &_scene, unsigned _uses)
+  OldDirectIllum (const Scene &_scene, unsigned _uses)
     : Illum (_uses), scene (_scene)
   { }
 
-  virtual ~DirectIllum () { }
+  virtual ~OldDirectIllum () { }
 
   // Do shadow testing on the samples from BEG to END, and set their value
   // to zero if shadowed.
@@ -79,7 +79,7 @@ protected:
 
 }
 
-#endif /* __DIRECT_ILLUM_H__ */
+#endif /* __OLD_DIRECT_ILLUM_H__ */
 
 
 // arch-tag: 8f0e4b8d-3a62-497d-8453-6dda9717342c

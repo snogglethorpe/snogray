@@ -13,18 +13,18 @@
 #ifndef __MIS_ILLUM_H__
 #define __MIS_ILLUM_H__
 
-#include "direct-illum.h"
+#include "old-direct-illum.h"
 
 
 namespace snogray {
 
 
-class MisIllum : public DirectIllum
+class MisIllum : public OldDirectIllum
 {
 public:
 
   MisIllum (const Scene &scene)
-    : DirectIllum (scene,
+    : OldDirectIllum (scene,
 		   USES_BRDF_SAMPLES | USES_DIRECT_INFO | USES_LIGHT_INFO)
   { }
 

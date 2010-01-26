@@ -1,4 +1,4 @@
-// direct-illum.cc -- Direct illumination superclass
+// old-direct-illum.cc -- Direct illumination superclass
 //
 //  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
@@ -14,7 +14,7 @@
 #include "scene.h"
 #include "shadow-ray.h"
 
-#include "direct-illum.h"
+#include "old-direct-illum.h"
 
 
 using namespace snogray;
@@ -24,7 +24,7 @@ using namespace snogray;
 // to zero if shadowed.
 //
 void
-DirectIllum::shadow_test (const Intersect &isec,
+OldDirectIllum::shadow_test (const Intersect &isec,
 			  IllumSampleVec::iterator beg,
 			  IllumSampleVec::iterator end)
   const
@@ -48,7 +48,7 @@ DirectIllum::shadow_test (const Intersect &isec,
 }
 
 
-DirectIllum::LightParamsVec::LightParamsVec (
+OldDirectIllum::LightParamsVec::LightParamsVec (
 			       unsigned num_samples,
 			       const std::vector<const Light *> &lights,
 			       const Intersect &isec)

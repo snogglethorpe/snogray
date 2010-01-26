@@ -137,7 +137,7 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 # Snogray core rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
+libsnogrender_a_SOURCES = old-direct-illum.cc old-direct-illum.h	\
 	direct-integ.cc direct-integ.h filter-volume-integ.h		\
 	global-render-state.cc global-render-state.h grid-iter.h	\
 	grid.cc grid.h illum.h illum-mgr.cc illum-mgr.h illum-sample.h	\
