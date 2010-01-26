@@ -145,25 +145,22 @@ Renderer::render_pixel (int x, int y)
       Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
       camera_ray.t1 = scene.horizon;
 
-      Ray intersected_ray (camera_ray);
       const Surface::IsecInfo *isec_info
-	= scene.intersect (intersected_ray, context);
-
+	= scene.intersect (camera_ray, context);
 
       Tint tint;
       if (isec_info)
 	{
-	  Trace trace (isec_info->ray, context.default_medium);
+	  Trace trace (camera_ray, context.default_medium);
 	  Intersect isec = isec_info->make_intersect (trace, context);
 	  tint = surface_integ.Lo (isec, sample);
 	}
       else
 	tint = scene.background_with_alpha (camera_ray);
 
-      tint *= volume_integ.transmittance (intersected_ray,
-					  context.default_medium);
+      tint *= volume_integ.transmittance (camera_ray, context.default_medium);
 
-      tint += volume_integ.Li (intersected_ray, context.default_medium, sample);
+      tint += volume_integ.Li (camera_ray, context.default_medium, sample);
 
       context.mempool.reset ();
 
