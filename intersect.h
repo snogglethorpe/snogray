@@ -17,7 +17,6 @@
 #include "ray.h"
 #include "frame.h"
 #include "color.h"
-#include "trace.h"
 #include "render-context.h"
 #include "tex-coords.h"
 
@@ -26,6 +25,7 @@ namespace snogray {
 
 class Surface;
 class Material;
+class Trace;
 class Brdf;
 
 
