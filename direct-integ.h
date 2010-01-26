@@ -14,6 +14,7 @@
 #define __DIRECT_INTEG_H__
 
 #include "surface-integ.h"
+#include "direct-illum.h"
 
 
 namespace snogray {
@@ -37,9 +38,9 @@ public:
 
   private:
 
-    unsigned num_light_samples;
-
     friend class DirectInteg;
+
+    DirectIllum::GlobalState direct_illum;
   };
 
   // Return the color emitted from the ray-surface intersection ISEC.
@@ -50,23 +51,6 @@ public:
   {
     return Lo (isec, sample, 0);
   }
-
-  // Given an intersection resulting from a cast ray, sample all lights
-  // in the scene, and return the sum of their contribution in that
-  // ray's direction.
-  //
-  Color sample_all_lights (const Intersect &isec,
-			   const SampleSet::Sample &sample)
-    const;
-
-  // Use multiple-importance-sampling to estimate the radiance of LIGHT
-  // towoards ISEC, using LIGHT_PARAM, BRDF_PARAM, and BRDF_LAYER_PARAM
-  // to sample both the light and the BRDF.
-  //
-  Color estimate_direct (const Intersect &isec, const Light *light,
-			 const UV &light_param,
-			 const UV &brdf_param, float brdf_layer_param)
-    const;
 
 protected:
 
@@ -99,19 +83,9 @@ private:
 	    unsigned depth)
     const;
 
-  GlobalState &global;
-
-  unsigned num_lights;
-
-  // Sample channels for light sampling.
+  // State used by the direct-lighting calculator.
   //
-  SampleSet::ChannelVec<UV> light_samp_channels;
-  SampleSet::Channel<float> light_select_chan;
-
-  // Sample channels for brdf sampling.
-  //
-  SampleSet::ChannelVec<UV> brdf_samp_channels;
-  SampleSet::ChannelVec<float> brdf_layer_channels;
+  DirectIllum direct_illum;
 };
 
 
