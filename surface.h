@@ -51,6 +51,8 @@ public:
   {
   public:
 
+    // XXX get rid RAY argument; see comment below for IsecInfo::ray field
+    //
     IsecInfo (const Ray &_ray) : ray (_ray) { }
     virtual ~IsecInfo () { }
 
@@ -79,6 +81,9 @@ public:
       return &*surface()->material;
     }
 
+    // XXX get rid of this field; possible as soon as we remove the old
+    // rendering infrastructure.
+    //
     Ray ray;
   };
 
