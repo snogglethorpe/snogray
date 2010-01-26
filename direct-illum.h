@@ -44,6 +44,21 @@ public:
 
   DirectIllum (RenderContext &context, GlobalState &global_state);
 
+  // Given an intersection resulting from a cast ray, sample lights
+  // in the scene, and return their contribution in that
+  // ray's direction.
+  //
+  Color sample_lights (const Intersect &isec, const SampleSet::Sample &sample)
+    const
+  {
+    // XXX  For now, just do all lights.  In the future we should add a way
+    // to limit the number of light samples in the case where there are
+    // many lights (e.g., divide the desired number of light samples among
+    // lights in the scene).
+    //
+    return sample_all_lights (isec, sample);
+  }
+
   // Given an intersection resulting from a cast ray, sample all lights
   // in the scene, and return the sum of their contribution in that
   // ray's direction.

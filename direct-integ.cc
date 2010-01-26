@@ -69,7 +69,7 @@ DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
     {
       // Include non-specular direct lighting.
       //
-      radiance += direct_illum.sample_all_lights (isec, sample);
+      radiance += direct_illum.sample_lights (isec, sample);
 
       //
       // If the BRDF includes specular components, recurse to handle those.
