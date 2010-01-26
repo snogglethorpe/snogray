@@ -13,6 +13,7 @@
 #include "snogmath.h"
 #include "fresnel.h"
 #include "intersect.h"
+#include "trace.h"
 #include "brdf.h"
 
 #include "glass.h"

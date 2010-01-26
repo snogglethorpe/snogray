@@ -10,9 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "brdf.h"
-#include "fresnel.h"
 #include "intersect.h"
+#include "trace.h"
+#include "fresnel.h"
+#include "brdf.h"
 
 #include "plastic.h"
 

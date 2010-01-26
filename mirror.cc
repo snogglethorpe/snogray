@@ -11,6 +11,7 @@
 //
 
 #include "intersect.h"
+#include "trace.h"
 #include "lambert.h"
 #include "brdf.h"
 
