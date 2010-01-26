@@ -70,6 +70,28 @@ public:
       }
   }
 
+  // Return a sample of this BRDF, based on the parameter PARAM.
+  //
+  virtual Sample sample (const UV &param, unsigned flags) const
+  {
+    if ((flags & (REFLECTIVE|DIFFUSE)) == (REFLECTIVE|DIFFUSE))
+      {
+	float pdf;
+	Vec dir = dist.sample (param.u, param.v, pdf);
+	if (isec.cos_n (dir) > 0 && isec.cos_geom_n (dir) > 0)
+	  return Sample (color * INV_PIf, pdf, dir, REFLECTIVE|DIFFUSE);
+      }
+    return Sample ();
+  }
+
+  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  //
+  virtual Value eval (const Vec &dir) const
+  {
+    float pdf = dist.pdf (isec.cos_n (dir));
+    return Value (color * INV_PIf, pdf);
+  }
+
 private:
 
   Color color;

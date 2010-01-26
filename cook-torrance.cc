@@ -41,14 +41,19 @@ public:
   CookTorranceBrdf (const CookTorrance &ct, const Intersect &_isec)
     : Brdf (_isec),
       m (ct.m.eval (isec)), spec_dist (m), diff_dist (),
-      diff_col (ct.color.eval (isec)), spec_col (ct.specular_color.eval (isec)),
-      diff_weight (diff_col.intensity ()),
+      diff_col (ct.color.eval (isec)),
+      spec_col (ct.specular_color.eval (isec)),
+      diff_intens (diff_col.intensity ()),
+      spec_intens (spec_col.intensity ()),
+      diff_weight (diff_intens / (diff_intens + spec_intens)),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.trace.medium.ior, ct.ior),
       nv (isec.cos_n (isec.v)),
       inv_4_nv ((nv != 0) ? 1 / (4 * nv) : 0),
-      spec_flags (m < GLOSSY_M ? IllumSample::GLOSSY : IllumSample::DIFFUSE)
+      spec_flags (m < GLOSSY_M ? GLOSSY : DIFFUSE),
+      have_surface_flags ((diff_weight > 0 ? DIFFUSE : 0)
+			  | (diff_weight < 1 ? spec_flags : 0))
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.
@@ -60,7 +65,13 @@ public:
 
     float u, v;
     while (grid_iter.next (u, v))
-      gen_sample (u, v, samples);
+      {
+	Sample samp = sample (UV (u, v));
+	if (samp.val > 0)
+	  // XXX note we rely on the values of Brdf::Flags being the same as
+	  // the correponding values in IllumSample::Flags!!
+	  samples.push_back (IllumSample (samp.dir, samp.val, samp.pdf, samp.flags));
+      }
 
     return grid_iter.num_samples ();
   }
@@ -74,6 +85,73 @@ public:
   {
     for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
       filter_sample (s);
+  }
+
+  // Return a sample of this BRDF, based on the parameter PARAM.
+  //
+  virtual Sample sample (const UV &param, unsigned desired_flags = ALL) const
+  {
+    Vec l, h;
+    unsigned flags = REFLECTIVE;
+    float u = param.u, v = param.v;
+
+    if (! (desired_flags & REFLECTIVE))
+      goto fail;
+
+    // Remove all flags except those reflecting surface types we can
+    // support.
+    //
+    desired_flags &= have_surface_flags;
+
+    if (! desired_flags)
+      goto fail;
+
+    if (desired_flags == DIFFUSE || u < diff_weight)
+      {
+	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
+	// that the diffuse range (0 - DIFF_WEIGHT) is mapped to 0 - 1.
+	//
+	if (desired_flags != DIFFUSE)
+	  u = u * inv_diff_weight;
+
+	l = diff_dist.sample (u, v);
+	h = (isec.v + l).unit ();
+	flags |= DIFFUSE;
+      }
+    else
+      {
+	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
+	// that the glossy range (DIFF_WEIGHT - 1) is mapped to 0 - 1.
+	//
+	if (desired_flags != DIFFUSE)
+	  u = (u - diff_weight) * inv_spec_weight;
+
+	h = spec_dist.sample (u, v);
+	if (isec.cos_v (h) < 0)
+	  h = -h;
+	l = isec.v.mirror (h);
+	flags |= spec_flags;
+      }
+
+    if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
+      {
+	float pdf;
+	Color f = val (l, h, pdf);
+	return Sample (f, pdf, l, flags);
+      }
+
+  fail:
+    return Sample ();
+  }
+
+  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  //
+  virtual Value eval (const Vec &dir) const
+  {
+    const Vec h = (isec.v + dir).unit ();
+    float pdf;
+    Color f = val (dir, h, pdf);
+    return Value (f, pdf);
   }
 
 private:
@@ -150,37 +228,6 @@ private:
     return diff_col * diff + spec_col * spec;
   }
 
-  void gen_sample (float u, float v, IllumSampleVec &samples) const
-  {
-    Vec l, h;
-    unsigned flags = IllumSample::REFLECTIVE;
-
-    if (u < diff_weight)
-      {
-	float scaled_u = u * inv_diff_weight;
-	l = diff_dist.sample (scaled_u, v);
-	h = (isec.v + l).unit ();
-	flags |= IllumSample::DIFFUSE;
-      }
-    else
-      {
-	float scaled_u = (u - diff_weight) * inv_spec_weight;
-	h = spec_dist.sample (scaled_u, v);
-	if (isec.cos_v (h) < 0)
-	  h = -h;
-	l = isec.v.mirror (h);
-	flags |= spec_flags;
-      }
-
-    if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
-      {
-	float pdf;
-	Color f = val (l, h, pdf);
-
-	samples.push_back (IllumSample (l, f, pdf, flags));
-      }
-  }
-
   void filter_sample (const IllumSampleVec::iterator &s) const
   {
     const Vec &l = s->dir;
@@ -202,6 +249,11 @@ private:
   //
   Color diff_col, spec_col;
 
+  // Intensity (sum of all color components) of diffuse and specular
+  // components.
+  //
+  float diff_intens, spec_intens;
+
   // Weight used for sampling diffuse component (0 = don't sample
   // diffuse at all, 1 = only sample diffuse).  The "specular" component
   // has a weight of (1 - DIFF_WEIGHT).
@@ -221,9 +273,14 @@ private:
   //
   float nv, inv_4_nv;
 
-  // IllumSample flags to use for "specular" samples.
+  // Brdf flags to use for "specular" samples.
   //
   unsigned spec_flags;
+
+  // The set of Brdf flags for surface types we support; some combination
+  // of DIFFUSE and GLOSSY.
+  //
+  unsigned have_surface_flags;
 };
 
 

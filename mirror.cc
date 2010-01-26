@@ -111,6 +111,54 @@ public:
 	s->brdf_val = 0;
   }
 
+  // Return a sample of this BRDF, based on the parameter PARAM.
+  //
+  virtual Sample sample (const UV &param, unsigned flags) const
+  {
+    if ((flags & (SPECULAR|REFLECTIVE)) == (SPECULAR|REFLECTIVE))
+      {
+	// The cosine of the angle between the reflected ray and the
+	// surface normal.  For reflection this angle is the same as the
+	// angle between the view ray and the normal.
+	//
+	float cos_refl_angle = isec.cos_n (isec.v);
+
+	if (cos_refl_angle != 0)
+	  {
+	    // Generate specular sample.
+	    //
+	    Color refl
+	      = (reflectance
+		 * fres.reflectance (cos_refl_angle) / cos_refl_angle);
+
+	    if (refl > Eps && isec.cos_geom_n (isec.v) > 0 /* XXX ?? XXX ??  */)
+	      return Sample (refl, 1, isec.v.mirror (Vec (0, 0, 1)), 
+			     SPECULAR|REFLECTIVE);
+	    else if (underlying_brdf)
+	      {
+		// We have an underlying BRDF, so generate a sample from that.
+		//
+		Sample samp = underlying_brdf->sample (param, flags);
+
+		// Tweak the result.
+		//
+		samp.val *= remove_specular_reflection (samp.dir);
+
+		return samp;
+	      }
+	  }
+      }
+
+    return Sample ();
+  }
+
+  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  //
+  virtual Value eval (const Vec &) const
+  {
+    return Value ();		// we're specular, so all samples fail
+  }
+
 private:
 
   // Remove from SAMPLES any light reflected by perfect specular reflection.
@@ -120,11 +168,17 @@ private:
     const
   {
     for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
-      {
-	float fres_refl = fres.reflectance (isec.cos_n (s->dir));
-	const Color refl = fres_refl * reflectance;
-	s->brdf_val *= (1 - refl);
-      }
+      s->brdf_val *= remove_specular_reflection (s->dir);
+  }
+
+  // Return an adjust factor to remove any light reflected by perfect
+  // specular reflection.
+  //
+  Color remove_specular_reflection (const Vec &dir) const
+  {
+    float fres_refl = fres.reflectance (isec.cos_n (dir));
+    const Color refl = fres_refl * reflectance;
+    return 1 - refl;
   }
 
   const Brdf *underlying_brdf;

@@ -107,6 +107,94 @@ public:
       s->brdf_val = 0;
   }
 
+  // Return a sample of this BRDF, based on the parameter PARAM.
+  //
+  virtual Sample sample (const UV &param, unsigned flags) const
+  {
+    if (flags & SPECULAR)
+      {
+	// Clear all but the direction flags.  This means it will be
+	// either REFLECTIVE, TRANSMISSIVE, or REFLECTIVE|TRANSMISSIVE.
+	//
+	flags &= SAMPLE_DIR;
+
+	// Direction from which transmitted light comes.
+	//
+	Vec xmit_dir = (-isec.v).refraction (Vec (0, 0, 1), old_ior, new_ior);
+
+	// The cosine of the angle between the transmitted ray and the
+	// reverse-surface-normal (on the transmission side of the
+	// material).
+	//
+	// Since that angle is 180 minus the angle with the front-surface
+	// normal, we just calculate the cosine of the latter instead, and
+	// then negate it, as cos (180 - theta) = -cos (theta).
+	//
+	// In the case of total internal reflection, XMIT_DIR will be a null
+	// vector, which will cause Intersect::cos_n to return zero.
+	//
+	float cos_xmit_angle = -isec.cos_n (xmit_dir);
+
+	// The cosine of the angle between the reflected ray and the surface
+	// normal.  For reflection this angle is the same as the angle
+	// between the view ray and the normal.
+	//
+	float cos_refl_angle = isec.cos_n (isec.v);
+
+	// Proportion of transmitted light.
+	//
+	float xmit = (cos_xmit_angle == 0) ? 0 : transmittance (cos_xmit_angle);
+
+	// Proportion of reflected light.
+	//
+	float refl = (cos_refl_angle == 0) ? 0 : reflectance (cos_refl_angle);
+
+	if (xmit + refl != 0)
+	  {
+	    // Probability we will choose the transmissive direction.
+	    // If the user forced the choice by only passing one of
+	    // TRANSMISSIVE or REFLECTIVE flags, then the probability will
+	    // be 0 or 1 respectively.
+	    //
+	    float xmit_probability
+	      = (flags == TRANSMISSIVE ? 1
+		 : flags == REFLECTIVE ? 0
+		 : xmit / (xmit + refl));
+
+	    // Choose between the two possible directions based on their
+	    // relative strengths.
+	    //
+	    // We also add the appropriate 1 / cos (theta_i) term just
+	    // before returning (so we only need do one expensive division).
+	    //
+	    if (param.u < xmit_probability)
+	      // Transmitted sample.
+	      {
+		if (cos_xmit_angle != 0)
+		  xmit /= cos_xmit_angle;
+		return Sample (xmit, 1, xmit_dir, SPECULAR|TRANSMISSIVE);
+	      }
+	    else
+	      // Reflected sample.
+	      {
+		if (cos_refl_angle != 0)
+		  refl /= cos_refl_angle;
+		return Sample (refl, 1, isec.v.mirror (Vec (0, 0, 1)),
+			       SPECULAR|REFLECTIVE);
+	      }
+	  }
+      }
+
+    return Sample ();
+  }
+
+  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  //
+  virtual Value eval (const Vec &) const
+  {
+    return Value ();		// we're specular, so all samples fail
+  }
+
 private:
 
   // Return the proportion of light which will be transmitted towards the

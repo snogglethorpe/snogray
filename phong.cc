@@ -49,7 +49,13 @@ public:
 
     float u, v;
     while (grid_iter.next (u, v))
-      gen_sample (u, v, samples);
+      {
+	Sample samp = sample (UV (u, v));
+	if (samp.val > 0)
+	  // XXX note we rely on the values of Brdf::Flags being the same as
+	  // the correponding values in IllumSample::Flags!!
+	  samples.push_back (IllumSample (samp.dir, samp.val, samp.pdf, samp.flags));
+      }
 
     return grid_iter.num_samples ();
   }
@@ -97,9 +103,22 @@ private:
     return phong.color * diff + phong.specular_color * spec;
   }
 
-  void gen_sample (float u, float v, IllumSampleVec &samples) const
+  void filter_sample (const IllumSampleVec::iterator &s) const
+  {
+    const Vec &l = s->dir;
+    const Vec h = (isec.v + l).unit ();
+    s->brdf_val = val (l, h, s->brdf_pdf);
+    s->flags |= IllumSample::REFLECTIVE;
+  }
+
+  // Return a sample of this BRDF, based on the parameter PARAM.
+  //
+  virtual Sample sample (const UV &param, unsigned desired_flags = ALL) const
   {
     Vec l, h;
+    unsigned flags = REFLECTIVE;
+    float u = param.u, v = param.v;
+
     if (u < diff_weight)
       {
 	float scaled_u = u * inv_diff_weight;
@@ -115,21 +134,26 @@ private:
 	l = isec.v.mirror (h);
       }
 
-    if (isec.cos_n (l) > 0 && isec.cos_geom_n (l) > 0)
+
+    if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
       {
 	float pdf;
 	Color f = val (l, h, pdf);
-
-	samples.push_back (IllumSample (l, f, pdf, IllumSample::REFLECTIVE));
+	return Sample (f, pdf, l, flags);
       }
+
+    fail:
+      return Sample (0, 0, l, flags);
   }
 
-  void filter_sample (const IllumSampleVec::iterator &s) const
+  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  //
+  virtual Value eval (const Vec &dir) const
   {
-    const Vec &l = s->dir;
-    const Vec h = (isec.v + l).unit ();
-    s->brdf_val = val (l, h, s->brdf_pdf);
-    s->flags |= IllumSample::REFLECTIVE;
+    const Vec h = (isec.v + dir).unit ();
+    float pdf;
+    Color f = val (dir, h, pdf);
+    return Value (f, pdf);
   }
 
   const Phong &phong;
