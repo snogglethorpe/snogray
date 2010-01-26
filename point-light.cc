@@ -1,6 +1,6 @@
 // point-light.cc -- Point light
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -38,6 +38,37 @@ PointLight::gen_samples (const Intersect &isec, unsigned,
     }
   else
     return 0;
+}
+
+
+
+// Return a sample of this light from the viewpoint of ISEC (using a
+// surface-normal coordinate system, where the surface normal is
+// (0,0,1)), based on the parameter PARAM.
+//
+Light::Sample
+PointLight::sample (const Intersect &isec, const UV &) const
+{
+  Vec lvec = isec.normal_frame.to (pos);
+
+  if (isec.cos_n (lvec) > 0 && isec.cos_geom_n (lvec) > 0)
+    {
+      dist_t dist = lvec.length ();
+      Vec s_dir = lvec / dist;
+      return Sample (dist * dist, 1, s_dir, dist);
+    }
+
+  return Sample ();
+}
+
+// Evaluate this light in direction DIR from the viewpoint of ISEC (using
+// a surface-normal coordinate system, where the surface normal is
+// (0,0,1)).
+//
+Light::Value
+PointLight::eval (const Intersect &, const Vec &) const
+{
+  return Value ();  // DIR will always fail to point exactly to th
 }
 
 

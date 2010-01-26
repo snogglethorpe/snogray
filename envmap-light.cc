@@ -1,6 +1,6 @@
 // envmap-light.cc -- Lighting from an environment map
 //
-//  Copyright (C) 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -285,6 +285,170 @@ EnvmapLight::filter_samples (const Intersect &isec,
 	s->light_pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
 	s->light = this;
       }
+}
+
+
+
+// Return a sample of this light from the viewpoint of ISEC (using a
+// surface-normal coordinate system, where the surface normal is
+// (0,0,1)), based on the parameter PARAM.
+//
+Light::Sample
+EnvmapLight::sample (const Intersect &isec, const UV &param) const
+{
+  float intens_frac = isec.context.params.envlight_intens_frac;
+  float hemi_frac = 1 - intens_frac;
+
+  float inv_hemi_frac = (hemi_frac == 0) ? 0 : 1 / hemi_frac;
+  float inv_intens_frac = (hemi_frac == 1) ? 0 : 1 / intens_frac;
+
+  // True if we should use high-resolution intensity data.  Doing so
+  // gives better results for specular reflections from very glossy
+  // surfaces, but also results in more noise (variance) because the
+  // intensity data doesn't precisely match the PDF (this is especially
+  // noticeable for matte surfaces, where the increased accuracy doesn't
+  // matter anyway).
+  //
+  // As a compromise, we currently use high-res intensity data for BRDF
+  // samples (glossy surfaces will have tightly-grouped BRDF samples, so
+  // inaccuracies in the intensity of BRDF samples will be more
+  // obvious), but not for light samples (the main result of not using
+  // hires data for light samples will be slightly inaccurate shadow
+  // details, but this is usually much less obvious that inaccurate
+  // glossy reflections).
+  //
+  // A further improvement would be to never use high-resolution data
+  // for obviously non-glossy surfaces (lambertian, etc).
+  //
+  bool use_hires_intens = false;
+
+  CosDist hemi_dist;
+
+  // The intensity of this sample.
+  //
+  Color intens;
+
+  // The pdf in the light's intensity distribution for this sample.
+  //
+  float intens_pdf;
+
+  // The direction of this sample in the normal frame, and in the world
+  // frame.
+  //
+  Vec dir, world_dir;
+
+  float u = param.u, v = param.v;
+
+  // Choose hemi or intensity sampling based on the V parameter.
+  //
+  if (v < hemi_frac)
+    {
+      // Map U,V to the hemisphere around ISEC's normal, with
+      // distribution HEMI_DIST.
+
+      float rescaled_v = v * inv_hemi_frac;
+
+      dir = hemi_dist.sample (u, rescaled_v);
+      world_dir = isec.normal_frame.from (dir);
+
+      UV map_pos = LatLongMapping::map (world_dir);
+
+      intens = intensity (map_pos.u, map_pos.v, intens_pdf);
+    }
+  else
+    {
+      // Map U,V to a direction (which may be anywhere in the
+      // sphere) based on the light's intensity distribution.
+
+      float rescaled_v = (v - hemi_frac) * inv_intens_frac;
+
+      UV map_pos = intensity_sample (u, rescaled_v, intens, intens_pdf);
+
+      world_dir = LatLongMapping::map (map_pos);
+      dir = isec.normal_frame.to (world_dir);
+
+      // If this sample is in the wrong hemisphere, throw it away.
+      //
+      if (isec.cos_n (dir) < 0 || isec.cos_geom_n (dir) < 0)
+	return Sample ();
+    }
+
+  // If using "high-resolution intensity mode", get the actual intensity
+  // from the environment map, which is more accurate.
+  //
+  if (use_hires_intens)
+    intens = envmap->map (world_dir);
+
+  // The intensity distribution covers the entire sphere, so adjust
+  // the pdf to reflect that.
+  //
+  intens_pdf *= 0.25f * INV_PIf;
+
+  float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
+  float pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
+
+  return Sample (intens, pdf, dir, 0);
+}
+
+// Evaluate this light in direction DIR from the viewpoint of ISEC (using
+// a surface-normal coordinate system, where the surface normal is
+// (0,0,1)).
+//
+Light::Value
+EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
+{
+  float intens_frac = isec.context.params.envlight_intens_frac;
+  float hemi_frac = 1 - intens_frac;
+
+  // True if we should use high-resolution intensity data.  Doing so
+  // gives better results for specular reflections from very glossy
+  // surfaces, but also results in more noise (variance) because the
+  // intensity data doesn't precisely match the PDF (this is especially
+  // noticeable for matte surfaces, where the increased accuracy doesn't
+  // matter anyway).
+  //
+  // As a compromise, we currently use high-res intensity data for BRDF
+  // samples (glossy surfaces will have tightly-grouped BRDF samples, so
+  // inaccuracies in the intensity of BRDF samples will be more
+  // obvious), but not for light samples (the main result of not using
+  // hires data for light samples will be slightly inaccurate shadow
+  // details, but this is usually much less obvious that inaccurate
+  // glossy reflections).
+  //
+  // A further improvement would be to never use high-resolution data
+  // for obviously non-glossy surfaces (lambertian, etc).
+  //
+  bool use_hires_intens = true;
+
+  CosDist hemi_dist;
+
+  // The sample direction in the world frame of reference.
+  //
+  Vec world_dir = isec.normal_frame.from (dir);
+
+  // Find S's direction in our light map.
+  //
+  UV map_pos = LatLongMapping::map (world_dir);
+
+  // Look up the intensity at that point.
+  //
+  float intens_pdf;
+  Color intens = intensity (map_pos.u, map_pos.v, intens_pdf);
+
+  // If using "high-resolution intensity mode", get the actual
+  // intensity from the environment map, which is more accurate.
+  //
+  if (use_hires_intens)
+    intens = envmap->map (world_dir);
+
+  // The intensity distribution covers the entire sphere, so adjust
+  // the pdf to reflect that.
+  //
+  intens_pdf *= 0.25f * INV_PIf;
+
+  float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
+
+  return Value (intens, hemi_frac * hemi_pdf + intens_frac * intens_pdf, 0);
 }
 
 

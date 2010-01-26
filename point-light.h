@@ -1,6 +1,6 @@
 // point-light.h -- Point light
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -44,6 +44,18 @@ public:
   {
     // A point light can never be hit by an externally generated sample.
   }
+
+  // Return a sample of this light from the viewpoint of ISEC (using a
+  // surface-normal coordinate system, where the surface normal is
+  // (0,0,1)), based on the parameter PARAM.
+  //
+  virtual Sample sample (const Intersect &isec, const UV &param) const;
+
+  // Evaluate this light in direction DIR from the viewpoint of ISEC (using
+  // a surface-normal coordinate system, where the surface normal is
+  // (0,0,1)).
+  //
+  virtual Value eval (const Intersect &isec, const Vec &dir) const;
 
   // Return true if this is a point light.
   //

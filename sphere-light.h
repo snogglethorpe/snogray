@@ -1,6 +1,6 @@
 // sphere-light.h -- Spherical light
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -43,6 +43,18 @@ public:
 			       const IllumSampleVec::iterator &beg_sample,
 			       const IllumSampleVec::iterator &end_sample)
     const;
+
+  // Return a sample of this light from the viewpoint of ISEC (using a
+  // surface-normal coordinate system, where the surface normal is
+  // (0,0,1)), based on the parameter PARAM.
+  //
+  virtual Sample sample (const Intersect &isec, const UV &param) const;
+
+  // Evaluate this light in direction DIR from the viewpoint of ISEC (using
+  // a surface-normal coordinate system, where the surface normal is
+  // (0,0,1)).
+  //
+  virtual Value eval (const Intersect &isec, const Vec &dir) const;
 
   // Location and size of the light.
   //
