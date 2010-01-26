@@ -10,10 +10,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "mis-illum.h"
+#include "excepts.h"
 #include "octree.h"
 #include "grid.h"
 #include "old-integ.h"
+#include "direct-integ.h"
 #include "filter-volume-integ.h"
 
 #include "global-render-state.h"
@@ -54,9 +55,18 @@ GlobalRenderState::make_space_builder_factory (const ValTable &)
 }
 
 SurfaceInteg::GlobalState *
-GlobalRenderState::make_surface_integ_global_state (const Scene &scene, const ValTable &params)
+GlobalRenderState::make_surface_integ_global_state (const Scene &scene,
+						    const ValTable &params)
 {
-  return new OldInteg::GlobalState (scene, params);
+  std::string sint
+    = params.get_string ("surface-integrator,surface-integ,sint", "old");
+  
+  if (sint == "direct")
+    return new DirectInteg::GlobalState (scene, params);
+  else if (sint == "old")
+    return new OldInteg::GlobalState (scene, params);
+  else
+    throw std::runtime_error ("Unknown surface-integrator \"" + sint + "\"");
 }
 
 VolumeInteg::GlobalState *
