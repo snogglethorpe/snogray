@@ -81,49 +81,11 @@ RecursIllum::Lo (const Intersect &isec,
 		  continue;
 	      }
 
-	    // Calculate the type of the new trace segment, and its medium.
-	    //
-	    Trace::Type subtrace_type;
-	    const Medium *new_medium;
-	    if (s->flags & IllumSample::REFLECTIVE)
-	      {
-		subtrace_type = Trace::REFLECTION;
-		new_medium = &isec.trace.medium; // reflection, new same as old
-	      }
-	    else
-	      {
-		// Must be transmissive
-
-		assert (s->flags & IllumSample::TRANSMISSIVE,
-			"RecursIllum::lo -- sample has no direction");
-
-		subtrace_type
-		  = isec.back ? Trace::REFRACTION_OUT : Trace::REFRACTION_IN;
-
-		if (! calculated_refr_medium)
-		  {
-		    if (isec.back)
-		      refr_medium
-			= &isec.trace.enclosing_medium (context.default_medium);
-		    else
-		      {
-			refr_medium = isec.material->medium ();
-			if (! refr_medium)
-			  refr_medium = &isec.trace.medium;
-		      }
-
-		    calculated_refr_medium = true;
-		  }
-
-		new_medium = refr_medium;
-	      }
-	    assert (new_medium, "RecursIllum::lo -- zero medium");
-
-	    Trace sub_trace (subtrace_type, s->isec_info->ray, *new_medium,
-			     branch_factor, isec.trace);
-
 	    // Get more intersection info.
 	    //
+	    Trace sub_trace (isec, s->isec_info->ray,
+			     (s->flags & IllumSample::TRANSMISSIVE),
+			     branch_factor);
 	    Intersect isec = s->isec_info->make_intersect (sub_trace, context);
 
 	    // Calculate the appearance of the point on the surface we hit
@@ -135,7 +97,7 @@ RecursIllum::Lo (const Intersect &isec,
 	    // through the current medium.
 	    //
 	    val *= context.volume_integ->transmittance (s->isec_info->ray,
-							*new_medium);
+							sub_trace.medium);
 
 	    val *= abs (isec.cos_n (s->dir));
 

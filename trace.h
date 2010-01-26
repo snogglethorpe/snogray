@@ -19,6 +19,8 @@
 
 namespace snogray {
 
+class Intersect;
+
 
 // A node in a tracing path.
 //
@@ -46,12 +48,22 @@ public:
 
   // Constructor for a root (camera/eye) Trace.
   //
-  Trace (const Ray &ray, const Medium &_medium);
+  Trace (const Ray &_ray, const Medium &_medium)
+    : source (0), type (SPONTANEOUS), ray (_ray),
+      complexity (1), medium (_medium)
+  { }
 
-  // Constructor for sub-traces
+  // Constructor for a sub-trace eminating from SOURCE_ISEC in the
+  // direction of RAY.  TRANSMISSIVE should be true if RAY is going
+  // through the surface rather than being reflected from it (this
+  // information is theoretically possible to calculate by looking at
+  // the dot-product of RAY's direction with SOURCE_ISEC's surface
+  // normal, but such a calculation can be unreliable in edge cases due
+  // to precision errors).  If supplied, BRANCH_FACTOR gives the
+  // complexity of the sub-trace compared to the prevous trace.
   //
-  Trace (Type type, const Ray &ray, const Medium &_medium, float branch_factor,
-	 const Trace &_source);
+  Trace (const Intersect &source_isec, const Ray &ray,
+	 bool transmissive, float branch_factor = 1.0f);
 
   // Searches back through the trace history to find the enclosing medium.
   // If none is found, returns DEFAULT_MEDIUM.
@@ -97,6 +109,13 @@ public:
   // The medium this trace is through.
   //
   const Medium &medium;
+
+private:
+
+  // Return an appropriate medium for a refractive ray entering or
+  // leaving a surface from SOURCE_ISEC.
+  //
+  const Medium &refraction_medium (const Intersect &source_isec);
 };
 
 

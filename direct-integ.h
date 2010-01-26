@@ -66,21 +66,20 @@ private:
   // This is an internal variant of Integ::lo which has an additional DEPTH
   // argument.  If DEPTH is greater than some limit, recursion will stop.
   //
-  Color Lo (const Intersect &isec, const SampleSet::Sample &sample,
-	    unsigned depth)
+  Color Lo (const Intersect &isec,
+	    const SampleSet::Sample &sample, unsigned depth)
     const;
 
   // Return the light hitting TARGET_ISEC from direction DIR; DIR is in
-  // TARGET_ISEC's surface-normal coordinate-system.  SUBTRACE_TYPE and
-  // SUBTRACE_MEDIUM describe the type of transition represented by the new
-  // ray, and the medium it has entered.  If SUBTRACE_MEDIUM is 0, then
-  // TARGET_ISEC's medium is used instead.
+  // TARGET_ISEC's surface-normal coordinate-system.  TRANSMISSIVE
+  // should be true if RAY is going through the surface rather than
+  // being reflected from it (this information is theoretically possible
+  // to calculate by looking at the dot-product of DIR with
+  // TARGET_ISEC's surface normal, but such a calculation can be
+  // unreliable in edge cases due to precision errors).
   //
-  Color Li (const Intersect &target_isec, const Vec &dir,
-	    const SampleSet::Sample &sample,
-	    Trace::Type subtrace_type,
-	    const Medium *subtrace_medium,
-	    unsigned depth)
+  Color Li (const Intersect &target_isec, const Vec &dir, bool transmissive,
+	    const SampleSet::Sample &sample, unsigned depth)
     const;
 
   // State used by the direct-lighting calculator.

@@ -85,8 +85,7 @@ DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
 	= isec.brdf->sample (UV(0,0), Brdf::SPECULAR|Brdf::REFLECTIVE);
       if (refl_samp.val > 0)
 	radiance
-	  += (Li (isec, refl_samp.dir, sample,
-		  Trace::REFLECTION, 0, depth + 1)
+	  += (Li (isec, refl_samp.dir, false, sample, depth + 1)
 	      * refl_samp.val
 	      * abs (isec.cos_n (refl_samp.dir)));
 
@@ -95,29 +94,10 @@ DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
       Brdf::Sample xmit_samp
 	= isec.brdf->sample (UV(0,0), Brdf::SPECULAR|Brdf::TRANSMISSIVE);
       if (xmit_samp.val > 0)
-	{
-	  Trace::Type subtrace_type;
-	  const Medium *subtrace_medium;
-
-	  if (isec.back)
-	    {
-	      subtrace_type = Trace::REFRACTION_OUT;
-	      subtrace_medium
-		= &isec.trace.enclosing_medium (context.default_medium);
-	    }
-	  else
-	    {
-	      subtrace_type = Trace::REFRACTION_IN;
-	      subtrace_medium = isec.material->medium ();
-	    }
-
-	  radiance
-	    += (Li (isec, xmit_samp.dir, sample,
-		    subtrace_type, subtrace_medium,
-		    depth + 1)
-		* xmit_samp.val
-		* abs (isec.cos_n (xmit_samp.dir)));
-	}
+	radiance
+	  += (Li (isec, xmit_samp.dir, true, sample, depth + 1)
+	      * xmit_samp.val
+	      * abs (isec.cos_n (xmit_samp.dir)));
     }
 
   return radiance;
@@ -127,17 +107,17 @@ DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
 // DirectInteg::Li
 
 // Return the light hitting TARGET_ISEC from direction DIR; DIR is in
-// TARGET_ISEC's surface-normal coordinate-system.  SUBTRACE_TYPE and
-// SUBTRACE_MEDIUM describe the type of transition represented by the new
-// ray, and the medium it has entered.  If SUBTRACE_MEDIUM is 0, then
-// TARGET_ISEC's medium is used instead.
+// TARGET_ISEC's surface-normal coordinate-system.  TRANSMISSIVE should
+// be true if RAY is going through the surface rather than being
+// reflected from it (this information is theoretically possible to
+// calculate by looking at the dot-product of DIR with TARGET_ISEC's
+// surface normal, but such a calculation can be unreliable in edge
+// cases due to precision errors).
 //
 Color
 DirectInteg::Li (const Intersect &target_isec, const Vec &dir,
-		 const SampleSet::Sample &sample,
-		 Trace::Type subtrace_type,
-		 const Medium *subtrace_medium,
-		 unsigned depth)
+		 bool transmissive,
+		 const SampleSet::Sample &sample, unsigned depth)
   const
 {
   if (depth > 5) return 0; // XXX use russian roulette
@@ -151,28 +131,20 @@ DirectInteg::Li (const Intersect &target_isec, const Vec &dir,
 
   const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
 
-  Color radiance;
+  Trace trace (target_isec, isec_ray, transmissive);
+
+  Color radiance;		// light from the recursion
   if (isec_info)
     {
-      if (! subtrace_medium)
-	subtrace_medium = &target_isec.trace.medium;
-
-      Trace trace (subtrace_type, isec_info->ray, *subtrace_medium, 1.f,
-		   target_isec.trace);
-
       Intersect isec = isec_info->make_intersect (trace, context);
-
       radiance = Lo (isec, sample, depth);
     }
   else
     radiance = scene.background_with_alpha (isec_ray).alpha_scaled_color();
 
-  radiance *= context.volume_integ->transmittance (isec_ray,
-						   context.default_medium);
+  radiance *= context.volume_integ->transmittance (isec_ray, trace.medium);
 
-  radiance += context.volume_integ->Li (isec_ray,
-					context.default_medium,
-					sample);
+  radiance += context.volume_integ->Li (isec_ray, trace.medium, sample);
 
   return radiance;
 }
