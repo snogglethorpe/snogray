@@ -39,8 +39,6 @@ RecursIllum::Lo (const Intersect &isec,
 
   float brdf_sample_weight = num_brdf_samples ? 1.f / num_brdf_samples : 1.f;
 
-  const Medium *refr_medium = 0;
-  bool calculated_refr_medium = false;
   unsigned depth = isec.trace.depth ();
 
   bool use_rr
