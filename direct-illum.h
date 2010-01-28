@@ -21,6 +21,8 @@ namespace snogray {
 
 
 class Intersect;
+class ValTable;
+class Light;
 
 
 class DirectIllum
@@ -77,8 +79,6 @@ public:
     const;
 
 private:
-
-  unsigned num_lights;
 
   // Sample channels for light sampling.
   //

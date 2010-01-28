@@ -64,10 +64,10 @@ DirectIllum::GlobalState::GlobalState (const ValTable &params)
 }
 
 DirectIllum::DirectIllum (RenderContext &context, GlobalState &global_state)
-  : num_lights (context.scene.num_lights ()),
-    light_select_chan (context.samples.add_channel<float> ())
+  : light_select_chan (context.samples.add_channel<float> ())
 {
   SampleSet &samples = context.samples;
+  unsigned num_lights = context.scene.num_lights ();
   unsigned num_lsamples = global_state.num_light_samples;
 
   for (unsigned i = 0; i < num_lights; i++)
@@ -91,6 +91,7 @@ DirectIllum::sample_all_lights (const Intersect &isec,
   const
 {
   RenderContext &context = isec.context;
+  unsigned num_lights = context.scene.lights.size ();
 
   context.stats.illum_calls++;
 
