@@ -37,7 +37,7 @@ public:
   // Return the color emitted from the ray-surface intersection ISEC.
   // "Lo" means "Light outgoing".
   //
-  Color Lo (const Intersect &isec) const;
+  Color Lo (const Intersect &isec, float complexity = 1) const;
 
   // Add the illuminator ILLUM to the list of illuminators.  It will be
   // applied only to BRDF samples who have some flags in MASK which are

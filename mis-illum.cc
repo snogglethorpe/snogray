@@ -66,7 +66,7 @@ MisIllum::Lo (const Intersect &isec,
 	      const IllumSampleVec::iterator &brdf_samples_beg,
 	      const IllumSampleVec::iterator &brdf_samples_end,
 	      unsigned num_brdf_samples,
-	      const IllumMgr &)
+	      const IllumMgr &, float complexity)
   const
 {
   const std::vector<const Light *> &lights = scene.lights;
@@ -77,7 +77,7 @@ MisIllum::Lo (const Intersect &isec,
   unsigned global_light_samples = context.params.max_light_samples;
   unsigned local_light_samples = context.params.num_light_samples;
   unsigned desired_light_samples
-    = clamp (unsigned (global_light_samples / isec.trace.complexity + 0.5f),
+    = clamp (unsigned (global_light_samples / complexity + 0.5f),
 	     1u, local_light_samples);
   LightParamsVec light_params (desired_light_samples, lights, isec);
 

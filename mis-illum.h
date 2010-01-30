@@ -39,7 +39,7 @@ public:
 		    const IllumSampleVec::iterator &brdf_samples_beg,
 		    const IllumSampleVec::iterator &brdf_samples_end,
 		    unsigned num_brdf_samples,
-		    const IllumMgr &illum_mgr)
+		    const IllumMgr &illum_mgr, float complexity)
     const;
 };
 
