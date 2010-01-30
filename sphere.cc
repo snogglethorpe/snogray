@@ -42,7 +42,7 @@ Sphere::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Sphere::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
+Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) const
 {
   Pos point = ray.end ();
 
@@ -80,7 +80,7 @@ Sphere::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
   //
   UV dTds (inv_z_circum, 0), dTdt (0, inv_circum * 2);
 
-  Intersect isec (ray, trace, context, sphere,
+  Intersect isec (ray, media, context, sphere,
 		  Frame (point, s, t, norm), T, dTds, dTdt);
 
   isec.no_self_shadowing = !isec.back;

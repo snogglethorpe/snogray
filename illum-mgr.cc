@@ -11,7 +11,7 @@
 //
 
 #include "scene.h"
-#include "trace.h"
+#include "media.h"
 #include "brdf.h"
 
 #include "illum-mgr.h"

@@ -48,11 +48,12 @@ Instance::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Instance::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
+Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
+  const
 {
   // First make an intersection in our subspace.
   //
-  Intersect isec = subspace_isec_info->make_intersect (trace, context);
+  Intersect isec = subspace_isec_info->make_intersect (media, context);
 
   // Now transform parts of it to be in the global space.
   //

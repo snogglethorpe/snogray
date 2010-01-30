@@ -115,8 +115,7 @@ DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
 // cases due to precision errors).
 //
 Color
-DirectInteg::Li (const Intersect &target_isec, const Vec &dir,
-		 bool transmissive,
+DirectInteg::Li (const Intersect &target_isec, const Vec &dir, bool refraction,
 		 const SampleSet::Sample &sample, unsigned depth)
   const
 {
@@ -131,20 +130,20 @@ DirectInteg::Li (const Intersect &target_isec, const Vec &dir,
 
   const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
 
-  Trace trace (target_isec, isec_ray, transmissive);
+  Media media (target_isec, refraction);
 
   Color radiance;		// light from the recursion
   if (isec_info)
     {
-      Intersect isec = isec_info->make_intersect (trace, context);
+      Intersect isec = isec_info->make_intersect (media, context);
       radiance = Lo (isec, sample, depth);
     }
   else
     radiance = scene.background_with_alpha (isec_ray).alpha_scaled_color();
 
-  radiance *= context.volume_integ->transmittance (isec_ray, trace.medium);
+  radiance *= context.volume_integ->transmittance (isec_ray, media.medium);
 
-  radiance += context.volume_integ->Li (isec_ray, trace.medium, sample);
+  radiance += context.volume_integ->Li (isec_ray, media.medium, sample);
 
   return radiance;
 }

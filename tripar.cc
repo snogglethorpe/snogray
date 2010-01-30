@@ -40,7 +40,7 @@ Tripar::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Tripar::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
+Tripar::IsecInfo::make_intersect (const Media &media, RenderContext &context) const
 {
   Pos point = ray.end ();
 
@@ -65,7 +65,7 @@ Tripar::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
   dist_t dvdt = oe2.y ? 1 / oe2.y : 0;
   UV dTds (duds, dvds), dTdt (0, dvdt);
 
-  Intersect isec (ray, trace, context, tripar,
+  Intersect isec (ray, media, context, tripar,
 		  normal_frame, UV (u, v), dTds, dTdt);
 
   isec.no_self_shadowing = true;

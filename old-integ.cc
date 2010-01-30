@@ -26,13 +26,13 @@ OldInteg::GlobalState::GlobalState (const Scene &_scene, const ValTable &params)
 {
   std::string algo = params.get_string ("algo", "rt");
 
-  if (algo == "ppt" || algo == "pure-path-trace" || algo == "purepathtrace")
+  if (algo == "ppt" || algo == "pure-path-media" || algo == "purepathmedia")
     illum_mgr.add_illum (new RecursIllum (scene), 0);
   else
     {
       illum_mgr.add_illum (new MisIllum (scene), IllumSample::DIRECT);
 
-      if (algo == "pt" || algo == "path-trace" || algo == "pathtrace")
+      if (algo == "pt" || algo == "path-media" || algo == "pathtrace")
 	illum_mgr.add_illum (new RecursIllum (scene), 0);
       else if (algo == "rt" || algo == "ray-trace" || algo == "raytrace")
 	illum_mgr.add_illum (new RecursIllum (scene), IllumSample::SPECULAR);

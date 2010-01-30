@@ -13,7 +13,7 @@
 #include "surface.h"
 #include "material.h"
 #include "brdf.h"
-#include "trace.h"
+#include "media.h"
 #include "scene.h"
 #include "render-context.h"
 
@@ -133,7 +133,8 @@ Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
 
 
 
-Intersect::Intersect (const Ray &ray, Trace &_trace, RenderContext &_context,
+Intersect::Intersect (const Ray &ray, const Media &_media,
+		      RenderContext &_context,
 		      const Surface *_surface,
 		      const Frame &_normal_frame,
 		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
@@ -143,12 +144,13 @@ Intersect::Intersect (const Ray &ray, Trace &_trace, RenderContext &_context,
     material (&*_surface->material), brdf (0),
     smoothing_group (0), no_self_shadowing (false),
     tex_coords (normal_frame.origin, _tex_coords),
-    trace (_trace), context (_context)
+    media (_media), context (_context)
 {
   finish_init (ray, dTds, dTdt);
 }
 
-Intersect::Intersect (const Ray &ray, Trace &_trace, RenderContext &_context,
+Intersect::Intersect (const Ray &ray, const Media &_media,
+		      RenderContext &_context,
 		      const Surface *_surface,
 		      const Frame &_normal_frame, const Frame &_geom_frame,
 		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
@@ -158,7 +160,7 @@ Intersect::Intersect (const Ray &ray, Trace &_trace, RenderContext &_context,
     material (&*_surface->material), brdf (0),
     smoothing_group (0), no_self_shadowing (false),
     tex_coords (normal_frame.origin, _tex_coords),
-    trace (_trace), context (_context)
+    media (_media), context (_context)
 {
   finish_init (ray, dTds, dTdt);
 }

@@ -281,7 +281,7 @@ private:
 	: Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
       { }
 
-      virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+      virtual Intersect make_intersect (const Media &media, RenderContext &context)
 	const;
       virtual const Surface *surface () const { return triangle; }
 

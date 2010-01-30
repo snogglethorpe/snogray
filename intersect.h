@@ -25,7 +25,7 @@ namespace snogray {
 
 class Surface;
 class Material;
-class Trace;
+class Media;
 class Brdf;
 
 
@@ -37,14 +37,14 @@ class Intersect
 {
 public:
 
-  // Note that the RAY may be in a local coordinate system, whereas
-  // TRACE's ray information is always in world coordinates.
+  // Note that the RAY may not be in the world coordinate system, if
+  // the intersected surface is inside an instance or something.
   //
-  Intersect (const Ray &ray, Trace &_trace, RenderContext &context,
+  Intersect (const Ray &ray, const Media &_media, RenderContext &context,
 	     const Surface *_surface,
 	     const Frame &_normal_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
-  Intersect (const Ray &ray, Trace &_trace, RenderContext &context,
+  Intersect (const Ray &ray, const Media &_media, RenderContext &context,
 	     const Surface *_surface,
 	     const Frame &_normal_frame, const Frame &_geom_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
@@ -166,9 +166,10 @@ public:
   //
   TexCoords tex_coords;
 
-  // Trace this intersection came from.
+  // Media surrounding this intersection; the innermost is that through
+  // which RAY came.
   //
-  const Trace &trace;
+  const Media &media;
 
   // Global tracing context.
   //

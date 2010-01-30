@@ -24,7 +24,7 @@ using namespace std;
 
 // Call CALLBACK for each surface in the voxel tree that _might_
 // intersect RAY (any further intersection testing needs to be done
-// directly on the resulting surfaces).  TRACE is used to access various
+// directly on the resulting surfaces).  MEDIA is used to access various
 // cache data structures.  ISEC_STATS will be updated.
 //
 void

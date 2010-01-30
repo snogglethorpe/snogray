@@ -65,7 +65,8 @@ private:
     IsecInfo (const Ray &ray, const Ellipse *_ellipse)
       : Surface::IsecInfo (ray), ellipse (_ellipse)
     { }
-    virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+    virtual Intersect make_intersect (const Media &media,
+				      RenderContext &context)
       const;
     virtual const Surface *surface () const { return ellipse; }
     const Ellipse *ellipse;

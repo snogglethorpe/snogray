@@ -39,7 +39,8 @@ Ellipse::intersect (Ray &ray, RenderContext &context) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Ellipse::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
+Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
+  const
 {
   Pos point = ray.end ();
 
@@ -79,7 +80,7 @@ Ellipse::IsecInfo::make_intersect (Trace &trace, RenderContext &context) const
   //
   UV dTds (0.5f * inv_rad1_len, 0), dTdt (0, 0.5f * inv_rad2_len);
 
-  Intersect isec (ray, trace, context, ellipse,
+  Intersect isec (ray, media, context, ellipse,
 		  norm_frame, tex_coords, dTds, dTdt);
 
   isec.no_self_shadowing = true;

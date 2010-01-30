@@ -178,7 +178,7 @@ DirectIllum::estimate_direct (const Intersect &isec, const Light *light,
 	      Color lsamp_radiance = lsamp.val;
 
 	      lsamp_radiance
-		*= context.volume_integ->transmittance (ray, isec.trace.medium);
+		*= context.volume_integ->transmittance (ray, isec.media.medium);
 
 	      // Apply the "power heuristic" to weight our sample based
 	      // on the relative pro
@@ -250,7 +250,7 @@ DirectIllum::estimate_direct (const Intersect &isec, const Light *light,
 
 		  bsamp_radiance
 		    *= context.volume_integ->transmittance (ray,
-							    isec.trace.medium);
+							    isec.media.medium);
 
 		  // Apply the "power heuristic" to weight our sample based
 		  // on the relative pro

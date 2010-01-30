@@ -57,7 +57,8 @@ private:
 	subspace_isec_info (_subspace_isec_info)
     { }
 
-    virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+    virtual Intersect make_intersect (const Media &media,
+				      RenderContext &context)
       const;
 
     virtual const Surface *surface () const

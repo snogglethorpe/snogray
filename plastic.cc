@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "trace.h"
+#include "media.h"
 #include "fresnel.h"
 #include "brdf.h"
 
@@ -38,7 +38,7 @@ public:
     // Calculate fresnel surface reflection at the ray angle
     //
     float cos_xmit_angle = isec.cos_n (isec.v);
-    float medium_ior = isec.trace.medium.ior;
+    float medium_ior = isec.media.medium.ior;
     float refl = Fresnel (medium_ior, plastic.ior).reflectance (cos_xmit_angle);
 
     // Render transmitted light (some light is lost due to fresnel reflection
@@ -90,7 +90,7 @@ public:
 	// Calculate fresnel surface reflection at the ray angle
 	//
 	float cos_xmit_angle = isec.cos_n (isec.v);
-	float medium_ior = isec.trace.medium.ior;
+	float medium_ior = isec.media.medium.ior;
 	float refl
 	  = Fresnel (medium_ior, plastic.ior).reflectance (cos_xmit_angle);
 

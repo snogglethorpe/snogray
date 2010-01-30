@@ -22,7 +22,7 @@
 namespace snogray {
 
 class Scene;
-class Trace;
+class Media;
 class IllumMgr;
 
 

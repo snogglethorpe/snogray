@@ -59,7 +59,8 @@ private:
       : Surface::IsecInfo (ray), cylinder (_cylinder), isec_point (_isec_point)
     { }
 
-    virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+    virtual Intersect make_intersect (const Media &media,
+				      RenderContext &context)
       const;
 
     virtual const Surface *surface () const { return cylinder; }

@@ -24,7 +24,7 @@
 namespace snogray {
 
 class Intersect;
-class Trace;
+class Media;
 
 
 class IllumMgr

@@ -45,7 +45,7 @@ public:
   //
   // If we're using single-precision coordinates, we have to allow a lot of
   // margin for imprecision to avoid self-intersection problems.  We do
-  // this by bumping up the minimum trace distance to something fairly large.
+  // this by bumping up the minimum media distance to something fairly large.
   //
 #if USE_FLOAT_COORDS
   static const dist_t DEFAULT_MIN_TRACE = 1e-3;
@@ -75,7 +75,7 @@ public:
 	params.get_uint ("max-light-samples",
 			 num_light_samples * DEFAULT_MAX_LIGHT_SAMPLE_MULT)),
       min_trace (
-	params.get_float ("min-trace", DEFAULT_MIN_TRACE)),
+	params.get_float ("min-media", DEFAULT_MIN_TRACE)),
       envlight_intens_frac (
 	params.get_float ("envlight-intens-frac", DEFAULT_ENVLIGHT_INTENS_FRAC))
   { }
@@ -96,9 +96,9 @@ public:
   //
   unsigned max_light_samples;
 
-  // Minimum length of a traced ray; any objects closer than this to the
+  // Minimum length of a mediad ray; any objects closer than this to the
   // ray origin are ignored.  This doesn't apply to ordinary (opaque)
-  // shadow rays, just recursive traces such as used by reflection or
+  // shadow rays, just recursive medias such as used by reflection or
   // refraction, and non-opaque shadow rays.  As other mechanisms avoid
   // hitting the surface of origin when tracing such rays, min_trace
   // really only helps if the model has multiple surfaces precisely

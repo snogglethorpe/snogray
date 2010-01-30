@@ -13,7 +13,7 @@
 #include "snogmath.h"
 #include "fresnel.h"
 #include "intersect.h"
-#include "trace.h"
+#include "media.h"
 #include "brdf.h"
 
 #include "glass.h"
@@ -30,8 +30,11 @@ public:
 
   GlassBrdf (const Glass &glass, const Intersect &isec)
     : Brdf (isec), entering (! isec.back),
-      old_ior ((entering ? isec.trace.medium : glass._medium).ior),
-      new_ior ((entering ? glass._medium : isec.trace.enclosing_medium (isec.context.default_medium)).ior)
+      old_ior ((entering ? isec.media.medium : glass._medium).ior),
+      new_ior ((entering
+		? glass._medium
+		: isec.media.enclosing_medium (isec.context.default_medium))
+	       .ior)
   { }
 
   // Generate around NUM samples of this BRDF and add them to SAMPLES.

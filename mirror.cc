@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "trace.h"
+#include "media.h"
 #include "lambert.h"
 #include "brdf.h"
 
@@ -40,7 +40,7 @@ public:
       underlying_brdf (_mirror.underlying_material
 		       ? _mirror.underlying_material->get_brdf (_isec)
 		       : 0),
-      fres (isec.trace.medium.ior, _mirror.ior),
+      fres (isec.media.medium.ior, _mirror.ior),
       reflectance (_mirror.reflectance.eval (isec))
   { }
 

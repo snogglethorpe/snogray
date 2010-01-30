@@ -24,7 +24,7 @@ namespace snogray {
 
 class SpaceBuilder;
 class ShadowRay;
-class Trace;
+class Media;
 
 
 // A surface is the basic object scenes are constructed of.
@@ -58,7 +58,7 @@ public:
 
     // Create an Intersect object for this intersection.
     //
-    virtual Intersect make_intersect (Trace &trace, RenderContext &context)
+    virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const = 0;
 
     // Return the intersecting surface.

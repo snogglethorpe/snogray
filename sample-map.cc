@@ -13,7 +13,7 @@
 #include "ray.h"
 #include "scene.h"
 #include "camera.h"
-#include "trace.h"
+#include "media.h"
 #include "illum-mgr.h"
 #include "render-context.h"
 
@@ -39,8 +39,8 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 
   if (isec_info)
     {
-      Trace trace (isec_info->ray, render_context);
-      Intersect isec = isec_info->make_intersect (trace, context);
+      Media media (isec_info->ray, render_context);
+      Intersect isec = isec_info->make_intersect (media, context);
       unsigned num = illum_mgr.gen_samples (isec, samples);
 
       for (IllumSampleVec::iterator s = samples.begin() + num_samples;

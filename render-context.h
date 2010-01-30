@@ -47,7 +47,7 @@ public:
   Medium default_medium;
 
   // This mempool is reset every time control returns to the top level
-  // of a trace tree, so should not be used for anything longer-lived
+  // of a media tree, so should not be used for anything longer-lived
   // that that.
   //
   Mempool mempool;
@@ -105,7 +105,7 @@ public:
 // destructed (if necessary) explicitly:  "OBJ->~T()".
 //
 // All memory allocated from a context object is automatically freed at
-// some appropriate point, and should not be used after a trace has
+// some appropriate point, and should not be used after a media has
 // completed (i.e., this is temporary storage).
 //
 inline void *operator new (size_t size, snogray::RenderContext &context)

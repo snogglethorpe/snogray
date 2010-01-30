@@ -11,7 +11,6 @@
 //
 
 #include "glow.h"
-#include "scene.h"		// for inlined Trace::shadow method
 
 using namespace snogray;
 

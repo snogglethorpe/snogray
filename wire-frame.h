@@ -92,10 +92,10 @@ public:
   // Do wire-frame rendering of the current row from SCENE and CAMERA;
   // this will also will update the previously rendered row.
   //
-  void render_row (Trace &trace)
+  void render_row (const Media &media)
   {
     for (unsigned x = min_x; x < lim_x; x++)
-      render_pixel (x, y, trace);
+      render_pixel (x, y, media);
   }
 
   // Copy the contents of the previously rendered row to OUTPUT_ROW.
@@ -141,7 +141,7 @@ private:
   bool do_transition (const Surface *prev_surf,
 		      unsigned prev_x, unsigned prev_y,
 		      const Surface *surf, const Ray &camera_ray,
-		      Trace &trace,
+		      Media &media,
 		      Color &prev_color)
   {
     bool draw = false;
@@ -166,7 +166,7 @@ private:
 	  {
 	    Ray prev_camera_ray = camera.get_ray (prev_x, prev_y, width, height);
 
-	    prev_color = wire_color (prev_surf, prev_camera_ray, trace);
+	    prev_color = wire_color (prev_surf, prev_camera_ray, media);
 
 	    // If SURF abuts PREV_SURF -- that is, SURF was not previously
 	    // underneath PREV_SURF -- then make a wire part of SURF too,
@@ -188,7 +188,7 @@ private:
 
   // Calculate the "wire frame color" of the scene at location X, Y
   //
-  void render_pixel (unsigned x, unsigned y, Trace &trace)
+  void render_pixel (unsigned x, unsigned y, const Media &media)
   {
     // Wire-frame rendering: find surf object intersecting
     // camera ray, and see if it's different from the previous
@@ -207,7 +207,7 @@ private:
     // Surface we found
     //
     IsecParams isec_params;
-    const Surface *surf = scene.intersect (intersected_ray, isec_params, trace);
+    const Surface *surf = scene.intersect (intersected_ray, isec_params, media);
 
     // Set to true if we need to draw this point as part of a wire.
     //
@@ -217,7 +217,7 @@ private:
     //
     if (y > min_y
 	&& do_transition (prev_surfaces[x_offs], x, y - 1, surf, camera_ray,
-			  trace,
+			  media,
 			  prev_row[x_offs]))
       draw = true;
 
@@ -225,13 +225,13 @@ private:
     //
     if (x_offs > 0
 	&& do_transition (cur_surfaces[x_offs - 1], x - 1, y, surf, camera_ray,
-			  trace, cur_row[x_offs - 1]))
+			  media, cur_row[x_offs - 1]))
       draw = true;
 
     if (draw)
-      cur_row[x_offs] = wire_color (surf, camera_ray, trace);
+      cur_row[x_offs] = wire_color (surf, camera_ray, media);
     else if (params.fill > 0 && surf)
-      cur_row[x_offs] = trace.render (camera_ray) * params.fill;
+      cur_row[x_offs] = media.render (camera_ray) * params.fill;
     else if (surf)
       cur_row[x_offs] = 0;
     else
@@ -240,7 +240,8 @@ private:
     cur_surfaces[x_offs] = surf;
   }
 
-  Color wire_color (const Surface *surf, const Ray &camera_ray, Trace &trace)
+  Color wire_color (const Surface *surf, const Ray &camera_ray,
+		    const Media &media)
   {
     if (params.tint < 0.001)
       return params.wire_color;

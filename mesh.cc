@@ -326,7 +326,7 @@ Mesh::Triangle::IsecInfo::make_frame (const Pos &origin, const Vec &norm) const
 // Create an Intersect object for this intersection.
 //
 Intersect
-Mesh::Triangle::IsecInfo::make_intersect (Trace &trace, RenderContext &context)
+Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   const
 {
   Vec norm = triangle->raw_normal ();
@@ -437,7 +437,7 @@ Mesh::Triangle::IsecInfo::make_intersect (Trace &trace, RenderContext &context)
 
   // Make the intersect object.
   //
-  Intersect isec (ray, trace, context, triangle,
+  Intersect isec (ray, media, context, triangle,
 		  normal_frame, geom_frame, T, dTds,dTdt);
 
   isec.no_self_shadowing = true;

@@ -14,7 +14,7 @@
 
 #include "snogmath.h"
 #include "vec.h"
-#include "trace.h"
+#include "media.h"
 #include "intersect.h"
 #include "ward-dist.h"
 #include "cos-dist.h"
@@ -48,7 +48,7 @@ public:
       diff_weight (diff_intens / (diff_intens + spec_intens)),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
-      fres (isec.trace.medium.ior, ct.ior),
+      fres (isec.media.medium.ior, ct.ior),
       nv (isec.cos_n (isec.v)),
       inv_4_nv ((nv != 0) ? 1 / (4 * nv) : 0),
       spec_flags (m < GLOSSY_M ? GLOSSY : DIFFUSE),

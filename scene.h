@@ -22,7 +22,7 @@
 #include "tint.h"
 #include "intersect.h"
 #include "material.h"
-#include "trace.h"
+#include "media.h"
 #include "space.h"
 #include "shadow-ray.h"
 #include "surface-group.h"

@@ -78,9 +78,8 @@ RecursIllum::Lo (const Intersect &isec,
 
 	    // Get more intersection info.
 	    //
-	    Trace sub_trace (isec, s->isec_info->ray,
-			     (s->flags & IllumSample::TRANSMISSIVE));
-	    Intersect isec = s->isec_info->make_intersect (sub_trace, context);
+	    Media media (isec, s->flags & IllumSample::TRANSMISSIVE);
+	    Intersect isec = s->isec_info->make_intersect (media, context);
 
 	    // Calculate the appearance of the point on the surface we hit
 	    //
@@ -91,7 +90,7 @@ RecursIllum::Lo (const Intersect &isec,
 	    // through the current medium.
 	    //
 	    val *= context.volume_integ->transmittance (s->isec_info->ray,
-							sub_trace.medium);
+							media.medium);
 
 	    val *= abs (isec.cos_n (s->dir));
 

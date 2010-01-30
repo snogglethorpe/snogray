@@ -71,14 +71,11 @@ private:
     const;
 
   // Return the light hitting TARGET_ISEC from direction DIR; DIR is in
-  // TARGET_ISEC's surface-normal coordinate-system.  TRANSMISSIVE
-  // should be true if RAY is going through the surface rather than
-  // being reflected from it (this information is theoretically possible
-  // to calculate by looking at the dot-product of DIR with
-  // TARGET_ISEC's surface normal, but such a calculation can be
-  // unreliable in edge cases due to precision errors).
+  // TARGET_ISEC's surface-normal coordinate-system.  REFRACTION should
+  // be true if RAY is refracted through the surface rather than being
+  // reflected from it.
   //
-  Color Li (const Intersect &target_isec, const Vec &dir, bool transmissive,
+  Color Li (const Intersect &target_isec, const Vec &dir, bool refraction,
 	    const SampleSet::Sample &sample, unsigned depth)
     const;
 
