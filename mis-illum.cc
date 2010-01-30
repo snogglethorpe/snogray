@@ -66,7 +66,7 @@ MisIllum::Lo (const Intersect &isec,
 	      const IllumSampleVec::iterator &brdf_samples_beg,
 	      const IllumSampleVec::iterator &brdf_samples_end,
 	      unsigned num_brdf_samples,
-	      const IllumMgr &, float complexity)
+	      const IllumMgr &, unsigned, float complexity)
   const
 {
   const std::vector<const Light *> &lights = scene.lights;

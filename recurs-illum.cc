@@ -32,14 +32,13 @@ RecursIllum::Lo (const Intersect &isec,
 		 const IllumSampleVec::iterator &brdf_samples_beg,
 		 const IllumSampleVec::iterator &brdf_samples_end,
 		 unsigned num_brdf_samples,
-		 const IllumMgr &illum_mgr, float complexity)
+		 const IllumMgr &illum_mgr,
+		 unsigned depth, float complexity)
   const
 {
   RenderContext &context = isec.context;
 
   float brdf_sample_weight = num_brdf_samples ? 1.f / num_brdf_samples : 1.f;
-
-  unsigned depth = isec.trace.depth ();
 
   bool use_rr = ((complexity >= context.params.max_brdf_samples) || depth > 10);
 
@@ -85,7 +84,7 @@ RecursIllum::Lo (const Intersect &isec,
 
 	    // Calculate the appearance of the point on the surface we hit
 	    //
-	    val = illum_mgr.Lo (isec, complexity * branch_factor);
+	    val = illum_mgr.Lo (isec, depth + 1, complexity * branch_factor);
 
 	    // If we are looking through something other than air,
 	    // attentuate the surface appearance due to transmission

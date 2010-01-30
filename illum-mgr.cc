@@ -83,7 +83,7 @@ IllumMgr::IllumHandler::partition_samples (IllumSampleVec::iterator beg,
 // "Lo" means "Light outgoing".
 //
 Color
-IllumMgr::Lo (const Intersect &isec, float complexity) const
+IllumMgr::Lo (const Intersect &isec, unsigned depth, float complexity) const
 {
   RenderContext &context = isec.context;
   const Scene &scene = context.scene;
@@ -386,7 +386,7 @@ IllumMgr::Lo (const Intersect &isec, float complexity) const
       // Call the illuminator with the BRDF samples it wanted.
       //
       radiance += ih->illum->Lo (isec, bs_beg, bs_end, num_brdf_samples,
-				 *this, complexity);
+				 *this, depth, complexity);
 
       // Advance BS_BEG for the next illuminator.
       //
