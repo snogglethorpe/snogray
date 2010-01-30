@@ -24,17 +24,13 @@ using namespace snogray;
 // theoretically possible to calculate by looking at the dot-product of
 // RAY's direction with SOURCE_ISEC's surface normal, but such a
 // calculation can be unreliable in edge cases due to precision errors).
-// If supplied, BRANCH_FACTOR gives the complexity of the sub-trace
-// compared to the prevous trace.
 //
-Trace::Trace (const Intersect &source_isec, const Ray &_ray,
-	      bool transmissive, float branch_factor)
+Trace::Trace (const Intersect &source_isec, const Ray &_ray, bool transmissive)
   : source (&source_isec.trace),
     type (transmissive
 	  ? (source_isec.back ? REFRACTION_OUT : REFRACTION_IN)
 	  : REFLECTION),
     ray (_ray),
-    complexity (source->complexity * branch_factor),
     medium (transmissive ? refraction_medium (source_isec) : source->medium)
 { }
 

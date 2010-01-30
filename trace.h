@@ -49,8 +49,7 @@ public:
   // Constructor for a root (camera/eye) Trace.
   //
   Trace (const Ray &_ray, const Medium &_medium)
-    : source (0), type (SPONTANEOUS), ray (_ray),
-      complexity (1), medium (_medium)
+    : source (0), type (SPONTANEOUS), ray (_ray), medium (_medium)
   { }
 
   // Constructor for a sub-trace eminating from SOURCE_ISEC in the
@@ -59,11 +58,9 @@ public:
   // information is theoretically possible to calculate by looking at
   // the dot-product of RAY's direction with SOURCE_ISEC's surface
   // normal, but such a calculation can be unreliable in edge cases due
-  // to precision errors).  If supplied, BRANCH_FACTOR gives the
-  // complexity of the sub-trace compared to the prevous trace.
+  // to precision errors).
   //
-  Trace (const Intersect &source_isec, const Ray &ray,
-	 bool transmissive, float branch_factor = 1.0f);
+  Trace (const Intersect &source_isec, const Ray &ray, bool transmissive);
 
   // Searches back through the trace history to find the enclosing medium.
   // If none is found, returns DEFAULT_MEDIUM.
@@ -97,14 +94,6 @@ public:
   // the point where intersects the previous segment in the trace path.
   //
   Ray ray;
-
-  // This is a very rough guess at the number of paths will reach this
-  // point in the rendering tree.  It is computed simply by multiplying
-  // by the branching factor with each recursive trace (and so would
-  // only be truly accurate if all paths reached the same recursion
-  // depth).
-  //
-  float complexity;
 
   // The medium this trace is through.
   //

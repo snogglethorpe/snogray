@@ -80,8 +80,7 @@ RecursIllum::Lo (const Intersect &isec,
 	    // Get more intersection info.
 	    //
 	    Trace sub_trace (isec, s->isec_info->ray,
-			     (s->flags & IllumSample::TRANSMISSIVE),
-			     branch_factor);
+			     (s->flags & IllumSample::TRANSMISSIVE));
 	    Intersect isec = s->isec_info->make_intersect (sub_trace, context);
 
 	    // Calculate the appearance of the point on the surface we hit
