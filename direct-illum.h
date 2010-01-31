@@ -73,9 +73,9 @@ public:
   // towards ISEC, using LIGHT_PARAM, BRDF_PARAM, and BRDF_LAYER_PARAM
   // to sample both the light and the BRDF.
   //
-  Color estimate_direct (const Intersect &isec, const Light *light,
-			 const UV &light_param,
-			 const UV &brdf_param, float brdf_layer_param)
+  Color sample_light (const Intersect &isec, const Light *light,
+		      const UV &light_param,
+		      const UV &brdf_param, float brdf_layer_param)
     const;
 
 private:

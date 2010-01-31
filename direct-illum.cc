@@ -111,7 +111,7 @@ DirectIllum::sample_all_lights (const Intersect &isec,
 
       Color light_radiance = 0;
       for (unsigned j = 0; j < num_samples; j++)
-	light_radiance += estimate_direct (isec, light, *li++, *bi++, *bli++);
+	light_radiance += sample_light (isec, light, *li++, *bi++, *bli++);
 
       radiance += light_radiance / float (num_samples);
     }
@@ -120,16 +120,16 @@ DirectIllum::sample_all_lights (const Intersect &isec,
 }
 
 
-// DirectIllum::estimate_direct
+// DirectIllum::sample_light
 
 // Use multiple-importance-sampling to estimate the radiance of LIGHT
 // towards ISEC, using SAMPLE, LIGHT_PARAM, BRDF_PARAM, and
 // BRDF_LAYER_PARAM to sample both the light and the BRDF.
 //
 Color
-DirectIllum::estimate_direct (const Intersect &isec, const Light *light,
-			      const UV &light_param,
-			      const UV &brdf_param, float brdf_layer_param)
+DirectIllum::sample_light (const Intersect &isec, const Light *light,
+			   const UV &light_param,
+			   const UV &brdf_param, float brdf_layer_param)
   const
 {
   RenderContext &context = isec.context;
