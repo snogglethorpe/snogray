@@ -255,6 +255,10 @@ private:
   std::vector<Channel<float> > float_channels;
   std::vector<Channel<UV> > uv_channels;
 
+public:
+
+  // Sample generator used to generate the actual sample values.
+  //
   SampleGen &gen;
 };
 
