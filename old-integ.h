@@ -44,13 +44,18 @@ public:
     IllumMgr illum_mgr;
   };
 
-  // Return the color emitted from the ray-surface intersection ISEC.
-  // "Lo" means "Light outgoing".
+  // Return the light arriving at RAY's origin from the direction it
+  // points in (the length of RAY is ignored).  MEDIA is the media
+  // environment through which the ray travels.
   //
-  virtual Color Lo (const Intersect &isec, const SampleSet::Sample &) const
-  {
-    return global.illum_mgr.Lo (isec);
-  }
+  // This method also calls the volume-integrator's Li method, and
+  // includes any light it returns for RAY as well.
+  //
+  // "Li" means "Light incoming".
+  //
+  virtual Tint Li (const Ray &ray, const Media &media,
+		   const SampleSet::Sample &sample)
+    const;
 
 protected:
 

@@ -51,3 +51,43 @@ OldInteg::GlobalState::make_integrator (RenderContext &context)
 {
   return new OldInteg (context, *this);
 }
+
+
+// OldInteg::Li
+
+// Return the light arriving at RAY's origin from the direction it
+// points in (the length of RAY is ignored).  MEDIA is the media
+// environment through which the ray travels.
+//
+// This method also calls the volume-integrator's Li method, and
+// includes any light it returns for RAY as well.
+//
+// "Li" means "Light incoming".
+//
+Tint
+OldInteg::Li (const Ray &ray, const Media &media,
+	      const SampleSet::Sample &sample)
+  const
+{
+  const Scene &scene = context.scene;
+  dist_t min_dist = context.params.min_trace;
+
+  Ray isec_ray (ray, min_dist, scene.horizon);
+
+  const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
+
+  Tint radiance;		// light from the recursion
+  if (isec_info)
+    {
+      Intersect isec = isec_info->make_intersect (media, context);
+      radiance = global.illum_mgr.Lo (isec);
+    }
+  else
+    radiance = scene.background_with_alpha (isec_ray).alpha_scaled_color();
+
+  radiance *= context.volume_integ->transmittance (isec_ray, media.medium);
+
+  radiance += context.volume_integ->Li (isec_ray, media.medium, sample);
+
+  return radiance;
+}

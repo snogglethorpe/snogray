@@ -13,8 +13,9 @@
 #ifndef __DIRECT_INTEG_H__
 #define __DIRECT_INTEG_H__
 
-#include "surface-integ.h"
 #include "direct-illum.h"
+
+#include "surface-integ.h"
 
 
 namespace snogray {
@@ -43,39 +44,47 @@ public:
     DirectIllum::GlobalState direct_illum;
   };
 
-  // Return the color emitted from the ray-surface intersection ISEC.
-  // "Lo" means "Light outgoing".
+  // Return the light arriving at RAY's origin from the direction it
+  // points in (the length of RAY is ignored).  MEDIA is the media
+  // environment through which the ray travels.
   //
-  virtual Color Lo (const Intersect &isec, const SampleSet::Sample &sample)
-    const
-  {
-    return Lo (isec, sample, 0);
-  }
+  // This method also calls the volume-integrator's Li method, and
+  // includes any light it returns for RAY as well.
+  //
+  // "Li" means "Light incoming".
+  //
+  virtual Tint Li (const Ray &ray, const Media &media,
+		   const SampleSet::Sample &sample)
+    const;
 
-protected:
+private:
 
   // Integrator state for rendering a group of related samples.
   //
   DirectInteg (RenderContext &context, GlobalState &global_state);
 
-private:
-
-  // Return the color emitted from the ray-surface intersection ISEC.
-  // "Lo" means "Light outgoing".
+  // Return the light arriving at RAY's origin from the direction it
+  // points in (the length of RAY is ignored).  MEDIA is the media
+  // environment through which the ray travels.
   //
-  // This is an internal variant of Integ::lo which has an additional DEPTH
-  // argument.  If DEPTH is greater than some limit, recursion will stop.
+  // This method also calls the volume-integrator's Li method, and
+  // includes any light it returns for RAY as well.
   //
-  Color Lo (const Intersect &isec,
-	    const SampleSet::Sample &sample, unsigned depth)
+  // "Li" means "Light incoming".
+  //
+  // This an internal variant of Integ::lo which has an additional DEPTH
+  // argument.  If DEPTH is greater than some limit, recursion will
+  // stop.  It also returns a Color instead of a Tint, as alpha values
+  // are only meaningful at the the top-level.
+  //
+  Color Li (const Ray &ray, const Media &media,
+	   const SampleSet::Sample &sample,
+	   unsigned depth)
     const;
 
-  // Return the light hitting TARGET_ISEC from direction DIR; DIR is in
-  // TARGET_ISEC's surface-normal coordinate-system.  REFRACTION should
-  // be true if RAY is refracted through the surface rather than being
-  // reflected from it.
+  // Return the light emitted from ISEC.
   //
-  Color Li (const Intersect &target_isec, const Vec &dir, bool refraction,
+  Color Lo (const Intersect &isec, const Media &media,
 	    const SampleSet::Sample &sample, unsigned depth)
     const;
 

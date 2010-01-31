@@ -42,10 +42,17 @@ public:
     }
   };
 
-  // Return the color emitted from the ray-surface intersection ISEC.
-  // "Lo" means "Light outgoing".
+
+  // Return the light arriving at RAY's origin from the direction it
+  // points in (the length of RAY is ignored).  MEDIA is the media
+  // environment through which the ray travels.
   //
-  virtual Color Lo (const Intersect &, const SampleSet::Sample &) const
+  // This method also calls the volume-integrator's Li method, and
+  // includes any light it returns for RAY as well.
+  //
+  // "Li" means "Light incoming".
+  //
+  virtual Tint Li (const Ray &, const Media &, const SampleSet::Sample &) const
   {
     return 0;
   }

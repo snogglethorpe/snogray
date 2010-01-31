@@ -46,18 +46,15 @@ DirectInteg::GlobalState::make_integrator (RenderContext &context)
 
 // DirectInteg::Lo
 
-// Return the color emitted from the ray-surface intersection ISEC.
-// "Lo" means "Light outgoing".
-//
-// This an internal variant of Integ::lo which has an additional DEPTH
-// argument.  If DEPTH is greater than some limit, recursion will stop.
+// Return the light emitted from ISEC.
 //
 Color
-DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
-		 unsigned depth)
+DirectInteg::Lo (const Intersect &isec, const Media &media,
+		 const SampleSet::Sample &sample, unsigned depth)
   const
 {
-  // Start out by including any light emitted from the material itself.
+  // Start out by including any light emitted from the material
+  // itself.
   //
   Color radiance = isec.material->le (isec);
 
@@ -84,20 +81,34 @@ DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
       Brdf::Sample refl_samp
 	= isec.brdf->sample (UV(0,0), Brdf::SPECULAR|Brdf::REFLECTIVE);
       if (refl_samp.val > 0)
-	radiance
-	  += (Li (isec, refl_samp.dir, false, sample, depth + 1)
-	      * refl_samp.val
-	      * abs (isec.cos_n (refl_samp.dir)));
+	{
+	  Ray refl_ray (isec.normal_frame.origin,
+			isec.normal_frame.from (refl_samp.dir),
+			1.f);
+
+	  radiance +=
+	    Li (refl_ray, media, sample, depth + 1)
+	    * refl_samp.val
+	    * abs (isec.cos_n (refl_samp.dir));
+	}
 
       // Try refraction.
       //
       Brdf::Sample xmit_samp
 	= isec.brdf->sample (UV(0,0), Brdf::SPECULAR|Brdf::TRANSMISSIVE);
       if (xmit_samp.val > 0)
-	radiance
-	  += (Li (isec, xmit_samp.dir, true, sample, depth + 1)
-	      * xmit_samp.val
-	      * abs (isec.cos_n (xmit_samp.dir)));
+	{
+	  Media xmit_media (isec, true);
+
+	  Ray ray (isec.normal_frame.origin,
+		   isec.normal_frame.from (xmit_samp.dir),
+		   1.f);
+
+	  radiance +=
+	    Li (ray, xmit_media, sample, depth + 1)
+	    * xmit_samp.val
+	    * abs (isec.cos_n (xmit_samp.dir));
+	}
     }
 
   return radiance;
@@ -106,44 +117,98 @@ DirectInteg::Lo (const Intersect &isec, const SampleSet::Sample &sample,
 
 // DirectInteg::Li
 
-// Return the light hitting TARGET_ISEC from direction DIR; DIR is in
-// TARGET_ISEC's surface-normal coordinate-system.  TRANSMISSIVE should
-// be true if RAY is going through the surface rather than being
-// reflected from it (this information is theoretically possible to
-// calculate by looking at the dot-product of DIR with TARGET_ISEC's
-// surface normal, but such a calculation can be unreliable in edge
-// cases due to precision errors).
+// Return the light arriving at RAY's origin from the direction it
+// points in (the length of RAY is ignored).  MEDIA is the media
+// environment through which the ray travels.
+//
+// This method also calls the volume-integrator's Li method, and
+// includes any light it returns for RAY as well.
+//
+// "Li" means "Light incoming".
+//
+// This an internal variant of Integ::lo which has an additional DEPTH
+// argument.  If DEPTH is greater than some limit, recursion will
+// stop.  It also returns a Color instead of a Tint, as alpha values
+// are only meaningful at the the top-level.
 //
 Color
-DirectInteg::Li (const Intersect &target_isec, const Vec &dir, bool refraction,
-		 const SampleSet::Sample &sample, unsigned depth)
+DirectInteg::Li (const Ray &ray, const Media &media,
+		 const SampleSet::Sample &sample,
+		 unsigned depth)
   const
 {
   if (depth > 5) return 0; // XXX use russian roulette
 
   const Scene &scene = context.scene;
-  dist_t min_dist = context.params.min_trace;
 
-  Ray isec_ray (target_isec.normal_frame.origin,
-		target_isec.normal_frame.from (dir),
-		min_dist, scene.horizon);
+  Ray isec_ray (ray, context.params.min_trace, scene.horizon);
 
   const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
 
-  Media media (target_isec, refraction);
-
-  Color radiance;		// light from the recursion
+  Color radiance;
   if (isec_info)
     {
       Intersect isec = isec_info->make_intersect (media, context);
-      radiance = Lo (isec, sample, depth);
+      radiance = Lo (isec, media, sample, depth);
     }
   else
-    radiance = scene.background_with_alpha (isec_ray).alpha_scaled_color();
+    radiance = scene.background (isec_ray);
 
+  // Apply the volume integrator.  It can both filter the radiance from
+  // the surface, and add radiance of its own.  Note that in the case
+  // where the background was used, the length of ISEC_RAY will be the
+  // "scene horizon".
+  //
   radiance *= context.volume_integ->transmittance (isec_ray, media.medium);
-
   radiance += context.volume_integ->Li (isec_ray, media.medium, sample);
 
   return radiance;
+}
+
+// Return the light arriving at RAY's origin from the direction it
+// points in (the length of RAY is ignored).  MEDIA is the media
+// environment through which the ray travels.
+//
+// This method also calls the volume-integrator's Li method, and
+// includes any light it returns for RAY as well.
+//
+// "Li" means "Light incoming".
+//
+Tint
+DirectInteg::Li (const Ray &ray, const Media &media,
+		 const SampleSet::Sample &sample)
+  const
+{
+  const Scene &scene = context.scene;
+
+  Ray isec_ray (ray, context.params.min_trace, scene.horizon);
+
+  const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
+
+  Color radiance;
+  float alpha;
+  if (isec_info)
+    {
+      Intersect isec = isec_info->make_intersect (media, context);
+      radiance = Lo (isec, media, sample, 0);
+      alpha = 1;
+    }
+  else
+    {
+      radiance = scene.background (isec_ray);
+      alpha = scene.bg_alpha;
+    }
+
+  // Apply the volume integrator.  It can both filter the radiance from
+  // the surface, and add radiance of its own.  Note that in the case
+  // where the background was used, the length of ISEC_RAY will be the
+  // "scene horizon".
+  //
+  radiance *= context.volume_integ->transmittance (isec_ray, media.medium);
+  radiance += context.volume_integ->Li (isec_ray, media.medium, sample);
+
+  if (radiance != 0)
+    alpha = 1;
+
+  return Tint (radiance, alpha);
 }

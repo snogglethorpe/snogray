@@ -13,6 +13,7 @@
 #ifndef __SURFACE_INTEG_H__
 #define __SURFACE_INTEG_H__
 
+#include "tint.h"
 #include "sample-set.h"
 
 #include "integ.h"
@@ -20,7 +21,7 @@
 
 namespace snogray {
 
-class Intersect;
+class Media;
 
 
 class SurfaceInteg : public Integ
@@ -40,10 +41,17 @@ public:
     virtual SurfaceInteg *make_integrator (RenderContext &context) = 0;
   };
 
-  // Return the color emitted from the ray-surface intersection ISEC.
-  // "Lo" means "Light outgoing".
+  // Return the light arriving at RAY's origin from the direction it
+  // points in (the length of RAY is ignored).  MEDIA is the media
+  // environment through which the ray travels.
   //
-  virtual Color Lo (const Intersect &isec, const SampleSet::Sample &sample)
+  // This method also calls the volume-integrator's Li method, and
+  // includes any light it returns for RAY as well.
+  //
+  // "Li" means "Light incoming".
+  //
+  virtual Tint Li (const Ray &ray, const Media &media,
+		   const SampleSet::Sample &sample)
     const = 0;
 
 protected:

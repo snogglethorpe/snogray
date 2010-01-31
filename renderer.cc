@@ -120,7 +120,7 @@ Renderer::render_pixel (int x, int y)
   samples.generate ();
 
   SurfaceInteg &surface_integ = *context.surface_integ;
-  VolumeInteg &volume_integ = *context.volume_integ;
+  Media media (context.default_medium);
 
   for (unsigned snum = 0; snum < samples.num_samples; snum++)
     {
@@ -143,29 +143,14 @@ Renderer::render_pixel (int x, int y)
       // camera.
       //
       Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
-      camera_ray.t1 = scene.horizon;
 
-      const Surface::IsecInfo *isec_info
-	= scene.intersect (camera_ray, context);
-
-      Media media (context.default_medium);
-
-      Tint tint;
-      if (isec_info)
-	{
-	  Intersect isec = isec_info->make_intersect (media, context);
-	  tint = surface_integ.Lo (isec, sample);
-	}
-      else
-	tint = scene.background_with_alpha (camera_ray);
-
-      tint *= volume_integ.transmittance (camera_ray, media.medium);
-
-      tint += volume_integ.Li (camera_ray, media.medium, sample);
-
-      context.mempool.reset ();
+      // .. calculate what light arrives via that ray.
+      //
+      Tint tint = surface_integ.Li (camera_ray, media, sample);
 
       output.add_sample (sx - lim_x, sy - lim_y, tint);
+
+      context.mempool.reset ();
     }
 }
 
