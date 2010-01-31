@@ -1,6 +1,6 @@
 // norm-glow.cc -- Material whose color indicates surface normal
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@ using namespace snogray;
 // Return emitted radiance from this light, at the point described by ISEC.
 //
 Color
-NormGlow::le (const Intersect &isec) const
+NormGlow::Le (const Intersect &isec) const
 {
   const Vec &n = isec.normal_frame.z;
   return Color (n.x * 0.5f + 0.5f, n.y * 0.5f + 0.5f, n.z * 0.5f + 0.5f);

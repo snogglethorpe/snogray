@@ -94,7 +94,7 @@ IllumMgr::Lo (const Intersect &isec, unsigned depth, float complexity) const
   //
   Color radiance = 0;
 
-  radiance += isec.material->le (isec);
+  radiance += isec.material->Le (isec);
 
   if (! isec.brdf)
     return radiance;

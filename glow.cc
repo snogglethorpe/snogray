@@ -29,7 +29,7 @@ Glow::Glow (const TexVal<Color> &col,
 // Return emitted radiance from this light, at the point described by ISEC.
 //
 Color
-Glow::le (const Intersect &isec) const
+Glow::Le (const Intersect &isec) const
 {
   return isec.back ? 0 : color.eval (isec);
 }

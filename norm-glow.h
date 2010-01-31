@@ -25,7 +25,7 @@ public:
 
   // Return emitted radiance from this light, at the point described by ISEC.
   //
-  virtual Color le (const Intersect &isec) const;
+  virtual Color Le (const Intersect &isec) const;
 
   // Return true if this material emits light.
   //

@@ -56,7 +56,7 @@ DirectInteg::Lo (const Intersect &isec, const Media &media,
   // Start out by including any light emitted from the material
   // itself.
   //
-  Color radiance = isec.material->le (isec);
+  Color radiance = isec.material->Le (isec);
 
   // Now if there's a BRDF, add contributions from incoming light
   // reflected-from / transmitted-through the surface.  [Only weird
