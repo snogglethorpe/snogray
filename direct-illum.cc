@@ -63,7 +63,8 @@ DirectIllum::GlobalState::GlobalState (const ValTable &params)
 {
 }
 
-DirectIllum::DirectIllum (RenderContext &context, GlobalState &global_state)
+DirectIllum::DirectIllum (RenderContext &context,
+			  const GlobalState &global_state)
   : light_select_chan (context.samples.add_channel<float> ())
 {
   SampleSet &samples = context.samples;

@@ -44,7 +44,7 @@ public:
     friend class DirectIllum;
   };
 
-  DirectIllum (RenderContext &context, GlobalState &global_state);
+  DirectIllum (RenderContext &context, const GlobalState &global_state);
 
   // Given an intersection resulting from a cast ray, sample lights
   // in the scene, and return their contribution in that
