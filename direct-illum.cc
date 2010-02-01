@@ -67,7 +67,25 @@ DirectIllum::DirectIllum (RenderContext &context,
 			  const GlobalState &global_state)
   : light_select_chan (context.samples.add_channel<float> ())
 {
-  SampleSet &samples = context.samples;
+  finish_init (context.samples, context, global_state);
+}
+
+// Variant constructor which allows specifying a SampleSet other than the
+// one in CONTEXT.
+//
+DirectIllum::DirectIllum (SampleSet &samples, RenderContext &context,
+			  const GlobalState &global_state)
+  : light_select_chan (samples.add_channel<float> ())
+{
+  finish_init (samples, context, global_state);
+}
+    
+// Common portion of constructors.
+//
+void
+DirectIllum::finish_init (SampleSet &samples, RenderContext &context,
+			  const GlobalState &global_state)
+{
   unsigned num_lights = context.scene.num_lights ();
   unsigned num_lsamples = global_state.num_light_samples;
 

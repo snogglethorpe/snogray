@@ -46,6 +46,12 @@ public:
 
   DirectIllum (RenderContext &context, const GlobalState &global_state);
 
+  // Variant constructor which allows specifying a SampleSet other than the
+  // one in CONTEXT.
+  //
+  DirectIllum (SampleSet &samples, RenderContext &context,
+	       const GlobalState &global_state);
+
   // Given an intersection resulting from a cast ray, sample lights
   // in the scene, and return their contribution in that
   // ray's direction.
@@ -79,6 +85,11 @@ public:
     const;
 
 private:
+
+  // Common portion of constructors.
+  //
+  void finish_init (SampleSet &samples, RenderContext &context,
+		    const GlobalState &global_state);
 
   // Sample channels for light sampling.
   //
