@@ -16,6 +16,8 @@
 #include <cmath>
 #include <algorithm>  		// for min and max
 
+#include "compiler.h"
+
 
 namespace snogray {
 
@@ -51,7 +53,8 @@ inline unsigned max (unsigned x, unsigned y) { return x > y ? x : y; }
 template<typename T>
 inline T clamp (T val, T minv, T maxv)
 {
-  return min (max (val, minv), maxv);
+  val = likely (val < maxv) ? val : maxv;
+  return likely (val > minv) ? val : minv;
 }
 
 
