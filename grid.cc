@@ -47,7 +47,8 @@ Grid::gen_uv_samples (const std::vector<UV>::iterator &table, unsigned num)
 
       for (unsigned j = 0; j < u_steps; j++)
 	{
-	  *samp++ = UV (u_offs + random (u_step), v_offs + random (v_step));
+	  *samp++ = UV (clamp01 (u_offs + random (u_step)),
+			clamp01 (v_offs + random (v_step)));
 	  u_offs += u_step;
 	}
 
@@ -78,7 +79,7 @@ Grid::gen_float_samples (const std::vector<float>::iterator &table,
   float offs = 0;
 
   for (unsigned i = 0; i < num; i++)
-    table[i] = offs + random (n_step);
+    table[i] = clamp01 (offs + random (n_step));
 }
 
 
