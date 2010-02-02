@@ -90,6 +90,33 @@ private:
   // BSDF sample-channels used for the first SHORT_PATH_LEN path vertices.
   //
   SampleSet::ChannelVec<UV> bsdf_sample_channels;
+
+  //
+  // The RANDOM_DIRECT_ILLUM and RANDOM_SAMPLE_SET fields are modified by
+  // PathInteg::Li, but their state need not be preserved between calls.
+  //
+  // The reason they are fields in the PathInteg object rather than being
+  // local variables in PathInteg::Li is to save unnecessary initialization
+  // time and memory allocation in PathInteg::Li, which is called once per
+  // eye-ray.
+  //
+  // This means we have to be careful about reentrancy, but this is
+  // manageable:  A given PathInteg object should only be used within a
+  // single thread, and PathInteg::Li should only be called recursively
+  // when it calls VolumeInteg::Li; such recursive usage should be fine, as
+  // RANDOM_DIRECT_ILLUM and RANDOM_SAMPLE_SET are only actively in use
+  // when computing direct-lighting.
+  //
+
+  // This is a special dedicated sample-set which we use just for
+  // RANDOM_DIRECT_ILLUM.
+  //
+  SampleSet random_sample_set;
+
+  // DirectIllum object used to do direct illumination for path vertices
+  // when the path-length is greater than MIN_PATH_LEN.
+  //
+  DirectIllum random_direct_illum;
 };
 
 

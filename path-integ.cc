@@ -39,7 +39,10 @@ PathInteg::GlobalState::GlobalState (const Scene &scene,
 // Integrator state for rendering a group of related samples.
 //
 PathInteg::PathInteg (RenderContext &context, GlobalState &global_state)
-  : SurfaceInteg (context), global (global_state)
+  : SurfaceInteg (context),
+    global (global_state),
+    random_sample_set (1, context.samples.gen),
+    random_direct_illum (random_sample_set, context, global.direct_illum)
 {
   vertex_direct_illums.reserve (global.min_path_len);
   bsdf_sample_channels.reserve (global.min_path_len);
@@ -90,17 +93,6 @@ PathInteg::Li (const Ray &ray, const Media &media,
   // the former will not.
   //
   std::list<Media> media_stack (1, media);
-
-  // This is a special dedicated sample-set which we use just for
-  // RANDOM_DIRECT_ILLUM.
-  //
-  SampleSet random_sample_set (1, context.samples.gen);
-
-  // DirectIllum object used to do direct illumination for path vertices
-  // when the path-length is greater than MIN_PATH_LEN.
-  //
-  DirectIllum random_direct_illum (random_sample_set,
-				   context, global.direct_illum);
 
   Ray isec_ray (ray, scene.horizon);
 
