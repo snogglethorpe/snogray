@@ -177,7 +177,6 @@ DirectInteg::Li (const Ray &ray, const Media &media,
 Tint
 DirectInteg::Li (const Ray &ray, const Media &media,
 		 const SampleSet::Sample &sample)
-  const
 {
   const Scene &scene = context.scene;
 

@@ -76,7 +76,6 @@ PathInteg::GlobalState::make_integrator (RenderContext &context)
 Tint
 PathInteg::Li (const Ray &ray, const Media &media,
 	       const SampleSet::Sample &sample)
-  const
 {
   const Scene &scene = context.scene;
   dist_t min_dist = context.params.min_trace;

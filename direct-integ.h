@@ -54,8 +54,7 @@ public:
   // "Li" means "Light incoming".
   //
   virtual Tint Li (const Ray &ray, const Media &media,
-		   const SampleSet::Sample &sample)
-    const;
+		   const SampleSet::Sample &sample);
 
 private:
 
