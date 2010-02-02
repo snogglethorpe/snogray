@@ -233,22 +233,26 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	break;
 
       // If this path is getting long, use russian roulette to randomly
-      // terminate it.  In the case where we don't terminate, we 
+      // terminate it.
       //
       if (path_len > global.min_path_len)
 	{
 	  float russian_roulette = random (1.f);
 
 	  if (russian_roulette < global.russian_roulette_terminate_probability)
+	    //
+	    // Terminate!
+	    //
 	    break;
 	  else
-	    // In the case where we don't terminate, adjust
-	    // PATH_TRANSMITTANCE to reflect the fact that we tried.
 	    //
-	    // By dividing by a probability less than 1, we boost the
-	    // intensity of paths that survive russian-roulette, which will
-	    // exactly compensate for the zero value of paths that are
-	    // terminated by it.
+	    // Don't terminate.  Adjust PATH_TRANSMITTANCE to reflect
+	    // the fact that we tried.
+	    //
+	    // By dividing by the probability of termination, which is
+	    // less than 1, we boost the intensity of paths that survive
+	    // russian-roulette, which will exactly compensate for the
+	    // zero value of paths that are terminated by it.
 	    //
 	    path_transmittance
 	      /= 1 - global.russian_roulette_terminate_probability;
