@@ -13,7 +13,6 @@
 #include "excepts.h"
 #include "octree.h"
 #include "grid.h"
-#include "old-integ.h"
 #include "direct-integ.h"
 #include "path-integ.h"
 #include "filter-volume-integ.h"
@@ -60,14 +59,12 @@ GlobalRenderState::make_surface_integ_global_state (const Scene &scene,
 						    const ValTable &params)
 {
   std::string sint
-    = params.get_string ("surface-integrator,surface-integ,sint", "old");
+    = params.get_string ("surface-integrator,surface-integ,sint", "direct");
   
   if (sint == "direct")
     return new DirectInteg::GlobalState (scene, params);
   else if (sint == "path")
     return new PathInteg::GlobalState (scene, params);
-  else if (sint == "old")
-    return new OldInteg::GlobalState (scene, params);
   else
     throw std::runtime_error ("Unknown surface-integrator \"" + sint + "\"");
 }
