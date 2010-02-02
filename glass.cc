@@ -176,14 +176,18 @@ public:
 	      {
 		if (cos_xmit_angle != 0)
 		  xmit /= cos_xmit_angle;
-		return Sample (xmit, 1, xmit_dir, SPECULAR|TRANSMISSIVE);
+
+		return Sample (xmit, xmit_probability, xmit_dir,
+			       SPECULAR|TRANSMISSIVE);
 	      }
 	    else
 	      // Reflected sample.
 	      {
 		if (cos_refl_angle != 0)
 		  refl /= cos_refl_angle;
-		return Sample (refl, 1, isec.v.mirror (Vec (0, 0, 1)),
+
+		return Sample (refl, (1 - xmit_probability),
+			       isec.v.mirror (Vec (0, 0, 1)),
 			       SPECULAR|REFLECTIVE);
 	      }
 	  }
