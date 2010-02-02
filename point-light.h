@@ -17,6 +17,7 @@
 #include "color.h"
 #include "pos.h"
 
+
 namespace snogray {
 
 class PointLight : public Light
@@ -24,26 +25,6 @@ class PointLight : public Light
 public:
 
   PointLight (const Pos &_pos, const Color &col) : pos (_pos), color (col) { }
-
-  // Generate around NUM samples of this light and add them to SAMPLES.
-  // Return the actual number of samples (NUM is only a suggestion).
-  //
-  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
-				IllumSampleVec &samples)
-    const;
-
-  // For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
-  // light, and where light is closer than the sample's previously recorded
-  // light distance (or the previous distance is zero), overwrite the
-  // sample's light-related fields with information from this light.
-  //
-  virtual void filter_samples (const Intersect &,
-			       const IllumSampleVec::iterator &,
-			       const IllumSampleVec::iterator &)
-    const
-  {
-    // A point light can never be hit by an externally generated sample.
-  }
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is

@@ -18,7 +18,9 @@
 #include "color.h"
 #include "pos.h"
 
+
 namespace snogray {
+
 
 // A light at an "infinite" distance.
 //
@@ -33,23 +35,6 @@ public:
     : intensity (_intensity), angle (_angle), frame (_dir.unit ()),
       pdf (1 / angle), min_cos (cos (_angle / 2))
   { }
-
-  // Generate around NUM samples of this light and add them to SAMPLES.
-  // Return the actual number of samples (NUM is only a suggestion).
-  //
-  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
-				IllumSampleVec &samples)
-    const;
-
-  // For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
-  // light, and where light is closer than the sample's previously recorded
-  // light distance (or the previous distance is zero), overwrite the
-  // sample's light-related fields with information from this light.
-  //
-  virtual void filter_samples (const Intersect &isec, 
-			       const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const;
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is
@@ -85,8 +70,9 @@ private:
   dist_t min_cos;
 };
 
+
 }
 
-#endif /* __FAR_LIGHT_H__ */
+#endif // __FAR_LIGHT_H__
 
 // arch-tag: 0691dd09-998d-4cdf-b5e9-da71aed2ec41

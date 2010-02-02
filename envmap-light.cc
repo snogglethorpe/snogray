@@ -17,7 +17,6 @@
 #include "spheremap.h"
 #include "light-map.h"
 #include "lmap-analyzer.h"
-#include "grid-iter.h"
 #include "cos-dist.h"
 
 #include "envmap-light.h"
@@ -106,188 +105,7 @@ EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap)
 }
 
 
-
-// Generate some samples of this light and add them to SAMPLES.
-//
-unsigned
-EnvmapLight::gen_samples (const Intersect &isec, unsigned num,
-			  IllumSampleVec &samples)
-  const
-{
-  float intens_frac = isec.context.params.envlight_intens_frac;
-  float hemi_frac = 1 - intens_frac;
-
-  float inv_hemi_frac = (hemi_frac == 0) ? 0 : 1 / hemi_frac;
-  float inv_intens_frac = (hemi_frac == 1) ? 0 : 1 / intens_frac;
-
-  // True if we should use high-resolution intensity data.  Doing so
-  // gives better results for specular reflections from very glossy
-  // surfaces, but also results in more noise (variance) because the
-  // intensity data doesn't precisely match the PDF (this is especially
-  // noticeable for matte surfaces, where the increased accuracy doesn't
-  // matter anyway).
-  //
-  // As a compromise, we currently use high-res intensity data for BRDF
-  // samples (glossy surfaces will have tightly-grouped BRDF samples, so
-  // inaccuracies in the intensity of BRDF samples will be more
-  // obvious), but not for light samples (the main result of not using
-  // hires data for light samples will be slightly inaccurate shadow
-  // details, but this is usually much less obvious that inaccurate
-  // glossy reflections).
-  //
-  // A further improvement would be to never use high-resolution data
-  // for obviously non-glossy surfaces (lambertian, etc).
-  //
-  bool use_hires_intens = false;
-
-  CosDist hemi_dist;
-
-  GridIter grid_iter (num);
-
-  float u, v;
-  while (grid_iter.next (u, v))
-    {
-      // The intensity of this sample.
-      //
-      Color intens;
-
-      // The pdf in the light's intensity distribution for this sample.
-      //
-      float intens_pdf;
-
-      // The direction of this sample in the normal frame, and in the world
-      // frame.
-      //
-      Vec dir, world_dir;
-
-      // Choose hemi or intensity sampling based on the V parameter.
-      //
-      if (v < hemi_frac)
-	{
-	  // Map U,V to the hemisphere around ISEC's normal, with
-	  // distribution HEMI_DIST.
-
-	  float rescaled_v = v * inv_hemi_frac;
-
-	  dir = hemi_dist.sample (u, rescaled_v);
-	  world_dir = isec.normal_frame.from (dir);
-
-	  UV map_pos = LatLongMapping::map (world_dir);
-
-	  intens = intensity (map_pos.u, map_pos.v, intens_pdf);
-	}
-      else
-	{
-	  // Map U,V to a direction (which may be anywhere in the
-	  // sphere) based on the light's intensity distribution.
-
-	  float rescaled_v = (v - hemi_frac) * inv_intens_frac;
-
-	  UV map_pos = intensity_sample (u, rescaled_v, intens, intens_pdf);
-
-	  world_dir = LatLongMapping::map (map_pos);
-	  dir = isec.normal_frame.to (world_dir);
-
-	  // If this sample is in the wrong hemisphere, throw it away.
-	  //
-	  if (isec.cos_n (dir) < 0 || isec.cos_geom_n (dir) < 0)
-	    continue;
-	}
-
-      // If using "high-resolution intensity mode", get the actual intensity
-      // from the environment map, which is more accurate.
-      //
-      if (use_hires_intens)
-	intens = envmap->map (world_dir);
-
-      // The intensity distribution covers the entire sphere, so adjust
-      // the pdf to reflect that.
-      //
-      intens_pdf *= 0.25f * INV_PIf;
-
-      float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
-      float pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
-
-      samples.push_back (IllumSample (dir, intens, pdf, 0, this));
-    }
-
-  return grid_iter.num_samples ();
-}
-
-
-
-// For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
-// light, and where light is closer than the sample's previously recorded
-// light distance (or the previous distance is zero), overwrite the
-// sample's light-related fields with information from this light.
-//
-void
-EnvmapLight::filter_samples (const Intersect &isec,
-			     const IllumSampleVec::iterator &beg_sample,
-			     const IllumSampleVec::iterator &end_sample)
-  const
-{
-  float intens_frac = isec.context.params.envlight_intens_frac;
-  float hemi_frac = 1 - intens_frac;
-
-  // True if we should use high-resolution intensity data.  Doing so
-  // gives better results for specular reflections from very glossy
-  // surfaces, but also results in more noise (variance) because the
-  // intensity data doesn't precisely match the PDF (this is especially
-  // noticeable for matte surfaces, where the increased accuracy doesn't
-  // matter anyway).
-  //
-  // As a compromise, we currently use high-res intensity data for BRDF
-  // samples (glossy surfaces will have tightly-grouped BRDF samples, so
-  // inaccuracies in the intensity of BRDF samples will be more
-  // obvious), but not for light samples (the main result of not using
-  // hires data for light samples will be slightly inaccurate shadow
-  // details, but this is usually much less obvious that inaccurate
-  // glossy reflections).
-  //
-  // A further improvement would be to never use high-resolution data
-  // for obviously non-glossy surfaces (lambertian, etc).
-  //
-  bool use_hires_intens = true;
-
-  CosDist hemi_dist;
-
-  for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
-    if (s->light_dist == 0)
-      {
-	// The sample direction in the world frame of reference.
-	//
-	Vec world_dir = isec.normal_frame.from (s->dir);
-
-	// Find S's direction in our light map.
-	//
-	UV map_pos = LatLongMapping::map (world_dir);
-
-	// Look up the intensity at that point.
-	//
-	float intens_pdf;
-	Color intens = intensity (map_pos.u, map_pos.v, intens_pdf);
-
-	// If using "high-resolution intensity mode", get the actual
-	// intensity from the environment map, which is more accurate.
-	//
-	if (use_hires_intens)
-	  intens = envmap->map (world_dir);
-
-	// The intensity distribution covers the entire sphere, so adjust
-	// the pdf to reflect that.
-	//
-	intens_pdf *= 0.25f * INV_PIf;
-
-	float hemi_pdf = hemi_dist.pdf (isec.cos_n (s->dir));
-
-	s->light_val = intens;
-	s->light_pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
-	s->light = this;
-      }
-}
-
-
+// EnvmapLight::sample
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
@@ -389,6 +207,9 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
 
   return Sample (intens, pdf, dir, 0);
 }
+
+
+// EnvmapLight::eval
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC (using
 // a surface-normal coordinate system, where the surface normal is

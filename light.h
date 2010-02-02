@@ -13,7 +13,9 @@
 #ifndef __LIGHT_H__
 #define __LIGHT_H__
 
-#include "illum-sample.h"
+#include "color.h"
+#include "vec.h"
+#include "uv.h"
 
 
 namespace snogray {
@@ -81,23 +83,6 @@ public:
 
   Light () : num (0) { }
   virtual ~Light () { }
-
-  // Generate around NUM samples of this light and add them to SAMPLES.
-  // Return the actual number of samples (NUM is only a suggestion).
-  //
-  virtual unsigned gen_samples (const Intersect &isec, unsigned num,
-				IllumSampleVec &samples)
-    const = 0;
-
-  // For every sample from BEG_SAMPLE to END_SAMPLE which intersects this
-  // light, and where light is closer than the sample's previously recorded
-  // light distance (or the previous distance is zero), overwrite the
-  // sample's light-related fields with information from this light.
-  //
-  virtual void filter_samples (const Intersect &isec, 
-			       const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const = 0;
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is

@@ -17,29 +17,6 @@
 
 using namespace snogray;
 
-
-// Generate around NUM samples of this light and add them to SAMPLES.
-// Return the actual number of samples (NUM is only a suggestion).
-//
-unsigned
-PointLight::gen_samples (const Intersect &isec, unsigned,
-			 IllumSampleVec &samples)
-  const
-{
-  Vec lvec = isec.normal_frame.to (pos);
-
-  if (isec.cos_n (lvec) > 0 && isec.cos_geom_n (lvec) > 0)
-    {
-      dist_t dist = lvec.length ();
-      Vec s_dir = lvec / dist;
-      samples.push_back (IllumSample (s_dir, color / (dist * dist), 0,
-				      dist, this));
-      return 1;
-    }
-  else
-    return 0;
-}
-
 
 
 // Return a sample of this light from the viewpoint of ISEC (using a
