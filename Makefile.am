@@ -139,8 +139,8 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 
 libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h direct-integ.cc \
 	direct-integ.h filter-volume-integ.h global-render-state.cc	 \
-	global-render-state.h grid-iter.h grid.cc grid.h illum-sample.h	 \
-	integ.h intersect.cc intersect.h isec-cache.h media.cc media.h	 \
+	global-render-state.h grid-iter.h grid.cc grid.h integ.h	 \
+	intersect.cc intersect.h isec-cache.h media.cc media.h		 \
 	path-integ.cc path-integ.h ray.cc ray.h render-context.cc	 \
 	render-context.h render-params.h render-stats.cc render-stats.h	 \
 	sample-disk.h sample-gen.h sample-set.cc sample-set.h		 \
