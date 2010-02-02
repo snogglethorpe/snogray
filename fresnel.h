@@ -1,6 +1,6 @@
 // fresnel.h -- Calculation of fresnel reflection
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -74,11 +74,11 @@ public:
   //
   float reflectance (float cos_refl_angle) const
   {
-    // Clamp COS_REFL_ANGLE between -1 and 1, as values even just slightly
-    // outside that range (not uncommon, due to floating-point precision
-    // errors) can cause a floating-point exception.
+    // Clamp COS_REFL_ANGLE between -1 and 1, as values even just
+    // slightly outside that range (not uncommon, due to floating-point
+    // precision errors) can cause a floating-point exception.
     //
-    cos_refl_angle = max (min (cos_refl_angle, 1.f), -1.f);
+    cos_refl_angle = abs (clamp (cos_refl_angle, -1.f, 1.f));
 
     float refl_angle = acos (cos_refl_angle);
 
@@ -102,24 +102,14 @@ public:
 	// trans_angle are the reflection and refraction refl_angles of the
 	// light ray.
 
-	float sin_trans_angle = max (min (sin (refl_angle) / ior.n, 1.f), -1.f);
-
-	float trans_angle = asin (sin_trans_angle);
-	float cos_trans_angle = cos (trans_angle);
+	float sin_trans_angle = clamp (sin (refl_angle) / ior.n, -1.f, 1.f);
+	float cos_trans_angle = sqrt (1.f - sin_trans_angle * sin_trans_angle);
 
 	float nc1 = ior.n * cos_refl_angle;
 	float nc2 = ior.n * cos_trans_angle;
 
-	// XXX The following conditionals protect against zero-divide by
-	// making the result zero in that case; but they seem wrong -- as
-	// the denominator _approaches_ zero, we'll return a very large
-	// value, which seems bizarre ... shouldn't we always return 0-1?
-
-	float Fs_den = nc1 + cos_trans_angle;
-	float Fs = (Fs_den == 0) ? 0 : (nc1 - cos_trans_angle) / Fs_den;
-
-	float Fp_den = cos_refl_angle + nc2;
-	float Fp = (Fp_den == 0) ? 0 : (cos_refl_angle - nc2) / Fp_den;
+	float Fs = (nc1 - cos_trans_angle) / (nc1 + cos_trans_angle);
+	float Fp = (cos_refl_angle - nc2) / (cos_refl_angle + nc2);
 
 	// Square Fs and Fp to get reflectance
 	//
@@ -172,7 +162,7 @@ public:
 	Rp = Rs * ((Rp_term1 - Rp_term2) / (Rp_term1 + Rp_term2));
       }
 
-    return (Rs + Rp) / 2;
+    return clamp ((Rs + Rp) / 2, 0.f, 1.f);
   }
 
   // Final index of refracetion (the ratio of the indices of refraction on
