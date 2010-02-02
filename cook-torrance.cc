@@ -106,6 +106,12 @@ public:
     if (! desired_flags)
       goto fail;
 
+    // Handle flipped eye vector...
+    // XXX is this the right thing...?  What should we do here?
+    //
+    if (isec.v.z < 0)
+      goto fail;
+
     if (desired_flags == DIFFUSE || u < diff_weight)
       {
 	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
