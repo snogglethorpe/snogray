@@ -10,8 +10,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <list>
-
 #include "bsdf.h"
 #include "scene.h"
 
@@ -77,22 +75,17 @@ PathInteg::GlobalState::make_integrator (RenderContext &context)
 // "Li" means "Light incoming".
 //
 Tint
-PathInteg::Li (const Ray &ray, const Media &media,
+PathInteg::Li (const Ray &ray, const Media &orig_media,
 	       const SampleSet::Sample &sample)
 {
   const Scene &scene = context.scene;
   dist_t min_dist = context.params.min_trace;
 
-  // A stack of media layers active at the current vertex.
-  // A new layer is pushed when entering a refractive object, and the
-  // top layer is popped when exiting a refractive object.
+  // The innermost media layer in a stack of media layers active at the
+  // current vertex.  A new layer is pushed when entering a refractive
+  // object, and the top layer is popped when exiting a refractive object.
   //
-  // Note that because each Media object contains a pointer to the previous
-  // object in the stack, we must use std::list, not std::vector, as the
-  // latter may move objects (invalidating any pointers to them), whereas
-  // the former will not.
-  //
-  std::list<Media> media_stack (1, media);
+  const Media *innermost_media = &orig_media;
 
   Ray isec_ray (ray, scene.horizon);
 
@@ -133,7 +126,7 @@ PathInteg::Li (const Ray &ray, const Media &media,
 
       // Top of current media stack.
       //
-      const Media &media = media_stack.back ();
+      const Media &media = *innermost_media;
 
       // Include lighting from the volume integrator.  Note that we do
       // this before updating PATH_TRANSMITTANCE, because
@@ -292,18 +285,31 @@ PathInteg::Li (const Ray &ray, const Media &media,
 	      // happen, because enter/exit events should be matched, but
 	      // malformed scenes or degenerate conditions can cause it to
 	      // happen sometimes).
+	      //
+	      // We also do no deallocation of popped Media objects, as we
+	      // allocate them using the Mempool allocator in CONTEXT
+	      // (everything allocated there is later bulk-freed in the
+	      // main rendering loop).
+	      //
 
-	      if (media_stack.size () > 1)
-		media_stack.pop_back ();
+	      if (innermost_media->surrounding_media)
+		innermost_media = innermost_media->surrounding_media;
 	    }
 	  else
 	    {
 	      // Entering refractive object, push the new medium.
 
+	      // Get the new object's medium; if it has none (it should!)
+	      // use the default.
+	      //
 	      const Medium *medium = isec.material->medium ();
-	      media_stack.push_back (
-	      		    Media (medium ? *medium : context.default_medium,
-	      			   media));
+	      if (! medium)
+		medium = &context.default_medium;
+
+	      // Allocate a new Media object using CONTEXT's Mempool
+	      // allocator, and make it the new top of the media stack.
+	      //
+	      innermost_media = new (context) Media (*medium, innermost_media);
 	    }
 	}
 
