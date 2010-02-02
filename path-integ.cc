@@ -276,40 +276,45 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       //
       if (bsdf_samp.flags & Bsdf::TRANSMISSIVE)
 	{
-	  if (isec.back)
+	  // Get the medium of the surface.  A transmissive surface
+	  // without a medium has no effect on the media stack (so it
+	  // acts like a thin shell, rather than a volume).
+	  //
+	  const Medium *medium = isec.material->medium ();
+
+	  if (medium)
 	    {
-	      // Exiting refractive object, pop the innermost medium.
-	      //
-	      // We avoid popping the last element, as other places assume
-	      // there's at least one present (ideally, this would never
-	      // happen, because enter/exit events should be matched, but
-	      // malformed scenes or degenerate conditions can cause it to
-	      // happen sometimes).
-	      //
-	      // We also do no deallocation of popped Media objects, as we
-	      // allocate them using the Mempool allocator in CONTEXT
-	      // (everything allocated there is later bulk-freed in the
-	      // main rendering loop).
-	      //
+	      if (isec.back)
+		{
+		  // Exiting refractive object, pop the innermost medium.
+		  //
+		  // We avoid popping the last element, as other places
+		  // assume there's at least one present (ideally, this
+		  // would never happen, because enter/exit events
+		  // should be matched, but malformed scenes or
+		  // degenerate conditions can cause it to happen
+		  // sometimes).
+		  //
+		  // We do not need to deallocate popped Media objects,
+		  // as they are allocated using the Mempool allocator
+		  // in CONTEXT (everything allocated there is later
+		  // bulk-freed in the main rendering loop).
+		  //
 
-	      if (innermost_media->surrounding_media)
-		innermost_media = innermost_media->surrounding_media;
-	    }
-	  else
-	    {
-	      // Entering refractive object, push the new medium.
-
-	      // Get the new object's medium; if it has none (it should!)
-	      // use the default.
-	      //
-	      const Medium *medium = isec.material->medium ();
-	      if (! medium)
-		medium = &context.default_medium;
-
-	      // Allocate a new Media object using CONTEXT's Mempool
-	      // allocator, and make it the new top of the media stack.
-	      //
-	      innermost_media = new (context) Media (*medium, innermost_media);
+		  if (innermost_media->surrounding_media)
+		    innermost_media = innermost_media->surrounding_media;
+		}
+	      else
+		{
+		  // Entering refractive object, push the new medium.
+		  //
+		  // Allocate a new Media object using CONTEXT's Mempool
+		  // allocator, and make it the new top of the media
+		  // stack.
+		  //
+		  innermost_media
+		    = new (context) Media (*medium, innermost_media);
+		}
 	    }
 	}
 
