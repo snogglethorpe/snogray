@@ -143,7 +143,7 @@ public:
 	// normal.  For reflection this angle is the same as the angle
 	// between the view ray and the normal.
 	//
-	float cos_refl_angle = isec.cos_n (isec.v);
+	float cos_refl_angle = abs (isec.cos_n (isec.v));
 
 	// Proportion of transmitted light.
 	//
