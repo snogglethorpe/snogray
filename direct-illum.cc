@@ -11,7 +11,7 @@
 //
 
 #include "scene.h"
-#include "brdf.h"
+#include "bsdf.h"
 #include "light.h"
 
 #include "direct-illum.h"
@@ -101,8 +101,8 @@ DirectIllum::finish_init (SampleSet &samples, RenderContext &context,
   for (unsigned i = 0; i < num_lights; i++)
     {
       light_samp_channels.push_back (samples.add_channel<UV> (num_lsamples));
-      brdf_samp_channels.push_back (samples.add_channel<UV> (num_lsamples));
-      brdf_layer_channels.push_back (samples.add_channel<float> (num_lsamples));
+      bsdf_samp_channels.push_back (samples.add_channel<UV> (num_lsamples));
+      bsdf_layer_channels.push_back (samples.add_channel<float> (num_lsamples));
     }  
 }
 
@@ -129,13 +129,13 @@ DirectIllum::sample_all_lights (const Intersect &isec,
     {
       const Light *light = context.scene.lights[i];
       const SampleSet::Channel<UV> &light_chan = light_samp_channels[i];
-      const SampleSet::Channel<UV> &brdf_chan = brdf_samp_channels[i];
-      const SampleSet::Channel<float> &brdf_layer_chan = brdf_layer_channels[i];
+      const SampleSet::Channel<UV> &bsdf_chan = bsdf_samp_channels[i];
+      const SampleSet::Channel<float> &bsdf_layer_chan = bsdf_layer_channels[i];
       unsigned num_samples = light_chan.size;
 
       std::vector<UV>::const_iterator li = sample.begin (light_chan);
-      std::vector<UV>::const_iterator bi = sample.begin (brdf_chan);
-      std::vector<float>::const_iterator bli = sample.begin (brdf_layer_chan);
+      std::vector<UV>::const_iterator bi = sample.begin (bsdf_chan);
+      std::vector<float>::const_iterator bli = sample.begin (bsdf_layer_chan);
 
       Color light_radiance = 0;
       for (unsigned j = 0; j < num_samples; j++)
@@ -151,13 +151,13 @@ DirectIllum::sample_all_lights (const Intersect &isec,
 // DirectIllum::sample_light
 
 // Use multiple-importance-sampling to estimate the radiance of LIGHT
-// towards ISEC, using SAMPLE, LIGHT_PARAM, BRDF_PARAM, and
-// BRDF_LAYER_PARAM to sample both the light and the BRDF.
+// towards ISEC, using SAMPLE, LIGHT_PARAM, BSDF_PARAM, and
+// BSDF_LAYER_PARAM to sample both the light and the BSDF.
 //
 Color
 DirectIllum::sample_light (const Intersect &isec, const Light *light,
 			   const UV &light_param,
-			   const UV &brdf_param, float brdf_layer_param)
+			   const UV &bsdf_param, float bsdf_layer_param)
   const
 {
   RenderContext &context = isec.context;
@@ -165,7 +165,7 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
   dist_t min_dist = context.params.min_trace;
 
   // Final result, which will be the sum of one light sample and one
-  // BRDF sample.
+  // BSDF sample.
   //
   Color radiance = 0;
 
@@ -179,9 +179,9 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
 
   if (lsamp.pdf > 0 && lsamp.val > 0)
     {
-      // Now evaulate the BRDF in the direction of the light sample.
+      // Now evaulate the BSDF in the direction of the light sample.
       //
-      Brdf::Value bval = isec.brdf->eval (lsamp.dir);
+      Bsdf::Value bval = isec.bsdf->eval (lsamp.dir);
 
       if (bval.val > 0)
 	{
@@ -215,7 +215,7 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
 		lsamp_radiance
 		  *= mis_sample_weight (lsamp.pdf, 1, bval.pdf, 1);
 
-	      // Filter the light through the BRDF function.
+	      // Filter the light through the BSDF function.
 	      //
 	      lsamp_radiance *= bval.val;
 
@@ -231,25 +231,25 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
     }
 
   //
-  // Next, sample the BRDF.
+  // Next, sample the BSDF.
   //
 
-  // We only sample using the BRDF if the light isn't a point-light
+  // We only sample using the BSDF if the light isn't a point-light
   // (with a point light, the probability that the light will exactly
-  // coincide with a chosen BRDF sample direction is zero, so it's
+  // coincide with a chosen BSDF sample direction is zero, so it's
   // pointless).
   //
   if (! light->is_point_light ())
     {
-      // Sample the BRDF, based on BRDF_PARAM.
+      // Sample the BSDF, based on BSDF_PARAM.
       // We avoid specular samples, as they should be handled elsewhere.
       //
-      Brdf::Sample bsamp
-	= isec.brdf->sample (brdf_param, Brdf::ALL & ~Brdf::SPECULAR);
+      Bsdf::Sample bsamp
+	= isec.bsdf->sample (bsdf_param, Bsdf::ALL & ~Bsdf::SPECULAR);
 
       if (bsamp.pdf > 0 && bsamp.val > 0)
 	{
-	  // Now evaluate the light in the direction of the BRDF sample.
+	  // Now evaluate the light in the direction of the BSDF sample.
 	  //
 	  Light::Value lval = light->eval (isec, bsamp.dir);
 
@@ -286,7 +286,7 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
 		  bsamp_radiance
 		    *= mis_sample_weight (bsamp.pdf, 1, lval.pdf, 1);
 
-		  // Filter the light through the BRDF function.
+		  // Filter the light through the BSDF function.
 		  //
 		  bsamp_radiance *= bsamp.val;
 

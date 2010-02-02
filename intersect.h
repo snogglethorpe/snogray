@@ -26,7 +26,7 @@ namespace snogray {
 class Surface;
 class Material;
 class Media;
-class Brdf;
+class Bsdf;
 
 
 // This just packages up the result of a scene intersection search and
@@ -148,9 +148,9 @@ public:
   //
   const Material *material;
 
-  // BRDF used at this intersection.
+  // BSDF used at this intersection.
   //
-  const Brdf *brdf;
+  const Bsdf *bsdf;
 
   // Oft-used properties of SURFACE.
   //

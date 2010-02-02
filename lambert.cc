@@ -12,7 +12,7 @@
 
 #include "intersect.h"
 #include "cos-dist.h"
-#include "brdf.h"
+#include "bsdf.h"
 
 #include "lambert.h"
 
@@ -23,15 +23,15 @@ using namespace snogray;
 
 // The details of lambertian evaluation are in this class.
 //
-class LambertBrdf : public Brdf
+class LambertBsdf : public Bsdf
 {
 public:
 
-  LambertBrdf (const Lambert &_lambert, const Intersect &_isec)
-    : Brdf (_isec), color (_lambert.color.eval (_isec))
+  LambertBsdf (const Lambert &_lambert, const Intersect &_isec)
+    : Bsdf (_isec), color (_lambert.color.eval (_isec))
   { }
 
-  // Return a sample of this BRDF, based on the parameter PARAM.
+  // Return a sample of this BSDF, based on the parameter PARAM.
   //
   virtual Sample sample (const UV &param, unsigned flags) const
   {
@@ -45,7 +45,7 @@ public:
     return Sample ();
   }
 
-  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  // Evaluate this BSDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &dir) const
   {
@@ -61,12 +61,12 @@ private:
 };
 
 
-// Make a BRDF object for this material instantiated at ISEC.
+// Make a BSDF object for this material instantiated at ISEC.
 //
-Brdf *
-Lambert::get_brdf (const Intersect &isec) const
+Bsdf *
+Lambert::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) LambertBrdf (*this, isec);
+  return new (isec) LambertBsdf (*this, isec);
 }
 
 

@@ -16,7 +16,7 @@
 #include "intersect.h"
 #include "ward-dist.h"
 #include "cos-dist.h"
-#include "brdf.h"
+#include "bsdf.h"
 
 #include "cook-torrance.h"
 
@@ -27,7 +27,7 @@ using namespace snogray;
 
 // The details of cook-torrance evaluation are in this class.
 //
-class CookTorranceBrdf : public Brdf
+class CookTorranceBsdf : public Bsdf
 {
 public:
 
@@ -35,8 +35,8 @@ public:
   //
   static const float GLOSSY_M = 0.5;
 
-  CookTorranceBrdf (const CookTorrance &ct, const Intersect &_isec)
-    : Brdf (_isec),
+  CookTorranceBsdf (const CookTorrance &ct, const Intersect &_isec)
+    : Bsdf (_isec),
       m (ct.m.eval (isec)), spec_dist (m), diff_dist (),
       diff_col (ct.color.eval (isec)),
       spec_col (ct.specular_color.eval (isec)),
@@ -53,7 +53,7 @@ public:
 			  | (diff_weight < 1 ? spec_flags : 0))
   { }
 
-  // Return a sample of this BRDF, based on the parameter PARAM.
+  // Return a sample of this BSDF, based on the parameter PARAM.
   //
   virtual Sample sample (const UV &param, unsigned desired_flags = ALL) const
   {
@@ -116,7 +116,7 @@ public:
     return Sample ();
   }
 
-  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  // Evaluate this BSDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &dir) const
   {
@@ -237,23 +237,23 @@ private:
   //
   float nv, inv_4_nv;
 
-  // Brdf flags to use for "specular" samples.
+  // Bsdf flags to use for "specular" samples.
   //
   unsigned spec_flags;
 
-  // The set of Brdf flags for surface types we support; some combination
+  // The set of Bsdf flags for surface types we support; some combination
   // of DIFFUSE and GLOSSY.
   //
   unsigned have_surface_flags;
 };
 
 
-// Return a new BRDF object for this material instantiated at ISEC.
+// Return a new BSDF object for this material instantiated at ISEC.
 //
-Brdf *
-CookTorrance::get_brdf (const Intersect &isec) const
+Bsdf *
+CookTorrance::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) CookTorranceBrdf (*this, isec);
+  return new (isec) CookTorranceBsdf (*this, isec);
 }
 
 

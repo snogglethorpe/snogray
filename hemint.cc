@@ -1,6 +1,6 @@
 // hemint.cc -- numerically integrate over the hemisphere
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,8 +12,8 @@
 
 // This program does a very simple 2d numerical integration of various
 // functions over the hemisphere.  It is intended to test whether such
-// things as pdfs and brdfs properly meet certain constraints (pdfs must
-// integrate to 1 over the hemisphere, brdfs must integrate to something
+// things as pdfs and bsdfs properly meet certain constraints (pdfs must
+// integrate to 1 over the hemisphere, bsdfs must integrate to something
 // <= 1).  It assumes that the functions are "isotropic", so the actual
 // iteration is only done over dimension.
 

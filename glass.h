@@ -19,7 +19,7 @@
 
 namespace snogray {
 
-class GlassBrdf;
+class GlassBsdf;
 
 
 class Glass : public Material
@@ -28,9 +28,9 @@ public:
 
   Glass (const Medium &medium) : _medium (medium) { }
 
-  // Return a new BRDF object for this material instantiated at ISEC.
+  // Return a new BSDF object for this material instantiated at ISEC.
   //
-  virtual Brdf *get_brdf (const Intersect &isec) const;
+  virtual Bsdf *get_bsdf (const Intersect &isec) const;
 
   // Return the medium of this material (used only for refraction).
   //
@@ -38,7 +38,7 @@ public:
 
 private:
 
-  friend class GlassBrdf;
+  friend class GlassBsdf;
 
   Medium _medium;
 };

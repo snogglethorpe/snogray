@@ -127,9 +127,9 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
   // noticeable for matte surfaces, where the increased accuracy doesn't
   // matter anyway).
   //
-  // As a compromise, we currently use high-res intensity data for BRDF
-  // samples (glossy surfaces will have tightly-grouped BRDF samples, so
-  // inaccuracies in the intensity of BRDF samples will be more
+  // As a compromise, we currently use high-res intensity data for BSDF
+  // samples (glossy surfaces will have tightly-grouped BSDF samples, so
+  // inaccuracies in the intensity of BSDF samples will be more
   // obvious), but not for light samples (the main result of not using
   // hires data for light samples will be slightly inaccurate shadow
   // details, but this is usually much less obvious that inaccurate
@@ -228,9 +228,9 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
   // noticeable for matte surfaces, where the increased accuracy doesn't
   // matter anyway).
   //
-  // As a compromise, we currently use high-res intensity data for BRDF
-  // samples (glossy surfaces will have tightly-grouped BRDF samples, so
-  // inaccuracies in the intensity of BRDF samples will be more
+  // As a compromise, we currently use high-res intensity data for BSDF
+  // samples (glossy surfaces will have tightly-grouped BSDF samples, so
+  // inaccuracies in the intensity of BSDF samples will be more
   // obvious), but not for light samples (the main result of not using
   // hires data for light samples will be slightly inaccurate shadow
   // details, but this is usually much less obvious that inaccurate

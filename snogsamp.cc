@@ -150,7 +150,7 @@ s "  -m, --map-size=WIDTHxHEIGHT  Set output map size (default 800 x 400)"
 n
 s "  -s, --size=WIDTHxHEIGHT    Set camera image size (default 640 x 480)"
 n
-s "      --brdf                 Only sample the BRDF"
+s "      --bsdf                 Only sample the BSDF"
 s "      --lights               Only sample the lights"
 n
 s "  -i, --intensity            Indicate sample intensity too"
@@ -179,7 +179,7 @@ n;
 #undef n
 }
 
-#define OPT_BRDF	1
+#define OPT_BSDF	1
 #define OPT_LIGHTS	2
 
 
@@ -193,7 +193,7 @@ int main (int argc, char *const *argv)
     { "intensity",	no_argument,	   0, 'i' },
     { "no-normalize",	no_argument, 	   0, 'N' },
     { "map-size",	required_argument, 0, 'm' },
-    { "brdf",		no_argument,	   0, OPT_BRDF },
+    { "bsdf",		no_argument,	   0, OPT_BSDF },
     { "lights",		no_argument,	   0, OPT_LIGHTS },
     { "color",		required_argument, 0, 'C' },
     { "radius",		required_argument, 0, 'r' },
@@ -221,7 +221,7 @@ int main (int argc, char *const *argv)
   bool no_normalize = false, show_intensity = false;
   DumpBgKind dump_bg_kind = DUMP_BG_NONE;
   // the following is the default, and is treated as "show both"
-  bool use_light_samples = false, use_brdf_samples = false;
+  bool use_light_samples = false, use_bsdf_samples = false;
   unsigned sample_radius = 2;	// default
   Color sample_color (1, 0.2, 0.1);	// default
 
@@ -266,8 +266,8 @@ int main (int argc, char *const *argv)
       case OPT_LIGHTS: 		// sample lights only
 	use_light_samples = true;
 	break;
-      case OPT_BRDF: 		// sample brdf only
-	use_brdf_samples = true;
+      case OPT_BSDF: 		// sample bsdf only
+	use_bsdf_samples = true;
 	break;
       case 'r':			// set sample size
 	sample_radius = clp.unsigned_opt_arg ();
@@ -287,12 +287,12 @@ int main (int argc, char *const *argv)
 
   std::string filename = clp.get_arg();
 
-  if (!use_light_samples && !use_brdf_samples)
-    use_light_samples = use_brdf_samples = true;
+  if (!use_light_samples && !use_bsdf_samples)
+    use_light_samples = use_bsdf_samples = true;
   if (! use_light_samples)
     render_params.set ("light-samples", 0);
-  if (! use_brdf_samples)
-    render_params.set ("brdf-samples", 0);
+  if (! use_bsdf_samples)
+    render_params.set ("bsdf-samples", 0);
 
   // Define the scene.
 

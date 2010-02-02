@@ -1,4 +1,4 @@
-// brdf.h -- Bi-directional reflectance distribution function
+// bsdf.h -- Bi-directional scattering distribution function
 //
 //  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __BRDF_H__
-#define __BRDF_H__
+#ifndef __BSDF_H__
+#define __BSDF_H__
 
 #include "color.h"
 #include "vec.h"
@@ -23,13 +23,12 @@ namespace snogray {
 class Intersect;
 
 
-// A Brdf represents the state of a Material object at a particular
-// intersection, and is used for rendering calculations.
+// A Bsdf object represents the state of a Material object at an
+// intersection (a particular point on the surface, viewed from a
+// particular direction), and is used to calculate how light scatters from
+// the surface.
 //
-// Expensive operations (such as evaluating textures) can be done when
-// creating the Brdf.
-//
-class Brdf
+class Bsdf
 {
 public:
 
@@ -57,12 +56,12 @@ public:
     { }
     Sample () : val (0), pdf (0), flags (0) { }
 
-    // The value of the BRDF for this sample.
+    // The value of the BSDF for this sample.
     //
     Color val;
 
     // The value of the "probability density function" for this sample
-    // in the BRDF's sample distribution.
+    // in the BSDF's sample distribution.
     //
     // However, if this is a specular sample (with the SPECULAR flag
     // set), the value is not defined (theoretically the value is
@@ -89,32 +88,32 @@ public:
     { }
     Value () : val (0), pdf (0) { }
 
-    // The value of the BRDF for this value.
+    // The value of the BSDF for this value.
     //
     Color val;
 
     // The value of the "probability density function" for this value in the
-    // BRDF's value distribution.
+    // BSDF's value distribution.
     //
-    // However, if this is a purely specular brdf the pdf is not defined
+    // However, if this is a purely specular bsdf the pdf is not defined
     // (theoretically the value is infinity for specular values).
     //
     float pdf;
   };
 
-  Brdf (const Intersect &_isec) : isec (_isec) { }
-  virtual ~Brdf () {}
+  Bsdf (const Intersect &_isec) : isec (_isec) { }
+  virtual ~Bsdf () {}
 
-  // Return a sample of this BRDF, based on the parameter PARAM.
+  // Return a sample of this BSDF, based on the parameter PARAM.
   // FLAGS is the types of samples we'd like.
   //
   virtual Sample sample (const UV &param, unsigned flags = ALL) const = 0;
 
-  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  // Evaluate this BSDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &dir) const = 0;
 
-  // The intersection where this Brdf was created.
+  // The intersection where this Bsdf was created.
   //
   const Intersect &isec;
 };
@@ -122,7 +121,7 @@ public:
 
 }
 
-#endif /* __BRDF_H__ */
+#endif // __BSDF_H__
 
 
 // arch-tag: 8360ddd7-dc17-40b8-8319-8f6d61fe62bf

@@ -14,7 +14,7 @@
 #include "fresnel.h"
 #include "intersect.h"
 #include "media.h"
-#include "brdf.h"
+#include "bsdf.h"
 
 #include "glass.h"
 
@@ -24,12 +24,12 @@ using namespace snogray;
 
 // Common information used for refraction methods.
 //
-class snogray::GlassBrdf : public Brdf
+class snogray::GlassBsdf : public Bsdf
 {
 public:
 
-  GlassBrdf (const Glass &glass, const Intersect &isec)
-    : Brdf (isec), entering (! isec.back),
+  GlassBsdf (const Glass &glass, const Intersect &isec)
+    : Bsdf (isec), entering (! isec.back),
       old_ior ((entering ? isec.media.medium : glass._medium).ior),
       new_ior ((entering
 		? glass._medium
@@ -37,7 +37,7 @@ public:
 	       .ior)
   { }
 
-  // Return a sample of this BRDF, based on the parameter PARAM.
+  // Return a sample of this BSDF, based on the parameter PARAM.
   //
   virtual Sample sample (const UV &param, unsigned flags) const
   {
@@ -122,7 +122,7 @@ public:
     return Sample ();
   }
 
-  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  // Evaluate this BSDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &) const
   {
@@ -174,12 +174,12 @@ private:
 };
 
 
-// Return a new BRDF object for this material instantiated at ISEC.
+// Return a new BSDF object for this material instantiated at ISEC.
 //
-Brdf *
-Glass::get_brdf (const Intersect &isec) const
+Bsdf *
+Glass::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) GlassBrdf (*this, isec);
+  return new (isec) GlassBsdf (*this, isec);
 }
 
 

@@ -13,7 +13,7 @@
 #include "intersect.h"
 #include "media.h"
 #include "lambert.h"
-#include "brdf.h"
+#include "bsdf.h"
 
 #include "mirror.h"
 
@@ -31,20 +31,20 @@ Mirror::Mirror (const Ior &_ior,
 { }
 
 
-class MirrorBrdf : public Brdf
+class MirrorBsdf : public Bsdf
 {
 public:
 
-  MirrorBrdf (const Mirror &_mirror, const Intersect &_isec)
-    : Brdf (_isec),
-      underlying_brdf (_mirror.underlying_material
-		       ? _mirror.underlying_material->get_brdf (_isec)
+  MirrorBsdf (const Mirror &_mirror, const Intersect &_isec)
+    : Bsdf (_isec),
+      underlying_bsdf (_mirror.underlying_material
+		       ? _mirror.underlying_material->get_bsdf (_isec)
 		       : 0),
       fres (isec.media.medium.ior, _mirror.ior),
       reflectance (_mirror.reflectance.eval (isec))
   { }
 
-  // Return a sample of this BRDF, based on the parameter PARAM.
+  // Return a sample of this BSDF, based on the parameter PARAM.
   //
   virtual Sample sample (const UV &param, unsigned flags) const
   {
@@ -67,11 +67,11 @@ public:
 	    if (refl > Eps && isec.cos_geom_n (isec.v) > 0 /* XXX ?? XXX ??  */)
 	      return Sample (refl, 1, isec.v.mirror (Vec (0, 0, 1)), 
 			     SPECULAR|REFLECTIVE);
-	    else if (underlying_brdf)
+	    else if (underlying_bsdf)
 	      {
-		// We have an underlying BRDF, so generate a sample from that.
+		// We have an underlying BSDF, so generate a sample from that.
 		//
-		Sample samp = underlying_brdf->sample (param, flags);
+		Sample samp = underlying_bsdf->sample (param, flags);
 
 		// Tweak the result.
 		//
@@ -85,7 +85,7 @@ public:
     return Sample ();
   }
 
-  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  // Evaluate this BSDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &) const
   {
@@ -104,7 +104,7 @@ private:
     return 1 - refl;
   }
 
-  const Brdf *underlying_brdf;
+  const Bsdf *underlying_bsdf;
 
   const Fresnel fres;
 
@@ -112,12 +112,12 @@ private:
 };
 
 
-// Make a BRDF object for this material instantiated at ISEC.
+// Make a BSDF object for this material instantiated at ISEC.
 //
-Brdf *
-Mirror::get_brdf (const Intersect &isec) const
+Bsdf *
+Mirror::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) MirrorBrdf (*this, isec);
+  return new (isec) MirrorBsdf (*this, isec);
 }
 
 

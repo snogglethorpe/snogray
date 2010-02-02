@@ -14,7 +14,7 @@
 #include "intersect.h"
 #include "phong-dist.h"
 #include "cos-dist.h"
-#include "brdf.h"
+#include "bsdf.h"
 
 #include "phong.h"
 
@@ -25,12 +25,12 @@ using namespace snogray;
 
 // The details of phong evaluation are in this class.
 //
-class PhongBrdf : public Brdf
+class PhongBsdf : public Bsdf
 {
 public:
 
-  PhongBrdf (const Phong &_phong, const Intersect &_isec)
-    : Brdf (_isec), phong (_phong),
+  PhongBsdf (const Phong &_phong, const Intersect &_isec)
+    : Bsdf (_isec), phong (_phong),
       phong_dist (_phong.exponent), diff_dist (),
       diff_weight (phong.color.intensity ()),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
@@ -69,7 +69,7 @@ private:
     return phong.color * diff + phong.specular_color * spec;
   }
 
-  // Return a sample of this BRDF, based on the parameter PARAM.
+  // Return a sample of this BSDF, based on the parameter PARAM.
   //
   virtual Sample sample (const UV &param, unsigned desired_flags = ALL) const
   {
@@ -104,7 +104,7 @@ private:
       return Sample (0, 0, l, flags);
   }
 
-  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  // Evaluate this BSDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &dir) const
   {
@@ -133,12 +133,12 @@ private:
 };
 
 
-// Make a BRDF object for this material instantiated at ISEC.
+// Make a BSDF object for this material instantiated at ISEC.
 //
-Brdf *
-Phong::get_brdf (const Intersect &isec) const
+Bsdf *
+Phong::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) PhongBrdf (*this, isec);
+  return new (isec) PhongBsdf (*this, isec);
 }
 
 

@@ -1,6 +1,6 @@
 // render-cmdline.h -- Command-line options for rendering parameters
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -61,7 +61,7 @@
     {									\
       unsigned num_samples = clp.unsigned_opt_arg ();			\
       params.set ("light-samples", num_samples);			\
-      params.set ("brdf-samples", num_samples);				\
+      params.set ("bsdf-samples", num_samples);				\
     }									\
     break;
 

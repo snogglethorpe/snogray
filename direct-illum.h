@@ -80,12 +80,12 @@ public:
     const;
 
   // Use multiple-importance-sampling to estimate the radiance of LIGHT
-  // towards ISEC, using LIGHT_PARAM, BRDF_PARAM, and BRDF_LAYER_PARAM
-  // to sample both the light and the BRDF.
+  // towards ISEC, using LIGHT_PARAM, BSDF_PARAM, and BSDF_LAYER_PARAM
+  // to sample both the light and the BSDF.
   //
   Color sample_light (const Intersect &isec, const Light *light,
 		      const UV &light_param,
-		      const UV &brdf_param, float brdf_layer_param)
+		      const UV &bsdf_param, float bsdf_layer_param)
     const;
 
 private:
@@ -100,10 +100,10 @@ private:
   SampleSet::ChannelVec<UV> light_samp_channels;
   SampleSet::Channel<float> light_select_chan;
 
-  // Sample channels for brdf sampling.
+  // Sample channels for bsdf sampling.
   //
-  SampleSet::ChannelVec<UV> brdf_samp_channels;
-  SampleSet::ChannelVec<float> brdf_layer_channels;
+  SampleSet::ChannelVec<UV> bsdf_samp_channels;
+  SampleSet::ChannelVec<float> bsdf_layer_channels;
 };
 
 

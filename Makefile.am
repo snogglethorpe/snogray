@@ -161,7 +161,7 @@ libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = bbox.cc bbox.h brdf.h camera.cc camera.h	\
+libsnogscene_a_SOURCES = bbox.cc bbox.h bsdf.h camera.cc camera.h	\
 	coords.h cyl-xform.cc cyl-xform.h dist.h frame.h		\
 	material-dict.cc material-dict.h material.cc material.h		\
 	matrix4.cc matrix4.h matrix4.tcc medium.h octree.cc octree.h	\

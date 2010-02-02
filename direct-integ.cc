@@ -11,7 +11,7 @@
 //
 
 #include "scene.h"
-#include "brdf.h"
+#include "bsdf.h"
 
 #include "direct-integ.h"
 
@@ -58,28 +58,28 @@ DirectInteg::Lo (const Intersect &isec, const Media &media,
   //
   Color radiance = isec.material->Le (isec);
 
-  // Now if there's a BRDF, add contributions from incoming light
+  // Now if there's a BSDF, add contributions from incoming light
   // reflected-from / transmitted-through the surface.  [Only weird
-  // materials like light-emitters don't have a BRDF.]
+  // materials like light-emitters don't have a BSDF.]
   //
-  if (isec.brdf)
+  if (isec.bsdf)
     {
       // Include non-specular direct lighting.
       //
       radiance += direct_illum.sample_lights (isec, sample);
 
       //
-      // If the BRDF includes specular components, recurse to handle those.
+      // If the BSDF includes specular components, recurse to handle those.
       //
       // Note that because there's only one possible specular sample for
       // each direction, we just pass a dummy (0,0) parameter to
-      // Brdf::sample.
+      // Bsdf::sample.
       //
 
       // Try reflection.
       //
-      Brdf::Sample refl_samp
-	= isec.brdf->sample (UV(0,0), Brdf::SPECULAR|Brdf::REFLECTIVE);
+      Bsdf::Sample refl_samp
+	= isec.bsdf->sample (UV(0,0), Bsdf::SPECULAR|Bsdf::REFLECTIVE);
       if (refl_samp.val > 0)
 	{
 	  Ray refl_ray (isec.normal_frame.origin,
@@ -94,8 +94,8 @@ DirectInteg::Lo (const Intersect &isec, const Media &media,
 
       // Try refraction.
       //
-      Brdf::Sample xmit_samp
-	= isec.brdf->sample (UV(0,0), Brdf::SPECULAR|Brdf::TRANSMISSIVE);
+      Bsdf::Sample xmit_samp
+	= isec.bsdf->sample (UV(0,0), Bsdf::SPECULAR|Bsdf::TRANSMISSIVE);
       if (xmit_samp.val > 0)
 	{
 	  Media xmit_media (isec, true);

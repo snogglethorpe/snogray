@@ -22,14 +22,14 @@ class RenderParams
 {
 public:
 
-  // Number of BRDF samples to take, per intersection.
+  // Number of BSDF samples to take, per intersection.
   //
-  static const unsigned DEFAULT_BRDF_SAMPLES = 16;
+  static const unsigned DEFAULT_BSDF_SAMPLES = 16;
 
-  // Maximum BRDF samples per eye-ray (this number is approximate), as a
-  // multiple of the number of (per-intersection) BRDF samples.
+  // Maximum BSDF samples per eye-ray (this number is approximate), as a
+  // multiple of the number of (per-intersection) BSDF samples.
   //
-  static const unsigned DEFAULT_MAX_BRDF_SAMPLE_MULT = 4;
+  static const unsigned DEFAULT_MAX_BSDF_SAMPLE_MULT = 4;
 
   // Number of light samples.
   //
@@ -56,19 +56,19 @@ public:
   static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
 
   RenderParams ()
-    : num_brdf_samples (DEFAULT_BRDF_SAMPLES),
-      max_brdf_samples (num_brdf_samples * DEFAULT_MAX_BRDF_SAMPLE_MULT),
+    : num_bsdf_samples (DEFAULT_BSDF_SAMPLES),
+      max_bsdf_samples (num_bsdf_samples * DEFAULT_MAX_BSDF_SAMPLE_MULT),
       num_light_samples (DEFAULT_LIGHT_SAMPLES),
       max_light_samples (num_light_samples * DEFAULT_MAX_LIGHT_SAMPLE_MULT),
       min_trace (DEFAULT_MIN_TRACE),
       envlight_intens_frac (DEFAULT_ENVLIGHT_INTENS_FRAC)
   { }
   RenderParams (const ValTable &params)
-    : num_brdf_samples (
-	params.get_uint ("brdf-samples", DEFAULT_BRDF_SAMPLES)),
-      max_brdf_samples (
-	params.get_uint ("max-brdf-samples",
-			 num_brdf_samples * DEFAULT_MAX_BRDF_SAMPLE_MULT)),
+    : num_bsdf_samples (
+	params.get_uint ("bsdf-samples", DEFAULT_BSDF_SAMPLES)),
+      max_bsdf_samples (
+	params.get_uint ("max-bsdf-samples",
+			 num_bsdf_samples * DEFAULT_MAX_BSDF_SAMPLE_MULT)),
       num_light_samples (
 	params.get_uint ("light-samples", DEFAULT_LIGHT_SAMPLES)),
       max_light_samples (
@@ -80,13 +80,13 @@ public:
 	params.get_float ("envlight-intens-frac", DEFAULT_ENVLIGHT_INTENS_FRAC))
   { }
 
-  // Number of BRDF samples to take, per intersection.
+  // Number of BSDF samples to take, per intersection.
   //
-  unsigned num_brdf_samples;
+  unsigned num_bsdf_samples;
 
-  // Maximum BRDF samples per eye-ray (this number is approximate).
+  // Maximum BSDF samples per eye-ray (this number is approximate).
   //
-  unsigned max_brdf_samples;
+  unsigned max_bsdf_samples;
 
   // Number of light samples.
   //

@@ -88,9 +88,9 @@ private:
   //
   std::vector<DirectIllum> vertex_direct_illums;
 
-  // BRDF sample-channels used for the first SHORT_PATH_LEN path vertices.
+  // BSDF sample-channels used for the first SHORT_PATH_LEN path vertices.
   //
-  SampleSet::ChannelVec<UV> brdf_sample_channels;
+  SampleSet::ChannelVec<UV> bsdf_sample_channels;
 };
 
 

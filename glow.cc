@@ -34,12 +34,12 @@ Glow::Le (const Intersect &isec) const
   return isec.back ? 0 : color.eval (isec);
 }
 
-// Return a new BRDF object for this material instantiated at ISEC.
+// Return a new BSDF object for this material instantiated at ISEC.
 //
-Brdf *
-Glow::get_brdf (const Intersect &isec) const
+Bsdf *
+Glow::get_bsdf (const Intersect &isec) const
 {
-  return underlying_material ? underlying_material->get_brdf (isec) : 0;
+  return underlying_material ? underlying_material->get_bsdf (isec) : 0;
 }
 
 // Return the medium of this material (used only for refraction).

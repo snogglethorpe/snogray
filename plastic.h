@@ -1,6 +1,6 @@
 // plastic.h -- Plastic (thin, transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -34,9 +34,9 @@ public:
     : color (1), ior (_ior)
   { }
 
-  // Return a new BRDF object for this material instantiated at ISEC.
+  // Return a new BSDF object for this material instantiated at ISEC.
   //
-  virtual Brdf *get_brdf (const Intersect &isec) const;
+  virtual Bsdf *get_bsdf (const Intersect &isec) const;
 
   Color color;
 

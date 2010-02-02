@@ -12,7 +12,7 @@
 
 #include "surface.h"
 #include "material.h"
-#include "brdf.h"
+#include "bsdf.h"
 #include "media.h"
 #include "scene.h"
 #include "render-context.h"
@@ -123,12 +123,12 @@ Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
   geom_n = normal_frame.to (geom_frame.z);
   geom_n.z = abs (geom_n.z);	// flip GEOM_N if necessary
 
-  // Set up the "brdf" field by calling Intersect::get_brdf.  This is done
+  // Set up the "bsdf" field by calling Intersect::get_bsdf.  This is done
   // separately from the constructor initialization, because we pass the
-  // intersect object as argument to Material::get_brdf, and we want it to
+  // intersect object as argument to Material::get_bsdf, and we want it to
   // be in a consistent state.
   //
-  brdf = material->get_brdf (*this);
+  bsdf = material->get_bsdf (*this);
 }
 
 
@@ -141,7 +141,7 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
   : surface (_surface),
     normal_frame (_normal_frame), geom_frame (_normal_frame),
     // v and back are initialized by Intersect::finish_init
-    material (&*_surface->material), brdf (0),
+    material (&*_surface->material), bsdf (0),
     smoothing_group (0), no_self_shadowing (false),
     tex_coords (normal_frame.origin, _tex_coords),
     media (_media), context (_context)
@@ -157,7 +157,7 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
   : surface (_surface),
     normal_frame (_normal_frame), geom_frame (_geom_frame),
     // v, geom_n, and back are initialized by Intersect::finish_init
-    material (&*_surface->material), brdf (0),
+    material (&*_surface->material), bsdf (0),
     smoothing_group (0), no_self_shadowing (false),
     tex_coords (normal_frame.origin, _tex_coords),
     media (_media), context (_context)
@@ -167,10 +167,10 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
 
 Intersect::~Intersect ()
 {
-  // Destroy the BRDF object.  The memory will be implicitly freed later.
+  // Destroy the BSDF object.  The memory will be implicitly freed later.
   //
-  if (brdf)
-    brdf->~Brdf ();
+  if (bsdf)
+    bsdf->~Bsdf ();
 }
 
 

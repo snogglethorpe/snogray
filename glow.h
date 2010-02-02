@@ -29,9 +29,9 @@ public:
   Glow (const TexVal<Color> &col,
 	const Ref<const Material> &_underlying_material);
 
-  // Return a new BRDF object for this material instantiated at ISEC.
+  // Return a new BSDF object for this material instantiated at ISEC.
   //
-  virtual Brdf *get_brdf (const Intersect &isec) const;
+  virtual Bsdf *get_bsdf (const Intersect &isec) const;
 
   // Return the medium of this material (used only for refraction).
   //

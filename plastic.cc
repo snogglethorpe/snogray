@@ -13,7 +13,7 @@
 #include "intersect.h"
 #include "media.h"
 #include "fresnel.h"
-#include "brdf.h"
+#include "bsdf.h"
 
 #include "plastic.h"
 
@@ -22,15 +22,15 @@ using namespace snogray;
 
 // Common information used for refraction methods.
 //
-class PlasticBrdf : public Brdf
+class PlasticBsdf : public Bsdf
 {
 public:
 
-  PlasticBrdf (const Plastic &_plastic, const Intersect &isec)
-    : Brdf (isec), plastic (_plastic)
+  PlasticBsdf (const Plastic &_plastic, const Intersect &isec)
+    : Bsdf (isec), plastic (_plastic)
   { }
 
-  // Return a sample of this BRDF, based on the parameter PARAM.
+  // Return a sample of this BSDF, based on the parameter PARAM.
   //
   virtual Sample sample (const UV &param, unsigned flags) const
   {
@@ -69,7 +69,7 @@ public:
     return Sample ();
   }
 
-  // Evaluate this BRDF in direction DIR, and return its value and pdf.
+  // Evaluate this BSDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &) const
   {
@@ -82,12 +82,12 @@ private:
 };
 
 
-// Return a new BRDF object for this material instantiated at ISEC.
+// Return a new BSDF object for this material instantiated at ISEC.
 //
-Brdf *
-Plastic::get_brdf (const Intersect &isec) const
+Bsdf *
+Plastic::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) PlasticBrdf (*this, isec);
+  return new (isec) PlasticBsdf (*this, isec);
 }
 
 

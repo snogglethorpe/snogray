@@ -1,6 +1,6 @@
 // lambert.h -- Lambertian material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,9 +28,9 @@ public:
 
   Lambert (const TexVal<Color> &col) : color (col) { }
 
-  // Return a new BRDF object for this material instantiated at ISEC.
+  // Return a new BSDF object for this material instantiated at ISEC.
   //
-  virtual Brdf *get_brdf (const Intersect &isec) const;
+  virtual Bsdf *get_bsdf (const Intersect &isec) const;
 
   TexVal<Color> color;
 };

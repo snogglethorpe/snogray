@@ -12,7 +12,7 @@
 
 #include <list>
 
-#include "brdf.h"
+#include "bsdf.h"
 #include "scene.h"
 
 #include "path-integ.h"
@@ -42,13 +42,13 @@ PathInteg::PathInteg (RenderContext &context, GlobalState &global_state)
   : SurfaceInteg (context), global (global_state)
 {
   vertex_direct_illums.reserve (global.min_path_len);
-  brdf_sample_channels.reserve (global.min_path_len);
+  bsdf_sample_channels.reserve (global.min_path_len);
 
   for (unsigned i = 0; i < global.min_path_len; i++)
     {
       vertex_direct_illums.push_back (
 			     DirectIllum (context, global_state.direct_illum));
-      brdf_sample_channels.push_back (
+      bsdf_sample_channels.push_back (
 			     context.samples.add_channel<UV> ());
     }
 }
@@ -111,7 +111,7 @@ PathInteg::Li (const Ray &ray, const Media &media,
 
   // The transmittance of the entire current path from the beginning to the
   // current vertex.  Each new vertex will make this smaller because of the
-  // filtering effect of the BRDF at that location.
+  // filtering effect of the BSDF at that location.
   //
   Color path_transmittance = 1;
 
@@ -195,9 +195,9 @@ PathInteg::Li (const Ray &ray, const Media &media,
       if (path_len == 0 || after_specular_sample)
 	radiance += isec.material->Le (isec) * path_transmittance;
 
-      // If there's no BRDF at all, this path is done.
+      // If there's no BSDF at all, this path is done.
       //
-      if (! isec.brdf)
+      if (! isec.bsdf)
 	break;
 
       // Include direct lighting.  Note that this explicitly omits
@@ -227,25 +227,25 @@ PathInteg::Li (const Ray &ray, const Media &media,
 		* path_transmittance);
 	}
 
-      // Choose a parameter for sampling the BRDF.  For path vertices
+      // Choose a parameter for sampling the BSDF.  For path vertices
       // near the beginning (PATH_LEN < MIN_PATH_LEN), we use
       // SampleSet::Sample::get to get a sample from SAMPLE; if we've
       // MIN_PATH_LEN, then just generate a completely random sample
       // instead.
       //
-      UV brdf_samp_param =
+      UV bsdf_samp_param =
 	((path_len < global.min_path_len)
-	 ? sample.get (brdf_sample_channels[path_len])
+	 ? sample.get (bsdf_sample_channels[path_len])
 	 : UV (random (1.f), random (1.f)));
 
-      // Now sample the BRDF to get a new ray for the next path vertex.
+      // Now sample the BSDF to get a new ray for the next path vertex.
       //
-      Brdf::Sample brdf_samp = isec.brdf->sample (brdf_samp_param);
+      Bsdf::Sample bsdf_samp = isec.bsdf->sample (bsdf_samp_param);
 
-      // If the BRDF couldn't give us a sample, this path is done.
+      // If the BSDF couldn't give us a sample, this path is done.
       // It's essentially perfect  black.
       //
-      if (brdf_samp.pdf == 0 || brdf_samp.val == 0)
+      if (bsdf_samp.pdf == 0 || bsdf_samp.val == 0)
 	break;
 
       // If this path is getting long, use russian roulette to randomly
@@ -270,27 +270,27 @@ PathInteg::Li (const Ray &ray, const Media &media,
 	      /= 1 - global.russian_roulette_terminate_probability;
 	}
 
-      // Add this BRDF sample to PATH_TRANSMITTANCE.
+      // Add this BSDF sample to PATH_TRANSMITTANCE.
       //
       path_transmittance
-	*= brdf_samp.val * abs (isec.cos_n (brdf_samp.dir)) / brdf_samp.pdf;
+	*= bsdf_samp.val * abs (isec.cos_n (bsdf_samp.dir)) / bsdf_samp.pdf;
 
       // Update ISEC_RAY to point from ISEC's position in the direction
-      // of the BRDF sample.  
+      // of the BSDF sample.  
       //
       isec_ray = Ray (isec.normal_frame.origin,
-		      isec.normal_frame.from (brdf_samp.dir),
+		      isec.normal_frame.from (bsdf_samp.dir),
 		      min_dist, scene.horizon);
 
       // Remember whether we followed a specular sample.
       //
-      after_specular_sample = (brdf_samp.flags & Brdf::SPECULAR);
+      after_specular_sample = (bsdf_samp.flags & Bsdf::SPECULAR);
 
       // If we just followed a refractive (transmissive) sample, we need
       // to update our stack of Media entries:  entering a refractive
       // object pushes a new Media, existing one pops the top one.
       //
-      if (brdf_samp.flags & Brdf::TRANSMISSIVE)
+      if (bsdf_samp.flags & Bsdf::TRANSMISSIVE)
 	{
 	  if (isec.back)
 	    {
