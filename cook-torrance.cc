@@ -10,15 +10,12 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <list>
-
 #include "snogmath.h"
 #include "vec.h"
 #include "media.h"
 #include "intersect.h"
 #include "ward-dist.h"
 #include "cos-dist.h"
-#include "grid-iter.h"
 #include "brdf.h"
 
 #include "cook-torrance.h"
@@ -55,37 +52,6 @@ public:
       have_surface_flags ((diff_weight > 0 ? DIFFUSE : 0)
 			  | (diff_weight < 1 ? spec_flags : 0))
   { }
-
-  // Generate around NUM samples of this BRDF and add them to SAMPLES.
-  // Return the actual number of samples (NUM is only a suggestion).
-  //
-  virtual unsigned gen_samples (unsigned num, IllumSampleVec &samples) const
-  {
-    GridIter grid_iter (num);
-
-    float u, v;
-    while (grid_iter.next (u, v))
-      {
-	Sample samp = sample (UV (u, v));
-	if (samp.val > 0)
-	  // XXX note we rely on the values of Brdf::Flags being the same as
-	  // the correponding values in IllumSample::Flags!!
-	  samples.push_back (IllumSample (samp.dir, samp.val, samp.pdf, samp.flags));
-      }
-
-    return grid_iter.num_samples ();
-  }
-
-  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
-  // to END_SAMPLE.
-  //
-  virtual void filter_samples (const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const
-  {
-    for (IllumSampleVec::iterator s = beg_sample; s != end_sample; s++)
-      filter_sample (s);
-  }
 
   // Return a sample of this BRDF, based on the parameter PARAM.
   //
@@ -232,14 +198,6 @@ private:
     pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
 
     return diff_col * diff + spec_col * spec;
-  }
-
-  void filter_sample (const IllumSampleVec::iterator &s) const
-  {
-    const Vec &l = s->dir;
-    const Vec h = (isec.v + l).unit ();
-    s->brdf_val = val (l, h, s->brdf_pdf);
-    s->flags |= IllumSample::REFLECTIVE;
   }
 
   // M value used.

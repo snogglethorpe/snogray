@@ -13,7 +13,9 @@
 #ifndef __BRDF_H__
 #define __BRDF_H__
 
-#include "illum-sample.h"
+#include "color.h"
+#include "vec.h"
+#include "uv.h"
 
 
 namespace snogray {
@@ -103,12 +105,6 @@ public:
   Brdf (const Intersect &_isec) : isec (_isec) { }
   virtual ~Brdf () {}
 
-  // Generate around NUM samples of this BRDF and add them to SAMPLES.
-  // Return the actual number of samples (NUM is only a suggestion).
-  //
-  virtual unsigned gen_samples (unsigned num, IllumSampleVec &samples)
-    const = 0;
-
   // Return a sample of this BRDF, based on the parameter PARAM.
   // FLAGS is the types of samples we'd like.
   //
@@ -117,13 +113,6 @@ public:
   // Evaluate this BRDF in direction DIR, and return its value and pdf.
   //
   virtual Value eval (const Vec &dir) const = 0;
-
-  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
-  // to END_SAMPLE.
-  //
-  virtual void filter_samples (const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const = 0;
 
   // The intersection where this Brdf was created.
   //

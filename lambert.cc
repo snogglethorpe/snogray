@@ -10,11 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <list>
-
 #include "intersect.h"
 #include "cos-dist.h"
-#include "grid-iter.h"
 #include "brdf.h"
 
 #include "lambert.h"
@@ -33,42 +30,6 @@ public:
   LambertBrdf (const Lambert &_lambert, const Intersect &_isec)
     : Brdf (_isec), color (_lambert.color.eval (_isec))
   { }
-
-  // Generate around NUM samples of this BRDF and add them to SAMPLES.
-  // Return the actual number of samples (NUM is only a suggestion).
-  //
-  virtual unsigned gen_samples (unsigned num, IllumSampleVec &samples) const
-  {
-    GridIter grid_iter (num);
-
-    float u, v;
-    while (grid_iter.next (u, v))
-      {
-	float pdf;
-	Vec dir = dist.sample (u, v, pdf);
-	if (isec.cos_n (dir) > 0 && isec.cos_geom_n (dir) > 0)
-	  samples.push_back (IllumSample (dir, color * INV_PIf, pdf,
-					  IllumSample::REFLECTIVE
-					  |IllumSample::DIFFUSE));
-      }
-
-    return grid_iter.num_samples ();
-  }
-
-  // Add reflectance information for this BRDF to samples from BEG_SAMPLE
-  // to END_SAMPLE.
-  //
-  virtual void filter_samples (const IllumSampleVec::iterator &beg_sample,
-			       const IllumSampleVec::iterator &end_sample)
-    const
-  {
-    for (IllumSampleVec::iterator s = beg_sample; s != end_sample; ++s)
-      {
-	s->brdf_val = color * INV_PIf;
-	s->brdf_pdf = dist.pdf (isec.cos_n (s->dir));
-	s->flags |= IllumSample::REFLECTIVE|IllumSample::DIFFUSE;
-      }
-  }
 
   // Return a sample of this BRDF, based on the parameter PARAM.
   //
