@@ -22,24 +22,6 @@ class RenderParams
 {
 public:
 
-  // Number of BSDF samples to take, per intersection.
-  //
-  static const unsigned DEFAULT_BSDF_SAMPLES = 16;
-
-  // Maximum BSDF samples per eye-ray (this number is approximate), as a
-  // multiple of the number of (per-intersection) BSDF samples.
-  //
-  static const unsigned DEFAULT_MAX_BSDF_SAMPLE_MULT = 4;
-
-  // Number of light samples.
-  //
-  static const unsigned DEFAULT_LIGHT_SAMPLES = 16;
-
-  // Maximum light samples per eye-ray (this number is approximate), as a
-  // multiple of the number of (per-intersection) light samples.
-  //
-  static const unsigned DEFAULT_MAX_LIGHT_SAMPLE_MULT = 4;
-
   // The minimum ray-length that will be accepted when tracing a ray; any
   // intersection closer than this to the ray origin will be ignored.
   //
@@ -56,45 +38,15 @@ public:
   static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
 
   RenderParams ()
-    : num_bsdf_samples (DEFAULT_BSDF_SAMPLES),
-      max_bsdf_samples (num_bsdf_samples * DEFAULT_MAX_BSDF_SAMPLE_MULT),
-      num_light_samples (DEFAULT_LIGHT_SAMPLES),
-      max_light_samples (num_light_samples * DEFAULT_MAX_LIGHT_SAMPLE_MULT),
-      min_trace (DEFAULT_MIN_TRACE),
+    : min_trace (DEFAULT_MIN_TRACE),
       envlight_intens_frac (DEFAULT_ENVLIGHT_INTENS_FRAC)
   { }
   RenderParams (const ValTable &params)
-    : num_bsdf_samples (
-	params.get_uint ("bsdf-samples", DEFAULT_BSDF_SAMPLES)),
-      max_bsdf_samples (
-	params.get_uint ("max-bsdf-samples",
-			 num_bsdf_samples * DEFAULT_MAX_BSDF_SAMPLE_MULT)),
-      num_light_samples (
-	params.get_uint ("light-samples", DEFAULT_LIGHT_SAMPLES)),
-      max_light_samples (
-	params.get_uint ("max-light-samples",
-			 num_light_samples * DEFAULT_MAX_LIGHT_SAMPLE_MULT)),
-      min_trace (
+    : min_trace (
 	params.get_float ("min-media", DEFAULT_MIN_TRACE)),
       envlight_intens_frac (
 	params.get_float ("envlight-intens-frac", DEFAULT_ENVLIGHT_INTENS_FRAC))
   { }
-
-  // Number of BSDF samples to take, per intersection.
-  //
-  unsigned num_bsdf_samples;
-
-  // Maximum BSDF samples per eye-ray (this number is approximate).
-  //
-  unsigned max_bsdf_samples;
-
-  // Number of light samples.
-  //
-  unsigned num_light_samples;
-
-  // Maximum light samples per eye-ray (this number is approximate).
-  //
-  unsigned max_light_samples;
 
   // Minimum length of a mediad ray; any objects closer than this to the
   // ray origin are ignored.  This doesn't apply to ordinary (opaque)
