@@ -15,6 +15,7 @@
 #include "grid.h"
 #include "old-integ.h"
 #include "direct-integ.h"
+#include "path-integ.h"
 #include "filter-volume-integ.h"
 
 #include "global-render-state.h"
@@ -63,6 +64,8 @@ GlobalRenderState::make_surface_integ_global_state (const Scene &scene,
   
   if (sint == "direct")
     return new DirectInteg::GlobalState (scene, params);
+  else if (sint == "path")
+    return new PathInteg::GlobalState (scene, params);
   else if (sint == "old")
     return new OldInteg::GlobalState (scene, params);
   else

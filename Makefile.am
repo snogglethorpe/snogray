@@ -143,8 +143,8 @@ libsnogrender_a_SOURCES = old-direct-illum.cc old-direct-illum.h	\
 	global-render-state.h grid-iter.h grid.cc grid.h illum.h	\
 	illum-mgr.cc illum-mgr.h illum-sample.h integ.h intersect.cc	\
 	intersect.h isec-cache.h media.cc media.h mis-illum.cc		\
-	mis-illum.h old-integ.cc old-integ.h ray.cc ray.h		\
-	recurs-illum.cc recurs-illum.h render-context.cc		\
+	mis-illum.h old-integ.cc old-integ.h path-integ.cc path-integ.h	\
+	ray.cc ray.h recurs-illum.cc recurs-illum.h render-context.cc	\
 	render-context.h render-params.h render-stats.cc render-stats.h	\
 	sample-disk.h sample-gen.h sample-set.cc sample-set.h		\
 	shadow-ray.h surface-integ.h volume-integ.h			\
