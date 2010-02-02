@@ -1,6 +1,6 @@
 // snogmath.h -- Math operations
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -55,6 +55,15 @@ inline T clamp (T val, T minv, T maxv)
 {
   val = likely (val < maxv) ? val : maxv;
   return likely (val > minv) ? val : minv;
+}
+
+
+// Clamp VAL to the range 0-1.
+//
+template<typename T>
+inline T clamp01 (T val)
+{
+  return clamp (val, T (0), T (1));
 }
 
 
