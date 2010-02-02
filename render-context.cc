@@ -10,7 +10,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "mis-illum.h"
 #include "octree.h"
 
 #include "render-context.h"
