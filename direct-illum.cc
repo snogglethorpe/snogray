@@ -63,6 +63,15 @@ DirectIllum::GlobalState::GlobalState (const ValTable &params)
 {
 }
 
+// Constructor that allows explicitly setting the number of samples.
+//
+DirectIllum::GlobalState::GlobalState (unsigned _num_light_samples,
+				       const ValTable &)
+  : num_light_samples (_num_light_samples)
+{
+}
+
+
 DirectIllum::DirectIllum (RenderContext &context,
 			  const GlobalState &global_state)
   : light_select_chan (context.samples.add_channel<float> ())

@@ -29,13 +29,17 @@ class DirectIllum
 {
 public:
 
-  // Global state for this illumrator, for rendering an entire scene.
+  // Global state for this illuminator, for rendering an entire scene.
   //
   class GlobalState
   {
   public:
 
     GlobalState (const ValTable &params);
+
+    // Constructor that allows explicitly setting the number of samples.
+    //
+    GlobalState (unsigned num_light_samples, const ValTable &params);
 
   private:
 
