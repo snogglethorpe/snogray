@@ -1,4 +1,4 @@
-AC_INIT([snogray], [0.1.50], [Miles Bader <miles@gnu.org>])
+AC_INIT([snogray], [0.2], [Miles Bader <miles@gnu.org>])
 
 AM_INIT_AUTOMAKE([foreign])
 
