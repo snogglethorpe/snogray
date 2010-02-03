@@ -1,0 +1,299 @@
+Snogray Usage
+
+
+Snogray is a command-line program, which reads a scene description
+file, and outputs an image file.
+
+
+ [In the examples below, UPPERCASE is used for "variables",
+  representing values to be filled in by the user.  Optional values
+  are surrounded by square-brackets, "[" and "]".  Values which may be
+  repeated have an ellipsis, "..." appended.]
+
+
+BASIC USAGE
+
+   Basic usage of snogray is very simple (on the command-line):
+
+     ./snogray [OPTION...] SCENE_FILE OUTPUT_IMAGE_FILE
+
+   SCENE_FILE is the scene to render, usually written in Lua (but
+   also, 3ds etc files should work).
+
+   OUTPUT_IMAGE_FILE is the image file snogray will write the output
+   image to.  The output image format will be automatically chosen
+   based on the file extension of OUTPUT_IMAGE_FILE -- e.g., an
+   extension of ".exr" will result in an OpenEXR file, ".jpg" in a
+   jpeg fils ".png" for PNG, etc.
+
+
+COMMAND-LINE OPTIONS
+
+   Snogray understands various command-line options as well.  Invoking
+   snogray with the "--help" option will give a list of common options
+   (though it's probably a bit of out date).
+
+   Some of the more useful options include:
+
+    -C
+    --continue
+
+        If the specified output-image file already exists, snogray
+        will refuse to overwrite it, and will exit with an error
+        message.
+
+        If you give the -C/--continue option, snogray will instead
+        attempt to _continue_ rendering a partially-rendered image, by
+        first reading in as much of the output-image file as it can,
+        and then continuing rendering at the place where the image
+        seems to have been truncated.
+
+        For this to work properly, the same input scene and
+        command-line options must be used as were used to write the
+        original partially-rendered image!
+
+    --help
+
+       Output a description of the command-line options and exit
+
+    --version
+
+       Output program version and exit
+
+    -s WIDTHxHEIGHT
+    --size=WIDTHxHEIGHT
+
+        Set the output -image size to WIDTH by HEIGHT pixels.
+
+        If the "xHEIGHT" portion of the value is omitted, then WIDTH
+        is divided by the default aspect ratio to get the height.
+
+        ["x" is a literal character x, WIDTH and HEIGHT should be
+        replaced by numbers; e.g.: --size=640x480 ]
+
+    -w WIDTH
+    --width=WIDTH
+    -h HEIGHT
+    --height=HEIGHT
+
+        Set the output-image height or width; if not specified, the
+        other size is calculated automatically using the default
+        aspect ratio.
+
+    -a NUM
+    --oversample=NUM
+
+        Use NUM samples for each output pixel (the default is 1).
+
+        Using more samples makes the output image less noisy, but
+        increases run-time.
+
+    -n NUM
+    --direct-samples=NUM
+
+        Use NUM light samples for direct lighting.  Using more samples
+        can sometimes reduce noise in situations where direct lighting
+        is important (but often it's better to increase the number of
+        samples per pixel using -a/--oversample).  The default depends
+        on the surface-integrator used.
+
+    -S INTEG
+    --surface-integ=INTEG
+
+        Use surface-integrator INTEG.  A "surface integrator" is the
+        basic rendering algorithm used; which one is used can
+        dramatically effect the quality and look of the output image.
+
+        Implemented surface-integrators include:
+
+           "direct"
+
+                A "direct lighting only" surface-integrator.
+
+                This surface-integrator is the closest to the classic
+                ray-tracing algorithm.
+
+                It is relatively fast, but only uses light falling
+                directly on surfaces from lights, and ignores any
+                indirect ("global") lighting.  It will also
+                recursively handle perfectly specular surfaces such as
+                glass or mirrors for primary (eye) rays, but not for
+                lighting.
+
+           "path"
+
+                 A "path tracing" surface-integrator.
+
+                 Path tracing is a simple algorithm that properly
+                 implements global illumination in the general case.
+
+                 However, it is very slow and usually gives noisy
+                 results.  The amount of noise may be reduced by
+                 increasing the number of samples used (with the
+                 -a/--oversample command-line option), but it takes a
+                 _lot_ of samples to achieve a noise-free image.
+
+                 [The number of samples required varies depending on
+                 the details of the lighting in the scene; 16 samples
+                 may be enough for a good rough image, but 40000
+                 samples may be required for a noise-free one!]
+
+    -b ENV_MAP_IMAGE_FILE
+    --background=ENV_MAP_IMAGE_FILE
+
+        Use ENV_MAP_IMAGE_FILE as an environment map, i.e., as the
+        scene background.  ENV_MAP_IMAGE_FILE should be an image file
+        in "latitude-longitude" format (covering a full 360 degree
+        sphere).
+
+        If the -l/--light-map option is not used, ENV_MAP_IMAGE_FILE
+        is used for both background and lighting, so light will come
+        "from" the background image.  For this reason it is best if it
+        is an HDR (high-dynamic range) image, e.g., with an .exr or
+        .hdr extension.
+
+        If the -l/--light-map is used in addition to -b/--background,
+        then the environment map specified with -b/--background will
+        only be used for
+
+    -l ENV_MAP_IMAGE_FILE
+    --light-map=ENV_MAP_IMAGE_FILE
+
+        Use ENV_MAP_IMAGE_FILE as a light map, for lighting the scene.
+        ENV_MAP_IMAGE_FILE should be an image file in "latitude-
+        longitude" format (covering a full 360 degree sphere).
+
+        ENV_MAP_IMAGE_FILE will only be used for lighting purposes, and
+        not as a "visual" background (use -b/--background for that).
+
+    -e EXPOSURE
+    --exposure=EXPOSURE
+
+        Modify the brightness/contrast of the output image.
+
+        EXPOSURE can have one of the following forms:
+
+           +STOPS    Make the output image 2^STOPS times brighter
+           -STOPS    Make the output image 2^STOPS times dimmer
+           *SCALE    Make the output image SCALE times brighter
+           /SCALE    Make the output image SCALE times dimmer
+
+           ^POWER    Raise each output pixel to the POWER power; this
+                     modifies the contrast of the output.  Use a
+                     positive value of POWER for higher contrast, and
+                     a negative value of POWER for lower contrast.
+           
+        Brightness and contrast modifications may be combined, e.g.,
+        "+4^2" first multiplies each output pixel by 2^4 (16), and
+        then raises the result to the 2nd power.  Note that when used
+        together, there's a great deal of interaction between these
+        settings, so it may be necessary to adjust one to compensate
+        for the effect of the other (e.g., 
+
+        Increase or decrease exposure by STOPS f-stops
+
+    -F FILTER[/PARAM=VAL...]
+    --filter=FILTER[/PARAM=VAL...]
+
+        Set the filter used for the output image to FILTER, and
+        optionally change some filter parameters.
+
+        Possible values of FILTER include "mitchell", "gauss", and "box"
+        (default "mitchell").
+
+        The set of filter parameters vary depending on the filter, but
+        some include:
+
+           "width"  -- the width of the filter, used by most filters
+           "a", "b" -- parameters for the "mitchell" filter
+           "alpha"  -- parameter for the "gauss" filter
+
+    -c CMDS
+    --camera=CMDS
+
+        Move/point the camera according to the commands in the string
+        CMDS.  CMDS is a comma-separated list of simple
+        one-or-two-letter commands.
+
+        The commands include (spaces are used for clarity, and may be
+        omitted in use):
+
+            g X,Y,Z     Goto absolute location X, Y, Z
+            t X,Y,Z     Point at target X, Y, Z
+            mr DIST     Move right DIST units
+            ml DIST     Move left DIST units
+            mu DIST     Move up DIST units
+            md DIST     Move down DIST units
+            mf DIST     Move forward DIST units
+            mb DIST     Move back DIST units
+            mx DIST     Move DIST units along the x-axis
+            my DIST     Move DIST units along the y-axis
+            mz DIST     Move DIST units along the z-axis
+            rr ANGLE    Rotate right ANGLE degrees
+            rl ANGLE    Rotate left ANGLE degrees
+            ru ANGLE    Rotate up ANGLE degrees
+            rd ANGLE    Rotate down ANGLE degrees
+            ra ANGLE    Rotate ANGLE degrees around the center axis
+            rx ANGLE    Rotate ANGLE degrees around the x-axis
+            ry ANGLE    Rotate ANGLE degrees around the y-axis
+            rz ANGLE    Rotate ANGLE degrees around the z-axis
+            ox ANGLE    "Orbit" ANGLE degrees around the x-axis
+            oy ANGLE    "Orbit" ANGLE degrees around the y-axis
+            oz ANGLE    "Orbit" ANGLE degrees around the z-axis
+
+        E.g., -coy20,mf5,z2 has the following commands:
+
+           "oy20" means "orbit around y-axis 20 degrees"
+           "mf5"  means "move forward by 5 scene units"
+           "z2"   means "zoom in by a factor of 2"
+
+    -A ALPHA
+    --background-alpha=ALPHA
+        
+        Use ALPHA as the opacity of the background.
+
+        This may be used to produce output images with a "transparent"
+        background (for use as icons or whatever).  Whenever a
+        camera-ray does not hit any object in the scene, and the
+        background is black, ALPHA is used as the alpha value
+        (opacity) of that pixel.
+
+    -R OPTIONS
+    --render-options=OPTIONS
+
+        Set rendering options, where OPTIONS is a comma-separated list
+        of NAME=VALUE pairs.  The supported rendering options vary
+        depending on the surface-integrator used, but some are:
+
+           min-trace=DIST 
+
+              Set the minimum tracing distance to DIST.
+
+        Options understood by the "path" surface-integrator:
+
+           min-path-len=LEN
+
+              The number of surface intersections which will always
+              be traced without trying to terminate the path using
+              russian-roulette.  (default 5)
+
+           rr-term-prob=PROB
+
+              For paths over the minimum path-length, the probability
+              that a path will be terminated at each new intersection.
+              (default 0.5)
+
+    -q
+    --quiet
+
+        Do not output informational or progress messages
+
+    -P
+    --no-progress
+
+        Do not display a progress indicator
+
+    -p
+    --progress
+
+      Output progress indicator despite --quiet
