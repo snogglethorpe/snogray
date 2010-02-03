@@ -16,14 +16,14 @@
 
 #define RENDER_OPTIONS_HELP "\
  Rendering options:\n\
-  -a, --oversample=N         Use NxN samples for each output pixel\n\
-\n\
-  -n, --samples=NUM          Use NUM lighting samples per eye-ray (default 16)\n\
+  -a, --oversample=NUM       Use NUM samples for each output pixel\n\
+  -n, --direct-samples=NUM   Use NUM light samples for direct lighting\n\
+  -S, --surface-integ=INTEG  Use surface-integrator INTEG (default \"direct\")\n\
+                               Options include:\n\
+                                 \"direct\"     -- direct-lighting\n\
+                                 \"path\"       -- path-tracing\n\
   -R, --render-options=OPTS  Set output-image options; OPTS has the format\n\
                                OPT1=VAL1[,...]; current options include:\n\
-                                 \"oversample\" -- use N x N oversampling\n\
-                                 \"jitter\"     -- jitter samples\n\
-                                 \"max-depth\"  -- maximum trace depth\n\
                                  \"min-trace\"  -- minimum trace ray length"
 
 #if 0
@@ -36,12 +36,15 @@
                                FILL is the intensity of the scene between wires\n"
 #endif
 
-#define RENDER_SHORT_OPTIONS "a:n:R:" // "w::"
+#define RENDER_SHORT_OPTIONS "a:n:S:R:" // "w::"
 
 #define RENDER_LONG_OPTIONS						\
   { "oversample",	required_argument, 0, 'a' },			\
   { "anti-alias",	required_argument, 0, 'a' },			\
   { "samples",		required_argument, 0, 'n' },			\
+  { "surface-integrator", required_argument, 0, 'S' },			\
+  { "surface-integ",	required_argument, 0, 'S' },			\
+  { "sint",		required_argument, 0, 'S' },			\
   { "render-options",	required_argument, 0, 'R' }/*,			\
   { "wire-frame",	optional_argument, 0, 'w' }*/
 
@@ -49,6 +52,9 @@
   case 'a':								\
     params.set ("oversample", clp.unsigned_opt_arg ());			\
     break;								\
+ case 'S':								\
+   params.set ("surface-integrator", clp.opt_arg ());			\
+   break;								\
   case 'R':								\
     params.parse (clp.opt_arg ());					\
     break;								\
@@ -58,11 +64,7 @@
       params.wire_frame_params.parse (clp);				\
       break;*/								\
   case 'n':								\
-    {									\
-      unsigned num_samples = clp.unsigned_opt_arg ();			\
-      params.set ("light-samples", num_samples);			\
-      params.set ("bsdf-samples", num_samples);				\
-    }									\
+    params.set ("light-samples", clp.unsigned_opt_arg ());		\
     break;
 
 #endif /* __RENDER_CMDLINE_H__ */
