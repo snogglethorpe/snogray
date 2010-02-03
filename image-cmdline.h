@@ -1,6 +1,6 @@
 // image-cmdline.h -- Support for command-line parsing of image parameters
 //
-//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -36,11 +36,18 @@
 // Image output options
 
 #define IMAGE_OUTPUT_OPTIONS_HELP "\
-  -e, --exposure=STOPS       Increase or decrease exposure by STOPS f-stops\n\
-  -F, --filter=FILTER[,WID]  Filter to apply to the output image; if specified,\n\
-                               WID is the support width of the filter.\n\
-                               FILTER may be \"gauss\", \"triangle\", or \"box\"\n\
-                               (default \"box\")\n\
+  -e, --exposure=EXPOSURE    Increase/decrease output brightness/contrast\n\
+                               EXPOSURE can have one of the forms:\n\
+                                 +STOPS  -- Make output 2^STOPS times brighter\n\
+                                 -STOPS  -- Make output 2^STOPS times dimmer\n\
+                                 *SCALE  -- Make output SCALE times brighter\n\
+                                 /SCALE  -- Make output SCALE times dimmer\n\
+                                 ^POWER  -- Raise output to the POWER power\n\
+  -F, --filter=FILTER[/PARAM=VAL...]\n\
+                             Filter to apply to the output image, and\n\
+                               optional parameters; FILTER may be one of\n\
+                               \"mitchell\", \"gauss\", or \"box\"\n\
+                               (default \"mitchell\")\n\
 \n\
   -O, --output-options=OPTS  Set output-image options; OPTS has the format\n\
                                OPT1=VAL1[,...]; current options include:\n\
@@ -48,7 +55,7 @@
                                  \"gamma\"   -- target gamma correction\n\
                                  \"quality\" -- image compression quality (0-100)\n\
                                  \"filter\"  -- output filter\n\
-                                 \"exposure\"-- increase exposure by N stops"
+                                 \"exposure\"-- output exposure"
 
 #define IMAGE_OUTPUT_SHORT_OPTIONS "e:F:O:"
 

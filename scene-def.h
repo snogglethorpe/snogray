@@ -1,6 +1,6 @@
 // scene-def.h -- Scene definition object
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -21,7 +21,8 @@
 #define SCENE_DEF_OPTIONS_HELP "\
  Scene options:\n\
   -b, --background=BG        Use BG as a background and light-source;\n\
-                               BG may be a color or a cube-map specification\n\
+                               BG may be a color or the name of an\n\
+                               environment-map image file\n\
   -A, --background-alpha=ALPHA Use ALPHA as the opacity of the background\n\
   -l, --light-map=LMAP       Use LMAP as an environmental light-source\n\
                                (overriding any light-source from --background)\n\
