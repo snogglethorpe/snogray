@@ -1,0 +1,37 @@
+Building Snogray
+
+
+Snogray uses the GNU autotools.  To build it, one must first run the
+"configure" shell script; this produces a "Makefile", which allows
+one to compile snogray by running the "make" program.  If there are
+missing dependencies, the configure script will given an error.
+
+[If this is a development snapshot, there may not be a "configure"
+script.  In such a case the "autogen.sh" script may be run to
+produce the configure script; however, this requires that the GNU
+autotools be installed.]
+
+Build steps (these commands should be given to a command-line prompt):
+
+(0) OPTIONAL:  if there is no "configure" script, generate
+    "configure" by running autogen.sh:
+
+       ./autogen.sh
+
+(1) Run the "configure" script to generate a Makefile:
+
+       ./configure
+
+(2) Use make to build snogray:
+
+       make
+
+
+In step (1), the configure script will try to examine your system to
+see what libraries, etc, are available.  There are very few
+libraries which are actually _necessary_ to compile snogray, but
+many are desirable -- e.g., libjpeg (for jpeg image handling),
+OpenEXR (for .exr format HDR image handling), Lua (for lua scene
+files) etc.  To use Lua, it may be also necessary to have the "swig"
+interface generator installed (this is not always true, because
+a pre-generated interface may be included with the distribution).
