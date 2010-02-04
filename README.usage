@@ -208,44 +208,51 @@ COMMAND-LINE OPTIONS
            "a", "b" -- parameters for the "mitchell" filter
            "alpha"  -- parameter for the "gauss" filter
 
-    -c CMDS
-    --camera=CMDS
+    -c COMMANDS
+    --camera=COMMANDS
 
-        Move/point the camera according to the commands in the string
-        CMDS.  CMDS is a comma-separated list of simple
-        one-or-two-letter commands.
+        Move/point or perform other camera actions according to the
+        commands in the string COMMANDS.  COMMANDS is a comma-separated
+        list of simple one-or-two-letter commands.
 
-        The commands include (spaces are used for clarity, and may be
+        Camera commands include (spaces are used for clarity, and may be
         omitted in use):
 
             g X,Y,Z     Goto absolute location X, Y, Z
             t X,Y,Z     Point at target X, Y, Z
-            mr DIST     Move right DIST units
-            ml DIST     Move left DIST units
-            mu DIST     Move up DIST units
-            md DIST     Move down DIST units
-            mf DIST     Move forward DIST units
-            mb DIST     Move back DIST units
-            mx DIST     Move DIST units along the x-axis
-            my DIST     Move DIST units along the y-axis
-            mz DIST     Move DIST units along the z-axis
-            rr ANGLE    Rotate right ANGLE degrees
-            rl ANGLE    Rotate left ANGLE degrees
-            ru ANGLE    Rotate up ANGLE degrees
-            rd ANGLE    Rotate down ANGLE degrees
-            ra ANGLE    Rotate ANGLE degrees around the center axis
-            rx ANGLE    Rotate ANGLE degrees around the x-axis
-            ry ANGLE    Rotate ANGLE degrees around the y-axis
-            rz ANGLE    Rotate ANGLE degrees around the z-axis
-            ox ANGLE    "Orbit" ANGLE degrees around the x-axis
-            oy ANGLE    "Orbit" ANGLE degrees around the y-axis
-            oz ANGLE    "Orbit" ANGLE degrees around the z-axis
+            mDIR DIST   Move DIST units in DIR direction
+                        DIR can be one of l, r, u, d, f, b, x, y, z for
+                        left, right, up, down, forward, back, or along
+                        one of the x/y/z axes
+            rDIR ANGLE  Rotate ANGLE degrees in DIR direction
+                        DIR can be one of l, r, u, d, x, y, z for left,
+                        right, up, down, around camera axis, or along
+                        one of the x/y/z axes
+            oAXIS ANGLE "Orbit" ANGLE degrees around the AXIS (x, y, z) axis
+            z FACTOR    Zoom by FACTOR amount
+            l FOC_LEN   Set lens focal-length to FOC_LEN
+            f F_STOP    Set lens aperture to F_STOP
+            d DIST      Set focus distance to DIST
+            a X,Y       Auto-focus at point X,Y on the output image
+                        X and Y are fractions of output image's x or y
+                        dimension, and have a range of 0 to 1; Y starts
+                        from the _bottom_ of the image
+            u SIZE      Set scene unit to SIZE, in mm
+            h           Set camera orientation to horizontal
+            v           Set camera orientation to vertical
 
         E.g., -coy20,mf5,z2 has the following commands:
 
            "oy20" means "orbit around y-axis 20 degrees"
            "mf5"  means "move forward by 5 scene units"
            "z2"   means "zoom in by a factor of 2"
+
+        Note that command-line camera commands are applied after the
+        camera has been set up by the scene input file.  Also, all
+        changes are made in order.  For instance, if the "u" command is
+        used to change the size of the scene unit, distances in
+        subsequent commands will use that unit; also, the auto-focus
+        command
 
     -A ALPHA
     --background-alpha=ALPHA
