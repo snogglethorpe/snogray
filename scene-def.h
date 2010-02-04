@@ -42,7 +42,16 @@
                                r[rlud] A   Rotate A deg in the given dir\n\
                                ra A        Rotate A deg around center axis\n\
                                r[xyz] A    Rotate A degrees around [xyz]-axis\n\
-                               o[xyz] A    Orbit A degrees around [xyz]-axis"
+                               o[xyz] A    Orbit A degrees around [xyz]-axis\n\
+                               z SCALE     Zoom by SCALE\n\
+                               l FOC_LEN   Set lens focal-length to FOCLEN\n\
+                               f F_STOP    Set lens aperture to F_STOP\n\
+                               d DIST      Set focus distance to DIST\n\
+                               a X,Y       Auto-focus at point X,Y on image\n\
+                               u SIZE      Set scene unit to SIZE, in mm\n\
+                               h           Set camera orientation to horizontal\n\
+                               v           Set camera orientation to vertical"
+                               
 //
 #define SCENE_DEF_SHORT_OPTIONS		"b:A:l:I:c:"
 //
