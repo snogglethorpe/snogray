@@ -16,6 +16,7 @@
 #include "global-render-state.h"
 #include "render-stats.h"
 #include "render-params.h"
+#include "random.h"
 #include "mempool.h"
 #include "medium.h"
 #include "pool.h"
@@ -70,6 +71,10 @@ public:
   Pool<IsecCache> isec_cache_pool;
 
   RenderStats stats;
+
+  // Random number generator.  This is a callable object.
+  //
+  Random random;
 
   // Global state shared by all render-contexts.
   //
