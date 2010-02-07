@@ -12,7 +12,6 @@
 
 #include "bsdf.h"
 #include "scene.h"
-#include "rand.h"
 
 #include "path-integ.h"
 
@@ -221,7 +220,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       UV bsdf_samp_param =
 	((path_len < global.min_path_len)
 	 ? sample.get (bsdf_sample_channels[path_len])
-	 : UV (random (1.f), random (1.f)));
+	 : UV (context.random (), context.random ()));
 
       // Now sample the BSDF to get a new ray for the next path vertex.
       //
@@ -238,7 +237,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       //
       if (path_len > global.min_path_len)
 	{
-	  float russian_roulette = random (1.f);
+	  float russian_roulette = context.random ();
 
 	  if (russian_roulette < global.russian_roulette_terminate_probability)
 	    //
