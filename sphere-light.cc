@@ -11,6 +11,7 @@
 //
 
 #include "snogmath.h"
+#include "rand.h"
 #include "intersect.h"
 #include "sphere-isec.h"
 
