@@ -681,12 +681,12 @@ AC_MSG_CHECKING([which random number generator to use])
 if test "$have_std_random" = "yes"; then
   AC_DEFINE([USE_STD_RANDOM], [1], [Define if using c++0x std::random])
   random_api_name="std::random (c++0x)"
-elif test "$have_std_tr1_random" = "yes"; then
-  AC_DEFINE([USE_STD_TR1_RANDOM], [1], [Define if using c++0x TR1 std::random])
-  random_api_name="std::random (c++0x TR1)"
 elif test $have_boost_random = yes; then
   AC_DEFINE([USE_BOOST_RANDOM], [1], [Define if using boost::random])
   random_api_name="boost::random"
+elif test "$have_std_tr1_random" = "yes"; then
+  AC_DEFINE([USE_STD_TR1_RANDOM], [1], [Define if using c++0x TR1 std::random])
+  random_api_name="std::random (c++0x TR1)"
 else
   random_api_name="rand"
 fi
