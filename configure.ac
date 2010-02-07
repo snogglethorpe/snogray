@@ -653,8 +653,8 @@ if test "$have_std_random" = no; then
   AC_LINK_IFELSE([#include <random>
 		  std::mt19937 rng;
 		  std::uniform_real<float> dist;
-		  std::variate_generator<RNG &, std::uniform_real<float> > vg (rng);
-		  int main () { vg (rng); }],
+		  std::variate_generator<std::mt19937 &, std::uniform_real<float> > vg (rng, dist);
+		  int main () { vg (); }],
 		 [have_std_tr1_random=yes])
   AC_MSG_RESULT([$have_std_tr1_random])
 fi
@@ -668,8 +668,8 @@ if test "$ac_cv_header_boost_random_hpp" = yes; then
   AC_LINK_IFELSE([#include <boost/random.hpp>
 		  boost::mt19937 rng;
 		  boost::uniform_real<float> dist;
-		  boost::variate_generator<RNG &, boost::uniform_real<float> > vg (rng);
-		  int main () { vg (rng); }],
+		  boost::variate_generator<boost::mt19937 &, boost::uniform_real<float> > vg (rng, dist);
+		  int main () { vg (); }],
 		 [have_boost_random=yes])
   AC_MSG_RESULT([$have_boost_random])
 fi
