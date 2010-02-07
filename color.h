@@ -1,6 +1,6 @@
 // color.h -- Color datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,6 @@
 
 #include <fstream>
 
-#include "rand.h"
 #include "snogmath.h"
 #include "tuple-adaptor.h"
 
@@ -382,22 +381,6 @@ inline Color fmod (const Color &col1, const Color &col2)
   Color rval;
   for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
     rval[c] = fmod (col1[c], col2[c]);
-  return rval;
-}
-
-inline Color random (const Color &limit = Color (1.f))
-{
-  Color rval;
-  for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
-    rval[c] = random (limit[c]);
-  return rval;
-}
-
-inline Color random (const Color &min, const Color &limit)
-{
-  Color rval;
-  for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
-    rval[c] = random (min[c], limit[c]);
   return rval;
 }
 
