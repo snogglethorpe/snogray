@@ -40,13 +40,13 @@ public:
 
   Random () : frng (rng) { }
 
-  // Return a floating-point random number in the range 0-1.  It isn't
+  // Return a random floating-point number in the range 0-1.  It isn't
   // defined whether the ends of the range are inclusive or exclusive,
   // so callers should be prepared to handle either case.
   //
   float operator() () { return frng (); }
 
-  // Return an unsigned int random number in the range [0, N).
+  // Return a random integer in the range [0, N).
   //
   unsigned operator() (unsigned n) { return rng () % n; }
 
