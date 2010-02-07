@@ -903,6 +903,8 @@ namespace snogray {
     }
   }
   %template(Image) TupleMatrix<Color>;
+  %template(ImageRef) Ref<TupleMatrix<Color> >;
+
 
   // Simple interface to SphereTesselFun
   //
