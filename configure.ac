@@ -568,6 +568,11 @@ if test $have_std_unique_ptr = yes; then
 fi
 
 
+##
+## Threading
+##
+
+
 # Check for standard C++ mutex support
 #
 AC_MSG_CHECKING([for std::mutex])
@@ -613,15 +618,79 @@ fi
 AC_MSG_CHECKING([which thread interface to use])
 if test "$have_std_thread,$have_std_mutex" = "yes,yes"; then
   AC_DEFINE([USE_STD_THREAD], [1], [Define if using c++ std thread interface])
-  thread_api_name="std (c++0x)"
+  thread_api_name="std::thread (c++0x)"
 elif test $have_boost_thread = yes; then
   AC_DEFINE([USE_BOOST_THREAD], [1], [Define if using boost thread library])
   LIBS="$LIBS $boost_thread_lib"
-  thread_api_name="boost"
+  thread_api_name="boost::thread"
 else
   thread_api_name=none
 fi
 AC_MSG_RESULT([$thread_api_name])
+
+
+##
+## Random-number generators
+##
+
+
+# Check for C++0x std::random
+#
+have_std_random=no
+AC_MSG_CHECKING([for c++0x std::random])
+AC_LINK_IFELSE([#include <random>
+		std::mt19937 rng;
+		std::uniform_real_distribution<float> dist;
+		int main () { dist (rng); }],
+	       [have_std_random=yes])
+AC_MSG_RESULT([$have_std_random])
+
+# Check for C++0x TR1 std::random, but only if we didn't get the later version
+#
+have_std_tr1_random=no
+if test "$have_std_random" = no; then
+  AC_MSG_CHECKING([for c++0x TR1 std::random])
+  AC_LINK_IFELSE([#include <random>
+		  std::mt19937 rng;
+		  std::uniform_real<float> dist;
+		  std::variate_generator<RNG &, std::uniform_real<float> > vg (rng);
+		  int main () { vg (rng); }],
+		 [have_std_tr1_random=yes])
+  AC_MSG_RESULT([$have_std_tr1_random])
+fi
+
+# Check for the boost random library
+#
+have_boost_random=no
+AC_CHECK_HEADERS([boost/random.hpp])
+if test "$ac_cv_header_boost_random_hpp" = yes; then
+  AC_MSG_CHECKING([for boost::random])
+  AC_LINK_IFELSE([#include <boost/random.hpp>
+		  boost::mt19937 rng;
+		  boost::uniform_real<float> dist;
+		  boost::variate_generator<RNG &, boost::uniform_real<float> > vg (rng);
+		  int main () { vg (rng); }],
+		 [have_boost_random=yes])
+  AC_MSG_RESULT([$have_boost_random])
+fi
+
+
+# Choose which random number generator to use
+#
+AC_MSG_CHECKING([which random number generator to use])
+if test "$have_std_random" = "yes"; then
+  AC_DEFINE([USE_STD_RANDOM], [1], [Define if using c++0x std::random])
+  random_api_name="std::random (c++0x)"
+elif test "$have_std_tr1_random" = "yes"; then
+  AC_DEFINE([USE_STD_TR1_RANDOM], [1], [Define if using c++0x TR1 std::random])
+  random_api_name="std::random (c++0x TR1)"
+elif test $have_boost_random = yes; then
+  AC_DEFINE([USE_BOOST_RANDOM], [1], [Define if using boost::random])
+  random_api_name="boost::random"
+else
+  random_api_name="rand"
+fi
+AC_MSG_RESULT([$random_api_name])
 
 
 ##
