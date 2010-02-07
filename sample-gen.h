@@ -20,6 +20,8 @@
 
 namespace snogray {
 
+class Random;
+
 
 // A sample generator, which can generate a specified number of samples to
 // cover a certain number of dimensions "evenly".
@@ -31,10 +33,12 @@ class SampleGen
 {
 public:
 
-  // Generate NUM samples and store them in TABLE.
+  // Using RANDOM as a source of randomness, add NUM samples to TABLE
+  // through TABLE+NUM.
   //
   template<typename T>
-  void gen_samples (const typename std::vector<T>::iterator &table,
+  void gen_samples (Random &random,
+		    const typename std::vector<T>::iterator &table,
 		    unsigned num)
     const;
 
@@ -46,11 +50,15 @@ public:
 protected:
 
   // The actual sample generating methods, defined by subclasses.
+  // Using RANDOM as a source of randomness, add NUM samples to TABLE
+  // through TABLE+NUM.
   //
-  virtual void gen_float_samples (const std::vector<float>::iterator &table,
+  virtual void gen_float_samples (Random &random,
+				  const std::vector<float>::iterator &table,
 				  unsigned num)
     const = 0;
-  virtual void gen_uv_samples (const std::vector<UV>::iterator &table,
+  virtual void gen_uv_samples (Random &random,
+			       const std::vector<UV>::iterator &table,
 			       unsigned num)
     const = 0;
 
@@ -74,20 +82,22 @@ protected:
 
 template<>
 inline void
-SampleGen::gen_samples<float> (const std::vector<float>::iterator &table,
+SampleGen::gen_samples<float> (Random &random,
+			       const std::vector<float>::iterator &table,
 			       unsigned num)
   const
 {
-  gen_float_samples (table, num);
+  gen_float_samples (random, table, num);
 }
 
 template<>
 inline void
-SampleGen::gen_samples<UV> (const std::vector<UV>::iterator &table,
+SampleGen::gen_samples<UV> (Random &random,
+			    const std::vector<UV>::iterator &table,
 			    unsigned num)
   const
 {
-  gen_uv_samples (table, num);
+  gen_uv_samples (random, table, num);
 }
 
 

@@ -134,10 +134,11 @@ public:
   };
 
 
-  // Construct a new sample set, using the specified sample generator.
+  // Construct a new sample set, using the sample generator GEN and
+  // RANDOM as a source of randomness.
   //
-  SampleSet (unsigned _num_samples, SampleGen &_gen)
-    : num_samples (_num_samples), gen (_gen)
+  SampleSet (unsigned _num_samples, const SampleGen &_gen, Random &_random)
+    : num_samples (_num_samples), gen (_gen), random (_random)
   {}
 
 
@@ -259,7 +260,11 @@ public:
 
   // Sample generator used to generate the actual sample values.
   //
-  SampleGen &gen;
+  const SampleGen &gen;
+
+  // Source of randomness to use when generating samples.
+  //
+  Random &random;
 };
 
 

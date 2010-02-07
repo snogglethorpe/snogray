@@ -19,7 +19,7 @@ using namespace snogray;
 
 RenderContext::RenderContext (const GlobalRenderState &_global_state)
   : scene (_global_state.scene),
-    samples (_global_state.num_samples, *_global_state.sample_gen),
+    samples (_global_state.num_samples, *_global_state.sample_gen, random),
     global_state (_global_state),
     params (_global_state.params),
     surface_integ (

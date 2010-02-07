@@ -23,12 +23,15 @@ class Grid : public SampleGen
 {
 protected:
 
-  // The actual sample generating methods.
+  // The actual sample generating methods.  Using RANDOM as a source of
+  // randomness, add NUM samples to TABLE through TABLE+NUM.
   //
-  virtual void gen_float_samples (const std::vector<float>::iterator &table,
+  virtual void gen_float_samples (Random &random,
+				  const std::vector<float>::iterator &table,
 				  unsigned num)
     const;
-  virtual void gen_uv_samples (const std::vector<UV>::iterator &table,
+  virtual void gen_uv_samples (Random &random,
+			       const std::vector<UV>::iterator &table,
 			       unsigned num)
     const;
 

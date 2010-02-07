@@ -12,7 +12,7 @@
 
 #include "snogmath.h"
 #include "snogassert.h"
-#include "rand.h"
+#include "random.h"
 
 #include "grid.h"
 
@@ -21,7 +21,8 @@ using namespace snogray;
 
 
 void
-Grid::gen_uv_samples (const std::vector<UV>::iterator &table, unsigned num)
+Grid::gen_uv_samples (Random &random,
+		      const std::vector<UV>::iterator &table, unsigned num)
   const
 {
   assert (num != 0, "bogus sample count to Grid::gen_uv_samples");
@@ -47,8 +48,8 @@ Grid::gen_uv_samples (const std::vector<UV>::iterator &table, unsigned num)
 
       for (unsigned j = 0; j < u_steps; j++)
 	{
-	  *samp++ = UV (clamp01 (u_offs + random (u_step)),
-			clamp01 (v_offs + random (v_step)));
+	  *samp++ = UV (clamp01 (u_offs + random () * u_step),
+			clamp01 (v_offs + random () * v_step));
 	  u_offs += u_step;
 	}
 
@@ -71,7 +72,8 @@ Grid::adjust_uv_sample_count (unsigned num) const
 }
 
 void
-Grid::gen_float_samples (const std::vector<float>::iterator &table,
+Grid::gen_float_samples (Random &random,
+			 const std::vector<float>::iterator &table,
 			 unsigned num)
   const
 {
@@ -79,7 +81,7 @@ Grid::gen_float_samples (const std::vector<float>::iterator &table,
   float offs = 0;
 
   for (unsigned i = 0; i < num; i++)
-    table[i] = clamp01 (offs + random (n_step));
+    table[i] = clamp01 (offs + random () * n_step);
 }
 
 

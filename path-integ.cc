@@ -39,7 +39,7 @@ PathInteg::GlobalState::GlobalState (const Scene &scene,
 PathInteg::PathInteg (RenderContext &context, GlobalState &global_state)
   : SurfaceInteg (context),
     global (global_state),
-    random_sample_set (1, context.samples.gen),
+    random_sample_set (1, context.samples.gen, context.random),
     random_direct_illum (random_sample_set, context, global.direct_illum)
 {
   vertex_direct_illums.reserve (global.min_path_len);

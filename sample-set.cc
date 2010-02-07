@@ -39,7 +39,7 @@ SampleSet::generate ()
     {
       std::vector<float>::iterator base = sample<float> (i->base_offset);
       unsigned size = num_samples * i->size;
-      gen.gen_samples<float> (base, size);
+      gen.gen_samples<float> (random, base, size);
       random_shuffle (base, base + size);
     }
 
@@ -48,7 +48,7 @@ SampleSet::generate ()
     {
       std::vector<UV>::iterator base = sample<UV> (i->base_offset);
       unsigned size = num_samples * i->size;
-      gen.gen_samples<UV> (base, size);
+      gen.gen_samples<UV> (random, base, size);
       random_shuffle (base, base + size);
     }
 }
