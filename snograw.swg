@@ -890,6 +890,8 @@ namespace snogray {
     void save (const char *filename, const ValTable &params = ValTable::NONE)
       const;
 
+    T operator() (unsigned x, unsigned y);
+
     const unsigned tuple_len;
     const unsigned width, height;
   };
