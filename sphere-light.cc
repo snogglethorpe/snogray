@@ -11,7 +11,6 @@
 //
 
 #include "snogmath.h"
-#include "rand.h"
 #include "intersect.h"
 #include "sphere-isec.h"
 
@@ -73,7 +72,7 @@ SphereLight::sample (const Intersect &isec, const UV &param) const
       // floating-point imprecision.
       float z
 	= (sqrt (abs (radius * radius - x * x - y * y))
-	   * sin (PIf * (random(1.f) - 0.5)));
+	   * sin (PIf * (isec.context.random() - 0.5f)));
 
       // A vector from the intersection origin to the point (X, Y, Z)
       // within the sphere, in the intersection's normal frame of
