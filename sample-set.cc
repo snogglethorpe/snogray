@@ -10,6 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "random.h"
+
 #include "sample-set.h"
 
 using namespace snogray;
@@ -40,7 +42,7 @@ SampleSet::generate ()
       std::vector<float>::iterator base = sample<float> (i->base_offset);
       unsigned size = num_samples * i->size;
       gen.gen_samples<float> (random, base, size);
-      random_shuffle (base, base + size);
+      random_shuffle (base, base + size, random);
     }
 
   for (std::vector<Channel<UV> >::iterator i = uv_channels.begin();
@@ -49,7 +51,7 @@ SampleSet::generate ()
       std::vector<UV>::iterator base = sample<UV> (i->base_offset);
       unsigned size = num_samples * i->size;
       gen.gen_samples<UV> (random, base, size);
-      random_shuffle (base, base + size);
+      random_shuffle (base, base + size, random);
     }
 }
 
