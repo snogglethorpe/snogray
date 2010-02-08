@@ -1,6 +1,6 @@
 // snogassert.cc -- Simple sanity checking
 //
-//  Copyright (C) 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,11 +12,26 @@
 
 #include <stdexcept>
 
+#include "string-funs.h"
+
 #include "snogassert.h"
 
 
 void
-snogray::assert_fail (const char *failure_msg)
+snogray::assert_fail (const char *failure_msg,
+		      const char *src_file, unsigned src_line)
 {
-  throw std::runtime_error (failure_msg);
+  std::string msg;
+
+  if (src_file)
+    {
+      msg += src_file;
+      msg += ": ";
+      msg += stringify (src_line);
+      msg += ": ";
+    }
+  
+  msg += failure_msg;
+
+  throw assertion_failure (msg);
 }

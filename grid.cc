@@ -25,7 +25,7 @@ Grid::gen_uv_samples (Random &random,
 		      const std::vector<UV>::iterator &table, unsigned num)
   const
 {
-  assert (num != 0, "bogus sample count to Grid::gen_uv_samples");
+  ASSERT (num != 0);
 
   unsigned v_steps = sqrt (num);
   unsigned u_steps = num / v_steps;
@@ -33,8 +33,7 @@ Grid::gen_uv_samples (Random &random,
   // NUM should already have been adjusted by
   // Grid::adjust_uv_sample_count, so make sure it's sane.
   //
-  assert (u_steps * v_steps == num,
-	  "bogus sample count to Grid::gen_uv_samples");
+  ASSERT (u_steps * v_steps == num);
 
   float u_step = 1 / float (u_steps);
   float v_step = 1 / float (v_steps);
