@@ -13,6 +13,8 @@
 #ifndef __RANDOM_RAND_H__
 #define __RANDOM_RAND_H__
 
+#include <cstdlib>
+
 
 namespace snogray {
 
