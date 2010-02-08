@@ -31,8 +31,9 @@ PointLight::sample (const Intersect &isec, const UV &) const
   if (isec.cos_n (lvec) > 0 && isec.cos_geom_n (lvec) > 0)
     {
       dist_t dist = lvec.length ();
-      Vec s_dir = lvec / dist;
-      return Sample (dist * dist, 1, s_dir, dist);
+      dist_t inv_dist = 1 / dist;
+      Vec s_dir = lvec * inv_dist;
+      return Sample (color * inv_dist * inv_dist, 1, s_dir, dist);
     }
 
   return Sample ();
