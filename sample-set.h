@@ -47,10 +47,11 @@ public:
     // Copy constructor
     //
     Channel (const Channel &from)
-      : size (from.size), base_offset (from.base_offset)
+      : size (from.size), base_offset (from.base_offset),
+	num_total_samples (from.num_total_samples)
     {}
 
-    // Number of nsub-samples this channel contains.  There are this many
+    // Number of sub-samples this channel contains.  There are this many
     // sub-samples per top-level sample.
     //
     unsigned size;
@@ -62,14 +63,23 @@ public:
     // Normal constructor.  This is private, as BASE_OFFSET is an
     // implementation detail.
     //
-    Channel (unsigned _base_offset, unsigned _size)
-      : size (_size), base_offset (_base_offset)
+    Channel (unsigned _base_offset, unsigned _size, unsigned _num_total_samples)
+      : size (_size), base_offset (_base_offset),
+	num_total_samples (_num_total_samples)
     {}
 
     // Offset of our first sample in the appropriate sample vector of
     // our SampleSet.
     //
     unsigned base_offset;
+
+    // Number of total samples generated for this channel.  This should be
+    // at least SIZE * NUM_TOP_LEVEL_SAMPLES.  In the case that it's
+    // greater, then NUM_TOTAL_SAMPLES - SIZE * NUM_TOP_LEVEL_SAMPLES extra
+    // samples will end up being unused; this should be OK as the samples
+    // are in random order.
+    //
+    unsigned num_total_samples;
   };
 
   // A vector of channels, for cases where we need more than one.
@@ -194,11 +204,18 @@ public:
     //
     num_total_samples = gen.adjust_sample_count<T> (num_total_samples);
 
+    // Adjust NUM_SUB_SAMPLES so that NUM_SAMPLES * NUM_SUB_SAMPLES is as
+    // close to NUM_TOTAL_SAMPLES as possible (it's not possible to change
+    // NUM_SAMPLES).  Any difference will end up being unused.
+    //
+    num_sub_samples = num_total_samples / num_samples;
+
     // Add enough room to our sample array for all the samples.
     //
     unsigned base_sample_offset = add_sample_space<T> (num_total_samples);
 
-    return _add_channel<T> (Channel<T> (base_sample_offset, num_sub_samples));
+    return _add_channel<T> (Channel<T> (base_sample_offset, num_sub_samples,
+					num_total_samples));
   }
 
   // Allocate and return a vector of channels in this set, each

@@ -27,16 +27,31 @@ Grid::gen_uv_samples (Random &random,
 {
   ASSERT (num != 0);
 
-  unsigned v_steps = sqrt (num);
-  unsigned u_steps = num / v_steps;
+  // We choose sample dimensions which are close to the square-root of NUM,
+  // but allow them to differ by 1 from each other, so long as the product
+  // is greater than or equal to NUM.
+  //
+  // [Converting to a single-precision float here potentially loses some
+  // bits, but we don't care, as the a number large enough to be a problem
+  // represents an absurd number of samples (23 bit mantissa =~ 8 million).
+  // The assertions below will catch any exceptions.]
+  //
+  float sqrt_num = sqrt (float (num));
+  float up = ceil (sqrt_num);
+  float down = floor (sqrt_num + 0.5f);
 
-  // NUM should already have been adjusted by
-  // Grid::adjust_uv_sample_count, so make sure it's sane.
+  unsigned u_steps = unsigned (up);
+  unsigned v_steps = unsigned (down);
+
+  // NUM should already have been adjusted by Grid::adjust_uv_sample_count,
+  // so our calculations should produce an exact result.  If this assertion
+  // fails, the likely cause is a previous failure to call
+  // Grid::adjust_uv_sample_count.
   //
   ASSERT (u_steps * v_steps == num);
 
-  float u_step = 1 / float (u_steps);
-  float v_step = 1 / float (v_steps);
+  float u_step = 1 / up;
+  float v_step = 1 / down;
 
   float v_offs = 0;
 
@@ -59,15 +74,18 @@ Grid::gen_uv_samples (Random &random,
 unsigned
 Grid::adjust_uv_sample_count (unsigned num) const
 {
-  unsigned v_steps = sqrt (num);
-  if (v_steps == 0)
-    v_steps = 1;
-
-  unsigned u_steps = num / v_steps;
-  if (u_steps * v_steps < num)
-    u_steps++;
-
-  return u_steps * v_steps;
+  // We choose sample dimensions which are close to the square-root of NUM,
+  // but allow them to differ by 1 from each other, so long as the product
+  // is greater than or equal to NUM.
+  //
+  // [Converting to a single-precision float here potentially loses some
+  // bits, but we don't care, as the a number large enough to be a problem
+  // represents a absurd number of samples (23 bit mantissa =~ 8 million).]
+  //
+  float sqrt_num = sqrt (float (num));
+  float up = ceil (sqrt_num);
+  float down = floor (sqrt_num + 0.5f);
+  return unsigned (up * down);
 }
 
 void
