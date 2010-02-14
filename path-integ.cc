@@ -279,48 +279,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       // object pushes a new Media, existing one pops the top one.
       //
       if (bsdf_samp.flags & Bsdf::TRANSMISSIVE)
-	{
-	  // Get the medium of the surface.  A transmissive surface
-	  // without a medium has no effect on the media stack (so it
-	  // acts like a thin shell, rather than a volume).
-	  //
-	  const Medium *medium = isec.material->medium ();
-
-	  if (medium)
-	    {
-	      if (isec.back)
-		{
-		  // Exiting refractive object, pop the innermost medium.
-		  //
-		  // We avoid popping the last element, as other places
-		  // assume there's at least one present (ideally, this
-		  // would never happen, because enter/exit events
-		  // should be matched, but malformed scenes or
-		  // degenerate conditions can cause it to happen
-		  // sometimes).
-		  //
-		  // We do not need to deallocate popped Media objects,
-		  // as they are allocated using the Mempool allocator
-		  // in CONTEXT (everything allocated there is later
-		  // bulk-freed in the main rendering loop).
-		  //
-
-		  if (innermost_media->surrounding_media)
-		    innermost_media = innermost_media->surrounding_media;
-		}
-	      else
-		{
-		  // Entering refractive object, push the new medium.
-		  //
-		  // Allocate a new Media object using CONTEXT's Mempool
-		  // allocator, and make it the new top of the media
-		  // stack.
-		  //
-		  innermost_media
-		    = new (context) Media (*medium, innermost_media);
-		}
-	    }
-	}
+	Media::update_stack_for_transmission (innermost_media, isec);
 
       path_len++;
     }

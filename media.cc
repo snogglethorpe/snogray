@@ -65,3 +65,54 @@ Media::refraction_medium (const Intersect &isec)
 	return default_medium;
     }
 }
+
+
+
+// Given the top-of-stack pointer INNERMOST for a media stack, update
+// it to reflect the results of entering or exiting a transmissive
+// surface at ISEC.
+//
+void
+Media::update_stack_for_transmission (const Media *&innermost,
+				      const Intersect &isec)
+{
+  // Get the medium of the surface.  A transmissive surface
+  // without a medium has no effect on the media stack (so it
+  // acts like a thin shell, rather than a volume).
+  //
+  const Medium *medium = isec.material->medium ();
+
+  if (medium)
+    {
+      if (isec.back)
+	{
+	  // Exiting refractive object, pop the innermost medium.
+	  //
+	  // We avoid popping the last element, as other places
+	  // assume there's at least one present (ideally, this
+	  // would never happen, because enter/exit events
+	  // should be matched, but malformed scenes or
+	  // degenerate conditions can cause it to happen
+	  // sometimes).
+	  //
+	  // We do not need to deallocate popped Media objects,
+	  // as they are allocated using the Mempool allocator
+	  // in CONTEXT (everything allocated there is later
+	  // bulk-freed in the main rendering loop).
+	  //
+
+	  if (innermost->surrounding_media)
+	    innermost = innermost->surrounding_media;
+	}
+      else
+	{
+	  // Entering refractive object, push the new medium.
+	  //
+	  // Allocate a new Media object using CONTEXT's Mempool
+	  // allocator, and make it the new top of the media
+	  // stack.
+	  //
+	  innermost = new (isec) Media (*medium, innermost);
+	}
+    }
+}

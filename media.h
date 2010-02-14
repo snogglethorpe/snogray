@@ -78,6 +78,13 @@ public:
     return surrounding_media ? surrounding_media->medium : default_medium;
   }
 
+  // Given the top-of-stack pointer INNERMOST for a media stack, update
+  // it to reflect the results of entering or exiting a transmissive
+  // surface at ISEC.
+  //
+  static void update_stack_for_transmission (const Media *&innermost,
+					     const Intersect &isec);
+
   // The medium at this level.
   //
   const Medium &medium;
