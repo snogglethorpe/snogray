@@ -13,6 +13,7 @@
 #ifndef __SURFACE_INTEG_H__
 #define __SURFACE_INTEG_H__
 
+#include "ray.h"
 #include "tint.h"
 #include "sample-set.h"
 

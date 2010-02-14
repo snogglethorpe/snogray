@@ -13,9 +13,6 @@
 #ifndef __INTEG_H__
 #define __INTEG_H__
 
-#include "ray.h"
-#include "tint.h"
-
 
 namespace snogray {
 
