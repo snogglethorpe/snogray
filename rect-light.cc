@@ -47,7 +47,7 @@ RectLight::sample (const Intersect &isec, const UV &param) const
       // The light normal in the intersection normal frame of reference
       // (we actually use the negative of it in calculation below).
       //
-      Vec neg_light_norm = -isec.normal_frame.to (normal);
+      Vec neg_light_norm = -isec.normal_frame.to (frame.z);
 
       // Compute the position of the sample at U,V within the light.
       //
@@ -88,7 +88,7 @@ RectLight::eval (const Intersect &isec, const Vec &dir) const
   // The light normal in the intersection normal frame of reference
   // (we actually use the negative of it in calculation below).
   //
-  Vec neg_light_norm = -isec.normal_frame.to (normal);
+  Vec neg_light_norm = -isec.normal_frame.to (frame.z);
   dist_t max_dist = isec.context.scene.horizon;
 
   Ray ray (isec.normal_frame.origin,

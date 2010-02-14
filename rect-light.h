@@ -29,7 +29,7 @@ public:
 	     const Color &_intensity)
     : pos (_pos), side1 (_side1), side2 (_side2),
       intensity (_intensity), area (cross (side1, side2).length ()),
-      normal (cross (_side2, _side1).unit ())
+      frame (_pos, cross (_side2, _side1).unit ()) // XXX align w/ side1&side2
   { }
 
   // Return a sample of this light from the viewpoint of ISEC (using a
@@ -55,9 +55,10 @@ public:
 
   float area;
 
-private:
-
-  Vec normal;
+  // A frame of reference for the light.  This is somewhat redundant,
+  // but convenient.
+  //
+  Frame frame;
 };
 
 
