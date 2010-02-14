@@ -55,21 +55,26 @@ public:
   //
   UniquePtr<SpaceBuilderFactory> space_builder_factory;
 
-  // Global state for surface integrators.  This should be one of the last
-  // fields, so it will be initialized after other fields -- the integrator
-  // creation method is passed a reference to the GlobalRenderState object, so
-  // we want as much GlobalRenderState state as possible to be valid at that
-  // point.
-  //
-  UniquePtr<SurfaceInteg::GlobalState> surface_integ_global_state;
-
-  // Global state for volume integrators.  This should be one of the last
-  // fields, so it will be initialized after other fields -- the integrator
-  // creation method is passed a reference to the GlobalRenderState object, so
-  // we want as much GlobalRenderState state as possible to be valid at that
-  // point.
+  // Global state for volume integrators.
+  // 
+  // This should be one of the last fields, so it will be initialized
+  // after other fields -- the integrator creation method is passed a
+  // reference to the GlobalRenderState object, so we want as much
+  // GlobalRenderState state as possible to be valid at that point.
   //
   UniquePtr<VolumeInteg::GlobalState> volume_integ_global_state;
+
+  // Global state for surface integrators.
+  //
+  // This should be one of the last fields, so it will be initialized
+  // after other fields -- the integrator creation method is passed a
+  // reference to the GlobalRenderState object, so we want as much
+  // GlobalRenderState state as possible to be valid at that point.
+  //
+  // During initialization it may be also zero (in particular, while
+  // initializing the volume_integ_global_state field).
+  //
+  UniquePtr<SurfaceInteg::GlobalState> surface_integ_global_state;
 
 private:
 
