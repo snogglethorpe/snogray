@@ -31,7 +31,8 @@ public:
   {
   public:
 
-    GlobalState (const Scene &_scene, const ValTable &params);
+    GlobalState (const GlobalRenderState &global_state,
+		 const ValTable &params);
 
     // Return a new integrator, allocated in context.
     //

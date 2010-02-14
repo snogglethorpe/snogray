@@ -22,9 +22,9 @@ using namespace snogray;
 
 // Constructors etc
 
-DirectInteg::GlobalState::GlobalState (const Scene &scene,
+DirectInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				       const ValTable &params)
-  : SurfaceInteg::GlobalState (scene), direct_illum (params)
+  : SurfaceInteg::GlobalState (rstate), direct_illum (params)
 {
 }
 

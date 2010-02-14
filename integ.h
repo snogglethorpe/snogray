@@ -16,7 +16,7 @@
 
 namespace snogray {
 
-class Scene;
+class GlobalRenderState;
 class RenderContext;
 
 
@@ -32,10 +32,12 @@ public:
   {
   public:
 
-    GlobalState (const Scene &_scene) : scene (_scene) { }
+    GlobalState (const GlobalRenderState &rstate)
+      : global_render_state (rstate)
+    { }
     virtual ~GlobalState () { } 
 
-    const Scene &scene;
+    const GlobalRenderState &global_render_state;
   };
 
 protected:

@@ -22,9 +22,9 @@ using namespace snogray;
 
 // Constructors etc
 
-PathInteg::GlobalState::GlobalState (const Scene &scene,
+PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				     const ValTable &params)
-  : SurfaceInteg::GlobalState (scene),
+  : SurfaceInteg::GlobalState (rstate),
     min_path_len (params.get_uint ("min-path-len", 5)),
     russian_roulette_terminate_probability (
       params.get_float ("russian-roulette-terminate-probability,rr-term-prob,rr-term", 0.5f)),

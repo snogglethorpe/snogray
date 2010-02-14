@@ -34,7 +34,9 @@ public:
   {
   public:
 
-    GlobalState (const Scene &_scene) : VolumeInteg::GlobalState (_scene) { }
+    GlobalState (const GlobalRenderState &rstate)
+      : VolumeInteg::GlobalState (rstate)
+    { }
 
     // Return a new volume integrator, allocated in context.
     //

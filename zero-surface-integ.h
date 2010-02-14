@@ -32,7 +32,9 @@ public:
   {
   public:
 
-    GlobalState (const Scene &_scene) : SurfaceInteg::GlobalState (_scene) { }
+    GlobalState (const GlobalRenderState &rstate)
+      : SurfaceInteg::GlobalState (rstate)
+    { }
 
     // Return a new surface integrator, allocated in context.
     //

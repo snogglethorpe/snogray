@@ -23,6 +23,8 @@
 
 namespace snogray {
 
+class Scene;
+
 
 // Global state; this contains various read-only global information,
 // which will be shared by all rendering threads.
@@ -85,11 +87,13 @@ private:
   static SampleGen *make_sample_gen (const ValTable &params);
   static SpaceBuilderFactory *make_space_builder_factory (
 				const ValTable &params);
-  static SurfaceInteg::GlobalState *make_surface_integ_global_state (
-				      const Scene &scene,
+  //
+  // The following helper methods are called after initialization is
+  // complete, so aren't static (and can't be, as they refer to this).
+  //
+  SurfaceInteg::GlobalState *make_surface_integ_global_state (
 				      const ValTable &params);
-  static VolumeInteg::GlobalState *make_volume_integ_global_state (
-				     const Scene &scene,
+  VolumeInteg::GlobalState *make_volume_integ_global_state (
 				     const ValTable &params);
 };
 

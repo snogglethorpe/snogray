@@ -29,12 +29,16 @@ GlobalRenderState::GlobalRenderState (const Scene &_scene,
     num_samples (_params.get_uint ("oversample", 1)),
     params (_params),
     sample_gen (make_sample_gen (_params)),
-    space_builder_factory (make_space_builder_factory (_params)),
-    surface_integ_global_state (
-      make_surface_integ_global_state (_scene, _params)),
-    volume_integ_global_state (
-      make_volume_integ_global_state (_scene, _params))
-{ }
+    space_builder_factory (make_space_builder_factory (_params))
+{
+  // Set up these separately, as they receive, and may use, our state.
+  //
+  // We first let them be default-initialized (to null pointers) in the
+  // initialization section above, and then set up them one-by-one.
+  //
+  volume_integ_global_state.reset (make_volume_integ_global_state (_params));
+  surface_integ_global_state.reset (make_surface_integ_global_state (_params));
+}
 
 
 //
@@ -55,22 +59,21 @@ GlobalRenderState::make_space_builder_factory (const ValTable &)
 }
 
 SurfaceInteg::GlobalState *
-GlobalRenderState::make_surface_integ_global_state (const Scene &scene,
-						    const ValTable &params)
+GlobalRenderState::make_surface_integ_global_state (const ValTable &params)
 {
   std::string sint
     = params.get_string ("surface-integrator,surface-integ,sint", "direct");
   
   if (sint == "direct")
-    return new DirectInteg::GlobalState (scene, params);
+    return new DirectInteg::GlobalState (*this, params);
   else if (sint == "path")
-    return new PathInteg::GlobalState (scene, params);
+    return new PathInteg::GlobalState (*this, params);
   else
     throw std::runtime_error ("Unknown surface-integrator \"" + sint + "\"");
 }
 
 VolumeInteg::GlobalState *
-GlobalRenderState::make_volume_integ_global_state (const Scene &scene, const ValTable &)
+GlobalRenderState::make_volume_integ_global_state (const ValTable &)
 {
-  return new FilterVolumeInteg::GlobalState (scene);
+  return new FilterVolumeInteg::GlobalState (*this);
 }
