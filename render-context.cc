@@ -23,9 +23,13 @@ RenderContext::RenderContext (const GlobalRenderState &_global_state)
     global_state (_global_state),
     params (_global_state.params),
     surface_integ (
-      _global_state.surface_integ_global_state->make_integrator (*this)),
+      _global_state.surface_integ_global_state
+      ? _global_state.surface_integ_global_state->make_integrator (*this)
+      : 0),
     volume_integ (
-      _global_state.volume_integ_global_state->make_integrator (*this))
+      _global_state.volume_integ_global_state
+      ? _global_state.volume_integ_global_state->make_integrator (*this)
+      : 0)
 { }
 
 RenderContext::~RenderContext ()
