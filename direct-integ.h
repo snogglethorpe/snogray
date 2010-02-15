@@ -15,13 +15,19 @@
 
 #include "direct-illum.h"
 
-#include "surface-integ.h"
+#include "recursive-integ.h"
 
 
 namespace snogray {
 
 
-class DirectInteg : public SurfaceInteg
+// This is a simple surface-integrator, which includes only
+// direct-lighting (light falling on surfaces directly from lights).
+//
+// It is a subclass of RecursiveInteg, and so also handles perfectly
+// specular using recursion, and emissive surfaces.
+//
+class DirectInteg : public RecursiveInteg
 {
 public:
 
@@ -31,12 +37,16 @@ public:
   {
   public:
 
-    GlobalState (const GlobalRenderState &global_state,
-		 const ValTable &params);
+    GlobalState (const GlobalRenderState &rstate, const ValTable &params)
+      : SurfaceInteg::GlobalState (rstate), direct_illum (params)
+    { }
 
     // Return a new integrator, allocated in context.
     //
-    virtual SurfaceInteg *make_integrator (RenderContext &context);
+    virtual SurfaceInteg *make_integrator (RenderContext &context)
+    {
+      return new DirectInteg (context, *this);
+    }
 
   private:
 
@@ -45,48 +55,25 @@ public:
     DirectIllum::GlobalState direct_illum;
   };
 
-  // Return the light arriving at RAY's origin from the direction it
-  // points in (the length of RAY is ignored).  MEDIA is the media
-  // environment through which the ray travels.
+protected:
+
+  // This method is called by RecursiveInteg to return any radiance
+  // not due to specular reflection/transmission or direct emission.
   //
-  // This method also calls the volume-integrator's Li method, and
-  // includes any light it returns for RAY as well.
-  //
-  // "Li" means "Light incoming".
-  //
-  virtual Tint Li (const Ray &ray, const Media &media,
-		   const SampleSet::Sample &sample);
+  virtual Color Lo (const Intersect &isec, const Media &media,
+		    const SampleSet::Sample &sample)
+  {
+    return direct_illum.sample_lights (isec, sample);
+  }
 
 private:
 
   // Integrator state for rendering a group of related samples.
   //
-  DirectInteg (RenderContext &context, GlobalState &global_state);
-
-  // Return the light arriving at RAY's origin from the direction it
-  // points in (the length of RAY is ignored).  MEDIA is the media
-  // environment through which the ray travels.
-  //
-  // This method also calls the volume-integrator's Li method, and
-  // includes any light it returns for RAY as well.
-  //
-  // "Li" means "Light incoming".
-  //
-  // This an internal variant of Integ::lo which has an additional DEPTH
-  // argument.  If DEPTH is greater than some limit, recursion will
-  // stop.  It also returns a Color instead of a Tint, as alpha values
-  // are only meaningful at the the top-level.
-  //
-  Color Li (const Ray &ray, const Media &media,
-	   const SampleSet::Sample &sample,
-	   unsigned depth)
-    const;
-
-  // Return the light emitted from ISEC.
-  //
-  Color Lo (const Intersect &isec, const Media &media,
-	    const SampleSet::Sample &sample, unsigned depth)
-    const;
+  DirectInteg (RenderContext &context, GlobalState &global_state)
+    : RecursiveInteg (context),
+      direct_illum (context, global_state.direct_illum)
+  { }
 
   // State used by the direct-lighting calculator.
   //

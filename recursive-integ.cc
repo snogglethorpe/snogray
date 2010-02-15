@@ -1,4 +1,4 @@
-// direct-integ.cc -- Direct-lighting-only surface integrator
+// recursive-integ.cc -- Superclass for simple recursive surface integrators
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -13,45 +13,20 @@
 #include "scene.h"
 #include "bsdf.h"
 
-#include "direct-integ.h"
+#include "recursive-integ.h"
 
 
 using namespace snogray;
 
 
 
-// Constructors etc
-
-DirectInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
-				       const ValTable &params)
-  : SurfaceInteg::GlobalState (rstate), direct_illum (params)
-{
-}
-
-// Integrator state for rendering a group of related samples.
-//
-DirectInteg::DirectInteg (RenderContext &context, GlobalState &global_state)
-  : SurfaceInteg (context), direct_illum (context, global_state.direct_illum)
-{
-}
-
-// Return a new integrator, allocated in context.
-//
-SurfaceInteg *
-DirectInteg::GlobalState::make_integrator (RenderContext &context)
-{
-  return new DirectInteg (context, *this);
-}
-
-
-// DirectInteg::Lo
+// RecursiveInteg::Lo
 
 // Return the light emitted from ISEC.
 //
 Color
-DirectInteg::Lo (const Intersect &isec, const Media &media,
-		 const SampleSet::Sample &sample, unsigned depth)
-  const
+RecursiveInteg::Lo (const Intersect &isec, const Media &media,
+		    const SampleSet::Sample &sample, unsigned depth)
 {
   // Start out by including any light emitted from the material
   // itself.
@@ -64,15 +39,16 @@ DirectInteg::Lo (const Intersect &isec, const Media &media,
   //
   if (isec.bsdf)
     {
-      // Include non-specular direct lighting.
+      // Call the subclass's method to handle non-specular, non-emissive
+      // lighting.
       //
-      radiance += direct_illum.sample_lights (isec, sample);
+      radiance += Lo (isec, media, sample);
 
       //
       // If the BSDF includes specular components, recurse to handle those.
       //
       // Note that because there's only one possible specular sample for
-      // each direction, we just pass a dummy (0,0) parameter to
+      // each recursiveion, we just pass a dummy (0,0) parameter to
       // Bsdf::sample.
       //
 
@@ -115,9 +91,9 @@ DirectInteg::Lo (const Intersect &isec, const Media &media,
 }
 
 
-// DirectInteg::Li
+// RecursiveInteg::Li
 
-// Return the light arriving at RAY's origin from the direction it
+// Return the light arriving at RAY's origin from the recursiveion it
 // points in (the length of RAY is ignored).  MEDIA is the media
 // environment through which the ray travels.
 //
@@ -132,10 +108,9 @@ DirectInteg::Lo (const Intersect &isec, const Media &media,
 // are only meaningful at the the top-level.
 //
 Color
-DirectInteg::Li (const Ray &ray, const Media &media,
+RecursiveInteg::Li (const Ray &ray, const Media &media,
 		 const SampleSet::Sample &sample,
 		 unsigned depth)
-  const
 {
   if (depth > 5) return 0; // XXX use russian roulette
 
@@ -165,7 +140,7 @@ DirectInteg::Li (const Ray &ray, const Media &media,
   return radiance;
 }
 
-// Return the light arriving at RAY's origin from the direction it
+// Return the light arriving at RAY's origin from the recursiveion it
 // points in (the length of RAY is ignored).  MEDIA is the media
 // environment through which the ray travels.
 //
@@ -175,7 +150,7 @@ DirectInteg::Li (const Ray &ray, const Media &media,
 // "Li" means "Light incoming".
 //
 Tint
-DirectInteg::Li (const Ray &ray, const Media &media,
+RecursiveInteg::Li (const Ray &ray, const Media &media,
 		 const SampleSet::Sample &sample)
 {
   const Scene &scene = context.scene;
