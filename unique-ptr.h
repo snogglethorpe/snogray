@@ -1,6 +1,6 @@
 // unique-ptr.h -- Portability layer for std::unique_ptr/auto_ptr
 //
-//  Copyright (C) 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -42,6 +42,11 @@ public:
   explicit UniquePtr (T *v) : std::unique_ptr<T> (v) { }
   UniquePtr (UniquePtr &&v) : std::unique_ptr<T> (std::move (v)) { }
 
+  // Methods for testing whether pointer is set (non-null) or not.
+  //
+  operator bool () const { return !!this->get (); }
+  bool operator! () const { return !this->get (); }
+
   UniquePtr &operator= (UniquePtr &&v)
   {
     std::unique_ptr<T>::operator= (std::move (v));
@@ -62,6 +67,11 @@ public:
   explicit UniquePtr (T *v) : std::auto_ptr<T> (v) { }
   UniquePtr (UniquePtr &v) : std::auto_ptr<T> (v) { }
   UniquePtr (const UniquePtr &v) : std::auto_ptr<T> (const_cast<UniquePtr &> (v)) { }
+
+  // Methods for testing whether pointer is set (non-null) or not.
+  //
+  operator bool () const { return !!this->get (); }
+  bool operator! () const { return !this->get (); }
 
   UniquePtr &operator= (UniquePtr &v)
   {
