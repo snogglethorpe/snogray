@@ -58,15 +58,9 @@ mis_sample_weight (float pdf, float num_samples,
 
 
 
-DirectIllum::GlobalState::GlobalState (const ValTable &params)
-  : num_light_samples (params.get_uint ("light-samples", 16))
-{
-}
-
 // Constructor that allows explicitly setting the number of samples.
 //
-DirectIllum::GlobalState::GlobalState (unsigned _num_light_samples,
-				       const ValTable &)
+DirectIllum::GlobalState::GlobalState (unsigned _num_light_samples)
   : num_light_samples (_num_light_samples)
 {
 }

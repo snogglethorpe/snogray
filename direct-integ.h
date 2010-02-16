@@ -38,7 +38,9 @@ public:
   public:
 
     GlobalState (const GlobalRenderState &rstate, const ValTable &params)
-      : SurfaceInteg::GlobalState (rstate), direct_illum (params)
+      : SurfaceInteg::GlobalState (rstate),
+	direct_illum (
+	  params.get_uint ("light-samples,surface-integ.direct.light-samples,surface-integ.direct.samples", 16))
     { }
 
     // Return a new integrator, allocated in context.

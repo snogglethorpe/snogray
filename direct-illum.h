@@ -35,11 +35,9 @@ public:
   {
   public:
 
-    GlobalState (const ValTable &params);
-
     // Constructor that allows explicitly setting the number of samples.
     //
-    GlobalState (unsigned num_light_samples, const ValTable &params);
+    GlobalState (unsigned num_light_samples);
 
   private:
 
