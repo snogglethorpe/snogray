@@ -75,7 +75,7 @@
     break;								\
 									\
   case 'I':								\
-    scene_def.params.parse (clp.opt_arg ());				\
+    clp.parse_opt_arg (scene_def.params);				\
     break;								\
 									\
   case 'c':								\

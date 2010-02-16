@@ -1,6 +1,6 @@
 // filter.cc -- Filter datatype
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,18 +33,8 @@ Filter::make (const ValTable &params)
     return new MitchellFilt ();
   else
     {
-      ValTable filter_params;
-
-      unsigned type_end = filter_type.find_first_of ("/");
-      if (type_end < filter_type.length ())
-	{
-	  unsigned params_start
-	    = filter_type.find_first_not_of ("/ \t", type_end + 1);
-
-	  filter_params.parse (filter_type.substr (params_start), "/,");
-
-	  filter_type = filter_type.substr (0, type_end);
-	}
+      ValTable filter_params
+	= params.filter_by_prefix ("filter." + filter_type + ".");
 
       if (filter_type == "none")
 	return 0;

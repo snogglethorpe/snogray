@@ -1,6 +1,6 @@
 // val-table.cc -- General value lists
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -228,47 +228,23 @@ ValTable::set (const std::string &name, const Val &val)
 }
 
 
+// ValTable::prefixed_entries
 
-void
-ValTable::parse (const std::string &input)
+// Returns a copy of this table containing only entries whose name begins
+// with PREFIX, with PREFIX removed from the entry names in the copy.
+//
+ValTable
+ValTable::filter_by_prefix (const std::string &prefix) const
 {
-  std::string::size_type inp_len = input.length ();
-  std::string::size_type p_assn = input.find_first_of ("=:");
+  ValTable copy;
 
-  if (p_assn < inp_len)
-    set (input.substr (0, p_assn), input.substr (p_assn + 1));
-  else if (input[0] == '!')
-    set (input.substr (1), false);
-  else if (begins_with (input, "no-"))
-    set (input.substr (3), false);
-  else
-    set (input, true);
-}
+  unsigned pfx_len = prefix.size ();
 
-void
-ValTable::parse (const std::string &input, const std::string &multiple_seps)
-{
-  std::string::size_type p_end = input.find_first_of (multiple_seps);
+  for (const_iterator i = begin (); i != end (); ++i)
+    if (begins_with (i->first, prefix))
+      copy.set (i->first.substr (pfx_len), i->second);
 
-  if (p_end == std::string::npos)
-    {
-      parse (input);
-    }
-  else
-    {
-      std::string::size_type p_start = 0;
-      do
-	{
-	  parse (input.substr (p_start, p_end - p_start));
-
-	  p_start = input.find_first_not_of (multiple_seps, p_end);
-	  p_end = input.find_first_of (multiple_seps, p_start);
-	}
-      while (p_end != std::string::npos);
-
-      if (p_start != std::string::npos)
-	parse (input.substr (p_start));
-    }
+  return copy;
 }
 
 

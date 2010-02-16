@@ -14,6 +14,9 @@
 #include <string>
 #include <cstring>
 
+#include "val-table.h"
+#include "string-funs.h"
+
 #include "cmdlineparser.h"
 
 using namespace snogray;
@@ -143,6 +146,123 @@ CmdLineParser::float_opt_arg (float default_val) const
     return float_opt_arg ();
   else
     return default_val;
+}
+
+
+// Parsing and ValTable storage
+
+// Parse the named-value specification STR using "NAME=VALUE"
+// syntax, and store VALUE in TABLE under the name NAME.  The syntax
+// "NAME:VALUE" is also accepted.  The type of the new value is
+// always a string (which can be converted to another type when the
+// value is subsequently requested).
+//
+void
+CmdLineParser::parse (const std::string &str, ValTable &table)
+{
+  std::string::size_type inp_len = str.length ();
+  std::string::size_type p_assn = str.find_first_of ("=:");
+
+  if (p_assn < inp_len)
+    table.set (str.substr (0, p_assn), str.substr (p_assn + 1));
+  else if (str[0] == '!')
+    table.set (str.substr (1), false);
+  else if (begins_with (str, "no-"))
+    table.set (str.substr (3), false);
+  else
+    table.set (str, true);
+}
+
+// First split STR option into parts separated by any character in
+// MULTIPLE_SEPS, removing any whitespace surrounding a separator,
+// and then parse each part using "NAME=VALUE" syntax, and store the
+// resulting entries into TABLE.  The syntax "NAME:VALUE" is also
+// accepted.  The type of the new value is always a string (which
+// can be converted to another type when the value is subsequently
+// requested).  NAME_PREFIX is prepended to names before storing.
+//
+void
+CmdLineParser::parse (const std::string &str, ValTable &table,
+		      const std::string &multiple_seps,
+		      const std::string &name_prefix)
+{
+  std::string::size_type p_end = str.find_first_of (multiple_seps);
+
+  if (p_end == std::string::npos)
+    {
+      parse (name_prefix + str, table);
+    }
+  else
+    {
+      std::string::size_type p_start = 0;
+      do
+	{
+	  parse (name_prefix + str.substr (p_start, p_end - p_start), table);
+
+	  p_start = str.find_first_not_of (multiple_seps, p_end);
+	  p_end = str.find_first_of (multiple_seps, p_start);
+	}
+      while (p_end != std::string::npos);
+
+      if (p_start != std::string::npos)
+	parse (name_prefix + str.substr (p_start), table);
+    }
+}
+
+
+// ValTable::set_with_options
+
+// First, split the current option-argument into a "main value"
+// MAIN_VAL, and "optional values", at any character in
+// FIRST_OPTION_SEPS (removing any surrounding whitespace).  Then,
+// store MAIN_VAL into PARAMS with the key NAME.  The optional
+// values will be further split apart using MULTIPLE_OPTION_SEPS, as
+// if with CmdLineParser::parse_opt_arg, and each OPT_NAME=OPT_VAL
+// pair will be stored as well, into entries with names computed as
+// NAME + OPTION_NAME_PREFIX_SEP + MAIN_VAL + OPTION_NAME_PREFIX_SEP
+// + OPT_NAME.
+//
+// If MULTIPLE_OPTION_SEPS is "" (the default), FIRST_OPTION_SEPS
+// will be used for splitting further options instead.
+//
+// For example: if the current option argument is
+// "oink/bar=zoo,zing=3", NAME is "plugh", OPTION_NAME_PREFIX_SEP is
+// ".", FIRST_OPTION_SEPS is "/", and MULTIPLE_OPTION_SEPS is ",/",
+// then MAIN_VAL will be "oink", and the following entries will be
+// stored into TABLE:
+//
+//   "plugh"           => "oink"
+//   "plugh.oink.bar"  => "zoo"
+//   "plugh.oink.zing" => 3
+//
+void
+CmdLineParser::store_opt_arg_with_sub_options (
+		 const std::string &name,
+		 ValTable &table,
+		 const std::string &option_name_prefix_sep,
+		 const std::string &first_option_seps,
+		 const std::string &multiple_option_seps)
+{
+  std::string val = opt_arg ();
+  unsigned val_end = val.find_first_of (first_option_seps);
+
+  std::string sep2 = multiple_option_seps;
+  if (sep2 == "")
+    sep2 = first_option_seps;
+
+  if (val_end < val.length ())
+    {
+      unsigned options_start
+	= val.find_first_not_of (first_option_seps + " \t", val_end + 1);
+      std::string main_val = val.substr (0, val_end);
+
+      parse (val.substr (options_start), table, sep2,
+	     name + option_name_prefix_sep + main_val + option_name_prefix_sep);
+
+      table.set (name, main_val);
+    }
+  else
+    table.set (name, val);
 }
 
 

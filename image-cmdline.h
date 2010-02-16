@@ -29,7 +29,7 @@
 
 #define IMAGE_INPUT_OPTION_CASES(clp, params)	\
   case 'I':					\
-    params.parse (clp.opt_arg ());		\
+    clp.parse_opt_arg (params);			\
     break;
 
 
@@ -50,7 +50,7 @@
                                (default \"mitchell\")\n\
 \n\
   -O, --output-options=OPTS  Set output-image options; OPTS has the format\n\
-                               OPT1=VAL1[,...]; current options include:\n\
+                               OPT1=VAL1; current options include:\n\
                                  \"format\"  -- output file type\n\
                                  \"gamma\"   -- target gamma correction\n\
                                  \"quality\" -- image compression quality (0-100)\n\
@@ -64,15 +64,15 @@
   { "exposure",		required_argument, 0, 'e' },	\
   { "output-options",	required_argument, 0, 'O' }
 
-#define IMAGE_OUTPUT_OPTION_CASES(clp, params)		\
-  case 'F':						\
-    params.set ("filter", clp.opt_arg ());		\
-    break;						\
-  case 'e':						\
-    parse_image_exposure_option (clp, params);		\
-    break;						\
-  case 'O':						\
-    params.parse (clp.opt_arg ());			\
+#define IMAGE_OUTPUT_OPTION_CASES(clp, params)				\
+  case 'F':								\
+    clp.store_opt_arg_with_sub_options ("filter", params, ".", "/,");	\
+    break;								\
+  case 'e':								\
+    parse_image_exposure_option (clp, params);				\
+    break;								\
+  case 'O':								\
+    clp.parse_opt_arg (params);						\
     break;
 
 

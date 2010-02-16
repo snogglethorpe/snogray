@@ -52,11 +52,11 @@
   case 'a':								\
     params.set ("oversample", clp.unsigned_opt_arg ());			\
     break;								\
- case 'S':								\
-   params.set ("surface-integrator", clp.opt_arg ());			\
-   break;								\
+  case 'S':								\
+    params.set ("surface-integrator", clp.opt_arg ());			\
+    break;								\
   case 'R':								\
-    params.parse (clp.opt_arg ());					\
+    clp.parse_opt_arg (params);						\
     break;								\
   /*case 'w':								\
     params.wire_frame = true;						\
