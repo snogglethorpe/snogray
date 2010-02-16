@@ -126,6 +126,27 @@ public:
     return Value (f, pdf);
   }
 
+  // Return a bitmask of flags from Bsdf::Flags, describing what types
+  // of scatting this BSDF supports.  The returned value will include
+  // only flags in LIMIT (default, all flags).
+  //
+  // The various fields (Bsdf::SURFACE_CLASS, Bsdf::SAMPLE_DIR) in the
+  // returned value should be consistent -- a surface-class like
+  // Bsdf::DIFFUSE should be included if that surface-class is supported
+  // by one of the sample-directions (e.g. Bsdf::REFLECTIVE) that's also
+  // included in the returned value, and vice-versa.
+  //
+  virtual unsigned supports (unsigned limit) const
+  {
+    unsigned refl_flags
+      = ((diff_weight > 0 ? DIFFUSE : 0)
+	 | (diff_weight < 1 ? spec_flags : 0));
+    return
+      ((limit & REFLECTIVE) && (limit & refl_flags))
+      ? ((REFLECTIVE | refl_flags) & limit)
+      : 0;
+  }
+
 private:
 
   // Calculate D (microfacet distribution) term.  Traditionally

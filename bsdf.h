@@ -113,6 +113,18 @@ public:
   //
   virtual Value eval (const Vec &dir) const = 0;
 
+  // Returns a bitmask of flags from Bsdf::Flags, describing what types
+  // of scatting this BSDF supports.  The returned value will include
+  // only flags in LIMIT (default, all flags).
+  //
+  // The various fields (Bsdf::SURFACE_CLASS, Bsdf::SAMPLE_DIR) in the
+  // returned value should be consistent -- a surface-class like
+  // Bsdf::DIFFUSE should be included if that surface-class is supported
+  // by one of the sample-directions (e.g. Bsdf::REFLECTIVE) that's also
+  // included in the returned value, and vice-versa.
+  //
+  virtual unsigned supports (unsigned limit = ALL) const = 0;
+
   // The intersection where this Bsdf was created.
   //
   const Intersect &isec;
