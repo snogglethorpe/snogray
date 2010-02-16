@@ -42,7 +42,6 @@
   { "oversample",	required_argument, 0, 'a' },			\
   { "anti-alias",	required_argument, 0, 'a' },			\
   { "samples",		required_argument, 0, 'n' },			\
-  { "surface-integrator", required_argument, 0, 'S' },			\
   { "surface-integ",	required_argument, 0, 'S' },			\
   { "sint",		required_argument, 0, 'S' },			\
   { "render-options",	required_argument, 0, 'R' }/*,			\
@@ -53,7 +52,8 @@
     params.set ("oversample", clp.unsigned_opt_arg ());			\
     break;								\
   case 'S':								\
-    params.set ("surface-integrator", clp.opt_arg ());			\
+    clp.store_opt_arg_with_sub_options ("surface-integ",		\
+					params, ".", ",/");		\
     break;								\
   case 'R':								\
     clp.parse_opt_arg (params);						\

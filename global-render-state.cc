@@ -61,9 +61,8 @@ GlobalRenderState::make_space_builder_factory (const ValTable &)
 SurfaceInteg::GlobalState *
 GlobalRenderState::make_surface_integ_global_state (const ValTable &params)
 {
-  std::string sint
-    = params.get_string ("surface-integrator,surface-integ,sint", "direct");
-  
+  std::string sint = params.get_string ("surface-integ", "direct");
+
   if (sint == "direct")
     return new DirectInteg::GlobalState (*this, params);
   else if (sint == "path")
