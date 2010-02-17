@@ -133,16 +133,16 @@ Renderer::render_pixel (int x, int y)
       //
       float sx = x + camera_samp.u, sy = y + camera_samp.v;
 
-      // Calculate normalized image coordinates U and V (we flip the V
-      // coordinate vertically because the output image has zero at the
-      // top, whereas rendering coordinates use zero at the bottom).
+      // Calculate the location on the film-plane (we flip the vertical
+      // coordinate because the output image has zero at the top,
+      // whereas rendering coordinates use zero at the bottom).
       //
-      float u = sx / width, v = (height - sy) / height;
+      UV film_loc (sx / width, (height - sy) / height);
 
       // Translate the image position U, V into a ray coming from the
       // camera.
       //
-      Ray camera_ray = camera.eye_ray (u, v, focus_samp.u, focus_samp.v);
+      Ray camera_ray = camera.eye_ray (film_loc, focus_samp);
 
       // .. calculate what light arrives via that ray.
       //

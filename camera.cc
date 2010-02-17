@@ -97,13 +97,12 @@ Camera::transform (const Xform &xform)
 
 // Camera::eye_ray
 
-// Return an eye-ray from this camera for position (U, V) on the film
-// plane, with the random perturbation (FOCUS_U, FOCUS_V) for
-// depth-of-field simulation no depth-of-field.  All paramters have a
-// range of 0-1.
+// Return an eye-ray from this camera for location FILM_LOC on the
+// film plane, with the random perturbation FOCUS_PARAM for
+// depth-of-field simulation.  All parameters have a range of 0-1.
 //
 Ray
-Camera::eye_ray (float u, float v, float focus_u, float focus_v) const
+Camera::eye_ray (const UV &film_loc, const UV &focus_param) const
 {
   // The source of the camera ray, which is the camera position
   // (actually the optical center of the lens), possibly perturbed for
@@ -116,7 +115,7 @@ Camera::eye_ray (float u, float v, float focus_u, float focus_v) const
   // film plane which lies behind the camera position) which is the
   // end of the camera ray.
   //
-  Vec targ = eye_vec (u, v);
+  Vec targ = eye_vec (film_loc);
 
   if (aperture != 0)
     {
@@ -131,8 +130,7 @@ Camera::eye_ray (float u, float v, float focus_u, float focus_v) const
       // simulate depth-of-field.
       //
       dist_t src_perturb_x, src_perturb_y;
-      sample_disk (aperture_radius, UV (focus_u, focus_v),
-		   src_perturb_x, src_perturb_y);
+      sample_disk (aperture_radius, focus_param, src_perturb_x, src_perturb_y);
 
       // The end of the camera-ray pointed to by TARG should be perturbed
       // slightly less than SRC, by a factor of 1 / FOCUS_DISTANCE.

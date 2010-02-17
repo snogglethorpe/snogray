@@ -293,21 +293,19 @@ public:
   }
 
 
-  // Return an eye-ray from this camera for position U,V on the film plane,
-  // with no depth-of-field.  U and V have a range of 0-1.
+  // Return an eye-ray from this camera for location FILM_LOC on the
+  // film plane, with no depth-of-field.  FILM_LOC has a range of 0-1.
   //
-  Ray eye_ray (float u, float v) const
+  Ray eye_ray (const UV &film_loc) const
   {
-    return Ray (pos, eye_vec (u, v));
+    return Ray (pos, eye_vec (film_loc));
   }
 
-  // Return an eye-ray from this camera for position (U, V) on the film
-  // plane, with the random perturbation (FOCUS_U, FOCUS_V) for
-  // depth-of-field simulation no depth-of-field.  All paramters have a
-  // range of 0-1.
+  // Return an eye-ray from this camera for location FILM_LOC on the
+  // film plane, with the random perturbation FOCUS_PARAM for
+  // depth-of-field simulation.  All parameters have a range of 0-1.
   //
-  Ray eye_ray (float u, float v, float focus_u, float focus_v) const;
-
+  Ray eye_ray (const UV &film_loc, const UV &focus_param) const;
 
   Format format;
 
@@ -349,13 +347,14 @@ public:
 
 private:
 
-  // Returns a vector which points from the camera position to point (U, V)
-  // on the virtual film plane (one unit in front of the camera).
+  // Returns a vector which points from the camera position to location
+  // FILM_LOC on the virtual film plane (one unit in front of the
+  // camera).
   //
-  Vec eye_vec (float u, float v) const
+  Vec eye_vec (const UV &film_loc) const
   {
-    dist_t x = 2 * dist_t (u) - 1;
-    dist_t y = 2 * dist_t (v) - 1;
+    dist_t x = 2 * dist_t (film_loc.u) - 1;
+    dist_t y = 2 * dist_t (film_loc.v) - 1;
     return forward + right * x * tan_half_fov_x + up * y * tan_half_fov_y;
   }
 

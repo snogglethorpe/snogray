@@ -196,7 +196,7 @@ read_fraction (istream &stream, const char *desc)
 // Autofocusing
 
 static Vec
-probe_scene (float u, float v, Camera &camera, const Scene &scene)
+probe_scene (const UV &film_loc, Camera &camera, const Scene &scene)
 {
   // Dummy values to make renderer happy
   //
@@ -204,7 +204,7 @@ probe_scene (float u, float v, Camera &camera, const Scene &scene)
   GlobalRenderState global_render_state (scene, render_param_table);
   RenderContext render_context (global_render_state);;
 
-  Ray probe (camera.eye_ray (u, v), Scene::DEFAULT_HORIZON);
+  Ray probe (camera.eye_ray (film_loc), Scene::DEFAULT_HORIZON);
 
   if (scene.intersect (probe, render_context))
     return probe.dir * probe.length ();
@@ -229,7 +229,7 @@ autofocus (istream &stream, Camera &camera, const Scene &scene)
       eat_close (stream, open);
     }
 
-  Vec focus_vec = probe_scene (u, v, camera, scene);
+  Vec focus_vec = probe_scene (UV (u, v), camera, scene);
 
   if (focus_vec.length() > 0)
     camera.set_focus (focus_vec);
