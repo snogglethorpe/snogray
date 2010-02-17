@@ -27,7 +27,7 @@ render_by_rows (Renderer &renderer,
 
   // Start progress indicator
   //
-  Progress prog (prog_stream, "line",
+  Progress prog (prog_stream, "rendering...",
 		 renderer.lim_y, renderer.lim_y + output.height,
 		 verbosity);
 
@@ -58,7 +58,7 @@ render_by_blocks (Renderer &renderer,
 
   // Start progress indicator
   //
-  Progress prog (prog_stream, "block", 0, num_blocks, verbosity);
+  Progress prog (prog_stream, "rendering...", 0, num_blocks, verbosity);
 
   prog.start ();
 

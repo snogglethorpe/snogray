@@ -1,6 +1,6 @@
 // progress.h -- Progress indicator
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ Progress::start ()
 {
   if (verbosity == MINIMAL)
     {
-      os << "rendering...";	// if no progress indicator, print _something_
+      os << prefix;	// if no progress indicator, print _something_
       os.flush ();
     }
 
@@ -33,14 +33,15 @@ Progress::start ()
   start_time = last_update_time = Timeval (Timeval::TIME_OF_DAY);
 
   update_pos = start_pos + 1;
-
-  pos_width = unsigned (log10 (float (end_pos))) + 1;
 }
 
 void
 Progress::update (unsigned pos)
 {
-  if (verbosity > MINIMAL && pos >= update_pos)
+  if (verbosity > MINIMAL
+      && (pos >= update_pos
+	  || (ticks_until_forced_update > 0
+	      && --ticks_until_forced_update == 0)))
     {
       Timeval now (Timeval::TIME_OF_DAY);
 
@@ -66,21 +67,20 @@ Progress::update (unsigned pos)
 
 	  // Output progress
 	  //
-	  os << "\rrendering: " << unit_name << " " << setw (pos_width) << pos
-	     << " / " << end_pos
-	     << "  (" << setw (3) << unsigned (progress * 100) << "%, "
-	     << setw (7) << (now - start_time) << " elapsed, "
-	     << setw (7) << remaining_est << " remaining) ...";
+	  os << "\r" << prefix;
+
+	  os << setw (5) << fixed << setprecision (1) << (progress * 100) << "%"
+	     << "  ("
+	     << setw (5) << (now - start_time) << " elapsed, "
+	     << setw (5) << remaining_est << " rem"
+	     << ")";
 
 	  // Estimate which pos we will have reached after the desired
 	  // update interval, and make that our next update pos.
 	  //
 	  update_pos = pos + unsigned (cur_lps * update_interval);
 
-	  unsigned update_limit = unsigned (pos + (end_pos - start_pos) * 0.05);
-
-	  if (update_limit > pos + 5)
-	    update_limit = pos + 5;
+	  unsigned update_limit = unsigned (pos + (end_pos - start_pos) * 0.02);
 
 	  // Always wait until the next line, but never too long.
 	  //
@@ -96,12 +96,16 @@ Progress::update (unsigned pos)
 	{
 	  // Output progress
 	  //
-	  os << "\rrendering: " << unit_name << " " << setw (pos_width) << pos
-	     << " / " << end_pos
-	     << "  (" << setw (3) << unsigned (progress * 100) << "%) ...";
+	  os << "\r" << prefix
+	     << setw (5) << fixed << setprecision (1) << (progress * 100)
+	     << "%";
 
-	  update_pos = pos + 1;
+	  update_pos = unsigned (pos + (end_pos - start_pos) * 0.001);
 	}
+
+      // This is a kludge to handle long periods where POS doesn't change.
+      //
+      ticks_until_forced_update = 200000;
 
       os.flush ();
     }
@@ -115,8 +119,8 @@ Progress::end ()
       if (verbosity == MINIMAL)
 	os << "done" << endl;
       else
-	os << "\r" << string (11 + unit_name.length() + pos_width * 2 + 52, ' ')
-	   << "\rrendering: done" << endl;
+	os << "\r" << string (prefix.length() + 40, ' ')
+	   << "\r" << prefix << "done" << endl;
     }
 }
 
