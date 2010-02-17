@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -129,7 +129,7 @@ Camera::eye_ray (float u, float v, float focus_u, float focus_v) const
       // distributed on a disk.
       //
       float coc_x, coc_y;	// "Circle of Confusion"
-      sample_disk (focus_u, focus_v, coc_x, coc_y);
+      sample_disk (UV (focus_u, focus_v), coc_x, coc_y);
 
       // How much we will randomly perturb the camera position to simulate
       // depth-of-field.

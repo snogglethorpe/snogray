@@ -1,6 +1,6 @@
 // sample-disk.h -- Disk sample distribution
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,6 +14,7 @@
 #define __SAMPLE_DISK_H__
 
 #include "snogmath.h"
+#include "uv.h"
 
 
 namespace snogray {
@@ -24,10 +25,10 @@ namespace snogray {
 // offsets on the disk with range -1 - 1.
 //
 inline void
-sample_disk (float u, float v, float &dx, float &dy)
+sample_disk (const UV &param, float &dx, float &dy)
 {
-  u = 2 * u - 1;
-  v = 2 * v - 1;
+  float u = 2 * param.u - 1;
+  float v = 2 * param.v - 1;
 
   if (u == 0 && v == 0)
     dx = dy = 0.0;
