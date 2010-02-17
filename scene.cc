@@ -31,7 +31,7 @@ Scene::Scene ()
 //
 Scene::~Scene ()
 {
-  for (std::vector<const Light *>::const_iterator li = lights.begin();
+  for (std::vector<Light *>::const_iterator li = lights.begin();
        li != lights.end(); ++li)
     delete *li;
 

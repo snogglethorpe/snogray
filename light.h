@@ -20,8 +20,9 @@
 
 namespace snogray {
 
-
 class Intersect;
+class Scene;
+
 
 class Light
 {
@@ -99,6 +100,11 @@ public:
   // Return true if this is a point light.
   //
   virtual bool is_point_light () const { return false; }
+
+  // Do any scene-related setup for this light.  This is is called once
+  // after the entire scene has been loaded.
+  //
+  virtual void scene_setup (const Scene &/*scene*/) { }
 
   // Each light has a number, which we use as a index to access various
   // data structures referring to lights.

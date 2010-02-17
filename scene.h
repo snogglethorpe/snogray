@@ -113,9 +113,13 @@ public:
 
   void set_light_map (const Ref<Envmap> &lmap);
 
+  // All surfaces in the scene.
+  //
   SurfaceGroup surfaces;
 
-  std::vector<const Light *> lights;
+  // All lights in the scene.
+  //
+  std::vector<Light *> lights;
 
   // A distance which is further than the furthest surface from any point.
   //

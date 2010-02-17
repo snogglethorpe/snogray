@@ -1,6 +1,6 @@
 // scene-def.h -- Scene definition object
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -128,6 +128,13 @@ SceneDef::load (Scene &scene, Camera &camera)
   //
   Octree::BuilderFactory octree_builder_factory; // hardwired for now
   scene.build_space (&octree_builder_factory);
+
+  // Now that SCENE has been fully loaded, call each light's
+  // Light::scene_setup method.
+  //
+  for (std::vector<Light *>::iterator li = scene.lights.begin ();
+       li != scene.lights.end (); ++li)
+    (*li)->scene_setup (scene);
 
   if (camera_cmds.length () > 0)
     interpret_camera_cmds (camera_cmds, camera, scene);
