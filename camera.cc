@@ -126,16 +126,13 @@ Camera::eye_ray (float u, float v, float focus_u, float focus_v) const
 
       // The camera aperture is circular, so convert the independent
       // random variables FOCUS_U and FOCUS_V into a sample uniformly
-      // distributed on a disk.
+      // distributed on a disk.  SRC_PERTURB_X and SRC_PERTURB_Y will
+      // be how much we will randomly perturb the camera position to
+      // simulate depth-of-field.
       //
-      float coc_x, coc_y;	// "Circle of Confusion"
-      sample_disk (UV (focus_u, focus_v), coc_x, coc_y);
-
-      // How much we will randomly perturb the camera position to simulate
-      // depth-of-field.
-      //
-      float src_perturb_x = aperture_radius * coc_x;
-      float src_perturb_y = aperture_radius * coc_y;
+      dist_t src_perturb_x, src_perturb_y;
+      sample_disk (aperture_radius, UV (focus_u, focus_v),
+		   src_perturb_x, src_perturb_y);
 
       // The end of the camera-ray pointed to by TARG should be perturbed
       // slightly less than SRC, by a factor of 1 / FOCUS_DISTANCE.

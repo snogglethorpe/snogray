@@ -14,18 +14,18 @@
 #define __SAMPLE_DISK_H__
 
 #include "snogmath.h"
+#include "coords.h"
 #include "uv.h"
 
 
 namespace snogray {
 
 
-// Convert uniformly distributed (U, V) parameters with a range of 0-1
-// to samples uniformly distributed on a disk, where DX and DY are x/y
-// offsets on the disk with range -1 - 1.
+// Sample a disk centered at the origin with radius RADIUS using the
+// parameter PARAM, returning the sample coordinates in DX and DY.
 //
-inline void
-sample_disk (const UV &param, float &dx, float &dy)
+static inline void
+sample_disk (dist_t radius, const UV &param, dist_t &dx, dist_t &dy)
 {
   float u = 2 * param.u - 1;
   float v = 2 * param.v - 1;
@@ -65,9 +65,18 @@ sample_disk (const UV &param, float &dx, float &dy)
 
       theta *= PIf / 2.f;
 
-      dx = r * cos (theta);
-      dy = r * sin (theta);
+      dx = radius * r * cos (theta);
+      dy = radius * r * sin (theta);
     }
+}
+
+// Sample a disk centered at the origin with radius 1 using the
+// parameter PARAM, returning the sample coordinates in DX and DY.
+//
+static inline void
+sample_disk (const UV &param, dist_t &dx, dist_t &dy)
+{
+  return sample_disk (1, param, dx, dy);
 }
 
 
