@@ -11,6 +11,7 @@
 //
 
 #include "intersect.h"
+#include "sample-cone.h"
 
 #include "far-light.h"
 
@@ -35,16 +36,10 @@ FarLight::sample (const Intersect &isec, const UV &param) const
 
   if (min_angle < 2 * PIf)
     {
-      // Sample onto the upper part of a cylinder.  The total height of
-      // the cylinder is 2 (from -1 to 1), and the height of the sample
-      // area correponds to ANGLE (so that if ANGLE is 4*PI, the entire
-      // cylinder surface, from z -1 to 1, will be sampled).
+      // Sample a cone pointing at our light.
       //
-      float z = 1 - param.u * angle * 0.5f * INV_PIf;
-      float r = sqrt (1 - z * z);
-      float phi = param.v * 2 * PIf;
-      float x = r * cos (phi), y = r * sin (phi);
-      Vec s_dir = isec.normal_frame.to (frame.from (Vec (x, y, z)));
+      Vec s_dir
+	= isec.normal_frame.to (frame.from (sample_cone (angle/2, param)));
 
       if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
 	return Sample (intensity, pdf, s_dir, 0);
