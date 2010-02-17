@@ -1,6 +1,6 @@
 // frame.h -- Frame of reference
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -80,6 +80,11 @@ public:
   // reference in which the frame's basis vectors are defined).
   //
   Vec from (const Vec &vec) const { return vec.from_basis (x, y, z); }
+
+  // Return POS converted from this frame of reference (to the frame of
+  // reference in which the frame's basis vectors are defined).
+  //
+  Pos from (const Pos &pos) const { return origin + from (Vec (pos)); }
 
   // The "position" of the frame; used when converting positions.
   //
