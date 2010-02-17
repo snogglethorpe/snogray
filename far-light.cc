@@ -10,8 +10,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "bbox.h"
+#include "scene.h"
 #include "intersect.h"
 #include "sample-cone.h"
+#include "sample-disk.h"
 
 #include "far-light.h"
 
@@ -49,11 +52,57 @@ FarLight::sample (const Intersect &isec, const UV &param) const
 }
 
 
+
+// Return a "free sample" of this light.
+//
+Light::FreeSample
+FarLight::sample (const UV &param, const UV &dir_param) const
+{
+  // Note that the sample position and direction are decoupled, as a
+  // far-light is "really really far away" from the scene.  A given
+  // sample point will appear in the same direction from any location
+  // in the scene.
+
+  //
+  // For the position, choose a location in a disk with the same
+  // diameter as the scene's bounding sphere and tangent to the
+  // bounding sphere.
+  //
+
+  // Sample a disk centered at the origin, with radius SCENE_RADIUS.
+  //
+  coord_t px, py;
+  sample_disk (scene_radius, param, px, py);
+  
+  // Now make them SCENE_RADIUS units away in our local coordinate
+  // system, and transform the resulting position them to world
+  // coordinates.
+  //
+  // [FRAME is located at the center of the scene's bounding sphere,
+  // and pointed in the direction of the (really far away) light.]
+  //
+  Pos s_pos = frame.from (Pos (px, py, scene_radius));
+
+  //
+  // For the direction, use the same procedure as the normal sample
+  // method.
+  //
+
+  Vec s_dir = frame.from (sample_cone (angle/2, dir_param));
+
+  // Adjust pdf to include disk sampling.
+  //
+  float s_pdf = pdf / (PIf * scene_radius * scene_radius);
+
+  return FreeSample (intensity, s_pdf, s_pos, s_dir);
+}
+
+
 // FarLight::eval
 
-// Evaluate this light in direction DIR from the viewpoint of ISEC (using
-// a surface-normal coordinate system, where the surface normal is
-// (0,0,1)).
+// Evaluate this light in direction DIR from the viewpoint of ISEC
+// (using a surface-normal coordinate system, where the surface normal
+// is (0,0,1)).
 //
 Light::Value
 FarLight::eval (const Intersect &isec, const Vec &dir) const
@@ -64,6 +113,23 @@ FarLight::eval (const Intersect &isec, const Vec &dir) const
     return Value (intensity, pdf, 0);
   else
     return Value ();
+}
+
+
+
+// Do any scene-related setup for this light.  This is is called once
+// after the entire scene has been loaded.
+//
+void
+FarLight::scene_setup (const Scene &scene)
+{
+  // Record the center and radius of a bounding sphere for the scene.
+
+  BBox scene_bbox = scene.surfaces.bbox ();
+
+  scene_radius = scene_bbox.extent ().length () / 2;
+
+  frame.origin = scene_bbox.min + scene_bbox.extent () / 2;
 }
 
 

@@ -1,3 +1,4 @@
+#include <iostream>
 // rect-light.cc -- Rectangular light
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
@@ -12,6 +13,7 @@
 
 #include "intersect.h"
 #include "tripar-isec.h"
+#include "cos-dist.h"
 #include "scene.h"
 
 #include "rect-light.h"
@@ -77,6 +79,23 @@ RectLight::sample (const Intersect &isec, const UV &param) const
 
   return Sample ();
 }
+
+
+
+// Return a "free sample" of this light.
+//
+Light::FreeSample
+RectLight::sample (const UV &param, const UV &dir_param) const
+{
+  CosDist dist;
+  float dist_pdf;
+  Pos s_pos = pos + side1 * param.u + side2 * param.v;
+  Vec s_dir = frame.from (dist.sample (dir_param.u, dir_param.v, dist_pdf));
+  float s_pdf = dist_pdf / area;
+  return FreeSample (intensity, s_pdf, s_pos, s_dir);
+}
+
+
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC (using
 // a surface-normal coordinate system, where the surface normal is

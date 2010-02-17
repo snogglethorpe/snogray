@@ -14,6 +14,7 @@
 #define __LIGHT_H__
 
 #include "color.h"
+#include "pos.h"
 #include "vec.h"
 #include "uv.h"
 
@@ -28,6 +29,8 @@ class Light
 {
 public:
 
+  // A sample of the light viewed from a particular point.
+  //
   struct Sample
   {
     Sample (const Color &_val, float _pdf, const Vec &_dir, dist_t _dist)
@@ -56,6 +59,33 @@ public:
     // How far the surface of the light is.
     //
     dist_t dist;
+  };
+
+  // A "free sample" of the light, from no particular point of view.
+  //
+  struct FreeSample
+  {
+    FreeSample (const Color &_val, float _pdf, const Pos &_pos, const Vec &_dir)
+      : val (_val), pdf (_pdf), pos (_pos), dir (_dir)
+    { }
+    FreeSample () : val (0), pdf (0) { }
+
+    // The value of the light for this sample.
+    //
+    Color val;
+
+    // The value of the "probability density function" for this sample in the
+    // light's sample distribution.
+    //
+    // However, if this is a specular (point) light, the value is not
+    // defined (theoretically the value is infinity for specular samples).
+    //
+    float pdf;
+
+    // The source position and direction of the sample, in world coordinates.
+    //
+    Pos pos;
+    Vec dir;
   };
 
   struct Value
@@ -89,7 +119,11 @@ public:
   // surface-normal coordinate system, where the surface normal is
   // (0,0,1)), based on the parameter PARAM.
   //
-  virtual Sample sample (const Intersect &isec, const UV & /*param*/) const = 0;
+  virtual Sample sample (const Intersect &isec, const UV &param) const = 0;
+
+  // Return a "free sample" of this light.
+  //
+  virtual FreeSample sample (const UV &param, const UV &dir_param) const = 0;
 
   // Evaluate this light in direction DIR from the viewpoint of ISEC (using
   // a surface-normal coordinate system, where the surface normal is

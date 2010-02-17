@@ -18,6 +18,8 @@
 #include "light-map.h"
 #include "lmap-analyzer.h"
 #include "cos-dist.h"
+#include "sample-disk.h"
+#include "sample-sphere.h"
 
 #include "envmap-light.h"
 
@@ -65,7 +67,7 @@ public:
 
 
 EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap)
-  : envmap (_envmap)
+  : envmap (_envmap), scene_radius (0)
 {
   if (!quiet)
     {
@@ -207,6 +209,102 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
 
   return Sample (intens, pdf, dir, 0);
 }
+
+// 
+
+// Return a "free sample" of this light.
+//
+Light::FreeSample
+EnvmapLight::sample (const UV &param, const UV &dir_param) const
+{
+  // We choose between sampling using the environment-map's intensity
+  // distribution, and sampling over the sphere based on this
+  // probability.
+  //
+  float intens_frac = 0.9f;	       // prob. of choosing intensity sampling
+  float sphere_frac = 1 - intens_frac; // prob. of choosing sphere sampling
+
+  float dir_u = dir_param.u, dir_v = dir_param.v;
+
+  // Sampling results:
+  //
+  Color intens;			// intensity
+  float intens_pdf;		// pdf
+  Vec dir;			// direction
+
+  if (dir_v < intens_frac)
+    {
+      // Sample using intensity distribution
+
+      float rescaled_dir_v = dir_v / intens_frac;
+
+      UV map_pos = intensity_sample (dir_u, rescaled_dir_v, intens, intens_pdf);
+
+      dir = LatLongMapping::map (map_pos);
+    }
+  else
+    {
+      // Sample evenly over sphere
+
+      float rescaled_dir_v = (dir_v - intens_frac) / sphere_frac;;
+
+      dir = sample_sphere (UV (dir_u, rescaled_dir_v));
+
+      UV map_pos = LatLongMapping::map (dir);
+
+      intens = intensity (map_pos.u, map_pos.v, intens_pdf);
+    }
+
+  // Pdf for sphere sampling.
+  //
+  float sphere_pdf = 0.25f * INV_PIf;
+
+  // The intensity distribution covers the entire sphere, so adjust
+  // the pdf to reflect that.
+  //
+  intens_pdf = intens_pdf * 0.25f * INV_PIf;
+
+  // Final pdf is combination of pdfs for the two different sampling
+  // methods we might use.
+  //
+  float pdf = intens_pdf * intens_frac + sphere_pdf * sphere_frac;
+
+  //
+  // For the position, choose a location in a disk with the same
+  // diameter as the scene's bounding sphere and tangent to the
+  // bounding sphere.
+  //
+  
+  // FRAME is located at the center of the scene's bounding sphere,
+  // and pointed in the direction of chosen sample.
+  //
+  Frame frame (scene_center, dir);
+
+  // Sample a disk centered at the origin, with radius SCENE_RADIUS.
+  //
+  coord_t px, py;
+  sample_disk (scene_radius, param, px, py);
+
+  // Now make them SCENE_RADIUS units away in our local coordinate
+  // system, and transform the resulting position them to world
+  // coordinates.
+  //
+  Pos pos = frame.from (Pos (px, py, scene_radius));
+
+  // Adjust pdf to include disk sampling.
+  //
+  pdf /= PIf * scene_radius * scene_radius;
+
+  // Use high-resolution intensity data.
+  //
+  intens = envmap->map (dir);
+
+  // Return the sample; we invert the DIR we calculated above, as it
+  // points _towards_ the sample point, and the return value should
+  // have a direction _from_ the sample point.
+  //
+  return FreeSample (intens, pdf, pos, -dir);
+}
 
 
 // EnvmapLight::eval
@@ -270,6 +368,24 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
   float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
 
   return Value (intens, hemi_frac * hemi_pdf + intens_frac * intens_pdf, 0);
+}
+
+
+
+// Do any scene-related setup for this light.  This is is called once
+// after the entire scene has been loaded.
+//
+void
+EnvmapLight::scene_setup (const Scene &scene)
+{
+  // Record the center and radius of a bounding sphere for the scene.
+
+  BBox scene_bbox = scene.surfaces.bbox ();
+
+  scene_center = scene_bbox.min + scene_bbox.extent () / 2;
+  scene_radius = scene_bbox.extent ().length () / 2;
+
+  std::cout << "* envmap-light: scene center at " << scene_center << ", radius = " << scene_radius << std::endl;
 }
 
 

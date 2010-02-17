@@ -11,6 +11,7 @@
 //
 
 #include "intersect.h"
+#include "sample-sphere.h"
 
 #include "point-light.h"
 
@@ -37,6 +38,14 @@ PointLight::sample (const Intersect &isec, const UV &) const
     }
 
   return Sample ();
+}
+
+// Return a "free sample" of this light.
+//
+Light::FreeSample
+PointLight::sample (const UV &, const UV &dir_param) const
+{
+  return FreeSample (color, 4*PIf, pos, sample_sphere (dir_param));
 }
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC (using

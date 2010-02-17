@@ -13,6 +13,7 @@
 #include "snogmath.h"
 #include "intersect.h"
 #include "sphere-isec.h"
+#include "sample-sphere.h"
 
 #include "sphere-light.h"
 
@@ -94,6 +95,22 @@ SphereLight::sample (const Intersect &isec, const UV &param) const
     }
 
   return Sample ();
+}
+
+
+
+// Return a "free sample" of this light.
+//
+Light::FreeSample
+SphereLight::sample (const UV &param, const UV &dir_param) const
+{
+  Vec s_pos_vec = sample_sphere (param);
+  Pos s_pos = pos + s_pos_vec * radius;
+  Vec s_dir = sample_sphere (dir_param);
+  if (dot (s_dir, s_pos_vec) < 0)
+    s_dir = -s_dir;
+  float s_pdf = 1 / (radius*radius * 4 * PIf * 2 * PIf); // 1 / area*2*pi
+  return FreeSample (intensity, s_pdf, s_pos, s_dir);
 }
 
 

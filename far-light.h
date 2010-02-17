@@ -33,7 +33,8 @@ public:
   //
   FarLight (const Vec &_dir, float _angle, const Color &_intensity)
     : intensity (_intensity), angle (_angle), frame (_dir.unit ()),
-      pdf (1 / angle), min_cos (cos (_angle / 2))
+      pdf (1 / angle), min_cos (cos (_angle / 2)),
+      scene_radius (0)
   { }
 
   // Return a sample of this light from the viewpoint of ISEC (using a
@@ -42,11 +43,20 @@ public:
   //
   virtual Sample sample (const Intersect &isec, const UV &param) const;
 
+  // Return a "free sample" of this light.
+  //
+  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
+
   // Evaluate this light in direction DIR from the viewpoint of ISEC (using
   // a surface-normal coordinate system, where the surface normal is
   // (0,0,1)).
   //
   virtual Value eval (const Intersect &isec, const Vec &dir) const;
+
+  // Do any scene-related setup for this light.  This is is called once
+  // after the entire scene has been loaded.
+  //
+  virtual void scene_setup (const Scene &scene);
 
   Color intensity;
   dist_t angle;
@@ -55,7 +65,7 @@ private:
   
   // Frame of reference pointing at this light from the origin.
   //
-  const Frame frame;
+  Frame frame;
 
   // As our light subtends a constant angle, and we sample it uniformly
   // by solid angle, we have a constant pdf.
@@ -68,6 +78,10 @@ private:
   // the light.
   //
   dist_t min_cos;
+
+  // Radius of a bounding sphere for the engire scene.
+  //
+  dist_t scene_radius;
 };
 
 

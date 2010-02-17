@@ -38,6 +38,10 @@ public:
   //
   virtual Sample sample (const Intersect &isec, const UV &param) const;
 
+  // Return a "free sample" of this light.
+  //
+  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
+
   // Evaluate this light in direction DIR from the viewpoint of ISEC (using
   // a surface-normal coordinate system, where the surface normal is
   // (0,0,1)).

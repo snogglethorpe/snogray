@@ -42,15 +42,29 @@ public:
   //
   virtual Sample sample (const Intersect &isec, const UV &param) const;
 
+  // Return a "free sample" of this light.
+  //
+  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
+
   // Evaluate this light in direction DIR from the viewpoint of ISEC (using
   // a surface-normal coordinate system, where the surface normal is
   // (0,0,1)).
   //
   virtual Value eval (const Intersect &isec, const Vec &dir) const;
 
+  // Do any scene-related setup for this light.  This is is called once
+  // after the entire scene has been loaded.
+  //
+  virtual void scene_setup (const Scene &scene);
+
 private:
 
   Ref<Envmap> envmap;
+
+  // Center and radius of a bounding sphere for the engire scene.
+  //
+  Pos scene_center;
+  dist_t scene_radius;
 };
 
 
