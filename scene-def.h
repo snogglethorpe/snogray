@@ -24,8 +24,7 @@
                                BG may be a color or the name of an\n\
                                environment-map image file\n\
   -A, --background-alpha=ALPHA Use ALPHA as the opacity of the background\n\
-  -l, --light-map=LMAP       Use LMAP as an environmental light-source\n\
-                               (overriding any light-source from --background)\n\
+\
   -I, --scene-options=OPTS   Set scene options; OPTS has the format\n\
                                OPT1=VAL1[,...]; current options include:\n\
                                  \"format\"    -- scene file type\n\
@@ -59,7 +58,6 @@
     { "background",     required_argument, 0, 'b' },			\
     { "background-alpha", required_argument, 0, 'A' },			\
     { "bg-alpha",	required_argument, 0, 'A' },			\
-    { "light-map",	required_argument, 0, 'l' },			\
     { "scene-options", 	required_argument, 0, 'I' },			\
     { "camera",		required_argument, 0, 'c' },			\
 
@@ -69,9 +67,6 @@
     break;								\
   case 'A':								\
     scene_def.params.set ("background-alpha", clp.float_opt_arg ());	\
-    break;								\
-  case 'l':								\
-    scene_def.params.set ("light-map", clp.opt_arg ());			\
     break;								\
 									\
   case 'I':								\

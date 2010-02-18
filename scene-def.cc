@@ -13,6 +13,7 @@
 #include "scene.h"
 #include "envmap.h"
 #include "envmap-light.h"
+#include "far-light.h"
 #include "excepts.h"
 #include "glow.h"
 #include "image-io.h"
@@ -73,31 +74,28 @@ SceneDef::load (Scene &scene, Camera &camera)
     {
       string fmt = strip_prefix (bg_spec, ":");
 
+      Light *bg_light;
       if (fmt == "grey" || fmt == "g")
-	scene.set_background (atof (bg_spec.c_str()));
-      else if (fmt == "envmap")
-	scene.set_background (load_envmap (bg_spec));
+	{
+	  // Light using a constant color.
+	  
+	  bg_light = new FarLight (Vec(0,1,0), 2*PIf, atof (bg_spec.c_str()));
+	}
       else
-	scene.set_background (load_envmap (bg_spec, fmt));
-    }
-  string lmap_spec = params.get_string ("light-map");
-  if (! lmap_spec.empty ())
-    {
-      string fmt = strip_prefix (lmap_spec, ":");
+	{
+	  // Light using an environment map.
 
-      if (fmt == "envmap")
-	scene.set_light_map (load_envmap (lmap_spec));
-      else
-	scene.set_light_map (load_envmap (lmap_spec, fmt));
-    }
+	  Ref<Envmap> envmap
+	    = load_envmap (bg_spec, (fmt == "envmap") ? "" : fmt);
+
+	  bg_light = new EnvmapLight (envmap);
+	}
+
+      scene.add (bg_light);
+    }	  
 
   float bg_alpha = params.get_float ("background-alpha", 1);
   scene.set_background_alpha (bg_alpha);
-
-  // By default, use an environment map as a light-map too.
-  //
-  if (scene.env_map && !scene.light_map)
-    scene.set_light_map (scene.env_map);
 
   // Read in scene file
   //
@@ -112,17 +110,6 @@ SceneDef::load (Scene &scene, Camera &camera)
 	throw runtime_error (spec->user_name + ": Error reading scene: "
 			     + err.what ());
       }
-
-  if (scene.light_map)
-    {
-      EnvmapLight *env_light = new EnvmapLight (scene.light_map);
-
-      scene.add (env_light);
-
-      string env_light_dump_file = params.get_string ("envlight-dump-file");
-      if (! env_light_dump_file.empty ())
-	env_light->dump (env_light_dump_file, *scene.light_map);
-    }
 
   // Make sure the space acceleration structures are built.
   //

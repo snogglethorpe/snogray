@@ -104,14 +104,8 @@ public:
   unsigned num_surfaces () const { return surfaces.num_surfaces (); }
   unsigned num_lights () const { return lights.size (); }
 
-  void set_background (const Color &col);
-
   float background_alpha () const { return bg_alpha; }
   void set_background_alpha (float alpha) { bg_alpha = alpha; }
-
-  void set_background (const Ref<Envmap> &env_map);
-
-  void set_light_map (const Ref<Envmap> &lmap);
 
   // All surfaces in the scene.
   //
@@ -121,25 +115,17 @@ public:
   //
   std::vector<Light *> lights;
 
-  // A distance which is further than the furthest surface from any point.
+  // "Environmental" lights in the scene.  This is a subset of LIGHTS.
   //
-  dist_t horizon;
-
-  // Background color or image
-  //
-  Color bg_color;
-  Ref<Envmap> env_map;
-  bool bg_set;			// true if background is non-default
+  std::vector<Light *> environ_lights;
 
   // Alpha value to use for background (either BG_COLOR or ENV_MAP).
   //
   float bg_alpha;
 
-  // Environment map used for lighting; currently this is only a
-  // convenient storage place -- the actual light creation is done
-  // outside the scene code.
+  // A distance which is further than the furthest surface from any point.
   //
-  Ref<Envmap> light_map;
+  dist_t horizon;
 
   // Acceleration structure for doing ray-surface intersection testing.
   //

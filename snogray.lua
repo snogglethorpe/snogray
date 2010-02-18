@@ -994,7 +994,7 @@ function rect_light (corner, side1, side2, intens)
 end
 
 function far_light (dir, angle, intens)
-   return raw.FarLight (dir, angle, color (intens))
+   return raw.FarLight (dir:unit(), angle, color (intens))
 end
 
 

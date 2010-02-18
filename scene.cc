@@ -23,8 +23,7 @@ using namespace std;
 
 
 Scene::Scene ()
-  : horizon (DEFAULT_HORIZON),
-    bg_color (0), env_map (0), bg_set (false), light_map (0), space (0)
+  : horizon (DEFAULT_HORIZON), bg_alpha (0), space (0)
 { }
 
 // The scene "owns" all its components, so frees them when it is destroyed
@@ -63,6 +62,9 @@ Scene::add (Light *light)
 {
   light->num = num_lights();	// Give LIGHT an index
   lights.push_back (light);
+
+  if (light->is_environ_light ())
+    environ_lights.push_back (light);
 }
 
 // Construct the search accelerator for this scene.
@@ -90,76 +92,13 @@ Scene::build_space (const SpaceBuilderFactory *space_builder_factory)
 Color
 Scene::background (const Vec &dir) const
 {
-  if (env_map)
-    {
-      Color bg = env_map->map (dir);
+  Color radiance = 0;
 
-      // If there are separate environment and light-maps, it's likely that
-      // the latter is HDR and the former LDR, so try to add highlight
-      // information to the environment-map using the HDR light-map.
-      //
-      // This is done by detecting a "saturated" LDR background color --
-      // within epsilon of 1.0 -- and using the corresponding light-map
-      // color instead if it is greater than 1.0.  This is done
-      // separately for each color component.
-      //
-      // Essentially it switches to the low-res lightmap in very bright
-      // areas; this can give much nicer reflections in some cases, and
-      // the lower-res image tends to be unobjectional in such areas.
-      //
-      if (light_map && light_map != env_map)
-	{
-	  // "Saturation epsilon" -- if a color component is within this
-	  // amount of 1.0, it is considered a possible "saturated" LDR
-	  // pixel.
-	  //
-	  static const float SAT_EPS = 0.05;
+  for (std::vector<Light *>::const_iterator li = environ_lights.begin();
+       li != environ_lights.end(); ++li)
+    radiance += (*li)->eval_environ (dir);
 
-	  // First we test the maximum component to see if it's possibly
-	  // saturated; if not, there's no point in fetching the
-	  // light-map color.
-	  //
-	  Color::component_t max = bg.max_component ();
-
-	  if (max > 1-SAT_EPS && max < 1+SAT_EPS)
-	    {
-	      Color lmap_bg = light_map->map (dir);
-
-	      for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
-		if (bg[c] > 1-SAT_EPS && lmap_bg[c] > 1)
-		  bg[c] = lmap_bg[c];
-	    }
-	}
-
-      return bg;
-    }
-  else
-    return bg_color;
-}
-
-
-
-void
-Scene::set_background (const Color &col)
-{
-  if (env_map)
-    env_map = 0;
-
-  bg_color = col;
-  bg_set = true;
-}
-
-void
-Scene::set_background (const Ref<Envmap> &map)
-{
-  env_map = map;
-  bg_set = true;
-}
-
-void
-Scene::set_light_map (const Ref<Envmap> &lmap)
-{
-  light_map = lmap;
+  return radiance;
 }
 
 

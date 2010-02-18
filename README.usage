@@ -144,27 +144,10 @@ COMMAND-LINE OPTIONS
         Use ENV_MAP_IMAGE_FILE as an environment map, i.e., as the
         scene background.  ENV_MAP_IMAGE_FILE should be an image file
         in "latitude-longitude" format (covering a full 360 degree
-        sphere).
-
-        If the -l/--light-map option is not used, ENV_MAP_IMAGE_FILE
-        is used for both background and lighting, so light will come
-        "from" the background image.  For this reason it is best if it
-        is an HDR (high-dynamic range) image, e.g., with an .exr or
-        .hdr extension.
-
-        If the -l/--light-map is used in addition to -b/--background,
-        then the environment map specified with -b/--background will
-        only be used for
-
-    -l ENV_MAP_IMAGE_FILE
-    --light-map=ENV_MAP_IMAGE_FILE
-
-        Use ENV_MAP_IMAGE_FILE as a light map, for lighting the scene.
-        ENV_MAP_IMAGE_FILE should be an image file in "latitude-
-        longitude" format (covering a full 360 degree sphere).
-
-        ENV_MAP_IMAGE_FILE will only be used for lighting purposes, and
-        not as a "visual" background (use -b/--background for that).
+        sphere).  ENV_MAP_IMAGE_FILE is used for both background and
+        lighting, so light will come "from" the background image.  For
+        this reason it is best if it is an HDR (high-dynamic range)
+        image, e.g., with an .exr or .hdr extension.
 
     -e EXPOSURE
     --exposure=EXPOSURE

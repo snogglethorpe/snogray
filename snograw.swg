@@ -855,12 +855,7 @@ namespace snogray {
     void add (Surface *surface);
     void add (Light *light);
 
-    void set_background (const Color &col);
-
     void load (const char *file_name, const char *fmt, Camera &camera);
-
-    Ref<Envmap> env_map;
-    Ref<Envmap> light_map;
   };
   %extend Scene
   {
