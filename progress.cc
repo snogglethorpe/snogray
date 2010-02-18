@@ -22,7 +22,7 @@ using namespace std;
 void
 Progress::start ()
 {
-  if (verbosity == MINIMAL)
+  if (verbosity != QUIET)
     {
       os << prefix;	// if no progress indicator, print _something_
       os.flush ();
