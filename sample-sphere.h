@@ -26,8 +26,8 @@ static inline Vec
 sample_sphere (const UV &param)
 {
   // Sampling an entire sphere is a special case of sampling a
-  // degenerate "cone", where the cone's half-angle is 2*PI (a rather
-  // wacky cone, but it works).
+  // degenerate "cone", where the cone's angle is 2*PI (a rather wacky
+  // cone, but it works).
   //
   // [Note that recent versions of gcc can completely eliminate the
   // resulting PIf * INV_PIf calculation during constant-folding, so

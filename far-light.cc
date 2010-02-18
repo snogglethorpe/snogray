@@ -42,7 +42,7 @@ FarLight::sample (const Intersect &isec, const UV &param) const
       // Sample a cone pointing at our light.
       //
       Vec s_dir
-	= isec.normal_frame.to (frame.from (sample_cone (angle/2, param)));
+	= isec.normal_frame.to (frame.from (sample_cone (angle, param)));
 
       if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
 	return Sample (intensity, pdf, s_dir, 0);
@@ -88,7 +88,7 @@ FarLight::sample (const UV &param, const UV &dir_param) const
   // method.
   //
 
-  Vec s_dir = frame.from (sample_cone (angle/2, dir_param));
+  Vec s_dir = frame.from (sample_cone (angle, dir_param));
 
   // Adjust pdf to include disk sampling.
   //

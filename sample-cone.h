@@ -22,22 +22,21 @@ namespace snogray {
 
 
 // Return a sample vector uniformly distributed over a cone centered
-// around the z-axis, whose surface has an angle of HALF_ANGLE from
-// the z-axis.  PARAM is the sample parameter.
+// around the z-axis which subtends angle of ANGLE.  PARAM is the
+// sample parameter.
 //
 static inline Vec
-sample_cone (float half_angle, const UV &param)
+sample_cone (float angle, const UV &param)
 {
   // Choose a slice on the upper part of a unit cylinder.  The total
   // height of the cylinder is 2 (from -1 to 1), and the height of the
-  // sample area corresponds to HALF_ANGLE (so that if HALF_ANGLE is
-  // 2*PI, the entire cylinder surface, from z -1 to 1, will be
-  // sampled).
+  // sample area corresponds to ANGLE (so that if ANGLE is PI, the
+  // entire cylinder surface, from z -1 to 1, will be sampled).
   //
   // Then project the chosen slice onto a unit sphere.  Z is the
   // z-coordinate of the slice, and R is its radius.
   //
-  float z = 1 - param.u * half_angle * INV_PIf;
+  float z = 1 - param.u * angle * INV_PIf;
   float r = sqrt (max (1 - z * z, 0.f));
 
   // Now choose a point around the edge of the radius R disk; X and Y
