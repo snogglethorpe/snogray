@@ -135,6 +135,15 @@ public:
   //
   virtual bool is_point_light () const { return false; }
 
+  // Return true if this is an "environmental" light, not associated
+  // with any surface.
+  //
+  virtual bool is_environ_light () const { return false; }
+
+  // Evaluate this environmental light in direction DIR (in world-coordinates).
+  //
+  virtual Color eval_environ (const Vec &/*dir*/) const { return 0; };
+
   // Do any scene-related setup for this light.  This is is called once
   // after the entire scene has been loaded.
   //
