@@ -30,23 +30,12 @@ using namespace snogray;
 Light::Sample
 FarLight::sample (const Intersect &isec, const UV &param) const
 {
-  // First detect cases where the light isn't visible at all given the
-  // ISEC's surface normal.
+  // Sample a cone pointing at our light.
   //
-  float cos_n_dir_angle = isec.cos_n (isec.normal_frame.to (frame.z));
-  float n_dir_angle = acos (clamp (cos_n_dir_angle, -1.f, 1.f));
-  float min_angle = n_dir_angle - angle / 2;
+  Vec s_dir = isec.normal_frame.to (frame.from (sample_cone (angle, param)));
 
-  if (min_angle < 2 * PIf)
-    {
-      // Sample a cone pointing at our light.
-      //
-      Vec s_dir
-	= isec.normal_frame.to (frame.from (sample_cone (angle, param)));
-
-      if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
-	return Sample (intensity, pdf, s_dir, 0);
-    }
+  if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
+    return Sample (intensity, pdf, s_dir, 0);
 
   return Sample ();
 }
