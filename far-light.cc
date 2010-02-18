@@ -117,6 +117,24 @@ FarLight::eval (const Intersect &isec, const Vec &dir) const
 
 
 
+// Evaluate this environmental light in direction DIR (in world-coordinates).
+//
+Color
+FarLight::eval_environ (const Vec &dir) const
+{
+  // Cosine of the angle between DIR and the direction of this light.
+  //
+  float cos_light_dir = dot (dir, frame.z);
+
+  // If COS_LIGHT_DIR is greater than MIN_COS, then DIR must be within
+  // ANGLE/2 of the light direction, so return the light's color;
+  // otherwise just return 0.
+  //
+  return (cos_light_dir > min_cos) ? intensity : 0;
+}
+
+
+
 // Do any scene-related setup for this light.  This is is called once
 // after the entire scene has been loaded.
 //
