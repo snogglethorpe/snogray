@@ -18,8 +18,8 @@
 #include "light-map.h"
 #include "lmap-analyzer.h"
 #include "cos-dist.h"
-#include "sample-disk.h"
 #include "sample-sphere.h"
+#include "sample-tangent-disk.h"
 
 #include "envmap-light.h"
 
@@ -269,27 +269,9 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
   //
   float pdf = intens_pdf * intens_frac + sphere_pdf * sphere_frac;
 
+  // Choose a sample position "at infinity".
   //
-  // For the position, choose a location in a disk with the same
-  // diameter as the scene's bounding sphere and tangent to the
-  // bounding sphere.
-  //
-  
-  // FRAME is located at the center of the scene's bounding sphere,
-  // and pointed in the direction of chosen sample.
-  //
-  Frame frame (scene_center, dir);
-
-  // Sample a disk centered at the origin, with radius SCENE_RADIUS.
-  //
-  coord_t px, py;
-  sample_disk (scene_radius, param, px, py);
-
-  // Now make them SCENE_RADIUS units away in our local coordinate
-  // system, and transform the resulting position them to world
-  // coordinates.
-  //
-  Pos pos = frame.from (Pos (px, py, scene_radius));
+  Pos pos = sample_tangent_disk (scene_center, scene_radius, dir, param);
 
   // Adjust pdf to include disk sampling.
   //
