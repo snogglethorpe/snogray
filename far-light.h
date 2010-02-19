@@ -88,8 +88,9 @@ private:
   //
   dist_t min_cos;
 
-  // Radius of a bounding sphere for the engire scene.
+  // Center and radius of a bounding sphere for the entire scene.
   //
+  Pos scene_center;
   dist_t scene_radius;
 };
 

@@ -14,7 +14,7 @@
 #include "scene.h"
 #include "intersect.h"
 #include "sample-cone.h"
-#include "sample-disk.h"
+#include "sample-tangent-disk.h"
 
 #include "far-light.h"
 
@@ -52,38 +52,14 @@ FarLight::sample (const UV &param, const UV &dir_param) const
   // sample point will appear in the same direction from any location
   // in the scene.
 
-  //
-  // For the position, choose a location in a disk with the same
-  // diameter as the scene's bounding sphere and tangent to the
-  // bounding sphere.
-  //
-
-  // Sample a disk centered at the origin, with radius SCENE_RADIUS.
-  //
-  coord_t px, py;
-  sample_disk (scene_radius, param, px, py);
-  
-  // Now make them SCENE_RADIUS units away in our local coordinate
-  // system, and transform the resulting position them to world
-  // coordinates.
-  //
-  // [FRAME is located at the center of the scene's bounding sphere,
-  // and pointed in the direction of the (really far away) light.]
-  //
-  Pos s_pos = frame.from (Pos (px, py, scene_radius));
-
-  //
-  // For the direction, use the same procedure as the normal sample
-  // method.
-  //
-
-  Vec s_dir = frame.from (sample_cone (angle, dir_param));
+  Vec s_dir = frame.from (sample_cone (angle/2, dir_param));
+  Pos s_pos = sample_tangent_disk (scene_center, scene_radius, s_dir, param);
 
   // Adjust pdf to include disk sampling.
   //
   float s_pdf = pdf / (PIf * scene_radius * scene_radius);
 
-  return FreeSample (intensity, s_pdf, s_pos, s_dir);
+  return FreeSample (intensity, s_pdf, s_pos, -s_dir);
 }
 
 
@@ -134,9 +110,8 @@ FarLight::scene_setup (const Scene &scene)
 
   BBox scene_bbox = scene.surfaces.bbox ();
 
+  scene_center = scene_bbox.min + scene_bbox.extent () / 2;
   scene_radius = scene_bbox.extent ().length () / 2;
-
-  frame.origin = scene_bbox.min + scene_bbox.extent () / 2;
 }
 
 
