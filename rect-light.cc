@@ -1,4 +1,3 @@
-#include <iostream>
 // rect-light.cc -- Rectangular light
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
@@ -22,6 +21,7 @@
 using namespace snogray;
 
 
+// RectLight::sample
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
@@ -81,21 +81,45 @@ RectLight::sample (const Intersect &isec, const UV &param) const
 }
 
 
+// RectLight::sample, free-sampling vhariant
 
 // Return a "free sample" of this light.
 //
 Light::FreeSample
 RectLight::sample (const UV &param, const UV &dir_param) const
 {
-  CosDist dist;
-  float dist_pdf;
+  // Choose a position on the light according to PARAM.
+  //
   Pos s_pos = pos + side1 * param.u + side2 * param.v;
-  Vec s_dir = frame.from (dist.sample (dir_param.u, dir_param.v, dist_pdf));
-  float s_pdf = dist_pdf / area;
+  float pos_pdf = 1 / area;
+
+  // Choose a direction in the light's frame-of-reference according to
+  // DIR_PARAM.
+  //
+  CosDist dist;
+  Vec dir = dist.sample (dir_param.u, dir_param.v);
+
+  // Convert DIR to the world frame-of-reference.
+  //
+  Vec s_dir = frame.from (dir);
+
+  // The PDF is actually POS_PDF * (DIR_PDF * (dA/dw)), where DIR_PDF
+  // is the distribution DIST's PDF for DIR, in angular terms, and
+  // (dA/dw) is a conversion factor from angular to area terms.
+  //
+  // However, as we know that DIST is a cosine distribution, whose PDF
+  // is cos(theta)/pi (where theta is the angle between DIR and the
+  // distribution normal), and since (dA/dw) is 1/cos(theta), the
+  // cosine terms cancel out, and we can just use POS_PDF / pi
+  // instead.
+  //
+  float s_pdf = pos_pdf * INV_PIf;
+
   return FreeSample (intensity, s_pdf, s_pos, s_dir);
 }
 
 
+// RectLight::eval
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC (using
 // a surface-normal coordinate system, where the surface normal is
