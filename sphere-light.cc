@@ -11,6 +11,7 @@
 //
 
 #include "snogmath.h"
+#include "cos-dist.h"
 #include "intersect.h"
 #include "sphere-isec.h"
 #include "sample-sphere.h"
@@ -98,18 +99,42 @@ SphereLight::sample (const Intersect &isec, const UV &param) const
 }
 
 
+// SphereLight::sample
 
 // Return a "free sample" of this light.
 //
 Light::FreeSample
 SphereLight::sample (const UV &param, const UV &dir_param) const
 {
+  // Sample position on sphere's surface.
+  //
   Vec s_pos_vec = sample_sphere (param);
   Pos s_pos = pos + s_pos_vec * radius;
-  Vec s_dir = sample_sphere (dir_param);
-  if (dot (s_dir, s_pos_vec) < 0)
-    s_dir = -s_dir;
-  float s_pdf = 1 / (radius*radius * 4 * PIf * 2 * PIf); // 1 / area*2*pi
+  float pos_pdf = 1 / (radius*radius * 4 * PIf);   // 1 / area
+
+  // Sample direction from that position, using a cosine-weighted
+  // distribution.
+  //
+  CosDist dist;
+  Vec dir = dist.sample (dir_param.u, dir_param.v);
+
+  // Convert direction sample to world-coordinates.
+  //
+  Frame frame (s_pos_vec);
+  Vec s_dir = frame.from (dir);
+
+  // The PDF is actually POS_PDF * (DIR_PDF * (dA/dw)), where DIR_PDF
+  // is the distribution DIST's PDF for DIR, in angular terms, and
+  // (dA/dw) is a conversion factor from angular to area terms.
+  //
+  // However, as we know that DIST is a cosine distribution, whose PDF
+  // is cos(theta)/pi (where theta is the angle between DIR and the
+  // distribution normal), and since (dA/dw) is 1/cos(theta), the
+  // cosine terms cancel out, and we can just use POS_PDF / pi
+  // instead.
+  //
+  float s_pdf = pos_pdf * INV_PIf;
+
   return FreeSample (intensity, s_pdf, s_pos, s_dir);
 }
 
