@@ -46,12 +46,17 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
 {
   Pos point = ray.end ();
 
-  // Calculate the normal and tangent vectors.
+  // Calculate the normal and tangent vectors.  Normally the tangent
+  // vectors are oriented "naturally", with s pointing "around" the
+  // sphere's axis, and t roughly in the same direction as the axis.
+  // However, if the normal _exactly_ coincides with the axis, this
+  // isn't possible; we use more arbitrary tangent vectors in that case.
   //
   Vec norm = (point - sphere->frame.origin).unit ();
-  Vec s = cross (norm, sphere->frame.z).unit ();
+  Vec s = cross (norm, sphere->frame.z);
   if (s.length_squared() < Eps)
     s = norm.perpendicular ();	// degenerate case where NORM == AXIS
+  s = s.unit ();
   Vec t = cross (s, norm);
 
   // 1 divided by the radius/circumference of the sphere.
