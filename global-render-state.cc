@@ -15,6 +15,7 @@
 #include "grid.h"
 #include "direct-integ.h"
 #include "path-integ.h"
+#include "photon-integ.h"
 #include "filter-volume-integ.h"
 
 #include "global-render-state.h"
@@ -67,6 +68,8 @@ GlobalRenderState::make_surface_integ_global_state (const ValTable &params)
     return new DirectInteg::GlobalState (*this, params);
   else if (sint == "path")
     return new PathInteg::GlobalState (*this, params);
+  else if (sint == "photon")
+    return new PhotonInteg::GlobalState (*this, params);
   else
     throw std::runtime_error ("Unknown surface-integrator \"" + sint + "\"");
 }
