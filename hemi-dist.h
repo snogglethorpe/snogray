@@ -24,22 +24,22 @@ class HemiDist : Dist
 public:
 
   // Return a sample distributed around the Z-axis according to this
-  // distribution, from the uniformly distributed parameters U and V.
+  // distribution, from the uniformly distributed parameters in PARAM.
   //
-  Vec sample (float u, float v) const
+  Vec sample (const UV &param) const
   {
-    return z_normal_symm_vec (sqrt (u), v);
+    return z_normal_symm_vec (sqrt (param.u), param.v);
   }
 
   // Return a sample distributed around the Z-axis according to this
-  // distribution, from the uniformly distributed parameters U and V.
-  // Also return the PDF of the resulting sample.
+  // distribution, from the uniformly distributed parameters in PARAM.
+  // Also return the PDF of the resulting sample in _PDF.
   //
-  Vec sample (float u, float v, float &_pdf) const
+  Vec sample (const UV &param, float &_pdf) const
   {
-    float cos_theta = u;
+    float cos_theta = param.u;
     _pdf = pdf ();
-    return z_normal_symm_vec (cos_theta, v);
+    return z_normal_symm_vec (cos_theta, param.v);
   }
 
   // Returns the pdf of a sample.

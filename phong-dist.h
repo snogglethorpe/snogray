@@ -1,6 +1,6 @@
 // phong-dist.h -- Phong distribution
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -32,19 +32,19 @@ public:
   // Returns a sample distributed around the y axis accordign to this
   // distribution.
   //
-  Vec sample (float u, float v) const
+  Vec sample (const UV &param) const
   {
-    return z_normal_symm_vec (pow (u, inv_exp_plus_1), v);
+    return z_normal_symm_vec (pow (param.u, inv_exp_plus_1), param.v);
   }
 
   // Returns a sample distributed around the y axis accordign to this
   // distribution, and also the corresponding pdf.
   //
-  Vec sample (float u, float v, float &_pdf) const
+  Vec sample (const UV &param, float &_pdf) const
   {
-    float cos_theta = pow (u, inv_exp_plus_1);
+    float cos_theta = pow (param.u, inv_exp_plus_1);
     _pdf = pdf (cos_theta);
-    return z_normal_symm_vec (cos_theta, v);
+    return z_normal_symm_vec (cos_theta, param.v);
   }
 
   // Returns the pdf of a sample, if COS_THETA is the cosine between it and

@@ -1,6 +1,6 @@
 // ward-dist.h -- Isotropic Ward distribution
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,17 +30,18 @@ public:
   bool operator== (const WardDist &dist) const { return m == dist.m; }
 
   // Return a sample distributed around the Z-axis according to this
-  // distribution, from the uniformly distributed parameters U and V.
+  // distribution, from the uniformly distributed parameters in PARAM.
   //
-  Vec sample (float u, float v) const
+  Vec sample (const UV &param) const
   {
     // The original formula is: theta = atan (m * sqrt (-log (1 - u))), but
     // we need cos (theta) to call z_normal_symm_vec, and can use use
     // algebraic rearrangement to eliminate calls to the expensive cos and
     // atan functions.
     //
+    float u = param.u;
     float cos_theta = u >= 1 ? 0 : 1 / sqrt (m * m * -log (1 - u) + 1);
-    return z_normal_symm_vec (cos_theta, v);
+    return z_normal_symm_vec (cos_theta, param.v);
   }
 
   // Returns the pdf of a sample, if COS_THETA is the cosine between it and

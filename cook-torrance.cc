@@ -86,7 +86,7 @@ public:
 	if (desired_flags != DIFFUSE)
 	  u = u * inv_diff_weight;
 
-	l = diff_dist.sample (u, v);
+	l = diff_dist.sample (UV (u, v));
 	h = (isec.v + l).unit ();
 	flags |= DIFFUSE;
       }
@@ -98,7 +98,7 @@ public:
 	if (desired_flags != DIFFUSE)
 	  u = (u - diff_weight) * inv_spec_weight;
 
-	h = spec_dist.sample (u, v);
+	h = spec_dist.sample (UV (u, v));
 	if (isec.cos_v (h) < 0)
 	  h = -h;
 	l = isec.v.mirror (h);

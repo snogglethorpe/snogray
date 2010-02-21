@@ -116,7 +116,7 @@ SphereLight::sample (const UV &param, const UV &dir_param) const
   // distribution.
   //
   CosDist dist;
-  Vec dir = dist.sample (dir_param.u, dir_param.v);
+  Vec dir = dist.sample (dir_param);
 
   // Convert direction sample to world-coordinates.
   //

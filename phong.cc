@@ -80,13 +80,13 @@ private:
     if (u < diff_weight)
       {
 	float scaled_u = u * inv_diff_weight;
-	l = diff_dist.sample (scaled_u, v);
+	l = diff_dist.sample (UV (scaled_u, v));
 	h = (isec.v + l).unit ();
       }
     else
       {
 	float scaled_u = (u - diff_weight) * inv_spec_weight;
-	h = phong_dist.sample (scaled_u, v);
+	h = phong_dist.sample (UV (scaled_u, v));
 	if (isec.cos_v (h) < 0)
 	  h = -h;
 	l = isec.v.mirror (h);

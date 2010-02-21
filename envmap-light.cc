@@ -168,7 +168,7 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
 
       float rescaled_v = v * inv_hemi_frac;
 
-      dir = hemi_dist.sample (u, rescaled_v);
+      dir = hemi_dist.sample (UV (u, rescaled_v));
       world_dir = isec.normal_frame.from (dir);
 
       UV map_pos = LatLongMapping::map (world_dir);

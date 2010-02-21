@@ -38,7 +38,7 @@ public:
     if ((flags & (REFLECTIVE|DIFFUSE)) == (REFLECTIVE|DIFFUSE))
       {
 	float pdf;
-	Vec dir = dist.sample (param.u, param.v, pdf);
+	Vec dir = dist.sample (param, pdf);
 	if (isec.cos_n (dir) > 0 && isec.cos_geom_n (dir) > 0)
 	  return Sample (color * INV_PIf, pdf, dir, REFLECTIVE|DIFFUSE);
       }

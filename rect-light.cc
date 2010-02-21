@@ -97,7 +97,7 @@ RectLight::sample (const UV &param, const UV &dir_param) const
   // DIR_PARAM.
   //
   CosDist dist;
-  Vec dir = dist.sample (dir_param.u, dir_param.v);
+  Vec dir = dist.sample (dir_param);
 
   // Convert DIR to the world frame-of-reference.
   //

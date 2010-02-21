@@ -15,6 +15,7 @@
 
 #include "snogmath.h"
 #include "vec.h"
+#include "uv.h"
 
 
 namespace snogray {
