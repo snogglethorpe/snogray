@@ -1,19 +1,8 @@
 Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
-* TODO Implement better integrators
-
-  "OldInteg" is overly complicated, hard to control, and probably wrong.
-  It should be removed once there's a decent replacement.
-
-  * DONE Simple direct integrator
-
-  * DONE Path-tracing integrator
-
-  * TODO Photon-mapping integrator
-
 * TODO Efficient Global Illumination.
 
-  * TODO Photon mapping, as described by Henrik Wann Jensen
+  * DONE Photon mapping, as described by Henrik Wann Jensen
     See http://graphics.ucsd.edu/~henrik/papers/ewr7/
 
   * TODO Instant radiosity
@@ -287,6 +276,17 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 Completed items:
 
+
+* DONE Implement better integrators
+
+  "OldInteg" is overly complicated, hard to control, and probably wrong.
+  It should be removed once there's a decent replacement.
+
+  * DONE Simple direct integrator
+
+  * DONE Path-tracing integrator
+
+  * DONE Photon-mapping integrator
 
 * DONE Figure out the whole damn cos-wo thing
 
