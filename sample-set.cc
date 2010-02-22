@@ -38,19 +38,21 @@ SampleSet::generate ()
 {
   for (std::vector<Channel<float> >::iterator i = float_channels.begin();
        i != float_channels.end (); ++i)
-    {
-      std::vector<float>::iterator base = sample<float> (i->base_offset);
-      gen.gen_samples<float> (random, base, i->num_total_samples);
-      random_shuffle (base, base + i->num_total_samples, random);
-    }
+    if (i->num_total_samples != 0)
+      {
+	std::vector<float>::iterator base = sample<float> (i->base_offset);
+	gen.gen_samples<float> (random, base, i->num_total_samples);
+	random_shuffle (base, base + i->num_total_samples, random);
+      }
 
   for (std::vector<Channel<UV> >::iterator i = uv_channels.begin();
        i != uv_channels.end (); ++i)
-    {
-      std::vector<UV>::iterator base = sample<UV> (i->base_offset);
-      gen.gen_samples<UV> (random, base, i->num_total_samples);
-      random_shuffle (base, base + i->num_total_samples, random);
-    }
+    if (i->num_total_samples != 0)
+      {
+	std::vector<UV>::iterator base = sample<UV> (i->base_offset);
+	gen.gen_samples<UV> (random, base, i->num_total_samples);
+	random_shuffle (base, base + i->num_total_samples, random);
+      }
 }
 
 
