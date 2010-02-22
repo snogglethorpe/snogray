@@ -41,22 +41,28 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
     marker_radius_sq (
       params.get_float ("surface-integ.photon.marker-radius", 0)),
     direct_illum (
-      params.get_uint ("light-samples,surface-integ.photon.direct-samples",
+      params.get_uint ("light-samples"
+		       ",surface-integ.photon.direct-samples"
+		       ",surface-integ.photon.dir-samples"
+		       ",surface-integ.photon.dir-samps",
 		       16)),
     use_direct_illum (
       params.get_bool (
-	       "surface-integ.photon.direct-illum,surface-integ.photon.dir-illum",
+	       "surface-integ.photon.direct-illum"
+	       ",surface-integ.photon.dir-illum",
 	       true))
 {
   unsigned num_caustic
     = params.get_uint ("surface-integ.photon.caustic", 20000);
   unsigned num_direct
     = params.get_uint (
-	       "surface-integ.photon.direct,surface-integ.photon.dir",
+	       "surface-integ.photon.direct"
+	       ",surface-integ.photon.dir",
 	       100000);
   unsigned num_indirect
     = params.get_uint (
-	       "surface-integ.photon.indirect,surface-integ.photon.indir",
+	       "surface-integ.photon.indirect"
+	       ",surface-integ.photon.indir",
 	       100000);
 
   marker_radius_sq *= marker_radius_sq;
