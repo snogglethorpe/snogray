@@ -13,16 +13,12 @@
 #ifndef __SCENE_H__
 #define __SCENE_H__
 
-#include <fstream>
 #include <vector>
 #include <string>
 
 #include "surface.h"
 #include "light.h"
-#include "tint.h"
 #include "intersect.h"
-#include "material.h"
-#include "media.h"
 #include "space.h"
 #include "shadow-ray.h"
 #include "surface-group.h"
@@ -32,7 +28,6 @@ namespace snogray {
 
 
 class Space;
-class Envmap;
 class Camera;
 
 

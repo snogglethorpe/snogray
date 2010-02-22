@@ -12,6 +12,7 @@
 
 #include "scene.h"
 #include "camera.h"
+#include "media.h"
 #include "filter.h"
 #include "sample-set.h"
 #include "unique-ptr.h"

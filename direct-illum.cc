@@ -13,6 +13,7 @@
 #include "scene.h"
 #include "bsdf.h"
 #include "light.h"
+#include "media.h"
 
 #include "direct-illum.h"
 

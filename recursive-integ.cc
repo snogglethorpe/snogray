@@ -12,6 +12,7 @@
 
 #include "scene.h"
 #include "bsdf.h"
+#include "media.h"
 
 #include "recursive-integ.h"
 

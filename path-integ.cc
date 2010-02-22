@@ -12,6 +12,7 @@
 
 #include "bsdf.h"
 #include "scene.h"
+#include "media.h"
 
 #include "path-integ.h"
 

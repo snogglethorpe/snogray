@@ -16,6 +16,7 @@
 #include "snogmath.h"
 #include "scene.h"
 #include "bsdf.h"
+#include "media.h"
 #include "progress.h"
 #include "string-funs.h"
 #include "radical-inverse.h"
