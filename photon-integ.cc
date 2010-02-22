@@ -33,7 +33,7 @@ using namespace snogray;
 PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				       const ValTable &params)
   : RecursiveInteg::GlobalState (rstate),
-    num_radiance_photons (
+    num_search_photons (
       params.get_uint ("surface-integ.photon.num", 50)),
     photon_search_radius (
       params.get_float ("surface-integ.photon.radius", 0.1)),
@@ -379,7 +379,7 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
   found_photons.clear ();
   dist_t max_dist_sq
     = photon_map.find_photons (pos,
-			       global.num_radiance_photons,
+			       global.num_search_photons,
 			       global.photon_search_radius,
 			       found_photons);
 

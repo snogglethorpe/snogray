@@ -54,7 +54,7 @@ public:
 
     // Parameters used when searching for photons during rendering.
     //
-    unsigned num_radiance_photons;
+    unsigned num_search_photons;
     float photon_search_radius;
 
     // Amount by which we scale each photon during rendering.
