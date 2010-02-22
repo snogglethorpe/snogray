@@ -99,11 +99,6 @@ private:
   //
   const GlobalState &global;
 
-  // Some values we use a lot.
-  //
-  unsigned num_photons;		// number of photons we use during rendering
-  float search_radius;		// search radius for finding photons
-
   // This is a temporary vector used by PhotonInteg::Lo.  We keep it as
   // a field here to avoid memory-allocation churn.
   //

@@ -68,8 +68,6 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 //
 PhotonInteg::PhotonInteg (RenderContext &context, GlobalState &global_state)
   : RecursiveInteg (context), global (global_state),
-    num_photons (global_state.num_radiance_photons),
-    search_radius (global_state.photon_search_radius),
     direct_illum (context, global_state.direct_illum)
 {
 }
@@ -380,7 +378,9 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
 
   found_photons.clear ();
   dist_t max_dist_sq
-    = photon_map.find_photons (pos, num_photons, global.photon_search_radius,
+    = photon_map.find_photons (pos,
+			       global.num_radiance_photons,
+			       global.photon_search_radius,
 			       found_photons);
 
   // Pre-compute values used for GAUSS_FILT in the loop.
