@@ -37,20 +37,20 @@ public:
 
   CookTorranceBsdf (const CookTorrance &ct, const Intersect &_isec)
     : Bsdf (_isec),
-      m (ct.m.eval (isec)), spec_dist (m), diff_dist (),
+      m (ct.m.eval (isec)), gloss_dist (m), diff_dist (),
       diff_col (ct.color.eval (isec)),
-      spec_col (ct.specular_color.eval (isec)),
+      gloss_col (ct.gloss_color.eval (isec)),
       diff_intens (diff_col.intensity ()),
-      spec_intens (spec_col.intensity ()),
-      diff_weight (diff_intens / (diff_intens + spec_intens)),
+      gloss_intens (gloss_col.intensity ()),
+      diff_weight (diff_intens / (diff_intens + gloss_intens)),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
-      inv_spec_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
+      inv_gloss_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.media.medium.ior, ct.ior),
       nv (isec.cos_n (isec.v)),
       inv_4_nv ((nv != 0) ? 1 / (4 * nv) : 0),
-      spec_flags (m < GLOSSY_M ? GLOSSY : DIFFUSE),
+      gloss_flags (m < GLOSSY_M ? GLOSSY : DIFFUSE),
       have_surface_flags ((diff_weight > 0 ? DIFFUSE : 0)
-			  | (diff_weight < 1 ? spec_flags : 0))
+			  | (diff_weight < 1 ? gloss_flags : 0))
   { }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
@@ -96,13 +96,13 @@ public:
 	// that the glossy range (DIFF_WEIGHT - 1) is mapped to 0 - 1.
 	//
 	if (desired_flags != DIFFUSE)
-	  u = (u - diff_weight) * inv_spec_weight;
+	  u = (u - diff_weight) * inv_gloss_weight;
 
-	h = spec_dist.sample (UV (u, v));
+	h = gloss_dist.sample (UV (u, v));
 	if (isec.cos_v (h) < 0)
 	  h = -h;
 	l = isec.v.mirror (h);
-	flags |= spec_flags;
+	flags |= gloss_flags;
       }
 
     if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
@@ -140,7 +140,7 @@ public:
   {
     unsigned refl_flags
       = ((diff_weight > 0 ? DIFFUSE : 0)
-	 | (diff_weight < 1 ? spec_flags : 0));
+	 | (diff_weight < 1 ? gloss_flags : 0));
     return
       ((limit & REFLECTIVE) && (limit & refl_flags))
       ? ((REFLECTIVE | refl_flags) & limit)
@@ -155,17 +155,17 @@ private:
   //
   float D (float nh) const
   {
-    return spec_dist.pdf (nh);
+    return gloss_dist.pdf (nh);
   }
   float D_pdf (float nh, float vh) const
   {
     // The division by 4 * VH here is intended to compensate for the fact
-    // that the underlying distribution SPEC_DIST is actually that of the
+    // that the underlying distribution GLOSS_DIST is actually that of the
     // half-vector H, whereas the pdf we want should be the distribution of
     // the light-vector L.  I don't really understand why it works, but
     // it's in the PBRT book, and seems to have good results.
     //
-    return spec_dist.pdf (nh) / (4 * vh);
+    return gloss_dist.pdf (nh) / (4 * vh);
   }
 
   // Calculate F (fresnel) term
@@ -200,15 +200,15 @@ private:
     //
     float vh = isec.cos_v (h);
 
-    // The Cook-Torrance specular term is:
+    // The Cook-Torrance glossy-lobe term is:
     //
     //    f_s = F * D * G / (4 * (N dot V) * (N dot L))
     //
-    // We sample the specular term using the D component only, so the pdf
+    // We sample the glossy-lobe using the D component only, so the pdf
     // is only based on that.
     //
-    float spec = F (vh) * D (nh) * G (vh, nh, nl) * inv_4_nv * inv_nl;
-    float spec_pdf = D_pdf (nh, vh);
+    float gloss = F (vh) * D (nh) * G (vh, nh, nl) * inv_4_nv * inv_nl;
+    float gloss_pdf = D_pdf (nh, vh);
 
     // Diffuse term is a simple lambertian (cosine) distribution, and
     // its pdf is constant.
@@ -216,38 +216,38 @@ private:
     float diff = INV_PIf;
     float diff_pdf = diff_dist.pdf (nl);
 
-    pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
+    pdf = diff_pdf * diff_weight + gloss_pdf * (1 - diff_weight);
 
-    return diff_col * diff + spec_col * spec;
+    return diff_col * diff + gloss_col * gloss;
   }
 
   // M value used.
   //
   float m;
 
-  // Sample distributions for specular and diffuse components.
+  // Sample distributions for glossy and diffuse components.
   //
-  const WardDist spec_dist;
+  const WardDist gloss_dist;
   const CosDist diff_dist;
 
-  // Color of diffuse/specular components.
+  // Color of diffuse/glossy components.
   //
-  Color diff_col, spec_col;
+  Color diff_col, gloss_col;
 
-  // Intensity (sum of all color components) of diffuse and specular
+  // Intensity (sum of all color components) of diffuse and glossy
   // components.
   //
-  float diff_intens, spec_intens;
+  float diff_intens, gloss_intens;
 
   // Weight used for sampling diffuse component (0 = don't sample
-  // diffuse at all, 1 = only sample diffuse).  The "specular" component
+  // diffuse at all, 1 = only sample diffuse).  The glossy component
   // has a weight of (1 - DIFF_WEIGHT).
   //
   float diff_weight;
 
   // 1 / DIFF_WEIGHT, and 1 / (1 - DIFF_WEIGHT).
   //
-  float inv_diff_weight, inv_spec_weight;
+  float inv_diff_weight, inv_gloss_weight;
 
   // Info for calculating the Fresnel term.
   //
@@ -258,9 +258,9 @@ private:
   //
   float nv, inv_4_nv;
 
-  // Bsdf flags to use for "specular" samples.
+  // Bsdf flags to use for glossy samples.
   //
-  unsigned spec_flags;
+  unsigned gloss_flags;
 
   // The set of Bsdf flags for surface types we support; some combination
   // of DIFFUSE and GLOSSY.

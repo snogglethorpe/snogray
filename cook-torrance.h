@@ -24,16 +24,16 @@ class CookTorrance : public Material
 {
 public:
 
-  CookTorrance (const TexVal<Color> &col, const TexVal<Color> &spec_col,
+  CookTorrance (const TexVal<Color> &col, const TexVal<Color> &gloss_col,
 		const TexVal<float> &_m, const Ior &_ior = 1.5)
-    : color (col), specular_color (spec_col), m (_m), ior (_ior)
+    : color (col), gloss_color (gloss_col), m (_m), ior (_ior)
   { }
 
   // Return a new BSDF object for this material instantiated at ISEC.
   //
   virtual Bsdf *get_bsdf (const Intersect &isec) const;
 
-  TexVal<Color> color, specular_color;
+  TexVal<Color> color, gloss_color;
 
   // Cook Torrance parameters:
 
