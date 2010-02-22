@@ -75,8 +75,6 @@ PhotonInteg::GlobalState::make_integrator (RenderContext &context)
 
 // PhotonInteg::GlobalState::generate_photons
 
-static const bool trace = false;
-
 // Generate the specified number of photons and add them to our photon-maps.
 //
 void
@@ -157,7 +155,6 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
       Pos pos = samp.pos;
       Vec dir = samp.dir;
       Color power = samp.val * float (lights.size ()) / samp.pdf;
-      if(trace)std::cout << "init: pos = " << pos << ", dir = " << dir << ", pow = " << power << ", hist = " << bsdf_history << std::endl;
 
       // We keep shooting the photon PH into the scene, and follow it as
       // it bounces off surfaces.  The loop is terminated if PH fails to
@@ -219,8 +216,6 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		      // Deposit a direct photon.
 
 		      direct_photons.push_back (ph);
-		      if(trace)std::cout << "adding direct: pos = " << ph.pos << ", dir = " << ph.dir << ", pow = " << ph.power << std::endl;
-
 		      direct_done = (direct_photons.size() == num_direct);
 		    }
 		}
@@ -229,19 +224,9 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		{
 		  if (! caustic_done)
 		    {
-		      // If we've already deposited a caustic photon the
-		      // current path, then this photon represents a
-		      // _another_ path, so remember that.  This can
-		      // only have happened for a glossy surface, since
-		      // we never deposit on specular surfaces.
-		      //
-		      // if (bsdf_history & Bsdf::GLOSSY)
-		      // 	num_caustic_paths++;
-			
 		      // Deposit a caustic photon.
 		      //
 		      caustic_photons.push_back (ph);
-		      if(trace)std::cout << "adding caustic: pos = " << ph.pos << ", dir = " << ph.dir << ", pow = " << ph.power << std::endl;
 		      caustic_done = (caustic_photons.size() == num_caustic);
 		    }
 		}
@@ -253,7 +238,6 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		      // Deposit a caustic photon.
 		      //
 		      indirect_photons.push_back (ph);
-		      if(trace)std::cout << "adding indirect: pos = " << ph.pos << ", dir = " << ph.dir << ", pow = " << ph.power << std::endl;
 		      indirect_done = (indirect_photons.size() == num_indirect);
 		    }
 		}
@@ -283,10 +267,6 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		power /= rr_terminate_probability;
 	    }
 
-	  if(trace)std::cout << "isec.v: cos_ang = " << isec.cos_n (isec.v) << ", ang = " << acos (isec.cos_n (isec.v)) * 180 * INV_PIf << "(deg)" << std::endl;
-	  if(trace)std::cout << "bsdf_samp: val = " << bsdf_samp.val << ", pdf = " << bsdf_samp.pdf << ", cos_ang = " << isec.cos_n (bsdf_samp.dir) << ", ang = " << acos (isec.cos_n (bsdf_samp.dir)) * 180 * INV_PIf << "(deg)" << std::endl;
-
-
 	  // Update the position/direction/power of the photon for the
 	  // next segment.
 	  //
@@ -298,8 +278,6 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 	  //
 	  bsdf_history |= bsdf_samp.flags;
 
-	  if(trace)std::cout << "updated: pos = " << pos << ", dir = " << dir << ", pow = " << power << ", hist = " << bsdf_history << std::endl;
-
 	  // If we just followed a refractive (transmissive) sample, we need
 	  // to update our stack of Media entries:  entering a refractive
 	  // object pushes a new Media, existing one pops the top one.
@@ -310,10 +288,10 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 
       context.mempool.reset ();
 
-      // Detect degenerate scene conditions which are preventing photons
-      // from being generated.
-      //
 #if 0
+      // Detect degenerate scene conditions which are preventing photons
+      // from being generated, and disable the affected categories.
+      //
       if (caustic_photons.empty() && path_num > num_caustic * 10)
 	caustic_done = true;
       if (direct_photons.empty() && path_num > num_direct * 10)
@@ -395,6 +373,8 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
     = photon_map.find_photons (pos, num_photons, global.photon_search_radius,
 			       found_photons);
 
+  // Pre-compute values used for GAUSS_FILT in the loop.
+  //
   float gauss_alpha = 1.818f, gauss_beta = 1.953f;
   float inv_gauss_denom = 1 / (1 - exp (-gauss_beta));
   float gauss_exp_scale = -gauss_beta * 0.5f / max_dist_sq;
@@ -406,8 +386,8 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
     {
       const Photon &ph = **i;
 
-      // XXXXXXXXXX  Ergh, here we need a flags parameter to Bsdf::eval, but
-      // there isn't one... for now, just ignore photons that didn't
+      // XXXXXXXXXX Ergh, here we need a flags parameter to Bsdf::eval,
+      // but there isn't one... for now, just ignore photons that didn't
       // come from above the surface (in other words, only handle
       // reflective BSDFs here).  XXXXXXXXXXXXX
       //
@@ -417,12 +397,14 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
 	{
 	  Bsdf::Value bsdf_val = isec.bsdf->eval (dir);
 
+	  // A gaussian filter, which emphasizes photons nearer to POS,
+	  // and de-emphasizes those farther away.
+	  //
 	  float gauss_filt
 	    = (gauss_alpha
 	       * (1 - ((1 - exp (gauss_exp_scale
 	    			 * (ph.pos - pos).length_squared()))
 	    	       * inv_gauss_denom)));
-	    // = 1;
 
 	  radiance += bsdf_val.val * ph.power * gauss_filt;
 	}
