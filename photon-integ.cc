@@ -50,7 +50,13 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
       params.get_bool (
 	       "surface-integ.photon.direct-illum"
 	       ",surface-integ.photon.dir-illum",
-	       true))
+	       true)),
+    num_fgather_samples (
+      params.get_uint ("surface-integ.photon.final-gather-samples"
+		       ",surface-integ.photon.fgather-samples"
+		       ",surface-integ.photon.fg-samples"
+		       ",surface-integ.photon.fg-samps",
+		       16))
 {
   unsigned num_caustic
     = params.get_uint ("surface-integ.photon.caustic", 20000);
@@ -65,16 +71,46 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 	       ",surface-integ.photon.indir",
 	       100000);
 
+  // A convenient boolean toggle for final gathering.
+  //
+  if (! params.get_bool ("surface-integ.photon.final-gather"
+			 ",surface-integ.photon.fg", true))
+    num_fgather_samples = 0;
+
+  // If using the usual direct lighting calculation, and not doing final
+  // gathering, there's no need for direct photons.
+  //
+  if (use_direct_illum && num_fgather_samples == 0)
+    num_direct = 0;
+
   marker_radius_sq *= marker_radius_sq;
 
   generate_photons (num_caustic, num_direct, num_indirect);
+
+  std::cout << "* photon-integ: ";
+  if (use_direct_illum)
+    std::cout << direct_illum.num_light_samples << " direct sample"
+	      << (direct_illum.num_light_samples == 1 ? "" : "s");
+  else
+    std::cout << "no direct illum";
+  std::cout << ", ";
+  if (num_fgather_samples != 0)
+    std::cout << num_fgather_samples << " final-gather sample"
+	      << (num_fgather_samples == 1 ? "" : "s");
+  else
+    std::cout << "no final-gathering";
+  std::cout << std::endl;
 }
 
 // Integrator state for rendering a group of related samples.
 //
 PhotonInteg::PhotonInteg (RenderContext &context, GlobalState &global_state)
   : RecursiveInteg (context), global (global_state),
-    direct_illum (context, global_state.direct_illum)
+    direct_illum (context, global_state.direct_illum),
+    fgather_bsdf_chan (
+      context.samples.add_channel<UV> (global.num_fgather_samples)),
+    fgather_bsdf_layer_chan (
+      context.samples.add_channel<float> (global.num_fgather_samples))
 {
 }
 
@@ -454,6 +490,105 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
 }
 
 
+// PhotonInteg::Lo_fgather
+
+// Do a quick calculation of indirection illumination by sampling the
+// BRDF, shooing another level of rays, and using only photon maps to
+// calculate outgoing illumination from the resulting intersections.
+//
+Color
+PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
+			 const SampleSet::Sample &sample, unsigned num_samples)
+{
+  // Iterator yielding parameters for BSDF sampling.
+  //
+  std::vector<UV>::const_iterator bi = sample.begin (fgather_bsdf_chan);
+
+  // Position we're shooting from.
+  //
+  const Pos &pos = isec.normal_frame.origin;
+
+  // Outgoing radiance.
+  //
+  Color radiance = 0;
+
+  // Shoot NUM_SAMPLES sample rays, sampling the BSDF for the directions.
+  //
+  for (unsigned i = 0; i < num_samples; i++)
+    {
+      // Sample the BSDF.
+      //
+      Bsdf::Sample bsdf_samp
+	= isec.bsdf->sample (*bi++, Bsdf::ALL & ~Bsdf::SPECULAR);
+
+      if (bsdf_samp.val > 0 && bsdf_samp.pdf != 0)
+	{
+	  // Convert the sample direction to world coordinate.
+	  //
+	  Vec dir = isec.normal_frame.from (bsdf_samp.dir);
+
+	  // Outgoing sample ray.
+	  //
+	  Ray ray (pos, dir, context.params.min_trace, context.scene.horizon);
+
+	  // See if RAY hits something.
+	  //
+	  const Surface::IsecInfo *isec_info
+	    = context.scene.intersect (ray, context);
+
+	  if (isec_info)
+	    {
+	      // We hit a surface!  Do a quick radiance calculation
+	      // using only photon maps.
+
+	      Intersect samp_isec = isec_info->make_intersect (media, context);
+
+	      if (samp_isec.bsdf)
+		{
+		  Color samp_radiance
+		    = (Lo_photon (samp_isec,
+				  global.direct_photon_map,
+				  global.direct_scale)
+		       + Lo_photon (samp_isec,
+				    global.indirect_photon_map,
+				    global.indirect_scale)
+		       + Lo_photon (samp_isec,
+				    global.caustic_photon_map,
+				    global.caustic_scale));
+
+		  // Incorporate SAMP_RADIANCE into RADIANCE, filtering
+		  // through the BSDF.
+		  //
+		  radiance +=
+		    samp_radiance
+		    * bsdf_samp.val
+		    * abs (isec.cos_n (bsdf_samp.dir))
+		    / bsdf_samp.pdf;
+		}
+
+	      // XXXXXXXXXXXXX
+	      //
+	      // Final-gathering has some peculiar artifacts due to the
+	      // fact that we never deposit photons on pure-specular
+	      // surfaces.  A final-gathering sample which hits a
+	      // specular surface will thus yield no radiance, even if
+	      // the object appears brightly-lit in a direct view!
+	      //
+	      // This problem could be fixed by doing recursive-tracing
+	      // of true specular surfaces when hit by a final-gathering
+	      // sample.
+	      //
+	      // XXXXXXXXXXXXX
+	    }
+	}
+    }
+
+  radiance /= num_samples;
+
+  return radiance;
+}
+
+
 // PhotonInteg::Lo
 
 // This method is called by RecursiveInteg to return any radiance
@@ -478,11 +613,12 @@ PhotonInteg::Lo (const Intersect &isec, const Media &media,
 
   // Indirect lighting.
   //
-  // if (do_final_gather)
-  // 	...
-  // else
-  radiance
-    += Lo_photon (isec, global.indirect_photon_map, global.indirect_scale);
+  if (global.num_fgather_samples > 0)
+    radiance
+      += Lo_fgather (isec, media, sample, global.num_fgather_samples);
+  else
+    radiance
+      += Lo_photon (isec, global.indirect_photon_map, global.indirect_scale);
 
   return radiance;
 }

@@ -72,6 +72,11 @@ public:
     // accurate, but probably cheaper).
     //
     bool use_direct_illum;
+
+    // Number of samples to use in "final gathering" for indirect
+    // illumination.  If zero, final gathering is not done.
+    //
+    unsigned num_fgather_samples;
   };
 
 protected:
@@ -95,6 +100,14 @@ private:
   Color Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
 		   float scale);
 
+  // "Final gathering": Do a quick calculation of indirection
+  // illumination by sampling the BRDF, shooting another level of rays,
+  // and using only photon maps to calculate outgoing illumination from
+  // the resulting intersections.
+  //
+  Color Lo_fgather (const Intersect &isec, const Media &media,
+		    const SampleSet::Sample &sample, unsigned num_samples);
+
   // Pointer to our global state info.
   //
   const GlobalState &global;
@@ -107,6 +120,11 @@ private:
   // State used by the direct-lighting calculator.
   //
   DirectIllum direct_illum;
+
+  // Sample channels for BSDF sampling during final-gathering.
+  //
+  SampleSet::Channel<UV> fgather_bsdf_chan;
+  SampleSet::Channel<float> fgather_bsdf_layer_chan;
 };
 
 
