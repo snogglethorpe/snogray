@@ -18,10 +18,14 @@
  Rendering options:\n\
   -a, --oversample=NUM       Use NUM samples for each output pixel\n\
   -n, --direct-samples=NUM   Use NUM light samples for direct lighting\n\
+\n\
   -S, --surface-integ=INTEG  Use surface-integrator INTEG (default \"direct\")\n\
                                Options include:\n\
                                  \"direct\"     -- direct-lighting\n\
                                  \"path\"       -- path-tracing\n\
+\n\
+  -A, --background-alpha=ALPHA Use ALPHA as the opacity of the background\n\
+\n\
   -R, --render-options=OPTS  Set output-image options; OPTS has the format\n\
                                OPT1=VAL1[,...]; current options include:\n\
                                  \"min-trace\"  -- minimum trace ray length"
@@ -44,6 +48,8 @@
   { "samples",		required_argument, 0, 'n' },			\
   { "surface-integ",	required_argument, 0, 'S' },			\
   { "sint",		required_argument, 0, 'S' },			\
+  { "background-alpha", required_argument, 0, 'A' },			\
+  { "bg-alpha",		required_argument, 0, 'A' },			\
   { "render-options",	required_argument, 0, 'R' }/*,			\
   { "wire-frame",	optional_argument, 0, 'w' }*/
 
@@ -65,6 +71,9 @@
       break;*/								\
   case 'n':								\
     params.set ("light-samples", clp.unsigned_opt_arg ());		\
+    break;								\
+  case 'A':								\
+    params.set ("background-alpha", clp.float_opt_arg ());		\
     break;
 
 #endif /* __RENDER_CMDLINE_H__ */

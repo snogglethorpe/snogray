@@ -50,23 +50,11 @@ public:
   Color background (const Vec &dir) const;
   Color background (const Ray &ray) const { return background (ray.dir); }
 
-  // Return the background color, with the scene "background alpha" added.
-  //
-  Tint background_with_alpha (const Vec &dir) const
-  {
-    return Tint (background (dir), bg_alpha);
-  }
-  Tint background_with_alpha (const Ray &ray) const
-  {
-    return Tint (background (ray), bg_alpha);
-  }
-
   // Return the closest surface in this scene which intersects the
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context)
-    const
+  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const
   {
     context.stats.scene_intersect_calls++;
     return space->intersect (ray, context);
@@ -80,8 +68,10 @@ public:
     return space->intersects (ray, context);
   }
 
+  //
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.
+  //
 
   // Add a surface.
   //
@@ -104,9 +94,6 @@ public:
   unsigned num_surfaces () const { return surfaces.num_surfaces (); }
   unsigned num_lights () const { return lights.size (); }
 
-  float background_alpha () const { return bg_alpha; }
-  void set_background_alpha (float alpha) { bg_alpha = alpha; }
-
   // All surfaces in the scene.
   //
   SurfaceGroup surfaces;
@@ -118,10 +105,6 @@ public:
   // "Environmental" lights in the scene.  This is a subset of LIGHTS.
   //
   std::vector<Light *> environ_lights;
-
-  // Alpha value to use for background (either BG_COLOR or ENV_MAP).
-  //
-  float bg_alpha;
 
   // A distance which is further than the furthest surface from any point.
   //

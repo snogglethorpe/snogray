@@ -542,7 +542,7 @@ int main (int argc, char *const *argv)
   // If the scene has a non-default background alpha set, then make sure
   // there's an alpha-channel in the output image.
   //
-  if (scene.background_alpha() != 1)
+  if (render_params.get_float ("background-alpha", 1) != 1)
     image_params.set ("alpha-channel", true);
 
   // Create output image.  The size of what we output is the same as the

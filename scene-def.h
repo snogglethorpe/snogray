@@ -23,7 +23,6 @@
   -b, --background=BG        Use BG as a background and light-source;\n\
                                BG may be a color or the name of an\n\
                                environment-map image file\n\
-  -A, --background-alpha=ALPHA Use ALPHA as the opacity of the background\n\
 \
   -I, --scene-options=OPTS   Set scene options; OPTS has the format\n\
                                OPT1=VAL1[,...]; current options include:\n\
@@ -56,17 +55,12 @@
 //
 #define SCENE_DEF_LONG_OPTIONS						\
     { "background",     required_argument, 0, 'b' },			\
-    { "background-alpha", required_argument, 0, 'A' },			\
-    { "bg-alpha",	required_argument, 0, 'A' },			\
     { "scene-options", 	required_argument, 0, 'I' },			\
     { "camera",		required_argument, 0, 'c' },			\
 
 #define SCENE_DEF_OPTION_CASES(clp, scene_def)				\
   case 'b':								\
     scene_def.params.set ("background", clp.opt_arg ());		\
-    break;								\
-  case 'A':								\
-    scene_def.params.set ("background-alpha", clp.float_opt_arg ());	\
     break;								\
 									\
   case 'I':								\

@@ -27,6 +27,7 @@ using namespace snogray;
 GlobalRenderState::GlobalRenderState (const Scene &_scene,
 				      const ValTable &_params)
   : scene (_scene),
+    bg_alpha (_params.get_float ("background-alpha", 1)),
     num_samples (_params.get_uint ("oversample", 1)),
     params (_params),
     sample_gen (make_sample_gen (_params)),

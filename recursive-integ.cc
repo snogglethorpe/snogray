@@ -170,7 +170,7 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
   else
     {
       radiance = scene.background (isec_ray);
-      alpha = scene.bg_alpha;
+      alpha = context.global_state.bg_alpha;
     }
 
   // Apply the volume integrator.  It can both filter the radiance from

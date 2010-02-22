@@ -154,7 +154,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	    radiance += scene.background (isec_ray) * path_transmittance;
 
 	  if (path_len == 0 && radiance == 0)
-	    alpha = scene.bg_alpha;
+	    alpha = context.global_state.bg_alpha;
 
 	  // Terminate the path.
 	  //

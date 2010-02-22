@@ -94,9 +94,6 @@ SceneDef::load (Scene &scene, Camera &camera)
       scene.add (bg_light);
     }	  
 
-  float bg_alpha = params.get_float ("background-alpha", 1);
-  scene.set_background_alpha (bg_alpha);
-
   // Read in scene file
   //
   for (vector<Spec>::iterator spec = specs.begin();

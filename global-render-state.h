@@ -40,6 +40,10 @@ public:
   //
   const Scene &scene;
 
+  // Alpha value to use for background.
+  //
+  float bg_alpha;
+
   // Number of samples per pixel used for rendering.
   //
   unsigned num_samples;

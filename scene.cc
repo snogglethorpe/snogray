@@ -23,7 +23,7 @@ using namespace std;
 
 
 Scene::Scene ()
-  : horizon (DEFAULT_HORIZON), bg_alpha (0), space (0)
+  : horizon (DEFAULT_HORIZON), space (0)
 { }
 
 // The scene "owns" all its components, so frees them when it is destroyed
