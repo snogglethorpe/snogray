@@ -39,11 +39,7 @@ public:
     //
     GlobalState (unsigned num_light_samples);
 
-  private:
-
     unsigned num_light_samples;
-
-    friend class DirectIllum;
   };
 
   DirectIllum (RenderContext &context, const GlobalState &global_state);
