@@ -220,8 +220,8 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		      direct_done = (direct_photons.size() == num_direct);
 		    }
 		}
-	      else if (! (bsdf_history & Bsdf::DIFFUSE))
-		// caustic; path-type:  L(S|G)+(D|G)
+	      else if (! (bsdf_history & Bsdf::SURFACE_CLASS & ~Bsdf::SPECULAR))
+		// caustic; path-type:  L(S)+(D|G)
 		{
 		  if (! caustic_done)
 		    {
@@ -232,7 +232,7 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		    }
 		}
 	      else
-		// indirect; path-type:  L(D|G|S)*D(D|G)
+		// indirect; path-type:  L(D|G|S)*(D|G)(D|G|S)*
 		{
 		  if (! indirect_done)
 		    {
