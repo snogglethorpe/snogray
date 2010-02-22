@@ -155,22 +155,24 @@ CmdLineParser::float_opt_arg (float default_val) const
 // syntax, and store VALUE in TABLE under the name NAME.  The syntax
 // "NAME:VALUE" is also accepted.  The type of the new value is
 // always a string (which can be converted to another type when the
-// value is subsequently requested).
+// value is subsequently requested).  NAME_PREFIX is prepended to
+// names before storing.
 //
 void
-CmdLineParser::parse (const std::string &str, ValTable &table)
+CmdLineParser::parse (const std::string &str, ValTable &table,
+		      const std::string &name_prefix)
 {
   std::string::size_type inp_len = str.length ();
   std::string::size_type p_assn = str.find_first_of ("=:");
 
   if (p_assn < inp_len)
-    table.set (str.substr (0, p_assn), str.substr (p_assn + 1));
+    table.set (name_prefix + str.substr (0, p_assn), str.substr (p_assn + 1));
   else if (str[0] == '!')
-    table.set (str.substr (1), false);
+    table.set (name_prefix + str.substr (1), false);
   else if (begins_with (str, "no-"))
-    table.set (str.substr (3), false);
+    table.set (name_prefix + str.substr (3), false);
   else
-    table.set (str, true);
+    table.set (name_prefix + str, true);
 }
 
 // First split STR option into parts separated by any character in
@@ -182,22 +184,21 @@ CmdLineParser::parse (const std::string &str, ValTable &table)
 // requested).  NAME_PREFIX is prepended to names before storing.
 //
 void
-CmdLineParser::parse (const std::string &str, ValTable &table,
-		      const std::string &multiple_seps,
-		      const std::string &name_prefix)
+CmdLineParser::parse (const std::string &str, const std::string &multiple_seps,
+		      ValTable &table, const std::string &name_prefix)
 {
   std::string::size_type p_end = str.find_first_of (multiple_seps);
 
   if (p_end == std::string::npos)
     {
-      parse (name_prefix + str, table);
+      parse (str, table, name_prefix);
     }
   else
     {
       std::string::size_type p_start = 0;
       do
 	{
-	  parse (name_prefix + str.substr (p_start, p_end - p_start), table);
+	  parse (str.substr (p_start, p_end - p_start), table, name_prefix);
 
 	  p_start = str.find_first_not_of (multiple_seps, p_end);
 	  p_end = str.find_first_of (multiple_seps, p_start);
@@ -205,7 +206,7 @@ CmdLineParser::parse (const std::string &str, ValTable &table,
       while (p_end != std::string::npos);
 
       if (p_start != std::string::npos)
-	parse (name_prefix + str.substr (p_start), table);
+	parse (str.substr (p_start), table, name_prefix);
     }
 }
 
@@ -256,8 +257,9 @@ CmdLineParser::store_opt_arg_with_sub_options (
 	= val.find_first_not_of (first_option_seps + " \t", val_end + 1);
       std::string main_val = val.substr (0, val_end);
 
-      parse (val.substr (options_start), table, sep2,
-	     name + option_name_prefix_sep + main_val + option_name_prefix_sep);
+      std::string name_pfx
+	= name + option_name_prefix_sep + main_val + option_name_prefix_sep;
+      parse (val.substr (options_start), sep2, table, name_pfx);
 
       table.set (name, main_val);
     }

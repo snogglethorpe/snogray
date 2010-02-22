@@ -100,12 +100,10 @@ public:
   // TABLE.  The syntax "NAME:VALUE" is also accepted.  The type of
   // the new value is always a string (which can be converted to
   // another type when the value is subsequently requested).
-  // NAME_PREFIX is prepended to names before storing.
   //
-  void parse_opt_arg (ValTable &table, const std::string &multiple_seps,
-		      const std::string &name_prefix = "")
+  void parse_opt_arg (const std::string &multiple_seps, ValTable &table)
   {
-    parse (opt_arg(), table, multiple_seps, name_prefix);
+    parse (opt_arg(), multiple_seps, table);
   }
 
   // First, split the current option-argument into a "main value"
@@ -144,9 +142,10 @@ private:
   // store VALUE in TABLE under the name NAME.  The syntax "NAME:VALUE" is
   // also accepted.  The type of the new value is always a string (which
   // can be converted to another type when the value is subsequently
-  // requested).
+  // requested).  NAME_PREFIX is prepended to names before storing.
   //
-  void parse (const std::string &str, ValTable &table);
+  void parse (const std::string &str, ValTable &table,
+	      const std::string &name_prefix = "");
 
   // First split STR option into parts separated by any character in
   // MULTIPLE_SEPS, removing any whitespace surrounding a separator, and
@@ -156,9 +155,8 @@ private:
   // be converted to another type when the value is subsequently
   // requested).  NAME_PREFIX is prepended to names before storing.
   //
-  void parse (const std::string &str, ValTable &table,
-	      const std::string &multiple_seps,
-	      const std::string &name_prefix = "");
+  void parse (const std::string &str, const std::string &multiple_seps,
+	      ValTable &table, const std::string &name_prefix = "");
 
   int argc;
   char *const *argv;
