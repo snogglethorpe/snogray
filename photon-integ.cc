@@ -41,14 +41,23 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
     marker_radius_sq (
       params.get_float ("surface-integ.photon.marker-radius", 0)),
     direct_illum (
-      params.get_uint ("light-samples,surface-integ.photon.direct-samples", 16))
+      params.get_uint ("light-samples,surface-integ.photon.direct-samples",
+		       16)),
+    use_direct_illum (
+      params.get_bool (
+	       "surface-integ.photon.direct-illum,surface-integ.photon.dir-illum",
+	       true))
 {
   unsigned num_caustic
     = params.get_uint ("surface-integ.photon.caustic", 20000);
   unsigned num_direct
-    = params.get_uint ("surface-integ.photon.direct,surface-integ.photon.dir", 0);
+    = params.get_uint (
+	       "surface-integ.photon.direct,surface-integ.photon.dir",
+	       100000);
   unsigned num_indirect
-    = params.get_uint ("surface-integ.photon.indirect,surface-integ.photon.indir", 100000);
+    = params.get_uint (
+	       "surface-integ.photon.indirect,surface-integ.photon.indir",
+	       100000);
 
   marker_radius_sq *= marker_radius_sq;
 
@@ -452,9 +461,8 @@ PhotonInteg::Lo (const Intersect &isec, const Media &media,
 
   // Direct-lighting.
   //
-  if (global.direct_scale == 0)
-    radiance
-      += direct_illum.sample_lights (isec, sample);
+  if (global.use_direct_illum)
+    radiance += direct_illum.sample_lights (isec, sample);
   else
     radiance += Lo_photon (isec, global.direct_photon_map, global.direct_scale);
 

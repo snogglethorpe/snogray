@@ -66,6 +66,12 @@ public:
     dist_t marker_radius_sq;
 
     DirectIllum::GlobalState direct_illum;
+
+    // True if we should use the DIRECT_ILLUM for direction illumination;
+    // otherwise, we use DIRECT_PHOTON_MAP instead (which is less
+    // accurate, but probably cheaper).
+    //
+    bool use_direct_illum;
   };
 
 protected:
