@@ -110,7 +110,10 @@ public:
   //
   void _point (const Vec &dir, const Vec &_user_up)
   {
-    user_up = _user_up;
+    if (cross (_user_up, dir).length_squared() < Eps)
+      user_up = dir.perpendicular (); // avoid degenerate case
+    else
+      user_up = _user_up;
 
     forward = dir.unit ();
 
