@@ -59,17 +59,17 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 		       16))
 {
   unsigned num_caustic
-    = params.get_uint ("surface-integ.photon.caustic", 20000);
+    = params.get_uint ("surface-integ.photon.caustic", 50000);
   unsigned num_direct
     = params.get_uint (
 	       "surface-integ.photon.direct"
 	       ",surface-integ.photon.dir",
-	       100000);
+	       500000);
   unsigned num_indirect
     = params.get_uint (
 	       "surface-integ.photon.indirect"
 	       ",surface-integ.photon.indir",
-	       100000);
+	       500000);
 
   // A convenient boolean toggle for final gathering.
   //
