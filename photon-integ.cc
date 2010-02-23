@@ -488,6 +488,89 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
 
   return radiance;
 }
+
+
+// PhotonInteg::Lo_fgather_samp
+
+// Return a quick estimate of the outgoing radiance from ISEC which is
+// due to BSDF_SAMP.
+//
+Color
+PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
+			      const Bsdf::Sample &bsdf_samp, unsigned depth)
+{
+  Color radiance = 0;
+
+  if (bsdf_samp.val > 0 && bsdf_samp.pdf != 0)
+    {
+      // Sample position and direction in world coordinates.
+      //
+      const Pos &pos = isec.normal_frame.origin;
+      Vec dir = isec.normal_frame.from (bsdf_samp.dir);
+
+      // Outgoing sample ray.
+      //
+      Ray ray (pos, dir, context.params.min_trace, context.scene.horizon);
+
+      // See if RAY hits something.
+      //
+      const Surface::IsecInfo *isec_info
+	= context.scene.intersect (ray, context);
+
+      if (isec_info)
+	{
+	  // We hit a surface!  Do a quick radiance calculation
+	  // using only photon maps.
+
+	  Intersect samp_isec = isec_info->make_intersect (media, context);
+
+	  if (samp_isec.bsdf)
+	    {
+	      Color Li
+		= (Lo_photon (samp_isec,
+			      global.direct_photon_map,
+			      global.direct_scale)
+		   + Lo_photon (samp_isec,
+				global.indirect_photon_map,
+				global.indirect_scale)
+		   + Lo_photon (samp_isec,
+				global.caustic_photon_map,
+				global.caustic_scale));
+
+	      // Adjustment to compute outgoing radiance due to
+	      // BSDF_SAMP, due to incoming radiance from BSDF_SAMP.
+	      //
+	      Color Li_to_Lo
+		= (bsdf_samp.val
+		   * abs (isec.cos_n (bsdf_samp.dir))
+		   / bsdf_samp.pdf);
+
+	      // Compute outgoing light from incoming.
+	      //
+	      radiance += Li * Li_to_Lo;
+
+	      // As we don't deposit photons on purely specular
+	      // surfaces, the above calculation will be completely
+	      // wrong for them.  To solve this, recursively handle
+	      // specular surfaces.
+	      //
+	      unsigned spec_flags = Bsdf::SAMPLE_DIR | Bsdf::SPECULAR;
+	      if (samp_isec.bsdf->supports (spec_flags) && depth < 3)
+		{
+		  UV samp_param (context.random(), context.random());
+		  Bsdf::Sample recurs_samp
+		    = samp_isec.bsdf->sample (samp_param, spec_flags);
+		  radiance
+		    += (Lo_fgather_samp (samp_isec, media, recurs_samp,
+					 depth + 1)
+			* Li_to_Lo);
+		}
+	    }
+	}
+    }
+
+  return radiance;
+}
 
 
 // PhotonInteg::Lo_fgather
@@ -504,10 +587,6 @@ PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
   //
   std::vector<UV>::const_iterator bi = sample.begin (fgather_bsdf_chan);
 
-  // Position we're shooting from.
-  //
-  const Pos &pos = isec.normal_frame.origin;
-
   // Outgoing radiance.
   //
   Color radiance = 0;
@@ -521,66 +600,9 @@ PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
       Bsdf::Sample bsdf_samp
 	= isec.bsdf->sample (*bi++, Bsdf::ALL & ~Bsdf::SPECULAR);
 
-      if (bsdf_samp.val > 0 && bsdf_samp.pdf != 0)
-	{
-	  // Convert the sample direction to world coordinate.
-	  //
-	  Vec dir = isec.normal_frame.from (bsdf_samp.dir);
-
-	  // Outgoing sample ray.
-	  //
-	  Ray ray (pos, dir, context.params.min_trace, context.scene.horizon);
-
-	  // See if RAY hits something.
-	  //
-	  const Surface::IsecInfo *isec_info
-	    = context.scene.intersect (ray, context);
-
-	  if (isec_info)
-	    {
-	      // We hit a surface!  Do a quick radiance calculation
-	      // using only photon maps.
-
-	      Intersect samp_isec = isec_info->make_intersect (media, context);
-
-	      if (samp_isec.bsdf)
-		{
-		  Color samp_radiance
-		    = (Lo_photon (samp_isec,
-				  global.direct_photon_map,
-				  global.direct_scale)
-		       + Lo_photon (samp_isec,
-				    global.indirect_photon_map,
-				    global.indirect_scale)
-		       + Lo_photon (samp_isec,
-				    global.caustic_photon_map,
-				    global.caustic_scale));
-
-		  // Incorporate SAMP_RADIANCE into RADIANCE, filtering
-		  // through the BSDF.
-		  //
-		  radiance +=
-		    samp_radiance
-		    * bsdf_samp.val
-		    * abs (isec.cos_n (bsdf_samp.dir))
-		    / bsdf_samp.pdf;
-		}
-
-	      // XXXXXXXXXXXXX
-	      //
-	      // Final-gathering has some peculiar artifacts due to the
-	      // fact that we never deposit photons on pure-specular
-	      // surfaces.  A final-gathering sample which hits a
-	      // specular surface will thus yield no radiance, even if
-	      // the object appears brightly-lit in a direct view!
-	      //
-	      // This problem could be fixed by doing recursive-tracing
-	      // of true specular surfaces when hit by a final-gathering
-	      // sample.
-	      //
-	      // XXXXXXXXXXXXX
-	    }
-	}
+      // Incorporate incoming radiance from BSDF_SAMP.
+      //
+      radiance += Lo_fgather_samp (isec, media, bsdf_samp, 0);
     }
 
   radiance /= num_samples;

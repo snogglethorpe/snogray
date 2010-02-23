@@ -13,6 +13,7 @@
 #ifndef __PHOTON_INTEG_H__
 #define __PHOTON_INTEG_H__
 
+#include "bsdf.h"
 #include "photon-map.h"
 #include "direct-illum.h"
 
@@ -107,6 +108,12 @@ private:
   //
   Color Lo_fgather (const Intersect &isec, const Media &media,
 		    const SampleSet::Sample &sample, unsigned num_samples);
+
+  // Return a quick estimate of the outgoing radiance from ISEC which is
+  // due to BSDF_SAMP.
+  //
+  Color Lo_fgather_samp (const Intersect &isec, const Media &media,
+			 const Bsdf::Sample &bsdf_samp, unsigned depth);
 
   // Pointer to our global state info.
   //
