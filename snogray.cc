@@ -582,12 +582,23 @@ int main (int argc, char *const *argv)
     }
 
   if (! quiet)
-    cout << "* scene: "
-	 << commify_with_units (scene.num_surfaces(),
-				"top-level surface", "top-level surfaces")
-	 << ", " << commify_with_units (scene.num_lights (), "light", "lights")
-	 << endl;
-
+    {
+      cout << "* scene: "
+	   << commify_with_units (scene.num_surfaces(),
+				  "top-level surface", "top-level surfaces")
+	   << ", "
+	   << commify_with_units (scene.num_lights (), "light", "lights")
+	   << endl;
+      cout << "* camera: at " << camera.pos
+	   << ", pointing at "
+	   << (camera.pos + camera.forward * camera.target_dist)
+	   << " (up = " << camera.up << ")"
+	   << endl;
+      if (camera.aperture)
+	cout << "* camera: aperture " << camera.aperture
+	     << ", focal distance " << camera.focus
+	     << endl;
+    }
 
   RenderStats render_stats;
 
