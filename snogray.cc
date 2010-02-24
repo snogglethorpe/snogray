@@ -668,14 +668,24 @@ int main (int argc, char *const *argv)
 
       // a field width of 14 is enough for over a year of time...
       cout << "Time:" << endl;
+
+      // Note because scene-loading often involves significant disk I/O, we
+      // add system time as well (this usually isn't a factor for other
+      // time periods we measure).
+      //
       Timeval scene_def_time
 	= ((scene_end_ru.utime() - scene_beg_ru.utime())
 	   + (scene_end_ru.stime() - scene_beg_ru.stime()));
-      cout << "  scene def cpu:" << setw (14) << scene_def_time << endl;
+      if (scene_def_time > 1)
+	cout << "  scene def cpu:" << setw (14) << scene_def_time << endl;
+
       Timeval setup_time = setup_end_ru.utime() - setup_beg_ru.utime();
-      cout << "  setup cpu:    " << setw (14) << setup_time << endl;
+      if (setup_time > 1)
+	cout << "  setup cpu:    " << setw (14) << setup_time << endl;
+
       Timeval render_time = render_end_ru.utime() - render_beg_ru.utime();
       cout << "  rendering cpu:" << setw (14) << render_time << endl;
+
       Timeval elapsed_time = end_time - beg_time;
       cout << "  total elapsed:" << setw (14) << elapsed_time << endl;
 
