@@ -12,6 +12,7 @@
 
 #include "space.h"
 #include "envmap.h"
+#include "snogassert.h"
 #include "render-context.h"
 #include "unique-ptr.h"
 
@@ -23,7 +24,7 @@ using namespace std;
 
 
 Scene::Scene ()
-  : horizon (DEFAULT_HORIZON), space (0)
+  : horizon (DEFAULT_HORIZON), space (0), setup_done (false)
 { }
 
 // The scene "owns" all its components, so frees them when it is destroyed
@@ -46,6 +47,8 @@ Scene::~Scene ()
 void
 Scene::add (const Surface *surface)
 {
+  ASSERT (! setup_done);
+
   if (space)
     {
       delete space;
@@ -71,12 +74,12 @@ Scene::add (Light *light)
 // SPACE_BUILDER_FACTORY says how to do it.
 //
 void
-Scene::build_space (const SpaceBuilderFactory *space_builder_factory)
+Scene::build_space (const SpaceBuilderFactory &space_builder_factory)
 {
   if (! space)
     {
       UniquePtr<SpaceBuilder> space_builder
-	(space_builder_factory->make_space_builder ());
+	(space_builder_factory.make_space_builder ());
 
       surfaces.add_to_space (*space_builder);
 
@@ -99,6 +102,29 @@ Scene::background (const Vec &dir) const
     radiance += (*li)->eval_environ (dir);
 
   return radiance;
+}
+
+
+// Scene::setup
+
+// Do final setup for the scene.  This should be called after the scene
+// is completely built, and nothing should be added after it it is
+// called.
+//
+void
+Scene::setup (const SpaceBuilderFactory &space_builder_factory)
+{
+  setup_done = true;
+
+  // Make sure the space acceleration structures are built.
+  //
+  build_space (space_builder_factory);
+
+  // call each light's Light::scene_setup method.
+  //
+  for (std::vector<Light *>::iterator li = lights.begin ();
+       li != lights.end (); ++li)
+    (*li)->scene_setup (*this);
 }
 
 

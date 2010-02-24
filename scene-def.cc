@@ -19,7 +19,6 @@
 #include "image-io.h"
 #include "string-funs.h"
 #include "cmdlineparser.h"
-#include "octree.h"
 #if USE_LUA
 # include "load-lua.h"
 #endif
@@ -106,18 +105,6 @@ SceneDef::load (Scene &scene, Camera &camera)
 	throw runtime_error (spec->user_name + ": Error reading scene: "
 			     + err.what ());
       }
-
-  // Make sure the space acceleration structures are built.
-  //
-  Octree::BuilderFactory octree_builder_factory; // hardwired for now
-  scene.build_space (&octree_builder_factory);
-
-  // Now that SCENE has been fully loaded, call each light's
-  // Light::scene_setup method.
-  //
-  for (std::vector<Light *>::iterator li = scene.lights.begin ();
-       li != scene.lights.end (); ++li)
-    (*li)->scene_setup (scene);
 
   // Cleanup Lua loader state if necessary.
   //

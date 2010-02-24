@@ -42,6 +42,7 @@
 #include "scene-def.h"
 #include "camera-cmds.h"
 #include "render-stats.h"
+#include "octree.h"
 
 
 using namespace snogray;
@@ -485,11 +486,6 @@ int main (int argc, char *const *argv)
     interpret_camera_cmds (camera_cmds, camera, scene);
 
 
-  // Setup rendering state.
-  //
-  GlobalRenderState global_render_state (scene, render_params);
-
-
   // Enable floating-point exceptions if possible, which can help debugging.
   // Note that we do this _after_ reading the scene which helps avoid
   // problems with libraries that are not expecting floating-point exceptions
@@ -634,6 +630,17 @@ int main (int argc, char *const *argv)
 	     << ", focal distance " << camera.focus
 	     << endl;
     }
+
+
+  // Do post-loading scene setup.
+  //
+  Octree::BuilderFactory octree_builder_factory; // hardwired for now
+  scene.setup (octree_builder_factory);
+
+  // Setup rendering state.
+  //
+  GlobalRenderState global_render_state (scene, render_params);
+
 
   RenderStats render_stats;
 

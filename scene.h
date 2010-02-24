@@ -79,12 +79,18 @@ public:
   // Construct the search accelerator for this scene.
   // SPACE_BUILDER_FACTORY says how to do it.
   //
-  void build_space (const SpaceBuilderFactory *space_builder_factory);
+  void build_space (const SpaceBuilderFactory &space_builder_factory);
 
   // Scene input
   //
   void load (const std::string &file_name, const std::string &fmt,
 	     Camera &camera);
+
+  // Do final setup for the scene.  This should be called after the scene
+  // is completely built, and nothing should be added after it it is
+  // called.
+  //
+  void setup (const SpaceBuilderFactory &space_builder_factory);
 
   unsigned num_surfaces () const { return surfaces.num_surfaces (); }
   unsigned num_lights () const { return lights.size (); }
@@ -108,6 +114,11 @@ public:
   // Acceleration structure for doing ray-surface intersection testing.
   //
   const Space *space;
+
+  // True if Scene::setup has been called.  Nothing more can be added to
+  // the scene after this is set.
+  //
+  bool setup_done;
 };
 
 
