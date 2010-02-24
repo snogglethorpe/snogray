@@ -139,12 +139,15 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
   std::vector<Photon> direct_photons;
   std::vector<Photon> indirect_photons;
 
+  const std::vector<Light *> &lights = context.scene.lights;
+
+  if (lights.size () == 0)
+    return;			// no lights, so no point
+
   Progress prog (std::cout, "* photon-integ: shooting photons...",
 		 0, num_caustic + num_direct + num_indirect);
 
   prog.start ();
-
-  const std::vector<Light *> &lights = context.scene.lights;
 
   bool caustic_done = (num_caustic == 0);
   bool direct_done = (num_direct == 0);
