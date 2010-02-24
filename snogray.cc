@@ -632,14 +632,16 @@ int main (int argc, char *const *argv)
     }
 
 
-  // Do post-loading scene setup.
-  //
-  Octree::BuilderFactory octree_builder_factory; // hardwired for now
-  scene.setup (octree_builder_factory);
-
   // Setup rendering state.
   //
+  Rusage setup_beg_ru;
+  //
+  Octree::BuilderFactory octree_builder_factory;
+  scene.setup (octree_builder_factory);
+  //
   GlobalRenderState global_render_state (scene, render_params);
+  //
+  Rusage setup_end_ru;
 
 
   RenderStats render_stats;
@@ -670,6 +672,8 @@ int main (int argc, char *const *argv)
 	= ((scene_end_ru.utime() - scene_beg_ru.utime())
 	   + (scene_end_ru.stime() - scene_beg_ru.stime()));
       cout << "  scene def cpu:" << setw (14) << scene_def_time << endl;
+      Timeval setup_time = setup_end_ru.utime() - setup_beg_ru.utime();
+      cout << "  setup cpu:    " << setw (14) << setup_time << endl;
       Timeval render_time = render_end_ru.utime() - render_beg_ru.utime();
       cout << "  rendering cpu:" << setw (14) << render_time << endl;
       Timeval elapsed_time = end_time - beg_time;
