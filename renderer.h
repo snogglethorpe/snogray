@@ -33,11 +33,11 @@ class Renderer
 {
 public:
 
-  Renderer (const Scene &_scene, const Camera &_camera,
+  Renderer (const GlobalRenderState &global_state,
+	    const Camera &_camera,
 	    unsigned _width, unsigned _height,
 	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
-	    unsigned max_y_block_size,
-	    const GlobalRenderState &global_state);
+	    unsigned max_y_block_size);
 
   // Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
   // are clamped to fit the global rendering limit.
@@ -56,9 +56,8 @@ public:
   RenderStats render_stats () const { return context.stats; }
 
 
-  // The scene and camera being rendered.
+  // The camera being used.
   //
-  const Scene &scene;
   const Camera &camera;
 
   // Size of the virtual screen being rendered to.  These are floats

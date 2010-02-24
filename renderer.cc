@@ -10,7 +10,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "scene.h"
 #include "camera.h"
 #include "media.h"
 #include "filter.h"
@@ -21,12 +20,12 @@
 
 using namespace snogray;
 
-Renderer::Renderer (const Scene &_scene, const Camera &_camera,
+Renderer::Renderer (const GlobalRenderState &_global_state,
+		    const Camera &_camera,
 		    unsigned _width, unsigned _height,
 		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
-		    unsigned max_y_block_size,
-		    const GlobalRenderState &_global_state)
-  : scene (_scene), camera (_camera), width (_width), height (_height),
+		    unsigned max_y_block_size)
+  : camera (_camera), width (_width), height (_height),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
     lim_w (_output.width), lim_h (_output.height),

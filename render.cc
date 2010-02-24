@@ -112,9 +112,8 @@ snogray::render (const Scene &scene, const Camera &camera,
 
   bool by_rows = params.get_int ("render-by-rows", 0);
 
-  Renderer renderer (scene, camera, width, height,
-		     output, offs_x, offs_y, by_rows ? 1 : 16,
-		     global_render_state);
+  Renderer renderer (global_render_state, camera, width, height,
+		     output, offs_x, offs_y, by_rows ? 1 : 16);
 
   // Do the actual rendering.
   //
