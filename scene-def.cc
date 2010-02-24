@@ -18,7 +18,6 @@
 #include "glow.h"
 #include "image-io.h"
 #include "string-funs.h"
-#include "camera-cmds.h"
 #include "cmdlineparser.h"
 #include "octree.h"
 #if USE_LUA
@@ -119,9 +118,6 @@ SceneDef::load (Scene &scene, Camera &camera)
   for (std::vector<Light *>::iterator li = scene.lights.begin ();
        li != scene.lights.end (); ++li)
     (*li)->scene_setup (scene);
-
-  if (camera_cmds.length () > 0)
-    interpret_camera_cmds (camera_cmds, camera, scene);
 
   // Cleanup Lua loader state if necessary.
   //

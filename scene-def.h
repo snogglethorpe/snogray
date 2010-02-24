@@ -28,27 +28,7 @@
                                OPT1=VAL1[,...]; current options include:\n\
                                  \"format\"    -- scene file type\n\
                                  \"background\"-- scene background\n\
-                                 \"gamma\"     -- implied scene gamma correction\n\
-\n\
- Camera options:\n\
-  -c, --camera=COMMANDS      Move/point the camera according to COMMANDS:\n\
-                               g X,Y,Z     Goto absolute location X, Y, Z\n\
-                               t X,Y,Z     Point at target X, Y, Z\n\
-                               m[rludfb] D Move distance D in the given dir\n\
-                                           (right, left, up, down, fwd, back)\n\
-                               m[xyz] D    Move distance D on the given axis\n\
-                               r[rlud] A   Rotate A deg in the given dir\n\
-                               ra A        Rotate A deg around center axis\n\
-                               r[xyz] A    Rotate A degrees around [xyz]-axis\n\
-                               o[xyz] A    Orbit A degrees around [xyz]-axis\n\
-                               z SCALE     Zoom by SCALE\n\
-                               l FOC_LEN   Set lens focal-length to FOCLEN\n\
-                               f F_STOP    Set lens aperture to F_STOP\n\
-                               d DIST      Set focus distance to DIST\n\
-                               a X,Y       Auto-focus at point X,Y on image\n\
-                               u SIZE      Set scene unit to SIZE, in mm\n\
-                               h           Set camera orientation to horizontal\n\
-                               v           Set camera orientation to vertical"
+                                 \"gamma\"     -- implied scene gamma correction"
                                
 //
 #define SCENE_DEF_SHORT_OPTIONS		"b:A:l:I:c:"
@@ -56,7 +36,6 @@
 #define SCENE_DEF_LONG_OPTIONS						\
     { "background",     required_argument, 0, 'b' },			\
     { "scene-options", 	required_argument, 0, 'I' },			\
-    { "camera",		required_argument, 0, 'c' },			\
 
 #define SCENE_DEF_OPTION_CASES(clp, scene_def)				\
   case 'b':								\
@@ -65,10 +44,6 @@
 									\
   case 'I':								\
     clp.parse_opt_arg (scene_def.params);				\
-    break;								\
-									\
-  case 'c':								\
-    scene_def.camera_cmds += clp.opt_arg ();				\
     break;
 
 namespace snogray {
@@ -130,10 +105,6 @@ public:
   // A list of scene specs to load.
   //
   std::vector<Spec> specs;
-
-  // User commands for the camera (applied following scene-definition)
-  //
-  std::string camera_cmds;
 };
 
 }

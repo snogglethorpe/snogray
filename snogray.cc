@@ -40,6 +40,7 @@
 #include "image-cmdline.h"
 #include "render-cmdline.h"
 #include "scene-def.h"
+#include "camera-cmds.h"
 #include "render-stats.h"
 
 
@@ -281,6 +282,25 @@ s "  -h, --height=HEIGHT        Set image height to HEIGHT lines"
 n
 s RENDER_OPTIONS_HELP
 n
+s "  -c, --camera=COMMANDS      Move/point the camera according to COMMANDS:"
+s "                               g X,Y,Z     Goto absolute location X, Y, Z"
+s "                               t X,Y,Z     Point at target X, Y, Z"
+s "                               m[rludfb] D Move distance D in the given dir"
+s "                                           (right, left, up, down, fwd, back)"
+s "                               m[xyz] D    Move distance D on the given axis"
+s "                               r[rlud] A   Rotate A deg in the given dir"
+s "                               ra A        Rotate A deg around center axis"
+s "                               r[xyz] A    Rotate A degrees around [xyz]-axis"
+s "                               o[xyz] A    Orbit A degrees around [xyz]-axis"
+s "                               z SCALE     Zoom by SCALE"
+s "                               l FOC_LEN   Set lens focal-length to FOCLEN"
+s "                               f F_STOP    Set lens aperture to F_STOP"
+s "                               d DIST      Set focus distance to DIST"
+s "                               a X,Y       Auto-focus at point X,Y on image"
+s "                               u SIZE      Set scene unit to SIZE, in mm"
+s "                               h           Set camera orientation to horizontal"
+s "                               v           Set camera orientation to vertic"
+n
 s SCENE_DEF_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
@@ -314,6 +334,7 @@ int main (int argc, char *const *argv)
     { "progress",	no_argument,	   0, 'p' },
     { "no-progress",	no_argument,	   0, 'P' },
     { "continue",	no_argument,	   0, 'C' },
+    { "camera",		required_argument, 0, 'c' },
 
     RENDER_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
@@ -342,6 +363,7 @@ int main (int argc, char *const *argv)
   bool progress_set = false;
   ValTable image_params, render_params;
   SceneDef scene_def;
+  std::string camera_cmds;	// User commands for the camera
 
 
   // This speeds up I/O on cin/cout by not syncing with C stdio.
@@ -371,6 +393,10 @@ int main (int argc, char *const *argv)
       case 'L':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
 			     limit_max_x_spec, limit_max_y_spec);
+	break;
+
+      case 'c':
+	camera_cmds += clp.opt_arg ();
 	break;
 
       case 'C':
@@ -453,6 +479,10 @@ int main (int argc, char *const *argv)
   // Read in the scene/camera definitions
   //
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
+
+
+  if (camera_cmds.length () > 0)
+    interpret_camera_cmds (camera_cmds, camera, scene);
 
 
   // Setup rendering state.
