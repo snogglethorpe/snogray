@@ -455,6 +455,11 @@ int main (int argc, char *const *argv)
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
 
 
+  // Setup rendering state.
+  //
+  GlobalRenderState global_render_state (scene, render_params);
+
+
   // Enable floating-point exceptions if possible, which can help debugging.
   // Note that we do this _after_ reading the scene which helps avoid
   // problems with libraries that are not expecting floating-point exceptions
@@ -605,8 +610,9 @@ int main (int argc, char *const *argv)
   // Create the image.
   //
   Rusage render_beg_ru;
-  render (scene, camera, width, height, output, limit_x, limit_y,
-	  render_params, render_stats, cout, verbosity);
+  render (global_render_state, camera,
+	  width, height, output, limit_x, limit_y,
+	  render_stats, cout, verbosity);
   Rusage render_end_ru;
 
 

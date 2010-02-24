@@ -102,15 +102,14 @@ render_by_blocks (Renderer &renderer,
 
 
 void
-snogray::render (const Scene &scene, const Camera &camera,
+snogray::render (const GlobalRenderState &global_render_state,
+		 const Camera &camera,
 		 unsigned width, unsigned height,
 		 ImageOutput &output, unsigned offs_x, unsigned offs_y,
-		 const ValTable &params, RenderStats &stats,
+		 RenderStats &stats,
 		 std::ostream &progress_stream, Progress::Verbosity verbosity)
 {
-  GlobalRenderState global_render_state (scene, params);
-
-  bool by_rows = params.get_int ("render-by-rows", 0);
+  bool by_rows = global_render_state.params.get_bool ("render-by-rows", false);
 
   Renderer renderer (global_render_state, camera, width, height,
 		     output, offs_x, offs_y, by_rows ? 1 : 16);

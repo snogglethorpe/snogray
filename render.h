@@ -25,10 +25,11 @@ class ImageOutput;
 class RenderStats;
 
 extern void
-render (const Scene &scene, const Camera &camera,
+render (const GlobalRenderState &global_render_state,
+	const Camera &camera,
 	unsigned width, unsigned height,
 	ImageOutput &output, unsigned offs_x, unsigned offs_y,
-	const ValTable &render_params, RenderStats &stats,
+	RenderStats &stats,
 	std::ostream &progress_stream, Progress::Verbosity verbosity);
 
 }
