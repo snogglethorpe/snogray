@@ -108,7 +108,7 @@ public:
     if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
       {
 	float pdf;
-	Color f = val (l, h, pdf);
+	Color f = val (l, h, pdf, desired_flags);
 	return Sample (f, pdf, l, flags);
       }
 
@@ -117,13 +117,20 @@ public:
   }
 
   // Evaluate this BSDF in direction DIR, and return its value and pdf.
+  // If FLAGS is specified, then only the given types of surface
+  // interaction are considered.
   //
-  virtual Value eval (const Vec &dir) const
+  virtual Value eval (const Vec &dir, unsigned flags) const
   {
-    const Vec h = (isec.v + dir).unit ();
-    float pdf;
-    Color f = val (dir, h, pdf);
-    return Value (f, pdf);
+    float cos_n = isec.cos_n (dir);
+    if ((flags & REFLECTIVE) && cos_n > 0)
+      {
+	const Vec h = (isec.v + dir).unit ();
+	float pdf;
+	Color f = val (dir, h, pdf, flags);
+	return Value (f, pdf);
+      }
+    return Value ();
   }
 
   // Return a bitmask of flags from Bsdf::Flags, describing what types
@@ -184,41 +191,57 @@ private:
   }
 
   // Return the CT reflectance for the sample in direction L, where H is
-  // the half-vector.  The pdf is returned in PDF.
+  // the half-vector.  The pdf is returned in PDF.  FLAGS controls which
+  // layers are used in the evaluation.
   //
-  Color val (const Vec &l, const Vec &h, float &pdf) const
+  Color val (const Vec &l, const Vec &h, float &pdf, unsigned flags) const
   {
-    float nh = isec.cos_n (h), nl = isec.cos_n (l);
+    float nl = isec.cos_n (l);
 
-    // Avoid divide-by-zero if NL == 0.  Not a good situation, but I'm
-    // not sure what else to do...
-    //
-    float inv_nl = (nl != 0) ? (1 / nl) : 0; 
+    Color col = 0;
+    pdf = 0;
 
-    // Angle between view angle and half-way vector (also between
-    // light-angle and half-way vector -- lh == vh).
-    //
-    float vh = isec.cos_v (h);
+    if (flags & DIFFUSE)
+      {
+	// Diffuse term is a simple lambertian (cosine) distribution, and
+	// its pdf is constant.
+	//
+	float diff = INV_PIf;
+	float diff_pdf = diff_dist.pdf (nl);
 
-    // The Cook-Torrance glossy-lobe term is:
-    //
-    //    f_s = F * D * G / (4 * (N dot V) * (N dot L))
-    //
-    // We sample the glossy-lobe using the D component only, so the pdf
-    // is only based on that.
-    //
-    float gloss = F (vh) * D (nh) * G (vh, nh, nl) * inv_4_nv * inv_nl;
-    float gloss_pdf = D_pdf (nh, vh);
+	pdf += diff_pdf * diff_weight;
+	col += diff_col * diff;
+      }
 
-    // Diffuse term is a simple lambertian (cosine) distribution, and
-    // its pdf is constant.
-    //
-    float diff = INV_PIf;
-    float diff_pdf = diff_dist.pdf (nl);
+    if (flags & gloss_flags)
+      {
+	float nh = isec.cos_n (h);
 
-    pdf = diff_pdf * diff_weight + gloss_pdf * (1 - diff_weight);
+	// Avoid divide-by-zero if NL == 0.  Not a good situation, but I'm
+	// not sure what else to do...
+	//
+	float inv_nl = (nl != 0) ? (1 / nl) : 0; 
 
-    return diff_col * diff + gloss_col * gloss;
+	// Angle between view angle and half-way vector (also between
+	// light-angle and half-way vector -- lh == vh).
+	//
+	float vh = isec.cos_v (h);
+
+	// The Cook-Torrance glossy-lobe term is:
+	//
+	//    f_s = F * D * G / (4 * (N dot V) * (N dot L))
+	//
+	// We sample the glossy-lobe using the D component only, so the pdf
+	// is only based on that.
+	//
+	float gloss = F (vh) * D (nh) * G (vh, nh, nl) * inv_4_nv * inv_nl;
+	float gloss_pdf = D_pdf (nh, vh);
+
+	pdf += gloss_pdf * (1 - diff_weight);
+	col += gloss_col * gloss;
+      }
+
+    return col;
   }
 
   // M value used.

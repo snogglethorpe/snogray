@@ -110,8 +110,10 @@ public:
   virtual Sample sample (const UV &param, unsigned flags = ALL) const = 0;
 
   // Evaluate this BSDF in direction DIR, and return its value and pdf.
+  // If FLAGS is specified, then only the given types of surface
+  // interaction are considered.
   //
-  virtual Value eval (const Vec &dir) const = 0;
+  virtual Value eval (const Vec &dir, unsigned flags = ALL) const = 0;
 
   // Returns a bitmask of flags from Bsdf::Flags, describing what types
   // of scatting this BSDF supports.  The returned value will include

@@ -46,11 +46,18 @@ public:
   }
 
   // Evaluate this BSDF in direction DIR, and return its value and pdf.
+  // If FLAGS is specified, then only the given types of surface
+  // interaction are considered.
   //
-  virtual Value eval (const Vec &dir) const
+  virtual Value eval (const Vec &dir, unsigned flags) const
   {
-    float pdf = dist.pdf (isec.cos_n (dir));
-    return Value (color * INV_PIf, pdf);
+    float cos_n = isec.cos_n (dir);
+    if ((flags & (DIFFUSE|REFLECTIVE)) == (DIFFUSE|REFLECTIVE) && cos_n > 0)
+      {
+	float pdf = dist.pdf (cos_n);
+	return Value (color * INV_PIf, pdf);
+      }
+    return Value ();
   }
 
   // Return a bitmask of flags from Bsdf::Flags, describing what types

@@ -123,8 +123,10 @@ public:
   }
 
   // Evaluate this BSDF in direction DIR, and return its value and pdf.
+  // If FLAGS is specified, then only the given types of surface
+  // interaction are considered.
   //
-  virtual Value eval (const Vec &) const
+  virtual Value eval (const Vec &, unsigned) const
   {
     return Value ();		// we're specular, so all samples fail
   }

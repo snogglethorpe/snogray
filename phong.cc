@@ -39,34 +39,50 @@ public:
 
 private:
 
-  // Return the phong reflectance for the sample in direction L, where H is
-  // the half-vector.  The pdf is returned in PDF.
+  // Return the phong reflectance for the sample in direction L, where H
+  // is the half-vector.  The pdf is returned in PDF.  FLAGS controls
+  // which layers are used in the evaluation.
   //
-  Color val (const Vec &l, const Vec &h, float &pdf) const
+  Color val (const Vec &l, const Vec &h, float &pdf, unsigned flags) const
   {
-    float nh = isec.cos_n (h), nl = isec.cos_n (l);
+    float nl = isec.cos_n (l);
 
-    // Cosine of angle between view angle and half-way vector (also
-    // between light-angle and half-way vector -- lh == vh).
-    //
-    float vh = isec.cos_v (h);
+    Color col = 0;
+    pdf = 0;
 
-    // The division by 4 * VH when calculating the pdf here is intended
-    // to compensate for the fact that the underlying distribution
-    // PHONG_DIST is actually that of the half-vector H, whereas the pdf
-    // we want should be the distribution of the light-vector L.  I don't
-    // really understand why it works, but it's in the PBRT book, and
-    // seems to have good results.
-    //
-    float spec = phong_dist.pdf (nh);
-    float spec_pdf = spec / (4 * vh);
+    if (flags & DIFFUSE)
+      {
+	float diff = INV_PIf;
+	float diff_pdf = diff_dist.pdf (nl);
 
-    float diff = INV_PIf;
-    float diff_pdf = diff_dist.pdf (nl);
+	pdf += diff_pdf * diff_weight;
+	col += phong.color * diff;
+      }
 
-    pdf = diff_pdf * diff_weight + spec_pdf * (1 - diff_weight);
+    if (flags & GLOSSY)
+      {
+	float nh = isec.cos_n (h);
 
-    return phong.color * diff + phong.specular_color * spec;
+	// Cosine of angle between view angle and half-way vector (also
+	// between light-angle and half-way vector -- lh == vh).
+	//
+	float vh = isec.cos_v (h);
+
+	// The division by 4 * VH when calculating the pdf here is intended
+	// to compensate for the fact that the underlying distribution
+	// PHONG_DIST is actually that of the half-vector H, whereas the pdf
+	// we want should be the distribution of the light-vector L.  I don't
+	// really understand why it works, but it's in the PBRT book, and
+	// seems to have good results.
+	//
+	float spec = phong_dist.pdf (nh);
+	float spec_pdf = spec / (4 * vh);
+
+	pdf += spec_pdf * (1 - diff_weight);
+	col += phong.specular_color * spec;
+      }
+
+    return col;
   }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
@@ -96,7 +112,7 @@ private:
     if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
       {
 	float pdf;
-	Color f = val (l, h, pdf);
+	Color f = val (l, h, pdf, desired_flags);
 	return Sample (f, pdf, l, flags);
       }
 
@@ -105,13 +121,20 @@ private:
   }
 
   // Evaluate this BSDF in direction DIR, and return its value and pdf.
+  // If FLAGS is specified, then only the given types of surface
+  // interaction are considered.
   //
-  virtual Value eval (const Vec &dir) const
+  virtual Value eval (const Vec &dir, unsigned flags) const
   {
-    const Vec h = (isec.v + dir).unit ();
-    float pdf;
-    Color f = val (dir, h, pdf);
-    return Value (f, pdf);
+    float cos_n = isec.cos_n (dir);
+    if ((flags & REFLECTIVE) && cos_n > 0)
+      {
+	const Vec h = (isec.v + dir).unit ();
+	float pdf;
+	Color f = val (dir, h, pdf, flags);
+	return Value (f, pdf);
+      }
+    return Value ();
   }
 
   // Return a bitmask of flags from Bsdf::Flags, describing what types
