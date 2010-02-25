@@ -404,19 +404,22 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 
 // PhotonInteg::Lo_photon
 
-// Return the light emitted from ISEC by photons found nearby in PHOTON_MAP.
-// SCALE is the amount by which to scale each photon's radiance.
+// Return the light emitted from ISEC by photons found nearby in
+// PHOTON_MAP.  SCALE is the amount by which to scale each photon's
+// radiance.  FLAGS gives the types of BSDF interaction to consider
+// (by default, all).
 //
 Color
 PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
-			float scale)
+			float scale, unsigned flags)
 {
   if (scale == 0)
     return 0;
 
-  // Give up if this is a purely specular surface.
+  // Give up if this is a purely specular surface, or one that doesn't
+  // support FLAGS.
   //
-  if (! isec.bsdf->supports (Bsdf::ALL & ~Bsdf::SPECULAR))
+  if (! isec.bsdf->supports (flags & ~Bsdf::SPECULAR))
     return 0;
 
   const Pos &pos = isec.normal_frame.origin;
@@ -444,7 +447,7 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
       // Evaluate the BSDF in the photon's direction.
       //
       Vec dir = isec.normal_frame.to (ph.dir);
-      Bsdf::Value bsdf_val = isec.bsdf->eval (dir);
+      Bsdf::Value bsdf_val = isec.bsdf->eval (dir, flags);
 
       if (bsdf_val.pdf != 0 && bsdf_val.val > 0)
 	{
@@ -502,6 +505,25 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 
   if (bsdf_samp.val > 0 && bsdf_samp.pdf != 0)
     {
+      // INCLUDE_EMISSION is true if we should include direct
+      // emission by surfaces, or background emission for rays that
+      // don't intersect any surface.
+      //
+      // We do this only if DEPTH > 0 (meaning this is a "specular
+      // recursed" sample), and this is not a diffuse sample.
+      //
+      // The reason we don't include emission when DEPTH == 0 is because
+      // that would be direct illumination, which is handled by other
+      // means.
+      //
+      // The reason we don't include emission for diffuse samples is
+      // because that is handled via the caustics map (we only use the
+      // caustics map for diffuse samples because it yields poor results
+      // for other types).
+      //
+      bool include_emission
+	= (depth > 0 && !(bsdf_samp.flags & Bsdf::DIFFUSE));
+
       // Sample position and direction in world coordinates.
       //
       const Pos &pos = isec.normal_frame.origin;
@@ -565,6 +587,16 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 			* Li_to_Lo);
 		}
 	    }
+
+	  if (include_emission)
+	    radiance += samp_isec.material->Le (isec);
+	}
+
+      else if (include_emission)
+	{
+	  // We didn't hit anything, so include background emission.
+
+	  radiance += context.scene.background (dir);
 	}
     }
 
@@ -575,8 +607,21 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 // PhotonInteg::Lo_fgather
 
 // Do a quick calculation of indirection illumination by sampling the
-// BRDF, shooing another level of rays, and using only photon maps to
+// BRDF, shooting another level of rays, and using only photon maps to
 // calculate outgoing illumination from the resulting intersections.
+//
+// For samples that strike perfectly specular materials, recursive
+// sampling is used used until a non-specular surface is hit, and then
+// the photon-map is evaluated at that point; this handles indirect
+// illumination due to caustics, etc.
+//
+// For _non-diffuse_ samples that strike perfectly specular materials,
+// the same thing is done -- recursive sampling is used used until a
+// non-specular surface is hit, and then the photon-map is evaluated at
+// that point -- however, in addition, direction emission from the
+// material (the "Le" term), and background light is also evaulated;
+// this essentially handles the "caustics" case, because the normal
+// caustic map normally only gets applied to diffuse BSDF samples.
 //
 Color
 PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
@@ -619,6 +664,10 @@ Color
 PhotonInteg::Lo (const Intersect &isec, const Media &media,
 		 const SampleSet::Sample &sample)
 {
+  // True if we're using final-gathering.
+  //
+  bool use_fgather = (global.num_fgather_samples > 0);
+
   Color radiance = 0;
 
   // Direct-lighting.
@@ -628,13 +677,17 @@ PhotonInteg::Lo (const Intersect &isec, const Media &media,
   else
     radiance += Lo_photon (isec, global.direct_photon_map, global.direct_scale);
 
-  // Caustics.
+  // Caustics.  If final-gathering is enabled, we only evaluate caustics
+  // for diffuse reflection, as the non-diffuse case is (better) handled
+  // by sampling the BSDF in Lo_fgather.
   //
-  radiance += Lo_photon (isec, global.caustic_photon_map, global.caustic_scale);
+  radiance
+    += Lo_photon (isec, global.caustic_photon_map, global.caustic_scale,
+		  use_fgather ? Bsdf::SAMPLE_DIR|Bsdf::DIFFUSE : Bsdf::ALL);
 
   // Indirect lighting.
   //
-  if (global.num_fgather_samples > 0)
+  if (use_fgather)
     radiance
       += Lo_fgather (isec, media, sample, global.num_fgather_samples);
   else

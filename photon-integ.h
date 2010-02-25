@@ -94,12 +94,13 @@ private:
   //
   PhotonInteg (RenderContext &context, GlobalState &global_state);
 
-  // Return the light emitted from ISEC by photons found nearby in PHOTON_MAP.
-  // NUM_PATHS is the number of paths used when generating PHOTON_MAP, and
-  // is used to scale the result.
+  // Return the light emitted from ISEC by photons found nearby in
+  // PHOTON_MAP.  NUM_PATHS is the number of paths used when generating
+  // PHOTON_MAP, and is used to scale the result.  FLAGS gives the types
+  // of BSDF interaction to consider (by default, all).
   //
   Color Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
-		   float scale);
+		   float scale, unsigned flags = Bsdf::ALL);
 
   // "Final gathering": Do a quick calculation of indirection
   // illumination by sampling the BRDF, shooting another level of rays,
