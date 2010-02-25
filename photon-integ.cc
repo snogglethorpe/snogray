@@ -441,32 +441,28 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
     {
       const Photon &ph = **i;
 
-      // XXXXXXXXXX Ergh, here we need a flags parameter to Bsdf::eval,
-      // but there isn't one... for now, just ignore photons that didn't
-      // come from above the surface (in other words, only handle
-      // reflective BSDFs here).  XXXXXXXXXXXXX
+      // Evaluate the BSDF in the photon's direction.
       //
       Vec dir = isec.normal_frame.to (ph.dir);
+      Bsdf::Value bsdf_val = isec.bsdf->eval (dir);
 
-      if (isec.cos_n (dir) > 0) // XXX ignore photons coming from below surface
+      if (bsdf_val.pdf != 0 && bsdf_val.val > 0)
 	{
-	  Bsdf::Value bsdf_val = isec.bsdf->eval (dir);
-
 	  // A gaussian filter, which emphasizes photons nearer to POS,
 	  // and de-emphasizes those farther away.
 	  //
 	  float gauss_filt
 	    = (gauss_alpha
 	       * (1 - ((1 - exp (gauss_exp_scale
-	    			 * (ph.pos - pos).length_squared()))
-	    	       * inv_gauss_denom)));
+				 * (ph.pos - pos).length_squared()))
+		       * inv_gauss_denom)));
 
 	  radiance += bsdf_val.val * ph.power * gauss_filt;
 	}
 
-      // XXXX PBRT book avoids calling Bsdf::eval more than once for
-      // diffuse surrfaces (since they have a constant
-      // value).... worthwhile?  XXXX
+      // XXXX  PBRT avoids calling Bsdf::eval more than once for
+      // diffuse surfaces (since they have a constant value)....
+      // worthwhile?  probably not  XXXX
     }
 
   radiance *= scale;
