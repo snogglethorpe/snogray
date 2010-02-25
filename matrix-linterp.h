@@ -1,6 +1,6 @@
 // tex-linterp.h -- texture linear interpolation
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -65,8 +65,8 @@ public:
 
     if (xi_hi >= width)
       xi_hi -= width;
-    if (yi_hi >= width)
-      yi_hi -= width;
+    if (yi_hi >= height)
+      yi_hi -= height;
 
     yi_lo = height - yi_lo - 1;
     yi_hi = height - yi_hi - 1;
