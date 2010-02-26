@@ -113,7 +113,33 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
 		 const SampleSet::Sample &sample,
 		 unsigned depth)
 {
-  if (depth > 5) return 0; // XXX use russian roulette
+  // Scale factor to account for russian-roulette.
+  //
+  float rr_scale = 1;
+
+  // If this path is getting long, use russian roulette to randomly
+  // terminate it.
+  //
+  if (depth > 5)
+    {
+      float rr_term_prob = 0.5;
+      float russian_roulette = context.random ();
+
+      if (russian_roulette < rr_term_prob)
+	//
+	// Terminated!
+	return 0;
+      else
+	// Don't terminate.  Adjust the scaling of our result to
+	// reflect the fact that we tried.
+	//
+	// By dividing by the probability of termination, which is
+	// less than 1, we boost the intensity of paths that survive
+	// russian-roulette, which will exactly compensate for the
+	// zero value of paths that are terminated by it.
+	//
+	rr_scale = 1 / (1 - rr_term_prob);
+    }
 
   const Scene &scene = context.scene;
 
@@ -137,6 +163,8 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
   //
   radiance *= context.volume_integ->transmittance (isec_ray, media.medium);
   radiance += context.volume_integ->Li (isec_ray, media.medium, sample);
+
+  radiance *= rr_scale;
 
   return radiance;
 }
