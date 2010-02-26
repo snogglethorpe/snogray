@@ -33,48 +33,24 @@ using namespace snogray;
 PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				       const ValTable &params)
   : RecursiveInteg::GlobalState (rstate),
-    num_search_photons (
-      params.get_uint ("surface-integ.photon.num", 50)),
-    photon_search_radius (
-      params.get_float ("surface-integ.photon.radius", 0.1)),
+    num_search_photons (params.get_uint ("num", 50)),
+    photon_search_radius (params.get_float ("radius", 0.1)),
     caustic_scale (0), direct_scale (0), indirect_scale (0),
-    marker_radius_sq (
-      params.get_float ("surface-integ.photon.marker-radius", 0)),
+    marker_radius_sq (params.get_float ("marker-radius", 0)),
     direct_illum (
-      params.get_uint ("light-samples"
-		       ",surface-integ.photon.direct-samples"
-		       ",surface-integ.photon.dir-samples"
-		       ",surface-integ.photon.dir-samps",
-		       16)),
-    use_direct_illum (
-      params.get_bool (
-	       "surface-integ.photon.direct-illum"
-	       ",surface-integ.photon.dir-illum",
-	       true)),
+      params.get_uint ("direct-samples,dir-samples,dir-samps",
+		       rstate.params.get_uint ("light-samples", 16))),
+    use_direct_illum (params.get_bool ("direct-illum,dir-illum", true)),
     num_fgather_samples (
-      params.get_uint ("surface-integ.photon.final-gather-samples"
-		       ",surface-integ.photon.fgather-samples"
-		       ",surface-integ.photon.fg-samples"
-		       ",surface-integ.photon.fg-samps",
-		       16))
+      params.get_uint ("final-gather-samples,fg-samples,fg-samps", 16))
 {
-  unsigned num_caustic
-    = params.get_uint ("surface-integ.photon.caustic", 50000);
-  unsigned num_direct
-    = params.get_uint (
-	       "surface-integ.photon.direct"
-	       ",surface-integ.photon.dir",
-	       500000);
-  unsigned num_indirect
-    = params.get_uint (
-	       "surface-integ.photon.indirect"
-	       ",surface-integ.photon.indir",
-	       500000);
+  unsigned num_caustic = params.get_uint ("caustic", 50000);
+  unsigned num_direct = params.get_uint ("direct,dir", 500000);
+  unsigned num_indirect = params.get_uint ("indirect,indir", 500000);
 
   // A convenient boolean toggle for final gathering.
   //
-  if (! params.get_bool ("surface-integ.photon.final-gather"
-			 ",surface-integ.photon.fg", true))
+  if (! params.get_bool ("final-gather,fg", true))
     num_fgather_samples = 0;
 
   // If using the usual direct lighting calculation, and not doing final

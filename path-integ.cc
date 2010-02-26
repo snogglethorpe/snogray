@@ -26,12 +26,11 @@ using namespace snogray;
 PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				     const ValTable &params)
   : SurfaceInteg::GlobalState (rstate),
-    min_path_len (
-      params.get_uint ("surface-integ.path.min-len", 5)),
+    min_path_len (params.get_uint ("min-len", 5)),
     russian_roulette_terminate_probability (
-      params.get_float ("surface-integ.path.russian-roulette-terminate-probability,surface-integ.path.rr-term-prob,surface-integ.path.rr-term", 0.5f)),
-    direct_illum (
-      params.get_uint ("light-samples,surface-integ.path.direct-samples", 1))
+      params.get_float ("rr-term-prob,rr-term", 0.5f)),
+    direct_illum (params.get_uint ("direct-samples,dir-samples,dir-samps",
+				   rstate.params.get_uint ("light-samples", 1)))
 {
 }
 

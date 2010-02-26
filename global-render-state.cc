@@ -65,12 +65,15 @@ GlobalRenderState::make_surface_integ_global_state (const ValTable &params)
 {
   std::string sint = params.get_string ("surface-integ", "direct");
 
+  ValTable sint_params
+    = params.filter_by_prefix ("surface-integ." + sint + ".");
+
   if (sint == "direct")
-    return new DirectInteg::GlobalState (*this, params);
+    return new DirectInteg::GlobalState (*this, sint_params);
   else if (sint == "path")
-    return new PathInteg::GlobalState (*this, params);
+    return new PathInteg::GlobalState (*this, sint_params);
   else if (sint == "photon")
-    return new PhotonInteg::GlobalState (*this, params);
+    return new PhotonInteg::GlobalState (*this, sint_params);
   else
     throw std::runtime_error ("Unknown surface-integrator \"" + sint + "\"");
 }
