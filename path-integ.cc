@@ -238,15 +238,14 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       //
       if (path_len > global.min_path_len)
 	{
+	  float rr_term_prob = global.russian_roulette_terminate_probability;
 	  float russian_roulette = context.random ();
 
-	  if (russian_roulette < global.russian_roulette_terminate_probability)
+	  if (russian_roulette < rr_term_prob)
 	    //
-	    // Terminate!
-	    //
+	    // Terminated!
 	    break;
 	  else
-	    //
 	    // Don't terminate.  Adjust PATH_TRANSMITTANCE to reflect
 	    // the fact that we tried.
 	    //
@@ -255,8 +254,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	    // russian-roulette, which will exactly compensate for the
 	    // zero value of paths that are terminated by it.
 	    //
-	    path_transmittance
-	      /= 1 - global.russian_roulette_terminate_probability;
+	    path_transmittance /= 1 - rr_term_prob;
 	}
 
       // Add this BSDF sample to PATH_TRANSMITTANCE.
