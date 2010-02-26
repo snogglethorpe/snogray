@@ -464,9 +464,10 @@ int main (int argc, char *const *argv)
 
   Rusage scene_beg_ru;		// start timing scene definition
 
+  // Scene object.
+  //
   Scene scene;
   Camera camera;
-
 
   // If the user specified both a width and a height, set the camera aspect
   // ratio to maintain pixels with a 1:1 aspect ratio.  We do this before
@@ -476,14 +477,21 @@ int main (int argc, char *const *argv)
   if (width && height)
     camera.set_aspect_ratio (float (width) / float (height));
 
-
   // Read in the scene/camera definitions
   //
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
 
+  // Do post-load scene setup (nothign can be added to scene after this).
+  //
+  Octree::BuilderFactory octree_builder_factory;
+  scene.setup (octree_builder_factory);
 
+  // Do camera manipulation specified on the command-line.
+  //
   if (camera_cmds.length () > 0)
     interpret_camera_cmds (camera_cmds, camera, scene);
+
+  Rusage scene_end_ru;		// stop timing scene definition
 
 
   // Enable floating-point exceptions if possible, which can help debugging.
@@ -493,7 +501,6 @@ int main (int argc, char *const *argv)
   // compiler that floating-point operations may trap).
   //
   enable_fp_exceptions ();
-
 
   // If the user specified both a width and a height, set the camera aspect
   // ratio _again_ to maintain pixels with a 1:1 aspect ratio, just in case
@@ -522,8 +529,6 @@ int main (int argc, char *const *argv)
       else
 	width = unsigned (height * ar);
     }
-
-  Rusage scene_end_ru;		// stop timing scene definition
 
 
   // Set our drawing limits based on the scene size
@@ -632,15 +637,12 @@ int main (int argc, char *const *argv)
     }
 
 
-  // Setup rendering state.
+  // Setup rendering state.  This can take a _very_ long time, because
+  // some rendering methods do length pre-rendering computation, so time
+  // it.
   //
   Rusage setup_beg_ru;
-  //
-  Octree::BuilderFactory octree_builder_factory;
-  scene.setup (octree_builder_factory);
-  //
   GlobalRenderState global_render_state (scene, render_params);
-  //
   Rusage setup_end_ru;
 
 
