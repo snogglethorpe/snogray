@@ -141,16 +141,31 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       path_transmittance
 	*= context.volume_integ->transmittance (isec_ray, media.medium);
 
+      // Normally, we don't add light emitted by a surface we hit, or
+      // background light in the case we don't hit a surface, because
+      // that should have been accounted for by the direct-lighting term
+      // in the _previous_ path-vertex.
+      //
+      // However in the special cases of (1) the first path-vertex
+      // (representing the first intersection after a camera ray),
+      // (2) a vertex following a specular reflection/refraction, or
+      // (3) the direct-lighting optimization is disabled, we _do_
+      // add light emitted, because in these cases there is no
+      // previous-vertex direct-lighting term.
+      //
+      bool include_emitters
+	= (path_len == 0
+	   || after_specular_sample
+	   || global.direct_illum.num_light_samples == 0);
+
       // If we didn't hit anything, terminate the path.
       //
       if (! isec_info)
 	{
-	  // If this is the camera ray, or directly follows a specular
-	  // sample, we add the scene background (otherwise the scene
-	  // background will have been picked up by the direct-lighting
-	  // calculation at the previous path vertext).
+	  // If we're including emitters, then add scene background
+	  // light.
 	  //
-	  if (path_len == 0 || after_specular_sample)
+	  if (include_emitters)
 	    radiance += scene.background (isec_ray) * path_transmittance;
 
 	  if (path_len == 0 && radiance == 0)
@@ -166,17 +181,10 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       //
       Intersect isec = isec_info->make_intersect (media, context);
 
-      // Normally, we don't add light emitted by the material at a path
-      // vertex because that should have been accounted for by the
-      // direct-lighting term in the _previous_ vertex.
+      // If we're including emitters, then add light emitted by this
+      // surface.
       //
-      // However In the special cases of (1) the first vertex
-      // (representing the first intersection after a camera ray), or
-      // (2) a vertex following a specular reflection/refraction, we
-      // _do_ add light emitted, because in these cases there is no
-      // previous-vertex direct-lighting term.
-      //
-      if (path_len == 0 || after_specular_sample)
+      if (include_emitters)
 	radiance += isec.material->Le (isec) * path_transmittance;
 
       // If there's no BSDF at all, this path is done.
@@ -184,31 +192,34 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       if (! isec.bsdf)
 	break;
 
-      // Include direct lighting.  Note that this explicitly omits
-      // specular samples.
+      // Include direct lighting (if enabled).  Note that this
+      // explicitly omits specular samples.
       //
-      if (path_len < global.min_path_len)
-	//
-	// For path-vertices near the beginning, use pre-generated (and
-	// well-distributed) samples from SAMPLE.
-	//
-	radiance
-	  += (vertex_direct_illums[path_len].sample_lights (isec, sample)
-	      * path_transmittance);
-      else
-	//
-	// For path-vertices not near the beginning, generate new random
-	// samples every time.
+      if (global.direct_illum.num_light_samples != 0)
 	{
-	  // Make more samples for RANDOM_DIRECT_ILLUM.
-	  //
-	  random_sample_set.generate ();
+	  if (path_len < global.min_path_len)
+	    //
+	    // For path-vertices near the beginning, use pre-generated
+	    // (and well-distributed) samples from SAMPLE.
+	    //
+	    radiance
+	      += (vertex_direct_illums[path_len].sample_lights (isec, sample)
+		  * path_transmittance);
+	  else
+	    //
+	    // For path-vertices not near the beginning, generate new
+	    // random samples every time.
+	    {
+	      // Make more samples for RANDOM_DIRECT_ILLUM.
+	      //
+	      random_sample_set.generate ();
 
-	  SampleSet::Sample random_sample (random_sample_set, 0);
+	      SampleSet::Sample random_sample (random_sample_set, 0);
 
-	  radiance
-	    += (random_direct_illum.sample_lights (isec, random_sample)
-		* path_transmittance);
+	      radiance
+		+= (random_direct_illum.sample_lights (isec, random_sample)
+		    * path_transmittance);
+	    }
 	}
 
       // Choose a parameter for sampling the BSDF.  For path vertices
