@@ -13,7 +13,7 @@
 
 # Targets
 #
-bin_PROGRAMS = snogray snogcvt snogdiff
+bin_PROGRAMS = snogray snogcvt snogdiff sampleimg
 noinst_PROGRAMS =
 
 
@@ -381,6 +381,8 @@ snogdiff_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 hemint_SOURCES = hemint.cc
 hemint_LDADD = libsnogutil.a
 
+sampleimg_SOURCES = sampleimg.cc
+sampleimg_LDADD = $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
 ###############################################################
 #
