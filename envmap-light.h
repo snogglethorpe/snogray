@@ -1,6 +1,6 @@
 // envmap-light.v_sz -- Abstract class for envmapured light sources
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,27 +14,20 @@
 #define __ENVMAP_LIGHT_H__
 
 
-#include "struct-light.h"
+#include "light.h"
 #include "envmap.h"
+#include "hist-2d.h"
+#include "hist-2d-pdf.h"
 
 
 namespace snogray {
 
 
-class EnvmapLight : public StructLight
+class EnvmapLight : public Light
 {
 public:
 
   EnvmapLight (const Ref<Envmap> &_envmap);
-
-  // Dump a picture of the generated light regions to a file called
-  // FILENAME.  ENVMAP should be the original environment map with which
-  // this light was created.
-  //
-  void dump (const std::string &filename, const Envmap &orig_envmap) const
-  {
-    StructLight::dump (filename, orig_envmap.light_map ());
-  }
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is
@@ -68,7 +61,17 @@ public:
 
 private:
 
+  // Return a 2d histogram containing the intensity of ENVMAP, with the
+  // intensity adusted to reflect the area distortion caused by mapping
+  // it to a sphere.
+  //
+  Hist2d envmap_histogram (const Ref<Envmap> &envmap);
+
   Ref<Envmap> envmap;
+
+  // PDF (probability density function) for sampling the intensity of ENVMAP.
+  //
+  Hist2dPdf intensity_pdf;
 
   // Center and radius of a bounding sphere for the engire scene.
   //
@@ -80,5 +83,3 @@ private:
 }
 
 #endif /* __ENVMAP_LIGHT_H__ */
-
-// arch-tag: a6e2dd05-d36c-487b-9ba4-38c4d2f238b0

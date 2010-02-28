@@ -10,14 +10,9 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <iostream>
-
 #include "scene.h"
-#include "globals.h"
-#include "spheremap.h"
 #include "light-map.h"
-#include "lmap-analyzer.h"
-#include "cos-dist.h"
+#include "spheremap.h"
 #include "sample-sphere.h"
 #include "sample-tangent-disk.h"
 
@@ -27,83 +22,43 @@
 using namespace snogray;
 
 
-// How many leaf regions (covering the entire sphere) we'll try to produce
-// for a completely featureless input image.  Real scenes varied light
-// intensities will roughly double this number.
-//
-#define NOMINAL_NUM_REGIONS 	1000
-
-
-// minimum angle for a envap light region, measured in terms of a
-// fraction of 360 degrees.
-//
-#define MIN_ANGLE (2.f / 360.f)
-
-
-class LatLongLmap : public LightMap
-{
-public:
-
-  LatLongLmap (Ref<Image> _map) : LightMap (_map) { }
-
-  virtual bool too_small (float, float, float w, float h) const
-  {
-    return
-      w <= 2 || (w / width) < MIN_ANGLE
-      || h <= 2 || (h / height) < MIN_ANGLE;
-  }
-
-  virtual float aspect_ratio (float, float y, float w, float h) const
-  {
-    w *= cos ((y + h  / 2) / height * PIf - PIf/2);
-    return w / h;
-  }
-
-  virtual float area (float, float y, float w, float h) const
-  {
-    return w * h * cos ((y + h  / 2) / height * PIf - PIf/2);
-  }
-};
-
-
 EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap)
-  : envmap (_envmap), scene_radius (0)
+  : envmap (_envmap), intensity_pdf (envmap_histogram (_envmap)),
+    scene_radius (0)
 {
-  if (!quiet)
+}
+
+// Return a 2d histogram containing the intensity of ENVMAP, with the
+// intensity adusted to reflect the area distortion caused by mapping
+// it to a sphere.
+//
+Hist2d
+EnvmapLight::envmap_histogram (const Ref<Envmap> &envmap)
+{
+  Ref<Image> lmap = envmap->light_map ();
+  
+  unsigned w = lmap->width, h = lmap->height;
+
+  Hist2d hist (w, h);
+
+  double row_lat_inc = PIf / h;
+  double row_lat = -PIf/2 + row_lat_inc/2;
+
+  for (unsigned row = 0; row < hist.height; row++)
     {
-      std::cout << "* envmap-light: generating light map...";
-      std::cout.flush ();
+      double row_scale = cos (row_lat);
+
+      for (unsigned col = 0; col < hist.width; col++)
+	{
+	  Color color = (*lmap) (col, row);
+	  double intens = color.intensity() * row_scale;
+	  hist.add (col, row, intens);
+	}
+
+      row_lat += row_lat_inc;
     }
 
-  // An image holding light from envmap.
-  //
-  LatLongLmap lmap (envmap->light_map ());
-
-  if (!quiet)
-    {
-      std::cout << lmap.map->width << " x " << lmap.map->height
-		<< "; analyzing...";
-      std::cout.flush ();
-    }
-
-  // Analyze the resulting light map image.
-  //
-  LmapAnalyzer lmap_analyzer (lmap, NOMINAL_NUM_REGIONS);
-
-  analyze (lmap_analyzer);
-
-  if (! quiet)
-    {
-      unsigned num_sample_regions, num_leaf_regions;
-      Color mean_intensity;
-      get_stats (num_sample_regions, num_leaf_regions, mean_intensity);
-      std::cout << "done" << std::endl
-		<< "* envmap-light: " << num_leaf_regions
-		<< "+" << (num_sample_regions - num_leaf_regions) << " regions"
-		<< ", mean intensity = " << mean_intensity
-		<< std::endl;
-      std::cout.flush ();
-    }
+  return hist;
 }
 
 
@@ -116,98 +71,34 @@ EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap)
 Light::Sample
 EnvmapLight::sample (const Intersect &isec, const UV &param) const
 {
-  float intens_frac = isec.context.params.envlight_intens_frac;
-  float hemi_frac = 1 - intens_frac;
-
-  float inv_hemi_frac = (hemi_frac == 0) ? 0 : 1 / hemi_frac;
-  float inv_intens_frac = (hemi_frac == 1) ? 0 : 1 / intens_frac;
-
-  // True if we should use high-resolution intensity data.  Doing so
-  // gives better results for specular reflections from very glossy
-  // surfaces, but also results in more noise (variance) because the
-  // intensity data doesn't precisely match the PDF (this is especially
-  // noticeable for matte surfaces, where the increased accuracy doesn't
-  // matter anyway).
-  //
-  // As a compromise, we currently use high-res intensity data for BSDF
-  // samples (glossy surfaces will have tightly-grouped BSDF samples, so
-  // inaccuracies in the intensity of BSDF samples will be more
-  // obvious), but not for light samples (the main result of not using
-  // hires data for light samples will be slightly inaccurate shadow
-  // details, but this is usually much less obvious that inaccurate
-  // glossy reflections).
-  //
-  // A further improvement would be to never use high-resolution data
-  // for obviously non-glossy surfaces (lambertian, etc).
-  //
-  bool use_hires_intens = false;
-
-  CosDist hemi_dist;
-
-  // The intensity of this sample.
-  //
-  Color intens;
-
   // The pdf in the light's intensity distribution for this sample.
   //
-  float intens_pdf;
+  float pdf;
 
-  // The direction of this sample in the normal frame, and in the world
-  // frame.
+  // Map U,V to a direction (which may be anywhere in the
+  // sphere) based on the light's intensity distribution.
   //
-  Vec dir, world_dir;
+  UV map_pos = intensity_pdf.sample (param, pdf);
 
-  float u = param.u, v = param.v;
-
-  // Choose hemi or intensity sampling based on the V parameter.
+  // The direction of this sample in the world frame.
   //
-  if (v < hemi_frac)
-    {
-      // Map U,V to the hemisphere around ISEC's normal, with
-      // distribution HEMI_DIST.
+  Vec world_dir = LatLongMapping::map (map_pos);
 
-      float rescaled_v = v * inv_hemi_frac;
-
-      dir = hemi_dist.sample (UV (u, rescaled_v));
-      world_dir = isec.normal_frame.from (dir);
-
-      UV map_pos = LatLongMapping::map (world_dir);
-
-      intens = intensity (map_pos.u, map_pos.v, intens_pdf);
-    }
-  else
-    {
-      // Map U,V to a direction (which may be anywhere in the
-      // sphere) based on the light's intensity distribution.
-
-      float rescaled_v = (v - hemi_frac) * inv_intens_frac;
-
-      UV map_pos = intensity_sample (u, rescaled_v, intens, intens_pdf);
-
-      world_dir = LatLongMapping::map (map_pos);
-      dir = isec.normal_frame.to (world_dir);
-
-      // If this sample is in the wrong hemisphere, throw it away.
-      //
-      if (isec.cos_n (dir) < 0 || isec.cos_geom_n (dir) < 0)
-	return Sample ();
-    }
-
-  // If using "high-resolution intensity mode", get the actual intensity
-  // from the environment map, which is more accurate.
+  // ... and in the normal frame.
   //
-  if (use_hires_intens)
-    intens = envmap->map (world_dir);
+  Vec dir = isec.normal_frame.to (world_dir);
+
+  // If this sample is in the wrong hemisphere, throw it away.
+  //
+  if (isec.cos_n (dir) < 0 || isec.cos_geom_n (dir) < 0)
+    return Sample ();
 
   // The intensity distribution covers the entire sphere, so adjust
   // the pdf to reflect that.
   //
-  intens_pdf *= 0.25f * INV_PIf;
+  pdf *= 0.25f * INV_PIf;
 
-  float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
-  float pdf = hemi_frac * hemi_pdf + intens_frac * intens_pdf;
-
-  return Sample (intens, pdf, dir, 0);
+  return Sample (envmap->map (world_dir), pdf, dir, 0);
 }
 
 // 
@@ -217,75 +108,37 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
 Light::FreeSample
 EnvmapLight::sample (const UV &param, const UV &dir_param) const
 {
-  // We choose between sampling using the environment-map's intensity
-  // distribution, and sampling over the sphere based on this
-  // probability.
+  // The pdf in the light's intensity distribution for this sample.
   //
-  float intens_frac = 0.9f;	       // prob. of choosing intensity sampling
-  float sphere_frac = 1 - intens_frac; // prob. of choosing sphere sampling
+  float pdf;
 
-  float dir_u = dir_param.u, dir_v = dir_param.v;
-
-  // Sampling results:
+  // Sample using intensity distribution
   //
-  Color intens;			// intensity
-  float intens_pdf;		// pdf
-  Vec dir;			// direction
+  UV map_pos = intensity_pdf.sample (dir_param, pdf);
 
-  if (dir_v < intens_frac)
-    {
-      // Sample using intensity distribution
-
-      float rescaled_dir_v = dir_v / intens_frac;
-
-      UV map_pos = intensity_sample (dir_u, rescaled_dir_v, intens, intens_pdf);
-
-      dir = LatLongMapping::map (map_pos);
-    }
-  else
-    {
-      // Sample evenly over sphere
-
-      float rescaled_dir_v = (dir_v - intens_frac) / sphere_frac;;
-
-      dir = sample_sphere (UV (dir_u, rescaled_dir_v));
-
-      UV map_pos = LatLongMapping::map (dir);
-
-      intens = intensity (map_pos.u, map_pos.v, intens_pdf);
-    }
-
-  // Pdf for sphere sampling.
+  // Direction (in world coordinates) of the sample.
   //
-  float sphere_pdf = 0.25f * INV_PIf;
+  Vec dir = LatLongMapping::map (map_pos);
 
   // The intensity distribution covers the entire sphere, so adjust
   // the pdf to reflect that.
   //
-  intens_pdf = intens_pdf * 0.25f * INV_PIf;
-
-  // Final pdf is combination of pdfs for the two different sampling
-  // methods we might use.
-  //
-  float pdf = intens_pdf * intens_frac + sphere_pdf * sphere_frac;
+  pdf = pdf * 0.25f * INV_PIf;
 
   // Choose a sample position "at infinity".
   //
   Pos pos = sample_tangent_disk (scene_center, scene_radius, dir, param);
 
-  // Adjust pdf to include disk sampling.
+  // The sample's PDF is the intensity PDF adjusted to reflect disk
+  // sampling for the position.
   //
-  pdf /= PIf * scene_radius * scene_radius;
-
-  // Use high-resolution intensity data.
-  //
-  intens = envmap->map (dir);
+  pdf /= (PIf * scene_radius * scene_radius);
 
   // Return the sample; we invert the DIR we calculated above, as it
   // points _towards_ the sample point, and the return value should
   // have a direction _from_ the sample point.
   //
-  return FreeSample (intens, pdf, pos, -dir);
+  return FreeSample (envmap->map (dir), pdf, pos, -dir);
 }
 
 
@@ -298,31 +151,6 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
 Light::Value
 EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
 {
-  float intens_frac = isec.context.params.envlight_intens_frac;
-  float hemi_frac = 1 - intens_frac;
-
-  // True if we should use high-resolution intensity data.  Doing so
-  // gives better results for specular reflections from very glossy
-  // surfaces, but also results in more noise (variance) because the
-  // intensity data doesn't precisely match the PDF (this is especially
-  // noticeable for matte surfaces, where the increased accuracy doesn't
-  // matter anyway).
-  //
-  // As a compromise, we currently use high-res intensity data for BSDF
-  // samples (glossy surfaces will have tightly-grouped BSDF samples, so
-  // inaccuracies in the intensity of BSDF samples will be more
-  // obvious), but not for light samples (the main result of not using
-  // hires data for light samples will be slightly inaccurate shadow
-  // details, but this is usually much less obvious that inaccurate
-  // glossy reflections).
-  //
-  // A further improvement would be to never use high-resolution data
-  // for obviously non-glossy surfaces (lambertian, etc).
-  //
-  bool use_hires_intens = true;
-
-  CosDist hemi_dist;
-
   // The sample direction in the world frame of reference.
   //
   Vec world_dir = isec.normal_frame.from (dir);
@@ -331,25 +159,17 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
   //
   UV map_pos = LatLongMapping::map (world_dir);
 
-  // Look up the intensity at that point.
+  // Look up the intensity and PDF at that point.
   //
-  float intens_pdf;
-  Color intens = intensity (map_pos.u, map_pos.v, intens_pdf);
-
-  // If using "high-resolution intensity mode", get the actual
-  // intensity from the environment map, which is more accurate.
-  //
-  if (use_hires_intens)
-    intens = envmap->map (world_dir);
+  Color intens = envmap->map (world_dir);
+  float pdf = intensity_pdf.val (map_pos);
 
   // The intensity distribution covers the entire sphere, so adjust
   // the pdf to reflect that.
   //
-  intens_pdf *= 0.25f * INV_PIf;
+  pdf *= 0.25f * INV_PIf;
 
-  float hemi_pdf = hemi_dist.pdf (isec.cos_n (dir));
-
-  return Value (intens, hemi_frac * hemi_pdf + intens_frac * intens_pdf, 0);
+  return Value (intens, pdf, 0);
 }
 
 
@@ -366,8 +186,6 @@ EnvmapLight::scene_setup (const Scene &scene)
 
   scene_center = scene_bbox.min + scene_bbox.extent () / 2;
   scene_radius = scene_bbox.extent ().length () / 2;
-
-  std::cout << "* envmap-light: scene center at " << scene_center << ", radius = " << scene_radius << std::endl;
 }
 
 
