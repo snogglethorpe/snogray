@@ -31,14 +31,9 @@ Grid::gen_uv_samples (Random &random,
   // but allow them to differ by 1 from each other, so long as the product
   // is greater than or equal to NUM.
   //
-  // [Converting to a single-precision float here potentially loses some
-  // bits, but we don't care, as the a number large enough to be a problem
-  // represents an absurd number of samples (23 bit mantissa =~ 8 million).
-  // The assertions below will catch any exceptions.]
-  //
-  float sqrt_num = sqrt (float (num));
-  float up = ceil (sqrt_num);
-  float down = floor (sqrt_num + 0.5f);
+  double sqrt_num = sqrt (double (num));
+  double up = ceil (sqrt_num);
+  double down = floor (sqrt_num + 0.5f);
 
   unsigned u_steps = unsigned (up);
   unsigned v_steps = unsigned (down);
