@@ -14,48 +14,12 @@
 #include "bsdf.h"
 #include "light.h"
 #include "media.h"
+#include "mis-sample-weight.h"
 
 #include "direct-illum.h"
 
 
 using namespace snogray;
-
-
-
-// mis_sample_weight ("power heuristic")
-
-// Return a weight for one sample in multiple importantance sampling
-// with two sample distributions.  PDF is the pdf for the sample being
-// weighted, and NUM_SAMPLES is the number of samples taken from its
-// distribution.  OTHER_PDF and NUM_OTHER_SAMPLES are the corresponding
-// values from the other distribution being combined with this one via
-// MIS.
-//
-static float
-mis_sample_weight (float pdf, float num_samples,
-		   float other_pdf, float num_other_samples)
-{
-  // This weight is calculated using the "power heuristic", with an
-  // exponent of 2.
-
-  float term = num_samples * pdf;
-  float other_term = num_other_samples * other_pdf;
-
-  // Handle near-degenerate cases that cause problems because of
-  // floating-point overflow.
-  //
-  if (term > 1e10)
-    return 1;
-  else if (other_term > 1e10)
-    return 0;
-
-  // Raise the terms to a power of 2.
-  //
-  term *= term;
-  other_term *= other_term;
-
-  return term / (term + other_term);
-}
 
 
 
