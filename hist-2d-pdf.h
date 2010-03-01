@@ -22,7 +22,7 @@
 namespace snogray {
 
 
-// A 2d PDF based on a 2d histogram.  This is useful for doing cheap
+// A PDF based on a 2d histogram.  This is useful for doing cheap
 // re-sampling based on an arbitrary 2d input set.
 //
 class Hist2dPdf
@@ -175,12 +175,12 @@ private:
 #endif
   }
 
-  // Sample the histogram and return the bin coordinates in COL, ROW.
-  // The offset in INDIVIDUAL_ROW_CUMULATIVE_SUMS of the row is also
-  // returned in ROW_OFFSET.
+  // Sample the histogram and return the coordinates of the chosen bin in
+  // COL and ROW.  The offset of the beginning of the row in
+  // INDIVIDUAL_ROW_CUMULATIVE_SUMS is also returned in ROW_OFFSET.
   //
-  void sample (const UV &param,
-	       unsigned &col, unsigned &row, unsigned &row_offs)
+  void sample (const UV &param, unsigned &col, unsigned &row,
+	       unsigned &row_offs)
     const
   {
     float u = min (param.u, 1.f), v = min (param.v, 1.f);
@@ -190,7 +190,7 @@ private:
     row = find_pos_in_sorted_vec (v, whole_row_cumulative_sums.begin(), height);
 
     // XXX this multiply actually uses a lot of time; it's nicer to
-    // accmulate the row-offset while finding the right how, or maybe
+    // accumulate the row-offset while finding the right how, or maybe
     // keep a vector of row offsets?
     //
     row_offs = row * width;
@@ -201,37 +201,55 @@ private:
 	    u, individual_row_cumulative_sums.begin() + row_offs, width);
   }
 
-  // Return the value of the PDF for points in the bin located at COL,
-  // ROW, where ROW is the raw offset in INDIVIDUAL_ROW_CUMULATIVE_SUMS
-  // of the row.
+  // Return the value of the PDF for the bin located at (COL, ROW), where
+  // ROW_OFFS is the offset in INDIVIDUAL_ROW_CUMULATIVE_SUMS of the
+  // beginning of the row.
   //
   float val (unsigned col, unsigned row, unsigned row_offs) const
   {
-    // Probability of choosing this row.  Since
-    // WHOLE_ROW_CUMULATIVE_SUMS contains a cumulative sum of row
-    // probabilities, this is just the difference of the found row's
-    // entry minus the previous row's entry.
+    // Probability of choosing this row.
+    //
+    // As WHOLE_ROW_CUMULATIVE_SUMS contains cumulative sums of
+    // whole-row probabilities, the probability of this row is the
+    // difference of this row's cumulative-sum entry minus the
+    // previous row's entry.
     //
     float row_prob = whole_row_cumulative_sums[row];
     if (row != 0)
       row_prob -= whole_row_cumulative_sums[row - 1];
 
-    // Probability of choosing this bin.  Similarly to ROW_PROB, this is
-    // just the difference of the current and previous entries in
-    // INDIVIDUAL_ROW_CUMULATIVE_SUMS.
+    // Probability of choosing this column in the row.  Similarly to
+    // ROW_PROB, this as the difference of the entries for the current
+    // and previous columns in INDIVIDUAL_ROW_CUMULATIVE_SUMS.
     //
-    float bin_prob = individual_row_cumulative_sums[row_offs + col];
+    float col_prob = individual_row_cumulative_sums[row_offs + col];
     if (col != 0)
-      bin_prob -= individual_row_cumulative_sums[row_offs + col - 1];
-    bin_prob *= row_prob;
+      col_prob -= individual_row_cumulative_sums[row_offs + col - 1];
 
-    // PDF = prob. of choosing a bin / bin area.
+    // Probability of choosing this bin, which is just the probability
+    // of choosing this row (ROW_PROB) multiplied by the probability
+    // of choosing this columin within the row (COL_PROB).
+    //
+    float bin_prob = row_prob * col_prob;
+
+    // PDF = probability of choosing a bin / bin area.  Since we
+    // consider the "total area" to be 1, then the bin area is just
+    // 1 / the number of bins (which is SIZE).
     //
     return bin_prob * size;
   }
 
-public:
+  // Cumulative sum of whole-row probabilities.  Each entry is the
+  // probability of choosing that row or any row before it (so the
+  // last entry is always 1).
+  //
   std::vector<float> whole_row_cumulative_sums;
+
+  // For each row, the cumulative sum of column probabilities for
+  // that row.  Each entry is the probability of choosing that colum
+  // in the row (assuming the row is chosen) or any column before it
+  // (so the last entry for each row is always 1).
+  //
   std::vector<float> individual_row_cumulative_sums;
 };
 
