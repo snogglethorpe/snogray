@@ -135,6 +135,13 @@ public:
   T y_axis_colatitude () const { return atan2 (sqrt (x * x + z * z), y); }
   T y_axis_longitude () const { return atan2 (x, z); }
 
+  // Return latitude/colatitude/longitude where the axis of the
+  // spherical coordinates is the z-axis.
+  //
+  T z_axis_latitude () const { return atan2 (z, sqrt (x * x + y * y)); }
+  T z_axis_colatitude () const { return atan2 (sqrt (x * x + y * y), z); }
+  T z_axis_longitude () const { return atan2 (x, y); }
+
   // Transform this vector to a coordinate system with (orthonormal)
   // axes X_AXIS, Y_AXIS, and Z_AXIS.
   //
