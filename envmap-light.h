@@ -17,7 +17,7 @@
 #include "light.h"
 #include "envmap.h"
 #include "hist-2d.h"
-#include "hist-2d-pdf.h"
+#include "hist-2d-dist.h"
 
 
 namespace snogray {
@@ -69,9 +69,9 @@ private:
 
   Ref<Envmap> envmap;
 
-  // PDF (probability density function) for sampling the intensity of ENVMAP.
+  // Distribution for sampling the intensity of ENVMAP.
   //
-  Hist2dPdf intensity_pdf;
+  Hist2dDist intensity_dist;
 
   // Center and radius of a bounding sphere for the engire scene.
   //

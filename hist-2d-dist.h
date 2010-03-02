@@ -1,4 +1,4 @@
-// hist-2d-pdf.h -- 2d histogram-based PDF
+// hist-2d-dist.h -- Sampling distribution based on a 2d histogram
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __HIST_2D_PDF_H__
-#define __HIST_2D_PDF_H__
+#ifndef __HIST_2D_DIST_H__
+#define __HIST_2D_DIST_H__
 
 #include <vector>
 #include <algorithm>
@@ -22,17 +22,17 @@
 namespace snogray {
 
 
-// A PDF based on a 2d histogram.  This is useful for doing cheap
-// re-sampling based on an arbitrary 2d input set.
+// A sampling distribution based on a 2d histogram.  This is useful for
+// doing cheap re-sampling based on an arbitrary 2d input set.
 //
-class Hist2dPdf
+class Hist2dDist
 {
 public:
 
   // This constructor allocates the necessary memory, but won't be
-  // usable until a histogram has been specified using Hist2dPdf::calc.
+  // usable until a histogram has been specified using Hist2dDist::calc.
   //
-  Hist2dPdf (unsigned w, unsigned h)
+  Hist2dDist (unsigned w, unsigned h)
     : width (w), height (h), size (w*h),
       column_width (1.f / width), row_height (1.f / height),
       whole_row_cumulative_sums (height),
@@ -42,7 +42,7 @@ public:
   // This constructor automatically copies the size from HIST, and
   // calculates the PDF.  No references to HIST is kept.
   //
-  Hist2dPdf (const Hist2d &hist)
+  Hist2dDist (const Hist2d &hist)
     : width (hist.width), height (hist.height), size (height * width),
       column_width (1.f / width), row_height (1.f / height),
       whole_row_cumulative_sums (height),
@@ -109,25 +109,27 @@ public:
       }
   }
 
-  // Return a sample of this PDF based on the random variables in PARAM.
-  // The value of the PDF at the sample location is returned in _VAL.
+  // Return a sample of this distribution based on the random
+  // variables in PARAM.  The PDF at the sample location is returned
+  // in _PDF.
   //
   // The returned UV coordinates should have roughly the same
-  // distribution as the input data (limited by the granularity of the
-  // histogram).
+  // distribution as the input data (limited by the granularity of
+  // the histogram).
   //
-  UV sample (const UV &param, float &_val) const
+  UV sample (const UV &param, float &_pdf) const
   {
     unsigned col, row, row_offs;
     sample (param, col, row, row_offs);
 
-    _val = val (col, row, row_offs);
+    _pdf = pdf (col, row, row_offs);
 
     return UV (col * column_width + fmod (param.u, column_width),
 	       row * row_height   + fmod (param.v, row_height));
   }
 
-  // Return a sample of this PDF based on the random variables in PARAM.
+  // Return a sample of this distribution based on the random
+  // variables in PARAM.
   //
   // The returned UV coordinates should have roughly the same
   // distribution as the input data (limited by the granularity of the
@@ -142,14 +144,14 @@ public:
 	       row * row_height   + fmod (param.v, row_height));
   }
 
-  // Return the value of the PDF at location POS.
+  // Return the PDF of this distribution at location POS.
   //
-  float val (const UV &pos) const
+  float pdf (const UV &pos) const
   {
     unsigned col = clamp (int (pos.u * width), 0, int (width) - 1);
     unsigned row = clamp (int (pos.v * height), 0, int (height) - 1);
 
-    return val (col, row, row * width);
+    return pdf (col, row, row * width);
   }
 
   const unsigned width, height, size;
@@ -201,11 +203,11 @@ private:
 	    u, individual_row_cumulative_sums.begin() + row_offs, width);
   }
 
-  // Return the value of the PDF for the bin located at (COL, ROW), where
-  // ROW_OFFS is the offset in INDIVIDUAL_ROW_CUMULATIVE_SUMS of the
-  // beginning of the row.
+  // Return the PDF of this distribution for locations in the bin
+  // located at (COL, ROW), where ROW_OFFS is the offset in
+  // INDIVIDUAL_ROW_CUMULATIVE_SUMS of the beginning of the row.
   //
-  float val (unsigned col, unsigned row, unsigned row_offs) const
+  float pdf (unsigned col, unsigned row, unsigned row_offs) const
   {
     // Probability of choosing this row.
     //
@@ -256,4 +258,4 @@ private:
 
 }
 
-#endif // __HIST_2D_PDF_H__
+#endif // __HIST_2D_DIST_H__

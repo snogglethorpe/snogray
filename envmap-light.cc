@@ -23,7 +23,7 @@ using namespace snogray;
 
 
 EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap)
-  : envmap (_envmap), intensity_pdf (envmap_histogram (_envmap)),
+  : envmap (_envmap), intensity_dist (envmap_histogram (_envmap)),
     scene_radius (0)
 {
 }
@@ -78,7 +78,7 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
   // Map U,V to a direction (which may be anywhere in the
   // sphere) based on the light's intensity distribution.
   //
-  UV map_pos = intensity_pdf.sample (param, pdf);
+  UV map_pos = intensity_dist.sample (param, pdf);
 
   // The direction of this sample in the world frame.
   //
@@ -114,7 +114,7 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
 
   // Sample using intensity distribution
   //
-  UV map_pos = intensity_pdf.sample (dir_param, pdf);
+  UV map_pos = intensity_dist.sample (dir_param, pdf);
 
   // Direction (in world coordinates) of the sample.
   //
@@ -162,7 +162,7 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
   // Look up the intensity and PDF at that point.
   //
   Color intens = envmap->map (world_dir);
-  float pdf = intensity_pdf.val (map_pos);
+  float pdf = intensity_dist.pdf (map_pos);
 
   // The intensity distribution covers the entire sphere, so adjust
   // the pdf to reflect that.

@@ -16,7 +16,7 @@
 #include "image.h"
 #include "random.h"
 #include "hist-2d.h"
-#include "hist-2d-pdf.h"
+#include "hist-2d-dist.h"
 #include "grid.h"
 #include "sample-set.h"
 #include "radical-inverse.h"
@@ -115,9 +115,9 @@ int main (int argc, char *argv[])
       }
 
   Random rng;
-  Hist2dPdf pdf (hist);
+  Hist2dDist dist (hist);
 
-  double inv_val_sum = 0;
+  double inv_pdf_sum = 0;
   unsigned zero_count = 0, nan_count = 0;
 
   Grid grid;
@@ -139,13 +139,15 @@ int main (int argc, char *argv[])
       else
 	param = UV (rng(), rng()); // RANDOM
 	
-      float val;
-      UV pos = pdf.sample (param, val);
+      float pdf;
+      UV pos = dist.sample (param, pdf);
 
-      if (val == 0)
-	zero_count ++;
+      if (pdf == 0)
+	zero_count++;
+      else if (isnan (pdf))
+	nan_count++;
       else
-	inv_val_sum += 1 / val;
+	inv_pdf_sum += 1 / pdf;
 
       unsigned col = min (unsigned (pos.u * w), w-1);
       unsigned row = min (unsigned (pos.v * h), h-1);
@@ -159,7 +161,7 @@ int main (int argc, char *argv[])
 
   std::cout << "number of samples:  " << num_samples << std::endl;
   std::cout << "sampling method:    " << meth_name << std::endl;
-  std::cout << "PDF reciprocal sum: " << inv_val_sum / num_samples << std::endl;
+  std::cout << "PDF reciprocal sum: " << inv_pdf_sum / num_samples << std::endl;
 
   if (zero_count != 0)
     std::cout << "number of zeroes:   " << zero_count << std::endl;

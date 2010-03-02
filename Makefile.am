@@ -139,7 +139,7 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 
 libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h direct-integ.h	\
 	filter-volume-integ.h global-render-state.cc			\
-	global-render-state.h grid.cc grid.h hist-2d.h hist-2d-pdf.h	\
+	global-render-state.h grid.cc grid.h hist-2d.h hist-2d-dist.h	\
 	integ.h intersect.cc intersect.h isec-cache.h media.cc media.h	\
 	path-integ.cc path-integ.h photon-integ.cc photon-integ.h	\
 	ray.cc ray.h recursive-integ.cc recursive-integ.h		\
