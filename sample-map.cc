@@ -92,8 +92,8 @@ SampleMap::draw (Image &map, unsigned radius, Color color)
     for (IllumSampleVec::const_iterator s = samples.begin ();
 	 s != samples.end (); s++)
       {  
-	unsigned x = unsigned (w * (s->dir.longitude() + PI) / (PI * 2));
-	unsigned y = unsigned (h * (-s->dir.latitude() + PI/2) / PI);
+	unsigned x = unsigned (w * (s->dir.y_axis_longitude() + PI) / (PI * 2));
+	unsigned y = unsigned (h * (-s->dir.y_axis_latitude() + PI/2) / PI);
 
 	Color col = use_sample_color ? s->light_val : color;
 

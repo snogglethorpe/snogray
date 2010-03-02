@@ -128,9 +128,12 @@ public:
     return TVec (y*y + x*nz, nz*nz - x*y, x*x - y*nz);
   }
 
-  T latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
-  T colatitude () const { return atan2 (sqrt (x * x + z * z), y); }
-  T longitude () const { return atan2 (x, z); }
+  // Return latitude/colatitude/longitude where the axis of the
+  // spherical coordinates is the y-axis.
+  //
+  T y_axis_latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
+  T y_axis_colatitude () const { return atan2 (sqrt (x * x + z * z), y); }
+  T y_axis_longitude () const { return atan2 (x, z); }
 
   // Transform this vector to a coordinate system with (orthonormal)
   // axes X_AXIS, Y_AXIS, and Z_AXIS.

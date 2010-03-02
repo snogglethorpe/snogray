@@ -1,6 +1,6 @@
 // spheremap.h -- Texture wrapped around a sphere
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,8 +35,8 @@ struct LatLongMapping
 {
   static UV map (const Vec &dir)
   {
-    return UV (clamp ((dir.longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
-	       clamp ((dir.latitude () + PIf/2) * INV_PIf, 0.f, 1.f));
+    return UV (clamp ((dir.y_axis_longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
+	       clamp ((dir.y_axis_latitude () + PIf/2) * INV_PIf, 0.f, 1.f));
   }
 
   static Vec map (const UV &uv)
@@ -62,7 +62,7 @@ struct MercatorMapping
 {
   static UV map (const Vec &dir) const
   {
-    return UV (clamp ((dir.longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
+    return UV (clamp ((dir.y_axis_longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
 	       clamp ((dir.y + 1) / 2, 0.f, 1.f);
   }
 
