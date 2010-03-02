@@ -42,6 +42,13 @@ public:
     return z_normal_symm_vec (cos_theta, param.v);
   }
 
+  // Returns the PDF of a sample in direction DIR.
+  //
+  float pdf (const Vec &/*dir*/) const
+  {
+    return pdf ();
+  }
+
   // Returns the pdf of a sample.
   //
   float pdf () const
