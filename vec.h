@@ -1,6 +1,6 @@
 // vec.h -- Vector datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -220,40 +220,88 @@ static inline TVec<T> abs (const TVec<T> &vec)
   return TVec<T> (abs (vec.x), abs (vec.y), abs (vec.z));
 }
 
+
+// y-axis-based spherical/latlong vector construction functions.
 
-// Constructor for converting spherical coordinates (relative to the
-// y-axis) to a vector.  Note that the first argument is the
+// Constructor for converting spherical coordinates relative to the
+// y-axis to a vector.  Note that the first argument is the
 // "colatitude", where 0 is straight up along the y axis (as opposed to
 // "latitude", where 0 is in the x-z plane).
 //
 template<typename T>
-static inline TVec<T> y_axis_spherical_to_vec (T colat, T lng)
+static inline TVec<T>
+y_axis_spherical_to_vec (T colat, T lng)
 {
   T sin_theta = sin (colat);
   return TVec<T> (sin (lng) * sin_theta, cos (colat), cos (lng) * sin_theta);
 }
 
-// Constructor for converting spherical coordinates (relative to the
-// y-axis) to a vector, where the colatitude is represented by its
-// cosine.
+// Constructor for converting spherical coordinates relative to the
+// y-axis to a vector, where the colatitude is represented by its cosine
+// (COS_THETA).
 //
 template<typename T>
-static inline TVec<T> y_axis_cos_spherical_to_vec (T cos_theta, T azimuth)
+static inline TVec<T>
+y_axis_cos_spherical_to_vec (T cos_theta, T azimuth)
 {
   T sin_theta = sqrt (1 - cos_theta * cos_theta);
   return TVec<T> (sin (azimuth) * sin_theta, cos_theta, cos (azimuth) * sin_theta);
 }
 
-// Constructor for converting latitude-longitude coordinates (relative
-// to the y-axis) to a vector.
+// Constructor for converting latitude-longitude coordinates relative
+// to the y-axis to a vector.
 //
 template<typename T>
-static inline TVec<T> y_axis_latlong_to_vec (T lat, T lng)
+static inline TVec<T>
+y_axis_latlong_to_vec (T lat, T lng)
 {
   T cos_lat = cos (lat);
   return TVec<T> (sin (lng) * cos_lat, sin (lat), cos (lng) * cos_lat);
 }
 
+
+// z-axis-based spherical/latlong vector construction functions.
+
+// Constructor for converting spherical coordinates relative to the
+// z-axis to a vector.  Note that the first argument is the
+// "colatitude", where 0 is straight up along the z axis (as opposed to
+// "latitude", where 0 is in the x-y plane).
+//
+template<typename T>
+static inline TVec<T>
+z_axis_spherical_to_vec (T colat, T lng)
+{
+  T sin_theta = sin (colat);
+  return TVec<T> (sin (lng) * sin_theta, cos (lng) * sin_theta, cos (colat));
+}
+
+// Constructor for converting spherical coordinates relative to the
+// z-axis to a vector, where the colatitude is represented by its
+// cosine (COS_THETA).
+//
+template<typename T>
+static inline TVec<T>
+z_axis_cos_spherical_to_vec (T cos_theta, T azimuth)
+{
+  T sin_theta = sqrt (1 - cos_theta * cos_theta);
+  return TVec<T> (sin (azimuth) * sin_theta,
+		  cos (azimuth) * sin_theta,
+		  cos_theta);
+}
+
+// Constructor for converting latitude-longitude coordinates relative
+// to the z-axis to a vector.
+//
+template<typename T>
+static inline TVec<T>
+z_axis_latlong_to_vec (T lat, T lng)
+{
+  T cos_lat = cos (lat);
+  return TVec<T> (sin (lng) * cos_lat, cos (lng) * cos_lat, sin (lat));
+}
+
+
+// 
 
 template<typename T>
 static std::ostream&
