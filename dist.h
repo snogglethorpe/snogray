@@ -33,9 +33,7 @@ public:
   //
   Vec z_normal_symm_vec (float cos_theta, float v) const
   {
-    float sin_theta = sqrt (1 - cos_theta * cos_theta);
-    float lng = v * 2 * PIf;
-    return Vec (sin (lng) * sin_theta, cos (lng) * sin_theta, cos_theta);
+    return z_axis_cos_spherical_to_vec (cos_theta, v * 2 * PIf);
   }
 
 };
