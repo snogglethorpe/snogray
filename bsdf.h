@@ -109,9 +109,10 @@ public:
   //
   virtual Sample sample (const UV &param, unsigned flags = ALL) const = 0;
 
-  // Evaluate this BSDF in direction DIR, and return its value and pdf.
-  // If FLAGS is specified, then only the given types of surface
-  // interaction are considered.
+  // Evaluate this BSDF in direction DIR (in the surface-normal
+  // coordinate system of the intersection where this BSDF was created),
+  // and return its value and pdf.  If FLAGS is specified, then only the
+  // given types of surface interaction are considered.
   //
   virtual Value eval (const Vec &dir, unsigned flags = ALL) const = 0;
 
