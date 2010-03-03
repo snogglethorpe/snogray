@@ -40,7 +40,7 @@ public:
 #if 0
     std::fill (bins.begin(), bins.end(), 0);
 #else
-    memset (bins.data(), 0, size * sizeof (bins.front ()));
+    memset (&bins[0], 0, size * sizeof (bins[0]));
 #endif
   }
 
