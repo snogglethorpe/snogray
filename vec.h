@@ -20,6 +20,7 @@
 #include "tuple3.h"
 #include "xform-base.h"
 #include "compiler.h"
+#include "uv.h"
 
 
 namespace snogray {
@@ -269,6 +270,19 @@ y_axis_latlong_to_vec (T lat, T lng)
   return TVec<T> (sin (lng) * cos_lat, sin (lat), cos (lng) * cos_lat);
 }
 
+// Constructor for converting UV-encoded spherical coordinates to a
+// vector, with the y-axis as the spherical axis.  In COORDS, u is
+// the longitude, 0-1, and v is the colatitude 0-1.
+//
+template<typename T>
+static inline TVec<T>
+y_axis_spherical_to_vec (const UV &coords)
+{
+  dist_t colat = (coords.v - 0.5f) * PIf;
+  dist_t lng = (coords.u - 0.5f) * PIf * 2;
+  return y_axis_spherical_to_vec (colat, lng);
+}
+
 
 // z-axis-based spherical/latlong vector construction functions.
 
@@ -308,6 +322,19 @@ z_axis_latlong_to_vec (T lat, T lng)
 {
   T cos_lat = cos (lat);
   return TVec<T> (sin (lng) * cos_lat, cos (lng) * cos_lat, sin (lat));
+}
+
+// Constructor for converting UV-encoded spherical coordinates to a
+// vector, with the z-axis as the spherical axis.  In COORDS, u is
+// the longitude, 0-1, and v is the colatitude 0-1.
+//
+template<typename T>
+static inline TVec<T>
+z_axis_spherical_to_vec (const UV &coords)
+{
+  dist_t colat = (coords.v - 0.5f) * PIf;
+  dist_t lng = (coords.u - 0.5f) * PIf * 2;
+  return z_axis_spherical_to_vec (colat, lng);
 }
 
 
