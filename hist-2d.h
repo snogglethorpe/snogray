@@ -50,7 +50,7 @@ public:
   {
     unsigned col = min (unsigned (pos.u * width), width-1);
     unsigned row = min (unsigned (pos.v * height), height-1);
-    bins[col + row*width] += val;
+    add (col, row, val);
   }
 
   // Record an input sample with position (COL, ROW) in integer bin
