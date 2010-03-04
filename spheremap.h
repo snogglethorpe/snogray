@@ -20,6 +20,7 @@
 #include "uv.h"
 #include "matrix-tex.h"
 #include "envmap.h"
+#include "spherical-coords.h"
 
 
 namespace snogray {
@@ -35,15 +36,11 @@ struct LatLongMapping
 {
   static UV map (const Vec &dir)
   {
-    return UV (clamp ((dir.y_axis_longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
-	       clamp ((dir.y_axis_latitude () + PIf/2) * INV_PIf, 0.f, 1.f));
+    return y_axis_latlong (dir);
   }
-
   static Vec map (const UV &uv)
   {
-    dist_t colat = (uv.v - 0.5) * PI;
-    dist_t lng = (uv.u - 0.5) * PI * 2;
-    return y_axis_latlong_to_vec (colat, lng);
+    return y_axis_latlong_to_vec (uv);
   }
 
   // Returns the area on the sphere corresponding to a one-unit area at

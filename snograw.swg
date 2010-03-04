@@ -171,10 +171,6 @@ namespace snogray {
     TVec unit () const;
 
     TVec perpendicular () const;
-
-    T y_axis_latitude () const;
-    T y_axis_colatitude () const;
-    T y_axis_longitude () const;
   };
   %extend TVec<dist_t>
   {

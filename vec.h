@@ -16,11 +16,9 @@
 #include <fstream>
 #include <iomanip>
 
-#include "snogmath.h"
 #include "tuple3.h"
 #include "xform-base.h"
 #include "compiler.h"
-#include "uv.h"
 
 
 namespace snogray {
@@ -129,20 +127,6 @@ public:
     return TVec (y*y + x*nz, nz*nz - x*y, x*x - y*nz);
   }
 
-  // Return latitude/colatitude/longitude where the axis of the
-  // spherical coordinates is the y-axis.
-  //
-  T y_axis_latitude () const { return atan2 (y, sqrt (x * x + z * z)); }
-  T y_axis_colatitude () const { return atan2 (sqrt (x * x + z * z), y); }
-  T y_axis_longitude () const { return atan2 (x, z); }
-
-  // Return latitude/colatitude/longitude where the axis of the
-  // spherical coordinates is the z-axis.
-  //
-  T z_axis_latitude () const { return atan2 (z, sqrt (x * x + y * y)); }
-  T z_axis_colatitude () const { return atan2 (sqrt (x * x + y * y), z); }
-  T z_axis_longitude () const { return atan2 (x, y); }
-
   // Transform this vector to a coordinate system with (orthonormal)
   // axes X_AXIS, Y_AXIS, and Z_AXIS.
   //
@@ -229,112 +213,6 @@ template<typename T>
 static inline TVec<T> abs (const TVec<T> &vec)
 {
   return TVec<T> (abs (vec.x), abs (vec.y), abs (vec.z));
-}
-
-
-// y-axis-based spherical/latlong vector construction functions.
-
-// Constructor for converting spherical coordinates relative to the
-// y-axis to a vector.  Note that the first argument is the
-// "colatitude", where 0 is straight up along the y axis (as opposed to
-// "latitude", where 0 is in the x-z plane).
-//
-template<typename T>
-static inline TVec<T>
-y_axis_spherical_to_vec (T colat, T lng)
-{
-  T sin_theta = sin (colat);
-  return TVec<T> (sin (lng) * sin_theta, cos (colat), cos (lng) * sin_theta);
-}
-
-// Constructor for converting spherical coordinates relative to the
-// y-axis to a vector, where the colatitude is represented by its cosine
-// (COS_THETA).
-//
-template<typename T>
-static inline TVec<T>
-y_axis_cos_spherical_to_vec (T cos_theta, T azimuth)
-{
-  T sin_theta = sqrt (1 - cos_theta * cos_theta);
-  return TVec<T> (sin (azimuth) * sin_theta, cos_theta, cos (azimuth) * sin_theta);
-}
-
-// Constructor for converting latitude-longitude coordinates relative
-// to the y-axis to a vector.
-//
-template<typename T>
-static inline TVec<T>
-y_axis_latlong_to_vec (T lat, T lng)
-{
-  T cos_lat = cos (lat);
-  return TVec<T> (sin (lng) * cos_lat, sin (lat), cos (lng) * cos_lat);
-}
-
-// Constructor for converting UV-encoded spherical coordinates to a
-// vector, with the y-axis as the spherical axis.  In COORDS, u is
-// the longitude, 0-1, and v is the colatitude 0-1.
-//
-template<typename T>
-static inline TVec<T>
-y_axis_spherical_to_vec (const UV &coords)
-{
-  dist_t colat = (coords.v - 0.5f) * PIf;
-  dist_t lng = (coords.u - 0.5f) * PIf * 2;
-  return y_axis_spherical_to_vec (colat, lng);
-}
-
-
-// z-axis-based spherical/latlong vector construction functions.
-
-// Constructor for converting spherical coordinates relative to the
-// z-axis to a vector.  Note that the first argument is the
-// "colatitude", where 0 is straight up along the z axis (as opposed to
-// "latitude", where 0 is in the x-y plane).
-//
-template<typename T>
-static inline TVec<T>
-z_axis_spherical_to_vec (T colat, T lng)
-{
-  T sin_theta = sin (colat);
-  return TVec<T> (sin (lng) * sin_theta, cos (lng) * sin_theta, cos (colat));
-}
-
-// Constructor for converting spherical coordinates relative to the
-// z-axis to a vector, where the colatitude is represented by its
-// cosine (COS_THETA).
-//
-template<typename T>
-static inline TVec<T>
-z_axis_cos_spherical_to_vec (T cos_theta, T azimuth)
-{
-  T sin_theta = sqrt (1 - cos_theta * cos_theta);
-  return TVec<T> (sin (azimuth) * sin_theta,
-		  cos (azimuth) * sin_theta,
-		  cos_theta);
-}
-
-// Constructor for converting latitude-longitude coordinates relative
-// to the z-axis to a vector.
-//
-template<typename T>
-static inline TVec<T>
-z_axis_latlong_to_vec (T lat, T lng)
-{
-  T cos_lat = cos (lat);
-  return TVec<T> (sin (lng) * cos_lat, cos (lng) * cos_lat, sin (lat));
-}
-
-// Constructor for converting UV-encoded spherical coordinates to a
-// vector, with the z-axis as the spherical axis.  In COORDS, u is
-// the longitude, 0-1, and v is the colatitude 0-1.
-//
-template<typename T>
-static inline TVec<T>
-z_axis_spherical_to_vec (const UV &coords)
-{
-  dist_t colat = (coords.v - 0.5f) * PIf;
-  dist_t lng = (coords.u - 0.5f) * PIf * 2;
-  return z_axis_spherical_to_vec (colat, lng);
 }
 
 

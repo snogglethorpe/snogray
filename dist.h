@@ -15,7 +15,7 @@
 
 #include "snogmath.h"
 #include "vec.h"
-#include "uv.h"
+#include "spherical-coords.h"
 
 
 namespace snogray {
