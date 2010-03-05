@@ -13,9 +13,6 @@
 #ifndef __VEC_H__
 #define __VEC_H__
 
-#include <fstream>
-#include <iomanip>
-
 #include "tuple3.h"
 #include "xform-base.h"
 #include "compiler.h"
@@ -213,20 +210,6 @@ template<typename T>
 static inline TVec<T> abs (const TVec<T> &vec)
 {
   return TVec<T> (abs (vec.x), abs (vec.y), abs (vec.z));
-}
-
-
-// 
-
-template<typename T>
-static std::ostream&
-operator<< (std::ostream &os, const TVec<T> &vec)
-{
-  os << "vec<" << std::setprecision (5) << lim (vec.x)
-     << ", " << std::setprecision (5) << lim (vec.y)
-     << ", " << std::setprecision (5) << lim (vec.z)
-     << ">";
-  return os;
 }
 
 

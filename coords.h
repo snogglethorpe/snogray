@@ -1,6 +1,6 @@
 // coords.h -- Definitions related to describing 3D coords
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -54,9 +54,6 @@ typedef dcoord_t ddist_t;
 //
 #define MAX_COORD std::numeric_limits<float>::max()
 #define MIN_COORD (-MAX_COORD)
-
-template<typename T>
-inline T lim (T v) { return (v < Eps && v > -Eps) ? 0 : v; }
 
 }
 

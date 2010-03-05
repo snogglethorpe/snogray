@@ -91,6 +91,11 @@
 #include "tessel-sphere.h"
 #include "tessel-sinc.h"
 #include "tessel-torus.h"
+#include "bbox-io.h"
+#include "color-io.h"
+#include "pos-io.h"
+#include "vec-io.h"
+#include "xform-io.h"
 
   static char static_rep_buf[255];
 

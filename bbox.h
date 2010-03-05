@@ -1,6 +1,6 @@
 // bbox.h -- Axis-aligned bounding boxes
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -161,9 +161,6 @@ operator+ (const Pos &pos, const BBox &bbox)
 {
   return BBox (min (bbox.min, pos), max (bbox.max, pos));
 }
-
-
-extern std::ostream& operator<< (std::ostream &os, const BBox &bbox);
 
 
 }

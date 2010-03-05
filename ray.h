@@ -1,6 +1,6 @@
 // ray.h -- Datatype describing a directional, positioned, line-segment
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,8 +12,6 @@
 
 #ifndef __RAY_H__
 #define __RAY_H__
-
-#include <fstream>
 
 #include "pos.h"
 #include "vec.h"
@@ -88,8 +86,6 @@ public:
 
 
 typedef TRay<dist_t> Ray;
-
-extern std::ostream& operator<< (std::ostream &os, const Ray &ray);
 
 
 }

@@ -1,6 +1,6 @@
 // pos.h -- Position datatype
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -135,17 +135,6 @@ min (const TPos<T> &t1, const TPos<T> &t2)
   return TPos<T> (min (t1.x, t2.x), min (t1.y, t2.y), min (t1.z, t2.z));
 }
 
-
-template<typename T>
-static std::ostream&
-operator<< (std::ostream &os, const TPos<T> &pos)
-{
-  os << "pos<" << std::setprecision (5) << lim (pos.x)
-     << ", " << std::setprecision (5) << lim (pos.y)
-     << ", " << std::setprecision (5) << lim (pos.z)
-     << ">";
-  return os;
-}
 
 typedef TPos<coord_t>  Pos;
 typedef TPos<scoord_t> SPos;

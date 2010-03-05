@@ -137,12 +137,12 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 # Snogray core rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
-	direct-integ.h filter-volume-integ.h global-render-state.cc	\
+libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h direct-integ.h	\
+	filter-volume-integ.h global-render-state.cc			\
 	global-render-state.h grid.cc grid.h hist-2d.h hist-2d-dist.h	\
 	integ.h intersect.cc intersect.h isec-cache.h media.cc media.h	\
 	mis-sample-weight.h path-integ.cc path-integ.h photon-integ.cc	\
-	photon-integ.h ray.cc ray.h recursive-integ.cc			\
+	photon-integ.h ray.h ray-io.cc ray-io.h recursive-integ.cc	\
 	recursive-integ.h render-context.cc render-context.h		\
 	render-params.h render-stats.cc render-stats.h sample-cone.h	\
 	sample-disk.h sample-gen.h sample-set.cc sample-set.h		\
@@ -164,14 +164,16 @@ libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = bbox.cc bbox.h bsdf.h camera.cc camera.h	\
-	coords.h cyl-xform.cc cyl-xform.h dist.h frame.h		\
-	material-dict.cc material-dict.h material.cc material.h		\
+libsnogscene_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h bsdf.h	\
+	camera.cc camera.h coords.h cyl-xform.cc cyl-xform.h dist.h	\
+	frame.h material-dict.cc material-dict.h material.cc material.h	\
 	matrix4.cc matrix4.h matrix4.tcc medium.h octree.cc octree.h	\
-	photon.h photon-map.cc photon-map.h pos.h quadratic-roots.h	\
-	scene.cc scene.h space.cc space.h space-builder.h sphere-isec.h	\
-	spherical-coords.h surface.cc surface.h tex.h tex-coords.h	\
-	tripar-isec.h tuple3.h uv.h vec.h xform.h xform-base.h
+	photon.h photon-map.cc photon-map.h pos.h pos-io.cc pos-io.h	\
+	quadratic-roots.h scene.cc scene.h space.cc space.h		\
+	space-builder.h sphere-isec.h spherical-coords.h surface.cc	\
+	surface.h tex.h tex-coords.h tripar-isec.h tuple3.h uv.h	\
+	uv-io.cc uv-io.h vec.h vec-io.cc vec-io.h xform.h xform-base.h	\
+	xform-io.cc xform-io.h
 
 
 ################################################################
@@ -330,13 +332,14 @@ endif
 #
 
 libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
-	color.h color-math.h compiler.h excepts.h file-funs.cc		\
-	file-funs.h freelist.cc freelist.h globals.cc globals.h grab.h	\
-	interp.h llist.h mempool.cc mempool.h mutex.h pool.h		\
-	radical-inverse.h random.h random-boost.h random-c0x.h		\
-	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
-	snogassert.h snogmath.h string-funs.cc string-funs.h timeval.cc	\
-	timeval.h tint.h val-table.cc unique-ptr.h val-table.h
+	color.h color-io.cc color-io.h color-math.h compiler.h		\
+	excepts.h file-funs.cc file-funs.h freelist.cc freelist.h	\
+	globals.cc globals.h grab.h interp.h llist.h mempool.cc		\
+	mempool.h mutex.h nice-io.cc nice-io.h pool.h radical-inverse.h	\
+	random.h random-boost.h random-c0x.h random-rand.h random-tr1.h	\
+	ref.h rusage.h snogassert.cc snogassert.h snogmath.h		\
+	string-funs.cc string-funs.h timeval.cc timeval.h tint.h	\
+	val-table.cc unique-ptr.h val-table.h
 
 
 ################################################################

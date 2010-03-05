@@ -1,6 +1,6 @@
 // xform.h -- 3d affine transformations
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -305,30 +305,6 @@ private:
   //
   using XformBase<T>::el;
 };
-
-
-template<typename T>
-std::ostream&
-operator<< (std::ostream &os, const TXform<T> &xform)
-{
-  os << "xform<";
-
-  for (int j = 0; j < 4; j++)
-    {
-      if (j > 0)
-	os << "; ";
-      for (int i = 0; i < 4; i++)
-	{
-	  if (i > 0)
-	    os << ", ";
-	  os << std::setprecision (5) << lim (xform (i, j));
-	}
-    }
-
-  os << ">";
-
-  return os;
-}
 
 
 typedef TXform<dist_t>  Xform;

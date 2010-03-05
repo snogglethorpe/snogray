@@ -43,6 +43,8 @@
 #include "camera-cmds.h"
 #include "render-stats.h"
 #include "octree.h"
+#include "pos-io.h"
+#include "vec-io.h"
 
 
 using namespace snogray;

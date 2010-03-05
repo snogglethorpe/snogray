@@ -13,8 +13,6 @@
 #ifndef __COLOR_H__
 #define __COLOR_H__
 
-#include <fstream>
-
 #include "snogmath.h"
 #include "tuple-adaptor.h"
 
@@ -415,8 +413,6 @@ inline Color min (const Color &col1, const Color &col2)
     rval[c] = min (col1[c], col2[c]);
   return rval;
 }
-
-extern std::ostream& operator<< (std::ostream &os, const snogray::Color &col);
 
 
 // An adaptor for converting Colors to/from tuples of type DT*.
