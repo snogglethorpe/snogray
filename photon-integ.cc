@@ -565,7 +565,7 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 	    }
 
 	  if (include_emission)
-	    radiance += samp_isec.material->Le (isec);
+	    radiance += samp_isec.material->Le (samp_isec);
 	}
 
       else if (include_emission)
