@@ -39,12 +39,34 @@ public:
     add (dir_to_pos (dir), val);
   }
 
+
+  //
+  // Methods to translate between direction vectors and histogram
+  // coordinates.
+  //
+  // Given a radius-1 sphere around the origin corresponding to the
+  // set of directions, we want every bin in our underlying 2d
+  // histogram to map to the same amount of surface area on the
+  // sphere.
+  //
+  // To do this, we use the same approach used by "sample_cone" (in
+  // sample-cone.h, which see):  U is mapped linearly to the angle
+  // around the z-axis (i.e., it's the "longitude"), and V is mapped
+  // to the z-coordinate of the point where the direction vector
+  // hits the sphere.
+  //
+  // Thus as direction vectors approach the z-axis, they get closer
+  // together around in the U direction, but farther apart in the V
+  // direction, by exactly the same amount.
+  //
+
   // Return the position in the underlying 2d histogram
-  // corresponding to direction DIR.
+  // corresponding to direction DIR.  DIR must be a unit vector.
   //
   static UV dir_to_pos (const Vec &dir)
   {
-    return z_axis_spherical (dir);
+    return UV (clamp (atan2 (dir.y, dir.x) * INV_PIf * 0.5f + 0.5f, 0.f, 1.f),
+	       clamp ((1 - dir.z) / 2, 0.f, 1.f));
   }
 
   // Return the direction corresponding to the position POS in the
@@ -52,7 +74,12 @@ public:
   //
   static Vec pos_to_dir (const UV &pos)
   {
-    return z_axis_spherical_to_vec (pos);
+    float z = 1 - pos.v * 2;
+    float r = sqrt (max (1 - z * z, 0.f));
+    float phi = (pos.u - 0.5f) * 2 * PIf;
+    float x = r * cos (phi);
+    float y = r * sin (phi);
+    return Vec (x, y, z);
   }
 };
 
