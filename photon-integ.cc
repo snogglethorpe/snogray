@@ -20,6 +20,7 @@
 #include "progress.h"
 #include "string-funs.h"
 #include "radical-inverse.h"
+#include "mis-sample-weight.h"
 
 #include "photon-integ.h"
 
@@ -29,6 +30,11 @@ using namespace snogray;
 
 
 // Constructors etc
+
+// For arguments, a out-of-band value used to detect unspecified
+// parameters.
+//
+static const unsigned UNSPEC_UINT = 99999;
 
 PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				       const ValTable &params)
@@ -42,7 +48,16 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 		       rstate.params.get_uint ("light-samples", 16))),
     use_direct_illum (params.get_bool ("direct-illum,dir-illum", true)),
     num_fgather_samples (
-      params.get_uint ("final-gather-samples,fg-samples,fg-samps", 16))
+      params.get_uint ("final-gather-samples,fg-samples,fg-samps",
+		       UNSPEC_UINT)),
+    num_fgather_photon_samples (
+      params.get_uint ("final-gather-photon-samples"
+		       ",fg-photon-samples,fg-photon-samps",
+		       UNSPEC_UINT)),
+    num_fgather_bsdf_samples (
+      params.get_uint ("final-gather-bsdf-samples"
+		       ",fg-bsdf-samples,fg-bsdf-samps",
+		       UNSPEC_UINT))
 {
   unsigned num_caustic = params.get_uint ("caustic", 50000);
   unsigned num_direct = params.get_uint ("direct,dir", 500000);
@@ -50,8 +65,78 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 
   // A convenient boolean toggle for final gathering.
   //
-  if (! params.get_bool ("final-gather,fg", true))
-    num_fgather_samples = 0;
+  if (params.get_bool ("final-gather,fg", true))
+    {
+      // Allocate various types of final-gather samples for MIS.
+      // We only support a few combinations of user parameters:
+      //
+      //  * only fg-samps specified:  divide fg-samps between photon and bsdf
+      //
+      //  * both fg-photon-samps and fg-bsdf-samps specified, but
+      //    fg-samps not specified:  set fg-samps to the sum of photon
+      //    and bsdf samples
+      //
+      //  * all specified:  leave as given
+      //
+      if (num_fgather_samples == UNSPEC_UINT
+	  && num_fgather_bsdf_samples == UNSPEC_UINT
+	  && num_fgather_photon_samples == UNSPEC_UINT)
+	{
+	  // Nothing specified, use defaults
+
+	  num_fgather_samples = 16;
+	  num_fgather_bsdf_samples = 8;
+	  num_fgather_photon_samples = 8;
+	}
+      else if (num_fgather_samples == UNSPEC_UINT)
+	{
+	  // Total number not specified; set it to the sum of the two types
+	  // (if only one of them was actually given, we default it to zero).
+
+	  if (num_fgather_photon_samples == UNSPEC_UINT)
+	    num_fgather_photon_samples = 0;
+	  if (num_fgather_bsdf_samples == UNSPEC_UINT)
+	    num_fgather_bsdf_samples = 0;
+
+	  num_fgather_samples
+	    = num_fgather_bsdf_samples + num_fgather_photon_samples;
+	}
+      else if (num_fgather_bsdf_samples == UNSPEC_UINT
+	       || num_fgather_photon_samples == UNSPEC_UINT)
+	{
+	  // Total was specified, but one or both of the two types wasn't.
+	  // Divide it amongst the two.
+
+	  if (num_fgather_bsdf_samples == UNSPEC_UINT
+	      && num_fgather_photon_samples == UNSPEC_UINT)
+	    {
+	      // In the special case of one sample only, use randomization.
+	      //
+	      if (num_fgather_samples == 1)
+		num_fgather_bsdf_samples = num_fgather_photon_samples = 0;
+	      else
+		{
+		  num_fgather_photon_samples = num_fgather_samples / 2;
+		  num_fgather_bsdf_samples = (num_fgather_samples + 1) / 2;
+		}
+	    }
+	  else if (num_fgather_bsdf_samples == UNSPEC_UINT)
+	    num_fgather_photon_samples
+	      = num_fgather_samples - num_fgather_bsdf_samples;
+	  else
+	    num_fgather_bsdf_samples
+	      = num_fgather_samples - num_fgather_photon_samples;
+	}
+      // otherwise, all must have specified, so leave as-is.
+    }
+  else
+    {
+      // No final gathering.
+
+      num_fgather_samples = 0;
+      num_fgather_bsdf_samples = 0;
+      num_fgather_photon_samples = 0;
+    }
 
   // If using the usual direct lighting calculation, and not doing final
   // gathering, there's no need for direct photons.
@@ -72,7 +157,9 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
   std::cout << ", ";
   if (num_fgather_samples != 0)
     std::cout << num_fgather_samples << " final-gather sample"
-	      << (num_fgather_samples == 1 ? "" : "s");
+	      << (num_fgather_samples == 1 ? "" : "s")
+	      << " (" << num_fgather_photon_samples << " photon, "
+	      << num_fgather_bsdf_samples << " BSDF)";
   else
     std::cout << "no final-gathering";
   std::cout << std::endl;
@@ -82,11 +169,15 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 //
 PhotonInteg::PhotonInteg (RenderContext &context, GlobalState &global_state)
   : RecursiveInteg (context), global (global_state),
+    // photon_dir_hist (64, 64), photon_dir_dist (64, 64),
+    photon_dir_hist (8, 8), photon_dir_dist (8, 8),
     direct_illum (context, global_state.direct_illum),
     fgather_bsdf_chan (
-      context.samples.add_channel<UV> (global.num_fgather_samples)),
+      context.samples.add_channel<UV> (global.num_fgather_bsdf_samples)),
     fgather_bsdf_layer_chan (
-      context.samples.add_channel<float> (global.num_fgather_samples))
+      context.samples.add_channel<float> (global.num_fgather_bsdf_samples)),
+    fgather_photon_chan (
+      context.samples.add_channel<UV> (global.num_fgather_photon_samples))
 {
 }
 
@@ -248,7 +339,8 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		      direct_done = (direct_photons.size() == num_direct);
 		    }
 		}
-	      else if (! (bsdf_history & Bsdf::SURFACE_CLASS & ~Bsdf::SPECULAR))
+	      else if (num_caustic != 0
+		       && ! (bsdf_history & Bsdf::SURFACE_CLASS & ~Bsdf::SPECULAR))
 		// caustic; path-type:  L(S)+(D|G)
 		{
 		  if (! caustic_done)
@@ -466,40 +558,28 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
 
   return radiance;
 }
+
 
 
 // PhotonInteg::Lo_fgather_samp
 
-// Return a quick estimate of the outgoing radiance from ISEC which is
-// due to BSDF_SAMP.
+// Return a quick estimate of the outgoing radiance from ISEC which
+// is due to BSDF_SAMP.  INDIR_EMISSION_SCALE is used to scale
+// surface (or background) emission for recursive calls (i.e., when
+// DEPTH > 0); emission is always omitted when DEPTH == 0, because
+// that represents direct illumination, which be handled elsewhere.
+// DEPTH is the recursion depth; it is zero for all external
+// callers, and incremented during recursive calls.
 //
 Color
 PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
-			      const Bsdf::Sample &bsdf_samp, unsigned depth)
+			      const Bsdf::Sample &bsdf_samp,
+			      const Color &indir_emission_scale, unsigned depth)
 {
   Color radiance = 0;
 
   if (bsdf_samp.val > 0 && bsdf_samp.pdf != 0)
     {
-      // INCLUDE_EMISSION is true if we should include direct
-      // emission by surfaces, or background emission for rays that
-      // don't intersect any surface.
-      //
-      // We do this only if DEPTH > 0 (meaning this is a "specular
-      // recursed" sample), and this is not a diffuse sample.
-      //
-      // The reason we don't include emission when DEPTH == 0 is because
-      // that would be direct illumination, which is handled by other
-      // means.
-      //
-      // The reason we don't include emission for diffuse samples is
-      // because that is handled via the caustics map (we only use the
-      // caustics map for diffuse samples because it yields poor results
-      // for other types).
-      //
-      bool include_emission
-	= (depth > 0 && !(bsdf_samp.flags & Bsdf::DIFFUSE));
-
       // Sample position and direction in world coordinates.
       //
       const Pos &pos = isec.normal_frame.origin;
@@ -557,22 +637,29 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 		  UV samp_param (context.random(), context.random());
 		  Bsdf::Sample recurs_samp
 		    = samp_isec.bsdf->sample (samp_param, spec_flags);
+
 		  radiance
 		    += (Lo_fgather_samp (samp_isec, media, recurs_samp,
-					 depth + 1)
+					 indir_emission_scale, depth + 1)
 			* Li_to_Lo);
 		}
 	    }
 
-	  if (include_emission)
-	    radiance += samp_isec.material->Le (samp_isec);
+	  // If DEPTH > 0, this an indirect case, so handle emission
+	  // according to INDIR_EMISSION_SCALE.
+	  //
+	  if (depth != 0)
+	    radiance
+	      += samp_isec.material->Le (samp_isec) * indir_emission_scale;
 	}
 
-      else if (include_emission)
+      else if (depth != 0)
 	{
-	  // We didn't hit anything, so include background emission.
+	  // We didn't hit anything, and DEPTH > 0, so this is an
+	  // indirect case; include background emission according to
+	  // INDIR_EMISSION_SCALE.
 
-	  radiance += context.scene.background (dir);
+	  radiance += context.scene.background (dir) * indir_emission_scale;
 	}
     }
 
@@ -582,50 +669,267 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 
 // PhotonInteg::Lo_fgather
 
-// Do a quick calculation of indirection illumination by sampling the
-// BRDF, shooting another level of rays, and using only photon maps to
-// calculate outgoing illumination from the resulting intersections.
+// "Final gathering": Do a quick calculation of indirection
+// illumination by sampling the BRDF, shooting another level of
+// rays, and using only photon maps to calculate outgoing
+// illumination from the resulting intersections.
 //
 // For samples that strike perfectly specular materials, recursive
-// sampling is used used until a non-specular surface is hit, and then
-// the photon-map is evaluated at that point; this handles indirect
-// illumination due to caustics, etc.
+// sampling is used used until a non-specular surface is hit, and
+// then the photon-map is evaluated at that point; this handles
+// indirect illumination due to caustics, etc.
 //
-// For _non-diffuse_ samples that strike perfectly specular materials,
-// the same thing is done -- recursive sampling is used used until a
-// non-specular surface is hit, and then the photon-map is evaluated at
-// that point -- however, in addition, direction emission from the
-// material (the "Le" term), and background light is also evaulated;
-// this essentially handles the "caustics" case, because the normal
-// caustic map normally only gets applied to diffuse BSDF samples.
+// If AVOID_CAUSTICS_ON_DIFFUSE is true, then any contribution of
+// caustics on diffuse surfaces is intentionally ignored (this is
+// useful because such effects are usually handled via a separate
+// caustics photon-pap).
 //
 Color
 PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
-			 const SampleSet::Sample &sample, unsigned num_samples)
+			 const SampleSet::Sample &sample,
+			 bool avoid_caustics_on_diffuse)
 {
-  // Iterator yielding parameters for BSDF sampling.
-  //
-  std::vector<UV>::const_iterator bi = sample.begin (fgather_bsdf_chan);
-
   // Outgoing radiance.
   //
   Color radiance = 0;
 
-  // Shoot NUM_SAMPLES sample rays, sampling the BSDF for the directions.
+  // Number of samples we should use for the two types of sampling
+  // we use for MIS.
   //
-  for (unsigned i = 0; i < num_samples; i++)
+  unsigned num_bsdf_samples = global.num_fgather_bsdf_samples;
+  unsigned num_photon_samples = global.num_fgather_photon_samples;
+
+  // Initialize variables used for photon distribution sampling.  We do
+  // this even if we aren't actually doing such sampling, so that other
+  // uses below will just see zeros in that case.
+  //
+  found_photons.clear ();
+  photon_dir_hist.clear ();
+
+  //
+  // (1) Sample based on the distribution of photon directions near ISEC.
+  //
+
+  // Find nearby photons if needed, and add them to PHOTON_DIR_HIST.
+  //
+  if (num_photon_samples != 0)
+    {
+      // True if PHOTON_DIR_HIST is entirely zero, and set to false if
+      // we add at least one non-zero entry.
+      //
+      bool all_zero_hist = true;
+
+      // Find indirect photons near ISEC so we can sample based on their
+      // distribution.
+      //
+      global.indirect_photon_map.find_photons (isec.normal_frame.origin,
+					       global.num_search_photons,
+					       global.photon_search_radius,
+					       found_photons);
+
+      // Generate a distribution from the photon directions we found.
+      //
+      for (std::vector<const Photon *>::iterator i = found_photons.begin();
+	   i != found_photons.end (); ++i)
+	{
+	  const Vec &dir = (*i)->dir;
+
+#if 0
+	  // Incorporate the BSDF response into the photon distribution
+	  //
+	  Vec bsdf_dir = isec.normal_frame.to (dir);
+	  Bsdf::Value bsdf_val
+	    = isec.bsdf->eval (bsdf_dir, Bsdf::ALL & ~Bsdf::SPECULAR);
+
+	  Color ph_pow = (*i)->power;
+	  Color filt_ph_pow = ph_pow * bsdf_val.val;
+	  float filt_ph_intens = filt_ph_pow.intensity();
+#else
+	  Color ph_pow = (*i)->power;
+	  float filt_ph_intens = ph_pow.intensity();
+#endif
+
+	  if (filt_ph_intens != 0)
+	    {
+	      photon_dir_hist.add (dir, filt_ph_intens);
+	      all_zero_hist = false;
+	    }
+	}
+
+      // If we didn't manage to add anything to PHOTON_DIR_HIST,
+      // just give up on sampling photons.
+      //
+      if (all_zero_hist)
+	num_photon_samples = 0;
+    }
+
+  // Calculate a distribution from PHOTON_DIR_HIST.
+  //
+  photon_dir_dist.calc (photon_dir_hist);
+
+  // Iterator yielding parameters for photon-direction based sampling.
+  //
+  std::vector<UV>::const_iterator pi = sample.begin (fgather_photon_chan);
+
+  unsigned bsdf_flags = isec.bsdf->supports ();
+
+  // Shoot NUM_SAMPLES sample rays, using the distribution of nearby photons.
+  //
+  for (unsigned i = 0; i < num_photon_samples; i++)
+    {
+      // Sample the photon-direction distribution.
+      //
+      float samp_pdf;
+      Vec samp_dir = photon_dir_dist.sample (*pi++, samp_pdf);
+
+      // Transform SAMP_DIR into ISEC's surface-normal coordinate system.
+      //
+      Vec bsdf_dir = isec.normal_frame.to (samp_dir);
+
+      // Evaluate the BSDF in the chosen direction.
+      //
+      Bsdf::Value bsdf_val
+	= isec.bsdf->eval (bsdf_dir, Bsdf::ALL & ~Bsdf::SPECULAR);
+
+      // Note that it's extremely rare for SAMP_PDF to be zero, but
+      // it can happen, basically when PHOTON_DIR_DIST is all zero.
+      //
+      if (bsdf_val.pdf != 0 && samp_pdf != 0)
+	{
+	  // We calculate a separate scale factor for direct surface
+	  // emission via specular recursion, which represents the
+	  // "caustic" case.
+	  //
+	  Color indir_emission_scale;
+	  if (avoid_caustics_on_diffuse)
+	    {
+	      // If we're not generating caustics, then for the diffuse
+	      // portion of the BSDF, this is zero, because caustics on
+	      // diffuse surfaces is handled using the caustics map, so
+	      // the scale factor we use is basically everything
+	      // _except_ the BSDF's diffuse layer.
+	      //
+	      // To save a bit of time, though, we only call Bsdf::eval
+	      // if the BSDF actually has a non-diffuse layer.
+	      
+	      if (bsdf_flags
+		  & Bsdf::SURFACE_CLASS
+		  & ~(Bsdf::SPECULAR|Bsdf::DIFFUSE))
+		{
+		  // The BSDF has a non-diffuse, non-specular, layer
+		  // which might conceivably be a transmission path for
+		  // the "caustic case", so set INDIR_EMISSION_SCALE to
+		  // filter out the diffuse layer, and keep the rest.
+
+		  Bsdf::Value bsdf_no_diffuse_val
+		    = isec.bsdf->eval (
+				   bsdf_dir,
+				   Bsdf::ALL & ~(Bsdf::SPECULAR|Bsdf::DIFFUSE));
+
+		  // As emission will also be multiplied through the
+		  // same BSDF scaling as other light sources, which
+		  // includes both diffuse and non-diffuse layers,
+		  // INDIR_EMISSION_SCALE is actually a correction
+		  // factor which essentially removes the diffuse layer.
+		  //
+		  // The overall scale factor is (DIFF + NON_DIFF), and
+		  // we want just NON_DIFF for emission, so
+		  // INDIR_EMISSION_SCALE is NON_DIFF / (DIFF +
+		  // NON_DIFF); when multiplied by (DIFF + NON_DIFF),
+		  // this will yield just NON_DIFF.
+		  //
+		  // [Note that Color::operator/ allows zero
+		  // denominators, which just yield zero, so we
+		  // don't need to guard against divide-by-zero
+		  // here.]
+		  //
+		  indir_emission_scale = bsdf_no_diffuse_val.val / bsdf_val.val;
+		}
+	      else
+		{
+		  // The BSDF only has a diffuse layer, so just
+		  // ignore any direct emission; it will all be
+		  // handled using the caustic map.
+
+		  indir_emission_scale = 0;
+		}
+	    }
+	  else
+	    {
+	      // We don't have to avoid caustics, so don't treat
+	      // direct emission specially.
+
+	      indir_emission_scale = 1;
+	    }
+
+	  // Make a fake Bsdf::Sample to describe this sample.
+	  //
+	  Bsdf::Sample bsdf_samp (bsdf_val.val, samp_pdf, bsdf_dir, 0);
+
+	  // Incorporate incoming radiance from BSDF_SAMP, applying
+	  // the power-heuristic to choose the best of the two types
+	  // of sampling we're doing.
+	  //
+	  radiance
+	    += (Lo_fgather_samp (isec, media, bsdf_samp, indir_emission_scale)
+		* mis_sample_weight (samp_pdf, num_photon_samples,
+				     bsdf_val.pdf, num_bsdf_samples));
+	}
+    }
+  
+
+  //
+  // (2) Sample based on the BSDF of the surface at ISEC.
+  //
+
+  // Iterator yielding parameters for BSDF sampling.
+  //
+  std::vector<UV>::const_iterator bi = sample.begin (fgather_bsdf_chan);
+
+  // Shoot NUM_BSDF_SAMPLES sample rays, sampling the BSDF for the directions.
+  //
+  for (unsigned i = 0; i < num_bsdf_samples; i++)
     {
       // Sample the BSDF.
       //
       Bsdf::Sample bsdf_samp
 	= isec.bsdf->sample (*bi++, Bsdf::ALL & ~Bsdf::SPECULAR);
 
-      // Incorporate incoming radiance from BSDF_SAMP.
-      //
-      radiance += Lo_fgather_samp (isec, media, bsdf_samp, 0);
+      if (bsdf_samp.pdf != 0)
+	{
+	  // Find the PDF of this sample's direction in the
+	  // photon-direction distribution, which we need for
+	  // multiple-importance-sampling.
+	  //
+	  Vec world_dir = isec.normal_frame.from (bsdf_samp.dir);
+	  float ph_dir_pdf = photon_dir_dist.pdf (world_dir);
+
+	  // If we're avoiding caustics, we calculate a separate
+	  // scale factor for direct surface emission via specular
+	  // recursion, which represents the "caustic" case.  This
+	  // is 0 for diffuse samples, because caustics on diffuse
+	  // surfaces is handled using the caustics map, and 1 for
+	  // non-diffuse samples.
+	  //
+	  Color indir_emission_scale
+	    = ((avoid_caustics_on_diffuse
+		&& (bsdf_samp.flags & Bsdf::DIFFUSE))
+	       ? 0 : 1);
+
+	  // Incorporate incoming radiance from BSDF_SAMP, applying
+	  // the power-heuristic to choose the best of the two types
+	  // of sampling we're doing.
+	  //
+	  radiance
+	    += (Lo_fgather_samp (isec, media, bsdf_samp, indir_emission_scale)
+		* mis_sample_weight (bsdf_samp.pdf, num_bsdf_samples,
+				     ph_dir_pdf, num_photon_samples));
+	}
     }
 
-  radiance /= num_samples;
+  // Note that we don't need to divide by the number of samples, as
+  // that factor is included by the weight returned from
+  // mis_sample_weight.
 
   return radiance;
 }
@@ -644,6 +948,11 @@ PhotonInteg::Lo (const Intersect &isec, const Media &media,
   //
   bool use_fgather = (global.num_fgather_samples > 0);
 
+  // True if we're using the caustics-map for caustics on diffuse
+  // surfaces.
+  //
+  bool use_caustics_map = (global.caustic_photon_map.size () != 0);
+
   Color radiance = 0;
 
   // Direct-lighting.
@@ -657,15 +966,16 @@ PhotonInteg::Lo (const Intersect &isec, const Media &media,
   // for diffuse reflection, as the non-diffuse case is (better) handled
   // by sampling the BSDF in Lo_fgather.
   //
-  radiance
-    += Lo_photon (isec, global.caustic_photon_map, global.caustic_scale,
-		  use_fgather ? Bsdf::SAMPLE_DIR|Bsdf::DIFFUSE : Bsdf::ALL);
+  if (use_caustics_map)
+    radiance
+      += Lo_photon (isec, global.caustic_photon_map, global.caustic_scale,
+		    use_fgather ? Bsdf::SAMPLE_DIR|Bsdf::DIFFUSE : Bsdf::ALL);
 
   // Indirect lighting.
   //
   if (use_fgather)
     radiance
-      += Lo_fgather (isec, media, sample, global.num_fgather_samples);
+      += Lo_fgather (isec, media, sample, use_caustics_map);
   else
     radiance
       += Lo_photon (isec, global.indirect_photon_map, global.indirect_scale);

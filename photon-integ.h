@@ -14,6 +14,8 @@
 #define __PHOTON_INTEG_H__
 
 #include "bsdf.h"
+#include "dir-hist.h"
+#include "dir-hist-dist.h"
 #include "photon-map.h"
 #include "direct-illum.h"
 
@@ -78,6 +80,8 @@ public:
     // illumination.  If zero, final gathering is not done.
     //
     unsigned num_fgather_samples;
+    unsigned num_fgather_photon_samples;
+    unsigned num_fgather_bsdf_samples;
   };
 
 protected:
@@ -103,18 +107,34 @@ private:
 		   float scale, unsigned flags = Bsdf::ALL);
 
   // "Final gathering": Do a quick calculation of indirection
-  // illumination by sampling the BRDF, shooting another level of rays,
-  // and using only photon maps to calculate outgoing illumination from
-  // the resulting intersections.
+  // illumination by sampling the BRDF, shooting another level of
+  // rays, and using only photon maps to calculate outgoing
+  // illumination from the resulting intersections.
+  //
+  // For samples that strike perfectly specular materials, recursive
+  // sampling is used used until a non-specular surface is hit, and
+  // then the photon-map is evaluated at that point; this handles
+  // indirect illumination due to caustics, etc.
+  //
+  // If AVOID_CAUSTICS_ON_DIFFUSE is true, then any contribution of
+  // caustics on diffuse surfaces is intentionally ignored (this is
+  // useful because such effects are usually handled via a separate
+  // caustics photon-pap).
   //
   Color Lo_fgather (const Intersect &isec, const Media &media,
-		    const SampleSet::Sample &sample, unsigned num_samples);
+		    const SampleSet::Sample &sample,
+		    bool avoid_caustics_on_diffuse);
 
-  // Return a quick estimate of the outgoing radiance from ISEC which is
-  // due to BSDF_SAMP.
+  // Return a quick estimate of the outgoing radiance from ISEC which
+  // is due to BSDF_SAMP.  INDIR_EMISSION_SCALE is used to scale
+  // direct surface (or background) emission for recursive calls
+  // (i.e., when DEPTH > 0; direct emission is always omitted when
+  // DEPTH == 0).  DEPTH is the recursion depth; it is zero for all
+  // external callers, and incremented during recursive calls.
   //
   Color Lo_fgather_samp (const Intersect &isec, const Media &media,
-			 const Bsdf::Sample &bsdf_samp, unsigned depth);
+			 const Bsdf::Sample &bsdf_samp,
+			 const Color &indir_emission_scale, unsigned depth = 0);
 
   // Pointer to our global state info.
   //
@@ -125,14 +145,21 @@ private:
   //
   std::vector<const Photon *> found_photons;
 
+  // Temporary objects used by PhotonInteg::Lo_fgather, here to avoid
+  // memory allocation overhead.
+  //
+  DirHist photon_dir_hist;
+  DirHistDist photon_dir_dist;
+
   // State used by the direct-lighting calculator.
   //
   DirectIllum direct_illum;
 
-  // Sample channels for BSDF sampling during final-gathering.
+  // Sample channels for sampling during final-gathering.
   //
   SampleSet::Channel<UV> fgather_bsdf_chan;
   SampleSet::Channel<float> fgather_bsdf_layer_chan;
+  SampleSet::Channel<UV> fgather_photon_chan;
 };
 
 
