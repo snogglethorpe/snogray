@@ -240,30 +240,25 @@ struct photon_ptr_dist_cmp
 };
 
 // Search the kd-tree starting from the node at KD_TREE_NODE_INDEX,
-// for the MAX_PHOTONS closest photons to POS.  Only photons within a
-// distance of sqrt(MAX_DIST_SQ) of POS are considered.
+// for the MAX_PHOTONS closest photons to POS.  Only photons within
+// a distance of sqrt(MAX_DIST_SQ) of POS are considered.
 //
-// Pointers to the photons found are inserted into the vector RESULTS.
-// RESULTS can never grow larger than MAX_PHOTONS (but the photons in
-// it will always be the closest MAX_PHOTONS photons).
+// Pointers to the photons found are inserted into the heap-form
+// vector PHOTON_HEAP.  PHOTON_HEAP can never grow larger than
+// MAX_PHOTONS (but the photons in it will always be the closest
+// MAX_PHOTONS photons).
 //
-// The exact contents of RESULTS varies depending on its size:  If
-// RESULTS has fewer than MAX_PHOTONS elements, it will be an unsorted
-// ordinary vector, with new photons just added to the end; if it
-// contains MAX_PHOTONS elements, it will be a heap data structure
-// (see std::make_heap etc), and maintained in that form.
-//
-// MAX_DIST_SQ is an in/out parameter -- when RESULTS reaches its
-// maximum size (MAX_PHOTONS elements), then MAX_DIST_SQ will be
-// modified to be the most distance photon in RESULTS; this helps
-// prune the search by avoiding obviously too-distance parts of the
-// kd-tree.
+// MAX_DIST_SQ is an in/out parameter -- when PHOTON_HEAP reaches
+// its maximum size (MAX_PHOTONS elements), then MAX_DIST_SQ will be
+// modified to be the most distance photon in PHOTON_HEAP; this
+// helps prune the search by avoiding obviously too-distance parts
+// of the kd-tree.
 //
 void
 PhotonMap::find_photons (const Pos &pos, unsigned kd_tree_node_index,
 			 unsigned max_photons,
 			 dist_t &max_dist_sq,
-			 std::vector<const Photon *> &results)
+			 std::vector<const Photon *> &photon_heap)
   const
 {
   unsigned num_photons = photons.size ();
@@ -272,10 +267,10 @@ PhotonMap::find_photons (const Pos &pos, unsigned kd_tree_node_index,
 
   // First check child nodes in the kd-tree.
   //
-  // The two child nodes have indices 2*i+1 and 2*i+2 (where i is this
-  // node's index), so we can quickly check whether there are any
-  // children just by see whether 2*i+2 lies within the allowable
-  // indices.
+  // The two child nodes have indices 2*i+1 and 2*i+2 (where i is
+  // this node's index), so we can quickly check whether there are
+  // any children just by see whether 2*i+2 lies within the
+  // allowable indices.
   //
   if (kd_tree_node_index * 2 + 2 < num_photons)
     {
@@ -301,14 +296,14 @@ PhotonMap::find_photons (const Pos &pos, unsigned kd_tree_node_index,
       // Search the first child.
       //
       find_photons (pos, first_child_index, max_photons, max_dist_sq,
-		    results);
+		    photon_heap);
 
       // If POS is close enough to the split-point, search the second
       // child too.
       //
       if (split_dist * split_dist < max_dist_sq)
 	find_photons (pos, second_child_index, max_photons, max_dist_sq,
-		      results);
+		      photon_heap);
     }
 
   // Square of the distance between POS and PHOTON.
@@ -319,42 +314,30 @@ PhotonMap::find_photons (const Pos &pos, unsigned kd_tree_node_index,
     {
       photon_ptr_dist_cmp dist_cmp (pos);
 
-      unsigned rsize = results.size();
-
-      // If RESULTS is just 1 element short of being full, convert it
-      // from an unsorted vector into a heap.
+      // If PHOTON_HEAP is full, first remove the farthest photon
+      // from it (to be replaced by PHOTON).
       //
-      // otherwise, if RESULTS is full, first remove the farthest
-      // photon from it (to be replaced by PHOTON).
-      //
-      if (rsize == max_photons - 1)
-	{
-	  std::make_heap (results.begin (), results.end (), dist_cmp);
-	  rsize++;
-	}
-      else if (rsize == max_photons)
+      if (photon_heap.size() == max_photons)
      	{
-	  std::pop_heap (results.begin (), results.end (), dist_cmp);
-	  results.pop_back ();
+	  std::pop_heap (photon_heap.begin (), photon_heap.end (), dist_cmp);
+	  photon_heap.pop_back ();
 	}
 
-      // Add a pointer to PHOTON to RESULTS.
+      // Add a pointer to PHOTON to PHOTON_HEAP.
       //
-      results.push_back (&ph);
+      photon_heap.push_back (&ph);
 
-      // If RESULTS is full, maintain it in heap order.
+      // Keep PHOTON_HEAP in heap order.
       //
-      if (rsize == max_photons)
-	{
-	  std::push_heap (results.begin (), results.end (), dist_cmp);
+      std::push_heap (photon_heap.begin (), photon_heap.end (), dist_cmp);
 
-	  // Since we know we don't want anything more distance than
-	  // what we've already found, update MAX_DIST_SQ (which an
-	  // in/out parameter) to reflect the most distant photon in
-	  // RESULTS.
-	  //
-	  max_dist_sq = (pos - results.front()->pos).length_squared ();
-	}
+      // If we've already found MAX_PHOTONS photons, we know we
+      // don't want anything more distant than what we've already
+      // found, so update MAX_DIST_SQ (which an in/out parameter) to
+      // reflect the most distant photon in PHOTON_HEAP.
+      //
+      if (photon_heap.size() == max_photons)
+	max_dist_sq = (pos - photon_heap.front()->pos).length_squared ();
     }
 }
 

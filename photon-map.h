@@ -37,27 +37,26 @@ public:
   //
   void set_photons (std::vector<Photon> &new_photons);
 
-  // Search for the MAX_PHOTONS closest photons to POS.  Only photons
-  // within a distance of MAX_DIST of POS are considered.
+  // Find the MAX_PHOTONS closest photons to POS.  Only photons
+  // within a distance of sqrt(MAX_DIST_SQ) of POS are considered.
   //
-  // Pointers to the photons found are inserted into the vector RESULTS,
-  // in order of distance from POS.  RESULTS can never grow larger than
-  // MAX_PHOTONS (but the photons in it will always be the closest
-  // MAX_PHOTONS photons).
+  // Pointers to the photons found are inserted into the heap-form
+  // vector PHOTON_HEAP, in order of distance from POS.  PHOTON_HEAP
+  // can never grow larger than MAX_PHOTONS (but the photons in it
+  // will always be the closest MAX_PHOTONS photons).  [An empty
+  // vector is a valid (empty) heap; see std::make_heap for more
+  // description of heap-form vectors.]
   //
-  // If MAX_PHOTONS or more photons are found, returns the distance of
-  // the farthest photon in RESULTS, _squared_, otherwise just returns
-  // MAX_DIST*MAX_DIST.
+  // If MAX_PHOTONS or more photons are found, returns the square of
+  // the distance of the farthest photon in RESULTS, otherwise just
+  // returns MAX_DIST_SQ.
   //
-  dist_t find_photons (const Pos &pos, unsigned max_photons, dist_t max_dist,
-		       std::vector<const Photon *> &results)
+  dist_t find_photons (const Pos &pos, unsigned max_photons, dist_t max_dist_sq,
+		       std::vector<const Photon *> &photon_heap)
     const
   {
-    dist_t max_dist_sq = max_dist * max_dist;
     if (! photons.empty ())
-      find_photons (pos, 0, max_photons, max_dist_sq, results);
-    // we could sort RESULTS here (cheaply if in heap form), but is it
-    // worth it?
+      find_photons (pos, 0, max_photons, max_dist_sq, photon_heap);
     return max_dist_sq;
   }
 
@@ -103,30 +102,26 @@ private:
 		    const std::vector<Photon>::iterator &end,
 		    unsigned target_index);
 
-  // Search the kd-tree starting from the node at KD_TREE_NODE_INDEX,
-  // for the MAX_PHOTONS closest photons to POS.  Only photons within a
-  // distance of sqrt(MAX_DIST_SQ) of POS are considered.
+  // Search the kd-tree starting from the node at
+  // KD_TREE_NODE_INDEX, for the MAX_PHOTONS closest photons to POS.
+  // Only photons within a distance of sqrt(MAX_DIST_SQ) of POS are
+  // considered.
   //
-  // Pointers to the photons found are inserted into the vector RESULTS.
-  // RESULTS can never grow larger than MAX_PHOTONS (but the photons in
-  // it will always be the closest MAX_PHOTONS photons).
+  // Pointers to the photons found are inserted into the heap-form
+  // vector PHOTON_HEAP.  PHOTON_HEAP can never grow larger than
+  // MAX_PHOTONS (but the photons in it will always be the closest
+  // MAX_PHOTONS photons).
   //
-  // The exact contents of RESULTS varies depending on its size:  If
-  // RESULTS has fewer than MAX_PHOTONS elements, it will be an unsorted
-  // ordinary vector, with new photons just added to the end; if it
-  // contains MAX_PHOTONS elements, it will be a heap data structure
-  // (see std::make_heap etc), and maintained in that form.
-  //
-  // MAX_DIST_SQ is an in/out parameter -- when RESULTS reaches its
-  // maximum size (MAX_PHOTONS elements), then MAX_DIST_SQ will be
-  // modified to be the most distance photon in RESULTS; this helps
-  // prune the search by avoiding obviously too-distance parts of the
-  // kd-tree.
+  // MAX_DIST_SQ is an in/out parameter -- when PHOTON_HEAP reaches
+  // its maximum size (MAX_PHOTONS elements), then MAX_DIST_SQ will
+  // be modified to be the most distance photon in PHOTON_HEAP; this
+  // helps prune the search by avoiding obviously too-distance parts
+  // of the kd-tree.
   //
   void find_photons (const Pos &pos, unsigned kd_tree_node_index,
 		     unsigned max_photons,
 		     dist_t &max_dist_sq,
-		     std::vector<const Photon *> &results)
+		     std::vector<const Photon *> &photon_heap)
     const;
 
   // Do a consistency check on the kd-tree data-structure.

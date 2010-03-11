@@ -491,13 +491,13 @@ PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
     return 0;
 
   const Pos &pos = isec.normal_frame.origin;
+  unsigned num_photons = global.num_search_photons;
+  dist_t max_dist_sq
+    = global.photon_search_radius * global.photon_search_radius;
 
   found_photons.clear ();
-  dist_t max_dist_sq
-    = photon_map.find_photons (pos,
-			       global.num_search_photons,
-			       global.photon_search_radius,
-			       found_photons);
+  max_dist_sq = photon_map.find_photons (pos, num_photons, max_dist_sq,
+					 found_photons);
 
   // Pre-compute values used for GAUSS_FILT in the loop.
   //
@@ -703,7 +703,6 @@ PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
   // this even if we aren't actually doing such sampling, so that other
   // uses below will just see zeros in that case.
   //
-  found_photons.clear ();
   photon_dir_hist.clear ();
 
   //
@@ -722,9 +721,13 @@ PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
       // Find indirect photons near ISEC so we can sample based on their
       // distribution.
       //
-      global.indirect_photon_map.find_photons (isec.normal_frame.origin,
-					       global.num_search_photons,
-					       global.photon_search_radius,
+      const Pos &pos = isec.normal_frame.origin;
+      unsigned num_photons = global.num_search_photons;
+      dist_t max_dist_sq
+	= global.photon_search_radius * global.photon_search_radius;
+
+      found_photons.clear ();
+      global.indirect_photon_map.find_photons (pos, num_photons, max_dist_sq,
 					       found_photons);
 
       // Generate a distribution from the photon directions we found.
