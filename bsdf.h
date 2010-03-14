@@ -33,19 +33,25 @@ class Bsdf
 public:
 
   enum Flags {
-    REFLECTIVE		= 0x02,
-    TRANSMISSIVE 	= 0x04,
+    // Sample directions: reflection, or transmission (through the surface)
+    //
+    REFLECTIVE		= 0x10,
+    TRANSMISSIVE 	= 0x20,
     // Mask for all sample directions
-    SAMPLE_DIR		= REFLECTIVE|TRANSMISSIVE,
+    ALL_DIRECTIONS	= REFLECTIVE|TRANSMISSIVE,
 
-    SPECULAR		= 0x08,
-    GLOSSY		= 0x10,
-    DIFFUSE		= 0x20,
-    // Mask for all surface classes
-    SURFACE_CLASS	= SPECULAR|GLOSSY|DIFFUSE,
+    // BSDF "layers"; these are basically broad classes of BSDF
+    // response.  Many BSDFs will actually implement multiple layers in
+    // parallel (typically a diffuse layer and a glossy layer).
+    //
+    SPECULAR		= 0x01,	// perfectly specular (infinitely narrow spike)
+    GLOSSY		= 0x02,	// sharp glossy lobe
+    DIFFUSE		= 0x04,	// very broad response, no sharp peak
+    // Mask for all surface layers
+    ALL_LAYERS		= SPECULAR|GLOSSY|DIFFUSE,
 
     // Mask of all flags
-    ALL			= SAMPLE_DIR|SURFACE_CLASS
+    ALL			= ALL_DIRECTIONS|ALL_LAYERS
   };
 
   struct Sample
@@ -120,7 +126,7 @@ public:
   // of scatting this BSDF supports.  The returned value will include
   // only flags in LIMIT (default, all flags).
   //
-  // The various fields (Bsdf::SURFACE_CLASS, Bsdf::SAMPLE_DIR) in the
+  // The various fields (Bsdf::ALL_LAYERS, Bsdf::ALL_DIRECTIONS) in the
   // returned value should be consistent -- a surface-class like
   // Bsdf::DIFFUSE should be included if that surface-class is supported
   // by one of the sample-directions (e.g. Bsdf::REFLECTIVE) that's also

@@ -259,7 +259,7 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
       if (! indirect_done)
 	num_indirect_paths++;
 
-      // The logical-or of all the Bsdf::SURFACE_CLASS flags we
+      // The logical-or of all the Bsdf::ALL_LAYERS flags we
       // encounter in while bouncing around surfaces in the scene.  It
       // starts out as zero, meaning we've just left the light.
       //
@@ -340,7 +340,7 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 		    }
 		}
 	      else if (num_caustic != 0
-		       && ! (bsdf_history & Bsdf::SURFACE_CLASS & ~Bsdf::SPECULAR))
+		       && ! (bsdf_history & Bsdf::ALL_LAYERS & ~Bsdf::SPECULAR))
 		// caustic; path-type:  L(S)+(D|G)
 		{
 		  if (! caustic_done)
@@ -631,7 +631,7 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 	      // wrong for them.  To solve this, recursively handle
 	      // specular surfaces.
 	      //
-	      unsigned spec_flags = Bsdf::SAMPLE_DIR | Bsdf::SPECULAR;
+	      unsigned spec_flags = Bsdf::ALL_DIRECTIONS | Bsdf::SPECULAR;
 	      if (samp_isec.bsdf->supports (spec_flags) && depth < 3)
 		{
 		  UV samp_param (context.random(), context.random());
@@ -816,7 +816,7 @@ PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
 	      // if the BSDF actually has a non-diffuse layer.
 	      
 	      if (bsdf_flags
-		  & Bsdf::SURFACE_CLASS
+		  & Bsdf::ALL_LAYERS
 		  & ~(Bsdf::SPECULAR|Bsdf::DIFFUSE))
 		{
 		  // The BSDF has a non-diffuse, non-specular, layer
@@ -972,7 +972,7 @@ PhotonInteg::Lo (const Intersect &isec, const Media &media,
   if (use_caustics_map)
     radiance
       += Lo_photon (isec, global.caustic_photon_map, global.caustic_scale,
-		    use_fgather ? Bsdf::SAMPLE_DIR|Bsdf::DIFFUSE : Bsdf::ALL);
+		    use_fgather ? Bsdf::ALL_DIRECTIONS|Bsdf::DIFFUSE : Bsdf::ALL);
 
   // Indirect lighting.
   //

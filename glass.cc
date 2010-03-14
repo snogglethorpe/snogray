@@ -46,7 +46,7 @@ public:
 	// Clear all but the direction flags.  This means it will be
 	// either REFLECTIVE, TRANSMISSIVE, or REFLECTIVE|TRANSMISSIVE.
 	//
-	flags &= SAMPLE_DIR;
+	flags &= ALL_DIRECTIONS;
 
 	// Direction from which transmitted light comes.
 	//
@@ -135,7 +135,7 @@ public:
   // of scatting this BSDF supports.  The returned value will include
   // only flags in LIMIT (default, all flags).
   //
-  // The various fields (Bsdf::SURFACE_CLASS, Bsdf::SAMPLE_DIR) in the
+  // The various fields (Bsdf::ALL_LAYERS, Bsdf::ALL_DIRECTIONS) in the
   // returned value should be consistent -- a surface-class like
   // Bsdf::DIFFUSE should be included if that surface-class is supported
   // by one of the sample-directions (e.g. Bsdf::REFLECTIVE) that's also
