@@ -48,28 +48,27 @@ public:
       fres (isec.media.medium.ior, ct.ior),
       nv (isec.cos_n (isec.v)),
       inv_4_nv ((nv != 0) ? 1 / (4 * nv) : 0),
-      gloss_flags (m < GLOSSY_M ? GLOSSY : DIFFUSE),
-      have_surface_flags ((diff_weight > 0 ? DIFFUSE : 0)
-			  | (diff_weight < 1 ? gloss_flags : 0))
+      gloss_layer (m < GLOSSY_M ? GLOSSY : DIFFUSE),
+      have_layers ((diff_weight > 0 ? DIFFUSE : 0)
+		   | (diff_weight < 1 ? gloss_layer : 0))
   { }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
   //
-  virtual Sample sample (const UV &param, unsigned desired_flags = ALL) const
+  virtual Sample sample (const UV &param, unsigned desired = ALL) const
   {
     Vec l, h;
     unsigned flags = REFLECTIVE;
     float u = param.u, v = param.v;
 
-    if (! (desired_flags & REFLECTIVE))
+    if (! (desired & REFLECTIVE))
       goto fail;
 
-    // Remove all flags except those reflecting surface types we can
-    // support.
+    // Remove all flags except those BSDF layers we can support.
     //
-    desired_flags &= have_surface_flags;
+    desired &= have_layers;
 
-    if (! desired_flags)
+    if (! desired)
       goto fail;
 
     // Handle flipped eye vector...
@@ -78,12 +77,12 @@ public:
     if (isec.v.z < 0)
       goto fail;
 
-    if (desired_flags == DIFFUSE || u < diff_weight)
+    if (desired == DIFFUSE || u < diff_weight)
       {
 	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
 	// that the diffuse range (0 - DIFF_WEIGHT) is mapped to 0 - 1.
 	//
-	if (desired_flags != DIFFUSE)
+	if (desired != DIFFUSE)
 	  u = u * inv_diff_weight;
 
 	l = diff_dist.sample (UV (u, v));
@@ -95,20 +94,20 @@ public:
 	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
 	// that the glossy range (DIFF_WEIGHT - 1) is mapped to 0 - 1.
 	//
-	if (desired_flags != DIFFUSE)
+	if (desired != DIFFUSE)
 	  u = (u - diff_weight) * inv_gloss_weight;
 
 	h = gloss_dist.sample (UV (u, v));
 	if (isec.cos_v (h) < 0)
 	  h = -h;
 	l = isec.v.mirror (h);
-	flags |= gloss_flags;
+	flags |= gloss_layer;
       }
 
     if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
       {
 	float pdf;
-	Color f = val (l, h, pdf, desired_flags);
+	Color f = val (l, h, pdf, desired);
 	return Sample (f, pdf, l, flags);
       }
 
@@ -147,7 +146,7 @@ public:
   {
     unsigned refl_flags
       = ((diff_weight > 0 ? DIFFUSE : 0)
-	 | (diff_weight < 1 ? gloss_flags : 0));
+	 | (diff_weight < 1 ? gloss_layer : 0));
     return
       ((limit & REFLECTIVE) && (limit & refl_flags))
       ? ((REFLECTIVE | refl_flags) & limit)
@@ -213,7 +212,7 @@ private:
 	col += diff_col * diff;
       }
 
-    if (flags & gloss_flags)
+    if (flags & gloss_layer)
       {
 	float nh = isec.cos_n (h);
 
@@ -281,14 +280,14 @@ private:
   //
   float nv, inv_4_nv;
 
-  // Bsdf flags to use for glossy samples.
+  // Bsdf layer flags to use for glossy samples.
   //
-  unsigned gloss_flags;
+  unsigned gloss_layer;
 
-  // The set of Bsdf flags for surface types we support; some combination
-  // of DIFFUSE and GLOSSY.
+  // The set of Bsdf layer flags for surface types we support; some
+  // combination of DIFFUSE and GLOSSY.
   //
-  unsigned have_surface_flags;
+  unsigned have_layers;
 };
 
 
