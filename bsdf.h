@@ -66,8 +66,8 @@ public:
     //
     Color val;
 
-    // The value of the "probability density function" for this sample
-    // in the BSDF's sample distribution.
+    // The value of the "probability density function" for this
+    // sample in the BSDF's sample distribution.
     //
     // However, if this is a specular sample (with the SPECULAR flag
     // set), the value is not defined (theoretically the value is
@@ -122,15 +122,15 @@ public:
   //
   virtual Value eval (const Vec &dir, unsigned flags = ALL) const = 0;
 
-  // Returns a bitmask of flags from Bsdf::Flags, describing what types
-  // of scatting this BSDF supports.  The returned value will include
-  // only flags in LIMIT (default, all flags).
+  // Return a bitmask of flags from Bsdf::Flags, describing what
+  // types of scatting this BSDF supports.  The returned value will
+  // include only flags in LIMIT (default, all flags).
   //
-  // The various fields (Bsdf::ALL_LAYERS, Bsdf::ALL_DIRECTIONS) in the
-  // returned value should be consistent -- a surface-class like
-  // Bsdf::DIFFUSE should be included if that surface-class is supported
-  // by one of the sample-directions (e.g. Bsdf::REFLECTIVE) that's also
-  // included in the returned value, and vice-versa.
+  // The various fields (Bsdf::ALL_LAYERS, Bsdf::ALL_DIRECTIONS) in
+  // the returned value should be consistent -- a layer flag like
+  // Bsdf::DIFFUSE should only be included if that layer is
+  // supported by one of the sample-directions
+  // (e.g. Bsdf::REFLECTIVE) in return value, and vice-versa.
   //
   virtual unsigned supports (unsigned limit = ALL) const = 0;
 
