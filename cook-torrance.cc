@@ -94,7 +94,7 @@ public:
 	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
 	// that the glossy range (DIFF_WEIGHT - 1) is mapped to 0 - 1.
 	//
-	if (desired != DIFFUSE)
+	if (desired != GLOSSY)
 	  u = (u - diff_weight) * inv_gloss_weight;
 
 	h = gloss_dist.sample (UV (u, v));
