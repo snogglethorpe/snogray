@@ -94,6 +94,8 @@ protected:
 
 private:
 
+  class Shooter;
+
   // Integrator state for rendering a group of related samples.
   //
   PhotonInteg (RenderContext &context, GlobalState &global_state);

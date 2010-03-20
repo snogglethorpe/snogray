@@ -12,15 +12,12 @@
 
 #include <iostream>
 
-#include "snogassert.h"
 #include "snogmath.h"
 #include "scene.h"
 #include "bsdf.h"
 #include "media.h"
-#include "progress.h"
-#include "string-funs.h"
-#include "radical-inverse.h"
 #include "mis-sample-weight.h"
+#include "photon-shooter.h"
 
 #include "photon-integ.h"
 
@@ -190,6 +187,71 @@ PhotonInteg::GlobalState::make_integrator (RenderContext &context)
 }
 
 
+// PhotonInteg::Shooter class
+
+class PhotonInteg::Shooter : public PhotonShooter
+{
+public:
+
+  Shooter (unsigned num_caustic, unsigned num_direct, unsigned num_indirect)
+    : PhotonShooter ("photon-integ"),
+      caustic (num_caustic, "caustic", *this),
+      direct (num_direct, "direct", *this),
+      indirect (num_indirect, "indirect", *this)
+  {
+  }
+
+  // Deposit (or ignore) the photon PHOTON in some photon-set.
+  // ISEC is the intersection where the photon is being stored, and
+  // BSDF_HISTORY is the bitwise-or of all BSDF past interactions
+  // since this photon was emitted by the light (it will be zero for
+  // the first intersection).
+  //
+  virtual void deposit (const Photon &photon,
+			const Intersect &isec, unsigned bsdf_history);
+
+  PhotonSet caustic, direct, indirect;
+};
+
+// Deposit (or ignore) the photon PHOTON in some photon-set.
+// ISEC is the intersection where the photon is being stored, and
+// BSDF_HISTORY is the bitwise-or of all BSDF past interactions
+// since this photon was emitted by the light (it will be zero for
+// the first intersection).
+//
+void PhotonInteg::Shooter::deposit (const Photon &photon,
+				    const Intersect &isec,
+				    unsigned bsdf_history)
+{
+  // We don't deposit photons on purely specular surfaces.
+  //
+  if (isec.bsdf->supports (Bsdf::ALL & ~Bsdf::SPECULAR))
+    {
+      // Choose which photon-map to put PHOTON in.
+      //
+      if (bsdf_history == 0)
+	// direct; path-type:  L(D|G)
+	{
+	  if (! direct.complete ())
+	    direct.photons.push_back (photon);
+	}
+      else if (caustic.target_count != 0
+	       && ! (bsdf_history & Bsdf::ALL_LAYERS & ~Bsdf::SPECULAR))
+	// caustic; path-type:  L(S)+(D|G)
+	{
+	  if (! caustic.complete ())
+	    caustic.photons.push_back (photon);
+	}
+      else
+	// indirect; path-type:  L(D|G|S)*(D|G)(D|G|S)*
+	{
+	  if (! indirect.complete ())
+	    indirect.photons.push_back (photon);
+	}
+    }
+}
+
+
 // PhotonInteg::GlobalState::generate_photons
 
 // Generate the specified number of photons and add them to our photon-maps.
@@ -199,274 +261,20 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 					    unsigned num_direct,
 					    unsigned num_indirect)
 {
-  RenderContext context (global_render_state);
-  Media surrounding_media (context.default_medium);
+  Shooter shooter (num_caustic, num_direct, num_indirect);
 
-  std::vector<Photon> caustic_photons;
-  std::vector<Photon> direct_photons;
-  std::vector<Photon> indirect_photons;
+  shooter.shoot (global_render_state);
 
-  const std::vector<Light *> &lights = context.scene.lights;
+  caustic_photon_map.set_photons (shooter.caustic.photons);
+  direct_photon_map.set_photons (shooter.direct.photons);
+  indirect_photon_map.set_photons (shooter.indirect.photons);
 
-  if (lights.size () == 0)
-    return;			// no lights, so no point
-
-  Progress prog (std::cout, "* photon-integ: shooting photons...",
-		 0, num_caustic + num_direct + num_indirect);
-
-  prog.start ();
-
-  bool caustic_done = (num_caustic == 0);
-  bool direct_done = (num_direct == 0);
-  bool indirect_done = (num_indirect == 0);
-
-  // Number of paths tried for each type of photon.
-  //
-  unsigned num_caustic_paths = 0, num_direct_paths = 0, num_indirect_paths = 0;
-
-  for (unsigned path_num = 0;
-       !caustic_done || !direct_done || !indirect_done;
-       path_num++) 
-    {
-      prog.update (caustic_photons.size()
-		   + direct_photons.size()
-		   + indirect_photons.size());
-
-      // Randomly choose a light.
-      //
-      unsigned light_num = radical_inverse (path_num, 11) * lights.size ();
-      const Light *light = lights[light_num];
-
-      // Sample the light.
-      //
-      UV pos_param (radical_inverse (path_num, 2),
-		    radical_inverse (path_num, 3));
-      UV dir_param (radical_inverse (path_num, 5),
-		    radical_inverse (path_num, 7));
-      Light::FreeSample samp = light->sample (pos_param, dir_param);
-      
-      if (samp.val == 0 || samp.pdf == 0)
-	continue;
-
-      // Update the number of paths generated.  Every light sample is a
-      // potential photon path for all photon types that haven't
-      // finished yet (we do all types in parallel).
-      //
-      if (! caustic_done)
-	num_caustic_paths++;
-      if (! direct_done)
-	num_direct_paths++;
-      if (! indirect_done)
-	num_indirect_paths++;
-
-      // The logical-or of all the Bsdf::ALL_LAYERS flags we
-      // encounter in while bouncing around surfaces in the scene.  It
-      // starts out as zero, meaning we've just left the light.
-      //
-      unsigned bsdf_history = 0;
-
-      // Stack of Media objects at current location.
-      //
-      const Media *innermost_media = &surrounding_media;
-
-      // The current postion / direction / power of the photon we're
-      // shooting.
-      //
-      Pos pos = samp.pos;
-      Vec dir = samp.dir;
-      Color power = samp.val * float (lights.size ()) / samp.pdf;
-
-      // We keep shooting the photon PH into the scene, and follow it as
-      // it bounces off surfaces.  The loop is terminated if PH fails to
-      // hit anything, hits a non-scatting (matte black) surface, or is
-      // terminated by russian-roulette.
-      //
-      for (unsigned path_len = 0; ; path_len++)
-	{
-	  Ray ray (pos, dir, context.params.min_trace, context.scene.horizon);
-
-	  // See if RAY hits something.
-	  //
-	  const Surface::IsecInfo *isec_info
-	    = context.scene.intersect (ray, context);
-
-	  // Photon escaped, give up.
-	  //
-	  if (! isec_info)
-	    break;
-
-	  // Top of current media stack.
-	  //
-	  const Media &media = *innermost_media;
-
-	  // Get more information about the intersection.
-	  //
-	  Intersect isec = isec_info->make_intersect (media, context);
-
-	  // If there's no BSDF, give up (this surface cannot scatter light).
-	  //
-	  if (! isec.bsdf)
-	    break;
-
-	  // Reduce the photon's power to reflect any media attentuation.
-	  //
-	  power *= context.volume_integ->transmittance (ray, media.medium);
-
-	  // Now maybe deposit a photon at this location.  We don't do
-	  // this for purely specular surfaces.
-	  //
-	  if (isec.bsdf->supports (Bsdf::ALL & ~Bsdf::SPECULAR))
-	    {
-	      // The photon we're going to store.  Note that the
-	      // direction is reversed, as the photon's direction points
-	      // to where it _came_ from.
-	      //
-	      Photon ph (isec.normal_frame.origin, -dir, power);
-
-	      // Choose which photon-map to put PH in; if the map we put
-	      // it into ends up being full (after we store PH),
-	      // remember the number of paths it took to get to this
-	      // point.
-	      //
-	      if (bsdf_history == 0)
-		// direct; path-type:  L(D|G)
-		{
-		  if (! direct_done)
-		    {
-		      // Deposit a direct photon.
-
-		      direct_photons.push_back (ph);
-		      direct_done = (direct_photons.size() == num_direct);
-		    }
-		}
-	      else if (num_caustic != 0
-		       && ! (bsdf_history & Bsdf::ALL_LAYERS & ~Bsdf::SPECULAR))
-		// caustic; path-type:  L(S)+(D|G)
-		{
-		  if (! caustic_done)
-		    {
-		      // Deposit a caustic photon.
-		      //
-		      caustic_photons.push_back (ph);
-		      caustic_done = (caustic_photons.size() == num_caustic);
-		    }
-		}
-	      else
-		// indirect; path-type:  L(D|G|S)*(D|G)(D|G|S)*
-		{
-		  if (! indirect_done)
-		    {
-		      // Deposit a caustic photon.
-		      //
-		      indirect_photons.push_back (ph);
-		      indirect_done = (indirect_photons.size() == num_indirect);
-		    }
-		}
-	    }
-
-	  // Now sample the BSDF to continue this photon's path.
-	  //
-	  UV bsdf_samp_param
-	    = (path_len == 0
-	       ? UV (radical_inverse (path_num, 13),
-		     radical_inverse (path_num, 17))
-	       : UV (context.random (), context.random ()));
-	  Bsdf::Sample bsdf_samp = isec.bsdf->sample (bsdf_samp_param);
-
-	  if (bsdf_samp.val == 0 || bsdf_samp.pdf == 0)
-	    break;
-
-	  // Maybe terminate the path using russian-roulette.
-	  //
-	  if (path_len > 3)
-	    {
-	      float rr_terminate_probability = 0.5f;
-	      float russian_roulette = context.random ();
-	      if (russian_roulette < rr_terminate_probability)
-		break;
-	      else
-		power /= rr_terminate_probability;
-	    }
-
-	  // Update the position/direction/power of the photon for the
-	  // next segment.
-	  //
-	  pos = isec.normal_frame.origin;
-	  dir = isec.normal_frame.from (bsdf_samp.dir);
-	  power *= bsdf_samp.val * abs (isec.cos_n (bsdf_samp.dir)) / bsdf_samp.pdf;
-
-	  // Remember the type of reflection/refraction in our history.
-	  //
-	  bsdf_history |= bsdf_samp.flags;
-
-	  // If we just followed a refractive (transmissive) sample, we need
-	  // to update our stack of Media entries:  entering a refractive
-	  // object pushes a new Media, existing one pops the top one.
-	  //
-	  if (bsdf_samp.flags & Bsdf::TRANSMISSIVE)
-	    Media::update_stack_for_transmission (innermost_media, isec);
-	}
-
-      context.mempool.reset ();
-
-#if 0
-      // Detect degenerate scene conditions which are preventing photons
-      // from being generated, and disable the affected categories.
-      //
-      if (caustic_photons.empty() && path_num > num_caustic * 10)
-	caustic_done = true;
-      if (direct_photons.empty() && path_num > num_direct * 10)
-	direct_done = true;
-      if (indirect_photons.empty() && path_num > num_indirect * 10)
-	indirect_done = true;
-#endif
-
-      if (path_num > 1e8)
-	break;
-    }
-
-  prog.end ();
-
-  caustic_photon_map.set_photons (caustic_photons);
-  direct_photon_map.set_photons (direct_photons);
-  indirect_photon_map.set_photons (indirect_photons);
-
-  if (num_caustic_paths > 0)
-    caustic_scale = 1 / float (num_caustic_paths);
-  if (num_direct_paths > 0)
-    direct_scale = 1 / float (num_direct_paths);
-  if (num_indirect_paths > 0)
-    indirect_scale = 1 / float (num_indirect_paths);
-
-  // Output information message about results.
-  //
-  bool some = false;
-  std::cout << "* photon-integ: ";
-  if (caustic_photon_map.size () != 0)
-    {
-      std::cout << commify (caustic_photon_map.size ()) << " caustic";
-      std::cout << " (" << commify (num_caustic_paths) << " paths)";
-      some = true;
-    }
-  if (direct_photon_map.size () != 0)
-    {
-      if (some)
-	std::cout << ", ";
-      std::cout << commify (direct_photon_map.size ()) << " direct";
-      std::cout << " (" << commify (num_direct_paths) << " paths)";
-      some = true;
-    }
-  if (indirect_photon_map.size () != 0)
-    {
-      if (some)
-	std::cout << ", ";
-      std::cout << commify (indirect_photon_map.size ()) << " indirect";
-      std::cout << " (" << commify (num_indirect_paths) << " paths)";
-      some = true;
-    }
-  if (! some)
-    std::cout << "no photons generated!";
-  std::cout << std::endl;
+  if (shooter.caustic.num_paths > 0)
+    caustic_scale = 1 / float (shooter.caustic.num_paths);
+  if (shooter.direct.num_paths > 0)
+    direct_scale = 1 / float (shooter.direct.num_paths);
+  if (shooter.indirect.num_paths > 0)
+    indirect_scale = 1 / float (shooter.indirect.num_paths);
 }
 
 
