@@ -16,6 +16,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "compiler.h"
+
 #include "hist-2d.h"
 
 
@@ -120,12 +122,19 @@ public:
   UV sample (const UV &param, float &_pdf) const
   {
     unsigned col, row, row_offs;
-    sample (param, col, row, row_offs);
 
-    _pdf = pdf (col, row, row_offs);
+    if (sample (param, col, row, row_offs))
+      {
+	_pdf = pdf (col, row, row_offs);
 
-    return UV (col * column_width + fmod (param.u, column_width),
-	       row * row_height   + fmod (param.v, row_height));
+	return UV (col * column_width + fmod (param.u, column_width),
+		   row * row_height   + fmod (param.v, row_height));
+      }
+    else
+      {
+	_pdf = 0;
+	return UV (0, 0);
+      }
   }
 
   // Return a sample of this distribution based on the random
@@ -138,10 +147,11 @@ public:
   UV sample (const UV &param) const
   {
     unsigned col, row, row_offs;
-    sample (param, col, row, row_offs);
-
-    return UV (col * column_width + fmod (param.u, column_width),
-	       row * row_height   + fmod (param.v, row_height));
+    if (sample (param, col, row, row_offs))
+      return UV (col * column_width + fmod (param.u, column_width),
+		 row * row_height   + fmod (param.v, row_height));
+    else
+      return UV (0,0);
   }
 
   // Return the PDF of this distribution at location POS.
@@ -177,11 +187,16 @@ private:
 #endif
   }
 
-  // Sample the histogram and return the coordinates of the chosen bin in
-  // COL and ROW.  The offset of the beginning of the row in
+  // Sample the histogram and return the coordinates of the chosen
+  // bin in COL and ROW.  The offset of the beginning of the row in
   // INDIVIDUAL_ROW_CUMULATIVE_SUMS is also returned in ROW_OFFSET.
   //
-  void sample (const UV &param, unsigned &col, unsigned &row,
+  // Normally the function return value is true, but in the rare
+  // case where sampling is impossible because _all_ the data was
+  // zero, false is returned instead (and all other return values
+  // are undefined).
+  //
+  bool sample (const UV &param, unsigned &col, unsigned &row,
 	       unsigned &row_offs)
     const
   {
@@ -190,6 +205,12 @@ private:
     // look in y dir.
     //
     row = find_pos_in_sorted_vec (v, whole_row_cumulative_sums.begin(), height);
+
+    // If sampling totally failed, return false (this should only happen
+    // if all the data in the source histogram was zero).
+    //
+    if (unlikely (row == height))
+      return false;
 
     // XXX this multiply actually uses a lot of time; it's nicer to
     // accumulate the row-offset while finding the right how, or maybe
@@ -201,6 +222,8 @@ private:
     //
     col = find_pos_in_sorted_vec (
 	    u, individual_row_cumulative_sums.begin() + row_offs, width);
+
+    return true;
   }
 
   // Return the PDF of this distribution for locations in the bin
