@@ -142,13 +142,14 @@ libsnogrender_a_SOURCES = dir-hist.h dir-hist-dist.h direct-illum.cc	\
 	global-render-state.cc global-render-state.h grid.cc grid.h	\
 	hist-2d.h hist-2d-dist.h integ.h intersect.cc intersect.h	\
 	isec-cache.h media.cc media.h mis-sample-weight.h path-integ.cc	\
-	path-integ.h photon-integ.cc photon-integ.h photon-shooter.cc	\
-	photon-shooter.h ray.h ray-io.cc ray-io.h recursive-integ.cc	\
-	recursive-integ.h render-context.cc render-context.h		\
-	render-params.h render-stats.cc render-stats.h sample-cone.h	\
-	sample-disk.h sample-gen.h sample-set.cc sample-set.h		\
-	sample-sphere.h sample-tangent-disk.h shadow-ray.h		\
-	surface-integ.h volume-integ.h zero-surface-integ.h
+	path-integ.h photon-eval.cc photon-eval.h photon-integ.cc	\
+	photon-integ.h photon-shooter.cc photon-shooter.h ray.h		\
+	ray-io.cc ray-io.h recursive-integ.cc recursive-integ.h		\
+	render-context.cc render-context.h render-params.h		\
+	render-stats.cc render-stats.h sample-cone.h sample-disk.h	\
+	sample-gen.h sample-set.cc sample-set.h sample-sphere.h		\
+	sample-tangent-disk.h shadow-ray.h surface-integ.h		\
+	volume-integ.h zero-surface-integ.h
 
 
 ################################################################
