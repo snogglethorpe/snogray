@@ -14,9 +14,8 @@
 #define __PHOTON_INTEG_H__
 
 #include "bsdf.h"
-#include "dir-hist.h"
-#include "dir-hist-dist.h"
 #include "photon-map.h"
+#include "photon-eval.h"
 #include "direct-illum.h"
 
 #include "recursive-integ.h"
@@ -55,18 +54,11 @@ public:
     PhotonMap caustic_photon_map;
     PhotonMap indirect_photon_map;
 
-    // Parameters used when searching for photons during rendering.
-    //
-    unsigned num_search_photons;
-    float photon_search_radius;
-
     // Amount by which we scale each photon during rendering.
     //
     float caustic_scale, direct_scale, indirect_scale;
 
-    // Radius-squared of photon position markers (for debugging).
-    //
-    dist_t marker_radius_sq;
+    PhotonEval::GlobalState photon_eval;
 
     DirectIllum::GlobalState direct_illum;
 
@@ -106,7 +98,10 @@ private:
   // of BSDF interaction to consider (by default, all).
   //
   Color Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
-		   float scale, unsigned flags = Bsdf::ALL);
+		   float scale, unsigned flags = Bsdf::ALL)
+  {
+    return photon_eval.Lo (isec, photon_map, scale, flags);
+  }
 
   // "Final gathering": Do a quick calculation of indirection
   // illumination by sampling the BRDF, shooting another level of
@@ -142,16 +137,9 @@ private:
   //
   const GlobalState &global;
 
-  // This is a temporary vector used by PhotonInteg::Lo.  We keep it as
-  // a field here to avoid memory-allocation churn.
+  // The photon-map evaluator.
   //
-  std::vector<const Photon *> found_photons;
-
-  // Temporary objects used by PhotonInteg::Lo_fgather, here to avoid
-  // memory allocation overhead.
-  //
-  DirHist photon_dir_hist;
-  DirHistDist photon_dir_dist;
+  PhotonEval photon_eval;
 
   // State used by the direct-lighting calculator.
   //

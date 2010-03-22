@@ -36,10 +36,11 @@ static const unsigned UNSPEC_UINT = 99999;
 PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				       const ValTable &params)
   : RecursiveInteg::GlobalState (rstate),
-    num_search_photons (params.get_uint ("num", 50)),
-    photon_search_radius (params.get_float ("radius", 0.1)),
     caustic_scale (0), direct_scale (0), indirect_scale (0),
-    marker_radius_sq (params.get_float ("marker-radius", 0)),
+    photon_eval (
+      params.get_uint ("num", 50),
+      params.get_float ("radius", 0.1),
+      params.get_float ("marker-radius", 0)),
     direct_illum (
       params.get_uint ("direct-samples,dir-samples,dir-samps",
 		       rstate.params.get_uint ("light-samples", 16))),
@@ -141,8 +142,6 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
   if (use_direct_illum && num_fgather_samples == 0)
     num_direct = 0;
 
-  marker_radius_sq *= marker_radius_sq;
-
   generate_photons (num_caustic, num_direct, num_indirect);
 
   std::cout << "* photon-integ: ";
@@ -166,8 +165,7 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 //
 PhotonInteg::PhotonInteg (RenderContext &context, GlobalState &global_state)
   : RecursiveInteg (context), global (global_state),
-    // photon_dir_hist (64, 64), photon_dir_dist (64, 64),
-    photon_dir_hist (8, 8), photon_dir_dist (8, 8),
+    photon_eval (context, global_state.photon_eval),
     direct_illum (context, global_state.direct_illum),
     fgather_bsdf_chan (
       context.samples.add_channel<UV> (global.num_fgather_bsdf_samples)),
@@ -278,97 +276,6 @@ PhotonInteg::GlobalState::generate_photons (unsigned num_caustic,
 }
 
 
-// PhotonInteg::Lo_photon
-
-// Return the light emitted from ISEC by photons found nearby in
-// PHOTON_MAP.  SCALE is the amount by which to scale each photon's
-// radiance.  FLAGS gives the types of BSDF interaction to consider
-// (by default, all).
-//
-Color
-PhotonInteg::Lo_photon (const Intersect &isec, const PhotonMap &photon_map,
-			float scale, unsigned flags)
-{
-  if (scale == 0)
-    return 0;
-
-  // Give up if this is a purely specular surface, or one that doesn't
-  // support FLAGS.
-  //
-  if (! isec.bsdf->supports (flags & ~Bsdf::SPECULAR))
-    return 0;
-
-  const Pos &pos = isec.normal_frame.origin;
-  unsigned num_photons = global.num_search_photons;
-  dist_t max_dist_sq
-    = global.photon_search_radius * global.photon_search_radius;
-
-  found_photons.clear ();
-  max_dist_sq = photon_map.find_photons (pos, num_photons, max_dist_sq,
-					 found_photons);
-
-  // Pre-compute values used for GAUSS_FILT in the loop.
-  //
-  float gauss_alpha = 1.818f, gauss_beta = 1.953f;
-  float inv_gauss_denom = 1 / (1 - exp (-gauss_beta));
-  float gauss_exp_scale = -gauss_beta * 0.5f / max_dist_sq;
-
-  Color radiance = 0;
-
-  for (std::vector<const Photon *>::iterator i = found_photons.begin();
-       i != found_photons.end (); ++i)
-    {
-      const Photon &ph = **i;
-
-      // Evaluate the BSDF in the photon's direction.
-      //
-      Vec dir = isec.normal_frame.to (ph.dir);
-      Bsdf::Value bsdf_val = isec.bsdf->eval (dir, flags);
-
-      if (bsdf_val.pdf != 0 && bsdf_val.val > 0)
-	{
-	  // A gaussian filter, which emphasizes photons nearer to POS,
-	  // and de-emphasizes those farther away.
-	  //
-	  float gauss_filt
-	    = (gauss_alpha
-	       * (1 - ((1 - exp (gauss_exp_scale
-				 * (ph.pos - pos).length_squared()))
-		       * inv_gauss_denom)));
-
-	  radiance += bsdf_val.val * ph.power * gauss_filt;
-	}
-
-      // XXXX  PBRT avoids calling Bsdf::eval more than once for
-      // diffuse surfaces (since they have a constant value)....
-      // worthwhile?  probably not  XXXX
-    }
-
-  radiance *= scale;
-  radiance /= max_dist_sq * PIf;
-
-  // Add photon position marker for debugging.
-  //
-  if (global.marker_radius_sq != 0)
-    {
-      for (std::vector<const Photon *>::iterator i = found_photons.begin();
-	   i != found_photons.end (); ++i)
-	{
-	  const Photon &ph = **i;
-	  dist_t dist_sq = (ph.pos - isec.normal_frame.origin).length_squared();
-	  if (dist_sq < global.marker_radius_sq)
-	    {
-	      radiance = Color(0,1,0);
-	      break;
-	    }
-	}
-    }
-
-  return radiance;
-}
-
-
-
 // PhotonInteg::Lo_fgather_samp
 
 // Return a quick estimate of the outgoing radiance from ISEC which
@@ -507,76 +414,14 @@ PhotonInteg::Lo_fgather (const Intersect &isec, const Media &media,
   unsigned num_bsdf_samples = global.num_fgather_bsdf_samples;
   unsigned num_photon_samples = global.num_fgather_photon_samples;
 
-  // Initialize variables used for photon distribution sampling.  We do
-  // this even if we aren't actually doing such sampling, so that other
-  // uses below will just see zeros in that case.
-  //
-  photon_dir_hist.clear ();
 
   //
   // (1) Sample based on the distribution of photon directions near ISEC.
   //
 
-  // Find nearby photons if needed, and add them to PHOTON_DIR_HIST.
+  // Get distribution of nearby photons.
   //
-  if (num_photon_samples != 0)
-    {
-      // True if PHOTON_DIR_HIST is entirely zero, and set to false if
-      // we add at least one non-zero entry.
-      //
-      bool all_zero_hist = true;
-
-      // Find indirect photons near ISEC so we can sample based on their
-      // distribution.
-      //
-      const Pos &pos = isec.normal_frame.origin;
-      unsigned num_photons = global.num_search_photons;
-      dist_t max_dist_sq
-	= global.photon_search_radius * global.photon_search_radius;
-
-      found_photons.clear ();
-      global.indirect_photon_map.find_photons (pos, num_photons, max_dist_sq,
-					       found_photons);
-
-      // Generate a distribution from the photon directions we found.
-      //
-      for (std::vector<const Photon *>::iterator i = found_photons.begin();
-	   i != found_photons.end (); ++i)
-	{
-	  const Vec &dir = (*i)->dir;
-
-#if 0
-	  // Incorporate the BSDF response into the photon distribution
-	  //
-	  Vec bsdf_dir = isec.normal_frame.to (dir);
-	  Bsdf::Value bsdf_val
-	    = isec.bsdf->eval (bsdf_dir, Bsdf::ALL & ~Bsdf::SPECULAR);
-
-	  Color ph_pow = (*i)->power;
-	  Color filt_ph_pow = ph_pow * bsdf_val.val;
-	  float filt_ph_intens = filt_ph_pow.intensity();
-#else
-	  Color ph_pow = (*i)->power;
-	  float filt_ph_intens = ph_pow.intensity();
-#endif
-
-	  if (filt_ph_intens != 0)
-	    {
-	      photon_dir_hist.add (dir, filt_ph_intens);
-	      all_zero_hist = false;
-	    }
-	}
-
-      // If we didn't manage to add anything to PHOTON_DIR_HIST,
-      // just give up on sampling photons.
-      //
-      if (all_zero_hist)
-	num_photon_samples = 0;
-    }
-
-  // Calculate a distribution from PHOTON_DIR_HIST.
-  //
-  photon_dir_dist.calc (photon_dir_hist);
+  DirHistDist &photon_dir_dist = photon_eval.photon_dist (isec, global.indirect_photon_map);
 
   // Iterator yielding parameters for photon-direction based sampling.
   //
