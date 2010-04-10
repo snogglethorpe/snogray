@@ -77,13 +77,54 @@ public:
     if (isec.v.z < 0)
       goto fail;
 
-    if (desired == DIFFUSE || u < diff_weight)
+    // DESIRED_DIFF_WEIGHT is the probability we choose the diffuse
+    // layer.  If DESIRED contains both layers, then DESIRED_DIFF_WEIGHT
+    // == CookTorranceBsdf::diff_weight; if DESIRED only includes the
+    // diffuse layer, it will be 1, and otherwise it will be 0.
+    //
+    // Similarly, INV_DESIRED_DIFF_WEIGHT and INV_DESIRED_GLOSS_WEIGHT are
+    // local versions of INV_DIFF_WEIGHT and INV_GLOSS_WEIGHT, and have
+    // values of 1 / DESIRED_DIFF_WEIGHT and 1 / (1 - DESIRED_DIFF_WEIGHT)
+    // respectively, with care taken to avoid dividing by zero; the
+    // structure of the code below ensures that they won't actually be
+    // used in the case where divide-by-zero would have occured.
+    //
+    float desired_diff_weight;
+    float inv_desired_diff_weight, inv_desired_gloss_weight;
+
+    if (desired == (DIFFUSE|gloss_layer))
       {
-	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
-	// that the diffuse range (0 - DIFF_WEIGHT) is mapped to 0 - 1.
+	// Both layers desired, so the DESIRED_ values are the same as
+	// the global ones.
+
+	desired_diff_weight = diff_weight;
+	inv_desired_diff_weight = inv_diff_weight;
+	inv_desired_gloss_weight = inv_gloss_weight;
+      }
+    else if (desired == DIFFUSE)
+      {
+	// Only diffuse layer desired.
+
+	desired_diff_weight = 1;
+	inv_desired_diff_weight = 1;
+	inv_desired_gloss_weight = 0; // not actually used
+      }
+    else
+      {
+	// Only glossy layer desired.
+
+	desired_diff_weight = 0;
+	inv_desired_diff_weight = 0; // not actually used
+	inv_desired_gloss_weight = 1;
+      }
+
+    if (u < desired_diff_weight)
+      {
+	// Adjust U so that the diffuse range (0 - DESIRED_DIFF_WEIGHT)
+	// is mapped to 0 - 1.
 	//
 	if (desired != DIFFUSE)
-	  u = u * inv_diff_weight;
+	  u = u * inv_desired_diff_weight;
 
 	l = diff_dist.sample (UV (u, v));
 	h = (isec.v + l).unit ();
@@ -91,11 +132,10 @@ public:
       }
     else
       {
-	// If we chose between DIFFUSE and GLOSSY based on U, adjust U so
-	// that the glossy range (DIFF_WEIGHT - 1) is mapped to 0 - 1.
+	// Adjust U so that the glossy range (DESIRED_DIFF_WEIGHT - 1) is
+	// mapped to 0 - 1.
 	//
-	if (desired != GLOSSY)
-	  u = (u - diff_weight) * inv_gloss_weight;
+	u = (u - desired_diff_weight) * inv_desired_gloss_weight;
 
 	h = gloss_dist.sample (UV (u, v));
 	if (isec.cos_v (h) < 0)
@@ -107,7 +147,7 @@ public:
     if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
       {
 	float pdf;
-	Color f = val (l, h, pdf, desired);
+	Color f = val (l, h, desired, desired_diff_weight, pdf);
 	return Sample (f, pdf, l, flags);
       }
 
@@ -124,11 +164,31 @@ public:
     float cos_n = isec.cos_n (dir);
     if ((flags & REFLECTIVE) && cos_n > 0)
       {
+	// Remove all flags except those BSDF layers we can support.
+	//
+	flags &= have_layers;
+
+	// DESIRED_DIFF_WEIGHT is the probability we choose the
+	// diffuse layer.  If FLAGS contains both layers, then
+	// DESIRED_DIFF_WEIGHT == CookTorranceBsdf::diff_weight; if
+	// FLAGS only includes the diffuse layer, it will be 1, and
+	// otherwise it will be 0.
+	//
+	float desired_diff_weight
+	  = ((flags == (DIFFUSE|gloss_layer))
+	     ? diff_weight
+	     : (flags == DIFFUSE)
+	     ? 1
+	     : 0);
+
 	const Vec h = (isec.v + dir).unit ();
+
 	float pdf;
-	Color f = val (dir, h, pdf, flags);
+	Color f = val (dir, h, flags, desired_diff_weight, pdf);
+
 	return Value (f, pdf);
       }
+
     return Value ();
   }
 
@@ -189,11 +249,18 @@ private:
     return min (2 * nh * ((nv > nl) ? nl : nv) / vh, 1.f);
   }
 
-  // Return the CT reflectance for the sample in direction L, where H is
-  // the half-vector.  The pdf is returned in PDF.  FLAGS controls which
-  // layers are used in the evaluation.
+  // Return the CT reflectance for the sample in direction L, where H
+  // is the half-vector.  The pdf is returned in PDF.  FLAGS controls
+  // which layers are used in the evaluation.  DESIRED_DIFF_WEIGHT is
+  // the probability of choosing the diffuse layer (which may be
+  // different than CookTorranceBsdf::diff_weight in the case where
+  // the user specified a restricted set of layers), and is used to
+  // calculate the PDF.
   //
-  Color val (const Vec &l, const Vec &h, float &pdf, unsigned flags) const
+  Color val (const Vec &l, const Vec &h,
+	     unsigned flags, float desired_diff_weight,
+	     float &pdf)
+    const
   {
     float nl = isec.cos_n (l);
 
@@ -208,7 +275,7 @@ private:
 	float diff = INV_PIf;
 	float diff_pdf = diff_dist.pdf (nl);
 
-	pdf += diff_pdf * diff_weight;
+	pdf += diff_pdf * desired_diff_weight;
 	col += diff_col * diff;
       }
 
@@ -236,7 +303,7 @@ private:
 	float gloss = F (vh) * D (nh) * G (vh, nh, nl) * inv_4_nv * inv_nl;
 	float gloss_pdf = D_pdf (nh, vh);
 
-	pdf += gloss_pdf * (1 - diff_weight);
+	pdf += gloss_pdf * (1 - desired_diff_weight);
 	col += gloss_col * gloss;
       }
 
