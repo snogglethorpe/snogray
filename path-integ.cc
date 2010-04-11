@@ -13,12 +13,45 @@
 #include "bsdf.h"
 #include "scene.h"
 #include "media.h"
+#include "photon-shooter.h"
 
 #include "path-integ.h"
 
 
 using namespace snogray;
 
+
+
+// PathInteg::PhotonShooter class
+
+class PathInteg::Shooter : public PhotonShooter
+{
+public:
+
+  Shooter (unsigned num)
+    : PhotonShooter ("path-integ"), photon_set (num, "photons", *this)
+  {
+  }
+
+  // Deposit (or ignore) the photon PHOTON in some photon-set.
+  // ISEC is the intersection where the photon is being stored, and
+  // BSDF_HISTORY is the bitwise-or of all BSDF past interactions
+  // since this photon was emitted by the light (it will be zero for
+  // the first intersection).
+  //
+  virtual void deposit (const Photon &photon, const Intersect &isec,
+			unsigned bsdf_history)
+  {
+    // We only deposit photons on diffuse surfaces, and only for
+    // indirect illumination.
+    //
+    if (!photon_set.complete ()
+	&& isec.bsdf->supports (Bsdf::ALL_DIRECTIONS | Bsdf::DIFFUSE))
+      photon_set.photons.push_back (photon);
+  }
+
+  PhotonSet photon_set;
+};
 
 
 // Constructors etc
@@ -29,9 +62,31 @@ PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
     min_path_len (params.get_uint ("min-len", 5)),
     russian_roulette_terminate_probability (
       params.get_float ("rr-term-prob,rr-term", 0.5f)),
-    direct_illum (params.get_uint ("direct-samples,dir-samples,dir-samps",
-				   rstate.params.get_uint ("light-samples", 1)))
+    direct_illum (
+      params.get_uint ("direct-samples,dir-samples,dir-samps",
+		       rstate.params.get_uint ("light-samples", 1))),
+    photon_eval (
+      params.get_uint ("render-photons", 50),
+      params.get_float ("photon-radius,radius", 5),
+      params.get_float ("marker-radius", 0))
 {
+  // Shoot photons if the user has enabled "photon-diffuse" mode.
+  //
+  // [It's disabled by default, because there are some annoying
+  // photon artifacts like edge-leakage etc.]
+  //
+  if (params.get_bool ("photon-diffuse", false))
+    {
+      // Generate a photon-map to guide rendering.
+      //
+      Shooter photon_shooter (params.get_uint ("photons", 500000));
+
+      photon_shooter.shoot (rstate);
+      photon_map.set_photons (photon_shooter.photon_set.photons);
+
+      if (photon_shooter.photon_set.num_paths > 0)
+	photon_scale = 1 / float (photon_shooter.photon_set.num_paths);
+    }
 }
 
 // Integrator state for rendering a group of related samples.
@@ -40,7 +95,8 @@ PathInteg::PathInteg (RenderContext &context, GlobalState &global_state)
   : SurfaceInteg (context),
     global (global_state),
     random_sample_set (1, context.samples.gen, context.random),
-    random_direct_illum (random_sample_set, context, global.direct_illum)
+    random_direct_illum (random_sample_set, context, global.direct_illum),
+    photon_eval (context, global_state.photon_eval)
 {
   vertex_direct_illums.reserve (global.min_path_len);
   bsdf_sample_channels.reserve (global.min_path_len);
@@ -192,18 +248,39 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       if (! isec.bsdf)
 	break;
 
+      // If we have a non-empty photon-map, use it for diffuse indirect
+      // lighting.
+      //
+      unsigned non_photon_flags = Bsdf::ALL;
+      if (path_len != 0
+	  && !after_specular_sample
+	  && global.photon_map.size () != 0)
+	{
+	  radiance
+	    += (photon_eval.Lo (isec, global.photon_map, global.photon_scale,
+				Bsdf::ALL_DIRECTIONS | Bsdf::DIFFUSE)
+		* path_transmittance);
+
+	  // Omit layers we evaluated using the photon-map below.
+	  //
+	  non_photon_flags &= ~Bsdf::DIFFUSE;
+	}
+
       // Include direct lighting (if enabled).  Note that this
       // explicitly omits specular samples.
       //
       if (global.direct_illum.num_light_samples != 0)
 	{
+	  unsigned dir_flags = non_photon_flags & ~Bsdf::SPECULAR;
+
 	  if (path_len < global.min_path_len)
 	    //
 	    // For path-vertices near the beginning, use pre-generated
 	    // (and well-distributed) samples from SAMPLE.
 	    //
 	    radiance
-	      += (vertex_direct_illums[path_len].sample_lights (isec, sample)
+	      += (vertex_direct_illums[path_len].sample_lights (isec, sample,
+								dir_flags)
 		  * path_transmittance);
 	  else
 	    //
@@ -217,7 +294,8 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	      SampleSet::Sample random_sample (random_sample_set, 0);
 
 	      radiance
-		+= (random_direct_illum.sample_lights (isec, random_sample)
+		+= (random_direct_illum.sample_lights (isec, random_sample,
+						       dir_flags)
 		    * path_transmittance);
 	    }
 	}
@@ -235,7 +313,8 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 
       // Now sample the BSDF to get a new ray for the next path vertex.
       //
-      Bsdf::Sample bsdf_samp = isec.bsdf->sample (bsdf_samp_param);
+      Bsdf::Sample bsdf_samp
+	= isec.bsdf->sample (bsdf_samp_param, non_photon_flags);
 
       // If the BSDF couldn't give us a sample, this path is done.
       // It's essentially perfect  black.

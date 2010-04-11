@@ -15,6 +15,8 @@
 
 #include "surface-integ.h"
 #include "direct-illum.h"
+#include "photon-map.h"
+#include "photon-eval.h"
 
 
 namespace snogray {
@@ -58,6 +60,18 @@ public:
     // Global state for DirectIllum objects.
     //
     DirectIllum::GlobalState direct_illum;
+
+    // Global state for photon-evaluator.
+    //
+    PhotonEval::GlobalState photon_eval;
+
+    // Photon-map to help guide rendering.
+    //
+    PhotonMap photon_map;
+
+    // Amount by which we scale photons during rendering.
+    //
+    float photon_scale;
   };
 
   // Return the light arriving at RAY's origin from the direction it
@@ -73,6 +87,8 @@ public:
 		   const SampleSet::Sample &sample);
 
 private:
+
+  class Shooter;		// for generating photons
 
   // Integrator state for rendering a group of related samples.
   //
@@ -117,6 +133,10 @@ private:
   // when the path-length is greater than MIN_PATH_LEN.
   //
   DirectIllum random_direct_illum;
+
+  // The photon-map evaluator.
+  //
+  PhotonEval photon_eval;
 };
 
 
