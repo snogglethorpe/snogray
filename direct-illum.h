@@ -14,6 +14,7 @@
 #define __DIRECT_ILLUM_H__
 
 #include "color.h"
+#include "bsdf.h"
 #include "sample-set.h"
 
 
@@ -51,10 +52,11 @@ public:
 	       const GlobalState &global_state);
 
   // Given an intersection resulting from a cast ray, sample lights
-  // in the scene, and return their contribution in that
-  // ray's direction.
+  // in the scene, and return their contribution in that ray's
+  // direction.  FLAGS specifies what part of the BSDF will be used.
   //
-  Color sample_lights (const Intersect &isec, const SampleSet::Sample &sample)
+  Color sample_lights (const Intersect &isec, const SampleSet::Sample &sample,
+		       unsigned flags = (Bsdf::ALL & ~Bsdf::SPECULAR))
     const
   {
     // XXX  For now, just do all lights.  In the future we should add a way
@@ -62,24 +64,28 @@ public:
     // many lights (e.g., divide the desired number of light samples among
     // lights in the scene).
     //
-    return sample_all_lights (isec, sample);
+    return sample_all_lights (isec, sample, flags);
   }
 
-  // Given an intersection resulting from a cast ray, sample all lights
-  // in the scene, and return the sum of their contribution in that
-  // ray's direction.
+  // Given the intersection ISEC, resulting from a cast ray, sample
+  // all lights in the scene, and return the sum of their
+  // contribution in that ray's direction.  FLAGS specifies what
+  // part of the BSDF will be used.
   //
   Color sample_all_lights (const Intersect &isec,
-			   const SampleSet::Sample &sample)
+			   const SampleSet::Sample &sample,
+			   unsigned flags = (Bsdf::ALL & ~Bsdf::SPECULAR))
     const;
 
-  // Use multiple-importance-sampling to estimate the radiance of LIGHT
-  // towards ISEC, using LIGHT_PARAM, BSDF_PARAM, and BSDF_LAYER_PARAM
-  // to sample both the light and the BSDF.
+  // Use multiple-importance-sampling to estimate the radiance of
+  // LIGHT towards ISEC, using LIGHT_PARAM, BSDF_PARAM, and
+  // BSDF_LAYER_PARAM to sample both the light and the BSDF.
+  // FLAGS specifies what part of the BSDF will be used.
   //
   Color sample_light (const Intersect &isec, const Light *light,
 		      const UV &light_param,
-		      const UV &bsdf_param, float bsdf_layer_param)
+		      const UV &bsdf_param, float bsdf_layer_param,
+		      unsigned flags = (Bsdf::ALL & ~Bsdf::SPECULAR))
     const;
 
 private:
