@@ -1,6 +1,6 @@
 // freelist.h -- Object freelists
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,14 +12,14 @@
 
 #include "freelist.h"
 
-static const size_t MAX_ALLOC_SIZE = 16*1024*1024;
+static const std::size_t MAX_ALLOC_SIZE = 16*1024*1024;
 
 using namespace snogray;
 
 void
 BlockFreelist::refill ()
 {
-  size_t chunk_alloc_size = block_size * chunk_length;
+  std::size_t chunk_alloc_size = block_size * chunk_length;
 
   if (chunk_alloc_size * 2 + sizeof (Alloc) <= MAX_ALLOC_SIZE)
     {
@@ -27,13 +27,13 @@ BlockFreelist::refill ()
       chunk_length *= 2;
     }
 
-  size_t base_alloc_size = chunk_alloc_size;
+  std::size_t base_alloc_size = chunk_alloc_size;
 
-  size_t base_alloc_size_over = base_alloc_size % sizeof (Alloc);
+  std::size_t base_alloc_size_over = base_alloc_size % sizeof (Alloc);
   if (base_alloc_size_over != 0)
     base_alloc_size += sizeof (Alloc) - base_alloc_size_over;
 
-  size_t alloc_size = base_alloc_size + sizeof (Alloc);
+  std::size_t alloc_size = base_alloc_size + sizeof (Alloc);
   char *mem = new char[alloc_size];
 
   void *alloc_link = static_cast<void *>(mem + base_alloc_size);

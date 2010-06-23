@@ -1,6 +1,6 @@
 // freelist.h -- Memory freelists
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ public:
 
   static const unsigned DEFAULT_CHUNK_LENGTH = 16;
 
-  BlockFreelist (size_t _size, unsigned _chunk_length = DEFAULT_CHUNK_LENGTH)
+  BlockFreelist (std::size_t _size, unsigned _chunk_length = DEFAULT_CHUNK_LENGTH)
     : block_size (_size), chunk_length (_chunk_length), blocks (0), allocs (0)
   { }
   ~BlockFreelist () { clear (); }
@@ -79,7 +79,7 @@ private:
 
   // The size of one "block" -- `get' returns this much memory.
   //
-  size_t block_size;
+  std::size_t block_size;
 
   // How many blocks at a time we allocate when we ask the OS for more memory.
   //
@@ -140,7 +140,7 @@ public:
 // returned to the freelist using "FREELIST.put(OBJ)".
 //
 template<class T>
-inline void *operator new (size_t, snogray::Freelist<T> &fl)
+inline void *operator new (std::size_t, snogray::Freelist<T> &fl)
 {
   return static_cast<void *>(fl.get ());
 }
