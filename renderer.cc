@@ -23,8 +23,7 @@ using namespace snogray;
 Renderer::Renderer (const GlobalRenderState &_global_state,
 		    const Camera &_camera,
 		    unsigned _width, unsigned _height,
-		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
-		    unsigned max_y_block_size)
+		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y)
   : camera (_camera), width (_width), height (_height),
     output (_output),
     lim_x (_offs_x), lim_y (_offs_y),
@@ -33,7 +32,6 @@ Renderer::Renderer (const GlobalRenderState &_global_state,
     camera_samples (context.samples.add_channel<UV> ()),
     focus_samples (context.samples.add_channel<UV> ())
 {
-  output.set_num_buffered_rows (max_y_block_size);
 }
 
 

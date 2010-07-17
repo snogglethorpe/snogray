@@ -35,9 +35,10 @@ render_by_rows (Renderer &renderer,
 
   for (unsigned row_offs = 0; row_offs < output.height; row_offs++)
     {
-      renderer.render_block (renderer.lim_x, renderer.lim_y + row_offs,
-			     output.width, 1);
-      prog.update (renderer.lim_y + row_offs);
+      int y = renderer.lim_y + row_offs;
+      renderer.output.set_min_y (y);
+      renderer.render_block (renderer.lim_x, y, output.width, 1);
+      prog.update (y);
     }
 
   prog.end ();
@@ -73,6 +74,10 @@ render_by_blocks (Renderer &renderer,
        block_y_offs < output.height;
        block_y_offs += block_height)
     {
+      int block_y = renderer.lim_y + block_y_offs;
+
+      output.set_min_y (block_y);
+
       for (unsigned block_x_offs = 0;
 	   block_x_offs < output.width;
 	   block_x_offs += block_width)
@@ -86,8 +91,7 @@ render_by_blocks (Renderer &renderer,
 	       ? output.height - block_y_offs
 	       : block_height);
 
-	  renderer.render_block (renderer.lim_x + block_x_offs,
-				 renderer.lim_y + block_y_offs,
+	  renderer.render_block (renderer.lim_x + block_x_offs, block_y,
 				 cur_block_width, cur_block_height);
 
 	  prog.update (cur_block_num++);
@@ -112,7 +116,7 @@ snogray::render (const GlobalRenderState &global_render_state,
   bool by_rows = global_render_state.params.get_bool ("render-by-rows", false);
 
   Renderer renderer (global_render_state, camera, width, height,
-		     output, offs_x, offs_y, by_rows ? 1 : 16);
+		     output, offs_x, offs_y);
 
   // Do the actual rendering.
   //

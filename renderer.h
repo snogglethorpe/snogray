@@ -36,8 +36,7 @@ public:
   Renderer (const GlobalRenderState &global_state,
 	    const Camera &_camera,
 	    unsigned _width, unsigned _height,
-	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y,
-	    unsigned max_y_block_size);
+	    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y);
 
   // Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
   // are clamped to fit the global rendering limit.

@@ -1,6 +1,6 @@
 // image-output.cc -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #include <string>
 
 #include "snogmath.h"
+#include "snogassert.h"
 #include "excepts.h"
 #include "filter.h"
 #include "mitchell-filt.h"
@@ -33,86 +34,68 @@ ImageOutput::ImageOutput (const std::string &filename,
     min_y (0),
     sink (ImageSink::open (filename, _width, _height, params)),
     filter_conv (params),
-    num_buffered_rows (filter_conv.filter_radius * 2 + 1),
-    num_user_buffered_rows (0),
-    rows (num_buffered_rows), buf_y (0),
     intensity_scale (params.get_float ("exposure", 1)),
     intensity_power (params.get_float ("contrast", 1))
 {
-  for (unsigned i = 0; i < rows.size (); i++)
-    rows[i].resize (width);
 }
 
-// Write the the lowest currently buffered row to the output sink, and
-// recycle its storage for use by another row.  BUF_Y is incremented
-// to reflect the new lowest buffered row.
-//
 void
-ImageOutput::flush_min_row ()
+ImageOutput::_set_min_y (int new_min_y)
 {
-  SampleRow &r = rows[buf_y % num_buffered_rows];
+  ASSERT (new_min_y >= min_y);
 
-  for (unsigned x = 0; x < width; x++)
+  // Make sure there is no gap between the current bottom-most buffered
+  // row (ImageOutput::min_y + ImageOutput::rows.size()), and NEW_MIN_Y.
+  // This should really never happen, so we just add new rows which
+  // will be immediately deleted aftering writing them below.
+  //
+  if (new_min_y > min_y + int (rows.size ()))
+    _row (new_min_y - 1);
+
+  // Write out any rows between the old and new values of min_y.
+  //
+  while (min_y < new_min_y)
     {
-      Tint pixel = r.pixels[x];
+      SampleRow *r = rows.front ();
 
-      float weight = r.weights[x];
-      if (weight > 0)
-	pixel /= weight;
+      rows.pop_front ();
+      min_y++;
 
-      if (intensity_scale != 1)
-	pixel *= intensity_scale;
-      if (intensity_power != 1)
-	pixel = Tint (pow (pixel.unscaled_color(), intensity_power),
-		      pixel.alpha);
+      for (unsigned x = 0; x < width; x++)
+	{
+	  Tint pixel = r->pixels[x];
 
-      r.pixels[x] = pixel;
+	  float weight = r->weights[x];
+	  if (weight > 0)
+	    pixel /= weight;
+
+	  if (intensity_scale != 1)
+	    pixel *= intensity_scale;
+	  if (intensity_power != 1)
+	    pixel = Tint (pow (pixel.unscaled_color(), intensity_power),
+			  pixel.alpha);
+
+	  r->pixels[x] = pixel;
+	}
+
+      sink->write_row (r->pixels);
+
+      delete r;
     }
 
-  sink->write_row (r.pixels);
-
-  r.clear ();
-
-  buf_y++;
-}
-
-void
-ImageOutput::set_min_y (int new_min_y)
-{
-  while (buf_y < new_min_y)
-    flush_min_row ();
-  min_y = new_min_y;
+  ASSERT (min_y == new_min_y);
 }
 
 ImageOutput::~ImageOutput ()
 {
   // Write as-yet unwritten rows
   //
-  set_min_y (height);
+  _set_min_y (height);
   flush ();
 }
 
 
 // Low-level row handling
-
-// Make sure at least NUM rows are buffered in memory before being
-// written.  NUM is a minimum -- more rows may be buffered if necessary
-// to support the output filter, or for other internal reasons.
-//
-void
-ImageOutput::set_num_buffered_rows (unsigned num)
-{
-  // Growing
-  //
-  while (num > num_user_buffered_rows)
-    {
-      rows.push_back (SampleRow (width));
-      num_user_buffered_rows++;
-      num_buffered_rows++;
-    }
-
-  // We ignore requests to shrink the number of buffered rows
-}
 
 // Returns a row at absolute position Y.  Rows cannot be addressed
 // completely randomly, as only NUM_BUFFERED_ROWS rows are buffered in
@@ -122,13 +105,14 @@ ImageOutput::set_num_buffered_rows (unsigned num)
 ImageOutput::SampleRow &
 ImageOutput::_row (int y)
 {
-  if (y < buf_y)
-    throw std::runtime_error ("Previously output image row addressed");
+  ASSERT (y >= min_y);
 
-  while (int (buf_y + num_buffered_rows) <= y)
-    flush_min_row ();
+  // Add new rows as necessary
+  //
+  while (y >= min_y + int (rows.size ()))
+    rows.push_back (new SampleRow (width));
 
-  return rows[y % num_buffered_rows];
+  return *rows[y - min_y];
 }
 
 

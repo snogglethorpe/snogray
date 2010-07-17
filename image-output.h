@@ -1,6 +1,6 @@
 // image-output.h -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,6 +14,8 @@
 #define __IMAGE_OUTPUT_H__
 
 #include <string>
+#include <vector>
+#include <deque>
 
 #include "unique-ptr.h"
 #include "filter-conv.h"
@@ -30,13 +32,7 @@ public:
   //
   struct SampleRow
   {
-    SampleRow (unsigned width = 0) : pixels (width), weights (width) { }
-
-    void resize (unsigned width)
-    {
-      pixels.resize (width, Tint (0, 0));
-      weights.resize (width, 0);
-    }
+    SampleRow (unsigned width) : pixels (width), weights (width) { }
 
     void clear ()
     {
@@ -71,15 +67,15 @@ public:
   //
   bool has_alpha_channel () const { return sink->has_alpha_channel (); }
 
-  // Make sure at least NUM rows are buffered in memory before being written.
-  // NUM is a minimum -- more rows may be buffered if necessary to support
-  // the output filter, or for other internal reasons.
+  // Flush any buffered rows until the current minimum (buffered) row is
+  // ImageOutput::min_y.
   //
-  void set_num_buffered_rows (unsigned num);
-
-  // Flush any buffered rows until the current minimum (buffered) row is MIN_Y.
-  //
-  void set_min_y (int min_y);
+  void set_min_y (int new_min_y)
+  {
+    // Set the raw min_y leaving some room for the filter support.
+    //
+    _set_min_y (max (min_y, new_min_y - int (filter_radius ())));
+  }
 
   // Return the number rows or columns on either side of any pixel that are
   // effective when a sample is added inside that pixel (because of filter
@@ -109,14 +105,15 @@ public:
   bool valid_y (int py) { return py >= min_y && py < int (height); }
 
   // Returns a row at absolute position Y.  Rows cannot be addressed
-  // completely randomly, as only NUM_BUFFERED_ROWS rows are buffered in
-  // memory; if a row which has already been output is specified, an error
-  // is signaled.
+  // completely randomly, as only rows above ImageOutput::min_y are
+  // buffered in memory; if a row less than ImageOutput::min_y is
+  // specified, an error is signaled.
   //
   SampleRow &row (int y)
   {
-    if (y >= buf_y && y < buf_y + int (num_buffered_rows))
-      return rows[y % num_buffered_rows];
+    int offs = y - min_y;
+    if (y >= 0 && y < int (rows.size ()))
+      return *rows[offs];
     else
       return _row (y);
   }
@@ -129,20 +126,23 @@ public:
   //
   unsigned width, height;
 
-  // Lowest possible row (no output is ever done below this).
+  // Row number of first row buffered in memory.  No row before this can
+  // be addressed.
   //
   int min_y;
 
 
 private:
 
-  // Write the the lowest currently buffered row to the output sink, and
-  // recycle its storage for use by another row.  BUF_Y is incremented to
-  // reflect the new lowest buffered row.
+  // Flush any buffered rows until the current minimum (buffered) row is
+  // ImageOutput::min_y.  Unlike ImageOutput::set_min_y, this directly
+  // operates on the buffer, and does not add any adjustment for the
+  // filter support.
   //
-  void flush_min_row ();
+  void _set_min_y (int new_min_y);
 
-  // Internal version of the row() method which handles over-the-horizon cases.
+  // Internal version of the ImageOutput::row() method which handles
+  // rows not in ImageOutput::rows.
   //
   SampleRow &_row (int y);
 
@@ -152,21 +152,10 @@ private:
 
   FilterConv<ImageOutput, Tint> filter_conv;
 
-  // Number of rows kept buffered in memory.
+  // Currently available rows.  The row number of the first row is
+  // ImageOutput::min_y.
   //
-  unsigned num_buffered_rows;
-
-  // Number of buffered rows specified by user.
-  //
-  unsigned num_user_buffered_rows;
-
-  // Currently available rows (NUM_BUFFERED_ROWS).
-  //
-  std::vector<SampleRow> rows;
-
-  // Lowest row currently buffered in memory.
-  //
-  int buf_y;
+  std::deque<SampleRow *> rows;
 
   float intensity_scale;   // intensity multiplier (1 == nop)
   float intensity_power;   // power which intensity is raised to (1 == nop)

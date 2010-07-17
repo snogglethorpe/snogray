@@ -1,6 +1,6 @@
 // recover.cc -- Recovery of partial output images
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,11 +29,6 @@ unsigned
 snogray::recover_image (ImageInput *src, ImageOutput &dst)
 {
   ImageRow src_row (src->width);
-
-  // Make sure there's some number of rows buffered in memory, so we can
-  // guard against errors.
-  //
-  dst.set_num_buffered_rows (16);
 
   int y = 0;
   bool failed = false;
