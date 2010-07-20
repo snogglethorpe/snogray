@@ -36,7 +36,7 @@ Progress::start ()
 }
 
 void
-Progress::update (unsigned pos)
+Progress::update (int pos)
 {
   if (verbosity > MINIMAL
       && (pos >= update_pos
@@ -78,9 +78,9 @@ Progress::update (unsigned pos)
 	  // Estimate which pos we will have reached after the desired
 	  // update interval, and make that our next update pos.
 	  //
-	  update_pos = pos + unsigned (cur_lps * update_interval);
+	  update_pos = pos + int (cur_lps * update_interval);
 
-	  unsigned update_limit = unsigned (pos + (end_pos - start_pos) * 0.02);
+	  int update_limit = int (pos + (end_pos - start_pos) * 0.02);
 
 	  // Always wait until the next line, but never too long.
 	  //
@@ -100,7 +100,7 @@ Progress::update (unsigned pos)
 	     << setw (5) << fixed << setprecision (1) << (progress * 100)
 	     << "%";
 
-	  update_pos = unsigned (pos + (end_pos - start_pos) * 0.001);
+	  update_pos = int (pos + (end_pos - start_pos) * 0.001);
 	}
 
       // This is a kludge to handle long periods where POS doesn't change.

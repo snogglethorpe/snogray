@@ -33,7 +33,7 @@ public:
   // happens until the `start' method is called.
   //
   Progress (std::ostream &stream, const std::string &_prefix,
-	    unsigned _start_pos, unsigned num,
+	    int _start_pos, int num,
 	    Verbosity _verbosity = CHATTY,
 	    float _update_interval = default_update_interval)
     : prefix (_prefix),
@@ -45,7 +45,7 @@ public:
   { }
 
   void start ();
-  void update (unsigned pos);
+  void update (int pos);
   void end ();
 
   // Prefix string printed on the progress line.
@@ -54,16 +54,16 @@ public:
 
   // Overall rendering bounds
   //
-  unsigned start_pos, end_pos;
+  int start_pos, end_pos;
 
   // When we last updated the progress indicator
   //
-  unsigned last_pos;
+  int last_pos;
   Timeval last_update_time;
 
   // When we will next update it
   //
-  unsigned update_pos;
+  int update_pos;
 
   // After this many calls to Progress::update, an update will be forced
   // even if the position hasn't changed much.
