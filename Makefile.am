@@ -158,7 +158,8 @@ libsnogrender_a_SOURCES = dir-hist.h dir-hist-dist.h direct-illum.cc	\
 #
 
 libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
-	render.cc render.h renderer.cc renderer.h wire-frame.h
+	render-mgr.cc render-mgr.h render-packet.h render-pattern.h	\
+	renderer.cc renderer.h wire-frame.h
 
 
 ################################################################

@@ -33,7 +33,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
-#include "render.h"
+#include "render-mgr.h"
 #include "recover.h"
 #include "image-output.h"
 #include "image-input.h"
@@ -604,19 +604,24 @@ int main (int argc, char *const *argv)
 
   if (recover_input)
     {
-      unsigned num_recovered = recover_image (recover_input, output);
+      unsigned num_rows_recovered = recover_image (recover_input, output);
       recover_input = 0;
 
       if (! quiet)
 	cout << "* recover: " << file_name
-	     << ": Recovered " << num_recovered << " rows" << endl;
+	     << ": Recovered " << num_rows_recovered << " rows" << endl;
 
-      if (num_recovered == limit_height)
+      if (num_rows_recovered == limit_height)
 	{
 	  cout << file_name << ": Entire image was recovered, not rendering"
 	       << endl;
 	  return 0; // We want destructors to run, so must not use exit!
 	}
+
+      // Remove the recovered rows from what we will render.
+      //
+      limit_y += num_rows_recovered;
+      limit_height -= num_rows_recovered;
     }
 
   if (! quiet)
@@ -650,12 +655,32 @@ int main (int argc, char *const *argv)
 
   RenderStats render_stats;
 
-  // Create the image.
+  // Start rendering...
   //
   Rusage render_beg_ru;
-  render (global_render_state, camera,
-	  width, height, output, limit_x, limit_y,
-	  render_stats, cout, verbosity);
+
+  // The pattern of pixels we will render; we add a small margin around
+  // the output image to keep the edges clean.
+  //
+  unsigned margin = output.filter_radius ();
+  RenderPattern pattern (limit_x - margin, limit_y - margin,
+			 limit_width + margin*2, limit_height + margin*2);
+
+  // Start progress indicator
+  //
+  Progress prog (std::cout, "rendering...",
+		 pattern.position (pattern.begin ()),
+		 (pattern.position (pattern.end ())
+		  - pattern.position (pattern.begin ())),
+		 verbosity);
+
+  // Do the actual rendering.
+  //
+  RenderMgr render_mgr (global_render_state, camera, width, height);
+  render_mgr.render (pattern, output, prog, render_stats);
+
+  // Done rendering.
+  //
   Rusage render_end_ru;
 
 

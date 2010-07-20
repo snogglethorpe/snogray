@@ -49,6 +49,8 @@ snogray::recover_image (ImageInput *src, ImageOutput &dst)
 
 	  for (unsigned x = 0; x < dst.width; x++)
 	    dst_row[x] = src_row[x];
+
+	  dst[y].weights.assign (dst.width, 1);
 	}
 
       y++;
@@ -61,13 +63,6 @@ snogray::recover_image (ImageInput *src, ImageOutput &dst)
   if (failed)
     for (unsigned i = 0; i < RECOVER_DISCARD_ROWS && y > 0; i++)
       dst[--y].clear ();
-
-  // Set the lower output bound.  Rendering will ignore anything below
-  // this bound, and treat it as the "image edge" (and so properly
-  // handle rendering extra pixels to correctly deal with output filters
-  // etc).
-  //
-  dst.set_min_y (y);
 
   // Close the file-to-be-recovered, ignoring any errors in the process.
   //

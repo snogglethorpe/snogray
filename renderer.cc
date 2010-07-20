@@ -12,22 +12,18 @@
 
 #include "camera.h"
 #include "media.h"
-#include "filter.h"
 #include "sample-set.h"
-#include "unique-ptr.h"
+#include "render-packet.h"
 
 #include "renderer.h"
+
 
 using namespace snogray;
 
 Renderer::Renderer (const GlobalRenderState &_global_state,
 		    const Camera &_camera,
-		    unsigned _width, unsigned _height,
-		    ImageOutput &_output, unsigned _offs_x, unsigned _offs_y)
+		    unsigned _width, unsigned _height)
   : camera (_camera), width (_width), height (_height),
-    output (_output),
-    lim_x (_offs_x), lim_y (_offs_y),
-    lim_w (_output.width), lim_h (_output.height),
     context (_global_state),
     camera_samples (context.samples.add_channel<UV> ()),
     focus_samples (context.samples.add_channel<UV> ())
@@ -36,119 +32,55 @@ Renderer::Renderer (const GlobalRenderState &_global_state,
 
 
 
-// Render a block of pixels between X,Y and X+W,Y+H.  The coordinates
-// are clamped to fit the global rendering limit.
-// Note that blocks must be rendered in an order which fits within the
-// output's row buffering.
+// Render a single packet.
 //
 void
-Renderer::render_block (int x, int y, int w, int h)
-{
-  // Clamp the parameters to fit our limit (LIM_X, LIM_Y, LIM_W, LIM_H).
-  // We also clamp with respect to the physical output boundaries.
-
-  int min_y = lim_y + output.min_y, max_y = lim_y + lim_h;
-  int min_x = lim_x, max_x = lim_x + lim_w;
-
-  if (y < min_y)
-    {
-      h -= (min_y - y);
-      y = min_y;
-    }
-  if (y + h > max_y)
-    h = max_y - y;
-
-  if (x < min_x)
-    {
-      w -= (min_x - x);
-      x = min_x;
-    }
-  if (x + w > max_x)
-    w = max_x - x;
-
-  // Now if there's anything left after clamping, render it
-  //
-  if (h > 0 && w > 0)
-    {
-      unsigned filt_rad = output.filter_radius ();
-
-      // If rendering the first or last row, and the output filter we're
-      // using covers more than a single pixel, we must do a number of rows
-      // preceding/following the first/last row for their effect on
-      // following/preceding rows.
-      //
-      if (filt_rad != 0 && y == min_y)
-	{
-	  y -= filt_rad;
-	  h += filt_rad;
-	}
-      if (filt_rad != 0 && y + h == max_y)
-	h += filt_rad;
-
-      // Do the same thing for columns.
-      //
-      if (filt_rad != 0 && x == min_x)
-	{
-	  x -= filt_rad;
-	  w += filt_rad;
-	}
-      if (filt_rad != 0 && x + w == max_x)
-	w += filt_rad;
-
-      // Render the desired rows row by row, and pixel by pixel
-      //
-      for (int py = y; py < y + h; py++)
-	for (int px = x; px < x + w; px++)
-	  render_pixel (px, py);
-    }
-}
-
-
-
-// Render a single output pixel at X,Y.  X and Y will be correctly
-// handled even when they're outside the global rendering limit (such
-// out-of-bounds pixels may still affect the output, because they are
-// included in an in-bound pixel by the output filter).
-//
-void
-Renderer::render_pixel (int x, int y)
+Renderer::render_packet (RenderPacket &packet)
 {
   SampleSet &samples = context.samples;
-
-  samples.generate ();
 
   SurfaceInteg &surface_integ = *context.surface_integ;
   Media media (context.default_medium);
 
-  for (unsigned snum = 0; snum < samples.num_samples; snum++)
+  packet.results.clear ();
+
+  for (std::vector<UV>::const_iterator pi = packet.pixels.begin ();
+       pi != packet.pixels.end (); ++pi)
     {
-      SampleSet::Sample sample (samples, snum);
+      UV pixel = *pi;
 
-      UV camera_samp = sample.get (camera_samples);
-      UV focus_samp = sample.get (focus_samples);
+      samples.generate ();
 
-      // The X/Y coordinates of the specific sample S
-      //
-      float sx = x + camera_samp.u, sy = y + camera_samp.v;
+      for (unsigned snum = 0; snum < samples.num_samples; snum++)
+	{
+	  SampleSet::Sample sample (samples, snum);
 
-      // Calculate the location on the film-plane (we flip the vertical
-      // coordinate because the output image has zero at the top,
-      // whereas rendering coordinates use zero at the bottom).
-      //
-      UV film_loc (sx / width, (height - sy) / height);
+	  UV camera_samp = sample.get (camera_samples);
+	  UV focus_samp = sample.get (focus_samples);
 
-      // Translate the image position U, V into a ray coming from the
-      // camera.
-      //
-      Ray camera_ray = camera.eye_ray (film_loc, focus_samp);
+	  // The X/Y coordinates of the sample we're rendering inside PIXEL.
+	  //
+	  UV coords (pixel.u + camera_samp.u, pixel.v + camera_samp.v);
 
-      // .. calculate what light arrives via that ray.
-      //
-      Tint tint = surface_integ.Li (camera_ray, media, sample);
+	  // Calculate the location on the film-plane (we flip the vertical
+	  // coordinate because the output image has zero at the top,
+	  // whereas rendering coordinates use zero at the bottom).
+	  //
+	  UV film_loc (coords.u / width, (height - coords.v) / height);
 
-      output.add_sample (sx - lim_x, sy - lim_y, tint);
+	  // Translate the image position U, V into a ray coming from the
+	  // camera.
+	  //
+	  Ray camera_ray = camera.eye_ray (film_loc, focus_samp);
 
-      context.mempool.reset ();
+	  // .. calculate what light arrives via that ray.
+	  //
+	  Tint tint = surface_integ.Li (camera_ray, media, sample);
+
+	  packet.results.push_back (RenderPacket::Result (coords, tint));
+
+	  context.mempool.reset ();
+	}
     }
 }
 
