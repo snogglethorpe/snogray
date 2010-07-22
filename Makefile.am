@@ -341,8 +341,9 @@ libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
 	mempool.cc mempool.h mutex.h nice-io.cc nice-io.h pool.h	\
 	radical-inverse.h random.h random-boost.h random-c0x.h		\
 	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
-	snogassert.h snogmath.h string-funs.cc string-funs.h timeval.cc	\
-	timeval.h tint.h val-table.cc unique-ptr.h val-table.h
+	snogassert.h snogmath.h string-funs.cc string-funs.h thread.h	\
+	timeval.cc timeval.h tint.h val-table.cc unique-ptr.h		\
+	val-table.h
 
 
 ################################################################
