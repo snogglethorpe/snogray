@@ -37,12 +37,35 @@ struct RenderStats
 	space_node_intersect_calls (0)
     { }
 
+    void operator+= (const IsecStats &is)
+    {
+      surface_intersects_tests += is.surface_intersects_tests;
+      surface_intersects_hits += is.surface_intersects_hits;
+      neg_cache_hits += is.neg_cache_hits;
+      neg_cache_collisions += is.neg_cache_collisions;
+      space_node_intersect_calls += is.space_node_intersect_calls;
+    }
+
     unsigned long long surface_intersects_tests;
     unsigned long long surface_intersects_hits;
     unsigned long long neg_cache_hits;
     unsigned long long neg_cache_collisions;
     unsigned long long space_node_intersect_calls;
   };
+
+  void operator+= (const RenderStats &is)
+  {
+    scene_intersect_calls += is.scene_intersect_calls;
+    scene_shadow_tests += is.scene_shadow_tests;
+    scene_slow_shadow_traces += is.scene_slow_shadow_traces;
+    surface_slow_shadow_traces += is.surface_slow_shadow_traces;
+    illum_calls += is.illum_calls;
+    illum_samples += is.illum_samples;
+    illum_specular_samples += is.illum_specular_samples;
+
+    intersect += is.intersect;
+    shadow += is.shadow;
+  }
 
   unsigned long long scene_intersect_calls;
   unsigned long long scene_shadow_tests;
