@@ -36,15 +36,20 @@ namespace snogray {
 #if USE_STD_THREAD
 
 typedef std::mutex RealMutex;
+typedef std::unique_lock<std::mutex> RealUniqueLock;
 
 #elif USE_BOOST_THREAD
 
 typedef boost::mutex RealMutex;
+typedef boost::unique_lock<boost::mutex> RealUniqueLock;
 
 #else // !USE_STD_THREAD && !USE_BOOST_THREAD
 
-// A nop mutex class.
 //
+// Empty definitions of RealMutex and RealUniqueLock classes, for use
+// when multi-threading is not availble.
+//
+
 class RealMutex
 {
 public:
@@ -53,11 +58,22 @@ public:
   void unlock () { }
 };
 
+class RealUniqueLock
+{
+public:
+
+  RealUniqueLock () { }
+  explicit RealUniqueLock (RealMutex &) { }
+  template<typename A> RealUniqueLock (RealMutex &, const A &) { }
+};
+
 #endif // !USE_STD_THREAD && !USE_BOOST_THREAD
 
 
 // Mutex is a thin wrapper that just inherits a selected set of
-// operations from RealMutex.
+// operations from RealMutex.  The main intent of the wrapper is to
+// export only those few operations we use, to avoid inadvertent
+// dependencies on particular mutex implementations.
 //
 class Mutex : RealMutex
 {
@@ -65,6 +81,10 @@ public:
 
   using RealMutex::lock;
   using RealMutex::unlock;
+
+  // Return the underlying mutex type.
+  //
+  RealMutex &real_mutex () { return *this; }
 };
 
 // A LockGuard holds a mutex locked for the duration of its existance.
@@ -86,6 +106,38 @@ public:
 private:
 
   Mutex &m;
+};
+
+// A UniqueLock is like LockGuard, but more powerful and more complex;
+// it is used by the CondVar (condition variable) class.
+//
+// UniqueLock is a thin wrapper that just inherits a selected set of
+// operations from RealUniqueLock.  The main intent of the wrapper is to
+// export only those few operations we use, to avoid inadvertent
+// dependencies on particular implementations.
+//
+// Note that unlike std::unique_lock, UniqueLock is not a template, and
+// only works with Mutex (whereas std::unique_lock works with arbitrary
+// mutex types).
+//
+class UniqueLock : RealUniqueLock
+{
+public:
+
+  UniqueLock () { }
+
+  explicit UniqueLock (Mutex &mutex)
+    : RealUniqueLock (mutex.real_mutex ())
+  { }
+
+  template<typename A>
+  UniqueLock (Mutex &mutex, const A &arg)
+    : RealUniqueLock (mutex.real_mutex (), arg)
+  { }
+
+  // Return the underlying type.
+  //
+  RealUniqueLock &real_unique_lock () { return *this; }
 };
 
 
