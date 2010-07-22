@@ -628,6 +628,13 @@ else
 fi
 AC_MSG_RESULT([$thread_api_name])
 
+# A config variable that says whether any threading is available
+#
+if test "$thread_api_name" != none; then
+  AC_DEFINE([USE_THREADS], [1], [Define if we can use multiple threads])
+fi
+AM_CONDITIONAL([use_threads], [test "$thread_api_name" != none])
+
 
 ##
 ## Random-number generators

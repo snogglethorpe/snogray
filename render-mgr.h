@@ -13,6 +13,7 @@
 #ifndef __RENDER_MGR_H__
 #define __RENDER_MGR_H__
 
+#include "config.h"
 #include "image-output.h"
 #include "render-pattern.h"
 
@@ -38,12 +39,13 @@ public:
   RenderMgr (const GlobalRenderState &global_state,
 	     const Camera &_camera, unsigned _width, unsigned _height);
 
-  // Render the pixels in PATTERN to OUTPUT.  PROG will be periodically
-  // updated using the value of RenderPattern::position on an iterator
-  // iterating through PATTERN.  STATS will be updated with rendering
-  // statistics.
+  // Render the pixels in PATTERN to OUTPUT, using NUM_THREADS threads.
+  // PROG will be periodically updated using the value of
+  // RenderPattern::position on an iterator iterating through PATTERN.
+  // STATS will be updated with rendering statistics.
   //
-  void render (RenderPattern &pattern, ImageOutput &output,
+  void render (unsigned num_threads,
+	       RenderPattern &pattern, ImageOutput &output,
 	       Progress &prog, RenderStats &stats);
 
 private:
@@ -55,6 +57,17 @@ private:
   //
   void render_single_threaded (RenderPattern &pattern, ImageOutput &output,
 			       Progress &prog, RenderStats &stats);
+
+#if USE_THREADS
+  // Render the pixels in PATTERN to OUTPUT, using NUM_THREADS threads.
+  // PROG will be periodically updated using the value of
+  // RenderPattern::position on an iterator iterating through PATTERN.
+  // STATS will be updated with rendering statistics.
+  //
+  void render_multi_threaded (unsigned num_threads,
+			      RenderPattern &pattern, ImageOutput &output,
+			      Progress &prog, RenderStats &stats);
+#endif // USE_THREADS
 
   // Fill PACKET with pixels yielded from PAT_IT.
   //

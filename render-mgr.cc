@@ -10,10 +10,18 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <list>
+#include <map>
+
 #include "snogmath.h"
+#include "snogassert.h"
 #include "progress.h"
 #include "renderer.h"
 #include "render-packet.h"
+#if USE_THREADS
+#include "render-thread.h"
+#include "render-queue.h"
+#endif
 
 #include "render-mgr.h"
 
@@ -37,14 +45,20 @@ RenderMgr::RenderMgr (const GlobalRenderState &_global_state,
 // statistics.
 //
 void
-RenderMgr::render (RenderPattern &pattern, ImageOutput &output,
+RenderMgr::render (unsigned num_threads,
+		   RenderPattern &pattern, ImageOutput &output,
 		   Progress &prog, RenderStats &stats)
 {
-  // For now, just use one thread.
-  //
-  render_single_threaded (pattern, output, prog, stats);
+#if USE_THREADS
+  if (num_threads != 1)
+    render_multi_threaded (num_threads, pattern, output, prog, stats);
+  else
+#endif // USE_THREADS
+    render_single_threaded (pattern, output, prog, stats);
 }
 
+
+// single-threaded rendering
 
 // Render the pixels in PATTERN to OUTPUT, using only the current
 // thread.  PROG will be periodically updated using the value of
@@ -77,8 +91,130 @@ RenderMgr::render_single_threaded (RenderPattern &pattern, ImageOutput &output,
 
   prog.end ();
 
-  stats = renderer.stats ();
+  stats += renderer.stats ();
 }
+
+
+// multi-threaded rendering
+
+#if USE_THREADS
+
+// Render the pixels in PATTERN to OUTPUT, using NUM_THREADS threads.
+// PROG will be periodically updated using the value of
+// RenderPattern::position on an iterator iterating through PATTERN.
+// STATS will be updated with rendering statistics.
+//
+void
+RenderMgr::render_multi_threaded (unsigned num_threads,
+				  RenderPattern &pattern, ImageOutput &output,
+				  Progress &prog, RenderStats &stats)
+{
+  RenderPattern::iterator pat_it = pattern.begin ();
+  RenderPattern::iterator limit = pattern.end ();
+
+  // RenderPacket queues for communicating with rendering threads.
+  // PENDING_Q holds packets with pixels to be rendered, and DONE_Q holds
+  // packets with the results.
+  //
+  RenderQueue pending_q, done_q;
+
+  unsigned num_packets = num_threads * 2;
+
+  // A mapping from packets to "min_y" values.
+  //
+  std::map<RenderPacket *, int> packet_min_y;
+
+  // To start, we just add new empty packets to DONE_Q.  They'll be
+  // processed as if they contain results, but with no effect because
+  // they're empty, and then fed back into the processing loop.
+  //
+  for (unsigned i = 0; i < num_packets; i++)
+    done_q.put (new RenderPacket);
+
+  // Now start our rendering threads; they'll just block waiting for
+  // packets to be added to PENDING_Q.
+  //
+  std::list<RenderThread *> threads;
+  for (unsigned i = 0; i < num_threads; i++)
+    threads.push_back (new RenderThread (global_state, camera, width, height,
+					 pending_q, done_q));
+
+  prog.start ();
+
+  while (pat_it != limit)
+    {
+      RenderPacket *packet = done_q.get ();
+      ASSERT (packet);
+
+      // Write out the results from PACKET.
+      //
+      output_packet (*packet, output);
+
+      // Update PACKET's min_y value to reflect the pixels it will be
+      // filled with.
+      //
+      packet_min_y[packet]
+	= clamp (pattern.min_y (pat_it), 0, int (height) - 1);
+
+      // Compute the "global min_y" value, which is the minimum of all
+      // packet min_y values.
+      //
+      int global_min_y = int (height) - 1;
+      for (std::map<RenderPacket *, int>::const_iterator i
+	     = packet_min_y.begin();
+	   i != packet_min_y.end (); ++i)
+	global_min_y = min (global_min_y, i->second);
+
+      // Set OUTPUT's min_y accordingly.
+      //
+      output.set_min_y (global_min_y);
+
+      // Now add more pixels to PACKET and make it available for more
+      // processing.
+      //
+      fill_packet (pat_it, limit, *packet);
+      pending_q.put (packet);
+
+      prog.update (pattern.position (pat_it));
+    }
+
+  // Call RenderQueue::shutdown on PENDING_Q and DONE_Q so that that calls
+  // to RenderQueue::get won't block when the queues finally run out, but
+  // instead will return a null pointer.  This allows orderly shutdown.
+  //
+  pending_q.shutdown ();
+  done_q.shutdown ();
+
+  // Join and destroy all rendering threads, which should have finished by
+  // now.
+  //
+  while (! threads.empty ())
+    {
+      RenderThread *th = threads.back ();
+      threads.pop_back ();
+      th->join ();
+      stats += th->stats ();
+      delete th;
+    }
+
+  // Get the final batch of results, and destroy the packets.
+  //
+  while (RenderPacket *packet = done_q.get ())
+    {
+      output_packet (*packet, output);
+      delete packet;
+    }
+
+  ASSERT (pending_q.empty ());
+  ASSERT (done_q.empty ());
+
+  prog.end ();
+}
+
+#endif // USE_THREADS
+
+
+// packet utility methods
 
 // Fill PACKET with pixels yielded from PAT_IT.
 //

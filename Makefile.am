@@ -161,6 +161,11 @@ libsnogrdrive_a_SOURCES = progress.cc progress.h render-cmdline.h	\
 	render-mgr.cc render-mgr.h render-packet.h render-pattern.h	\
 	renderer.cc renderer.h wire-frame.h
 
+if use_threads
+libsnogrdrive_a_SOURCES += render-queue.cc render-queue.h	\
+	render-thread.cc render-thread.h
+endif
+
 
 ################################################################
 #

@@ -282,6 +282,9 @@ n
 s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 s "  -w, --width=WIDTH          Set image width to WIDTH pixels"
 s "  -h, --height=HEIGHT        Set image height to HEIGHT lines"
+#if USE_THREADS
+s "  -j, --num-threads=NUM      Use NUM threads for rendering"
+#endif
 n
 s RENDER_OPTIONS_HELP
 n
@@ -338,6 +341,9 @@ int main (int argc, char *const *argv)
     { "no-progress",	no_argument,	   0, 'P' },
     { "continue",	no_argument,	   0, 'C' },
     { "camera",		required_argument, 0, 'c' },
+#if USE_THREADS
+    { "num-threads",	required_argument, 0, 'j' },
+#endif
 
     RENDER_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
@@ -347,7 +353,10 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:w:h:l:qpP"
+    "s:w:h:l:qpPCc:"
+#if USE_THREADS
+    "j:"
+#endif
     SCENE_DEF_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
     IMAGE_OUTPUT_SHORT_OPTIONS
@@ -361,6 +370,7 @@ int main (int argc, char *const *argv)
   unsigned width = 0, height = 0, size = DEFAULT_IMAGE_SIZE;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
+  unsigned num_threads = 1;
   bool recover = false;
   Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
@@ -397,6 +407,12 @@ int main (int argc, char *const *argv)
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
 			     limit_max_x_spec, limit_max_y_spec);
 	break;
+
+#if USE_THREADS
+      case 'j':
+	num_threads = clp.unsigned_opt_arg ();
+	break;
+#endif
 
       case 'c':
 	camera_cmds += clp.opt_arg ();
@@ -677,7 +693,7 @@ int main (int argc, char *const *argv)
   // Do the actual rendering.
   //
   RenderMgr render_mgr (global_render_state, camera, width, height);
-  render_mgr.render (pattern, output, prog, render_stats);
+  render_mgr.render (num_threads, pattern, output, prog, render_stats);
 
   // Done rendering.
   //
