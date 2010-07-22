@@ -31,7 +31,7 @@ Subspace::~Subspace ()
 void
 Subspace::make_space (RenderContext &context) const
 {
-  LockGuard<Mutex> guard (make_space_lock);
+  LockGuard guard (make_space_lock);
 
   if (! space)
     {

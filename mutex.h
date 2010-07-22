@@ -1,6 +1,6 @@
 // mutex.h -- mutex wrapper
 //
-//  Copyright (C) 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -72,17 +72,20 @@ public:
 // This is a standard class in c++0x std threads and boost threads, but
 // it's so simple that it's easier just to reimplement it ourselves.
 //
-template<typename M>
+// Note that unlike std::lock_guard, LockGuard is not a template, and
+// only works with Mutex (whereas std::lock_guard works with arbitrary
+// mutex types).
+//
 class LockGuard
 {
 public:
 
-  LockGuard (M &_m) : m (_m) { m.lock (); }
+  LockGuard (Mutex &_m) : m (_m) { m.lock (); }
   ~LockGuard () { m.unlock (); }
 
 private:
 
-  M &m;
+  Mutex &m;
 };
 
 
