@@ -31,10 +31,6 @@ public:
   SurfaceGroup () { }
   ~SurfaceGroup ();
 
-  // Return this surface's material.
-  //
-  virtual const Material *material () const { return 0; }
-
   // Add SURFACE to this group.
   //
   void add (const Surface *surface);

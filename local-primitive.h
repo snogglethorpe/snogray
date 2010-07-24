@@ -32,10 +32,6 @@ public:
     : LocalSurface (local_to_world_xform), _material (mat)
   { }
 
-  // Return this surface's material.
-  //
-  virtual const Material *material () const { return &*_material; }
-
   Ref<const Material> _material;
 };
 

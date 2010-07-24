@@ -505,8 +505,6 @@ namespace snogray {
   public:
 
     Primitive (const Ref<const Material> &mat);
-
-    virtual const Material *material () const { return &*_material; }
   };
 
 #if HAVE_SWIG_DISOWN

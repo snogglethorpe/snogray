@@ -30,10 +30,6 @@ public:
   Primitive (const Ref<const Material> &mat) : _material (mat) { }
   virtual ~Primitive () { }
 
-  // Return this surface's material.
-  //
-  virtual const Material *material () const { return &*_material; }
-
   Ref<const Material> _material;
 };
 

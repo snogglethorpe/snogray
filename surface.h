@@ -23,8 +23,6 @@ namespace snogray {
 
 class SpaceBuilder;
 class ShadowRay;
-class Material;
-class Light;
 class Media;
 
 
@@ -38,10 +36,6 @@ public:
 
   Surface () { }
   virtual ~Surface () { }
-
-  // Return this surface's material.
-  //
-  virtual const Material *material () const = 0;
 
   // A lightweight object used to return infomation from the
   // Surface::intersect method.  If that intersection ends up being used

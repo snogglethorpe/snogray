@@ -206,10 +206,6 @@ private:
       vi[2] = triang.vi[2];
     }
 
-    // Return this surface's material.
-    //
-    virtual const Material *material () const { return mesh.material (); }
-
     // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
     // to reflect the point of intersection, and return a Surface::IsecInfo
     // object describing the intersection (which should be allocated using
