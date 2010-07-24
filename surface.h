@@ -65,12 +65,6 @@ public:
     //
     virtual const Surface *surface () const = 0;
 
-    // Return the intersecting surface.  If the intersection was the result
-    // of a nested structure, the _outermost_ surface will be returned (for
-    // most surfaces, this is the same as the IsecInfo::surface method).
-    //
-    virtual const Surface *outermost_surface () const;
-
     // Return the material used by intersecting surface.
     // Note that it returns a _pointer_ to the material, not a Ref<>;
     // it is up to the caller to make sure the scene is not changed in a

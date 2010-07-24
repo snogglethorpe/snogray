@@ -65,10 +65,6 @@ private:
     {
       return subspace_isec_info->surface();
     }
-    virtual const Surface *outermost_surface () const
-    {
-      return instance;
-    }
 
     const Instance *instance;
 
