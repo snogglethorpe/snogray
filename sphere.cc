@@ -88,7 +88,8 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   Intersect isec (ray, media, context, sphere,
 		  Frame (point, s, t, norm), T, dTds, dTdt);
 
-  isec.no_self_shadowing = !isec.back;
+  if (! isec.back)
+    isec.no_self_shadowing = sphere;
 
   return isec;
 }

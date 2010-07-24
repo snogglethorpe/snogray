@@ -429,7 +429,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
   Intersect isec (ray, media, context, triangle,
 		  normal_frame, geom_frame, T, dTds,dTdt);
 
-  isec.no_self_shadowing = true;
+  isec.no_self_shadowing = triangle;
   isec.smoothing_group = static_cast<const void *>(&triangle->mesh);
 
   return isec;
