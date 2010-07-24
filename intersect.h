@@ -41,11 +41,11 @@ public:
   // the intersected surface is inside an instance or something.
   //
   Intersect (const Ray &ray, const Media &_media, RenderContext &context,
-	     const Surface *_surface,
+	     const Material &_material,
 	     const Frame &_normal_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
   Intersect (const Ray &ray, const Media &_media, RenderContext &context,
-	     const Surface *_surface,
+	     const Material &_material,
 	     const Frame &_normal_frame, const Frame &_geom_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
 
@@ -97,12 +97,6 @@ public:
   //
   Mempool &mempool () const { return context.mempool; }
 
-  // The surface which the source ray intersected.  This should always
-  // be non-zero (it's not a reference because all uses are as a
-  // pointer).
-  //
-  const Surface *surface;
-
   // A frame of reference corresponding to the surface-normal.  Most
   // lighting calculations are done in this frame of reference.
   //
@@ -140,7 +134,8 @@ public:
   //
   Vec geom_n;
 
-  // True if the source ray hit the back of SURFACE (relative to the normal).
+  // True if the source ray hit the back of the surface (relative to the
+  // normal).
   //
   bool back;
 
@@ -152,7 +147,7 @@ public:
   //
   const Bsdf *bsdf;
 
-  // Oft-used properties of SURFACE.
+  // Oft-used properties of surface.
   //
   const void *smoothing_group;
 

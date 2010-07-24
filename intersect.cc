@@ -135,13 +135,12 @@ Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
 
 Intersect::Intersect (const Ray &ray, const Media &_media,
 		      RenderContext &_context,
-		      const Surface *_surface,
+		      const Material &_material,
 		      const Frame &_normal_frame,
 		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
-  : surface (_surface),
-    normal_frame (_normal_frame), geom_frame (_normal_frame),
+  : normal_frame (_normal_frame), geom_frame (_normal_frame),
     // v and back are initialized by Intersect::finish_init
-    material (*_surface->material ()), bsdf (0),
+    material (_material), bsdf (0),
     smoothing_group (0), no_self_shadowing (0),
     tex_coords (normal_frame.origin, _tex_coords),
     media (_media), context (_context)
@@ -151,13 +150,12 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
 
 Intersect::Intersect (const Ray &ray, const Media &_media,
 		      RenderContext &_context,
-		      const Surface *_surface,
+		      const Material &_material,
 		      const Frame &_normal_frame, const Frame &_geom_frame,
 		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
-  : surface (_surface),
-    normal_frame (_normal_frame), geom_frame (_geom_frame),
+  : normal_frame (_normal_frame), geom_frame (_geom_frame),
     // v, geom_n, and back are initialized by Intersect::finish_init
-    material (*_surface->material ()), bsdf (0),
+    material (_material), bsdf (0),
     smoothing_group (0), no_self_shadowing (0),
     tex_coords (normal_frame.origin, _tex_coords),
     media (_media), context (_context)

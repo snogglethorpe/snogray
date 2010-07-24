@@ -81,7 +81,8 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
   //
   UV dTds (INV_PIf * 0.5f, 0), dTdt (0, INV_PIf);
 
-  return Intersect (ray, media, context, sphere, Frame (point, s, t, norm),
+  return Intersect (ray, media, context, *sphere->_material,
+		    Frame (point, s, t, norm),
 		    tex_coords, dTds, dTdt);
 }
 

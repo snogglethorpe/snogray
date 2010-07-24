@@ -65,7 +65,7 @@ Tripar::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   dist_t dvdt = oe2.y ? 1 / oe2.y : 0;
   UV dTds (duds, dvds), dTdt (0, dvdt);
 
-  Intersect isec (ray, media, context, tripar,
+  Intersect isec (ray, media, context, *tripar->_material,
 		  normal_frame, UV (u, v), dTds, dTdt);
 
   isec.no_self_shadowing = tripar;

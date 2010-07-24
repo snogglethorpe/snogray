@@ -80,7 +80,7 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   //
   UV dTds (0.5f * inv_rad1_len, 0), dTdt (0, 0.5f * inv_rad2_len);
 
-  Intersect isec (ray, media, context, ellipse,
+  Intersect isec (ray, media, context, *ellipse->_material,
 		  norm_frame, tex_coords, dTds, dTdt);
 
   isec.no_self_shadowing = ellipse;
