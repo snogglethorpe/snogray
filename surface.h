@@ -65,16 +65,6 @@ public:
     //
     virtual const Surface *surface () const = 0;
 
-    // Return the material used by intersecting surface.
-    // Note that it returns a _pointer_ to the material, not a Ref<>;
-    // it is up to the caller to make sure the scene is not changed in a
-    // way that would invalidate this poniter.
-    //
-    const Material *material () const
-    {
-      return &*surface()->material;
-    }
-
     // XXX get rid of this field; possible as soon as we remove the old
     // rendering infrastructure.
     //
