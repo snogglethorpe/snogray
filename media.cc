@@ -58,7 +58,7 @@ Media::refraction_medium (const Intersect &isec)
     return isec.media.enclosing_medium (default_medium);
   else
     {
-      const Medium *medium = isec.material->medium ();
+      const Medium *medium = isec.material.medium ();
       if (medium)
 	return *medium;
       else
@@ -80,7 +80,7 @@ Media::update_stack_for_transmission (const Media *&innermost,
   // without a medium has no effect on the media stack (so it
   // acts like a thin shell, rather than a volume).
   //
-  const Medium *medium = isec.material->medium ();
+  const Medium *medium = isec.material.medium ();
 
   if (medium)
     {

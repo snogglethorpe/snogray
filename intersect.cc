@@ -84,8 +84,8 @@ bump_map (Frame &normal_frame, const Ref<const Tex<float> > &tex,
 void
 Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
 {
-  if (material->bump_map)
-    bump_map (normal_frame, material->bump_map, tex_coords, dTds, dTdt);
+  if (material.bump_map)
+    bump_map (normal_frame, material.bump_map, tex_coords, dTds, dTdt);
 
   // Eye ray in the world frame.
   //
@@ -128,7 +128,7 @@ Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
   // intersect object as argument to Material::get_bsdf, and we want it to
   // be in a consistent state.
   //
-  bsdf = material->get_bsdf (*this);
+  bsdf = material.get_bsdf (*this);
 }
 
 
@@ -141,7 +141,7 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
   : surface (_surface),
     normal_frame (_normal_frame), geom_frame (_normal_frame),
     // v and back are initialized by Intersect::finish_init
-    material (_surface->material ()), bsdf (0),
+    material (*_surface->material ()), bsdf (0),
     smoothing_group (0), no_self_shadowing (0),
     tex_coords (normal_frame.origin, _tex_coords),
     media (_media), context (_context)
@@ -157,7 +157,7 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
   : surface (_surface),
     normal_frame (_normal_frame), geom_frame (_geom_frame),
     // v, geom_n, and back are initialized by Intersect::finish_init
-    material (_surface->material ()), bsdf (0),
+    material (*_surface->material ()), bsdf (0),
     smoothing_group (0), no_self_shadowing (0),
     tex_coords (normal_frame.origin, _tex_coords),
     media (_media), context (_context)

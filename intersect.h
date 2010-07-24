@@ -146,7 +146,7 @@ public:
 
   // Material of the surface at this intersection.
   //
-  const Material *material;
+  const Material &material;
 
   // BSDF used at this intersection.
   //
