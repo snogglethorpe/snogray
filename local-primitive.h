@@ -36,8 +36,6 @@ public:
   //
   virtual const Material *material () const { return &*_material; }
 
-private:
-
   Ref<const Material> _material;
 };
 
