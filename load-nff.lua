@@ -1,6 +1,6 @@
 -- load-nff.lua -- Load a .nff (or .aff) format mesh
 --
---  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -79,8 +79,9 @@ function load_nff (filename, scene, camera)
       end
    end
    local function check_mesh ()
+      check_mat ()
       if not cur_mesh then
-	 cur_mesh = mesh ()
+	 cur_mesh = mesh (cur_mat)
 	 cur_mesh.left_handed = false  -- NFF format uses right-handed meshes
       end
    end
@@ -178,7 +179,7 @@ function load_nff (filename, scene, camera)
 	 vi = cur_mesh:add_vertex (vi * geom_xform, vg)
 
 	 if prev then
-	    cur_mesh:add_triangle (center, prev, vi, cur_mat)
+	    cur_mesh:add_triangle (center, prev, vi)
 	 else
 	    v1 = vi
 	 end
@@ -186,13 +187,12 @@ function load_nff (filename, scene, camera)
 	 prev = vi
       end
 
-      cur_mesh:add_triangle (center, prev, v1, cur_mat)
+      cur_mesh:add_triangle (center, prev, v1)
    end
 
    -- Add a polygon, without normals
    --
    local function add_poly (num_verts, v1, v2, v3, ...)
-      check_mat()
       check_mesh()
 
       if num_verts ~= 3 + select('#', ...) then
@@ -206,7 +206,7 @@ function load_nff (filename, scene, camera)
       v1 = cur_mesh:add_vertex (v1 * geom_xform, vg)
       v2 = cur_mesh:add_vertex (v2 * geom_xform, vg)
       v3 = cur_mesh:add_vertex (v3 * geom_xform, vg)
-      cur_mesh:add_triangle (v1, v2, v3, cur_mat)
+      cur_mesh:add_triangle (v1, v2, v3)
 
       -- Add extra triangles for additional vertices
       --
@@ -214,7 +214,7 @@ function load_nff (filename, scene, camera)
       for i = 1, select ('#', ...) do
 	 local vi = select (i, ...)
 	 vi = cur_mesh:add_vertex (vi * geom_xform, vg)
-	 cur_mesh:add_triangle (v1, prev, vi, cur_mat)
+	 cur_mesh:add_triangle (v1, prev, vi)
 	 prev = vi
       end
    end
@@ -222,7 +222,6 @@ function load_nff (filename, scene, camera)
    -- Add a polygon, with normals
    --
    local function add_norm_poly (num_verts, v1, n1, v2, n2, v3, n3, ...)
-      check_mat()
       check_mesh()
 
       if num_verts * 2 ~= 6 + select('#', ...) then
@@ -232,7 +231,7 @@ function load_nff (filename, scene, camera)
       v1 = cur_mesh:add_vertex (v1 * geom_xform, n1 * norm_xform, vng)
       v2 = cur_mesh:add_vertex (v2 * geom_xform, n2 * norm_xform, vng)
       v3 = cur_mesh:add_vertex (v3 * geom_xform, n3 * norm_xform, vng)
-      cur_mesh:add_triangle (v1, v2, v3, cur_mat)
+      cur_mesh:add_triangle (v1, v2, v3)
 
       -- Add extra triangles for additional vertices
       --
@@ -241,7 +240,7 @@ function load_nff (filename, scene, camera)
 	 local vi = select (i, ...)
 	 local nn = select (i+1, ...)
 	 vi = cur_mesh:add_vertex (vi * geom_xform, nn * norm_xform, vng)
-	 cur_mesh:add_triangle (v1, prev, vi, cur_mat)
+	 cur_mesh:add_triangle (v1, prev, vi)
 	 prev = vi
       end
    end

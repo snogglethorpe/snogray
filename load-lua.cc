@@ -1,6 +1,6 @@
 // load-lua.cc -- Load lua scene file
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -174,7 +174,7 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
 //
 bool
 snogray::load_lua_file (const string &filename, const std::string &fmt,
-			Mesh &mesh, const MaterialDict &mat_dict)
+			Mesh &mesh)
 {
   bool loaded = false;
 
@@ -184,7 +184,6 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   // Swig types for the stuff we're gonna pass into lua.
   //
   swig_type_info *mesh_swig_type = SWIG_TypeQuery (L, "snogray::Mesh *");
-  swig_type_info *matm_swig_type = SWIG_TypeQuery (L, "snogray::MaterialDict *");
 
   // Call "snogray.load_mesh (filename, mesh, camera)" with our
   // mesh and camera pointers.
@@ -194,7 +193,6 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   lua_pushstring (L, filename.c_str ());		// arg 0
   lua_pushstring (L, fmt.c_str ());			// arg 1
   SWIG_NewPointerObj (L, &mesh, mesh_swig_type, 0);	// arg 2
-  SWIG_NewPointerObj (L, &mat_dict, matm_swig_type, 0);	// arg 3
 
   do_call (L, 4, 1);					// do the call
   loaded = lua_toboolean (L, -1);			// get result

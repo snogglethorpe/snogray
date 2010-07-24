@@ -1,6 +1,6 @@
 // mesh-load.cc -- Mesh loading
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ using namespace std;
 // Generic mesh-file loading
 
 void
-Mesh::load (const string &file_name, const MaterialDict &mat_dict)
+Mesh::load (const string &file_name)
 {
   std::cout << "* loading mesh: " << file_name << std::endl;
 
@@ -44,18 +44,18 @@ Mesh::load (const string &file_name, const MaterialDict &mat_dict)
       string ext = filename_ext (file_name);
 
       if (ext == "ply")
-	load_ply_file (file_name, *this, mat_dict.get_default ());
+	load_ply_file (file_name, *this);
  
       else if (ext == "msh" || ext == "mesh")
-	load_msh_file (file_name, *this, mat_dict);
+	load_msh_file (file_name, *this);
 
 #ifdef HAVE_LIB3DS
       else if (ext == "3ds")
-	load_3ds_file (file_name, *this, mat_dict);
+	load_3ds_file (file_name, *this);
 #endif
 
 #ifdef USE_LUA
-      else if (load_lua_file (file_name, ext, *this, mat_dict))
+      else if (load_lua_file (file_name, ext, *this))
 	{ /* loaded */ }
 #endif
 

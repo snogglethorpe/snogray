@@ -1,6 +1,6 @@
 // load-3ds.cc -- Load 3ds scene file
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -38,6 +38,7 @@
 #include "lambert.h"
 #include "cook-torrance.h"
 #include "sphere-light.h"
+#include "material-dict.h"
 #include "glow.h"
 
 #include "load-3ds.h"
@@ -463,10 +464,9 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 
 	  Xform vert_xform = Xform (X) * xform;
 
+	  // Get the actual mesh.
+	  //
 	  Mesh *mesh = single_mesh;
-
-	  if (! mesh)
-	    mesh = new Mesh ();
 
 	  // Keep track of smoothing flags applied to each vertex; we
 	  // must split vertices in case two faces with different
@@ -500,6 +500,14 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 		}
 	      if (! cached_mat)
 		continue;	// No material, don't use this face
+
+	      // Create the mesh if necessary.  This is the only time we
+	      // can actually set the material.
+	      //
+	      if (! mesh)
+		mesh = new Mesh (cached_mat);
+	      else if (&*cached_mat != &*mesh->material)
+		throw file_error ("Mesh cannot contain more than one material");
 
 	      // Indices into vert_info for the vertices in this face.
 	      //
@@ -577,7 +585,7 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	      Mesh::vert_index_t v1 = vert_info[vind[1]].index;
 	      Mesh::vert_index_t v2 = vert_info[vind[2]].index;
 
-	      mesh->add_triangle (v0, v1, v2, cached_mat);
+	      mesh->add_triangle (v0, v1, v2);
 	    }
 
 	  // Compute vertex normals.  This turns on smoothing for the
@@ -679,14 +687,12 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
   l.convert (xform);
 }
 
-// Load meshes (and any materials they use) from a 3ds scene file into
-// MESH.  Materials are filtered through MAT_DICT.
+// Load meshes (and any materials they use) from a 3ds scene file inot MESH.
 //
 void
-snogray::load_3ds_file (const string &filename, Mesh &mesh,
-			const MaterialDict &mat_dict)
+snogray::load_3ds_file (const string &filename, Mesh &mesh)
 {
-  TdsLoader l (&mesh, mat_dict);
+  TdsLoader l (&mesh);
 
   l.load (filename);
 

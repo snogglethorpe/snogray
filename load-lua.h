@@ -1,6 +1,6 @@
 // load-lua.h -- Load lua scene file
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@ namespace snogray {
 class Scene;
 class Camera;
 class Mesh;
-class MaterialDict;
 
 
 // If FILENAME is a format that has a Lua scene loader, load the file named
@@ -40,7 +39,7 @@ extern bool load_lua_file (const std::string &filename, const std::string &fmt,
 // exception is thrown.
 //
 extern bool load_lua_file (const std::string &filename, const std::string &fmt,
-			   Mesh &mesh, const MaterialDict &mat_dict);
+			   Mesh &mesh);
 
 
 // Cleanup and free all global Lua state.

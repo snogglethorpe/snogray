@@ -20,7 +20,6 @@
 #include "surface.h"
 #include "pos.h"
 #include "xform.h"
-#include "material-dict.h"
 
 
 namespace snogray {
@@ -45,7 +44,7 @@ public:
   // Basic constructor.  Actual contents must be defined later.  If no
   // material is defined, all triangles added must have an explicit material.
   //
-  Mesh (const Ref<const Material> &mat = 0)
+  Mesh (const Ref<const Material> &mat)
     : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
   { }
 
@@ -55,25 +54,18 @@ public:
 	const std::string &file_name, bool smooth = true)
     : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
   {
-    load (file_name, MaterialDict (mat));
+    load (file_name);
     if (smooth)
       compute_vertex_normals ();
-  }
-  Mesh (const std::string &file_name, const MaterialDict &mat_dict)
-    : Surface (0), axis (Vec (0, 0, 1)), left_handed (true)
-  {
-    load (file_name, mat_dict);
   }
 
 
   // Add a triangle to the mesh.
   //
-  void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-		     const Ref<const Material> &mat = 0);
+  void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i);
+  void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2);
   void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		     const Ref<const Material> &mat = 0);
-  void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		     VertexGroup &vgroup, const Ref<const Material> &mat = 0);
+		     VertexGroup &vgroup);
 
   // Add a vertex to the mesh (with no normal).
   //
@@ -126,8 +118,7 @@ public:
 
   // For loading mesh from any file-type (automatically determined)
   //
-  void load (const std::string &file_name,
-	     const MaterialDict &mat_dict = MaterialDict ());
+  void load (const std::string &file_name);
 
   // Add this (or some other) surfaces to the space being built by
   // SPACE_BUILDER.

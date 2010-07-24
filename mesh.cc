@@ -137,38 +137,27 @@ Mesh::add_normal (vert_index_t vert_index, const Vec &normal)
 // Add a triangle to the mesh
 
 void
-Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-		    const Ref<const Material> &_mat)
+Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i)
 {
-  Ref<const Material> mat = _mat;
-
-  if (! mat)
-    mat = material;
-
-  if (! mat)
-    throw std::runtime_error ("Mesh triangle with no material");
-
-  Triangle triang (*this, v0i, v1i, v2i, mat);
-
+  Triangle triang (*this, v0i, v1i, v2i, material);
   triangles.push_back (triang);
 }
 
 void
 Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		    VertexGroup &vgroup, const Ref<const Material> &mat)
+		    VertexGroup &vgroup)
 {
   vert_index_t v0i = add_vertex (v0, vgroup);
   vert_index_t v1i = add_vertex (v1, vgroup);
   vert_index_t v2i = add_vertex (v2, vgroup);
 
-  add_triangle (v0i, v1i, v2i, mat);
+  add_triangle (v0i, v1i, v2i);
 }
 
 void
-Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		    const Ref<const Material> &mat)
+Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2)
 {
-  add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2), mat);
+  add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2));
 }
 
 

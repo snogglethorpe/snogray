@@ -1,6 +1,6 @@
 // load-ply.cc -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,16 +30,14 @@ using namespace snogray;
 
 struct RplyState
 {
-  RplyState (Mesh &_mesh, const Ref<const Material> &_mat)
-    : mesh (_mesh), base_vert_index (mesh.num_vertices ()), mat (_mat),
+  RplyState (Mesh &_mesh)
+    : mesh (_mesh), base_vert_index (mesh.num_vertices ()),
       last_vert_index (0)
   { }
 
   Mesh &mesh;
 
   Mesh::vert_index_t base_vert_index;
-
-  Ref<const Material> mat;
 
   double vals[3];
 
@@ -141,8 +139,7 @@ face_cb (p_ply_argument arg)
   if (n == 2)
     s->mesh.add_triangle (Mesh::vert_index_t (s->vals[0]) + s->base_vert_index,
 			  Mesh::vert_index_t (s->vals[1]) + s->base_vert_index,
-			  Mesh::vert_index_t (s->vals[2]) + s->base_vert_index,
-			  s->mat);
+			  Mesh::vert_index_t (s->vals[2]) + s->base_vert_index);
 
   return 1;
 }
@@ -150,17 +147,14 @@ face_cb (p_ply_argument arg)
 
 // Main loading function
 
-// Load mesh from a .ply format mesh file into MESH.  If non-zero the
-// material MAT will be used for triangles loaded (otherwise MESH's
-// default material will be used).
+// Load mesh from a .ply format mesh file into MESH.
 //
 void
-snogray::load_ply_file (const std::string &filename, Mesh &mesh,
-			const Ref<const Material> &mat)
+snogray::load_ply_file (const std::string &filename, Mesh &mesh)
 {
   // State used by all our call back functions.
   //
-  RplyState state (mesh, mat);
+  RplyState state (mesh);
 
   // The rply library uses a void* value to store client state, so keep a
   // pointer to STATE in that form.

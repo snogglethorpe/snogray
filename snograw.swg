@@ -50,6 +50,7 @@
 
 #include "coords.h"
 #include "material.h"
+#include "material-dict.h"
 #include "mesh.h"
 #include "scene.h"
 #include "camera.h"
@@ -641,22 +642,19 @@ namespace snogray {
   {
   public:
 
-    Mesh (const Ref<Material> &mat = 0);
+    Mesh (const Ref<Material> &mat);
     Mesh (const Ref<Material> &mat, const char *file_name,
 	  bool smooth = true);
-    Mesh (const char *file_name, const MaterialDict &mat_dict);
 
     typedef unsigned vert_index_t;
 
     typedef std::map<Pos, vert_index_t> VertexGroup;
     typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
 
-    void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-		       const Ref<Material> &mat = Ref<Material> ());
+    void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i);
+    void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2);
     void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       const Ref<Material> &mat = Ref<Material> ());
-    void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       VertexGroup &vgroup, const Ref<Material> &mat = Ref<Material> ());
+		       VertexGroup &vgroup);
 
     vert_index_t add_vertex (const Pos &pos);
     vert_index_t add_vertex (const Pos &pos, VertexGroup &vgroup);
@@ -671,8 +669,7 @@ namespace snogray {
 		  bool with_normals = false);
     void reserve_normals ();
 
-    void load (const char *file_name,
-	       const MaterialDict &mat_dict = MaterialDict ());
+    void load (const char *file_name);
 
     void compute_vertex_normals (float max_angle = 45 * PIf / 180);
 

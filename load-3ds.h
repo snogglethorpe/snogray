@@ -1,6 +1,6 @@
 // load-3ds.h -- Load 3ds scene file
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,11 +28,9 @@ class MaterialDict;
 extern void load_3ds_file (const std::string &filename,
 			   Scene &scene, Camera &camera);
 
-// Load meshes (and any materials they use) from a 3ds scene file into
-// MESH.  Materials are filtered through MAT_DICT.
+// Load meshes (and any materials they use) from a 3ds scene file into MESH.
 //
-extern void load_3ds_file (const std::string &filename,
-			   Mesh &mesh, const MaterialDict &mat_dict);
+extern void load_3ds_file (const std::string &filename, Mesh &mesh);
 
 }
 

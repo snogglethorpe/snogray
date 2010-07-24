@@ -1,6 +1,6 @@
 // load-msh.cc -- Load a .msh format mesh file
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,7 +18,6 @@
 
 #include "excepts.h"
 #include "mesh.h"
-#include "material-dict.h"
 
 #include "load-msh.h"
 
@@ -26,12 +25,10 @@
 using namespace snogray;
 
 
-// Load mesh from a .msh format mesh file into MESH.  Materials are
-// filtered through MAT_DICT.
+// Load mesh from a .msh format mesh file into MESH.
 //
 void
-snogray::load_msh_file (const std::string &filename, Mesh &mesh,
-			const MaterialDict &mat_dict)
+snogray::load_msh_file (const std::string &filename, Mesh &mesh)
 {
   std::ifstream stream (filename.c_str());
   if (! stream)
@@ -48,27 +45,11 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
     {
       unsigned base_vert = mesh.num_vertices ();
 
-      Ref<const Material> mat;
       unsigned num_vertices, num_triangles;
 
-      // See whether a named material or the number of vertices follows.
+      // Get the number of vertices.
       //
-      if (isdigit (kw[0]))
-	{
-	  // No, it must be the number of vertices.  Just use a default
-	  // material in this case.
-	  
-	  mat = mat_dict.get_default ();
-	  num_vertices = atoi (kw);
-	}
-      else
-	{
-	  // Yes, KW is a material name; map it to a material, and read the
-	  // number of vertices from the next line.
-
-	  mat = mat_dict.get (kw);
-	  stream >> num_vertices;
-	}
+      num_vertices = atoi (kw);
 
       // The next line should be a triangle count.
       //
@@ -103,8 +84,7 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
 	  stream >> v1i;
 	  stream >> v2i;
 
-	  mesh.add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i,
-			     mat);
+	  mesh.add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i);
 	}
 
       stream >> kw;
