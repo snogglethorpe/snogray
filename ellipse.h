@@ -15,7 +15,7 @@
 
 #include "tripar-isec.h"
 
-#include "surface.h"
+#include "primitive.h"
 
 
 namespace snogray {
@@ -26,7 +26,7 @@ namespace snogray {
 // It is implemented as a parallelogram surface with additional
 // intersection constraints.
 //
-class Ellipse : public Surface
+class Ellipse : public Primitive
 {
 public:
 
@@ -38,7 +38,7 @@ public:
   //
   Ellipse (const Ref<const Material> &mat,
 	   const Pos &center, const Vec &radius1, const Vec &radius2)
-    : Surface (mat),
+    : Primitive (mat),
       corner (center - radius1 - radius2),
       edge1 (radius1 * 2), edge2 (radius2 * 2)
   { }

@@ -16,10 +16,8 @@
 using namespace snogray;
 
 
-LocalSurface::LocalSurface (const Ref<const Material> &mat,
-			    const Xform &local_to_world_xform)
-  : Surface (mat),
-    local_to_world (local_to_world_xform),
+LocalSurface::LocalSurface (const Xform &local_to_world_xform)
+  : local_to_world (local_to_world_xform),
     world_to_local (local_to_world_xform.inverse ())
 { }
 

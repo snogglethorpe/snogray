@@ -13,6 +13,7 @@
 #include "bsdf.h"
 #include "scene.h"
 #include "media.h"
+#include "material.h"
 #include "photon-shooter.h"
 
 #include "path-integ.h"

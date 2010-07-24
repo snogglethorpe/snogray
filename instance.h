@@ -27,8 +27,12 @@ class Instance : public LocalSurface
 public:
 
   Instance (const Ref<Subspace> &_subspace, const Xform &local_to_world_xform)
-    : LocalSurface (0, local_to_world_xform), subspace (_subspace)
+    : LocalSurface (local_to_world_xform), subspace (_subspace)
   { }
+
+  // Return this surface's material.
+  //
+  virtual const Material *material () const { return 0; }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
   // to reflect the point of intersection, and return a Surface::IsecInfo

@@ -14,25 +14,25 @@
 #define __CYLINDER_H__
 
 
-#include "local-surface.h"
+#include "local-primitive.h"
 
 
 namespace snogray {
 
 
-class Cylinder : public LocalSurface
+class Cylinder : public LocalPrimitive
 {
 public:
 
   Cylinder (const Ref<const Material> &mat, const Xform &local_to_world_xform)
-    : LocalSurface (mat, local_to_world_xform)
+    : LocalPrimitive (mat, local_to_world_xform)
   { }
 
   // Constructor for making a cylinder from a base/axis/radius
   //
   Cylinder (const Ref<const Material> &mat,
 	    const Pos &base, const Vec &axis, float radius)
-    : LocalSurface (mat, xform (base, axis, radius))
+    : LocalPrimitive (mat, xform (base, axis, radius))
   { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)

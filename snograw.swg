@@ -49,6 +49,7 @@
 #include <cstring>
 
 #include "coords.h"
+#include "primitive.h"
 #include "material.h"
 #include "material-dict.h"
 #include "mesh.h"
@@ -499,6 +500,15 @@ namespace snogray {
     virtual BBox bbox () const;
   };
 
+  class Primitive : public Surface
+  {
+  public:
+
+    Primitive (const Ref<const Material> &mat);
+
+    virtual const Material *material () const { return &*_material; }
+  };
+
 #if HAVE_SWIG_DISOWN
   // The only time we pass Surface pointers is when handing over control
   // of Surface objects to C++, in which case we want to avoid any GC by
@@ -507,7 +517,17 @@ namespace snogray {
   %apply SWIGTYPE* DISOWN {Surface *}
 #endif
 
-  class Sphere : public Surface
+  %ignore LocalSurface;
+  class LocalSurface : public Surface
+  {
+  };
+
+  %ignore LocalPrimitive;
+  class LocalPrimitive : public LocalSurface
+  {
+  };
+
+  class Sphere : public Primitive
   {
   public:
 
@@ -516,7 +536,7 @@ namespace snogray {
     Sphere (const Ref<Material> &mat, const Pos &_center, const Vec &_radius);
   };
 
-  class Cylinder : public Surface
+  class Cylinder : public LocalPrimitive
   {
   public:
 
@@ -525,14 +545,14 @@ namespace snogray {
 	      float radius);
   };
 
-  class Sphere2 : public Surface
+  class Sphere2 : public LocalPrimitive
   {
   public:
 
     Sphere2 (const Ref<Material> &mat, const Xform &_xform);
   };
 
-  class Tripar : public Surface
+  class Tripar : public Primitive
   {
   public:
 
@@ -540,17 +560,12 @@ namespace snogray {
 	    const Vec &_e1, const Vec &_e2, bool _parallelogram = false);
   };
 
-  class Ellipse : public Surface
+  class Ellipse : public Primitive
   {
   public:
 
     Ellipse (const Ref<Material> &mat,
 	     const Pos &center, const Vec &radius1, const Vec &radius2);
-  };
-
-  %ignore LocalSurface;
-  class LocalSurface : public Surface
-  {
   };
 
   %ignore Subspace;
@@ -638,7 +653,7 @@ namespace snogray {
     }
   }
 
-  class Mesh : public Surface
+  class Mesh : public Primitive
   {
   public:
 

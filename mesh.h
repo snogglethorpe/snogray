@@ -17,7 +17,7 @@
 #include <vector>
 #include <map>
 
-#include "surface.h"
+#include "primitive.h"
 #include "pos.h"
 #include "xform.h"
 
@@ -25,7 +25,7 @@
 namespace snogray {
 
 
-class Mesh : public Surface
+class Mesh : public Primitive
 {
 public:
 
@@ -45,14 +45,14 @@ public:
   // material is defined, all triangles added must have an explicit material.
   //
   Mesh (const Ref<const Material> &mat)
-    : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
+    : Primitive (mat), axis (Vec (0, 0, 1)), left_handed (true)
   { }
 
   // All-in-one constructor for loading a mesh from FILE_NAME.
   //
   Mesh (const Ref<const Material> &mat,
 	const std::string &file_name, bool smooth = true)
-    : Surface (mat), axis (Vec (0, 0, 1)), left_handed (true)
+    : Primitive (mat), axis (Vec (0, 0, 1)), left_handed (true)
   {
     load (file_name);
     if (smooth)
@@ -188,13 +188,11 @@ private:
   {
   public:
 
-    Triangle (const Mesh &_mesh)
-      : Surface (_mesh.material), mesh (_mesh)
-    { }
+    Triangle (const Mesh &_mesh) : mesh (_mesh) { }
+
     Triangle (const Mesh &_mesh,
-	      vert_index_t v0i, vert_index_t v1i, vert_index_t v2i,
-	      const Ref<const Material> &mat = 0)
-      : Surface (mat ? mat : _mesh.material), mesh (_mesh)
+	      vert_index_t v0i, vert_index_t v1i, vert_index_t v2i)
+      : mesh (_mesh)
     {
       vi[0] = v0i;
       vi[1] = v1i;
@@ -206,8 +204,11 @@ private:
       vi[0] = triang.vi[0];
       vi[1] = triang.vi[1];
       vi[2] = triang.vi[2];
-      material = triang.material;
     }
+
+    // Return this surface's material.
+    //
+    virtual const Material *material () const { return mesh.material (); }
 
     // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
     // to reflect the point of intersection, and return a Surface::IsecInfo

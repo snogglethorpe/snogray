@@ -14,7 +14,7 @@
 #define __SPHERE2_H__
 
 
-#include "local-surface.h"
+#include "local-primitive.h"
 
 
 namespace snogray {
@@ -25,12 +25,12 @@ namespace snogray {
 // Sphere2 objects use more memory than Sphere objects, but the transform
 // allows more flexibility.
 //
-class Sphere2 : public LocalSurface
+class Sphere2 : public LocalPrimitive
 {
 public:
 
   Sphere2 (const Ref<const Material> &mat, const Xform &local_to_world_xform)
-    : LocalSurface (mat, local_to_world_xform)
+    : LocalPrimitive (mat, local_to_world_xform)
   { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)

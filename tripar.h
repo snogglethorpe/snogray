@@ -15,20 +15,20 @@
 
 #include "tripar-isec.h"
 
-#include "surface.h"
+#include "primitive.h"
 
 
 namespace snogray {
 
 
-class Tripar : public Surface
+class Tripar : public Primitive
 {
 public:
 
   Tripar (const Ref<const Material> &mat,
 	  const Pos &_v0, const Vec &_e1, const Vec &_e2,
 	  bool _parallelogram = false)
-    : Surface (mat), v0 (_v0), e1 (_e1), e2 (_e2),
+    : Primitive (mat), v0 (_v0), e1 (_e1), e2 (_e2),
       parallelogram (_parallelogram)
   { }
 

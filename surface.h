@@ -17,13 +17,14 @@
 #include "ray.h"
 #include "bbox.h"
 #include "intersect.h"
-#include "material.h"
 
 
 namespace snogray {
 
 class SpaceBuilder;
 class ShadowRay;
+class Material;
+class Light;
 class Media;
 
 
@@ -35,8 +36,12 @@ class Surface
 {
 public:
 
-  Surface (const Ref<const Material> &mat) : material (mat) { }
+  Surface () { }
   virtual ~Surface () { }
+
+  // Return this surface's material.
+  //
+  virtual const Material *material () const = 0;
 
   // A lightweight object used to return infomation from the
   // Surface::intersect method.  If that intersection ends up being used
@@ -94,8 +99,6 @@ public:
   // mesh are in the same smoothing group.
   //
   virtual const void *smoothing_group () const;
-
-  Ref<const Material> material;
 };
 
 

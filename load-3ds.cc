@@ -353,7 +353,7 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
   if (!found_user_mapping && !mat)
     mat = user_materials.get_default ();
   if (!found_user_mapping && !mat && single_mesh)
-    mat = single_mesh->material;
+    mat = single_mesh->material ();
 
   return mat;
 }
@@ -506,7 +506,7 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	      //
 	      if (! mesh)
 		mesh = new Mesh (cached_mat);
-	      else if (&*cached_mat != &*mesh->material)
+	      else if (&*cached_mat != mesh->material ())
 		throw file_error ("Mesh cannot contain more than one material");
 
 	      // Indices into vert_info for the vertices in this face.

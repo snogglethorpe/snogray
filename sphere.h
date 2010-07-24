@@ -13,27 +13,27 @@
 #ifndef __SPHERE_H__
 #define __SPHERE_H__
 
-#include "surface.h"
+#include "primitive.h"
 
 
 namespace snogray {
 
 
-class Sphere : public Surface
+class Sphere : public Primitive
 {
 public:
 
   Sphere (const Ref<const Material> &mat, dist_t _radius, const Frame &_frame)
-    : Surface (mat), radius (_radius), frame (_frame)
+    : Primitive (mat), radius (_radius), frame (_frame)
   { }
 
   Sphere (const Ref<const Material> &mat, const Pos &_center, dist_t _radius)
-    : Surface (mat), radius (_radius), frame (_center)
+    : Primitive (mat), radius (_radius), frame (_center)
   { }
 
   Sphere (const Ref<const Material> &mat,
 	  const Pos &_center, const Vec &_radius)
-    : Surface (mat),
+    : Primitive (mat),
       radius (_radius.length ()), frame (_center, _radius.unit ())
   { }
 

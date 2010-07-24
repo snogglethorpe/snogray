@@ -1,0 +1,46 @@
+// primitive.h -- Physical primitive
+//
+//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//
+// This source code is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation; either version 3, or (at
+// your option) any later version.  See the file COPYING for more details.
+//
+// Written by Miles Bader <miles@gnu.org>
+//
+
+#ifndef __PRIMITIVE_H__
+#define __PRIMITIVE_H__
+
+#include "surface.h"
+#include "material.h"
+
+
+namespace snogray {
+
+
+// A primitive is a subclass of Surface that also stores a material.  It
+// is the superclass of most concrete objects.
+//
+class Primitive : public Surface
+{
+public:
+
+  Primitive (const Ref<const Material> &mat) : _material (mat) { }
+  virtual ~Primitive () { }
+
+  // Return this surface's material.
+  //
+  virtual const Material *material () const { return &*_material; }
+
+private:
+
+  Ref<const Material> _material;
+};
+
+
+}
+
+
+#endif // __PRIMITIVE_H__

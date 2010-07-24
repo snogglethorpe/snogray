@@ -139,7 +139,7 @@ Mesh::add_normal (vert_index_t vert_index, const Vec &normal)
 void
 Mesh::add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i)
 {
-  Triangle triang (*this, v0i, v1i, v2i, material);
+  Triangle triang (*this, v0i, v1i, v2i);
   triangles.push_back (triang);
 }
 

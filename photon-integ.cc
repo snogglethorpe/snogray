@@ -16,6 +16,7 @@
 #include "scene.h"
 #include "bsdf.h"
 #include "media.h"
+#include "material.h"
 #include "mis-sample-weight.h"
 #include "photon-shooter.h"
 

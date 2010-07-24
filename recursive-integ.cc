@@ -13,6 +13,7 @@
 #include "scene.h"
 #include "bsdf.h"
 #include "media.h"
+#include "material.h"
 
 #include "recursive-integ.h"
 
