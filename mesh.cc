@@ -459,8 +459,12 @@ Mesh::Triangle::intersects (const ShadowRay &ray, RenderContext &) const
 	  //
 	  if (real_back != ray.isec.back)
 	    {
+	      // XXX to get the other triangle, we take advantage of the
+	      // fact that Mesh::Triangle::IsecInfo::make_intersect sets
+	      // Intersect::no_self_shadowing to the triangle.
+	      //
 	      const Triangle *other_tri
-		= static_cast<const Triangle *>(ray.isec.surface);
+		= static_cast<const Triangle *>(ray.isec.no_self_shadowing);
 	      bool other_back
 		= dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
 
