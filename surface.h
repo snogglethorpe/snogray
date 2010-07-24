@@ -85,14 +85,6 @@ public:
   // SPACE_BUILDER.
   //
   virtual void add_to_space (SpaceBuilder &space_builder) const;
- 
-  // The "smoothing group" this surface belongs to, or zero if it belongs
-  // to none.  The smoothing group affects shadow-casting: if two objects
-  // are in the same smoothing group, they will not be shadowed by
-  // back-surface shadows from each other; typically all triangles in a
-  // mesh are in the same smoothing group.
-  //
-  virtual const void *smoothing_group () const;
 };
 
 

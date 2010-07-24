@@ -514,23 +514,6 @@ Mesh::Triangle::bbox () const
   return bbox;
 }
 
-// The "smoothing group" this surface belongs to, or zero if it belongs
-// to none.  The smoothing group affects shadow-casting: if two objects
-// are in the same smoothing group, they will not be shadowed by
-// back-surface shadows from each other; typically all triangles in a
-// mesh are in the same smoothing group.
-//
-const void *
-Mesh::Triangle::smoothing_group () const
-{
-  // We only need a smoothing group if the mesh uses interpolated normals.
-
-  if (! mesh.vertex_normals.empty ())
-    return static_cast<const void *>(&mesh);
-  else
-    return 0;
-}
-
 
 
 // Object for calculating vertex normals.

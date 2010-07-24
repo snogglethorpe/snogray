@@ -27,18 +27,6 @@ Surface::add_to_space (SpaceBuilder &space_builder) const
   space_builder.add (this);
 }
 
-// The "smoothing group" this surface belongs to, or zero if it belongs
-// to none.  The smoothing group affects shadow-casting: if two objects
-// are in the same smoothing group, they will not be shadowed by
-// back-surface shadows from each other; typically all triangles in a
-// mesh are in the same smoothing group.
-//
-const void *
-Surface::smoothing_group () const
-{
-  return 0;
-}
-
 // Stubs -- these should be abstract methods, but C++ doesn't allow a
 // class with abstract methods to be used in a list/vector, so we just
 // signal a runtime error if they're ever called.
