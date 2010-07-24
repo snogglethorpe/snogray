@@ -56,7 +56,6 @@ private:
     { }
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const;
-    virtual const Surface *surface () const { return tripar; }
     const Tripar *tripar;
     dist_t u, v;
   };

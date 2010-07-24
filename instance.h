@@ -61,11 +61,6 @@ private:
 				      RenderContext &context)
       const;
 
-    virtual const Surface *surface () const
-    {
-      return subspace_isec_info->surface();
-    }
-
     const Instance *instance;
 
     const Surface::IsecInfo *subspace_isec_info;

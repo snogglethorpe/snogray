@@ -61,10 +61,6 @@ public:
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const = 0;
 
-    // Return the intersecting surface.
-    //
-    virtual const Surface *surface () const = 0;
-
     // XXX get rid of this field; possible as soon as we remove the old
     // rendering infrastructure.
     //

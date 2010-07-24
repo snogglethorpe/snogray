@@ -61,7 +61,6 @@ private:
     { }
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const;
-    virtual const Surface *surface () const { return sphere; }
     const Sphere *sphere;
   };
 

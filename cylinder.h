@@ -63,8 +63,6 @@ private:
 				      RenderContext &context)
       const;
 
-    virtual const Surface *surface () const { return cylinder; }
-
     const Cylinder *cylinder;
 
     // Intersection point in the cylinder's local coordinate system.
