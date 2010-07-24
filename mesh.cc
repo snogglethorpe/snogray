@@ -426,7 +426,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
 
   // Make the intersect object.
   //
-  Intersect isec (ray, media, context, *triangle->mesh._material,
+  Intersect isec (ray, media, context, *triangle->mesh.material,
 		  normal_frame, geom_frame, T, dTds,dTdt);
 
   isec.no_self_shadowing = triangle;

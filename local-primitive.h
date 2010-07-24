@@ -29,10 +29,10 @@ public:
 
   LocalPrimitive (const Ref<const Material> &mat,
 		  const Xform &local_to_world_xform)
-    : LocalSurface (local_to_world_xform), _material (mat)
+    : LocalSurface (local_to_world_xform), material (mat)
   { }
 
-  Ref<const Material> _material;
+  Ref<const Material> material;
 };
 
 

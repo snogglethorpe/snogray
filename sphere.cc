@@ -85,7 +85,7 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   //
   UV dTds (inv_z_circum, 0), dTdt (0, inv_circum * 2);
 
-  Intersect isec (ray, media, context, *sphere->_material,
+  Intersect isec (ray, media, context, *sphere->material,
 		  Frame (point, s, t, norm), T, dTds, dTdt);
 
   if (! isec.back)

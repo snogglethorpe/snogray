@@ -27,10 +27,10 @@ class Primitive : public Surface
 {
 public:
 
-  Primitive (const Ref<const Material> &mat) : _material (mat) { }
+  Primitive (const Ref<const Material> &mat) : material (mat) { }
   virtual ~Primitive () { }
 
-  Ref<const Material> _material;
+  Ref<const Material> material;
 };
 
 
