@@ -63,7 +63,6 @@ Scene::add (const Surface *surface)
 void
 Scene::add (Light *light)
 {
-  light->num = num_lights();	// Give LIGHT an index
   lights.push_back (light);
 
   if (light->is_environ_light ())

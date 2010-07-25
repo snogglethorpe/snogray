@@ -112,7 +112,7 @@ public:
     dist_t dist;
   };
 
-  Light () : num (0) { }
+  Light () { }
   virtual ~Light () { }
 
   // Return a sample of this light from the viewpoint of ISEC (using a
@@ -148,11 +148,6 @@ public:
   // after the entire scene has been loaded.
   //
   virtual void scene_setup (const Scene &/*scene*/) { }
-
-  // Each light has a number, which we use as a index to access various
-  // data structures referring to lights.
-  //
-  unsigned num;
 };
 
 
