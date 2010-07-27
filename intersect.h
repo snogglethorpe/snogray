@@ -14,7 +14,9 @@
 #define __INTERSECT_H__
 
 #include "uv.h"
+#include "ref.h"
 #include "ray.h"
+#include "bsdf.h"
 #include "frame.h"
 #include "color.h"
 #include "render-context.h"
@@ -26,7 +28,6 @@ namespace snogray {
 class Surface;
 class Material;
 class Media;
-class Bsdf;
 
 
 // This just packages up the result of a scene intersection search and
@@ -145,7 +146,7 @@ public:
 
   // BSDF used at this intersection.
   //
-  const Bsdf *bsdf;
+  Ref<const Bsdf> bsdf;
 
   // Oft-used properties of surface.
   //
