@@ -163,6 +163,18 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
   finish_init (ray, dTds, dTdt);
 }
 
+// Copy-constructor.
+//
+Intersect::Intersect (const Intersect &isec)
+  : normal_frame (isec.normal_frame), geom_frame (isec.geom_frame),
+    material (isec.material), bsdf (isec.bsdf),
+    smoothing_group (isec.smoothing_group),
+    no_self_shadowing (isec.no_self_shadowing),
+    tex_coords (isec.tex_coords),
+    media (isec.media), context (isec.context)
+{
+}
+
 Intersect::~Intersect ()
 {
 }

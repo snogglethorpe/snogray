@@ -50,6 +50,10 @@ public:
 	     const Frame &_normal_frame, const Frame &_geom_frame,
 	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
 
+  // Copy-constructor.
+  //
+  Intersect (const Intersect &isec);
+
   ~Intersect ();
 
   // Return the cosine of the angle between the surface normal and VEC.
