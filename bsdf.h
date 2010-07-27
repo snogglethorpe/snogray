@@ -25,8 +25,13 @@ class Intersect;
 
 // A Bsdf object represents the state of a Material object at an
 // intersection (a particular point on the surface, viewed from a
-// particular direction), and is used to calculate how light scatters from
-// the surface.
+// particular direction), and is used to calculate how light scatters
+// from the surface.
+//
+// The Bsdf may be reference-counted using Ref<Bsdf>.  However Bsdf
+// objects are not deleted when the reference-count goes to zero, only
+// the destructor is called.  This is because Bsdf objects are not
+// allocated using the standard allocator.
 //
 class Bsdf
 {
@@ -107,8 +112,18 @@ public:
     float pdf;
   };
 
-  Bsdf (const Intersect &_isec) : isec (_isec) { }
+  Bsdf (const Intersect &_isec) : isec (_isec), ref_count (0) { }
   virtual ~Bsdf () {}
+
+  // Methods implementing the reference-counting protocol used by Ref<>.
+  //
+  // Unlike the RefCounted class most reference-counted classes use as a
+  // superclass, Bsdf objects are not deleted when the reference-count
+  // goes to zero, only the destructor is called.  This is because Bsdf
+  // objects are not allocated using the standard allocator.
+  //
+  void ref () const { ++ref_count; }
+  void deref () const { if (--ref_count <= 0) this->~Bsdf (); }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
   // FLAGS is the types of samples we'd like.
@@ -137,6 +152,12 @@ public:
   // The intersection where this Bsdf was created.
   //
   const Intersect &isec;
+
+private:
+
+  // Reference-count.
+  //
+  mutable int ref_count;
 };
 
 
