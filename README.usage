@@ -35,11 +35,17 @@ COMMAND-LINE OPTIONS
 
    Some of the more useful options include:
 
+    -j NUM
+    --threads=NUM
+
+        Use NUM threads for rendering (the default is 1).  This option
+        is only available on systems that support multi-threading.
+
     -C
     --continue
 
-        If the specified output-image file already exists, snogray
-        will refuse to overwrite it, and will exit with an error
+        Normally, if the specified output-image file already exists,
+        snogray will refuse to overwrite it, and will exit with an error
         message.
 
         If you give the -C/--continue option, snogray will instead
