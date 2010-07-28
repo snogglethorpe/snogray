@@ -283,7 +283,7 @@ s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 s "  -w, --width=WIDTH          Set image width to WIDTH pixels"
 s "  -h, --height=HEIGHT        Set image height to HEIGHT lines"
 #if USE_THREADS
-s "  -j, --num-threads=NUM      Use NUM threads for rendering"
+s "  -j, --threads=NUM          Use NUM threads for rendering"
 #endif
 n
 s RENDER_OPTIONS_HELP
@@ -342,7 +342,7 @@ int main (int argc, char *const *argv)
     { "continue",	no_argument,	   0, 'C' },
     { "camera",		required_argument, 0, 'c' },
 #if USE_THREADS
-    { "num-threads",	required_argument, 0, 'j' },
+    { "threads",	required_argument, 0, 'j' },
 #endif
 
     RENDER_LONG_OPTIONS,
