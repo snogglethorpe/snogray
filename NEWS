@@ -2,7 +2,7 @@ v0.3
 
     + Implement multi-threaded rendering (-j/--threads).
 
-    + Add photo-tracing renderer (-Sphoton).  The quality isn't so
+    + Add photo-mapping renderer (-Sphoton).  The quality isn't so
       great, but it's a start.
 
     + Rewrite the environment-map light (EnvmapLight) to sample the
