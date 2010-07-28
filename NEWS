@@ -1,0 +1,31 @@
+v0.3
+
+    + Implement multi-threaded rendering (-j/--threads).
+
+    + Add photo-tracing renderer (-Sphoton).  The quality isn't so
+      great, but it's a start.
+
+    + Rewrite the environment-map light (EnvmapLight) to sample the
+      environment-map exactly (as well as having cleaner and smaller
+      code).  This makes environment-map lighting less noisy (as the
+      PDF exactly matches the illumination).
+
+    + Add "sampleimg" utility, which outputs a "dithered" version
+      of an input image.
+
+
+v0.2
+
+    + Rewrite much of the rendering infrastructure to allow more
+      flexibility in implementing different rendering methods.
+      The -S/--surface-integ option allows choosing different renderers.
+
+    + Add a real path-tracing renderer (-Spath).
+
+    + Add support for better random-number generation, using std::random
+      or boost::random if possible.
+
+
+v0.1
+
+    Original version
