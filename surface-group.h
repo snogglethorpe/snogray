@@ -44,6 +44,13 @@ public:
   //
   virtual void add_to_space (SpaceBuilder &space_builder) const;
 
+  // If this surface, or some part of it, uses any light-emitting
+  // materials, add appropriate Light objects to LIGHTS.  Any lights
+  // added become owned by the owner of LIGHTS, and will be destroyed
+  // when it is.
+  //
+  virtual void add_lights (std::vector<Light *> &lights) const;
+
   // Return the number of surfaces directly in this group.
   //
   unsigned num_surfaces () const { return surfaces.size (); }

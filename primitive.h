@@ -30,6 +30,16 @@ public:
   Primitive (const Ref<const Material> &mat) : material (mat) { }
   virtual ~Primitive () { }
 
+  // If this surface, or some part of it, uses any light-emitting
+  // materials, add appropriate Light objects to LIGHTS.  Any lights
+  // added become owned by the owner of LIGHTS, and will be destroyed
+  // when it is.
+  //
+  virtual void add_lights (std::vector<Light *> &lights) const
+  {
+    material->add_light (*this, lights);
+  }
+
   Ref<const Material> material;
 };
 

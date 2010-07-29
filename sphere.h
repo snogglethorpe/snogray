@@ -52,6 +52,14 @@ public:
   //
   virtual BBox bbox () const;
 
+  // Add a single area light, using this surface's shape, to LIGHTS,
+  // with with intensity INTENSITY.  An error will be signaled if this
+  // surface does not support lighting.
+  //
+  virtual void add_light (const TexVal<Color> &intensity,
+			  std::vector<Light *> &lights)
+    const;
+
 private:
 
   struct IsecInfo : public Surface::IsecInfo

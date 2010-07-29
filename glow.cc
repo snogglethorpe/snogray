@@ -10,7 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "surface.h"
+
 #include "glow.h"
+
 
 using namespace snogray;
 
@@ -49,6 +52,16 @@ Glow::medium () const
 {
   return underlying_material ? underlying_material->medium () : 0;
 } 
+
+// If this is a light-emitting material, call SURFACE's
+// Surface::add_light method with an appropriate intensity to add a
+// light to LIGHTS (for non-light-emitting materials, do nothing).
+//
+void
+Glow::add_light (const Surface &surface, std::vector<Light *> &lights) const
+{
+  surface.add_light (color, lights);
+}
 
 
 // arch-tag: af19d9b6-7b4a-49ec-aee4-529be6aba253

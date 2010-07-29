@@ -43,5 +43,17 @@ Surface::intersect (Ray &, RenderContext &) const { barf (); }
 bool Surface::intersects (const ShadowRay &, RenderContext &) const { barf (); }
 BBox Surface::bbox () const { barf (); }
 
+// Add a single area light, using this surface's shape, to LIGHTS,
+// with with intensity INTENSITY.  An error will be signaled if this
+// surface does not support lighting.
+//
+void
+Surface::add_light (const TexVal<Color> &,
+		    std::vector<Light *> &lights)
+  const
+{
+  throw std::runtime_error ("surface can not be used as an area light");
+}
+
 
 // arch-tag: a62e1854-d7ca-4cb3-a8dc-9be328c53430

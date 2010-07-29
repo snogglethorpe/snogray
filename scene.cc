@@ -119,6 +119,10 @@ Scene::setup (const SpaceBuilderFactory &space_builder_factory)
   //
   build_space (space_builder_factory);
 
+  // Add area-lights.
+  //
+  surfaces.add_lights (lights);
+
   // call each light's Light::scene_setup method.
   //
   for (std::vector<Light *>::iterator li = lights.begin ();

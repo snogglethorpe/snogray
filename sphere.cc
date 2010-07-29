@@ -13,6 +13,7 @@
 #include "intersect.h"
 #include "shadow-ray.h"
 #include "sphere-isec.h"
+#include "sphere-light.h"
 
 #include "sphere.h"
 
@@ -111,6 +112,18 @@ Sphere::bbox () const
   const Pos &cent = frame.origin;
   return BBox (Pos (cent.x - radius, cent.y - radius, cent.z - radius),
 	       Pos (cent.x + radius, cent.y + radius, cent.z + radius));
+}
+
+// Add a single area light, using this surface's shape, to LIGHTS,
+// with with intensity INTENSITY.  An error will be signaled if this
+// surface does not support lighting.
+//
+void
+Sphere::add_light (const TexVal<Color> &intensity,
+		   std::vector<Light *> &lights)
+  const
+{
+  lights.push_back (new SphereLight (frame.origin, radius, intensity));
 }
 
 

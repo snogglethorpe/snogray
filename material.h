@@ -50,6 +50,16 @@ public:
   //
   virtual bool emits_light () const { return false; }
 
+  // If this is a light-emitting material, call SURFACE's
+  // Surface::add_light method with an appropriate intensity to add a
+  // light to LIGHTS (for non-light-emitting materials, do nothing).
+  //
+  virtual void add_light (const Surface & /*surface*/,
+			  std::vector<Light *> & /*lights*/)
+    const
+  {
+  }
+
   Ref<const Tex<float> > bump_map;
 };
 
