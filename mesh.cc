@@ -463,13 +463,20 @@ Mesh::Triangle::intersects (const ShadowRay &ray, RenderContext &) const
 	      // fact that Mesh::Triangle::IsecInfo::make_intersect sets
 	      // Intersect::no_self_shadowing to the triangle.
 	      //
+	      // Intersect::no_self_shadowing is cleared in the case of
+	      // instances, so we just give up if it's zero.
+	      //
 	      const Triangle *other_tri
 		= static_cast<const Triangle *>(ray.isec.no_self_shadowing);
-	      bool other_back
-		= dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
 
-	      if (real_back != other_back)
-		return false;
+	      if (other_tri)
+		{
+		  bool other_back
+		    = dot (other_tri->raw_normal_unscaled(), ray.dir) > 0;
+
+		  if (real_back != other_back)
+		    return false;
+		}
 
 #if 0
 	      // Vertex indices of this and the other triangle
