@@ -13,9 +13,10 @@
 #ifndef __RECT_LIGHT_H__
 #define __RECT_LIGHT_H__
 
-#include "light.h"
 #include "color.h"
 #include "pos.h"
+#include "tex.h"
+#include "light.h"
 
 
 namespace snogray {
@@ -26,11 +27,7 @@ class RectLight : public Light
 public:
 
   RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
-	     const Color &_intensity)
-    : pos (_pos), side1 (_side1), side2 (_side2),
-      intensity (_intensity), area (cross (side1, side2).length ()),
-      frame (_pos, cross (_side2, _side1).unit ()) // XXX align w/ side1&side2
-  { }
+	     const TexVal<Color> &_intensity);
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is

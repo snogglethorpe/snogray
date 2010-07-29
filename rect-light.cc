@@ -10,6 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <stdexcept>
+
 #include "intersect.h"
 #include "tripar-isec.h"
 #include "cos-dist.h"
@@ -19,6 +21,20 @@
 
 
 using namespace snogray;
+
+
+RectLight::RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
+		      const TexVal<Color> &_intensity)
+  : pos (_pos), side1 (_side1), side2 (_side2),
+    intensity (_intensity.default_val),
+    area (cross (side1, side2).length ()),
+    frame (_pos, cross (_side2, _side1).unit ()) // XXX align w/ side1&side2
+{
+  if (_intensity.tex)
+    throw std::runtime_error
+      ("textured intensity not supported by RectLight");
+}
+
 
 
 // RectLight::sample

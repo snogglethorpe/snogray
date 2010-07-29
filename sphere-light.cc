@@ -10,6 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <stdexcept>
+
 #include "snogmath.h"
 #include "cos-dist.h"
 #include "intersect.h"
@@ -20,6 +22,16 @@
 
 
 using namespace snogray;
+
+
+SphereLight::SphereLight (const Pos &_pos, float _radius,
+			  const TexVal<Color> &_intensity)
+  : pos (_pos), radius (_radius), intensity (_intensity.default_val) 
+{
+  if (_intensity.tex)
+    throw std::runtime_error
+      ("textured intensity not supported by SphereLight");
+}
 
 
 // Return the solid angle subtended by this light, where LIGHT_CENTER_VEC

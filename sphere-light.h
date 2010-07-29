@@ -13,9 +13,10 @@
 #ifndef __SPHERE_LIGHT_H__
 #define __SPHERE_LIGHT_H__
 
-#include "light.h"
 #include "color.h"
 #include "pos.h"
+#include "tex.h"
+#include "light.h"
 
 
 namespace snogray {
@@ -25,9 +26,7 @@ class SphereLight : public Light
 {
 public:
 
-  SphereLight (const Pos &_pos, float _radius, const Color &_intensity)
-    : pos (_pos), radius (_radius), intensity (_intensity) 
-  { }
+  SphereLight (const Pos &_pos, float _radius, const TexVal<Color> &_intensity);
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is
