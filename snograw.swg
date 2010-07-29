@@ -69,7 +69,7 @@
 #include "plastic.h"
 #include "mirror.h"
 #include "point-light.h"
-#include "rect-light.h"
+#include "tripar-light.h"
 #include "sphere-light.h"
 #include "far-light.h"
 #include "cook-torrance.h"
@@ -831,12 +831,12 @@ namespace snogray {
     PointLight (const Pos &_pos, const Color &col);
   };
 
-  class RectLight : public Light
+  class TriparLight : public Light
   {
   public:
 
-    RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
-	       const Color &_intensity);
+    TriparLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
+		 bool parallelogram, const Color &_intensity);
   };
 
   class SphereLight : public Light

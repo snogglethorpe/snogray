@@ -989,8 +989,16 @@ function sphere_light (pos, radius, intens)
    return raw.SphereLight (pos, radius, color (intens))
 end
 
+function tripar_light (corner, side1, side2, parallelogram, intens)
+   return raw.TriparLight (corner, side1, side2, parallelogram, color (intens))
+end
+
 function rect_light (corner, side1, side2, intens)
-   return raw.RectLight (corner, side1, side2, color (intens))
+   return raw.TriparLight (corner, side1, side2, true, color (intens))
+end
+
+function triangle_light (corner, side1, side2, intens)
+   return raw.TriparLight (corner, side1, side2, false, color (intens))
 end
 
 function far_light (dir, angle, intens)

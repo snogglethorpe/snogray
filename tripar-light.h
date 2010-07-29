@@ -1,4 +1,4 @@
-// rect-light.h -- Rectangular light
+// tripar-light.h -- Rectangular light
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RECT_LIGHT_H__
-#define __RECT_LIGHT_H__
+#ifndef __TRIPAR_LIGHT_H__
+#define __TRIPAR_LIGHT_H__
 
 #include "color.h"
 #include "pos.h"
@@ -22,12 +22,12 @@
 namespace snogray {
 
 
-class RectLight : public Light
+class TriparLight : public Light
 {
 public:
 
-  RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
-	     const TexVal<Color> &_intensity);
+  TriparLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
+	     bool _parallelogram, const TexVal<Color> &_intensity);
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is
@@ -60,11 +60,16 @@ public:
   // but convenient.
   //
   Frame frame;
+
+  // If true, this is a parallelogram, otherwise it is a triangle.
+  //
+  bool parallelogram;
 };
 
 
 }
 
-#endif // __RECT_LIGHT_H__
+#endif // __TRIPAR_LIGHT_H__
+
 
 // arch-tag: d78e86c5-6efa-42ba-811f-332ea423090c

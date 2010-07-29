@@ -1,4 +1,4 @@
-// rect-light.cc -- Rectangular light
+// tripar-light.cc -- Rectangular light
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
@@ -17,34 +17,36 @@
 #include "cos-dist.h"
 #include "scene.h"
 
-#include "rect-light.h"
+#include "tripar-light.h"
 
 
 using namespace snogray;
 
 
-RectLight::RectLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
-		      const TexVal<Color> &_intensity)
+TriparLight::TriparLight (const Pos &_pos, const Vec &_side1, const Vec &_side2,
+			  bool _parallelogram,
+			  const TexVal<Color> &_intensity)
   : pos (_pos), side1 (_side1), side2 (_side2),
     intensity (_intensity.default_val),
     area (cross (side1, side2).length ()),
-    frame (_pos, cross (_side2, _side1).unit ()) // XXX align w/ side1&side2
+    frame (_pos, cross (_side2, _side1).unit ()), // XXX align w/ side1&side2
+    parallelogram (_parallelogram)
 {
   if (_intensity.tex)
     throw std::runtime_error
-      ("textured intensity not supported by RectLight");
+      ("textured intensity not supported by TriparLight");
 }
 
 
 
-// RectLight::sample
+// TriparLight::sample
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
 // (0,0,1)), based on the parameter PARAM.
 //
 Light::Sample
-RectLight::sample (const Intersect &isec, const UV &param) const
+TriparLight::sample (const Intersect &isec, const UV &param) const
 {
   // The position and edges of the light, converted to the intersection
   // normal frame of reference.
@@ -67,9 +69,20 @@ RectLight::sample (const Intersect &isec, const UV &param) const
       //
       Vec neg_light_norm = -isec.normal_frame.to (frame.z);
 
+      float u = param.u, v = param.v;
+  
+      // If this is a triangle (rather than a parallelogram), then fold the
+      // u/v parameters as necessary to stay within the triangle.
+      //
+      if (!parallelogram && u + v > 1)
+	{
+	  u = 1 - u;
+	  v = 1 - v;
+	}
+
       // Compute the position of the sample at U,V within the light.
       //
-      const Vec s_vec = org + s1 * param.u + s2 * param.v;
+      const Vec s_vec = org + s1 * u + s2 * v;
 
       if (isec.cos_n (s_vec) > 0 && isec.cos_geom_n (s_vec) > 0)
 	{
@@ -97,19 +110,30 @@ RectLight::sample (const Intersect &isec, const UV &param) const
 }
 
 
-// RectLight::sample, free-sampling vhariant
+// TriparLight::sample, free-sampling vhariant
 
 // Return a "free sample" of this light.
 //
 Light::FreeSample
-RectLight::sample (const UV &param, const UV &dir_param) const
+TriparLight::sample (const UV &param, const UV &dir_param) const
 {
+  float u = param.u, v = param.v;
+  
+  // If this is a triangle (rather than a parallelogram), then fold the
+  // u/v parameters as necessary to stay within the triangle.
+  //
+  if (!parallelogram && u + v > 1)
+    {
+      u = 1 - u;
+      v = 1 - v;
+    }
+
   // Choose a position on the light according to PARAM.
   //
-  Pos s_pos = pos + side1 * param.u + side2 * param.v;
+  Pos s_pos = pos + side1 * u + side2 * v;
   float pos_pdf = 1 / area;
 
-  // Choose a direction in the light's frame-of-reference according to
+  // Choose a ditriparion in the light's frame-of-reference according to
   // DIR_PARAM.
   //
   CosDist dist;
@@ -135,14 +159,14 @@ RectLight::sample (const UV &param, const UV &dir_param) const
 }
 
 
-// RectLight::eval
+// TriparLight::eval
 
-// Evaluate this light in direction DIR from the viewpoint of ISEC (using
-// a surface-normal coordinate system, where the surface normal is
-// (0,0,1)).
+// Evaluate this light in ditriparion DIR from the viewpoint of ISEC
+// (using a surface-normal coordinate system, where the surface normal
+// is (0,0,1)).
 //
 Light::Value
-RectLight::eval (const Intersect &isec, const Vec &dir) const
+TriparLight::eval (const Intersect &isec, const Vec &dir) const
 {
   // The light normal in the intersection normal frame of reference
   // (we actually use the negative of it in calculation below).
@@ -155,7 +179,7 @@ RectLight::eval (const Intersect &isec, const Vec &dir) const
 	   max_dist);
 
   dist_t dist, u, v;
-  if (parallelogram_intersect (pos, side1, side2, ray, dist, u, v))
+  if (tripar_intersect (pos, side1, side2, parallelogram, ray, dist, u, v))
     {
       // Area to solid-angle conversion, dw/dA
       //   = cos (-light_normal, sample_dir) / distance^2
