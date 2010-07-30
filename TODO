@@ -1,5 +1,7 @@
 Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
+* TODO Metropolis Light Transport
+
 * TODO Efficient Global Illumination.
 
   * DONE Photon mapping, as described by Henrik Wann Jensen
@@ -9,80 +11,30 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
   * TODO Irradiance Caching
 
-* TODO Reorganize the Surface abstraction
+* TODO Add a more general area-light type
 
-  The Surface type currently contains geometry, and a material pointer.
+  Currently there are individual light classes for each type of
+  area-light -- e.g. SphereLight and TriparLight.  This might be
+  desirable for commonly used surface types, for efficiency, but to
+  allow other types of surfaces to be used for lighting, it would be
+  nice to have a general AreaLight class that takes care of the lighting
+  and calls Surface methods to handle shape-specific details.
 
-  We would also like to add light information to primitives (see also
-  "TODO Make surfaces lights").  Most likely, this means adding a light
-  pointer to surfaces (which would usually be NULL).
+* TODO Add support for area-lights in instances
 
-  Because Surface is the basic object used for search acceleration, and
-  meshes contain many, many, surfaces, this means that there's lots of
-  space consumed by redundant material pointers, and potentially by NULL
-  light pointers, in mesh triangle objects.  [This is especially bad on
-  a 64-bit architecture, as each pointer takes 8 bytes!  Even on
-  machines with lots of memory, the cache footprint of all those
-  pointers is a big problem.]
+  This can be done by:
 
-  To allow expanding information stored in primitives, while reducing
-  the size of meshes, we can do:
-  
-  1. Add a new class Primitive, which is a subclass of Surface
+  1. Have Subspace maintain its own list of lights inside the subspace.
 
-  2. Move the Surface::material field to Primitive::_material
+  2. Add a introducing a light class (InstanceLight?), which acts as a
+     wrapper for each light inside the subspace, and can be added to the
+     global light list; it takes care of transforming coordinates etc
+     and then invokes the wrapped light's methods.
 
-  3. Most primitives (spheres, cylinders, entire meshes, etc), will be
-     subclasses of Primitive instead of Surface, but as most external
-     users will still refer to Surface, mesh triangles and other special
-     cases can just be subclasses of that instead, to save space.
-
-  4. Add a virtual Surface::material() method for getting the material
-     for a surface; most rendering primitives will subclasses of
-     Primitive, and Primitive::material() will just return its _material
-     field directly, but for instance, mesh triangles will look up the
-     material in their enclosing data to save space in the triangle
-     object.
-
-  5. Add a virtual Surface::light() method for obtaining a surface's
-     associated light; like for materials, Primitive will implement this
-     via an explicit field and mesh triangles will look it up in the
-     parent mesh.
-
-  6. The Intersect constructor will call the surfaces material() and
-     light() fields to fill in the Intersect::material and (the new)
-     Intersect::light fields.  This is not only for efficiency, but to
-     also give, for instance, Instance::IsecInfo::make_intersect a
-     chance to replace the light in a new intersection with a globally
-     valid light (so the light actually stored in the primitive would
-     have to be some sort of proxy light, and the instance would need to
-     have a mapping between proxy lights inside that instance and real
-     lights outside of it [repeat as necessary for nested instances].
-
-* TODO Allow any surface to be a light
-
-  Currently lights are entirely separate from surfaces, so if a user
-  wants to for instance, make a "light bulb", he has to create both a
-  sphere-light and add a sphere surface (with a special "glowing"
-  material) to the scene at the same point.  Furthemore, there's a
-  duplication of knowledge between source files implementing a "foo
-  surface" and a "foo light".
-
-  A more convenient way would be for lights to automatically be
-  associated with surfaces, although from the user's point of view, the
-  "lightness" of a surface is actually related to the _material_ of that
-  surface.  Users could simply add a sphere with a "glowing material",
-  and the code would automatically figure out there should be a
-  sphere-light at that location.  [There would still need to
-  non-associated lights, for special light types like point lights and
-  environment-map lights.]
-  
-  The rendering code still needs to have a global list of light objects,
-  so there basically should be a step before rendering where the scene
-  is walked, and a light created for any surface with a "light material".
-
-  For more details on how this is stored into surfaces, see "TODO
-  Reorganize the Surface abstraction".
+  3. Instance::add_lights then just iterates over its subspace's light
+     list, and adds an appropriate wrapper light for each light therein.
+     [it also needs to handle initializing the subspace's light list if
+     it is the first instance to have a chance.]
 
 * TODO Add alternative types of sample generation
 
@@ -180,7 +132,9 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 * TODO Implement alternative acceleration structures
 
-  * TODO Bounding-Interval Hierarchy
+  * TODO Bounding-Interval Hierarchy.  This can be modified to support
+    objects in non-leaf nodes, which should help with some of the
+    object-size issues.
 
   * TODO KD-trees
 
@@ -276,6 +230,81 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 Completed items:
 
+
+* DONE Reorganize the Surface abstraction
+
+  The Surface type currently contains geometry, and a material pointer.
+
+  We would also like to add light information to primitives (see also
+  "TODO Make surfaces lights").  Most likely, this means adding a light
+  pointer to surfaces (which would usually be NULL).
+
+  Because Surface is the basic object used for search acceleration, and
+  meshes contain many, many, surfaces, this means that there's lots of
+  space consumed by redundant material pointers, and potentially by NULL
+  light pointers, in mesh triangle objects.  [This is especially bad on
+  a 64-bit architecture, as each pointer takes 8 bytes!  Even on
+  machines with lots of memory, the cache footprint of all those
+  pointers is a big problem.]
+
+  To allow expanding information stored in primitives, while reducing
+  the size of meshes, we can do:
+  
+  1. Add a new class Primitive, which is a subclass of Surface
+
+  2. Move the Surface::material field to Primitive::_material
+
+  3. Most primitives (spheres, cylinders, entire meshes, etc), will be
+     subclasses of Primitive instead of Surface, but as most external
+     users will still refer to Surface, mesh triangles and other special
+     cases can just be subclasses of that instead, to save space.
+
+  4. Add a virtual Surface::material() method for getting the material
+     for a surface; most rendering primitives will subclasses of
+     Primitive, and Primitive::material() will just return its _material
+     field directly, but for instance, mesh triangles will look up the
+     material in their enclosing data to save space in the triangle
+     object.
+
+  5. Add a virtual Surface::light() method for obtaining a surface's
+     associated light; like for materials, Primitive will implement this
+     via an explicit field and mesh triangles will look it up in the
+     parent mesh.
+
+  6. The Intersect constructor will call the surfaces material() and
+     light() fields to fill in the Intersect::material and (the new)
+     Intersect::light fields.  This is not only for efficiency, but to
+     also give, for instance, Instance::IsecInfo::make_intersect a
+     chance to replace the light in a new intersection with a globally
+     valid light (so the light actually stored in the primitive would
+     have to be some sort of proxy light, and the instance would need to
+     have a mapping between proxy lights inside that instance and real
+     lights outside of it [repeat as necessary for nested instances].
+
+* DONE Allow any surface to be a light
+
+  Currently lights are entirely separate from surfaces, so if a user
+  wants to for instance, make a "light bulb", he has to create both a
+  sphere-light and add a sphere surface (with a special "glowing"
+  material) to the scene at the same point.  Furthemore, there's a
+  duplication of knowledge between source files implementing a "foo
+  surface" and a "foo light".
+
+  A more convenient way would be for lights to automatically be
+  associated with surfaces, although from the user's point of view, the
+  "lightness" of a surface is actually related to the _material_ of that
+  surface.  Users could simply add a sphere with a "glowing material",
+  and the code would automatically figure out there should be a
+  sphere-light at that location.  [There would still need to
+  non-associated lights, for special light types like point lights and
+  environment-map lights.]
+  
+  The rendering code still needs to have a global list of light objects,
+  so there basically should be a step before rendering where the scene
+  is walked, and a light created for any surface with a "light material".
+
+  For more details on how this is stored into surfaces, see "TODO
+  Reorganize the Surface abstraction".
 
 * DONE Implement better integrators
 
