@@ -37,7 +37,6 @@
 #include "phong.h"
 #include "lambert.h"
 #include "cook-torrance.h"
-#include "sphere-light.h"
 #include "material-dict.h"
 #include "glow.h"
 
@@ -627,7 +626,6 @@ TdsLoader::convert (const Xform &xform)
 	  const Pos loc = pos (l->position) * xform;
 	  const Color intens = color (l->color) * l->multiplier * area_scale;
 
-	  scene->add (new SphereLight (loc, radius, intens));
 	  scene->add (new Sphere (new Glow (intens), loc, radius));
 	}
     }
