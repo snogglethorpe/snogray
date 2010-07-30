@@ -174,10 +174,11 @@ endif
 
 libsnogscene_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h bsdf.h	\
 	camera.cc camera.h coords.h cyl-xform.cc cyl-xform.h dist.h	\
-	frame.h material-dict.cc material-dict.h material.cc material.h	\
-	matrix4.cc matrix4.h matrix4.tcc medium.h octree.cc octree.h	\
-	photon.h photon-map.cc photon-map.h pos.h pos-io.cc pos-io.h	\
-	primitive.h quadratic-roots.h scene.cc scene.h space.cc space.h	\
+	frame.h local-xform.cc local-xform.h material-dict.cc		\
+	material-dict.h material.cc material.h matrix4.cc matrix4.h	\
+	matrix4.tcc medium.h octree.cc octree.h photon.h photon-map.cc	\
+	photon-map.h pos.h pos-io.cc pos-io.h primitive.h		\
+	quadratic-roots.h scene.cc scene.h space.cc space.h		\
 	space-builder.h sphere-isec.h spherical-coords.h surface.cc	\
 	surface.h tex.h tex-coords.h tripar-isec.h tuple3.h uv.h	\
 	uv-io.cc uv-io.h vec.h vec-io.cc vec-io.h xform.h xform-base.h	\
@@ -233,14 +234,13 @@ libsnogmat_a_SOURCES = cook-torrance.cc cook-torrance.h cos-dist.h	\
 # Snogray surface library, libsnogsurf.a
 #
 
-libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
-	instance.cc instance.h local-primitive.h local-surface.cc	\
-	local-surface.h mesh.cc mesh.h sphere.cc sphere.h sphere2.cc	\
-	sphere2.h subspace.cc subspace.h surface-group.cc		\
-	surface-group.h tessel.cc tessel.h tessel-param.cc		\
-	tessel-param.h tessel-sinc.cc tessel-sinc.h tessel-sphere.cc	\
-	tessel-sphere.h tessel-torus.cc tessel-torus.h tripar.cc	\
-	tripar.h
+libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	 \
+	instance.cc instance.h local-primitive.h local-surface.h mesh.cc \
+	mesh.h sphere.cc sphere.h sphere2.cc sphere2.h subspace.cc	 \
+	subspace.h surface-group.cc surface-group.h tessel.cc tessel.h	 \
+	tessel-param.cc tessel-param.h tessel-sinc.cc tessel-sinc.h	 \
+	tessel-sphere.cc tessel-sphere.h tessel-torus.cc tessel-torus.h	 \
+	tripar.cc tripar.h
 
 
 ################################################################

@@ -14,9 +14,8 @@
 #define __LOCAL_SURFACE_H__
 
 
-#include "xform.h"
-
 #include "surface.h"
+#include "local-xform.h"
 
 
 namespace snogray {
@@ -29,11 +28,13 @@ namespace snogray {
 // It basically just holds two transformations (one for each direction) and
 // implements some convenience methods.
 //
-class LocalSurface : public Surface
+class LocalSurface : public Surface, public LocalXform
 {
 public:
 
-  LocalSurface (const Xform &local_to_world_xform);
+  LocalSurface (const Xform &local_to_world_xform)
+    : LocalXform (local_to_world_xform)
+  { }
 
   // Return a bounding box for this surface.
   //
@@ -41,23 +42,7 @@ public:
   // (-1,-1,-1) to (1,1,1) in the local coordinate system, as that is
   // an appropriate bounding box for many subclasses of LocalSurface.
   //
-  virtual BBox bbox () const;
-
-  // Return the local-space normal NORM transformed to world-space.
-  //
-  Vec normal_to_world (const Vec &norm) const
-  {
-    // A normal transformation requires transforming by the transpose of
-    // the inverse of the desired transfprmation; since we already have the
-    // inverse of the local-to-world available as world_to_local, we can just
-    // use "world_to_local.transpose_transform" to do the job.
-    //
-    return world_to_local.transpose_transform (norm);
-  }
-
-  // Transforms converting between world and local coordinates.
-  //
-  Xform local_to_world, world_to_local;
+  virtual BBox bbox () const { return unit_bbox (); }
 };
 
 

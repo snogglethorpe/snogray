@@ -15,7 +15,9 @@
 
 
 #include "material.h"
-#include "local-surface.h"
+
+#include "primitive.h"
+#include "local-xform.h"
 
 
 namespace snogray {
@@ -23,16 +25,22 @@ namespace snogray {
 
 // This is a mixture of Primitive and LocalSurface.
 //
-class LocalPrimitive : public LocalSurface
+class LocalPrimitive : public Primitive, public LocalXform
 {
 public:
 
   LocalPrimitive (const Ref<const Material> &mat,
 		  const Xform &local_to_world_xform)
-    : LocalSurface (local_to_world_xform), material (mat)
+    : Primitive (mat), LocalXform (local_to_world_xform)
   { }
 
-  Ref<const Material> material;
+  // Return a bounding box for this surface.
+  //
+  // This just returns a bounding box surrounding a 2x2x2 cube from
+  // (-1,-1,-1) to (1,1,1) in the local coordinate system, as that is
+  // an appropriate bounding box for many subclasses of LocalSurface.
+  //
+  virtual BBox bbox () const { return unit_bbox (); }
 };
 
 
