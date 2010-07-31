@@ -32,10 +32,10 @@ ImageOutput::ImageOutput (const std::string &filename,
 			  const ValTable &params)
   : width (_width), height (_height),
     min_y (0),
-    sink (ImageSink::open (filename, _width, _height, params)),
-    filter_conv (params),
     intensity_scale (params.get_float ("exposure", 1)),
-    intensity_power (params.get_float ("contrast", 1))
+    intensity_power (params.get_float ("contrast", 1)),
+    sink (ImageSink::open (filename, _width, _height, params)),
+    filter_conv (params)
 {
 }
 

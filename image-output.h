@@ -131,6 +131,14 @@ public:
   //
   int min_y;
 
+  // Modifiers applied to output values.  Note that these are applied
+  // when a particular row is flushed to the output file, not while the
+  // row is being accumulated (this usually doesn't matter, but can in
+  // the case of image recovery, where previous _output_ values are
+  // being copied).
+  //
+  float intensity_scale;   // intensity multiplier (1 == nop)
+  float intensity_power;   // power which intensity is raised to (1 == nop)
 
 private:
 
@@ -156,9 +164,6 @@ private:
   // ImageOutput::min_y.
   //
   std::deque<SampleRow *> rows;
-
-  float intensity_scale;   // intensity multiplier (1 == nop)
-  float intensity_power;   // power which intensity is raised to (1 == nop)
 };
 
 }
