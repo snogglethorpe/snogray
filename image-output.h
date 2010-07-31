@@ -74,8 +74,15 @@ public:
   {
     // Set the raw min_y leaving some room for the filter support.
     //
-    _set_min_y (max (min_y, new_min_y - int (filter_radius ())));
+    set_raw_min_y (max (min_y, new_min_y - int (filter_radius ())));
   }
+
+  // Flush any buffered rows until the current minimum (buffered) row is
+  // ImageOutput::min_y.  Unlike ImageOutput::set_min_y, this directly
+  // operates on the buffer, and does not add any adjustment for the
+  // filter support.
+  //
+  void set_raw_min_y (int new_min_y);
 
   // Return the number rows or columns on either side of any pixel that are
   // effective when a sample is added inside that pixel (because of filter
@@ -141,13 +148,6 @@ public:
   float intensity_power;   // power which intensity is raised to (1 == nop)
 
 private:
-
-  // Flush any buffered rows until the current minimum (buffered) row is
-  // ImageOutput::min_y.  Unlike ImageOutput::set_min_y, this directly
-  // operates on the buffer, and does not add any adjustment for the
-  // filter support.
-  //
-  void _set_min_y (int new_min_y);
 
   // Internal version of the ImageOutput::row() method which handles
   // rows not in ImageOutput::rows.

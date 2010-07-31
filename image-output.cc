@@ -40,7 +40,7 @@ ImageOutput::ImageOutput (const std::string &filename,
 }
 
 void
-ImageOutput::_set_min_y (int new_min_y)
+ImageOutput::set_raw_min_y (int new_min_y)
 {
   ASSERT (new_min_y >= min_y);
 
@@ -90,7 +90,7 @@ ImageOutput::~ImageOutput ()
 {
   // Write as-yet unwritten rows
   //
-  _set_min_y (height);
+  set_raw_min_y (height);
   flush ();
 }
 
