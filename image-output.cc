@@ -72,7 +72,8 @@ ImageOutput::set_raw_min_y (int new_min_y)
 	  if (intensity_scale != 1)
 	    pixel *= intensity_scale;
 	  if (intensity_power != 1)
-	    pixel = Tint (pow (pixel.unscaled_color(), intensity_power),
+	    pixel = Tint (pow (max (pixel.unscaled_color(), 0.f),
+			       intensity_power),
 			  pixel.alpha);
 
 	  r->pixels[x] = pixel;
