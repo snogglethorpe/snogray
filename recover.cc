@@ -28,6 +28,15 @@ using namespace snogray;
 unsigned
 snogray::recover_image (ImageInput *src, ImageOutput &dst)
 {
+  // Since we're copying previous final output values to DST, we need to
+  // make sure that DST doesn't try to scale them.  To do this, just set
+  // DST's intensity-scaling to identity values while doing recovery.
+  //
+  float old_intensity_scale = dst.intensity_scale;
+  float old_intensity_power = dst.intensity_power;
+  dst.intensity_scale = 1;
+  dst.intensity_power = 1;
+
   ImageRow src_row (src->width);
 
   int y = 0;
@@ -63,6 +72,20 @@ snogray::recover_image (ImageInput *src, ImageOutput &dst)
   if (failed)
     for (unsigned i = 0; i < RECOVER_DISCARD_ROWS && y > 0; i++)
       dst[--y].clear ();
+
+  // Make sure the rows we recovered, which are still buffered in DST,
+  // are flushed to the the output file.  It's important we do this,
+  // because intensity-scaling in DST is applied when writing to the
+  // output file, and we want the values we put into the buffer to get
+  // our desired identity scaling.
+  //
+  dst.set_raw_min_y (y);
+
+  // Restore DST's intensity-scaling to what is desired during
+  // rendering.
+  //
+  dst.intensity_scale = old_intensity_scale;
+  dst.intensity_power = old_intensity_power;
 
   // Close the file-to-be-recovered, ignoring any errors in the process.
   //
