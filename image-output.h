@@ -112,7 +112,7 @@ public:
   SampleRow &row (int y)
   {
     int offs = y - min_y;
-    if (y >= 0 && y < int (rows.size ()))
+    if (offs >= 0 && offs < int (rows.size ()))
       return *rows[offs];
     else
       return _row (y);
