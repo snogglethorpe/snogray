@@ -279,6 +279,33 @@ COMMAND-LINE OPTIONS
               that a path will be terminated at each new intersection.
               (default 0.5)
 
+    -L X,Y-W,H
+    --limit=X,Y-W,H
+
+	Limit output to the area X,Y-W,H within the "nominal" output
+	image (the output image without -L/--limit).
+
+	X,Y,W,H can be percentages (with "%") or fractions (with ".")
+	of the "nominal" output image, or integer numbers of pixels.
+
+	Note that the -s/--size option always specifies the size of
+	the nominal image, so if -L/--limit is used, the actual output
+	image will be smaller than what is specified with -s/--size.
+
+	Example:
+
+	   --limit=.25,.25-.5,.5
+	   --limit=25%,25%-50%,50%
+
+	      Both of these are equivalent, and limit output to the
+	      center 1/4 of the nominal ouput image.
+
+	   --limit=0.5,0-8,10
+
+	      Output a 8x10 pixel area starting at the center point of
+	      the image in the X-dimension, and the top of the image
+	      in the Y dimension.
+
     -q
     --quiet
 
