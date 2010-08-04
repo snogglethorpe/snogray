@@ -353,7 +353,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:w:h:l:qpPCc:"
+    "s:w:h:L:qpPCc:"
 #if USE_THREADS
     "j:"
 #endif
