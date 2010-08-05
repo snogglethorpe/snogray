@@ -27,6 +27,9 @@ using namespace snogray;
 
 
 
+// Create an ImageOutput object for writing to FILENAME, with a size of
+// WIDTH, HEIGHT.  PARAMS holds any additional optional parameters.
+//
 ImageOutput::ImageOutput (const std::string &filename,
 			  unsigned _width, unsigned _height,
 			  const ValTable &params)

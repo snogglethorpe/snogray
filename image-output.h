@@ -44,7 +44,11 @@ public:
     std::vector<float> weights;
   };
 
-  ImageOutput (const std::string &filename, unsigned _width, unsigned _height,
+  // Create an ImageOutput object for writing to FILENAME, with a size
+  // of WIDTH, HEIGHT.  PARAMS holds any additional optional parameters.
+  //
+  ImageOutput (const std::string &filename,
+	       unsigned width, unsigned height,
 	       const ValTable &params = ValTable::NONE);
   ~ImageOutput ();
 
