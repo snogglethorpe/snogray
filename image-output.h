@@ -137,11 +137,6 @@ public:
   //
   unsigned width, height;
 
-  // Row number of first row buffered in memory.  No row before this can
-  // be addressed.
-  //
-  int min_y;
-
   // Modifiers applied to output values.  Note that these are applied
   // when a particular row is flushed to the output file, not while the
   // row is being accumulated (this usually doesn't matter, but can in
@@ -152,6 +147,11 @@ public:
   float intensity_power;   // power which intensity is raised to (1 == nop)
 
 private:
+
+  // Row number of first row buffered in memory.  No row before this can
+  // be addressed.
+  //
+  int min_y;
 
   // Internal version of the ImageOutput::row() method which handles
   // rows not in ImageOutput::rows.

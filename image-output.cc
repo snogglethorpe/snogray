@@ -34,9 +34,9 @@ ImageOutput::ImageOutput (const std::string &filename,
 			  unsigned _width, unsigned _height,
 			  const ValTable &params)
   : width (_width), height (_height),
-    min_y (0),
     intensity_scale (params.get_float ("exposure", 1)),
     intensity_power (params.get_float ("contrast", 1)),
+    min_y (0),
     sink (ImageSink::open (filename, _width, _height, params)),
     filter_conv (params)
 {
