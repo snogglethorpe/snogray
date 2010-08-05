@@ -78,7 +78,8 @@ RenderMgr::render_single_threaded (RenderPattern &pattern, ImageOutput &output,
 
   while (pat_it != limit)
     {
-      output.set_min_y (clamp (pattern.min_y (pat_it), 0, int (height) - 1));
+      output.set_min_sample_y (
+	       clamp (pattern.min_y (pat_it), 0, int (height) - 1));
 
       fill_packet (pat_it, limit, packet);
 
@@ -167,7 +168,7 @@ RenderMgr::render_multi_threaded (unsigned num_threads,
 
       // Set OUTPUT's min_y accordingly.
       //
-      output.set_min_y (global_min_y);
+      output.set_min_sample_y (global_min_y);
 
       // Now add more pixels to PACKET and make it available for more
       // processing.

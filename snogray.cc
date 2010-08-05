@@ -598,6 +598,13 @@ int main (int argc, char *const *argv)
 	}
     }
 
+  // Set the base-coordinates of the "output sample space" to LIMIT_X, LIMIT_Y.
+  //
+  if (limit_x != 0)
+    image_params.set ("sample-base-x", limit_x);
+  if (limit_y != 0)
+    image_params.set ("sample-base-y", limit_y);
+
   // If the scene has a non-default background alpha set, then make sure
   // there's an alpha-channel in the output image.
   //

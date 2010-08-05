@@ -72,19 +72,26 @@ public:
   bool has_alpha_channel () const { return sink->has_alpha_channel (); }
 
   // Flush any buffered rows until the current minimum (buffered) row is
-  // ImageOutput::min_y.
+  // ImageOutput::min_y.  NEW_MIN_Y is in the sample coordinate-system,
+  // not the output coordinate-system.
   //
-  void set_min_y (int new_min_y)
+  void set_min_sample_y (int new_min_y)
   {
-    // Set the raw min_y leaving some room for the filter support.
+    // Set the raw min_y leaving some room for the filter support,
+    // and converting between the sample coordinate-system and the
+    // output-image coordinate-system.
     //
-    set_raw_min_y (max (min_y, new_min_y - int (filter_radius ())));
+    new_min_y -= int (sample_base_y);
+    new_min_y -= int (filter_radius ());
+    set_raw_min_y (max (min_y, new_min_y));
   }
 
   // Flush any buffered rows until the current minimum (buffered) row is
-  // ImageOutput::min_y.  Unlike ImageOutput::set_min_y, this directly
-  // operates on the buffer, and does not add any adjustment for the
-  // filter support.
+  // ImageOutput::min_y.  Unlike ImageOutput::set_min_sample_y, this
+  // directly operates on the buffer, in the coordinate-system of the
+  // output image, and does not add any adjustment for the filter
+  // support or for any offset between the sample and output-image
+  // coordinate-systems.
   //
   void set_raw_min_y (int new_min_y);
 
@@ -109,6 +116,8 @@ public:
   }
 
   // Return true if the given X or Y coordinate is valid.
+  // The coordinates are in the output image's coordinate-system
+  // (so in the range 0,0 - WIDTH,HEIGHT).
   //
   // [These methods are callbacks used by Filterconv<ImageOutput>.]
   //
@@ -152,6 +161,10 @@ private:
   // be addressed.
   //
   int min_y;
+
+  // Base-coordinates of the sample coordinate-system.
+  //
+  float sample_base_x, sample_base_y;
 
   // Internal version of the ImageOutput::row() method which handles
   // rows not in ImageOutput::rows.
