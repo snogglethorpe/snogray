@@ -313,11 +313,12 @@ s IMAGE_OUTPUT_OPTIONS_HELP
 n
 s "  -C, --continue             Continue a previously aborted render"
 n
-s "  -L, --limit=X,Y-W,H        Limit output to area X,Y-W,H"
-s "                               X,Y,W,H can be percentages (with \"%\")"
-s "                               or fractions (with \".\") of the \"nominal\""
-s "                               output image, or integer numbers of pixels"
-s "                               (note that the -s/--size option always"
+s "  -L, --limit=X,Y+W,H        Limit output to area X,Y - X+W,Y+H"
+s "  -L, --limit=X1,Y1-X2,Y2    Limit output to area X1,Y1 - X2,Y2"
+s "                               Limit coordinates/sizes can be percentages"
+s "                               (with \"%\") or fractions (with \".\") of the"
+s "                               \"nominal\" output image, or integer numbers"
+s "                               of pixels (note: the -s/--size option always"
 s "                               specifies the size of the nominal image)"
 n
 s "  -q, --quiet                Do not output informational or progress messages"
