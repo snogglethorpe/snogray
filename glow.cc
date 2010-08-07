@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "surface.h"
+#include "primitive.h"
 
 #include "glow.h"
 
@@ -53,14 +53,14 @@ Glow::medium () const
   return underlying_material ? underlying_material->medium () : 0;
 } 
 
-// If this is a light-emitting material, call SURFACE's
-// Surface::add_light method with an appropriate intensity to add a
+// If this is a light-emitting material, call PRIMITIVE's
+// Primitive::add_light method with an appropriate intensity to add a
 // light to LIGHTS (for non-light-emitting materials, do nothing).
 //
 void
-Glow::add_light (const Surface &surface, std::vector<Light *> &lights) const
+Glow::add_light (const Primitive &primitive, std::vector<Light *> &lights) const
 {
-  surface.add_light (color, lights);
+  primitive.add_light (color, lights);
 }
 
 

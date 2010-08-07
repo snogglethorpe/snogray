@@ -94,14 +94,6 @@ public:
   // when it is.
   //
   virtual void add_lights (std::vector<Light *> & /*lights*/) const { }
-
-  // Add a single area light, using this surface's shape, to LIGHTS,
-  // with with intensity INTENSITY.  An error will be signaled if this
-  // surface does not support lighting.
-  //
-  virtual void add_light (const TexVal<Color> &intensity,
-			  std::vector<Light *> &lights)
-    const;
 };
 
 
