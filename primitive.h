@@ -1,4 +1,4 @@
-// primitive.h -- Physical primitive
+// primitive.h -- Primitive surface
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -20,8 +20,9 @@
 namespace snogray {
 
 
-// A primitive is a subclass of Surface that also stores a material.  It
-// is the superclass of most concrete objects.
+// Primitive is a subclass of Surface that sort of represents
+// "concrete", non-composite, surfaces.  In particular, a Primitive
+// object has a material associated with it.
 //
 class Primitive : public Surface
 {
