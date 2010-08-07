@@ -13,10 +13,10 @@
 #ifndef __SURFACE_H__
 #define __SURFACE_H__
 
-#include "vec.h"
+#include <vector>
+
 #include "ray.h"
 #include "bbox.h"
-#include "tex.h"
 #include "intersect.h"
 
 
