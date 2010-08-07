@@ -13,8 +13,9 @@
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 
+#include <vector>
+
 #include "color.h"
-#include "ray.h"
 #include "ref.h"
 #include "tex.h"
 
