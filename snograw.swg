@@ -138,6 +138,7 @@ namespace snogray {
   {
   public:
 
+    T det () const;
     bool is_identity () const;
   };
   %template(Matrix4d) Matrix4<dist_t>;
