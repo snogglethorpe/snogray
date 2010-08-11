@@ -673,6 +673,7 @@ rotate = raw.Xform_rotation
 rotate_x = raw.Xform_x_rotation
 rotate_y = raw.Xform_y_rotation
 rotate_z = raw.Xform_z_rotation
+basis_xform = raw.Xform_basis
 
 -- ... and some abbreviations for them (a bit silly, but composed
 -- transforms can get rather long...).
