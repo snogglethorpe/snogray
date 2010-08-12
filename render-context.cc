@@ -10,8 +10,6 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "octree.h"
-
 #include "render-context.h"
 
 
