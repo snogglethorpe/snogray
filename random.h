@@ -39,6 +39,7 @@ class Random
 public:
 
   Random () : frng (rng) { }
+  Random (unsigned seed) : rng (seed), frng (rng) { }
 
   // Return a random floating-point number in the range 0-1.  It isn't
   // defined whether the ends of the range are inclusive or exclusive,
