@@ -280,8 +280,6 @@ help (CmdLineParser &clp, ostream &os)
   "Ray-trace an image"
 n
 s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
-s "  -w, --width=WIDTH          Set image width to WIDTH pixels"
-s "  -h, --height=HEIGHT        Set image height to HEIGHT lines"
 #if USE_THREADS
 s "  -j, --threads=NUM          Use NUM threads for rendering"
 #endif
@@ -339,8 +337,6 @@ int main (int argc, char *const *argv)
   //
   static struct option long_options[] = {
     { "size",		required_argument, 0, 's' },
-    { "width",		required_argument, 0, 'w' },
-    { "height",		required_argument, 0, 'h' },
     { "limit",		required_argument, 0, 'L' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
@@ -402,12 +398,6 @@ int main (int argc, char *const *argv)
 	//
       case 's':
 	parse_size_opt_arg (clp, width, height, size);
-	break;
-      case 'w':
-	width = clp.unsigned_opt_arg ();
-	break;
-      case 'h':
-	height = clp.unsigned_opt_arg ();
 	break;
       case 'L':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,

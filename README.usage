@@ -68,6 +68,8 @@ COMMAND-LINE OPTIONS
 
     -s WIDTHxHEIGHT
     --size=WIDTHxHEIGHT
+    -s WIDTH
+    --size=WIDTH
 
         Set the output -image size to WIDTH by HEIGHT pixels.
 
@@ -76,15 +78,6 @@ COMMAND-LINE OPTIONS
 
         ["x" is a literal character x, WIDTH and HEIGHT should be
         replaced by numbers; e.g.: --size=640x480 ]
-
-    -w WIDTH
-    --width=WIDTH
-    -h HEIGHT
-    --height=HEIGHT
-
-        Set the output-image height or width; if not specified, the
-        other size is calculated automatically using the default
-        aspect ratio.
 
     -a NUM
     --oversample=NUM
