@@ -121,7 +121,7 @@ public:
     // case where x = z = -y, we flip z's sign if x == z.
     //
     T nz = unlikely (x == z) ? z : -z;
-    return TVec (y*y + x*nz, nz*nz - x*y, x*x - y*nz);
+    return TVec (y*y + x*nz, -nz*nz - x*y, x*x - y*nz);
   }
 
   // Transform this vector to a coordinate system with (orthonormal)
