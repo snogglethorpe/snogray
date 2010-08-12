@@ -10,14 +10,38 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "mutex.h"
+
 #include "render-context.h"
 
 
 using namespace snogray;
 
+
+// Return an integer which can be used to seed a new random-number
+// generator in the current thread.
+//
+static unsigned
+make_rng_seed ()
+{
+  // No attempt is made to generate a great seed; the main intent is to
+  // avoid every thread using the _same_ seed.
+
+  static unsigned global_seed_counter = 0;
+  static Mutex global_seed_counter_lock;
+
+  global_seed_counter_lock.lock ();
+  unsigned global_count = global_seed_counter++;
+  global_seed_counter_lock.unlock ();
+
+  return 578987 + global_count * 1023717;
+}
+
+
 RenderContext::RenderContext (const GlobalRenderState &_global_state)
   : scene (_global_state.scene),
     samples (_global_state.num_samples, *_global_state.sample_gen, random),
+    random (make_rng_seed ()),
     global_state (_global_state),
     params (_global_state.params),
     surface_integ (
