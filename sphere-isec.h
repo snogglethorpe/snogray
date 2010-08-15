@@ -1,6 +1,6 @@
 // sphere-isec.h -- Sphere intersection
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,9 +22,7 @@ namespace snogray {
 // If a ray from RAY_ORIGIN with direction RAY_DIR (which must be a unit
 // vector) intersects a sphere centered at the origin with radius RADIUS,
 // then return the distance to the intersection.  If the ray doesn't
-// intersect, return 0.  In the case where there are two possible
-// intersections, the nearest intersection is returned unless FAR_ISEC is
-// true.
+// intersect, return 0.
 //
 template<typename T>
 inline T
@@ -68,8 +66,7 @@ sphere_intersect (T radius,
 // If a ray from RAY_ORIGIN with direction RAY_DIR (which must be a unit
 // vector) intersects a sphere centered at CENTER with radius RADIUS, then
 // return the distance to the intersection.  If the ray doesn't intersect,
-// return 0.  In the case where there are two possible intersections, the
-// nearest intersection is returned unless FAR_ISEC is true.
+// return 0.
 //
 template<typename T>
 inline T
@@ -84,5 +81,6 @@ sphere_intersect (const TPos<T> &center, T radius,
 }
 
 #endif /* __SPHERE_ISEC_H__ */
+
 
 // arch-tag: 032d0cc1-ccae-4dfe-8806-e6dbdaee0cce
