@@ -18,7 +18,7 @@
 #include "surface.h"
 #include "material.h"
 #include "unique-ptr.h"
-#include "shadow-ray.h"
+#include "ray.h"
 #include "mutex.h"
 
 
@@ -49,10 +49,10 @@ public:
 
   // Return true if something in this subspace intersects RAY.
   //
-  bool intersects (const ShadowRay &sray, RenderContext &context) const
+  bool intersects (const Ray &ray, RenderContext &context) const
   {
-    ensure_space (sray.isec.context);
-    return space->intersects (sray, context);
+    ensure_space (context);
+    return space->intersects (ray, context);
   }
 
   // Return a bounding box for the associated surface.

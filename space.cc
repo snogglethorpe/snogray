@@ -12,7 +12,7 @@
 
 #include "surface.h"
 #include "light.h"
-#include "shadow-ray.h"
+#include "ray.h"
 
 #include "space.h"
 
@@ -75,7 +75,7 @@ Space::intersect (Ray &ray, RenderContext &context) const
 
 struct IntersectsCallback : Space::IntersectCallback
 {
-  IntersectsCallback (const ShadowRay &_ray, RenderContext &_context,
+  IntersectsCallback (const Ray &_ray, RenderContext &_context,
 		      const Surface *_reject = 0)
     : ray (_ray), intersects (false),
       context (_context), reject (_reject)
@@ -96,7 +96,7 @@ struct IntersectsCallback : Space::IntersectCallback
     return intersects;
   }
 
-  const ShadowRay &ray;
+  const Ray &ray;
 
   // True if we found an intersecting object.
   //
@@ -113,7 +113,7 @@ struct IntersectsCallback : Space::IntersectCallback
 // Return true if any object intersects RAY.
 //
 bool
-Space::intersects (const ShadowRay &ray, RenderContext &context) const
+Space::intersects (const Ray &ray, RenderContext &context) const
 {
   IntersectsCallback intersects_cb (ray, context, 0);
 

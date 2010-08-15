@@ -20,7 +20,7 @@
 #include "light.h"
 #include "intersect.h"
 #include "space.h"
-#include "shadow-ray.h"
+#include "ray.h"
 #include "surface-group.h"
 
 
@@ -57,7 +57,7 @@ public:
 
   // Return true if any surface blocks RAY.
   //
-  bool intersects (const ShadowRay &ray, RenderContext &context) const
+  bool intersects (const Ray &ray, RenderContext &context) const
   {
     context.stats.scene_shadow_tests++;
     return space->intersects (ray, context);

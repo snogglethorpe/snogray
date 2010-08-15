@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "shadow-ray.h"
+#include "ray.h"
 
 #include "ellipse.h"
 
@@ -91,7 +91,7 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 // Return true if this surface intersects RAY.
 //
 bool
-Ellipse::intersects (const ShadowRay &ray, RenderContext &) const
+Ellipse::intersects (const Ray &ray, RenderContext &) const
 {
   dist_t t, u, v;
   return intersects (ray, t, u, v);

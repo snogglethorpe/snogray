@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "shadow-ray.h"
+#include "ray.h"
 #include "sphere-isec.h"
 #include "sphere-light.h"
 
@@ -98,7 +98,7 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
 // Return true if this surface intersects RAY.
 //
 bool
-Sphere::intersects (const ShadowRay &ray, RenderContext &) const
+Sphere::intersects (const Ray &ray, RenderContext &) const
 {
   dist_t t
     = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);

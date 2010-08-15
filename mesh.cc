@@ -16,7 +16,7 @@
 #include "excepts.h"
 #include "string-funs.h"
 
-#include "shadow-ray.h"
+#include "ray.h"
 #include "tripar-isec.h"
 
 #include "mesh.h"
@@ -437,7 +437,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
 // Return true if this surface intersects RAY.
 //
 bool
-Mesh::Triangle::intersects (const ShadowRay &ray, RenderContext &) const
+Mesh::Triangle::intersects (const Ray &ray, RenderContext &) const
 {
   // We have to convert the types to match that of RAY first.
   //

@@ -12,7 +12,7 @@
 
 #include "sphere-isec.h"
 #include "intersect.h"
-#include "shadow-ray.h"
+#include "ray.h"
 
 #include "sphere2.h"
 
@@ -89,9 +89,9 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
 // Return true if this surface intersects RAY.
 //
 bool
-Sphere2::intersects (const ShadowRay &sray, RenderContext &) const
+Sphere2::intersects (const Ray &ray, RenderContext &) const
 {
-  Ray oray = world_to_local (sray.as_ray ());
+  Ray oray = world_to_local (ray);
   dist_t t = sphere_intersect (dist_t(1), Vec (oray.origin), oray.dir, oray.t0);
   return (t > oray.t0 && t < oray.t1);
 }

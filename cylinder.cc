@@ -12,7 +12,7 @@
 
 #include "quadratic-roots.h"
 #include "intersect.h"
-#include "shadow-ray.h"
+#include "ray.h"
 
 #include "cylinder.h"
 
@@ -126,9 +126,9 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 // Return true if this surface intersects RAY.
 //
 bool
-Cylinder::intersects (const ShadowRay &sray, RenderContext &) const
+Cylinder::intersects (const Ray &ray, RenderContext &) const
 {
-  Ray oray = world_to_local (sray.as_ray ());
+  Ray oray = world_to_local (ray);
   return (cylinder_intersect (oray) != 0);
 }
 

@@ -40,7 +40,7 @@ barf ()
 
 const Surface::IsecInfo *
 Surface::intersect (Ray &, RenderContext &) const { barf (); }
-bool Surface::intersects (const ShadowRay &, RenderContext &) const { barf (); }
+bool Surface::intersects (const Ray &, RenderContext &) const { barf (); }
 BBox Surface::bbox () const { barf (); }
 
 

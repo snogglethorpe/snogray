@@ -12,7 +12,7 @@
 
 #include "intersect.h"
 #include "space.h"
-#include "shadow-ray.h"
+#include "ray.h"
 #include "subspace.h"
 
 #include "instance.h"
@@ -77,12 +77,12 @@ Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 // Return true if this surface intersects RAY.
 //
 bool
-Instance::intersects (const ShadowRay &sray, RenderContext &context) const
+Instance::intersects (const Ray &ray, RenderContext &context) const
 {
   // Transform the ray for searching our subspace.
   //
-  ShadowRay xformed_sray = world_to_local (sray);
-  return subspace->intersects (xformed_sray, context);
+  Ray xformed_ray = world_to_local (ray);
+  return subspace->intersects (xformed_ray, context);
 }
 
 // Return a bounding box for this surface.

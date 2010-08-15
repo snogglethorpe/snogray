@@ -160,8 +160,9 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
 	  //
 	  dist_t max_dist = lsamp.dist ? lsamp.dist - min_dist : scene.horizon;
  
-	  ShadowRay ray (isec, isec.normal_frame.from (lsamp.dir),
-			 min_dist, max_dist);
+	  Ray ray (isec.normal_frame.origin,
+		   isec.normal_frame.from (lsamp.dir),
+		   min_dist, max_dist);
  
 	  if (! scene.intersects (ray, context))
 	    {
@@ -229,8 +230,9 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
 	      dist_t max_dist
 		= lval.dist ? lval.dist - min_dist : scene.horizon;
 
-	      ShadowRay ray (isec, isec.normal_frame.from (bsamp.dir),
-			     min_dist, max_dist);
+	      Ray ray (isec.normal_frame.origin,
+		       isec.normal_frame.from (bsamp.dir),
+		       min_dist, max_dist);
 
 	      if (! scene.intersects (ray, context))
 		{

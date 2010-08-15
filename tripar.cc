@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "shadow-ray.h"
+#include "ray.h"
 #include "tripar-light.h"
 
 #include "tripar.h"
@@ -77,7 +77,7 @@ Tripar::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
 // Return true if this surface intersects RAY.
 //
 bool
-Tripar::intersects (const ShadowRay &ray, RenderContext &) const
+Tripar::intersects (const Ray &ray, RenderContext &) const
 {
   dist_t t, u, v;
   return intersects (ray, t, u, v);

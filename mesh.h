@@ -215,7 +215,7 @@ private:
 
     // Return true if this surface intersects RAY.
     //
-    virtual bool intersects (const ShadowRay &ray, RenderContext &context)
+    virtual bool intersects (const Ray &ray, RenderContext &context)
       const;
 
     // Return a bounding box for this surface.
