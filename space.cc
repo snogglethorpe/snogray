@@ -115,12 +115,7 @@ struct IntersectsCallback : Space::IntersectCallback
 bool
 Space::intersects (const ShadowRay &ray, RenderContext &context) const
 {
-  // If possible, prime the negative intersect cache with the current
-  // surface, to avoid wasting time test it for intersection.
-  //
-  const Surface *reject = ray.isec.no_self_shadowing;
-
-  IntersectsCallback intersects_cb (ray, context, reject);
+  IntersectsCallback intersects_cb (ray, context, 0);
 
   for_each_possible_intersector (ray, intersects_cb, context,
 				 context.stats.shadow);
