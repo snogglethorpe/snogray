@@ -317,8 +317,6 @@ Intersect
 Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   const
 {
-  Vec norm = triangle->raw_normal ();
-
   // Point of intersection.
   //
   Pos point = ray.end ();
