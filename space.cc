@@ -12,7 +12,6 @@
 
 #include "surface.h"
 #include "light.h"
-#include "ray.h"
 
 #include "space.h"
 

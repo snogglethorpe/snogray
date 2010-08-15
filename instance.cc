@@ -12,7 +12,6 @@
 
 #include "intersect.h"
 #include "space.h"
-#include "ray.h"
 #include "subspace.h"
 
 #include "instance.h"

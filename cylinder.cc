@@ -12,7 +12,6 @@
 
 #include "quadratic-roots.h"
 #include "intersect.h"
-#include "ray.h"
 
 #include "cylinder.h"
 

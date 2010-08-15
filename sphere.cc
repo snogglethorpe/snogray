@@ -11,7 +11,6 @@
 //
 
 #include "intersect.h"
-#include "ray.h"
 #include "sphere-isec.h"
 #include "sphere-light.h"
 

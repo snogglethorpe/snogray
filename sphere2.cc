@@ -10,9 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "sphere-isec.h"
 #include "intersect.h"
-#include "ray.h"
+#include "sphere-isec.h"
 
 #include "sphere2.h"
 

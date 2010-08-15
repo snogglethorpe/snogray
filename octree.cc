@@ -11,7 +11,6 @@
 //
 
 #include "bbox.h"
-#include "ray.h"
 #include "grab.h"
 
 #include "octree.h"
