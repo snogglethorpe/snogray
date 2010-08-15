@@ -152,10 +152,6 @@ public:
   //
   Ref<const Bsdf> bsdf;
 
-  // Oft-used properties of surface.
-  //
-  const void *smoothing_group;
-
   // If non-zero, a surface which cannot shadow itself (for non-planar
   // objects, this applies to the current side of the surface -- the one
   // corresponding to the normal N).
