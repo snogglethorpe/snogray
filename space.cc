@@ -75,17 +75,12 @@ Space::intersect (Ray &ray, RenderContext &context) const
 
 struct IntersectsCallback : Space::IntersectCallback
 {
-  IntersectsCallback (const Ray &_ray, RenderContext &_context,
-		      const Surface *_reject = 0)
-    : ray (_ray), intersects (false),
-      context (_context), reject (_reject)
+  IntersectsCallback (const Ray &_ray, RenderContext &_context)
+    : ray (_ray), intersects (false), context (_context)
   { }
 
   virtual bool operator() (const Surface *surf)
   {
-    if (surf == reject)
-      return false;
-
     intersects = surf->intersects (ray, context);
 
     if (intersects)
@@ -103,10 +98,6 @@ struct IntersectsCallback : Space::IntersectCallback
   bool intersects;
 
   RenderContext &context;
-
-  // If non-zero, this surface is always immediately rejected.
-  //
-  const Surface *reject;
 };
 
 
@@ -115,7 +106,7 @@ struct IntersectsCallback : Space::IntersectCallback
 bool
 Space::intersects (const Ray &ray, RenderContext &context) const
 {
-  IntersectsCallback intersects_cb (ray, context, 0);
+  IntersectsCallback intersects_cb (ray, context);
 
   for_each_possible_intersector (ray, intersects_cb, context,
 				 context.stats.shadow);
