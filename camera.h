@@ -17,7 +17,7 @@
 #include "coords.h"
 #include "ray.h"
 #include "xform.h"
-#include "sample-disk.h"
+#include "disk-sample.h"
 
 
 namespace snogray {

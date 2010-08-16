@@ -1,4 +1,4 @@
-// sample-cone.h -- Sample a cone
+// cone-sample.h -- Sample a cone
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SAMPLE_CONE_H__
-#define __SAMPLE_CONE_H__
+#ifndef __CONE_SAMPLE_H__
+#define __CONE_SAMPLE_H__
 
 #include "snogmath.h"
 #include "vec.h"
@@ -23,10 +23,10 @@ namespace snogray {
 
 // Return a sample vector uniformly distributed over a cone centered
 // around the z-axis which subtends an angle of ANGLE, which should be
-// between 0 and 2*PI.  PARAM is the sample parameter.
+// between 0 and 2*PI.  PARAM is the parameter sample.
 //
 static inline Vec
-sample_cone (float angle, const UV &param)
+cone_sample (float angle, const UV &param)
 {
   // Choose a slice on the upper part of a unit cylinder.  The total
   // height of the cylinder is 2 (from -1 to 1), and the height of the
@@ -55,4 +55,4 @@ sample_cone (float angle, const UV &param)
 
 }
 
-#endif // __SAMPLE_CONE_H__
+#endif // __CONE_SAMPLE_H__

@@ -13,8 +13,8 @@
 #include "bbox.h"
 #include "scene.h"
 #include "intersect.h"
-#include "sample-cone.h"
-#include "sample-tangent-disk.h"
+#include "cone-sample.h"
+#include "tangent-disk-sample.h"
 
 #include "far-light.h"
 
@@ -32,7 +32,7 @@ FarLight::sample (const Intersect &isec, const UV &param) const
 {
   // Sample a cone pointing at our light.
   //
-  Vec s_dir = isec.normal_frame.to (frame.from (sample_cone (angle, param)));
+  Vec s_dir = isec.normal_frame.to (frame.from (cone_sample (angle, param)));
 
   if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
     return Sample (intensity, pdf, s_dir, 0);
@@ -52,8 +52,8 @@ FarLight::sample (const UV &param, const UV &dir_param) const
   // sample point will appear in the same direction from any location
   // in the scene.
 
-  Vec s_dir = frame.from (sample_cone (angle/2, dir_param));
-  Pos s_pos = sample_tangent_disk (scene_center, scene_radius, s_dir, param);
+  Vec s_dir = frame.from (cone_sample (angle/2, dir_param));
+  Pos s_pos = tangent_disk_sample (scene_center, scene_radius, s_dir, param);
 
   // Adjust pdf to include disk sampling.
   //

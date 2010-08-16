@@ -1,4 +1,4 @@
-// sample-disk.h -- Disk sample distribution
+// disk-sample.h -- Disk sample distribution
 //
 //  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SAMPLE_DISK_H__
-#define __SAMPLE_DISK_H__
+#ifndef __DISK_SAMPLE_H__
+#define __DISK_SAMPLE_H__
 
 #include "snogmath.h"
 #include "coords.h"
@@ -25,7 +25,7 @@ namespace snogray {
 // parameter PARAM, returning the sample coordinates in DX and DY.
 //
 static inline void
-sample_disk (dist_t radius, const UV &param, dist_t &dx, dist_t &dy)
+disk_sample (dist_t radius, const UV &param, dist_t &dx, dist_t &dy)
 {
   float u = 2 * param.u - 1;
   float v = 2 * param.v - 1;
@@ -74,15 +74,15 @@ sample_disk (dist_t radius, const UV &param, dist_t &dx, dist_t &dy)
 // parameter PARAM, returning the sample coordinates in DX and DY.
 //
 static inline void
-sample_disk (const UV &param, dist_t &dx, dist_t &dy)
+disk_sample (const UV &param, dist_t &dx, dist_t &dy)
 {
-  return sample_disk (1, param, dx, dy);
+  return disk_sample (1, param, dx, dy);
 }
 
 
 }
 
-#endif // __SAMPLE_DISK_H__
+#endif // __DISK_SAMPLE_H__
 
 
 // arch-tag: be2d668d-431a-4354-8283-823cdd0fe6bc

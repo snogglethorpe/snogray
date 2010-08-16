@@ -1,4 +1,4 @@
-// sample-sphere.h -- Sample a sphere
+// sphere-sample.h -- Sample a sphere
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,10 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SAMPLE_SPHERE_H__
-#define __SAMPLE_SPHERE_H__
+#ifndef __SPHERE_SAMPLE_H__
+#define __SPHERE_SAMPLE_H__
 
-#include "sample-cone.h"
+#include "cone-sample.h"
 
 
 namespace snogray {
@@ -23,7 +23,7 @@ namespace snogray {
 // PARAM is the sample parameter.
 //
 static inline Vec
-sample_sphere (const UV &param)
+sphere_sample (const UV &param)
 {
   // Sampling an entire sphere is a special case of sampling a
   // degenerate "cone", where the cone's angle is 2*PI (a rather wacky
@@ -33,10 +33,10 @@ sample_sphere (const UV &param)
   // resulting PIf * INV_PIf calculation during constant-folding, so
   // there's no need to special-case a sphere.]
   //
-  return sample_cone (2*PIf, param);
+  return cone_sample (2*PIf, param);
 }
 
 
 }
 
-#endif // __SAMPLE_SPHERE_H__
+#endif // __SPHERE_SAMPLE_H__

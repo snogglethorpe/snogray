@@ -1,4 +1,4 @@
-// sample-tangent-disk.h -- Sample a disk tangent to a sphere
+// tangent-disk-sample.h -- Sample a disk tangent to a sphere
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,13 +10,13 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SAMPLE_TANGENT_DISK_H__
-#define __SAMPLE_TANGENT_DISK_H__
+#ifndef __TANGENT_DISK_SAMPLE_H__
+#define __TANGENT_DISK_SAMPLE_H__
 
 #include "uv.h"
 #include "vec.h"
 #include "frame.h"
-#include "sample-disk.h"
+#include "disk-sample.h"
 
 
 namespace snogray {
@@ -28,7 +28,7 @@ namespace snogray {
 // PARAM is the sample parameter.
 //
 static inline Pos
-sample_tangent_disk (const Pos &sphere_center, dist_t sphere_radius,
+tangent_disk_sample (const Pos &sphere_center, dist_t sphere_radius,
 		     const Vec &dir, const UV &param)
 {
   // FRAME is located at the center of the the sphere, and pointed in
@@ -40,7 +40,7 @@ sample_tangent_disk (const Pos &sphere_center, dist_t sphere_radius,
   // Choose a sample point on a disk with radius SPHERE_RADIUS.
   //
   coord_t px, py;
-  sample_disk (sphere_radius, param, px, py);
+  disk_sample (sphere_radius, param, px, py);
   
   // Now move the point PX,PY on the disk, SCENE_RADIUS units away
   // along the z-axis in FRAME's coordinate system, and transform the
@@ -52,4 +52,4 @@ sample_tangent_disk (const Pos &sphere_center, dist_t sphere_radius,
 
 }
 
-#endif // __SAMPLE_TANGENT_DISK_H__
+#endif // __TANGENT_DISK_SAMPLE_H__

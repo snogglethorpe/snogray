@@ -50,7 +50,7 @@ public:
   // sphere.
   //
   // To do this, we use the same approach used by "sample_cone" (in
-  // sample-cone.h, which see):  U is mapped linearly to the angle
+  // cone-sample.h, which see):  U is mapped linearly to the angle
   // around the z-axis (i.e., it's the "longitude"), and V is mapped
   // to the z-coordinate of the point where the direction vector
   // hits the sphere.

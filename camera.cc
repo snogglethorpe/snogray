@@ -130,7 +130,7 @@ Camera::eye_ray (const UV &film_loc, const UV &focus_param) const
       // simulate depth-of-field.
       //
       dist_t src_perturb_x, src_perturb_y;
-      sample_disk (aperture_radius, focus_param, src_perturb_x, src_perturb_y);
+      disk_sample (aperture_radius, focus_param, src_perturb_x, src_perturb_y);
 
       // The end of the camera-ray pointed to by TARG should be perturbed
       // slightly less than SRC, by a factor of 1 / FOCUS_DISTANCE.

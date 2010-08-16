@@ -16,7 +16,7 @@
 #include "cos-dist.h"
 #include "intersect.h"
 #include "sphere-isec.h"
-#include "sample-sphere.h"
+#include "sphere-sample.h"
 
 #include "sphere-light.h"
 
@@ -120,7 +120,7 @@ SphereLight::sample (const UV &param, const UV &dir_param) const
 {
   // Sample position on sphere's surface.
   //
-  Vec s_pos_vec = sample_sphere (param);
+  Vec s_pos_vec = sphere_sample (param);
   Pos s_pos = pos + s_pos_vec * radius;
   float pos_pdf = 1 / (radius*radius * 4 * PIf);   // 1 / area
 

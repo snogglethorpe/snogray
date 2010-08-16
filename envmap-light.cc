@@ -13,8 +13,8 @@
 #include "scene.h"
 #include "light-map.h"
 #include "spheremap.h"
-#include "sample-sphere.h"
-#include "sample-tangent-disk.h"
+#include "sphere-sample.h"
+#include "tangent-disk-sample.h"
 
 #include "envmap-light.h"
 
@@ -127,7 +127,7 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
 
   // Choose a sample position "at infinity".
   //
-  Pos pos = sample_tangent_disk (scene_center, scene_radius, dir, param);
+  Pos pos = tangent_disk_sample (scene_center, scene_radius, dir, param);
 
   // The sample's PDF is the intensity PDF adjusted to reflect disk
   // sampling for the position.
