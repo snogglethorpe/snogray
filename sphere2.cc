@@ -29,14 +29,13 @@ Sphere2::intersect (Ray &ray, RenderContext &context) const
 {
   Ray oray = world_to_local (ray);
   
-  dist_t t = sphere_intersect (dist_t(1), Vec (oray.origin), oray.dir, oray.t0);
-  if (t > oray.t0 && t < oray.t1)
+  dist_t t;
+  if (sphere_intersect (Pos(0,0,0), dist_t(1), oray, t))
     {
       ray.t1 = t;
       return new (context) IsecInfo (ray, this, Vec (oray.extension (t)));
     }
-  else
-    return false;
+  return 0;
 }
 
 // Create an Intersect object for this intersection.
@@ -91,8 +90,8 @@ bool
 Sphere2::intersects (const Ray &ray, RenderContext &) const
 {
   Ray oray = world_to_local (ray);
-  dist_t t = sphere_intersect (dist_t(1), Vec (oray.origin), oray.dir, oray.t0);
-  return (t > oray.t0 && t < oray.t1);
+  dist_t t;
+  return sphere_intersect (Pos(0,0,0), dist_t(1), oray, t);
 }
 
 

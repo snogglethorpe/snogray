@@ -28,15 +28,13 @@ using namespace snogray;
 const Surface::IsecInfo *
 Sphere::intersect (Ray &ray, RenderContext &context) const
 {
-  dist_t t
-    = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);
-  if (t > ray.t0 && t < ray.t1)
+  dist_t t;
+  if (sphere_intersect (frame.origin, radius, ray, t))
     {
       ray.t1 = t;
       return new (context) IsecInfo (ray, this);
     }
-  else
-    return false;
+  return 0;
 }
 
 // Create an Intersect object for this intersection.
@@ -99,9 +97,8 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
 bool
 Sphere::intersects (const Ray &ray, RenderContext &) const
 {
-  dist_t t
-    = sphere_intersect (frame.origin, radius, ray.origin, ray.dir, ray.t0);
-  return (t > ray.t0 && t < ray.t1);
+  dist_t t;
+  return sphere_intersect (frame.origin, radius, ray, t);
 }
 
 // Return a bounding box for this surface.
