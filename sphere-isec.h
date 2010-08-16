@@ -15,6 +15,8 @@
 
 #include "pos.h"
 #include "vec.h"
+#include "ray.h"
+
 
 namespace snogray {
 
@@ -78,9 +80,22 @@ sphere_intersect (const TPos<T> &center, T radius,
 }
 
 
+// Return true if the ray RAY intersects a sphere centered at CENTER
+// with radius RADIUS.  Return the parametric distance to the
+// intersection in T (if false is returned, T's value is undefined).
+//
+template<typename T>
+inline bool
+sphere_intersect (const TPos<T> &center, T radius, const TRay<T> &ray, T &t)
+{
+  t = sphere_intersect<T> (center, radius, ray.origin, ray.dir, ray.t0);
+  return t > ray.t0 && t < ray.t1;
 }
 
-#endif /* __SPHERE_ISEC_H__ */
+
+}
+
+#endif // __SPHERE_ISEC_H__
 
 
 // arch-tag: 032d0cc1-ccae-4dfe-8806-e6dbdaee0cce
