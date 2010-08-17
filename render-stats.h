@@ -24,9 +24,7 @@ class Scene;
 struct RenderStats
 {
   RenderStats ()
-    : scene_intersect_calls (0), scene_shadow_tests (0),
-      scene_slow_shadow_traces (0), surface_slow_shadow_traces (0),
-      illum_calls (0), illum_samples (0), illum_specular_samples (0)
+    : scene_intersect_calls (0), scene_shadow_tests (0), illum_calls (0)
   { }
 
   struct IsecStats
@@ -57,11 +55,7 @@ struct RenderStats
   {
     scene_intersect_calls += is.scene_intersect_calls;
     scene_shadow_tests += is.scene_shadow_tests;
-    scene_slow_shadow_traces += is.scene_slow_shadow_traces;
-    surface_slow_shadow_traces += is.surface_slow_shadow_traces;
     illum_calls += is.illum_calls;
-    illum_samples += is.illum_samples;
-    illum_specular_samples += is.illum_specular_samples;
 
     intersect += is.intersect;
     shadow += is.shadow;
@@ -69,11 +63,7 @@ struct RenderStats
 
   unsigned long long scene_intersect_calls;
   unsigned long long scene_shadow_tests;
-  unsigned long long scene_slow_shadow_traces;
-  unsigned long long surface_slow_shadow_traces;
   unsigned long long illum_calls;
-  unsigned long long illum_samples;
-  unsigned long long illum_specular_samples;
   
   IsecStats intersect, shadow;
 

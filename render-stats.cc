@@ -68,18 +68,11 @@ RenderStats::print (ostream &os)
 
   if (sst != 0)
     {
-      long long sss = scene_slow_shadow_traces;
-      long long oss = surface_slow_shadow_traces;
       long long tnt = shadow.space_node_intersect_calls;
 
       os << "  shadow:" << endl;
       os << "     rays:            " << setw (16) << commify (sst)
 	 << endl;
-      if (sss != 0)
-	os << "     non-opaque traces: " << setw (14) << commify (sss)
-	   << " (" << setw(2) << percent (sss, sst) << "%"
-	   << "; average depth = " << fraction (oss, sss) << ")"
-	   << endl;
       os << "     tree node tests: " << setw (16) << commify (tnt) << endl;
 
       {
@@ -102,22 +95,12 @@ RenderStats::print (ostream &os)
 
   if (ic != 0)
     {
-      long long isi = illum_samples - illum_specular_samples;
-      long long iss = illum_specular_samples;
-
       os << "  illum:" << endl;
       os << "     illum calls:     " << setw (16)
 	 << commify (ic) << endl;
-      if (isi)
-	os << "     average non-spec samples:" << setw (8)
-	   << setprecision(3) << fraction (isi, ic) << endl;
-      if (iss)
-	os << "     average specular samples:" << setw (8)
-	   << setprecision(3) << fraction (iss, ic) << endl;
       if (sst)
 	os << "     average shadow rays:   " << setw (10)
-	   << setprecision(3) << fraction (sst, ic)
-	   << " (" << setw(2) << percent (sst, isi) << "%)" << endl;
+	   << setprecision(3) << fraction (sst, ic) << endl;
     }
 }
 
