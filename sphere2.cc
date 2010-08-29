@@ -30,7 +30,7 @@ Sphere2::intersect (Ray &ray, RenderContext &context) const
   Ray oray = world_to_local (ray);
   
   dist_t t;
-  if (sphere_intersect (Pos(0,0,0), dist_t(1), oray, t))
+  if (sphere_intersects (Pos(0,0,0), dist_t(1), oray, t))
     {
       ray.t1 = t;
       return new (context) IsecInfo (ray, this, Vec (oray.extension (t)));
@@ -91,7 +91,7 @@ Sphere2::intersects (const Ray &ray, RenderContext &) const
 {
   Ray oray = world_to_local (ray);
   dist_t t;
-  return sphere_intersect (Pos(0,0,0), dist_t(1), oray, t);
+  return sphere_intersects (Pos(0,0,0), dist_t(1), oray, t);
 }
 
 

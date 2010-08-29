@@ -21,17 +21,23 @@
 namespace snogray {
 
 
-// If a ray from RAY_ORIGIN with direction RAY_DIR (which must be a unit
-// vector) intersects a sphere centered at the origin with radius RADIUS,
-// then return the distance to the intersection.  If the ray doesn't
-// intersect, return 0.
+// Return true if a sphere centered at CENTER with radius RADIUS is
+// intersected by an infinite ray from RAY_ORIGIN in direction
+// RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.  Only intersections with a parameter distance of
+// MIN_T or greater are considered.
 //
 template<typename T>
-inline T
-sphere_intersect (T radius,
-		  const TVec<T> &ray_origin_offs, const TVec<T> &ray_dir,
-		  T min_dist = 0)
+bool
+sphere_intersects (const TPos<T> &center, T radius,
+		   const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+		   T min_t, T &t)
 {
+  TVec<T> ray_origin_offs = ray_origin - center;
   T dir_diff = dot (ray_dir, ray_origin_offs);
   T dir_dir = dot (ray_dir, ray_dir); // theoretically, exactly 1; in
 				// practice, not _quite_
@@ -41,55 +47,61 @@ sphere_intersect (T radius,
 
   if (determ >= 0)
     {
-      T common = -dir_diff / dir_dir;
+      t = -dir_diff / dir_dir;
 
-      if (determ <= 0)
-	{
-	  if (common > min_dist)
-	    return common;
-	}
-      else
+      if (determ > 0)
 	{
 	  T determ_factor = sqrt (determ) / dir_dir;
-	  T t0 = common - determ_factor;
-	  T t1 = common + determ_factor;
 
-	  if (t0 > min_dist)
-	    return t0;
-	  else
-	    return t1;
+	  // See which of T-DETERM_FACTOR or T+DETERM_FACTOR is greater
+	  // than MIN_T.
+	  //
+	  t -= determ_factor;	// first try -DETERM_FACTOR
+	  if (t < min_t)
+	    t += determ_factor + determ_factor; // then try +DETERM_FACTOR
 	}
+
+      return t >= min_t;
     }
 
-  return 0;
+  return false;
 }
 
 
-// If a ray from RAY_ORIGIN with direction RAY_DIR (which must be a unit
-// vector) intersects a sphere centered at CENTER with radius RADIUS, then
-// return the distance to the intersection.  If the ray doesn't intersect,
-// return 0.
+// Return true if a sphere centered at CENTER with radius RADIUS is
+// intersected by an infinite ray from RAY_ORIGIN in direction
+// RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.
 //
 template<typename T>
-inline T
-sphere_intersect (const TPos<T> &center, T radius,
-		  const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-		  T min_dist = 0)
+bool
+sphere_intersects (const TPos<T> &center, T radius,
+		   const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+		   T &t)
 {
-  return sphere_intersect<T> (radius, ray_origin - center, ray_dir, min_dist);
+  return sphere_intersects (center, radius, ray_origin, ray_dir, T(0), t);
 }
 
 
-// Return true if the ray RAY intersects a sphere centered at CENTER
-// with radius RADIUS.  Return the parametric distance to the
-// intersection in T (if false is returned, T's value is undefined).
+// Return true if a sphere centered at CENTER with radius RADIUS is
+// intersected by the ray RAY.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.
 //
 template<typename T>
-inline bool
-sphere_intersect (const TPos<T> &center, T radius, const TRay<T> &ray, T &t)
+bool
+sphere_intersects (const TPos<T> &center, T radius, const TRay<T> &ray, T &t)
 {
-  t = sphere_intersect<T> (center, radius, ray.origin, ray.dir, ray.t0);
-  return t > ray.t0 && t < ray.t1;
+  if (sphere_intersects (center, radius, ray.origin, ray.dir, ray.t0, t))
+    return t < ray.t1;
+  return false;
 }
 
 

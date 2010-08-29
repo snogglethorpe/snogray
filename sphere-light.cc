@@ -101,9 +101,11 @@ SphereLight::sample (const Intersect &isec, const UV &param) const
 	  // The "real" distance must terminate at the surface of the
 	  // sphere, so we need to do that calculation too...
 	  //
-	  dist_t dist = sphere_intersect (radius, -light_center_vec, s_dir);
-
-	  return Sample (intensity, pdf, s_dir, dist);
+	  dist_t dist;
+	  if (sphere_intersects (Pos(0,0,0), radius,
+				 Pos (-light_center_vec), s_dir,
+				 dist))
+	    return Sample (intensity, pdf, s_dir, dist);
 	}
     }
 
@@ -170,9 +172,10 @@ SphereLight::eval (const Intersect &isec, const Vec &dir) const
   //
   if (light_center_vec.z >= -radius)
     {
-      float dist = sphere_intersect (radius, -light_center_vec, dir);
-
-      if (dist)
+      float dist;
+      if (sphere_intersects (Pos (0,0,0), radius,
+			     Pos (-light_center_vec), dir,
+			     dist))
 	{
 	  // The distribution used here is constant over a solid angle when
 	  // viewed by an external observer, meaning that it also has a

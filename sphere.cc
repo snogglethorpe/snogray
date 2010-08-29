@@ -29,7 +29,7 @@ const Surface::IsecInfo *
 Sphere::intersect (Ray &ray, RenderContext &context) const
 {
   dist_t t;
-  if (sphere_intersect (frame.origin, radius, ray, t))
+  if (sphere_intersects (frame.origin, radius, ray, t))
     {
       ray.t1 = t;
       return new (context) IsecInfo (ray, this);
@@ -98,7 +98,7 @@ bool
 Sphere::intersects (const Ray &ray, RenderContext &) const
 {
   dist_t t;
-  return sphere_intersect (frame.origin, radius, ray, t);
+  return sphere_intersects (frame.origin, radius, ray, t);
 }
 
 // Return a bounding box for this surface.
