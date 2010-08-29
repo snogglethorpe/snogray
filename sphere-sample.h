@@ -35,6 +35,14 @@ sphere_sample (const UV &param)
   //
   return cone_sample (2*PIf, param);
 }
+ 
+// Return a parameter for which sample_sphere would return DIR.
+//
+static inline UV
+sphere_sample_inverse (const Vec &dir)
+{
+  return cone_sample_inverse (2*PIf, dir);
+}
 
 
 }
