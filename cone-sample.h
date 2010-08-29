@@ -37,7 +37,7 @@ cone_sample (float angle, const UV &param)
   // z-coordinate of the slice, and R is its radius.
   //
   float z = 1 - param.u * angle * INV_PIf;
-  float r = sqrt (max (1 - z * z, 0.f));
+  float r = sqrt (abs (1 - z * z));
 
   // Now choose a point around the edge of the radius R disk; X and Y
   // will be the x/y-coordinates of that point.
