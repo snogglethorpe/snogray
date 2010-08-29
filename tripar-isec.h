@@ -1,6 +1,6 @@
 // tripar-isec.h -- Triangle/parallelogram intersection  -*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -39,22 +39,31 @@
 namespace snogray {
 
 
-// Return true if RAY intersects the triangle or parallelogram defined by
-// the points CORNER, CORNER+EDGE1, and CORNER+EDGE2, and if PARALLELOGRAM
-// is true, also CORNER+EDGE1+EDGE2.  Return the parametric distance to the
-// intersection in T, and the baycentric coordinates of the intersection
-// point in U and V.
+// Return true if the triangle or parallelogram defined by the points
+// CORNER, CORNER+EDGE1, and CORNER+EDGE2, and also CORNER+EDGE1+EDGE2
+// if PARALLELOGRAM is true, is intersected by a ray from RAY_ORIGIN
+// in direction RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.  Only intersections with a parameter distance of
+// MIN_T or greater are considered.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
 //
 template<typename T>
 inline bool
-tripar_intersect (const TPos<T> &corner,
-		  const TVec<T> &edge1, const TVec<T> &edge2,
-		  bool parallelogram,
-		  const TRay<T> &ray, T &t, T &u, T &v)
+tripar_intersects (const TPos<T> &corner,
+		   const TVec<T> &edge1, const TVec<T> &edge2,
+		   bool parallelogram,
+		   const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+		   T min_t, T &t, T &u, T &v)
 {
   // Begin calculating the determinant (also used to calculate U parameter).
   //
-  TVec<T> pvec = cross (ray.dir, edge2);
+  TVec<T> pvec = cross (ray_dir, edge2);
 
   // If the determinant is near zero, the ray lies in the plane of the triangle.
   //
@@ -67,7 +76,7 @@ tripar_intersect (const TPos<T> &corner,
 
   // Calculate distance from the corner to ray origin.
   //
-  TVec<T> tvec = ray.origin - corner;
+  TVec<T> tvec = ray_origin - corner;
 
   // Calculate U parameter and test bounds.
   //
@@ -81,7 +90,7 @@ tripar_intersect (const TPos<T> &corner,
 
   // Calculate V parameter.
   //
-  v = dot (ray.dir, qvec) * inv_det;
+  v = dot (ray_dir, qvec) * inv_det;
 
   // Test V parameter bounds.
   //
@@ -105,35 +114,206 @@ tripar_intersect (const TPos<T> &corner,
   //
   t = dot (edge2, qvec) * inv_det;
 
-  return t > ray.t0 && t < ray.t1;
+  return t > min_t;
 }
 
-// Return true if RAY intersects the triangle defined by the points CORNER,
-// CORNER+EDGE1, and CORNER+EDGE2.  Return the parametric distance to the
-// intersection in T, and the baycentric coordinates of the intersection
-// point in U and V.
+// Return true if the triangle or parallelogram defined by the points
+// CORNER, CORNER+EDGE1, and CORNER+EDGE2, and also CORNER+EDGE1+EDGE2
+// if PARALLELOGRAM is true, is intersected by a ray from RAY_ORIGIN
+// in direction RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
 //
 template<typename T>
 inline bool
-triangle_intersect (const TPos<T> &corner,
-		    const TVec<T> &edge1, const TVec<T> &edge2,
-		    const TRay<T> &ray, T &t, T &u, T &v)
+tripar_intersects (const TPos<T> &corner,
+		   const TVec<T> &edge1, const TVec<T> &edge2,
+		   bool parallelogram,
+		   const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+		   T &t, T &u, T &v)
 {
-  return tripar_intersect (corner, edge1, edge2, false, ray, t, u, v);
+  return tripar_intersects (corner, edge1, edge2, parallelogram,
+			    ray_origin, ray_dir, T(0), t, u, v);
 }
 
-// Return true if RAY intersects the parallelogram defined by the points
-// CORNER, CORNER+EDGE1, CORNER+EDGE2, and CORNER+EDGE1+EDGE2.  Return the
-// parametric distance to the intersection in T, and the baycentric
-// coordinates of the intersection point in U and V.
+
+// Return true if the triangle or parallelogram defined by the points
+// CORNER, CORNER+EDGE1, and CORNER+EDGE2, and also CORNER+EDGE1+EDGE2
+// if PARALLELOGRAM is true, is intersected by the ray RAY.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY's dir field required to reach the intersection
+// point from RAY's origin.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
 //
 template<typename T>
 inline bool
-parallelogram_intersect (const TPos<T> &corner,
-			 const TVec<T> &edge1, const TVec<T> &edge2,
-			 const TRay<T> &ray, T &t, T &u, T &v)
+tripar_intersects (const TPos<T> &corner,
+		   const TVec<T> &edge1, const TVec<T> &edge2,
+		   bool parallelogram,
+		   const TRay<T> &ray,
+		   T &t, T &u, T &v)
 {
-  return tripar_intersect (corner, edge1, edge2, true, ray, t, u, v);
+  return
+    (tripar_intersects (corner, edge1, edge2, parallelogram,
+			ray.origin, ray.dir, ray.t0, t, u, v)
+     && t < ray.t1);
+}
+
+
+
+// Convenience wrappers for triangles.
+
+// Return true if the triangle defined by the points CORNER,
+// CORNER+EDGE1, and CORNER+EDGE2, is intersected by a ray from
+// RAY_ORIGIN in direction RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.  Only intersections with a parameter distance of
+// MIN_T or greater are considered.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
+//
+template<typename T>
+inline bool
+triangle_intersects (const TPos<T> &corner,
+		     const TVec<T> &edge1, const TVec<T> &edge2,
+		     const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+		     T min_t, T &t, T &u, T &v)
+{
+  return tripar_intersects (corner, edge1, edge2, false,
+			    ray_origin, ray_dir, min_t, t, u, v);
+}
+
+// Return true if the triangle defined by the points CORNER,
+// CORNER+EDGE1, and CORNER+EDGE2, is intersected by a ray from
+// RAY_ORIGIN in direction RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
+//
+template<typename T>
+inline bool
+triangle_intersects (const TPos<T> &corner,
+		     const TVec<T> &edge1, const TVec<T> &edge2,
+		     const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+		     T &t, T &u, T &v)
+{
+  return tripar_intersects (corner, edge1, edge2, false,
+			    ray_origin, ray_dir, t, u, v);
+}
+
+
+// Return true if the triangle defined by the points CORNER,
+// CORNER+EDGE1, and CORNER+EDGE2 is intersected by the ray RAY.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY's dir field required to reach the intersection
+// point from RAY's origin.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
+//
+template<typename T>
+inline bool
+triangle_intersects (const TPos<T> &corner,
+		     const TVec<T> &edge1, const TVec<T> &edge2,
+		     const TRay<T> &ray,
+		     T &t, T &u, T &v)
+{
+  return tripar_intersects (corner, edge1, edge2, false, ray, t, u, v);
+}
+
+
+
+// Convenience wrappers for parallelograms.
+
+// Return true if the parallelogram defined by the points CORNER,
+// CORNER+EDGE1, CORNER+EDGE2, and CORNER+EDGE1+EDGE2, is intersected
+// by a ray from RAY_ORIGIN in direction RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.  Only intersections with a parameter distance of
+// MIN_T or greater are considered.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
+//
+template<typename T>
+inline bool
+parallelogram_intersects (const TPos<T> &corner,
+			  const TVec<T> &edge1, const TVec<T> &edge2,
+			  const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+			  T min_t, T &t, T &u, T &v)
+{
+  return tripar_intersects (corner, edge1, edge2, false,
+			    ray_origin, ray_dir, min_t, t, u, v);
+}
+
+// Return true if the parallelogram defined by the points CORNER,
+// CORNER+EDGE1, CORNER+EDGE2, and CORNER+EDGE1+EDGE2, is intersected
+// by a ray from RAY_ORIGIN in direction RAY_DIR.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
+//
+template<typename T>
+inline bool
+parallelogram_intersects (const TPos<T> &corner,
+			  const TVec<T> &edge1, const TVec<T> &edge2,
+			  const TPos<T> &ray_origin, const TVec<T> &ray_dir,
+			  T &t, T &u, T &v)
+{
+  return tripar_intersects (corner, edge1, edge2, false,
+			    ray_origin, ray_dir, t, u, v);
+}
+
+
+// Return true if the parallelogram defined by the points CORNER,
+// CORNER+EDGE1, CORNER+EDGE2, and CORNER+EDGE1+EDGE2, is intersected
+// by the ray RAY.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY's dir field required to reach the intersection
+// point from RAY's origin.
+//
+// The baycentric coordinates of the intersection point are returned
+// in the out-parameters U and V.
+//
+template<typename T>
+inline bool
+parallelogram_intersects (const TPos<T> &corner,
+			  const TVec<T> &edge1, const TVec<T> &edge2,
+			  const TRay<T> &ray,
+			  T &t, T &u, T &v)
+{
+  return tripar_intersects (corner, edge1, edge2, false, ray, t, u, v);
 }
 
 

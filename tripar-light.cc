@@ -179,7 +179,7 @@ TriparLight::eval (const Intersect &isec, const Vec &dir) const
 	   max_dist);
 
   dist_t dist, u, v;
-  if (tripar_intersect (pos, side1, side2, parallelogram, ray, dist, u, v))
+  if (tripar_intersects (pos, side1, side2, parallelogram, ray, dist, u, v))
     {
       // Area to solid-angle conversion, dw/dA
       //   = cos (-light_normal, sample_dir) / distance^2

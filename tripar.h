@@ -73,7 +73,7 @@ private:
   //
   bool intersects (const Ray &ray, dist_t &t, dist_t &u, dist_t &v) const
   {
-    return tripar_intersect (v0, e1, e2, parallelogram, ray, t, u, v);
+    return tripar_intersects (v0, e1, e2, parallelogram, ray, t, u, v);
   }
 
   Pos v0;

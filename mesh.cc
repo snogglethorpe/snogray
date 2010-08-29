@@ -257,7 +257,7 @@ Mesh::Triangle::intersect (Ray &ray, RenderContext &context) const
   Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
 
   dist_t t, u, v;
-  if (triangle_intersect (corner, edge1, edge2, ray, t, u, v))
+  if (triangle_intersects (corner, edge1, edge2, ray, t, u, v))
     {
       ray.t1 = t;
       return new (context) IsecInfo (ray, this, u, v);
@@ -442,7 +442,7 @@ Mesh::Triangle::intersects (const Ray &ray, RenderContext &) const
   Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
 
   dist_t t, u, v;
-  return triangle_intersect (corner, edge1, edge2, ray, t, u, v);
+  return triangle_intersects (corner, edge1, edge2, ray, t, u, v);
 }
 
 // Return a bounding box for this surface.

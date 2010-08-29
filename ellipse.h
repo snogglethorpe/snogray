@@ -76,7 +76,7 @@ private:
   //
   bool intersects (const Ray &ray, dist_t &t, dist_t &u, dist_t &v) const
   {
-    if (parallelogram_intersect (corner, edge1, edge2, ray, t, u, v))
+    if (parallelogram_intersects (corner, edge1, edge2, ray, t, u, v))
       {
 	// X and Y are the coordinates of intersection point relative to
 	// the ellipse center in the plane of the ellipse, each scaled
