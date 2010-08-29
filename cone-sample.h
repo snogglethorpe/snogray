@@ -52,6 +52,19 @@ cone_sample (float angle, const UV &param)
   return Vec (x, y, z);
 }
 
+// Return a parameter for which cone_sample would return DIR.
+//
+static inline UV
+cone_sample_inverse (float angle, const Vec &dir)
+{
+  float phi = atan2 (dir.y, dir.x);
+  float v = phi * INV_PIf * 0.5f;
+  if (v < 0)
+    v += 1;
+  float u = (1 - dir.z) * PIf / angle;
+  return UV (clamp01 (u), clamp01 (v));
+}
+
 
 }
 
