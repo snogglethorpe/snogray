@@ -68,12 +68,24 @@ private:
     dist_t u, v;
   };
 
-  // Return true if this surface intersects RAY; if true is returned, the
-  // intersection parameters are return in T, U, and V.
+  // Return true if this surface intersects RAY; if true is returned,
+  // the intersection parameters are return in T, U, and V.
   //
   bool intersects (const Ray &ray, dist_t &t, dist_t &u, dist_t &v) const
   {
     return tripar_intersects (v0, e1, e2, parallelogram, ray, t, u, v);
+  }
+
+  // Return true if this surface intersects a ray from RAY_ORIGIN in
+  // direction RAY_DIR.  If true is returned, the intersection
+  // parameters are return in T, U, and V.
+  //
+  bool intersects (const Pos &ray_origin, const Vec &ray_dir,
+		   dist_t &t, dist_t &u, dist_t &v)
+    const
+  {
+    return tripar_intersects (v0, e1, e2, parallelogram, ray_origin, ray_dir,
+			      t, u, v);
   }
 
   Pos v0;
