@@ -266,7 +266,7 @@ parallelogram_intersects (const TPos<T> &corner,
 			  const TPos<T> &ray_origin, const TVec<T> &ray_dir,
 			  T min_t, T &t, T &u, T &v)
 {
-  return tripar_intersects (corner, edge1, edge2, false,
+  return tripar_intersects (corner, edge1, edge2, true,
 			    ray_origin, ray_dir, min_t, t, u, v);
 }
 
@@ -289,7 +289,7 @@ parallelogram_intersects (const TPos<T> &corner,
 			  const TPos<T> &ray_origin, const TVec<T> &ray_dir,
 			  T &t, T &u, T &v)
 {
-  return tripar_intersects (corner, edge1, edge2, false,
+  return tripar_intersects (corner, edge1, edge2, true,
 			    ray_origin, ray_dir, t, u, v);
 }
 
@@ -313,7 +313,7 @@ parallelogram_intersects (const TPos<T> &corner,
 			  const TRay<T> &ray,
 			  T &t, T &u, T &v)
 {
-  return tripar_intersects (corner, edge1, edge2, false, ray, t, u, v);
+  return tripar_intersects (corner, edge1, edge2, true, ray, t, u, v);
 }
 
 
