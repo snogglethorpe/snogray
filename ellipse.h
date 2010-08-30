@@ -90,6 +90,29 @@ private:
     return false;
   }
 
+  // Return true if this surface intersects a ray from RAY_ORIGIN in
+  // direction RAY_DIR.  If true is returned, the intersection
+  // parameters are return in T, U, and V.
+  //
+  bool intersects (const Pos &ray_origin, const Vec &ray_dir,
+		   dist_t &t, dist_t &u, dist_t &v)
+    const
+  {
+    if (parallelogram_intersects (corner, edge1, edge2, ray_origin, ray_dir,
+				  t, u, v))
+      {
+	// X and Y are the coordinates of intersection point relative to
+	// the ellipse center in the plane of the ellipse, each scaled
+	// according to the length of the corresponding radius / 2.
+	//
+	dist_t x = u - 0.5f, y = v - 0.5f;
+
+	return x*x + y*y <= 0.25f; // 0.25 == 0.5^2
+      }
+
+    return false;
+  }
+
   // A parallelogram which surrounds this ellipse.
   //
   Pos corner;
