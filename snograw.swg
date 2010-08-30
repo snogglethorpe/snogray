@@ -490,6 +490,7 @@ namespace snogray {
     Medium (float _ior = 1, const Color &_absorb = 0);
   };
 
+  %ignore Surface;
   class Surface
   {
   private:
@@ -501,6 +502,7 @@ namespace snogray {
     virtual BBox bbox () const;
   };
 
+  %ignore Primitive;
   class Primitive : public Surface
   {
   public:
