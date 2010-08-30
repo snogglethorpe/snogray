@@ -37,24 +37,33 @@ Cylinder::xform (const Pos &base, const Vec &axis, float radius)
   return xf;
 }
 
+
+// intersection
 
-// Return the point of intersection of RAY with a radius 1 cylinder of
-// height 2, centered at the origin.  If RAY doesn't intersect, return
-// zero, otherwise the return value T is the parametric distance from
-// RAY.origin; to calculate the actual intersection point, use
-// RAY.origin + T * RAY.dir.
+// Return true if a cylinder, with radius 1 and height 2, centered at
+// the origin and having an axis on the z-axis, is intersected by an
+// infinite ray from RAY_ORIGIN in direction RAY_DIR.
 //
-static dist_t
-cylinder_intersect (Ray &ray)
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY_DIR required to reach the intersection point
+// from RAY_ORIGIN.  Only intersections with a parameter distance of
+// MIN_T or greater are considered.
+//
+static bool
+cylinder_intersects (const Pos &ray_origin, const Vec &ray_dir,
+		     dist_t min_t, dist_t &t)
 {
-  const Pos &o = ray.origin;
-  const Vec &d = ray.dir;
+  // Cylinder parameters.
+  //
+  const dist_t radius = 1;
+  const coord_t min_z = -1, max_z = 1;
 
   // Coefficients of the quadratic equation we'll solve.
   //
-  dist_t a = d.x * d.x + d.y * d.y;
-  dist_t b = 2 * (d.x * o.x + d.y * o.y);
-  dist_t c = o.x * o.x + o.y * o.y - 1 /* radius */;
+  dist_t a = ray_dir.x * ray_dir.x + ray_dir.y * ray_dir.y;
+  dist_t b = 2 * (ray_dir.x * ray_origin.x + ray_dir.y * ray_origin.y);
+  dist_t c = ray_origin.x * ray_origin.x + ray_origin.y * ray_origin.y - radius;
 
   // Compute intersection points.
   //
@@ -62,16 +71,30 @@ cylinder_intersect (Ray &ray)
   unsigned nroots = quadratic_roots (a, b, c, roots);
   for (unsigned i = 0; i < nroots; i++)
     {
-      dist_t root = roots[i];
-      if (root > ray.t0 && root < ray.t1)
+      t = roots[i];
+      if (t > min_t)
 	{
-	  coord_t z = o.z + root * d.z;
-	  if (z >= -1 && z <= 1)
-	    return root;
+	  coord_t z = ray_origin.z + t * ray_dir.z;
+	  if (z >= min_z && z <= max_z)
+	    return true;
 	}
     }
 
-  return 0;
+  return false;
+}
+
+// Return true if a cylinder, with radius 1 and height 2, centered at
+// the origin and having an axis on the z-axis, is intersected by RAY.
+//
+// When an intersection occurs, the "parametric distance" of the
+// intersection is returned in the out-parameter T:  T is the number
+// of multiples of RAY's dir field required to reach the intersection
+// point from RAY's origin.
+//
+static bool
+cylinder_intersects (Ray &ray, dist_t &t)
+{
+  return cylinder_intersects (ray.origin, ray.dir, ray.t0, t) && t < ray.t1;
 }
 
 
@@ -85,15 +108,15 @@ const Surface::IsecInfo *
 Cylinder::intersect (Ray &ray, RenderContext &context) const
 {
   Ray oray = world_to_local (ray);
-  dist_t t = cylinder_intersect (oray);
 
-  if (t != 0)
+  dist_t t;
+  if (cylinder_intersects (oray, t))
     {
       ray.t1 = t;
       return new (context) IsecInfo (ray, this, oray.extension (t));
     }
-  else
-    return 0;
+
+  return 0;
 }
 
 // Create an Intersect object for this intersection.
@@ -128,7 +151,8 @@ bool
 Cylinder::intersects (const Ray &ray, RenderContext &) const
 {
   Ray oray = world_to_local (ray);
-  return (cylinder_intersect (oray) != 0);
+  dist_t t;
+  return cylinder_intersects (oray, t);
 }
 
 
