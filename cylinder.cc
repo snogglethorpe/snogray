@@ -155,5 +155,80 @@ Cylinder::intersects (const Ray &ray, RenderContext &) const
   return cylinder_intersects (oray, t);
 }
 
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Cylinder::make_sampler () const
+{
+  return new Sampler (*this);
+}
+
+
+// Cylinder::Sampler
+
+// A functor for calling Surface::Sampler::sample_with_approx_pdf.
+// Returns a sample position in world-space based on an input
+// parameter.
+//
+struct PosSampler
+{
+  PosSampler (const Cylinder &_cylinder) : cylinder (_cylinder) {}
+  Pos operator() (const UV &param) const
+  {
+    float theta = param.u * 2 * PIf;
+    Pos samp (cos (theta), sin (theta), 2 * param.v - 1);
+    return cylinder.local_to_world (samp);
+  }
+  const Cylinder &cylinder;
+};
+
+// Return a sample of this surface.
+//
+Surface::Sampler::AreaSample
+Cylinder::Sampler::sample (const UV &param) const
+{
+  float theta = param.u * 2 * PIf;
+  Vec radius (cos (theta), sin (theta), 0);
+  Vec norm = cylinder.normal_to_world (radius).unit();
+  return sample_with_approx_area_pdf (PosSampler (cylinder), param, norm);
+}
+
+// If a ray from VIEWPOINT in direction DIR intersects this
+// surface, return an AngularSample as if the
+// Surface::Sampler::sample_from_viewpoint method had returned a
+// sample at the intersection position.  Otherwise, return an
+// AngularSample with a PDF of zero.
+//
+Surface::Sampler::AngularSample
+Cylinder::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
+  const
+{
+  // Convert parameters to object-space.
+  //
+  Pos oviewpoint = cylinder.world_to_local (viewpoint);
+  Vec odir = cylinder.world_to_local (dir); // note, not normalized
+
+  dist_t t;
+  if (cylinder_intersects (oviewpoint, odir, 0, t))
+    {
+      // Calculate an appropriate sampling parameter and call
+      // Surface::Sampler::sample_from_viewpoint to turn that into a
+      // sample.
+
+      Pos pos = oviewpoint + t * odir;
+      float u = atan2 (pos.y, pos.x) * INV_PIf * 0.5f;
+      if (u < 0)
+	u += 1;
+      float v = pos.z * 0.5f + 0.5f;
+      UV param (clamp01 (u), clamp01 (v));
+
+      return sample_from_viewpoint (viewpoint, param);
+    }
+
+  return AngularSample ();
+}
+
 
 // arch-tag: 1a4758de-f640-4ea6-abf2-2626070847e5
