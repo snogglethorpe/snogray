@@ -13,6 +13,7 @@
 #include "intersect.h"
 #include "sphere-isec.h"
 #include "sphere-light.h"
+#include "sphere-sample.h"
 
 #include "sphere.h"
 
@@ -120,6 +121,52 @@ Sphere::add_light (const TexVal<Color> &intensity,
   const
 {
   lights.push_back (new SphereLight (frame.origin, radius, intensity));
+}
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Sphere::make_sampler () const
+{
+  return new Sampler (*this);
+}
+
+
+// Sphere::Sampler
+
+// Return a sample of this surface.
+//
+Surface::Sampler::AreaSample
+Sphere::Sampler::sample (const UV &param) const
+{
+  Vec vec = sphere.frame.from (sphere_sample (param) * sphere.radius);
+  Vec norm = vec.unit ();
+  float pdf = 1 / (sphere.radius*sphere.radius * 4 * PIf);	// 1 / area
+  return AreaSample (sphere.frame.origin + vec, norm, pdf);
+}
+
+// If a ray from VIEWPOINT in direction DIR intersects this
+// surface, return an AngularSample as if the
+// Surface::Sampler::sample_from_viewpoint method had returned a
+// sample at the intersection position.  Otherwise, return an
+// AngularSample with a PDF of zero.
+//
+Surface::Sampler::AngularSample
+Sphere::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
+  const
+{
+  dist_t t;
+  if (sphere_intersects (sphere.frame.origin, sphere.radius, viewpoint, dir, t))
+    {
+      Pos pos = viewpoint + t * dir;
+      Vec vec = pos - sphere.frame.origin;
+      Vec norm = vec.unit ();
+      float area_pdf = 1 / (sphere.radius*sphere.radius * 4 * PIf); // 1 / area
+      return AngularSample (AreaSample (pos, norm, area_pdf), viewpoint);
+    }
+  return AngularSample ();
 }
 
 
