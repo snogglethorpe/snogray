@@ -141,10 +141,14 @@ Sphere::make_sampler () const
 Surface::Sampler::AreaSample
 Sphere::Sampler::sample (const UV &param) const
 {
-  Vec vec = sphere.frame.from (sphere_sample (param) * sphere.radius);
-  Vec norm = vec.unit ();
-  float pdf = 1 / (sphere.radius*sphere.radius * 4 * PIf);	// 1 / area
-  return AreaSample (sphere.frame.origin + vec, norm, pdf);
+  Pos center = sphere.frame.origin;
+  dist_t radius = sphere.radius;
+
+  Vec norm = sphere_sample (param);
+  Pos pos = center + norm * radius;
+  float pdf = 1 / (radius*radius * 4 * PIf);    // 1 / area
+
+  return AreaSample (pos, norm, pdf);
 }
 
 // If a ray from VIEWPOINT in direction DIR intersects this
