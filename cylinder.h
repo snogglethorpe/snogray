@@ -69,6 +69,13 @@ public:
     //
     virtual AreaSample sample (const UV &param) const;
 
+    // Return a sample of this surface from VIEWPOINT, based on the
+    // parameter PARAM.
+    //
+    virtual AngularSample sample_from_viewpoint (const Pos &viewpoint,
+						 const UV &param)
+      const;
+
     // If a ray from VIEWPOINT in direction DIR intersects this
     // surface, return an AngularSample as if the
     // Surface::Sampler::sample_from_viewpoint method had returned a
