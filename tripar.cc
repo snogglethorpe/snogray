@@ -107,5 +107,66 @@ Tripar::add_light (const TexVal<Color> &intensity,
   lights.push_back (new TriparLight (v0, e1, e2, parallelogram, intensity));
 }
 
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Tripar::make_sampler () const
+{
+  return new Sampler (*this);
+}
+
+
+// Sphere::Sampler
+
+// Return a sample of this surface.
+//
+Surface::Sampler::AreaSample
+Tripar::Sampler::sample (const UV &param) const
+{
+  float u = param.u, v = param.v;
+  
+  // normal
+  Vec norm = cross (tripar.e2, tripar.e1);
+  float area = norm.length ();
+  norm /= area;			// normalize normal :)
+
+  // If this is a triangle (rather than a parallelogram), then fold the
+  // u/v parameters as necessary to stay within the triangle.
+  //
+  if (!tripar.parallelogram && u + v > 1)
+    {
+      u = 1 - u;
+      v = 1 - v;
+      area *= 0.5f;
+    }
+
+  // position
+  Pos pos = tripar.v0 + tripar.e1 * u + tripar.e2 * v;
+
+  // pdf
+  float pdf = 1 / area;
+
+  return AreaSample (pos, norm, pdf);
+}
+
+// If a ray from VIEWPOINT in direction DIR intersects this
+// surface, return an AngularSample as if the
+// Surface::Sampler::sample_from_viewpoint method had returned a
+// sample at the intersection position.  Otherwise, return an
+// AngularSample with a PDF of zero.
+//
+Surface::Sampler::AngularSample
+Tripar::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
+  const
+{
+  dist_t t;
+  UV param;
+  if (tripar.intersects (viewpoint, dir, t, param.u, param.v))
+    return sample_from_viewpoint (viewpoint, param);
+  return AngularSample ();
+}
+
 
 // arch-tag: 962df04e-4c0a-4754-ac1a-f506d4e77c4e
