@@ -180,9 +180,9 @@ libsnogscene_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h bsdf.h	\
 	photon-map.h pos.h pos-io.cc pos-io.h primitive.cc primitive.h	\
 	quadratic-roots.h scene.cc scene.h space.cc space.h		\
 	space-builder.h sphere-isec.h spherical-coords.h surface.cc	\
-	surface.h tex.h tex-coords.h tripar-isec.h tuple3.h uv.h	\
-	uv-io.cc uv-io.h vec.h vec-io.cc vec-io.h xform.h xform-base.h	\
-	xform-io.cc xform-io.h
+	surface.h surface-light.cc surface-light.h tex.h tex-coords.h	\
+	tripar-isec.h tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc	\
+	vec-io.h xform.h xform-base.h xform-io.cc xform-io.h
 
 
 ################################################################
