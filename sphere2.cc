@@ -132,6 +132,36 @@ Sphere2::Sampler::sample (const UV &param) const
   return sample_with_approx_area_pdf (PosSampler (sphere), param, norm);
 }
 
+// Return a sample of this surface from VIEWPOINT, based on the
+// parameter PARAM.
+//
+Surface::Sampler::AngularSample
+Sphere2::Sampler::sample_from_viewpoint (const Pos &viewpoint, const UV &param)
+  const
+{
+  // Sample the entire sphere.
+  //
+  AreaSample area_sample = sample (param);
+
+  // If the normal points away from VIEWPOINT, mirror the sample about
+  // the sphere's center so that it doesn't.
+  //
+  if (dot (area_sample.normal, area_sample.pos - viewpoint) > 0)
+    {
+      Pos opos = sphere.world_to_local (area_sample.pos);
+      area_sample.pos = sphere.local_to_world (Pos (-Vec (opos)));
+      area_sample.normal = -area_sample.normal;
+    }
+
+  // Because we mirror samples to always point towards VIEWPOINT, double
+  // the PDF, as the same number of samples is concentrated into half
+  // the space (the hemisphere facing VIEWPOINT).
+  //
+  area_sample.pdf *= 2;
+
+  return AngularSample (area_sample, viewpoint);
+}
+
 // If a ray from VIEWPOINT in direction DIR intersects this
 // surface, return an AngularSample as if the
 // Surface::Sampler::sample_from_viewpoint method had returned a
