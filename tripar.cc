@@ -11,7 +11,6 @@
 //
 
 #include "intersect.h"
-#include "tripar-light.h"
 
 #include "tripar.h"
 
