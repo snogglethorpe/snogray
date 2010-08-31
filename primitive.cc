@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <stdexcept>
+#include "surface-light.h"
 
 #include "primitive.h"
 
@@ -23,8 +23,8 @@ using namespace snogray;
 // primitive does not support lighting.
 //
 void
-Primitive::add_light (const TexVal<Color> &, std::vector<Light *> &lights)
+Primitive::add_light (const TexVal<Color> &intens, std::vector<Light *> &lights)
   const
 {
-  throw std::runtime_error ("primitive can not be used as an area light");
+  lights.push_back (new SurfaceLight (*this, intens));
 }
