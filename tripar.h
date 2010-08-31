@@ -47,14 +47,6 @@ public:
   //
   virtual BBox bbox () const;
 
-  // Add a single area light, using this surface's shape, to LIGHTS,
-  // with with intensity INTENSITY.  An error will be signaled if this
-  // surface does not support lighting.
-  //
-  virtual void add_light (const TexVal<Color> &intensity,
-			  std::vector<Light *> &lights)
-    const;
-
   // Return a sampler for this surface, or zero if the surface doesn't
   // support sampling.  The caller is responsible for destroying
   // returned samplers.

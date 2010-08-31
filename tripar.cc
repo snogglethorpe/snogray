@@ -95,18 +95,6 @@ Tripar::bbox () const
   return bbox;
 }
 
-// Add a single area light, using this surface's shape, to LIGHTS,
-// with with intensity INTENSITY.  An error will be signaled if this
-// surface does not support lighting.
-//
-void
-Tripar::add_light (const TexVal<Color> &intensity,
-		   std::vector<Light *> &lights)
-  const
-{
-  lights.push_back (new TriparLight (v0, e1, e2, parallelogram, intensity));
-}
-
 // Return a sampler for this surface, or zero if the surface doesn't
 // support sampling.  The caller is responsible for destroying
 // returned samplers.
