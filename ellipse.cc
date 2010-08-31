@@ -109,3 +109,53 @@ Ellipse::bbox () const
   bbox += corner + edge1 + edge2;
   return bbox;
 }
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Ellipse::make_sampler () const
+{
+  return new Sampler (*this);
+}
+
+
+// Ellipse::Sampler
+
+// Return a sample of this surface.
+//
+Surface::Sampler::AreaSample
+Ellipse::Sampler::sample (const UV &param) const
+{
+  // position
+  Pos pos = ellipse.corner + ellipse.edge1 * param.u + ellipse.edge2 * param.v;
+
+  // normal
+  Vec norm = cross (ellipse.edge2, ellipse.edge1);
+  dist_t norm_unnorm_len = norm.length ();
+  norm /= norm_unnorm_len;	// normalize normal :)
+
+  // pdf
+  dist_t area = norm_unnorm_len * PIf * 0.25f;
+  float pdf = 1 / area;
+
+  return AreaSample (pos, norm, pdf);
+}
+
+// If a ray from VIEWPOINT in direction DIR intersects this
+// surface, return an AngularSample as if the
+// Surface::Sampler::sample_from_viewpoint method had returned a
+// sample at the intersection position.  Otherwise, return an
+// AngularSample with a PDF of zero.
+//
+Surface::Sampler::AngularSample
+Ellipse::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
+  const
+{
+  dist_t t;
+  UV param;
+  if (ellipse.intersects (viewpoint, dir, t, param.u, param.v))
+    return sample_from_viewpoint (viewpoint, param);
+  return AngularSample ();
+}
