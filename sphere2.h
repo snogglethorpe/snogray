@@ -44,6 +44,39 @@ public:
   //
   virtual bool intersects (const Ray &ray, RenderContext &context) const;
 
+  // Return a sampler for this surface, or zero if the surface doesn't
+  // support sampling.  The caller is responsible for destroying
+  // returned samplers.
+  //
+  virtual Sampler *make_sampler () const;
+
+  // Sphere2 Sampler interface.
+  //
+  class Sampler : public Surface::Sampler
+  {
+  public:
+
+    Sampler (const Sphere2 &_sphere) : sphere (_sphere) { }
+
+    // Return a sample of this surface.
+    //
+    virtual AreaSample sample (const UV &param) const;
+
+    // If a ray from VIEWPOINT in direction DIR intersects this
+    // surface, return an AngularSample as if the
+    // Surface::Sampler::sample_from_viewpoint method had returned a
+    // sample at the intersection position.  Otherwise, return an
+    // AngularSample with a PDF of zero.
+    //
+    virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
+					       const Vec &dir)
+      const;
+
+  private:
+
+    const Sphere2 &sphere;
+  };
+
 private:
 
   struct IsecInfo : public Surface::IsecInfo

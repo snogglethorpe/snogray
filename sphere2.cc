@@ -12,6 +12,8 @@
 
 #include "intersect.h"
 #include "sphere-isec.h"
+#include "sphere-sample.h"
+#include "surface-light.h"
 
 #include "sphere2.h"
 
@@ -92,6 +94,73 @@ Sphere2::intersects (const Ray &ray, RenderContext &) const
   Ray oray = world_to_local (ray);
   dist_t t;
   return sphere_intersects (Pos(0,0,0), dist_t(1), oray, t);
+}
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Sphere2::make_sampler () const
+{
+  return new Sampler (*this);
+}
+
+
+// Sphere2::Sampler
+
+// A functor for Surface::Sampler::sample_with_approx_area_pdf.
+// Returns a sample position in world-space based on an input
+// parameter.
+//
+struct PosSampler
+{
+  PosSampler (const Sphere2 &_sphere) : sphere (_sphere) {}
+  Pos operator() (const UV &param) const
+  {
+    return sphere.local_to_world (Pos (sphere_sample (param)));
+  }
+  const Sphere2 &sphere;
+};
+
+// Return a sample of this surface.
+//
+Surface::Sampler::AreaSample
+Sphere2::Sampler::sample (const UV &param) const
+{
+  Vec norm = sphere.normal_to_world (sphere_sample (param)).unit ();
+  return sample_with_approx_area_pdf (PosSampler (sphere), param, norm);
+}
+
+// If a ray from VIEWPOINT in direction DIR intersects this
+// surface, return an AngularSample as if the
+// Surface::Sampler::sample_from_viewpoint method had returned a
+// sample at the intersection position.  Otherwise, return an
+// AngularSample with a PDF of zero.
+//
+Surface::Sampler::AngularSample
+Sphere2::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
+  const
+{
+  // Convert parameters to object-space.
+  //
+  Pos oviewpoint = sphere.world_to_local (viewpoint);
+  Vec odir = sphere.world_to_local (dir); // note, not normalized
+
+  dist_t t;
+  if (sphere_intersects (Pos(0,0,0), 1.f, oviewpoint, odir, t))
+    {
+      // Calculate an appropriate sampling parameter and call
+      // Surface::Sampler::sample_from_viewpoint to turn that into a
+      // sample.
+
+      Pos opos = oviewpoint + t * odir;
+      UV param = sphere_sample_inverse (Vec (opos));
+
+      return sample_from_viewpoint (viewpoint, param);
+    }
+
+  return AngularSample ();
 }
 
 
