@@ -130,10 +130,6 @@ Ellipse::Sampler::sample (const UV &param) const
   // position
   Pos pos = ellipse.corner + ellipse.edge1 * param.u + ellipse.edge2 * param.v;
 
-  // pdf
-  dist_t area = cross (ellipse.edge2, ellipse.edge1).length ();
-  float pdf = 1 / area;
-
   return AreaSample (pos, ellipse.normal, pdf);
 }
 

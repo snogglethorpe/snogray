@@ -71,7 +71,10 @@ public:
   {
   public:
 
-    Sampler (const Ellipse &_ellipse) : ellipse (_ellipse) { }
+    Sampler (const Ellipse &_ellipse)
+      : ellipse (_ellipse),
+	pdf (4 * INV_PIf / cross (ellipse.edge2, ellipse.edge1).length ())
+    { }
 
     // Return a sample of this surface.
     //
@@ -90,6 +93,10 @@ public:
   private:
 
     const Ellipse &ellipse;
+
+    // Cache of PDF, which is just 1 / area.
+    //
+    float pdf;
   };
 
 private:
