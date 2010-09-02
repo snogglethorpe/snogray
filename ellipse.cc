@@ -11,6 +11,7 @@
 //
 
 #include "intersect.h"
+#include "disk-sample.h"
 
 #include "ellipse.h"
 
@@ -127,8 +128,11 @@ Ellipse::make_sampler () const
 Surface::Sampler::AreaSample
 Ellipse::Sampler::sample (const UV &param) const
 {
-  // position
-  Pos pos = ellipse.corner + ellipse.edge1 * param.u + ellipse.edge2 * param.v;
+  float dx, dy;
+  disk_sample (.5f, param, dx, dy);
+  dx += .5f;
+  dy += .5f;
+  Pos pos = ellipse.corner + ellipse.edge1 * dx + ellipse.edge2 * dy;
 
   return AreaSample (pos, ellipse.normal, pdf);
 }
@@ -144,8 +148,11 @@ Ellipse::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
   const
 {
   dist_t t;
-  UV param;
-  if (ellipse.intersects (viewpoint, dir, t, param.u, param.v))
-    return sample_from_viewpoint (viewpoint, param);
+  float u, v;
+  if (ellipse.intersects (viewpoint, dir, t, u, v))
+    {
+      Pos pos = viewpoint + t * dir;
+      return AngularSample (AreaSample (pos, ellipse.normal, pdf), viewpoint);
+    }
   return AngularSample ();
 }
