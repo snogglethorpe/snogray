@@ -40,7 +40,8 @@ public:
 	   const Pos &center, const Vec &radius1, const Vec &radius2)
     : Primitive (mat),
       corner (center - radius1 - radius2),
-      edge1 (radius1 * 2), edge2 (radius2 * 2)
+      edge1 (radius1 * 2), edge2 (radius2 * 2),
+      normal (cross (edge2, edge1).unit ())
   { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
@@ -150,6 +151,10 @@ private:
   //
   Pos corner;
   Vec edge1, edge2;
+
+  // Normal vector
+  //
+  Vec normal;
 };
 
 

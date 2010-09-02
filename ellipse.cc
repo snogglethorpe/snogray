@@ -54,15 +54,14 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   //
   Pos center = ellipse->corner + rad1 + rad2;
 
-  // Calculate the normal and tangent vectors.
+  // Tangent vectors.
   //
-  Vec norm = cross (rad2, rad1).unit ();
   Vec s = rad1 * inv_rad1_len;
-  Vec t = cross (s, norm);
+  Vec t = cross (s, ellipse->normal);
 
   // Normal frame.
   //
-  Frame norm_frame (point, s, t, norm);
+  Frame norm_frame (point, s, t, ellipse->normal);
 
   // 2d texture coordinates.
   //
@@ -131,16 +130,11 @@ Ellipse::Sampler::sample (const UV &param) const
   // position
   Pos pos = ellipse.corner + ellipse.edge1 * param.u + ellipse.edge2 * param.v;
 
-  // normal
-  Vec norm = cross (ellipse.edge2, ellipse.edge1);
-  dist_t norm_unnorm_len = norm.length ();
-  norm /= norm_unnorm_len;	// normalize normal :)
-
   // pdf
-  dist_t area = norm_unnorm_len * PIf * 0.25f;
+  dist_t area = cross (ellipse.edge2, ellipse.edge1).length ();
   float pdf = 1 / area;
 
-  return AreaSample (pos, norm, pdf);
+  return AreaSample (pos, ellipse.normal, pdf);
 }
 
 // If a ray from VIEWPOINT in direction DIR intersects this
