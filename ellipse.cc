@@ -79,12 +79,8 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   //
   UV dTds (0.5f * inv_rad1_len, 0), dTdt (0, 0.5f * inv_rad2_len);
 
-  Intersect isec (ray, media, context, *ellipse->material,
-		  norm_frame, tex_coords, dTds, dTdt);
-
-  isec.no_self_shadowing = ellipse;
-
-  return isec;
+  return Intersect (ray, media, context, *ellipse->material,
+		    norm_frame, tex_coords, dTds, dTdt);
 }
 
 // Return true if this surface intersects RAY.

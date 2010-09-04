@@ -65,11 +65,6 @@ Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   isec.normal_frame.z
     = instance->normal_to_world (isec.normal_frame.z).unit ();
 
-  // Self-shadowing is detected via object identity, and object identity is
-  // a murky concept for anything in an instance.
-  //
-  isec.no_self_shadowing = 0;
-
   return isec;
 }
 

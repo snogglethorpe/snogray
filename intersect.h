@@ -152,12 +152,6 @@ public:
   //
   Ref<const Bsdf> bsdf;
 
-  // If non-zero, a surface which cannot shadow itself (for non-planar
-  // objects, this applies to the current side of the surface -- the one
-  // corresponding to the normal N).
-  //
-  const Surface *no_self_shadowing;
-
   // Texture coordinates for this intersection.
   //
   TexCoords tex_coords;

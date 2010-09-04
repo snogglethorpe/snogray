@@ -64,12 +64,8 @@ Tripar::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   dist_t dvdt = oe2.y ? 1 / oe2.y : 0;
   UV dTds (duds, dvds), dTdt (0, dvdt);
 
-  Intersect isec (ray, media, context, *tripar->material,
-		  normal_frame, UV (u, v), dTds, dTdt);
-
-  isec.no_self_shadowing = tripar;
-
-  return isec;
+  return Intersect (ray, media, context, *tripar->material,
+		    normal_frame, UV (u, v), dTds, dTdt);
 }
 
 // Return true if this surface intersects RAY.
