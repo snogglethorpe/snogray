@@ -50,7 +50,7 @@ private:
   struct IsecInfo : public Surface::IsecInfo
   {
     IsecInfo (const Ray &ray,
-	      const Instance *_instance,
+	      const Instance &_instance,
 	      const Surface::IsecInfo *_subspace_isec_info)
       : Surface::IsecInfo (ray),
 	instance (_instance),
@@ -61,7 +61,7 @@ private:
 				      RenderContext &context)
       const;
 
-    const Instance *instance;
+    const Instance &instance;
 
     const Surface::IsecInfo *subspace_isec_info;
   };

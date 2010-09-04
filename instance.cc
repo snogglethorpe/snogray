@@ -38,7 +38,7 @@ Instance::intersect (Ray &ray, RenderContext &context) const
   if (subspace_isec_info)
     {
       ray.t1 = xformed_ray.t1;
-      return new (context) IsecInfo (ray, this, subspace_isec_info);
+      return new (context) IsecInfo (ray, *this, subspace_isec_info);
     }
   else
     return 0;
@@ -57,13 +57,13 @@ Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   // Now transform parts of it to be in the global space.
   //
   isec.normal_frame.origin
-    = instance->local_to_world (isec.normal_frame.origin);
+    = instance.local_to_world (isec.normal_frame.origin);
   isec.normal_frame.x
-    = instance->local_to_world (isec.normal_frame.x).unit ();
+    = instance.local_to_world (isec.normal_frame.x).unit ();
   isec.normal_frame.y
-    = instance->local_to_world (isec.normal_frame.y).unit ();
+    = instance.local_to_world (isec.normal_frame.y).unit ();
   isec.normal_frame.z
-    = instance->normal_to_world (isec.normal_frame.z).unit ();
+    = instance.normal_to_world (isec.normal_frame.z).unit ();
 
   return isec;
 }
