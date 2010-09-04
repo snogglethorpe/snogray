@@ -113,7 +113,7 @@ Cylinder::intersect (Ray &ray, RenderContext &context) const
   if (cylinder_intersects (oray, t))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, this, oray.extension (t));
+      return new (context) IsecInfo (ray, *this, oray.extension (t));
     }
 
   return 0;
@@ -128,8 +128,8 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   Pos point = ray.end ();
 
   Vec onorm (isec_point.x, isec_point.y, 0);
-  Vec norm = cylinder->normal_to_world (onorm).unit ();
-  Vec t = cylinder->local_to_world (Vec (0, 0, 1)).unit ();
+  Vec norm = cylinder.normal_to_world (onorm).unit ();
+  Vec t = cylinder.local_to_world (Vec (0, 0, 1)).unit ();
   Vec s = cross (norm, t);
 
   UV tex_coords (atan2 (isec_point.y, isec_point.x) * INV_PIf * 0.5f + 0.5f,
@@ -140,7 +140,7 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   //
   UV dTds (INV_PIf * 0.5f, 0), dTdt (0, 0.5f);
 
-  return Intersect (ray, media, context, *cylinder->material,
+  return Intersect (ray, media, context, *cylinder.material,
 		    Frame (point, s, t, norm),
 		    tex_coords, dTds, dTdt);
 }

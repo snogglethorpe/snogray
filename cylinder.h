@@ -95,7 +95,7 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Cylinder *_cylinder, const Pos &_isec_point)
+    IsecInfo (const Ray &ray, const Cylinder &_cylinder, const Pos &_isec_point)
       : Surface::IsecInfo (ray), cylinder (_cylinder), isec_point (_isec_point)
     { }
 
@@ -103,7 +103,7 @@ private:
 				      RenderContext &context)
       const;
 
-    const Cylinder *cylinder;
+    const Cylinder &cylinder;
 
     // Intersection point in the cylinder's local coordinate system.
     //
