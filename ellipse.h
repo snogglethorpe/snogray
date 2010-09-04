@@ -103,13 +103,13 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Ellipse *_ellipse)
+    IsecInfo (const Ray &ray, const Ellipse &_ellipse)
       : Surface::IsecInfo (ray), ellipse (_ellipse)
     { }
     virtual Intersect make_intersect (const Media &media,
 				      RenderContext &context)
       const;
-    const Ellipse *ellipse;
+    const Ellipse &ellipse;
   };
 
   // Return true if this surface intersects RAY; if true is returned, the

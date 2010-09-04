@@ -31,7 +31,7 @@ Ellipse::intersect (Ray &ray, RenderContext &context) const
   if (intersects (ray, t, u, v))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, this);
+      return new (context) IsecInfo (ray, *this);
     }
   return 0;
 }
@@ -46,23 +46,23 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 
   // The ellipse's two "radii".
   //
-  Vec rad1 = ellipse->edge1 / 2;
-  Vec rad2 = ellipse->edge2 / 2;
+  Vec rad1 = ellipse.edge1 / 2;
+  Vec rad2 = ellipse.edge2 / 2;
   dist_t inv_rad1_len = 1 / rad1.length ();
   dist_t inv_rad2_len = 1 / rad1.length ();
 
   // Center of ellipse.
   //
-  Pos center = ellipse->corner + rad1 + rad2;
+  Pos center = ellipse.corner + rad1 + rad2;
 
   // Tangent vectors.
   //
   Vec s = rad1 * inv_rad1_len;
-  Vec t = cross (s, ellipse->normal);
+  Vec t = cross (s, ellipse.normal);
 
   // Normal frame.
   //
-  Frame norm_frame (point, s, t, ellipse->normal);
+  Frame norm_frame (point, s, t, ellipse.normal);
 
   // 2d texture coordinates.
   //
@@ -79,7 +79,7 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   //
   UV dTds (0.5f * inv_rad1_len, 0), dTdt (0, 0.5f * inv_rad2_len);
 
-  return Intersect (ray, media, context, *ellipse->material,
+  return Intersect (ray, media, context, *ellipse.material,
 		    norm_frame, tex_coords, dTds, dTdt);
 }
 
