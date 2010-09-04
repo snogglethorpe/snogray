@@ -260,7 +260,7 @@ Mesh::Triangle::intersect (Ray &ray, RenderContext &context) const
   if (triangle_intersects (corner, edge1, edge2, ray, t, u, v))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, this, u, v);
+      return new (context) IsecInfo (ray, *this, u, v);
     }
 
   return 0;
@@ -272,7 +272,7 @@ Mesh::Triangle::intersect (Ray &ray, RenderContext &context) const
 Frame
 Mesh::Triangle::IsecInfo::make_frame (const Pos &origin, const Vec &norm) const
 {
-  const Mesh &mesh = triangle->mesh;
+  const Mesh &mesh = triangle.mesh;
 
   // The usual value is NORM x AXIS, where AXIS is an arbitrary axis
   // vector.  This yields a value for S that's pointing "around" AXIS,
@@ -323,18 +323,18 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
 
   // Our geometric frame uses the real surface geometry.
   //
-  Frame geom_frame = make_frame (point, triangle->raw_normal ());
+  Frame geom_frame = make_frame (point, triangle.raw_normal ());
 
   // Calculate the normal frame; if the mesh contains vertex normal
   // information, calculate it by interpolating our vertex normals,,
   // otherwise just copy the geometric frame.
   //
   Frame normal_frame;
-  if (! triangle->mesh.vertex_normals.empty ())
+  if (! triangle.mesh.vertex_normals.empty ())
     {
-      Vec norm = triangle->vnorm(0) * (1 - u - v);
-      norm += triangle->vnorm(1) * u;
-      norm += triangle->vnorm(2) * v;
+      Vec norm = triangle.vnorm(0) * (1 - u - v);
+      norm += triangle.vnorm(1) * u;
+      norm += triangle.vnorm(2) * v;
       norm = norm.unit ();	// normalize
       normal_frame = make_frame (point, norm);
     }
@@ -347,7 +347,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
   // raw barycentric coordinates of the vertices.
   //
   UV T0, T1, T2;
-  if (triangle->mesh.vertex_uvs.empty ())
+  if (triangle.mesh.vertex_uvs.empty ())
     {
       T0 = UV (0, 0);
       T1 = UV (1, 0);
@@ -355,9 +355,9 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
     }
   else
     {
-      T0 = triangle->vuv (0);
-      T1 = triangle->vuv (1);
-      T2 = triangle->vuv (2);
+      T0 = triangle.vuv (0);
+      T1 = triangle.vuv (1);
+      T2 = triangle.vuv (2);
     }
 
   // Change in UV values for edge1 and edge2 of the triangle.
@@ -402,8 +402,8 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
 
   // Edge coordinate deltas in normal space.
   //
-  Vec e1_w = triangle->v(1) - triangle->v(0); // triangle edge 1 in world space
-  Vec e2_w = triangle->v(2) - triangle->v(0); // triangle edge 2 in world space
+  Vec e1_w = triangle.v(1) - triangle.v(0); // triangle edge 1 in world space
+  Vec e2_w = triangle.v(2) - triangle.v(0); // triangle edge 2 in world space
   Vec e1 = normal_frame.to (e1_w);	      // edge 1 in normal space
   Vec e2 = normal_frame.to (e2_w);	      // edge 2 in normal space
 
@@ -423,7 +423,7 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
 
   // Make the intersect object.
   //
-  return Intersect (ray, media, context, *triangle->mesh.material,
+  return Intersect (ray, media, context, *triangle.mesh.material,
 		    normal_frame, geom_frame, T, dTds,dTdt);
 }
 
