@@ -35,7 +35,7 @@ Sphere2::intersect (Ray &ray, RenderContext &context) const
   if (sphere_intersects (Pos(0,0,0), dist_t(1), oray, t))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, this, Vec (oray.extension (t)));
+      return new (context) IsecInfo (ray, *this, Vec (oray.extension (t)));
     }
   return 0;
 }
@@ -66,8 +66,8 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
   // T are just ONORM and OT converted from the local coordinate system
   // to world space, and S is just the cross product of NORM and T.
   //
-  Vec norm = sphere->normal_to_world (onorm).unit ();
-  Vec t = sphere->local_to_world (ot).unit ();
+  Vec norm = sphere.normal_to_world (onorm).unit ();
+  Vec t = sphere.local_to_world (ot).unit ();
   Vec s = cross (norm, t);
 
   // Calculate texture coords.  Note that ONORM is also the intersection
@@ -81,7 +81,7 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
   //
   UV dTds (INV_PIf * 0.5f, 0), dTdt (0, INV_PIf);
 
-  return Intersect (ray, media, context, *sphere->material,
+  return Intersect (ray, media, context, *sphere.material,
 		    Frame (point, s, t, norm),
 		    tex_coords, dTds, dTdt);
 }

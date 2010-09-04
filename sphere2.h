@@ -88,14 +88,14 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Sphere2 *_sphere, const Vec &_onorm)
+    IsecInfo (const Ray &ray, const Sphere2 &_sphere, const Vec &_onorm)
       : Surface::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
     { }
 
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const;
 
-    const Sphere2 *sphere;
+    const Sphere2 &sphere;
 
     // Intersection normal in SPHERE's local coordinate system.
     //
