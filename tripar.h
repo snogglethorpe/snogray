@@ -84,12 +84,12 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Tripar *_tripar, dist_t _u, dist_t _v)
+    IsecInfo (const Ray &ray, const Tripar &_tripar, dist_t _u, dist_t _v)
       : Surface::IsecInfo (ray), tripar (_tripar), u (_u), v (_v)
     { }
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const;
-    const Tripar *tripar;
+    const Tripar &tripar;
     dist_t u, v;
   };
 
