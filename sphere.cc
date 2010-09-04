@@ -33,7 +33,7 @@ Sphere::intersect (Ray &ray, RenderContext &context) const
   if (sphere_intersects (frame.origin, radius, ray, t))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, this);
+      return new (context) IsecInfo (ray, *this);
     }
   return 0;
 }
@@ -51,8 +51,8 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   // However, if the normal _exactly_ coincides with the axis, this
   // isn't possible; we use more arbitrary tangent vectors in that case.
   //
-  Vec norm = (point - sphere->frame.origin).unit ();
-  Vec s = cross (norm, sphere->frame.z);
+  Vec norm = (point - sphere.frame.origin).unit ();
+  Vec s = cross (norm, sphere.frame.z);
   if (s.length_squared() < Eps)
     s = norm.perpendicular ();	// degenerate case where NORM == AXIS
   s = s.unit ();
@@ -60,12 +60,12 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
 
   // 1 divided by the radius/circumference of the sphere.
   //
-  dist_t inv_radius = 1 / sphere->radius;
+  dist_t inv_radius = 1 / sphere.radius;
   dist_t inv_circum = inv_radius * INV_PIf * 0.5f;
 
   // Intersection point in object space.
   //
-  Vec opoint = sphere->frame.to (point);
+  Vec opoint = sphere.frame.to (point);
 
   // 1 divided by the radius/circumference of a horizontal cut (in "object
   // space") through the sphere at the current location (height == z).
@@ -84,7 +84,7 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   //
   UV dTds (inv_z_circum, 0), dTdt (0, inv_circum * 2);
 
-  return Intersect (ray, media, context, *sphere->material,
+  return Intersect (ray, media, context, *sphere.material,
 		    Frame (point, s, t, norm), T, dTds, dTdt);
 }
 

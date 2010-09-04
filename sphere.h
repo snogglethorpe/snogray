@@ -97,12 +97,12 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Sphere *_sphere)
+    IsecInfo (const Ray &ray, const Sphere &_sphere)
       : Surface::IsecInfo (ray), sphere (_sphere)
     { }
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const;
-    const Sphere *sphere;
+    const Sphere &sphere;
   };
 
   dist_t radius;
