@@ -473,7 +473,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 
 # Note that we use AM_CXXFLAGS_SIZE to optimize for size.
 #
-libsnograw_a_CXXFLAGS = $(AM_CXXFLAGS_SIZE) -fno-strict-aliasing -Wno-unused
+libsnograw_a_CXXFLAGS = $(AM_CXXFLAGS_SIZE) -fno-strict-aliasing
 
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl
