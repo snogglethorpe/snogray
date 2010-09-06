@@ -638,7 +638,7 @@ namespace snogray {
     // support true/false for use with "negative" entries (an entry
     // mapping to a zero pointer in the native MaterialDict type).
     //
-    void __setitem__ (const char *name, bool flag)
+    void __setitem__ (const char *name, bool)
     {
       $self->add (name, 0);
     }
