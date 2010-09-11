@@ -51,9 +51,12 @@ EXTRA_DIST =							\
 	snogray.lua						\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg						\
+	update-version-hdr.sh					\
 	autogen.sh						\
 	lpeg.html						\
 	stats.txt spd.txt
+
+noinst_SCRIPTS = update-version-hdr.sh
 
 # Allow specifying a Lua distribution to be included.  If we're already
 # building using a local copy of Lua, it is distributed by default.
@@ -67,7 +70,7 @@ dist-hook:
 
 # Some extra stuff that needs cleaning up
 #
-CLEANFILES = liblua.a snograw.so
+CLEANFILES = version.h liblua.a snograw.so
 
 # We only clean up "snograw_lua_wrap.cc" and "swigluarun.h" if it's
 # possible to regenerate them.
@@ -130,6 +133,18 @@ CXXFLAGS += $(CXX_EXTRA_REQ_FLAGS)
 #
 AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 	$(libnetpbm_CFLAGS) $(LIB3DS_CFLAGS) $(liblua_CFLAGS)
+
+
+################################################################
+#
+# Version frobbing
+#
+
+update_version_header:
+	@$(SHELL) $(srcdir)/update-version-hdr.sh "$(PACKAGE_VERSION)" "version.h"
+.PHONY: update_version_header
+
+config.h: update_version_header
 
 
 ################################################################

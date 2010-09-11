@@ -20,6 +20,7 @@
 #include <getopt.h>
 
 #include "config.h"
+#include "version.h"
 
 // The following macros can be used in defining option parsers.
 //
@@ -42,7 +43,7 @@
     help (clp, cout);						\
     exit (0);							\
   case CMDLINEPARSER_OPT_VERSION:				\
-    cout << clp.prog_name() << " (snogray) " << PACKAGE_VERSION	\
+    cout << clp.prog_name() << " (snogray) " << snogray_version	\
          << endl;						\
     exit (0);
 
