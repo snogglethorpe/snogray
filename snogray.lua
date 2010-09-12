@@ -657,7 +657,22 @@ end
 
 -- Make a transform.
 --
-xform = raw.Xform
+function xform (...)
+   --
+   -- SWIG has bugs in handling overloads in conjunction with
+   -- table-to-array conversion (it correctly generates code to do the
+   -- conversion, but the type-checking code for distinguishing the
+   -- various overload cases checks the wrong type), so we use a
+   -- separate helper function "raw_xform" if the argument is a table
+   -- [of transform matrix elements].
+   --
+   local nargs = select ('#', ...)
+   if nargs == 1 and type (select (1, ...)) == 'table' then
+      return raw.raw_xform (...)
+   else
+      return raw.Xform (...)
+   end
+end
 
 identity_xform = raw.Xform_identity
 
