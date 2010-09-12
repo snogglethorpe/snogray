@@ -1,6 +1,6 @@
 // xform-base.h -- Base-class for transformation matrices
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -44,6 +44,8 @@ public:
   XformBase (const Matrix4<T2> &m) : Matrix4<T> (m) { }
   template<typename T2>
   XformBase (const T2 els[4][4]) : Matrix4<T> (els) { }
+  template<typename T2>
+  XformBase (const T2 els[16]) : Matrix4<T> (els) { }
   template<typename T2>
   explicit XformBase (const XformBase<T2> &xf) : Matrix4<T> (xf) { }
 

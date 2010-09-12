@@ -59,6 +59,8 @@ public:
   template<typename T2>
   TXform (const T2 els[4][4]) : XformBase<T> (els) { }
   template<typename T2>
+  TXform (const T2 els[16]) : XformBase<T> (els) { }
+  template<typename T2>
   explicit TXform (const TXform<T2> &xf) : XformBase<T> (xf) { }
 
   // Return a transform which translates by the given offset.
