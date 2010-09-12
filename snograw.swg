@@ -128,6 +128,11 @@
 
 %}
 
+# # For handling array arguments
+%include <typemaps.i>
+%apply (float INPUT[ANY]) {(const float els[16])};
+%apply (float INPUT[ANY]) {(const dist_t els[16])};
+
 %include "coords.h"
 
 namespace snogray {
@@ -237,6 +242,10 @@ namespace snogray {
 
     TXform (T scale = 1);
     TXform (const TXform &src);
+
+    // Doesn't actually work due to SWIG bugs; see the comment for the
+    // "raw_xform" function later in this file. XXX
+    //TXform (const T els[16]);
 
     static TXform translation (const TVec<T> &offs);
     static TXform translation (dist_t x, dist_t y, dist_t z = 0);
@@ -1300,6 +1309,21 @@ namespace snogray {
     static Ref<Envmap> envmap (const Ref<Image> &image, const char *fmt = "")
     {
       return make_envmap (image, fmt);
+    }
+
+    // This is basically an Xform constructor that takes an array
+    // argument.  Using a separate function shouldn't actually be
+    // necessary -- we should be able to just use overload the TXform
+    // constructor -- but SWIG has bugs in handling overloads in
+    // conjunction with table-to-array conversion (it correctly
+    // generates code to do the conversion, but the type-checking code
+    // for distinguishing the various overload cases checks the wrong
+    // type).  Using a separate named function for this case works
+    // around the bug.
+    //
+    static Xform raw_xform (const float els[16])
+    {
+      return Xform (els);
     }
 
   }
