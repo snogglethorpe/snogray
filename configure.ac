@@ -400,6 +400,19 @@ if test $have_liblua = no; then
 fi
 if test $have_liblua = yes; then
   AC_DEFINE([HAVE_LIBLUA], [1], [Define if liblua is installed])
+
+  # Now see if there's a luajit library.  If there is, link against it
+  # instead of the standard Lua library; the header files, are still
+  # those from the normal Lua installation, and luajit is basically a
+  # drop-in replacement for standard Lua, so we dont need to do much
+  # else.
+  #
+  have_libluajit=no
+  luajit_lib_name="luajit-5.1"
+  AC_CHECK_LIB([$luajit_lib_name], [lua_close], [have_libluajit=yes], [:], [-lm])
+  if test $have_libluajit = yes; then
+    AC_SUBST([liblua_LIBS], ["-l$luajit_lib_name"])
+  fi
 fi
 AM_CONDITIONAL([have_liblua], [test $have_liblua = yes])
 
