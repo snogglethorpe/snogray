@@ -1,6 +1,6 @@
 // matrix4.tcc -- 4 x 4 matrices
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -43,14 +43,9 @@ Matrix4<T>::Matrix4 (T d0, T d1, T d2, T d3)
 template<typename T> template<typename T2>
 Matrix4<T>::Matrix4 (const T2 _els[4][4])
 {
-  els[0][0] = _els[0][0]; els[0][1] = _els[0][1];
-  els[0][2] = _els[0][2]; els[0][3] = _els[0][3];
-  els[1][0] = _els[1][0]; els[1][1] = _els[1][1];
-  els[1][2] = _els[1][2]; els[1][3] = _els[1][3];
-  els[2][0] = _els[2][0]; els[2][1] = _els[2][1];
-  els[2][2] = _els[2][2]; els[2][3] = _els[2][3];
-  els[3][0] = _els[3][0]; els[3][1] = _els[3][1];
-  els[3][2] = _els[3][2]; els[3][3] = _els[3][3];
+  for (unsigned i = 0; i < 4; i++)
+    for (unsigned j = 0; i < 4; i++)
+      els[i][j] = _els[i][j];
 }
 
 template<typename T> template<typename T2>
