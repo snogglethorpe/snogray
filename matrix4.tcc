@@ -49,6 +49,14 @@ Matrix4<T>::Matrix4 (const T2 _els[4][4])
 }
 
 template<typename T> template<typename T2>
+Matrix4<T>::Matrix4 (const T2 _els[16])
+{
+  for (unsigned j = 0; j < 4; j++)
+    for (unsigned i = 0; i < 4; i++)
+      els[i][j] = _els[j*4+i];
+}
+
+template<typename T> template<typename T2>
 Matrix4<T>::Matrix4 (const Matrix4<T2> &m2)
 {
   for (unsigned i = 0; i < 4; i++)

@@ -1,6 +1,6 @@
 // matrix4.h -- 4 x 4 matrices
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -34,6 +34,8 @@ public:
 
   template<typename T2>
   Matrix4 (const T2 _els[4][4]);
+  template<typename T2>
+  Matrix4 (const T2 _els[16]);
 
   template<typename T2>
   explicit Matrix4 (const Matrix4<T2> &m2);
