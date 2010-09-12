@@ -127,13 +127,14 @@ function parse_file (filename, pattern)
    parse_state = {filename = filename, text = text, err_pos = 1}
 
    local len = #text
-   local pos = 1
+   local pos, old_pos = 1, nil
    while pos <= len do
       parse_state.err_pos = pos
       pos = pattern:match (text, pos)
-      if not pos then
+      if not pos or pos == old_pos then
 	 parse_err ()
       end
+      old_pos = pos
    end
 
    -- Restore caller's parse state.
