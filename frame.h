@@ -15,6 +15,7 @@
 
 #include "pos.h"
 #include "vec.h"
+#include "xform-base.h"
 
 
 namespace snogray {
@@ -44,6 +45,15 @@ public:
   Frame (const Vec &_x, const Vec &_y, const Vec &_z)
     : origin (0,0,0), x (_x), y (_y), z (_z)
     { }
+
+  // A frame corresponding to the given transformation matrix.
+  //
+  Frame (const Matrix4<dist_t> &M)
+    : origin (Pos (M (3, 0), M (3, 1), M (3, 2))),
+      x (Vec (M (0, 0), M (0, 1), M (0, 2))),
+      y (Vec (M (1, 0), M (1, 1), M (1, 2))),
+      z (Vec (M (2, 0), M (2, 1), M (2, 2)))
+  { }
 
   // A frame with the given _Z basis vector; the other basis vectors are
   // chosen automatically (no guarantee is made about them except that
