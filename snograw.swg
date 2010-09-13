@@ -316,6 +316,10 @@ namespace snogray {
     TXform operator* (const TXform &xform) const;
     TXform operator* (T scale) const;
 
+    TPos<T> operator() (const TPos<T> &obj) const;
+    TVec<T> operator() (const TVec<T> &obj) const;
+    BBox operator() (const BBox &obj) const;
+
     %rename(transform) operator*= (const TXform &mat);
     const TXform &operator*= (const TXform &mat);
   };
