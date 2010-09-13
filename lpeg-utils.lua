@@ -1,6 +1,6 @@
 -- lpeg-utils.lua -- Useful functions for parsing with LPeg
 --
---  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -93,8 +93,9 @@ end
 -- Signals an error with a simple message quoting the problem line.
 --
 function parse_err (msg)
+   local filename = parse_state.filename
    local line_num = cur_line ()
-   local msg = "line "..tostring(line_num)..": " .. (msg or "parse error")
+   local msg = filename..":"..tostring(line_num)..": " .. (msg or "parse error")
    error (msg, 0)
 end
 
@@ -103,7 +104,7 @@ end
 function parse_warn (msg)
    local filename = parse_state.filename
    local line_num = cur_line ()
-   print (filename..": line "..tostring(line_num)..": "..msg)
+   print (filename..":"..tostring(line_num)..": "..msg)
 end
 
 
