@@ -71,6 +71,7 @@
 #include "point-light.h"
 #include "sphere-light.h"
 #include "far-light.h"
+#include "envmap-light.h"
 #include "cook-torrance.h"
 #include "lambert.h"
 #include "image.h"
@@ -869,6 +870,13 @@ namespace snogray {
   {
   };
   %template(EnvmapRef) Ref<Envmap>;
+
+  class EnvmapLight : public Light
+  {
+  public:
+
+    EnvmapLight (const Ref<Envmap> &_envmap, const Frame &_frame = Frame ());
+  };
 
   class Scene
   {

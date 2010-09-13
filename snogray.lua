@@ -1013,6 +1013,12 @@ function far_light (dir, angle, intens)
    return raw.FarLight (dir:unit(), angle, color (intens))
 end
 
+function envmap_light (image_or_filename, ...)
+   if type (image_or_filename) == 'string' then
+      image_or_filename = image (image_or_filename)
+   end
+   return raw.EnvmapLight (raw.envmap (image_or_filename), ...)
+end
 
 ----------------------------------------------------------------
 --
