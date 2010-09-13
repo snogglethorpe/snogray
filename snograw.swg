@@ -486,10 +486,13 @@ namespace snogray {
     Frame (const Vec &_x, const Vec &_y, const Vec &_z);
     Frame (const Vec &_z);
     Frame (const Pos &org, const Vec &_z);
+    Frame (const Matrix4<dist_t> &M);
 
     Vec to (const Vec &vec) const { return vec.to_basis (x, y, z); }
     Vec to (const Pos &pos) const { return to (pos - origin); }
     Vec from (const Vec &vec) const { return vec.from_basis (x, y, z); }
+
+    Frame operator* (const Matrix4<dist_t> &xform) const;
 
     Pos origin;
     Vec x, y, z;
