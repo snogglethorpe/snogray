@@ -223,6 +223,37 @@ namespace snogray {
 
   Pos midpoint (const Pos &p1, const Pos &p2);
 
+  class BBox
+  {
+  public:
+
+    BBox ();
+    BBox (const Pos &_min, const Pos &_max);
+    BBox (const Pos &_pos);
+    BBox (const Pos &_min, dist_t size);
+
+    %rename(add) operator+= (const Pos &pos);
+    BBox &operator+= (const Pos &pos);
+    %rename(add) operator+= (const BBox &bbox);
+    BBox &operator+= (const BBox &bbox);
+
+    Vec extent () const;
+
+    dist_t max_size () const;
+    dist_t min_size () const;
+    dist_t avg_size () const;
+    dist_t median_size () const;    
+
+    Pos min, max;
+  };
+  %extend BBox
+  {
+    BBox operator+ (const BBox &bbox) { return *$self + bbox; }
+    BBox operator+ (const Pos &pos) { return *$self + pos; }
+
+    const char* __str__() { return static_rep (*$self); }
+  }
+
   template<typename T>
   class TUV
   {
@@ -338,37 +369,6 @@ namespace snogray {
     Color operator< (const Color &col) { return *$self < col; }
     Color operator<= (const Color &col) { return *$self <= col; }
     
-    const char* __str__() { return static_rep (*$self); }
-  }
-
-  class BBox
-  {
-  public:
-
-    BBox ();
-    BBox (const Pos &_min, const Pos &_max);
-    BBox (const Pos &_pos);
-    BBox (const Pos &_min, dist_t size);
-
-    %rename(add) operator+= (const Pos &pos);
-    BBox &operator+= (const Pos &pos);
-    %rename(add) operator+= (const BBox &bbox);
-    BBox &operator+= (const BBox &bbox);
-
-    Vec extent () const;
-
-    dist_t max_size () const;
-    dist_t min_size () const;
-    dist_t avg_size () const;
-    dist_t median_size () const;    
-
-    Pos min, max;
-  };
-  %extend BBox
-  {
-    BBox operator+ (const BBox &bbox) { return *$self + bbox; }
-    BBox operator+ (const Pos &pos) { return *$self + pos; }
-
     const char* __str__() { return static_rep (*$self); }
   }
 
