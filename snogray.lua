@@ -1387,6 +1387,12 @@ end
 function filename_ext (filename)
    return string.match (filename, "[.]([^./]*)$")
 end
+function filename_in_dir (filename, dir)
+   if dir and not string.match (filename, "^/") then
+      filename = dir.."/"..filename
+   end
+   return filename
+end
 
 function load_include (filename)
    local loaded, loaded_filename, err_msg
