@@ -341,6 +341,7 @@ namespace snogray {
     TPos<T> operator() (const TPos<T> &obj) const;
     TVec<T> operator() (const TVec<T> &obj) const;
     BBox operator() (const BBox &obj) const;
+    Frame operator() (const Frame &obj) const;
 
     %rename(transform) operator*= (const TXform &mat);
     const TXform &operator*= (const TXform &mat);
