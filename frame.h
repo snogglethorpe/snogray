@@ -96,6 +96,13 @@ public:
   //
   Pos from (const Pos &pos) const { return origin + from (Vec (pos)); }
 
+  // Tranform this frame by the given transform.
+  //
+  Frame operator* (const XformBase<dist_t> &xform) const
+  {
+    return Frame (origin * xform, x * xform, y * xform, z * xform);
+  }
+
   // The "position" of the frame; used when converting positions.
   //
   Pos origin;
