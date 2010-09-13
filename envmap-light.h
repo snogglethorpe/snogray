@@ -16,6 +16,7 @@
 
 #include "light.h"
 #include "envmap.h"
+#include "frame.h"
 #include "hist-2d.h"
 #include "hist-2d-dist.h"
 
@@ -27,7 +28,7 @@ class EnvmapLight : public Light
 {
 public:
 
-  EnvmapLight (const Ref<Envmap> &_envmap);
+  EnvmapLight (const Ref<Envmap> &_envmap, const Frame &_frame = Frame ());
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is
@@ -52,7 +53,10 @@ public:
 
   // Evaluate this environmental light in direction DIR (in world-coordinates).
   //
-  virtual Color eval_environ (const Vec &dir) const { return envmap->map (dir); }
+  virtual Color eval_environ (const Vec &dir) const
+  {
+    return envmap->map (frame.to (dir));
+  }
 
   // Do any scene-related setup for this light.  This is is called once
   // after the entire scene has been loaded.
@@ -68,6 +72,10 @@ private:
   Hist2d envmap_histogram (const Ref<Envmap> &envmap);
 
   Ref<Envmap> envmap;
+
+  // Frame of reference for the environment map.
+  //
+  Frame frame;
 
   // Distribution for sampling the intensity of ENVMAP.
   //

@@ -22,8 +22,9 @@
 using namespace snogray;
 
 
-EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap)
-  : envmap (_envmap), intensity_dist (envmap_histogram (_envmap)),
+EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap, const Frame &_frame)
+  : envmap (_envmap), frame (_frame),
+    intensity_dist (envmap_histogram (_envmap)),
     scene_radius (0)
 {
 }
@@ -80,11 +81,15 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
   //
   UV map_pos = intensity_dist.sample (param, pdf);
 
-  // The direction of this sample in the world frame.
+  // The direction of this sample in our frame.
   //
-  Vec world_dir = LatLongMapping::map (map_pos);
+  Vec light_dir = LatLongMapping::map (map_pos);
 
-  // ... and in the normal frame.
+  // Convert LIGHT_DIR to the world frame.
+  //
+  Vec world_dir = frame.from (light_dir);
+
+  // ... and then to the normal frame.
   //
   Vec dir = isec.normal_frame.to (world_dir);
 
@@ -98,7 +103,7 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
   //
   pdf *= 0.25f * INV_PIf;
 
-  return Sample (envmap->map (world_dir), pdf, dir, 0);
+  return Sample (envmap->map (light_dir), pdf, dir, 0);
 }
 
 // 
@@ -118,7 +123,11 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
 
   // Direction (in world coordinates) of the sample.
   //
-  Vec dir = LatLongMapping::map (map_pos);
+  Vec light_dir = LatLongMapping::map (map_pos);
+
+  // Convert to world coordinates.
+  //
+  Vec world_dir = frame.from (light_dir);
 
   // The intensity distribution covers the entire sphere, so adjust
   // the pdf to reflect that.
@@ -127,7 +136,7 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
 
   // Choose a sample position "at infinity".
   //
-  Pos pos = tangent_disk_sample (scene_center, scene_radius, dir, param);
+  Pos pos = tangent_disk_sample (scene_center, scene_radius, world_dir, param);
 
   // The sample's PDF is the intensity PDF adjusted to reflect disk
   // sampling for the position.
@@ -138,7 +147,7 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
   // points _towards_ the sample point, and the return value should
   // have a direction _from_ the sample point.
   //
-  return FreeSample (envmap->map (dir), pdf, pos, -dir);
+  return FreeSample (envmap->map (world_dir), pdf, pos, -world_dir);
 }
 
 
@@ -155,13 +164,17 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
   //
   Vec world_dir = isec.normal_frame.from (dir);
 
+  // ... and in the light's frame of reference.
+  //
+  Vec light_dir = frame.to (world_dir);
+
   // Find S's direction in our light map.
   //
-  UV map_pos = LatLongMapping::map (world_dir);
+  UV map_pos = LatLongMapping::map (light_dir);
 
   // Look up the intensity and PDF at that point.
   //
-  Color intens = envmap->map (world_dir);
+  Color intens = envmap->map (light_dir);
   float pdf = intensity_dist.pdf (map_pos);
 
   // The intensity distribution covers the entire sphere, so adjust
