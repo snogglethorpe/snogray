@@ -51,13 +51,14 @@ public:
     : origin (0,0,0), x (_x), y (_y), z (_z)
     { }
 
-  // A frame corresponding to the given transformation matrix.
+  // A frame corresponding to the transformation matrix FRAME_TO_WORLD.
   //
-  Frame (const Matrix4<dist_t> &M)
-    : origin (Pos (M (3, 0), M (3, 1), M (3, 2))),
-      x (Vec (M (0, 0), M (0, 1), M (0, 2))),
-      y (Vec (M (1, 0), M (1, 1), M (1, 2))),
-      z (Vec (M (2, 0), M (2, 1), M (2, 2)))
+  Frame (const Matrix4<dist_t> &frame_to_world)
+    : origin (
+	 frame_to_world (3, 0), frame_to_world (3, 1), frame_to_world (3, 2)),
+      x (frame_to_world (0, 0), frame_to_world (0, 1), frame_to_world (0, 2)),
+      y (frame_to_world (1, 0), frame_to_world (1, 1), frame_to_world (1, 2)),
+      z (frame_to_world (2, 0), frame_to_world (2, 1), frame_to_world (2, 2))
   { }
 
   // A frame with the given _Z basis vector; the other basis vectors are
