@@ -101,11 +101,21 @@ public:
   //
   Pos from (const Pos &pos) const { return origin + from (Vec (pos)); }
 
-  // Tranform this frame by the given transform.
+  // Return this frame transformed by XFORM.
   //
-  Frame operator* (const XformBase<dist_t> &xform) const
+  Frame transformed (const XformBase<dist_t> &xform) const
   {
-    return Frame (origin * xform, x * xform, y * xform, z * xform);
+    return Frame (xform (origin), xform (x), xform (y), xform (z));
+  }
+
+  // Transform this frame by XFORM.
+  //
+  void transform (const XformBase<dist_t> &xform)
+  {
+    origin.transform (xform);
+    x.transform (xform);
+    y.transform (xform);
+    z.transform (xform);
   }
 
   // The "position" of the frame; used when converting positions.

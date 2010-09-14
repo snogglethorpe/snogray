@@ -66,10 +66,10 @@ public:
   using Matrix4<T>::operator();
 
   // Allow applying a transform to an object using functional notation.
-  // The object should support transformation via operator*.
+  // The object should support transformation via a "transformed" method.
   //
   template<typename OT>
-  OT operator() (const OT &obj) const { return obj * *this; }
+  OT operator() (const OT &obj) const { return obj.transformed (*this); }
 
   // Return true if this transform reverses the "handedness" of a
   // coordinate system.

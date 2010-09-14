@@ -18,11 +18,11 @@
 using namespace snogray;
 
 
-// Transform this bounding-box by XFORM, ensuring that the result is
-// still axis-aligned.
+// Return this bounding-box transformed by XFORM, ensuring that the
+// result is still axis-aligned.
 //
 BBox
-BBox::operator* (const XformBase<dist_t> &xform) const
+BBox::transformed (const XformBase<dist_t> &xform) const
 {
   BBox xformed_bbox (xform (min));
 
@@ -36,6 +36,15 @@ BBox::operator* (const XformBase<dist_t> &xform) const
   xformed_bbox += xform (max);
 
   return xformed_bbox;
+}
+
+// Transform this bounding-box by XFORM, ensuring that the result is
+// still axis-aligned.
+//
+void
+BBox::transform (const XformBase<dist_t> &xform)
+{
+  *this = transformed (xform);
 }
 
 

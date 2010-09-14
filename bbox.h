@@ -74,12 +74,12 @@ public:
   // Return this bounding-box transformed by XFORM, ensuring that the
   // result is still axis-aligned.
   //
-  BBox operator* (const XformBase<dist_t> &xform) const;
-  BBox &operator*= (const XformBase<dist_t> &xform)
-  {
-    *this = *this * xform;
-    return *this;
-  }
+  BBox transformed (const XformBase<dist_t> &xform) const;
+
+  // Transform this bounding-box by XFORM, ensuring that the result is
+  // still axis-aligned.
+  //
+  void transform (const XformBase<dist_t> &xform);
 
   // Return a vector holding the sizes of this bounding box along all
   // three axes.

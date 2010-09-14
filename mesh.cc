@@ -664,7 +664,7 @@ Mesh::transform (const Xform &xform)
   const SXform xf = SXform (xform);
 
   for (vert_index_t v = 0; v < vertices.size (); v++)
-    vertices[v] *= xf;
+    vertices[v].transform (xf);
 
   if (vertex_normals.size() > 0)
     {
@@ -674,7 +674,7 @@ Mesh::transform (const Xform &xform)
       SXform norm_xf = xf.inverse().transpose();
 
       for (vert_index_t v = 0; v < vertex_normals.size (); v++)
-	vertex_normals[v] *= norm_xf;
+	vertex_normals[v].transform (norm_xf);
     }
 
   if (xform.reverses_handedness ())

@@ -176,7 +176,8 @@ namespace snogray {
     TVec operator* (T scale) const;
     TVec operator/ (T denom) const;
 
-    TVec operator* (const Matrix4<T> &xform) const;
+    TVec transformed (const Matrix4<T> &xform) const;
+    void transform (const Matrix4<T> &xform);
 
     T length_squared () const;
     T length () const;
@@ -213,7 +214,8 @@ namespace snogray {
     TPos operator* (T scale) const;
     TPos operator/ (T denom) const;
 
-    TPos operator* (const Matrix4<T> &xform) const;
+    TPos transformed (const Matrix4<T> &xform) const;
+    void transform (const Matrix4<T> &xform);
   };
   %extend TPos<coord_t>
   {
@@ -271,7 +273,8 @@ namespace snogray {
     Vec to (const Pos &pos) const { return to (pos - origin); }
     Vec from (const Vec &vec) const { return vec.from_basis (x, y, z); }
 
-    Frame operator* (const Matrix4<dist_t> &xform) const;
+    Frame transformed (const Matrix4<dist_t> &xform) const;
+    void transform (const Matrix4<dist_t> &xform);
 
     Pos origin;
     Vec x, y, z;

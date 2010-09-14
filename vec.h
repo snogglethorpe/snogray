@@ -74,7 +74,9 @@ public:
     x -= v2.x; y -= v2.y; z -= v2.z;
   }
 
-  TVec operator* (const XformBase<T> &xform) const
+  // Return this vector transformed by XFORM.
+  //
+  TVec transformed (const XformBase<T> &xform) const
   {
     return
       TVec (
@@ -90,11 +92,11 @@ public:
 	);
   }
 
-  const TVec &operator*= (const XformBase<T> &xform)
+  // Transform this vector by XFORM.
+  //
+  void transform (const XformBase<T> &xform)
   {
-    TVec temp = *this * xform;
-    *this = temp;
-    return *this;
+    *this = xform (*this);
   }
 
   T length_squared () const

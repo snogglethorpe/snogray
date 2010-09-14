@@ -78,7 +78,7 @@ Camera::orbit (const Xform &xform)
   total *= xform;
   total.translate (-target);
 
-  pos *= total;
+  pos.transform (total);
 
   rotate (rot);
 }
@@ -90,7 +90,7 @@ Camera::orbit (const Xform &xform)
 void
 Camera::transform (const Xform &xform)
 {
-  pos *= xform;
+  pos.transform (xform);
   rotate (xform);
 }
 

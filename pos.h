@@ -72,7 +72,9 @@ public:
     x -= p2.x; y -= p2.y; z -= p2.z;
   }
 
-  TPos operator* (const XformBase<T> &xform) const
+  // Return this position transformed by XFORM.
+  //
+  TPos transformed (const XformBase<T> &xform) const
   {
     return
       TPos (
@@ -91,11 +93,11 @@ public:
 	);
   }
 
-  const TPos &operator*= (const XformBase<T> &xform)
+  // Transform this position by XFORM.
+  //
+  void transform (const XformBase<T> &xform)
   {
-    TPos temp = *this * xform;
-    *this = temp;
-    return *this;
+    *this = xform (*this);
   }
 
   dist_t dist (const TPos &p2) const

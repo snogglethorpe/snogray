@@ -364,7 +364,7 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 {
   Vec up (0, 0, 1);
 
-  up *= Xform::z_rotation (c->roll * PI / 180);
+  up.transform (Xform::z_rotation (c->roll * PI / 180));
 
   Xform dir_xform = xform.inverse().transpose();
 

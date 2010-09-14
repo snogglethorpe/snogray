@@ -67,11 +67,11 @@ public:
 
   T length () const { return t1 - t0; }
 
-  // Ray transformation.
+  // Return this ray transformed by XFORM.
   //
-  TRay operator* (const XformBase<T> &xform) const
+  TRay transformed (const XformBase<T> &xform) const
   {
-    return TRay (origin * xform, dir * xform, t0, t1);
+    return TRay (xform (origin), xform (dir), t0, t1);
   }
 
   // The ray starts at ORIGIN, and points in the direction DIR.
