@@ -61,6 +61,16 @@ public:
     return *this;
   }
 
+  // Inherit element-access syntax.
+  //
+  using Matrix4<T>::operator();
+
+  // Allow applying a transform to an object using functional notation.
+  // The object should support transformation via operator*.
+  //
+  template<typename OT>
+  OT operator() (const OT &obj) const { return obj * *this; }
+
   // Return true if this transform reverses the "handedness" of a
   // coordinate system.
   //

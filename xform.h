@@ -270,16 +270,6 @@ public:
     return *this;
   }
 
-  // Inherit element-access syntax.
-  //
-  using XformBase<T>::operator();
-
-  // Allow applying a transform to an object using functional notation.
-  // The object should support transformation via operator*.
-  //
-  template<typename OT>
-  OT operator() (const OT &obj) const { return obj * *this; }
-
   // Return VEC transformed by the transpose of this transform.  This is
   // useful for implementing normal transforms (a normal should be
   // transformed by using the transpose of the inverse of the transform,
