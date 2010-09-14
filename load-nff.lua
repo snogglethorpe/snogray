@@ -87,9 +87,9 @@ function load_nff (filename, scene, camera)
    end
 
    local function set_viewpoint (from, at, up, angle, hither, resol_x, resol_y)
-      from = from * geom_xform
-      at = at * geom_xform
-      up = up * norm_xform
+      from = geom_xform (from)
+      at = geom_xform (at)
+      up = norm_xform (up)
 
       camera:move (from)
       camera:point (at, up)
@@ -127,7 +127,7 @@ function load_nff (filename, scene, camera)
    end
 
    local function add_light (pos, color)
-      pos = pos * geom_xform
+      pos = geom_xform (pos)
 
       if color then
 	 color = color * nff_light_intens
@@ -145,8 +145,8 @@ function load_nff (filename, scene, camera)
 	 lu.parse_err "non-cylinder cone not supported"
       end
 
-      base_pos = base_pos * geom_xform
-      apex_pos = apex_pos * geom_xform
+      base_pos = geom_xform (base_pos)
+      apex_pos = geom_xform (apex_pos)
 
       scene:add (
 	 cylinder (cur_mat, base_pos, (apex_pos - base_pos), base_radius))
@@ -154,7 +154,7 @@ function load_nff (filename, scene, camera)
 
    local function add_sphere (pos, radius)
       check_mat()
-      scene:add (sphere (cur_mat, pos * geom_xform, radius))
+      scene:add (sphere (cur_mat, geom_xform (pos), radius))
    end
 
    -- This adds a polygon with many sides in a way that avoids generating
@@ -170,13 +170,13 @@ function load_nff (filename, scene, camera)
 	 center = center + vec (pi.x, pi.y, pi.z)
       end
       center = center / num_verts
-      center = center * geom_xform
+      center = geom_xform (center)
       center = cur_mesh:add_vertex (center, vg)
 
       local prev, v1
       for i = 1, num_verts do
 	 local vi = select (i, ...)
-	 vi = cur_mesh:add_vertex (vi * geom_xform, vg)
+	 vi = cur_mesh:add_vertex (geom_xform (vi), vg)
 
 	 if prev then
 	    cur_mesh:add_triangle (center, prev, vi)
@@ -203,9 +203,9 @@ function load_nff (filename, scene, camera)
 	 return add_many_sided_poly (v1, v2, v3, ...)
       end
 
-      v1 = cur_mesh:add_vertex (v1 * geom_xform, vg)
-      v2 = cur_mesh:add_vertex (v2 * geom_xform, vg)
-      v3 = cur_mesh:add_vertex (v3 * geom_xform, vg)
+      v1 = cur_mesh:add_vertex (geom_xform (v1), vg)
+      v2 = cur_mesh:add_vertex (geom_xform (v2), vg)
+      v3 = cur_mesh:add_vertex (geom_xform (v3), vg)
       cur_mesh:add_triangle (v1, v2, v3)
 
       -- Add extra triangles for additional vertices
@@ -213,7 +213,7 @@ function load_nff (filename, scene, camera)
       local prev = v3
       for i = 1, select ('#', ...) do
 	 local vi = select (i, ...)
-	 vi = cur_mesh:add_vertex (vi * geom_xform, vg)
+	 vi = cur_mesh:add_vertex (geom_xform (vi), vg)
 	 cur_mesh:add_triangle (v1, prev, vi)
 	 prev = vi
       end
@@ -228,9 +228,9 @@ function load_nff (filename, scene, camera)
 	 lu.parse_err "incorrect number of vertices in polygon"
       end
 
-      v1 = cur_mesh:add_vertex (v1 * geom_xform, n1 * norm_xform, vng)
-      v2 = cur_mesh:add_vertex (v2 * geom_xform, n2 * norm_xform, vng)
-      v3 = cur_mesh:add_vertex (v3 * geom_xform, n3 * norm_xform, vng)
+      v1 = cur_mesh:add_vertex (geom_xform (v1), norm_xform (n1), vng)
+      v2 = cur_mesh:add_vertex (geom_xform (v2), norm_xform (n2), vng)
+      v3 = cur_mesh:add_vertex (geom_xform (v3), norm_xform (n3), vng)
       cur_mesh:add_triangle (v1, v2, v3)
 
       -- Add extra triangles for additional vertices
@@ -239,7 +239,7 @@ function load_nff (filename, scene, camera)
       for i = 1, select ('#', ...) - 1, 2 do
 	 local vi = select (i, ...)
 	 local nn = select (i+1, ...)
-	 vi = cur_mesh:add_vertex (vi * geom_xform, nn * norm_xform, vng)
+	 vi = cur_mesh:add_vertex (geom_xform (vi), norm_xform (nn), vng)
 	 cur_mesh:add_triangle (v1, prev, vi)
 	 prev = vi
       end
