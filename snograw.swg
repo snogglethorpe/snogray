@@ -272,6 +272,7 @@ namespace snogray {
     Vec to (const Vec &vec) const;
     Vec to (const Pos &pos) const;
     Vec from (const Vec &vec) const;
+    Pos from (const Pos &pos) const;
 
     Frame transformed (const Matrix4<dist_t> &xform) const;
     void transform (const Matrix4<dist_t> &xform);
