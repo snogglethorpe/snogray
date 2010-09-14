@@ -461,7 +461,7 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	  lib3ds_matrix_mul (X, N, M);
 #endif
 
-	  Xform vert_xform = Xform (X) * xform;
+	  Xform vert_xform = xform (Xform (X));
 
 	  // Get the actual mesh.
 	  //

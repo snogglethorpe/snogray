@@ -805,7 +805,7 @@ function normalize_xform (surf)
    local center = midpoint (bbox.max, bbox.min)
    local max_size = bbox:max_size ()
 
-   return translate (-center.x, -center.y, -center.z) * scale (2 / max_size)
+   return scale (2 / max_size) (translate (-center.x, -center.y, -center.z))
 end
 
 -- Return a transform which will warp SURF to be in a 2x2x2 box centered
@@ -820,8 +820,7 @@ function y_base_normalize_xform (surf)
    local size = bbox.max - bbox.min
    local max_size = bbox:max_size ()
 
-   return translate (-center.x, size.y / 2 - center.y, -center.z)
-      * scale (2 / max_size)
+   return scale (2 / max_size) (translate (-center.x, size.y / 2 - center.y, -center.z))
 end
 
 -- Resize a mesh to fit in a 1x1x1 box, centered at the origin (but with
@@ -829,7 +828,7 @@ end
 --
 function normalize (mesh, xf)
    local norm = y_base_normalize_xform (mesh)
-   if xf then norm = norm * xf end
+   if xf then norm = xf (norm) end
    mesh:transform (norm)
    return mesh
 end
