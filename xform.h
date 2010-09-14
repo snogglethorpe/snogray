@@ -270,6 +270,20 @@ public:
     return *this;
   }
 
+  // Return this position composed with XFORM.
+  //
+  TXform transformed (const XformBase<T> &xform) const
+  {
+    return *this * xform; // XXX bogus operand order, will be fixed
+  }
+
+  // Transform this transform by XFORM.
+  //
+  void transform (const XformBase<T> &xform)
+  {
+    *this = *this * xform; // XXX bogus operand order, will be fixed
+  }
+
   // Return VEC transformed by the transpose of this transform.  This is
   // useful for implementing normal transforms (a normal should be
   // transformed by using the transpose of the inverse of the transform,
