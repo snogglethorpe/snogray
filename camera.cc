@@ -59,7 +59,7 @@ Camera::rotate (const Xform &rot_xform)
   if (rot_xform.reverses_handedness ())
     handedness_reversed = !handedness_reversed;
 
-  _point (forward * rot_xform, up * rot_xform);
+  _point (rot_xform (forward), rot_xform (up));
 }
 
 // Apply XFORM with the target at the origin, then move target back to

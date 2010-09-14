@@ -372,13 +372,13 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 //   cout << "   orig pos:   " << pos (c->position) << endl;
 //   cout << "   orig targ:  " << pos (c->target) << endl;
 //   cout << "   orig up:    " << up << endl;
-//   cout << "   xform pos:  " << pos (c->position) * xform << endl;
-//   cout << "   xform targ: " << pos (c->target) * xform << endl;
-//   cout << "   xform up:   " << up * dir_xform << endl;
+//   cout << "   xform pos:  " << xform (pos (c->position)) << endl;
+//   cout << "   xform targ: " << xform (pos (c->target))  << endl;
+//   cout << "   xform up:   " << dir_xform (up)  << endl;
 
   camera.set_vert_fov (c->fov * PI / 180);
-  camera.move (pos (c->position) * xform);
-  camera.point (pos (c->target) * xform, up * dir_xform);
+  camera.move (xform (pos (c->position)));
+  camera.point (xform (pos (c->target)), dir_xform (up));
 }
 
 
@@ -568,8 +568,8 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 		  if (! vert_info[vi].used)
 		    {
 		      vert_info[vi].index
-			= mesh->add_vertex (pos (m->pointL[f->points[i]])
-					    * vert_xform);
+			= mesh->add_vertex (
+				  vert_xform (pos (m->pointL[f->points[i]])));
 		      vert_info[vi].used = true;
 		    }
 
@@ -623,7 +623,7 @@ TdsLoader::convert (const Xform &xform)
 	if (! (l->object_flags & LIB3DS_OBJECT_HIDDEN))
 #endif
 	{
-	  const Pos loc = pos (l->position) * xform;
+	  const Pos loc = xform (pos (l->position));
 	  const Color intens = color (l->color) * l->multiplier * area_scale;
 
 	  scene->add (new Sphere (new Glow (intens), loc, radius));

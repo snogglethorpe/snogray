@@ -1,6 +1,6 @@
 // xform-tex.h -- Texture coordinate transform
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,8 +35,8 @@ public:
   //
   virtual T eval (const TexCoords &tex_coords) const
   {
-    Pos xpos = tex_coords.pos * xform;
-    UV xuv = tex_coords.uv * xform;
+    Pos xpos = xform (tex_coords.pos);
+    UV xuv = xform (tex_coords.uv);
     return tex.eval (TexCoords (xpos, xuv));
   }
 

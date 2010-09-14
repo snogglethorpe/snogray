@@ -1,6 +1,6 @@
 // tessel-param.cc -- Tessellation of parametric surfaces
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ ParamTesselFun::vertex_size () const
 ParamTesselFun::Vertex *
 ParamTesselFun::add_vertex (Tessel &tessel, param_t u, param_t v) const
 {
-  Pos pos = surface_pos (u, v) * xform;
+  Pos pos = xform (surface_pos (u, v));
   Vertex *vert = new (alloc_vertex (tessel)) Vertex (u, v, pos);
   Tessel::Function::add_vertex (tessel, vert);
   return vert;
@@ -77,7 +77,7 @@ void ParamTesselFun::get_vertex_normals (
        vi != vertices_end; vi++)
     {
       const Vertex &vert = static_cast<const Vertex &>(*vi);
-      normals.push_back (SVec (vertex_normal (vert) * norm_xform).unit ());
+      normals.push_back (norm_xform (SVec (vertex_normal (vert))).unit ());
     }
 }
 

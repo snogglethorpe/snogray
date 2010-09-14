@@ -885,10 +885,10 @@ function solid_cylinder (mat, arg1, ...)
       local xform = arg1
       local emat1, emat2 = select (1, ...), select (2, ...)
 
-      local base = pos(0,0,-1)*xform
-      local axis = vec(0,0,2)*xform
-      local r1 = vec(1,0,0)*xform
-      local r2 = vec(0,1,0)*xform
+      local base = xform (pos (0, 0, -1))
+      local axis = xform (vec (0, 0, 2))
+      local r1 = xform (vec (1, 0, 0))
+      local r2 = xform (vec (0, 1, 0))
 
       return surface_group {
 	 cylinder (mat, xform);
