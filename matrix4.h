@@ -40,12 +40,11 @@ public:
   template<typename T2>
   explicit Matrix4 (const Matrix4<T2> &m2);
 
+  T &operator() (unsigned col, unsigned row) { return els[row][col]; }
+  const T &operator() (unsigned col, unsigned row) const { return els[row][col]; }
 
-  T &operator() (unsigned i, unsigned j) { return els[i][j]; }
-  const T &operator() (unsigned i, unsigned j) const { return els[i][j]; }
-
-  T &el (unsigned i, unsigned j) { return els[i][j]; }
-  const T &el (unsigned i, unsigned j) const { return els[i][j]; }
+  T &el (unsigned col, unsigned row) { return els[row][col]; }
+  const T &el (unsigned col, unsigned row) const { return els[row][col]; }
 
   Matrix4 operator* (const Matrix4 &xform) const;
   Matrix4 operator* (T scale) const;

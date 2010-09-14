@@ -19,15 +19,15 @@ snogray::operator<< (std::ostream &os, const Xform &xform)
 {
   os << "xform<";
 
-  for (int j = 0; j < 4; j++)
+  for (int row = 0; row < 4; row++)
     {
-      if (j > 0)
-	os << "; ";
-      for (int i = 0; i < 4; i++)
+      if (row > 0)
+	os << ";  ";
+      for (int col = 0; col < 4; col++)
 	{
-	  if (i > 0)
+	  if (col > 0)
 	    os << ", ";
-	  output_nicely (os, xform (i, j));
+	  output_nicely (os, xform (col, row));
 	}
     }
 

@@ -187,17 +187,19 @@ public:
   //
   TXform &translate (T x, T y, T z = 0)
   {
-    *this *= translation (x, y, z);
+    el (3, 0) += x;
+    el (3, 1) += y;
+    el (3, 2) += z;
     return *this;
   }
   TXform &translate (const TVec<T> &offs)
   {
-    *this *= translation (offs);
+    translate (offs.x, offs.y, offs.z);
     return *this;
   }
   TXform &translate (const TUV<T> &offs)
   {
-    *this *= translation (offs);
+    translate (offs.u, offs.v);
     return *this;
   }
 
@@ -205,7 +207,7 @@ public:
   //
   TXform &scale (T scale)
   {
-    *this *= scaling (scale);
+    *this = scaling (scale) (*this);
     return *this;
   }
 
@@ -215,7 +217,7 @@ public:
   //
   TXform &scale (T s_x, T s_y, T s_z = 1)
   {
-    *this *= scaling (s_x, s_y, s_z);
+    *this = scaling (s_x, s_y, s_z) (*this);
     return *this;
   }
 
@@ -224,27 +226,27 @@ public:
   //
   TXform &rotate_x (T angle)
   {
-    *this *= x_rotation (angle);
+    *this = x_rotation (angle) (*this);
     return *this;
   }
   TXform &rotate_y (T angle)
   {
-    *this *= y_rotation (angle);
+    *this = y_rotation (angle) (*this);
     return *this;
   }
   TXform &rotate_z (T angle)
   {
-    *this *= z_rotation (angle);
+    *this = z_rotation (angle) (*this);
     return *this;
   }
   TXform &rotate (TVec<T> axis, T angle)
   {
-    *this *= rotation (axis, angle);
+    *this = rotation (axis, angle) (*this);
     return *this;
   }
   TXform &rotate (T angle)	// alias for rotate_z, for 2d use
   {
-    *this *= rotation (angle);
+    *this = rotation (angle) (*this);
     return *this;
   }
 
@@ -254,7 +256,7 @@ public:
   TXform &to_basis (const TVec<T> &x_axis, const TVec<T> &y_axis,
 		    const TVec<T> &z_axis)
   {
-    *this *= basis (x_axis, y_axis, z_axis);
+    *this = basis (x_axis, y_axis, z_axis) (*this);
     return *this;
   }
 
@@ -274,14 +276,14 @@ public:
   //
   TXform transformed (const XformBase<T> &xform) const
   {
-    return *this * xform; // XXX bogus operand order, will be fixed
+    return xform * *this;
   }
 
   // Transform this transform by XFORM.
   //
   void transform (const XformBase<T> &xform)
   {
-    *this = *this * xform; // XXX bogus operand order, will be fixed
+    *this = xform * *this;
   }
 
   // Return VEC transformed by the transpose of this transform.  This is

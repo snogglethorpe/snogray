@@ -25,10 +25,9 @@ namespace snogray {
 template<typename T>
 Matrix4<T>::Matrix4 ()
 {
-  els[0][0] = 1; els[0][1] = 0; els[0][2] = 0; els[0][3] = 0;
-  els[1][0] = 0; els[1][1] = 1; els[1][2] = 0; els[1][3] = 0;
-  els[2][0] = 0; els[2][1] = 0; els[2][2] = 1; els[2][3] = 0;
-  els[3][0] = 0; els[3][1] = 0; els[3][2] = 0; els[3][3] = 1;
+  for (unsigned row = 0; row < 4; row++)
+    for (unsigned col = 0; col < 4; col++)
+      el (col, row) = (col == row) ? T(1) : T(0);
 }
 
 template<typename T>
@@ -43,25 +42,25 @@ Matrix4<T>::Matrix4 (T d0, T d1, T d2, T d3)
 template<typename T> template<typename T2>
 Matrix4<T>::Matrix4 (const T2 _els[4][4])
 {
-  for (unsigned i = 0; i < 4; i++)
-    for (unsigned j = 0; i < 4; i++)
-      els[i][j] = _els[i][j];
+  for (unsigned row = 0; row < 4; row++)
+    for (unsigned col = 0; col < 4; col++)
+      els[row][col] = _els[row][col];
 }
 
 template<typename T> template<typename T2>
 Matrix4<T>::Matrix4 (const T2 _els[16])
 {
-  for (unsigned j = 0; j < 4; j++)
-    for (unsigned i = 0; i < 4; i++)
-      els[i][j] = _els[j*4+i];
+  for (unsigned row = 0; row < 4; row++)
+    for (unsigned col = 0; col < 4; col++)
+      el (col, row) = _els[row * 4 + col];
 }
 
 template<typename T> template<typename T2>
 Matrix4<T>::Matrix4 (const Matrix4<T2> &m2)
 {
-  for (unsigned i = 0; i < 4; i++)
-    for (unsigned j = 0; j < 4; j++)
-      els[i][j] = m2 (i, j);
+  for (unsigned row = 0; row < 4; row++)
+    for (unsigned col = 0; col < 4; col++)
+      els[row][col] = m2 (col, row);
 }
 
 template<typename T>
@@ -69,13 +68,13 @@ Matrix4<T>
 Matrix4<T>::operator* (const Matrix4<T> &xform) const
 {
   Matrix4<T> result;
-  for (unsigned i = 0; i < 4; i++)
-    for (unsigned j = 0; j < 4; j++)
-      result(i, j)
-	= el (i, 0) * xform (0, j)
-	+ el (i, 1) * xform (1, j)
-	+ el (i, 2) * xform (2, j)
-	+ el (i, 3) * xform (3, j);
+  for (unsigned row = 0; row < 4; row++)
+    for (unsigned col = 0; col < 4; col++)
+      result (col, row)
+	= el (0, row) * xform (col, 0)
+	+ el (1, row) * xform (col, 1)
+	+ el (2, row) * xform (col, 2)
+	+ el (3, row) * xform (col, 3);
   return result;
 }
 
@@ -84,9 +83,9 @@ Matrix4<T>
 Matrix4<T>::operator* (T scale) const
 {
   Matrix4<T> result;
-  for (unsigned i = 0; i < 4; i++)
-    for (unsigned j = 0; j < 4; j++)
-      result(i, j) = el (i, j) * scale;
+  for (unsigned row = 0; row < 4; row++)
+    for (unsigned col = 0; col < 4; col++)
+      result (col, row) = el (col, row) * scale;
   return result;
 }
 
@@ -245,11 +244,11 @@ template<typename T>
 bool
 Matrix4<T>::is_identity () const
 {
-  for (unsigned j = 0; j < 4; j++)
-    for (unsigned i = 0; i < 4; i++)
+  for (unsigned row = 0; row < 4; row++)
+    for (unsigned col = 0; col < 4; col++)
       {
-	T goal = (i == j) ? T(1) : T(0);
-	T delta = abs (els[i][j] - goal);
+	T goal = (row == col) ? T(1) : T(0);
+	T delta = abs (el (col, row) - goal);
 	if (delta > 0.000001)
 	  return false;
       }
