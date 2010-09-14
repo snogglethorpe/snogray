@@ -21,8 +21,13 @@
 namespace snogray {
 
 
-// A frame is a coordinate-system basis, plus a position.
-// Positions and vectors may be converted to or from the frame.
+// A "frame of reference", relative to the world frame, consisting of
+// a coordinate-system basis plus an origin.  Positions and vectors
+// may be converted to or from the frame (from or to the world-frame,
+// respectively).  The origin is only used when converting positions.
+//
+// A frame is basically equivalent to a transformation matrix in
+// functionality, but in many cases is a nicer abstraction.
 //
 class Frame
 {
