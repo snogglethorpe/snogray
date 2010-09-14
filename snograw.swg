@@ -339,6 +339,9 @@ namespace snogray {
     TXform inverse () const;
     TXform transpose () const;
 
+    TXform transformed (const Matrix4<T> &xform) const;
+    void transform (const Matrix4<T> &xform);
+
     TXform operator* (const TXform &xform) const;
     TXform operator* (T scale) const;
 
@@ -347,7 +350,7 @@ namespace snogray {
     BBox operator() (const BBox &obj) const;
     Frame operator() (const Frame &obj) const;
 
-    %rename(transform) operator*= (const TXform &mat);
+    %rename(mul_assn) operator*= (const TXform &mat);
     const TXform &operator*= (const TXform &mat);
   };
   %extend TXform<dist_t>
