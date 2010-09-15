@@ -285,6 +285,41 @@ Mesh::add_uvs (const std::vector<UV> &new_uvs, vert_index_t base_vert)
   vertex_uvs.insert (vertex_uvs.end(), new_uvs.begin(), new_uvs.end());
 }
 
+// Add all the UV values described by NEW_UVS as vertex UV values in
+// this mesh, corresponding to all the vertices starting from
+// BASE_VERT (which should be a value returned from an earlier call
+// to Mesh::add_vertices).
+//
+// NEW_UVS should contain two elements for each UV.
+//
+void
+Mesh::add_uvs (const std::vector<float> &new_uvs, vert_index_t base_vert)
+{
+  unsigned num_new_uvs = new_uvs.size () / 2;
+
+  // Not sure what to do if uvs after BASE_VERT already exist, of
+  // if vertices before BASE_VERT don't have uvs yet, so just barf
+  // in those cases.
+  //
+  if (base_vert != vertex_uvs.size ())
+    throw runtime_error ("BASE_VERT incorrect in Mesh::add_uvs");
+  if (base_vert + num_new_uvs != vertices.size ())
+    throw runtime_error ("Size of NEW_UVS incorrect in Mesh::add_uvs");
+
+  // Note that the UV default constructor does not initialize the UV
+  // members, so the following will grow the Mesh::uvs vector, but not
+  // give the new elements any value.
+  //
+  vertex_uvs.resize (base_vert + num_new_uvs);
+
+  unsigned nui = 0;
+  for (unsigned ui = base_vert; ui < base_vert + num_new_uvs; ui++)
+    {
+      vertex_uvs[ui] = UV (new_uvs[nui], new_uvs[nui + 1]);
+      nui += 2;
+    }
+}
+
 // Add new triangles to the mesh using vertices from TRI_VERT_INDICES.
 // TRI_VERT_INDICES should contain three entries for each new triangle;
 // the indices in TRI_VERT_INDICES are relative to BASE_VERT (which

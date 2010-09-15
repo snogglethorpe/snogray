@@ -128,6 +128,15 @@ public:
   //
   void add_uvs (const std::vector<UV> &new_uvs, vert_index_t base_vert);
 
+  // Add all the UV values described by NEW_UVS as vertex UV values in
+  // this mesh, corresponding to all the vertices starting from
+  // BASE_VERT (which should be a value returned from an earlier call
+  // to Mesh::add_vertices).
+  //
+  // NEW_UVS should contain two elements for each UV.
+  //
+  void add_uvs (const std::vector<float> &new_uvs, vert_index_t base_vert);
+
   // Add new triangles to the mesh using vertices from TRI_VERT_INDICES.
   // TRI_VERT_INDICES should contain three entries for each new triangle;
   // the indices in TRI_VERT_INDICES are relative to BASE_VERT (which
