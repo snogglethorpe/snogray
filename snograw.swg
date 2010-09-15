@@ -156,7 +156,9 @@ SWIG_read_numeric_vector (lua_State *L, int index)
     return 0;			// error
 
   std::vector<T> *vec = new std::vector<T> ();
+
   size_t len = lua_objlen (L, index);
+  vec->reserve (len);
 
   for (size_t i = 0; i < len; i++)
     {
