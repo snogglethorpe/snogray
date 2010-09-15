@@ -110,6 +110,17 @@ public:
   void add_normals (const std::vector<MVec> &new_normals,
 		    vert_index_t base_vert);
 
+  // Add all the normal vectors described by NEW_NORMALS as vertex
+  // normals in this mesh, corresponding to all the vertices starting
+  // from BASE_VERT (which should be a value returned from an earlier
+  // call to Mesh::add_vertices).
+  //
+  // NEW_NORMALS should contain three elements for each normal, to be
+  // used as the x, y, and z components of the normal.
+  //
+  void add_normals (const std::vector<sdist_t> &new_normals,
+		    vert_index_t base_vert);
+
   // Add all the UV values in NEW_UVS as vertex UV values in this mesh,
   // corresponding to all the vertices starting from BASE_VERT (which
   // should be a value returned from an earlier call to

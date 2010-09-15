@@ -227,6 +227,44 @@ Mesh::add_normals (const std::vector<MVec> &new_normals, vert_index_t base_vert)
 			 new_normals.begin(), new_normals.end());
 }
 
+// Add all the normal vectors described by NEW_NORMALS as vertex
+// normals in this mesh, corresponding to all the vertices starting
+// from BASE_VERT (which should be a value returned from an earlier
+// call to Mesh::add_vertices).
+//
+// NEW_NORMALS should contain three elements for each normal, to be
+// used as the x, y, and z components of the normal.
+//
+void
+Mesh::add_normals (const std::vector<sdist_t> &new_normals,
+		   vert_index_t base_vert)
+{
+  unsigned num_new_normals = new_normals.size () / 3;
+
+  // Not sure what to do if normals after BASE_VERT already exist, of
+  // if vertices before BASE_VERT don't have normals yet, so just barf
+  // in those cases.
+  //
+  if (base_vert != vertex_normals.size ())
+    throw runtime_error ("BASE_VERT incorrect in Mesh::add_normals");
+  if (base_vert + num_new_normals != vertices.size ())
+    throw runtime_error ("Size of NEW_NORMALS incorrect in Mesh::add_normals");
+
+  // Note that the Pos default constructor does not initialize the Pos
+  // members, so the following will grow the Mesh::normals vector,
+  // but not give the new elements any value.
+  //
+  vertex_normals.resize (base_vert + num_new_normals);
+
+  unsigned nni = 0;
+  for (unsigned ni = base_vert; ni < base_vert + num_new_normals; ni++)
+    {
+      vertex_normals[ni]
+	= Vec (new_normals[nni], new_normals[nni + 1], new_normals[nni + 2]);
+      nni += 3;
+    }
+}
+
 // Add all the UV values in NEW_UVS as vertex UV values in this mesh,
 // corresponding to all the vertices starting from BASE_VERT (which
 // should be a value returned from an earlier call to
