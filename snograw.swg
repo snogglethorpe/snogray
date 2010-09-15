@@ -754,6 +754,13 @@ namespace snogray {
 
     vert_index_t add_normal (vert_index_t vert_index, const Vec &normal);
 
+    vert_index_t add_vertices (const std::vector<float> &INPUT);
+    void add_normals (const std::vector<float> &INPUT,
+		      vert_index_t base_vert);
+    void add_uvs (const std::vector<float> &INPUT, vert_index_t base_vert);
+    void add_triangles (const std::vector<unsigned> &INPUT,
+			vert_index_t base_vert);
+
     void reserve (unsigned num_verts, unsigned num_tris,
 		  bool with_normals = false);
     void reserve_normals ();
