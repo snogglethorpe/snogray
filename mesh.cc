@@ -175,6 +175,37 @@ Mesh::add_vertices (const std::vector<MPos> &new_verts)
   return base_vert;
 }
 
+// Add all the positions described by NEW_VERTS as vertices in this
+// mesh.  NEW_VERTS should contain three elements for each vertex, to
+// be used as the x, y, and z coordinates of the vertex.
+//
+// The index in the mesh of the first of the new vertices is returned;
+// it should be passed to any subsequent calls to Mesh::add_triangles
+// or Mesh::add_normals.
+//
+Mesh::vert_index_t
+Mesh::add_vertices (const std::vector<scoord_t> &new_verts)
+{
+  vert_index_t base_vert = vertices.size ();
+  unsigned num_new_verts = new_verts.size () / 3;
+
+  // Note that the Pos default constructor does not initialize the Pos
+  // members, so the following will grow the Mesh::vertices vector,
+  // but not give the new elements any value.
+  //
+  vertices.resize (base_vert + num_new_verts);
+
+  unsigned nvi = 0;
+  for (unsigned v = base_vert; v < base_vert + num_new_verts; v++)
+    {
+      vertices[v]
+	= Pos (new_verts[nvi], new_verts[nvi + 1], new_verts[nvi + 2]);
+      nvi += 3;
+    }
+
+  return base_vert;
+}
+
 // Add all the normal vectors in NEW_NORMALS as vertex normals in this
 // mesh, corresponding to all the vertices starting from BASE_VERT
 // (which should be a value returned from an earlier call to

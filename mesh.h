@@ -92,6 +92,16 @@ public:
   //
   vert_index_t add_vertices (const std::vector<MPos> &new_verts);
 
+  // Add all the positions described by NEW_VERTS as vertices in this
+  // mesh.  NEW_VERTS should contain three elements for each vertex,
+  // to be used as the x, y, and z coordinates of the vertex.
+  //
+  // The index in the mesh of the first of the new vertices is
+  // returned; it should be passed to any subsequent calls to
+  // Mesh::add_triangles or Mesh::add_normals.
+  //
+  vert_index_t add_vertices (const std::vector<scoord_t> &new_verts);
+
   // Add all the normal vectors in NEW_NORMALS as vertex normals in this
   // mesh, corresponding to all the vertices starting from BASE_VERT
   // (which should be a value returned from an earlier call to
