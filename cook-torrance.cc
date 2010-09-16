@@ -42,7 +42,9 @@ public:
       gloss_col (ct.gloss_color.eval (isec)),
       diff_intens (diff_col.intensity ()),
       gloss_intens (gloss_col.intensity ()),
-      diff_weight (diff_intens / (diff_intens + gloss_intens)),
+      diff_weight ((diff_intens + gloss_intens) == 0
+		   ? 0
+		   : diff_intens / (diff_intens + gloss_intens)),
       inv_diff_weight (diff_weight == 0 ? 0 : 1 / diff_weight),
       inv_gloss_weight (diff_weight == 1 ? 0 : 1 / (1 - diff_weight)),
       fres (isec.media.medium.ior, ct.ior),
