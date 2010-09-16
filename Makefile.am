@@ -51,12 +51,12 @@ EXTRA_DIST =							\
 	snogray.lua						\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg						\
-	update-version-hdr.sh					\
+	update-version.sh					\
 	autogen.sh						\
 	lpeg.html						\
 	stats.txt spd.txt
 
-noinst_SCRIPTS = update-version-hdr.sh
+noinst_SCRIPTS = update-version.sh
 
 # Allow specifying a Lua distribution to be included.  If we're already
 # building using a local copy of Lua, it is distributed by default.
@@ -70,7 +70,7 @@ dist-hook:
 
 # Some extra stuff that needs cleaning up
 #
-CLEANFILES = version.h liblua.a snograw.so
+CLEANFILES = liblua.a snograw.so version.cc
 
 # We only clean up "snograw_lua_wrap.cc" and "swigluarun.h" if it's
 # possible to regenerate them.
@@ -140,11 +140,11 @@ AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 # Version frobbing
 #
 
-update_version_header:
-	@$(SHELL) $(srcdir)/update-version-hdr.sh "$(PACKAGE_VERSION)" "version.h"
-.PHONY: update_version_header
+update_version:
+	@$(SHELL) $(srcdir)/update-version.sh "$(PACKAGE_VERSION)" "version.cc"
+.PHONY: update_version
 
-config.h: update_version_header
+config.h: update_version
 
 
 ################################################################
@@ -363,7 +363,7 @@ libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
 	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
 	snogassert.h snogmath.h string-funs.cc string-funs.h thread.h	\
 	timeval.cc timeval.h tint.h tint-io.cc tint-io.h val-table.cc	\
-	unique-ptr.h val-table.h
+	unique-ptr.h val-table.h version.cc version.h
 
 
 ################################################################
