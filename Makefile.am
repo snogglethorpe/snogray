@@ -76,7 +76,7 @@ CLEANFILES = liblua.a snograw.so version.cc
 # possible to regenerate them.
 #
 if have_swig
-MAINTAINERCLEANFILES = snograw_lua_wrap.cc swigluarun.h
+CLEANFILES += snograw_lua_wrap.cc swigluarun.h
 endif
 
 
