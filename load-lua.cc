@@ -29,9 +29,11 @@ extern int luaopen_snograw (lua_State *);
 using namespace snogray;
 using namespace std;
 
-// Global lua state.  All loaded files get the same state, and it is
-// kept around after loading (because otherwise objects created in lua
-// will be destroyed!?!).
+// Global lua state.  All calls to Lua loaders use the same state.
+//
+// This state can be destroyed after loading by calling the
+// cleanup_load_lua_state function after loading (but see the comment
+// for that function for some caveats).
 //
 lua_State *L = 0;
 
@@ -110,14 +112,28 @@ setup_lua ()
 
 // Cleanup and free all global Lua state.
 //
+// Note that this function only has an effect if the SWIG version we
+// used to generate our Lua interface has the "disown" feature (as
+// indicated by the autoconf'd HAVE_SWIG_DISOWN macro).  If SWIG
+// doesn't have that feature, then this function does nothing, and our
+// global Lua state will never be freed.
+//
+// [The SWIG "disown" feature is used to pass ownership of certain
+// objects from Lua to the snogray core.  If SWIG _doesn't_ have the
+// "disown" feature, then destroying the Lua state can end up
+// destroying objects which are still referenced other places in
+// snogray.]
+//
 void
 snogray::cleanup_load_lua_state ()
 {
+#if HAVE_SWIG_DISOWN
   if (L)
     {
       lua_close (L);
       L = 0;
     }
+#endif
 }
 
 

@@ -108,11 +108,7 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   // Cleanup Lua loader state if necessary.
   //
-  // Note that we can't do this if swig doesn't support the "disown"
-  // feature, as without that, scene objects will still be considered
-  // "owned" by swig, and deallocated if we cleanup Lua state.
-  //
-#if USE_LUA && HAVE_SWIG_DISOWN
+#if USE_LUA
   cleanup_load_lua_state ();
 #endif
 }
