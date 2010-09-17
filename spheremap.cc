@@ -1,6 +1,6 @@
 // spheremap.cc -- Texture wrapped around a sphere
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -45,6 +45,12 @@ Spheremap<LatLongMapping>::light_map () const
   float avg_scale = 1.f / (lmap_block_size * lmap_block_size);
 
   Image &img = *lmap;
+
+  // Zero out the image initially, as we add to each pixel in the loop
+  // below (the Image constructor doesn't do any initialization of the
+  // image contents).
+  //
+  img.zero ();
 
   for (MatrixTex<Color>::const_iterator p = tex.begin (); p != tex.end (); ++p)
     {
