@@ -1,6 +1,6 @@
 // tuple-matrix.h -- Generic matrix storage type
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -72,6 +72,18 @@ public:
   TupleMatrixData (unsigned _tuple_len, const TupleMatrixData &base,
 		   unsigned offs_x = 0, unsigned offs_y = 0,
 		   unsigned w = 0, unsigned h = 0);
+
+  // Set all elements of this matrix to DT(0).  Note that the
+  // TupleMatrixData constructor may _not_ do this, as it uses DT's
+  // default constructor, and that may not do any initialization at
+  // all (this is true, for instance, of scalar types like float).
+  //
+  void zero ()
+  {
+    size_t len = data.size ();
+    for (size_t i = 0; i < len; i++)
+      data[i] = DT (0);
+  }
 
   // Return a pointer to the first element of the tuple at location X, Y
   //
