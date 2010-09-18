@@ -440,6 +440,16 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
       norm += triangle.vnorm(1) * u;
       norm += triangle.vnorm(2) * v;
       norm = norm.unit ();	// normalize
+
+      // Make the normal consistent with the geometry.  Since the
+      // geometric normal depends on the handedness of the mesh, which
+      // is easy to get wrong, we assume the interpolated ("shading")
+      // normal is probably the correct one, and flip the geometric
+      // normal.
+      //
+      if (geom_frame.to (norm).z < 0)
+	geom_frame.z = -geom_frame.z;
+
       normal_frame = make_frame (point, norm);
     }
   else
