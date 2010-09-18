@@ -473,7 +473,10 @@ end
 local function postproc_material (mat, params)
    if type (params) == 'table' then
       local bump = params.bump_map or params.bump
-      if bump then mat.bump_map = float_tex (bump) end
+      -- we ignore scalar bump maps, as they have no effect
+      if bump and type (bump) ~= 'number' then
+	 mat.bump_map = float_tex (bump)
+      end
    end
    return mat
 end   
