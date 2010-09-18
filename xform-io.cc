@@ -17,12 +17,15 @@
 std::ostream&
 snogray::operator<< (std::ostream &os, const Xform &xform)
 {
-  os << "xform<";
+  // this syntax isn't the prettiest, but is kind of compatible with
+  // emacs calc, Lua, and C
+
+  os << "xform{{";
 
   for (int row = 0; row < 4; row++)
     {
       if (row > 0)
-	os << ";  ";
+	os << "}, {";
       for (int col = 0; col < 4; col++)
 	{
 	  if (col > 0)
@@ -31,7 +34,7 @@ snogray::operator<< (std::ostream &os, const Xform &xform)
 	}
     }
 
-  os << ">";
+  os << "}}";
 
   return os;
 }

@@ -19,10 +19,10 @@ snogray::operator<< (std::ostream &os, const Color &col)
 {
   for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
     {
-      os << ((c == 0) ? "color<" : ", ");
+      os << ((c == 0) ? "color{" : ", ");
       output_nicely (os, col[c]);
     }
-  os << '>';
+  os << '}';
 
   return os;
 }

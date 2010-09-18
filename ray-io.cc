@@ -20,31 +20,23 @@ snogray::operator<< (std::ostream &os, const Ray &ray)
   const Pos &o = ray.origin;
   const Vec &d = ray.dir;
 
-  os << "ray<(";
+  os << "ray{origin = {";
   output_nicely (os, o.x);
   os << ", ";
   output_nicely (os, o.y);
   os << ", ";
   output_nicely (os, o.z);
-  os << ") + (";
+  os << "}, dir = {";
   output_nicely (os, d.x);
   os << ", ";
   output_nicely (os, d.y);
   os << ", ";
   output_nicely (os, d.z);
-  os << ") * ";
-  
-  if (ray.t0 == 0)
-    output_nicely (os, ray.t1);
-  else
-    {
-      os << "(";
-      output_nicely (os, ray.t0);
-      os << " - ";
-      output_nicely (os, ray.t1);
-      os << ")";
-    }
-  os << ">";
+  os << "}, t0 = ";
+  output_nicely (os, ray.t1);
+  os << ", t1 = ";
+  output_nicely (os, ray.t1);
+  os << "}";
 
   return os;
 }

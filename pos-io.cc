@@ -17,12 +17,12 @@
 std::ostream&
 snogray::operator<< (std::ostream &os, const Pos &pos)
 {
-  os << "pos<";
+  os << "pos{";
   output_nicely (os, pos.x);
   os << ", ";
   output_nicely (os, pos.y);
   os << ", ";
   output_nicely (os, pos.z);
-  os << ">";
+  os << "}";
   return os;
 }
