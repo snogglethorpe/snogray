@@ -1292,41 +1292,42 @@ function ge_tex (...) return cmp_tex ('GE', ...) end
 
 -- Return a fourier-series summation of SOURCE_TEX, according to PARAMS:
 --
---   Sum[i = 1 to MAX] of (SOURCE_TEX * F_i * Scale(2^(i-1)) / 2^(i-1))
+--   Sum[i = 1 to OCTAVES] of (SOURCE_TEX * F_i * Scale(2^(i-1)) * OMEGA^(i-1))
 --
--- where MAX is the maximum term index to use, F_i are perm-term user
+-- where OCTAVES is the maximum term index to use, F_i are perm-term user
 -- multiplicative factors (defaulting to 1), "... * Scale(2^(i-1))"
 -- means to scale the input coordinates to SOURCE_TEX by 2^(i-1), and
--- "... / 2^(i-1)" means to divide the resulting value of the term by
--- 2^(i-1).
+-- "... * OMEGA^(i-1)" means to multiply the resulting value of the term
+-- by OMEGA^(i-1).
 --
--- If PARAMS is a number, then all F_i are 1, and MAX = PARAMS.
+-- If PARAMS is a number, then all F_i are 1, OMEGA = 0.5, and OCTAVES =
+-- PARAMS.
 --
--- If PARAMS is a table, then F_i is taken from the array entry i in
--- PARAMS (so F_1 is PARAMS[], F_2 is PARAMS[2], etc), and MAX =
--- PARAMS.max, or if there is no "max" entry in PARAMS, then the number
--- of array members of PARAMS.
+-- If PARAMS is a table, then F_i is the value at index i in PARAMS
+-- (F_1 is PARAMS[], F_2 is PARAMS[2], etc), OMEGA = PARAMS.omega or
+-- 0.5 if there is no "omega" in PARAMS, and OCTAVES = PARAMS.octaves,
+-- or the number of array members in PRAMS if there is no "octaves"
+-- entry in PARAMS.
 --
 -- Note that the F_i values do not need to be constants, they can also
 -- be textures.
 --
 -- The result is automatically scaled by the inverse of the constant
--- portions of the sum, Sum[...] (F_i / 2^(i-1)), so that it should have
--- roughly the same magnitude as SOURCE_TEX.  Any non-constant F_i
+-- portions of the sum, Sum[...] (F_i * OMEGA^(i-1)), so that it should
+-- have roughly the same magnitude as SOURCE_TEX.  Any non-constant F_i
 -- values are ignored for the purposes of auto-scaling.
 --
 function fourier_series_tex (source_tex, params)
    local sum = nil
-   local cur_max_pow = 0
    local const_factor_sum = 0
 
-   local function add_term (pow, factor)
+   local function add_term (octave, factor)
       if factor and factor ~= 0 then
-	 local inv_pow_factor = 2^pow
-	 local pow_factor = 1 / inv_pow_factor
+	 local scale_factor = 1.99^octave
+	 local pow_factor = omega ^ octave
 	 local term_factor = factor * pow_factor
 
-	 local term = source_tex * scale (inv_pow_factor)
+	 local term = scale (scale_factor) (source_tex)
 	 if type (term_factor) ~= 'number' or term_factor ~= 1 then
 	    term = term * term_factor
 	 end
@@ -1342,29 +1343,40 @@ function fourier_series_tex (source_tex, params)
 	 else
 	    sum = term
 	 end
-
-	 max_pow = pow
       end
    end
 
-   local max_pow
+   local octaves
+   local cur_octave = 0
    if type (params) == 'table' then
+      omega = params.omega or 0.5
+
+      -- Add terms corresponding to entries in PARAMS.
+      --
       for i, factor in ipairs (params) do
 	 add_term (i-1, factor)
       end
-      max_pow = params.max_pow or params.max
+
+      cur_octave = #params
+      octaves = params.octaves or octaves
    else
-      max_pow = params
+      omega = 0.5
+      octaves = params
    end
 
-   if max_pow then
-      while cur_max_pow <= max_pow do
-	 add_term (cur_max_pow, 1)
-	 cur_max_pow = cur_max_pow + 1
+   -- Add any remaining terms, up to OCTAVES.
+   --
+   if octaves then
+      while cur_octave <= octaves do
+	 add_term (cur_octave, 1)
+	 cur_octave = cur_octave + 1
       end
    end
 
-   if const_factor_sum ~= 1 then
+   if const_factor_sum ~= 1
+      and (type (params) ~= 'table'
+	or params.auto_scale ~= false)
+   then
       sum = sum * (1 / const_factor_sum)
    end
 
