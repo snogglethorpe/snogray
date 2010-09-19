@@ -410,6 +410,18 @@ namespace snogray {
   %extend TXform<dist_t>
   {
     const char* __str__() { return static_rep (*$self); }
+
+    // Try to make transforms appliable to textures too.. ugh... soooo
+    // many SWIG bugs....
+    //
+    snogray::Ref<snogray::Tex<float> > operator () (const snogray::Ref<Tex<float> > &obj) const
+    {
+      return new snogray::XformTex<float> (*$self, obj);
+    }
+    snogray::Ref<snogray::Tex<Color> > operator () (const snogray::Ref<Tex<snogray::Color> > &obj) const
+    {
+      return new snogray::XformTex<snogray::Color> (*$self, obj);
+    }
   }
   %template(Xform) TXform<dist_t>;
   typedef TXform<dist_t> Xform;
