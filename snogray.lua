@@ -373,7 +373,7 @@ local function color_tex_val (val)
 end
 
 -- Return TEX, which should be a texture, converted into a
--- floating-poing texture if it isn't one already.
+-- floating-point texture if it isn't one already.
 --
 local function float_tex (tex)
    if is_color_tex (tex) then
