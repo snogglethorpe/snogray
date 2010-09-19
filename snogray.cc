@@ -654,7 +654,7 @@ int main (int argc, char *const *argv)
       cout << "* camera: at " << camera.pos
 	   << ", pointing at "
 	   << (camera.pos + camera.forward * camera.target_dist)
-	   << " (up = " << camera.up << ")"
+	   << " (up = " << camera.up << ", right = " << camera.right << ")"
 	   << endl;
       if (camera.aperture)
 	cout << "* camera: aperture " << camera.aperture
