@@ -1118,6 +1118,9 @@ local function singleton_tex_fun (name, create)
 end
 
 perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
+perlin_abs_tex
+   = singleton_tex_fun ('perlin_abs',
+			function() return abs_tex (perlin_tex ()) end)
 
 x_tex = singleton_tex_fun ('x', function () return raw.coord_tex(0) end)
 y_tex = singleton_tex_fun ('y', function () return raw.coord_tex(1) end)
@@ -1380,7 +1383,7 @@ end
 -- explanation of PARAMS.
 --
 function perlin_abs_series_tex (params)
-   return fourier_series_tex (abs_tex (perlin_tex()), params)
+   return fourier_series_tex (perlin_abs_tex(), params)
 end
 
 
