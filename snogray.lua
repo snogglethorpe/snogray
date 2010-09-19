@@ -206,6 +206,7 @@ end
 pos = raw.Pos
 vec = raw.Vec
 bbox = raw.BBox
+ray = raw.Ray
 uv = raw.UV
 
 -- Handy scene origin position.

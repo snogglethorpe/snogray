@@ -98,6 +98,7 @@
 #include "pos-io.h"
 #include "vec-io.h"
 #include "xform-io.h"
+#include "ray-io.h"
 
   static char static_rep_buf[255];
 
@@ -278,6 +279,35 @@ namespace snogray {
 
   Pos midpoint (const Pos &p1, const Pos &p2);
 
+  template<typename T>
+  class TRay
+  {
+  public:
+
+    TRay (TPos<T> _origin, TVec<T> _extent);
+    TRay (TPos<T> _origin, TVec<T> _dir, T _t1);
+    TRay (TPos<T> _origin, TVec<T> _dir, T _t0, T _t1);
+    TRay (TPos<T> _origin, TPos<T> _targ);
+
+    TPos<T> extension (float _len) const { return origin + dir * _len; }
+    TPos<T> begin () const { return origin+dir*t0; }
+    TPos<T> end () const { return  origin+dir*t1; }
+
+    T length () const { return t1 - t0; }
+
+    TPos<T> origin;
+    TVec<T> dir;
+
+    T t0, t1;
+  };
+  %extend TRay<dist_t>
+  {
+    const char* __str__() { return static_rep (*$self); }
+  }
+  %template(Ray) TRay<dist_t>;
+  typedef TRay<dist_t> Ray;
+
+
   class BBox
   {
   public:
@@ -400,6 +430,7 @@ namespace snogray {
 
     TPos<T> operator() (const TPos<T> &obj) const;
     TVec<T> operator() (const TVec<T> &obj) const;
+    TRay<T> operator() (const TRay<T> &obj) const;
     BBox operator() (const BBox &obj) const;
     Frame operator() (const Frame &obj) const;
     TXform operator () (const TXform &obj) const;
