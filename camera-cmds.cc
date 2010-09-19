@@ -162,9 +162,9 @@ read_rot_xform (istream &stream, const Camera &camera)
   Xform xform;
 
   if (dir == 'u')
-    xform.rotate (camera.right, -angle);
+    xform.rotate (camera.right, camera.handedness_reversed ? angle : -angle);
   else if (dir == 'd')
-    xform.rotate (camera.right, angle);
+    xform.rotate (camera.right, camera.handedness_reversed ? -angle : angle);
   else if (dir == 'l')
     xform.rotate (camera.up, -angle);
   else if (dir == 'r')
@@ -306,9 +306,11 @@ snogray::interpret_camera_cmds (const string &cmds, Camera &camera,
 	      dist_t dist = read_dist (stream, "movement distance");
 
 	      if (dir == 'r')
-		camera.move (camera.right * dist);
+		camera.move (camera.right
+			     * (camera.handedness_reversed ? -dist : dist));
 	      else if (dir == 'l')
-		camera.move (-camera.right * dist);
+		camera.move (camera.right
+			     * (camera.handedness_reversed ? dist : -dist));
 	      else if (dir == 'u')
 		camera.move (camera.up * dist);
 	      else if (dir == 'd')
