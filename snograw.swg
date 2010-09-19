@@ -928,6 +928,9 @@ namespace snogray {
     float f_stop () const;
     void set_f_stop (float f_stop);
 
+    Ray eye_ray (const UV &film_loc) const;
+    Ray eye_ray (const UV &film_loc, const UV &focus_param) const;
+
     // Fields
     //
     Pos pos;
