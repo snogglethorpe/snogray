@@ -1039,6 +1039,25 @@ namespace snogray {
 		"image<%d, %d>", $self->width, $self->height);
       return static_rep_buf;
     }
+
+    void set (unsigned x, unsigned y, const Color &val)
+    {
+      (*$self)(x,y) = val;
+    }
+  }
+  %extend TupleMatrix<float>
+  {
+    const char* __str__()
+    {
+      snprintf (static_rep_buf, sizeof static_rep_buf,
+		"mono_image<%d, %d>", $self->width, $self->height);
+      return static_rep_buf;
+    }
+
+    void set (unsigned x, unsigned y, float val)
+    {
+      (*$self)(x,y) = val;
+    }
   }
   %template(Image) TupleMatrix<Color>;
   %template(ImageRef) Ref<TupleMatrix<Color> >;
