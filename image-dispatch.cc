@@ -1,6 +1,6 @@
 // image-dispatch.cc -- Image backend selection
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,6 +17,7 @@
 
 #include "image-pfm.h"
 #include "image-rgbe.h"
+#include "image-tga.h"
 #ifdef HAVE_LIBEXR
 # include "image-exr.h"
 #endif
@@ -67,6 +68,7 @@ ImageIo::recognized_filename (const std::string &filename)
 
   return
     fmt == "pfm" || fmt == "rgbe" || fmt == "hdr" || fmt == "pic"
+    || fmt == "tga"
 #ifdef HAVE_LIBEXR
     || fmt == "exr"
 #endif
@@ -132,6 +134,8 @@ ImageSource::open (const std::string &filename, const ValTable &params)
     return new PfmImageSource (filename, params);
   else if (fmt == "rgbe" || fmt == "hdr" || fmt == "pic")
     return new RgbeImageSource (filename, params);
+  else if (fmt == "tga" || fmt == "targa")
+    return new TgaImageSource (filename, params);
 
   // Formats which are only supported if an appropriate library  is available
   //
