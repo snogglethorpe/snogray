@@ -90,28 +90,40 @@ local function cur_line ()
 end
 
 
--- Signals an error with a simple message quoting the problem line.
+-- Return a nice error string quoting MSG and the error location,
+-- assuming parse_state is setup with appropriate location info.
+--
+local function make_err_string (msg)
+   local filename = parse_state.filename
+   local line_num = cur_line ()
+   return filename..":"..tostring(line_num)..": " .. (msg or "parse error")
+end
+
+-- Signal an error with a message including MSG and the approximate
+-- error location.  Should be called from within a parser invocation
+-- using parse_file.
 --
 function parse_err (msg)
-   local filename = parse_state.filename
-   local line_num = cur_line ()
-   local msg = filename..":"..tostring(line_num)..": " .. (msg or "parse error")
-   error (msg, 0)
+   -- We know that this function should be called from within a call
+   -- to parse_file, so wrap the error message in a table to make it
+   -- clear where it comes from.  parse_file will in turn catch our
+   -- error and correctly deal with the contents.
+   --
+   error ({parse_err = make_err_string (msg)}, 0)
 end
 
--- Prints a warning message
+-- Print a warning message including MSG and the approximate file
+-- location.  Should be called from within a parser invocation using
+-- parse_file.
 --
 function parse_warn (msg)
-   local filename = parse_state.filename
-   local line_num = cur_line ()
-   print (filename..":"..tostring(line_num)..": "..msg)
+   print (make_err_string (msg))
 end
 
-
--- Read and parse FILENAME by repeatedly matching PATTERN (if results
--- are desired, PATTERN should record them as a side-effect).
--- Repetition of PATTERN must cover the entire file, otherwise an error
--- is signaled.
+-- Read and parse FILENAME by repeatedly matching PATTERN; nothing is
+-- returned (if results are desired, PATTERN should record them as a
+-- side-effect).  Repetition of PATTERN must cover the entire file,
+-- otherwise an error is signaled.
 --
 function parse_file (filename, pattern)
    local stream, err = io.open (filename, "r")
@@ -127,15 +139,52 @@ function parse_file (filename, pattern)
 
    parse_state = {filename = filename, text = text, err_pos = 1}
 
-   local len = #text
-   local pos, old_pos = 1, nil
-   while pos <= len do
-      parse_state.err_pos = pos
-      pos = pattern:match (text, pos)
-      if not pos or pos == old_pos then
-	 parse_err ()
+   local function parse ()
+      local len = #text
+      local pos, old_pos = 1, nil
+      while pos <= len do
+	 parse_state.err_pos = pos
+	 local new_pos = pattern:match (text, pos)
+	 if not new_pos or new_pos == pos then
+	    parse_err ()
+	 end
+	 pos = new_pos
       end
-      old_pos = pos
+   end
+   local ok, err = pcall (parse)
+
+   -- if there was an error, rethrow it
+   if not ok then
+      if type (err) == 'table' and err.parse_err then
+	 -- the error came from parse_err, so it already has location
+	 -- info etc attached
+
+	 if not old_parse_state then
+	    -- The error came from parse_err, and we're not in a
+	    -- recursive parse, so turn the table into a string that's
+	    -- nicer for our callers.
+
+	    err = err.parse_err
+	 end
+      else
+	 -- the error _didn't_ come from parse_err; attach location
+	 -- info to it
+	 --
+	 err = make_err_string (err)
+
+	 -- if we're in a recursive parse, wrap ERR to make it clear
+	 -- it already has location info attached
+	 --
+	 if old_parse_state then
+	    err = {parse_err = err}
+	 end
+      end
+
+      -- Restore caller's parse state before we call error
+      --
+      parse_state = old_parse_state
+
+      error (err, 0)		-- propagate the error
    end
 
    -- Restore caller's parse state.
