@@ -1,6 +1,6 @@
 // image-input.h -- High-level image input
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,6 +19,7 @@
 
 namespace snogray {
 
+
 class ImageInput
 {
 public:
@@ -33,7 +34,19 @@ public:
   //
   bool has_alpha_channel () const { return source->has_alpha_channel (); }
 
-  // Reads a row of image data into ROW
+  // Return the row-order of this image file.
+  //
+  virtual ImageIo::RowOrder row_order () const { return source->row_order (); }
+
+  // Return an object describing the row indices of the first and last
+  // (in read order) rows in this image file, where 0 is the index of
+  // the top row of the image, and HEIGHT-1 is the index of the bottom
+  // row in the image.
+  //
+  ImageIo::RowIndices row_indices () const { return source->row_indices (); }
+
+  // Reads a row of image data into ROW.
+  //
   void read_row (ImageRow &row) { source->read_row (row); }
 
 private:
@@ -47,8 +60,10 @@ public:
   unsigned width, height;
 };
 
+
 }
 
 #endif /* __IMAGE_INPUT_H__ */
+
 
 // arch-tag: 2c10d011-42a4-4ec4-b813-8e8f150c22ac

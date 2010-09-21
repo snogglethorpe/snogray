@@ -74,6 +74,62 @@ class ImageIo
 {
 public:
 
+  // A description of how rows are ordered in an image file, from the
+  // first row in the file to the last.  The values returned are
+  // integer row indices, where 0 represents the top of the image, and
+  // HEIGHT-1 the bottom.
+  //
+  enum RowOrder { FIRST_ROW_AT_TOP, FIRST_ROW_AT_BOTTOM };
+
+  // An object describing the row indices of the first and last (in
+  // read/write order) rows in an image file, where 0 is the index of
+  // the top row of the image, and HEIGHT-1 is the index of the bottom
+  // row in the image.  A RowIndices::iterator can be used to
+  // incrementally yield the row-indices in file read/write order.
+  //
+  struct RowIndices
+  {
+    class iterator
+    {
+    public:
+
+      iterator (const RowIndices &_indices, int index)
+	: indices (_indices), cur (index)
+      { }
+
+      iterator &operator++ ()
+      {
+	cur += (indices.first < indices.last ? 1 : -1);
+	return *this;
+      }
+      iterator operator++ (int)
+      {
+	iterator old (indices, cur); ++*this; return old;
+      }
+      iterator operator+ (int amount) const
+      {
+	int offs = indices.first < indices.last ? amount : -amount;
+	return iterator (indices, cur + offs);
+      }
+
+      int operator* () const { return cur; }
+      bool operator== (const iterator &it) const { return cur == it.cur; }
+      bool operator!= (const iterator &it) const { return cur != it.cur; }
+
+    private:
+
+      const RowIndices &indices;
+      int cur;
+    };
+
+    RowIndices (int _first, int _last) : first (_first), last (_last) { }
+
+    iterator begin () const { return iterator (*this, first); }
+    iterator end () const { return iterator (*this, last) + 1; }
+
+    int first, last;
+  };
+
   // If FILENAME has a recognized extension from which we can guess its
   // format, return it (converted to lower-case).
   //
@@ -101,6 +157,25 @@ public:
   //
   virtual bool has_alpha_channel () const { return false; }  // by default, no
 
+  // Return the row-order of this image file.
+  // (The default is top-to-bottom order, and subclasses should
+  // override it as necessary)
+  //
+  virtual RowOrder row_order () const { return FIRST_ROW_AT_TOP; }
+
+  // Return an object describing the row indices of the first and last
+  // (in read/write order) rows in this image file, where 0 is the
+  // index of the top row of the image, and HEIGHT-1 is the index of
+  // the bottom row in the image.
+  //
+  RowIndices row_indices () const
+  {
+    if (row_order () == FIRST_ROW_AT_TOP)
+      return RowIndices (0, height - 1);
+    else
+      return RowIndices (height - 1, 0);
+  }
+
   // Handy functions to throw an error.  We use C strings instead of
   // std::string because most uses of this function pass constant strings
   // and std::string can create amazingly bloated code.
@@ -121,7 +196,7 @@ public:
 
 // Image output
 
-class ImageSink  : public ImageIo
+class ImageSink : public ImageIo
 {
 public:
 
