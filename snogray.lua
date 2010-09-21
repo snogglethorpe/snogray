@@ -1493,23 +1493,37 @@ end
 
 ----------------------------------------------------------------
 --
--- File handling
+-- Filename manipulation
 
-include_path = { "." }
-
-
+-- Return the directory portion of FILENAME, or nil if it has none
+--
 function filename_dir (filename)
    return string.match (filename, "^(.*)/[^/]*$")
 end
+
+-- Return the extension (last part following a period) of FILENAME, or
+-- nil if it has none.
+--
 function filename_ext (filename)
    return string.match (filename, "[.]([^./]*)$")
 end
+
+-- If FILENAME is relative, return it appended to DIR, otherwise just
+-- return FILENAME.  If DIR is nil, then just return FILENAME.
+--
 function filename_in_dir (filename, dir)
    if dir and not string.match (filename, "^/") then
       filename = dir.."/"..filename
    end
    return filename
 end
+
+
+----------------------------------------------------------------
+--
+-- File handling
+
+include_path = { "." }
 
 function load_include (filename)
    local loaded, loaded_filename, err_msg
