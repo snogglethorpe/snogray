@@ -1,6 +1,6 @@
 // tuple-matrix.tcc -- Generic matrix storage type
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -154,8 +154,12 @@ TupleMatrixData<DT>::load (ImageInput &src, unsigned border)
 
   ImageRow row (src.width);
 
-  for (unsigned y = 0; y < src.height; y++)
+  ImageIo::RowIndices row_indices = src.row_indices ();
+  for (ImageIo::RowIndices::iterator i = row_indices.begin ();
+       i != row_indices.end (); ++i)
     {
+      int y = *i;
+
       src.read_row (row);
 
       for (unsigned x = 0; x < src.width; x++)
