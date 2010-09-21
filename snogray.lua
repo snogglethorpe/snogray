@@ -1518,6 +1518,18 @@ function filename_in_dir (filename, dir)
    return filename
 end
 
+-- If FILENAME has DIR as a prefix, followed by a directory separator,
+-- then return the portion of FILENAME following the directory
+-- separator; otherwise, just return FILENAME.
+-- 
+function filename_rel (filename, dir)
+   if string.sub (filename, 1, #dir + 1) == dir.."/" then
+      return string.sub (filename, #dir + 2)
+   else
+      return filename
+   end
+end
+
 
 ----------------------------------------------------------------
 --
