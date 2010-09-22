@@ -43,6 +43,9 @@ local lu = require 'lpeg-utils'
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 
+local parse_err = lu.parse_err
+-- parse_warn is actually a real function below
+
 
 ----------------------------------------------------------------
 -- utility functions
@@ -83,6 +86,23 @@ local function find_file (name, state)
    end
 end
 
+local max_identical_warning_msgs = 3
+local warning_msg_counts = {}
+
+-- A wrapper around lu.parse_warn that suppresses excess numbers of
+-- warning messages.
+--
+local function parse_warn (msg)
+   local count = warning_msg_counts[msg] or 0
+   if count < max_identical_warning_msgs then
+      warning_msg_counts[msg] = count + 1
+      if count + 1 == max_identical_warning_msgs then
+	 msg = msg.." (further warnings suppressed)"
+      end
+      lu.parse_warn (msg)
+   end
+end
+
 
 ----------------------------------------------------------------
 -- lexical elements; these mostly include optional preceding
@@ -119,10 +139,10 @@ local ARRAY = NUM_ARRAY + STRING_ARRAY
 
 local function validate_stride_3_array_param (ctor, name, val, vtype)
    if vtype ~= "number" then
-      lu.parse_err ("parameter \""..name.."\" values must be numeric")
+      parse_err ("parameter \""..name.."\" values must be numeric")
    end
    if mod (#val, 3) ~= 0 then
-      lu.parse_err ("parameter \""..name.."\" must have a multiple of 3 values")
+      parse_err ("parameter \""..name.."\" must have a multiple of 3 values")
    end
 
    -- if CTOR is a function, then we use it to encapsulate the items
@@ -140,7 +160,7 @@ end
 
 local function validate_string_param (name, val, vtype)
    if vtype ~= "string" then
-      lu.parse_err ("parameter \""..name.."\" values must be strings")
+      parse_err ("parameter \""..name.."\" values must be strings")
    end
    return name, val
 end
@@ -160,7 +180,7 @@ local param_validators = {
       = function (name, val, vtype)
 	   -- a single string is ok too, as it may be a constant-texture name
 	   if vtype ~= "number" and (vtype ~= 'string' or #val ~= 1) then
-	      lu.parse_err ("parameter \""..name.."\" values must be numeric")
+	      parse_err ("parameter \""..name.."\" values must be numeric")
 	   end
 	   return name, val
 	end,
@@ -169,11 +189,11 @@ local param_validators = {
    integer
       = function (name, val, vtype)
 	   if vtype ~= "number" then
-	      lu.parse_err ("parameter \""..name.."\" values must be numeric")
+	      parse_err ("parameter \""..name.."\" values must be numeric")
 	   end
 	   for _, v in ipairs (val) do
 	      if mod (v, 1) ~= 0 then
-		 lu.parse_err ("parameter \""..name.."\" values must be integers")
+		 parse_err ("parameter \""..name.."\" values must be integers")
 	      end
 	   end
 	   return name, val
@@ -186,7 +206,7 @@ local param_validators = {
 	      elseif v == "true" then
 		 val[k] = true
 	      else
-		 lu.parse_err ("parameter \""..name.."\" values must be \"true\" or \"false\"")
+		 parse_err ("parameter \""..name.."\" values must be \"true\" or \"false\"")
 	      end
 	   end
 	   return name, val
@@ -212,7 +232,7 @@ local function validate_param (name, val)
    if validator then
       return validator (name, val, vtype)
    else
-      lu.parse_err ("invalid type \""..ptype.."\" in parameter \""..name.."\"")
+      parse_err ("invalid type \""..ptype.."\" in parameter \""..name.."\"")
    end
 end
 
@@ -353,7 +373,7 @@ local function get_param (state, params, name, default)
 	       err_name = one_name
 	    end
 	 end
-	 lu.parse_err ("missing "..err_name.." parameter")
+	 parse_err ("missing "..err_name.." parameter")
       end
    else
       -- A single name, just look it up in the param list.
@@ -365,7 +385,7 @@ local function get_param (state, params, name, default)
       elseif default ~= nil then
 	 return default
       else
-	 lu.parse_err ("missing \""..pname.."\" parameter")
+	 parse_err ("missing \""..pname.."\" parameter")
       end
    end
 end
@@ -388,7 +408,7 @@ local function get_single_param (state, params, name, default)
 
    if found then
       if #val ~= 1 then
-	 lu.parse_err ("\""..found.."\" parameter requires a single value")
+	 parse_err ("\""..found.."\" parameter requires a single value")
       end
 
       val = val[1]
@@ -456,7 +476,7 @@ local function get_texture_param (state, params, name, default)
 	 local tname = val
 	 val = state.named_textures[tname]
 	 if not val then
-	    lu.parse_err ("parameter \""..found
+	    parse_err ("parameter \""..found
 			  .."\" used unknown texture \""..tname.."\"")
 	 end
       end
@@ -469,7 +489,7 @@ local function get_point_param (state, params, name, default)
    local val, found = get_param (state, params, name, default)
    if found then
       if #val ~= 3 then
-	 lu.parse_err ("\""..name.."\" parameter requires a single point")
+	 parse_err ("\""..name.."\" parameter requires a single point")
       end
       val = pos (unpack (val))
    end
@@ -480,7 +500,7 @@ local function get_vector_param (state, params, name, default)
    local val, found = get_param (state, params, name, default)
    if found then
       if #val ~= 3 then
-	 lu.parse_err ("\""..name.."\" parameter requires a single vector")
+	 parse_err ("\""..name.."\" parameter requires a single vector")
       end
       val = vec (unpack (val))
    end
@@ -522,7 +542,7 @@ end
 --
 local function check_unused_params (params)
    for param in pairs (params) do
-      lu.parse_err ("invalid parameter \""..param.."\"")
+      parse_err ("invalid parameter \""..param.."\"")
    end
 end
 
@@ -619,11 +639,11 @@ function material_parsers.uber (state, params)
       = get_texture_param (state, params, "float/color opacity", 1)
    -- warn about stuff that we're ignoring, but might actually be important
    if kr and kr ~= color(0) then
-      lu.parse_warn ("\""..krn.."\" parameter ignored")
+      parse_warn ("\""..krn.."\" parameter ignored")
    end
    if opacity ~= 1 then
       -- ignore, but it's important enough to warn about
-      lu.parse_warn ("\""..opacityn.."\" parameter ignored")
+      parse_warn ("\""..opacityn.."\" parameter ignored")
    end
    return cook_torrance {d = kd, s = ks, m = rough, bump = bump}
 end
@@ -703,7 +723,7 @@ local function apply_texture_2d_mapping (tex, state, params)
 			0,    0,    0,     1}
       tex = pxf (plane_map_tex (tex))
    else
-      lu.parse_err ("unknown 2d texture mapping \""..mapping.."\"")
+      parse_err ("unknown 2d texture mapping \""..mapping.."\"")
    end
    return tex
 end
@@ -722,7 +742,7 @@ function texture_parsers.checkerboard (state, type, params)
    elseif dims == 3 then
       return xform_tex (xform, check3d_tex (tex1, tex2))
    else
-      lu.parse_err (tostring(dims).."-dimensional checkerboard not supported")
+      parse_err (tostring(dims).."-dimensional checkerboard not supported")
    end
 end
 
@@ -739,7 +759,7 @@ function texture_parsers.imagemap (state, type, params)
    params["bool trilinear"] = nil      -- ignore
    params["float gamma"] = nil      -- ignore
    if wrap and wrap ~= "repeat" then
-      lu.parse_warn ("non-repeating texture-wrap mode \""..wrap.."\" ignored")
+      parse_warn ("non-repeating texture-wrap mode \""..wrap.."\" ignored")
    end
 
    filename = find_file (filename, state)
@@ -839,19 +859,19 @@ function shape_parsers.trianglemesh (state, mat, params)
 
    if alpha then
       -- ignore, but it's important enough to warn about
-      lu.parse_warn ("\""..alphan.."\" parameter ignored")
+      parse_warn ("\""..alphan.."\" parameter ignored")
    end
 
    if mod (#indices, 3) ~= 0 then
-      lu.parse_err ("number of indices ("..tostring(#indices)..")"
+      parse_err ("number of indices ("..tostring(#indices)..")"
 		 .." not a multiple of 3")
    end
    if normals and #normals ~= #points then
-      lu.parse_err ("number of normals ("..tostring(#normals)..")"
+      parse_err ("number of normals ("..tostring(#normals)..")"
 		 .." does not match number of points ("..tostring(#points)..")")
    end
    if uvs and #uvs * 3 ~= #points * 2 then
-      lu.parse_err ("number of uvs ("..tostring(#uvs)..")"
+      parse_err ("number of uvs ("..tostring(#uvs)..")"
 		 .." does not match number of points ("..tostring(#points/3)..")")
    end
 
@@ -957,7 +977,7 @@ function shape_parsers.cylinder (state, mat, params)
    end
 
    if state.reverse_normal then
-      lu.parse_err "ReverseOrientation not supported for cylinder shape"
+      parse_err "ReverseOrientation not supported for cylinder shape"
    end
 
    return cylinder (mat, xf)
@@ -973,7 +993,7 @@ function shape_parsers.sphere (state, mat, params)
       xf = xf (scale (radius))
    end
    if state.reverse_normal then
-      lu.parse_err "ReverseOrientation not supported for sphere shape"
+      parse_err "ReverseOrientation not supported for sphere shape"
    end
    return sphere2 (mat, xf)
 end
@@ -1112,11 +1132,11 @@ function load_pbrt_in_state (state, scene, camera)
    -- commands
    --
    local function accel_cmd (...)
-      lu.parse_warn "Accelerator command ignored"
+      parse_warn "Accelerator command ignored"
    end
    local function area_light_cmd (kind, params)
       if kind ~= "area" and  kind ~= "diffuse" then
-	 lu.parse_err "AreaLightSource only supports a type of \"area\"/\"diffuse\""
+	 parse_err "AreaLightSource only supports a type of \"area\"/\"diffuse\""
       end
 
       -- unsupported params: "texture L"
@@ -1144,12 +1164,12 @@ function load_pbrt_in_state (state, scene, camera)
 	 state.area_light_intens = tos[3]
 	 state.reverse_normal = tos[4]
       else
-	 lu.parse_err "AttributeEnd command does not match any AttributeBegin"
+	 parse_err "AttributeEnd command does not match any AttributeBegin"
       end
    end
    local function camera_cmd (type, params)
       if type ~= "perspective" then
-	 lu.parse_err "Camera command only supports \"perspective\" type"
+	 parse_err "Camera command only supports \"perspective\" type"
       end
 
       -- camera paremters
@@ -1193,16 +1213,16 @@ function load_pbrt_in_state (state, scene, camera)
    local function coord_sys_xform_cmd (name)
       state.xform = state.named_coord_systems[name]
       if not state.xform then
-	 lu.parse_err ("unknown named coordinate system \""..name.."\"")
+	 parse_err ("unknown named coordinate system \""..name.."\"")
       end
    end
    local function film_cmd (kind, params)
       if kind ~= "image" then
-	 lu.parse_err "Film command only supports a type of \"image\""
+	 parse_err "Film command only supports a type of \"image\""
       end
       local w = get_single_param (state, params, "integer xresolution", 640)
       local h = get_single_param (state, params, "integer yresolution", 480)
-      lu.parse_warn ("Film command ignored; size = "
+      parse_warn ("Film command ignored; size = "
 		     ..tostring(w).."x"..tostring(h))
    end
    local function identity_cmd ()
@@ -1216,7 +1236,7 @@ function load_pbrt_in_state (state, scene, camera)
 	 params["integer nsamples"] = nil -- ignore
 	 check_unused_params (params)
       else
-	 lu.parse_err ("unknown LightSource type \""..kind.."\"")
+	 parse_err ("unknown LightSource type \""..kind.."\"")
       end
    end
    local function lookat_cmd (pos_x, pos_y, pos_z, targ_x, targ_y, targ_z, up_x, up_y, up_z)
@@ -1245,7 +1265,7 @@ function load_pbrt_in_state (state, scene, camera)
 	 state.material = mat_parser (state, params)
 	 check_unused_params (params)
       else
-	 lu.parse_err ("unknown Material type \""..kind.."\"")
+	 parse_err ("unknown Material type \""..kind.."\"")
       end
    end
    local function make_named_material_cmd (name, params)
@@ -1255,7 +1275,7 @@ function load_pbrt_in_state (state, scene, camera)
 	 state.named_materials[name] = mat_parser (state, params)
 	 check_unused_params (params)
       else
-	 lu.parse_err ("unknown Material type \""..kind.."\"")
+	 parse_err ("unknown Material type \""..kind.."\"")
       end
    end
    local function named_material_cmd (name)
@@ -1263,7 +1283,7 @@ function load_pbrt_in_state (state, scene, camera)
       if mat then
 	 state.material = mat
       else
-	 lu.parse_err ("unknown named material \""..name.."\"")
+	 parse_err ("unknown named material \""..name.."\"")
       end
    end
    local function obj_begin_cmd (name)
@@ -1282,7 +1302,7 @@ function load_pbrt_in_state (state, scene, camera)
 	 state.object = tos[2]
 	 attrib_end_cmd ()
       else
-	 lu.parse_err "ObjectEnd command does not match any ObjectBegin"
+	 parse_err "ObjectEnd command does not match any ObjectBegin"
       end
    end
    local function obj_instance_cmd (name)
@@ -1290,14 +1310,14 @@ function load_pbrt_in_state (state, scene, camera)
       if obj then
 	 add (instance (obj, state.xform))
       else
-	 lu.parse_err ("object \""..name.."\" does not exist")
+	 parse_err ("object \""..name.."\" does not exist")
       end
    end
    local function pixelfilter_cmd (...)
-      lu.parse_warn "PixelFilter command ignored"
+      parse_warn "PixelFilter command ignored"
    end
    local function renderer_cmd (...)
-      lu.parse_warn "Renderer command ignored"
+      parse_warn "Renderer command ignored"
    end
    local function reverse_orientation_cmd (...)
       state.reverse_normal = not state.reverse_normal
@@ -1308,13 +1328,13 @@ function load_pbrt_in_state (state, scene, camera)
       state.xform = state.xform * rotate (axis, angle)
    end
    local function sampler_cmd (...)
-      lu.parse_warn "Sampler command ignored"
+      parse_warn "Sampler command ignored"
    end
    local function scale_cmd (x, y, z)
       state.xform = state.xform * scale (x, y, z)
    end
    local function searchpath_cmd ()
-      lu.parse_warn "SearchPath command ignored"
+      parse_warn "SearchPath command ignored"
    end
    local function shape_cmd (kind, params)
       local mat = check_mat ()
@@ -1323,11 +1343,11 @@ function load_pbrt_in_state (state, scene, camera)
 	 add (shape_parser (state, mat, params))
 	 check_unused_params (params)
       else
-	 lu.parse_err ("unknown shape type \""..kind.."\"")
+	 parse_err ("unknown shape type \""..kind.."\"")
       end
    end
    local function surfaceintegrator_cmd (...)
-      lu.parse_warn "SurfaceIntegrator command ignored"
+      parse_warn "SurfaceIntegrator command ignored"
    end
    local function texture_cmd (name, type, kind, params)
       local tex_parser = texture_parsers[kind]
@@ -1336,7 +1356,7 @@ function load_pbrt_in_state (state, scene, camera)
 	 state.named_textures[name] = tex
 	 check_unused_params (params)
       else
-	 lu.parse_err ("unknown texture type \""..kind.."\"")
+	 parse_err ("unknown texture type \""..kind.."\"")
       end
    end
    local function transform_begin_cmd ()
@@ -1347,12 +1367,12 @@ function load_pbrt_in_state (state, scene, camera)
       if tos then
 	 state.xform = tos
       else
-	 lu.parse_err "TransformEnd command does not match any TransformBegin"
+	 parse_err "TransformEnd command does not match any TransformBegin"
       end
    end
    local function transform_cmd (matrix)
       if #matrix ~= 16 or type (matrix[1]) ~= "number" then
-	 lu.parse_err "Transform requires a 16-element numeric array"
+	 parse_err "Transform requires a 16-element numeric array"
       end
       state.xform =  state.xform * xform (matrix):transpose()
    end
@@ -1360,10 +1380,10 @@ function load_pbrt_in_state (state, scene, camera)
       state.xform = state.xform * translate (x, y, z)
    end
    local function volumeintegrator_cmd (...)
-      lu.parse_warn "VolumeIntegrator command ignored"
+      parse_warn "VolumeIntegrator command ignored"
    end
    local function volume_cmd (...)
-      lu.parse_warn "Volume command ignored"
+      parse_warn "Volume command ignored"
    end
    local function world_begin_cmd ()
       state.xform = identity_xform
@@ -1371,10 +1391,10 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function world_end_cmd ()
       if #state.xform_stack > 0 then
-	 lu.parse_err "transform stack not empty at WorldEnd"
+	 parse_err "transform stack not empty at WorldEnd"
       end
       if #state.attrib_stack > 0 then
-	 lu.parse_err "attribute stack not empty at WorldEnd"
+	 parse_err "attribute stack not empty at WorldEnd"
       end
    end
    local function include_cmd (include_file)
