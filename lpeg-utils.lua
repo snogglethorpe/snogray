@@ -13,6 +13,7 @@
 module ("lpeg-utils", package.seeall)
 
 local lpeg = require "lpeg"
+local snogray = require "snogray" -- for read_file
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -126,12 +127,10 @@ end
 -- otherwise an error is signaled.
 --
 function parse_file (filename, pattern)
-   local stream, err = io.open (filename, "r")
-   if not stream then
+   local text, err = snogray.read_file (filename)
+   if not text then
       error (err, 0)
    end
-
-   local text = stream:read'*a'
 
    -- Save old parse state, to allow recursive invocation.
    --
