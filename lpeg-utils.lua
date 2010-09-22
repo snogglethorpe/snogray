@@ -128,7 +128,7 @@ end
 function parse_file (filename, pattern)
    local stream, err = io.open (filename, "r")
    if not stream then
-      error (err)
+      error (err, 0)
    end
 
    local text = stream:read'*a'
