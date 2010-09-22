@@ -1859,6 +1859,7 @@ scene_loaders.luac = scene_loaders.lua
 scene_loaders.luo = scene_loaders.lua
 
 add_autoload_stub (scene_loaders, "nff", "load-nff.lua", "load_nff")
+add_autoload_stub (scene_loaders, "pbrt", "load-pbrt.lua", "load_pbrt")
 
 
 -- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b
