@@ -253,7 +253,7 @@ SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra])
 ##
 
 
-AC_CHECK_HEADERS([stdint.h])
+AC_CHECK_HEADERS([stdint.h unistd.h fcntl.h sys/mman.h sys/stat.h])
 
 
 # Allow point exceptions to be enabled (which can make debugging much easier).

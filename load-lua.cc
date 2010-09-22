@@ -13,6 +13,7 @@
 #include "config.h"
 #include "excepts.h"
 
+#include "lua-read-file.h"
 #include "load-lua.h"
 
 #include "swigluarun.h"
@@ -105,6 +106,13 @@ setup_lua ()
   lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
   lua_pushstring (L, "snogray");		 // arg 0
   do_call (L, 1, 0);
+
+  // Add extra functions into snograw table.
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "snograw");
+  lua_pushcfunction (L, lua_read_file);
+  lua_setfield (L, -2, "read_file");
+  lua_pop (L, 1); 		// pop snograw table
 }
 
 
