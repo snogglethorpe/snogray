@@ -24,7 +24,7 @@ class WardDist : Dist
 public:
 
   WardDist (float _m)
-    : m (_m), inv_m2 (1.f / (m * m))
+    : m (_m), inv_m2 (m == 0 ? 0 : 1.f / (m * m))
   { }
 
   bool operator== (const WardDist &dist) const { return m == dist.m; }
