@@ -19,6 +19,8 @@
 #include <cstring>
 #include <stdexcept>
 
+#include <unistd.h> // sysconf
+
 #ifdef HAVE_FENV_H
 #include <fenv.h>
 #endif
@@ -60,6 +62,25 @@ using namespace std;
 // The maximum number of "backup" files we make when recovering a partial image.
 //
 #define RECOVER_BACKUP_LIMIT 100
+
+
+// CPU cores
+
+// If the number of available CPU cores on this system can be
+// determined, return it, otherwise return DEFAULT_CORES.
+//
+static int
+num_cores (int default_cores)
+{
+#ifdef _SC_NPROCESSORS_ONLN
+  // This works on linux, anyway.
+  int sc = sysconf (_SC_NPROCESSORS_ONLN);
+  if (sc > 0)
+    return sc;
+#endif
+
+  return default_cores;
+}
 
 
 // Floating-point exceptions
@@ -281,7 +302,7 @@ help (CmdLineParser &clp, ostream &os)
 n
 s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 #if USE_THREADS
-s "  -j, --threads=NUM          Use NUM threads for rendering"
+s "  -j, --threads=NUM          Use NUM threads for rendering (default all cores)"
 #endif
 n
 s RENDER_OPTIONS_HELP
@@ -372,7 +393,7 @@ int main (int argc, char *const *argv)
   unsigned width = 0, height = 0, size = DEFAULT_IMAGE_SIZE;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
-  unsigned num_threads = 1;
+  unsigned num_threads = 0;	// autodetect
   bool recover = false;
   Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
@@ -662,6 +683,12 @@ int main (int argc, char *const *argv)
 	     << endl;
     }
 
+
+  // If the user didn't specify how many threads to use, try to use as
+  // many as there are CPU cores.
+  //
+  if (num_threads == 0)
+    num_threads = num_cores (1);
 
   if (num_threads != 1)
     std::cout << "* using " << num_threads << " threads" << std::endl;
