@@ -663,6 +663,10 @@ int main (int argc, char *const *argv)
     }
 
 
+  if (num_threads != 1)
+    std::cout << "* using " << num_threads << " threads" << std::endl;
+
+
   // Setup rendering state.  This can take a _very_ long time, because
   // some rendering methods do length pre-rendering computation, so time
   // it.
