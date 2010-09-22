@@ -72,6 +72,10 @@ snogray::lua_read_file (lua_State *L)
 	      const char *str_contents
 		= static_cast<const char *> (const_cast<const void *> (contents));
 
+#ifdef MADV_SEQUENTIAL
+	      madvise (contents, size, MADV_SEQUENTIAL);
+#endif
+
 	      // Push a lua string with the result.
 	      //
 	      lua_pushlstring (L, str_contents, size);
