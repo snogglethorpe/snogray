@@ -859,21 +859,21 @@ function shape_parsers.trianglemesh (state, mat, params)
 
    -- arghhh wotta hack...XXXXXXXXXXXXXX
    if #indices <= 6 and state.area_light_intens then
-      local p0o = indices[1] * 3 + 1
-      local p0 = xf (pos (points[p0o], points[p0o]+1, points[p0o]+2))
-      local p1o = indices[2] * 3 + 1
-      local p1 = xf (pos (points[p1o], points[p1o]+1, points[p1o]+2))
-      local p2o = indices[3] * 3 + 1
-      local p2 = xf (pos (points[p2o], points[p2o]+1, points[p2o]+2))
+      local i0 = indices[1] * 3
+      local p0 = xf (pos (points[i0+1], points[i0+2], points[i0+3]))
+      local i1 = indices[2] * 3
+      local p1 = xf (pos (points[i1+1], points[i1+2], points[i1+3]))
+      local i2 = indices[3] * 3
+      local p2 = xf (pos (points[i2+1], points[i2+2], points[i2+3]))
       if #indices == 3 then
 	 return triangle (mat, p0, p1-p0, p2-p0)
       else
-	 local p3o = indices[4] * 3 + 1
-	 local p3 = xf (pos (points[p3o], points[p3o]+1, points[p3o]+2))
-	 local p4o = indices[5] * 3 + 1
-	 local p4 = xf (pos (points[p4o], points[p4o]+1, points[p4o]+2))
-	 local p5o = indices[6] * 3 + 1
-	 local p5 = xf (pos (points[p5o], points[p5o]+1, points[p5o]+2))
+	 local i3 = indices[4] * 3
+	 local p3 = xf (pos (points[i3+1], points[i3+2], points[i3+3]))
+	 local i4 = indices[5] * 3
+	 local p4 = xf (pos (points[i4+1], points[i4+2], points[i4+3]))
+	 local i5 = indices[6] * 3
+	 local p5 = xf (pos (points[i5+1], points[i5+2], points[i5+3]))
 	 return surface_group{
 	    triangle (mat, p0, p1-p0, p2-p0),
 	    triangle (mat, p3, p4-p3, p5-p3)
