@@ -1170,7 +1170,12 @@ function load_pbrt_in_state (state, scene, camera)
       --
       camera.scene_unit = 1
 
+      -- It's not correct to just set verticle-FOV here -- PBRT
+      -- actually sets the FOV for whichever dimension is smallest
+      -- (usually Y, but not always).
+      --
       camera:set_vert_fov (fov * math.pi / 180)
+
       if focus then
 	 camera.focus = focus
       end
