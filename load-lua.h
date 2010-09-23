@@ -18,10 +18,10 @@
 
 namespace snogray {
 
-
 class Scene;
 class Camera;
 class Mesh;
+class ValTable;
 
 
 // If FILENAME is a format that has a Lua scene loader, load the file named
@@ -31,7 +31,7 @@ class Mesh;
 // the first camera position.
 //
 extern bool load_lua_file (const std::string &filename, const std::string &fmt,
-			   Scene &scene, Camera &camera);
+			   Scene &scene, Camera &camera, ValTable &params);
 
 // If FILENAME is a format that has a Lua mesh loader, load the file named
 // FILENAME into MESH using Lua, and return true; if FILENAME is

@@ -1780,7 +1780,7 @@ local scene_loaders = {}
 -- handled by the C++ core.  To load any supported format, use the
 -- scene "load" method.
 --
-function load_scene (filename, fmt, rscene, rcamera, ...)
+function load_scene (filename, fmt, rscene, rcamera, rparams, ...)
    local loader = scene_loaders[fmt]
 
    if loader then
@@ -1792,9 +1792,13 @@ function load_scene (filename, fmt, rscene, rcamera, ...)
       --
       camera = rcamera
 
+      -- and params table
+      --
+      params = rparams
+
       -- Call the loader.
       --
-      return loader (filename, scene, camera, ...)
+      return loader (filename, scene, camera, params, ...)
    else
       return false
    end

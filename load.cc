@@ -54,7 +54,7 @@ snogray::load_file (const std::string &filename, const std::string &_fmt,
 #endif
 
 #ifdef USE_LUA
-  if (load_lua_file (filename, fmt, scene, camera))
+  if (load_lua_file (filename, fmt, scene, camera, params))
       { /* loaded */ }
   else
 #endif

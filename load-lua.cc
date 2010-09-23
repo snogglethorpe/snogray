@@ -157,7 +157,7 @@ snogray::cleanup_load_lua_state ()
 //
 bool
 snogray::load_lua_file (const string &filename, const std::string &fmt,
-			Scene &scene, Camera &camera)
+			Scene &scene, Camera &camera, ValTable &params)
 {
   bool loaded = false;
 
@@ -169,18 +169,32 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   swig_type_info *scene_swig_type = SWIG_TypeQuery (L, "snogray::Scene *");
   swig_type_info *camera_swig_type = SWIG_TypeQuery (L, "snogray::Camera *");
 
-  // Call "snogray.load_scene (filename, scene, camera)" with our
-  // scene and camera pointers.
+  // Make a Lua copy of PARAMS.
+  //
+  lua_newtable (L);
+  lua_load_from_val_table (L, params);
+
+  // Call "snogray.load_scene (filename, scene, camera, camera)" with
+  // our scene and camera pointers, and a Lua copy of PARAMS.
   //
   lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
   lua_getfield (L, -1, "load_scene");			// function
-  lua_pushstring (L, filename.c_str ());		// arg 0
-  lua_pushstring (L, fmt.c_str ());			// arg 1
-  SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 2
-  SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 3
+  lua_pushstring (L, filename.c_str ());		// arg 0: filename
+  lua_pushstring (L, fmt.c_str ());			// arg 1: format
+  SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 2: scene
+  SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 3: camera
+  lua_pushvalue (L, -7);				// arg 4: params
 
-  do_call (L, 4, 1);					// do the call
+  do_call (L, 5, 1);					// do the call
   loaded = lua_toboolean (L, -1);			// get result
+
+  // Pop the result and the "snogray" table off the stack
+  //
+  lua_pop (L, 2);
+
+  // Now update PARAMS from the possibly-changed Lua version.
+  //
+  lua_store_into_val_table (L, params);
 
   // Run the garbage collector to free up any data left around from the
   // user's calculations.
