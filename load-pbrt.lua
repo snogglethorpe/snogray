@@ -1098,6 +1098,68 @@ end
 
 
 ----------------------------------------------------------------
+-- samplers
+--
+
+sampler_parsers = {}
+
+function sampler_parsers.adaptive (state, params)
+   -- ignored parameters: "string method"
+   local minsamp = get_single_param (state, params, "integer minsamples", 4)
+   local maxsamp = get_single_param (state, params, "integer maxsamples", 32)
+   params["string method"] = nil -- ignore
+   local nsamp = math.floor ((minsamp + maxsamp) / 2)
+   parse_warn ("sampler \"adaptive\" not implemented; using default with "
+	       ..tostring(nsamp).." samples")
+   state:set_param ("render.oversample", nsamp)
+end
+
+local function unimp_typical_sampler (name, state, params)
+   local nsamp = get_single_param (state, params, "integer pixelsamples", 4)
+   if nsamp ~= 1 then
+      parse_warn ("sampler \""..name.."\" not implemented; using default with "
+		  ..tostring(nsamp).." samples")
+   end
+   state:set_param ("render.oversample", nsamp)
+end
+
+function sampler_parsers.bestcandidate (...)
+   unimp_typical_sampler ("bestcandidate", ...)
+end
+function sampler_parsers.halton (...)
+   unimp_typical_sampler ("halton", ...)
+end
+function sampler_parsers.lowdiscrepancy (...)
+   unimp_typical_sampler ("lowdiscrepancy", ...)
+end
+
+-- Our standard sampler is stratified, but doesn't allow separate
+-- setting of x and y sizes, only the product.
+--
+function sampler_parsers.stratified (state, params)
+   -- ignored parameters: "bool jitter"
+   local xsamp = get_single_param (state, params, "integer xsamples", 2)
+   local ysamp = get_single_param (state, params, "integer ysamples", 2)
+   params["bool jitter"] = nil -- ignore
+   local nsamp = xsamp * ysamp
+   if xsamp ~= ysamp then
+      parse_warn ("using \"stratified\" sampler with "
+		  ..tostring(nsamp).." samples")
+   end
+   state:set_param ("render.oversample", nsamp)
+end
+
+function sampler_parsers.random (name, state, params)
+   local nsamp = get_single_param (state, params, "integer nsamples", 4)
+   if nsamp ~= 1 then
+      parse_warn ("sampler \""..name.."\" not implemented; using default with "
+		  ..tostring(nsamp).." samples")
+   end
+   state:set_param ("render.oversample", nsamp)
+end
+
+
+----------------------------------------------------------------
 -- surface-integrators
 --
 
@@ -1373,8 +1435,14 @@ function load_pbrt_in_state (state, scene, camera)
       angle = angle * math.pi / 180
       state.xform = state.xform * rotate (axis, angle)
    end
-   local function sampler_cmd (...)
-      parse_warn "Sampler command ignored"
+   local function sampler_cmd (kind, params)
+      local sampler_parser = sampler_parsers[kind]
+      if sampler_parser then
+	 sampler_parser (state, params)
+	 check_unused_params (params)
+      else
+	 parse_err ("unknown sampler type \""..kind.."\"")
+      end
    end
    local function scale_cmd (x, y, z)
       state.xform = state.xform * scale (x, y, z)
