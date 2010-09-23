@@ -68,7 +68,7 @@ SceneDef::load (Scene &scene, Camera &camera)
   // Set background (this is done before reading in the scene, so the scene
   // defining code can adjust for the presence of an environment map).
   //
-  string bg_spec = params.get_string ("background");
+  string bg_spec = params.get_string ("scene.background");
   if (! bg_spec.empty ())
     {
       string fmt = strip_prefix (bg_spec, ":");

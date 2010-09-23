@@ -39,7 +39,7 @@
 
 #define SCENE_DEF_OPTION_CASES(clp, scene_def)				\
   case 'b':								\
-    scene_def.params.set ("background", clp.opt_arg ());		\
+    scene_def.params.set ("scene.background", clp.opt_arg ());		\
     break;								\
 									\
   case 'I':								\
