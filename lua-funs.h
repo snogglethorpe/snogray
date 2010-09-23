@@ -23,6 +23,20 @@ extern "C"
 
 namespace snogray {
 
+class ValTable;
+
+
+// Copy all entries in VAL_TABLE into the Lua table on the top of the
+// stack.  Returns nothing.
+//
+extern int lua_load_from_val_table (lua_State *L, const ValTable &val_table);
+
+// Copy all entries from the Lua table on the top of the stack into
+// VAL_TABLE.  Any entries with non-string keys are ignored (i.e., the
+// table's array-part), as are any entries with values that cannot be
+// stored into a VAL_TABLE.  Returns nothing.
+//
+extern int lua_store_into_val_table (lua_State *L, ValTable &val_table);
 
 // Return a Lua string containing the entire contents of a file, or
 // return false if that can't be done for some reason (it's expected
