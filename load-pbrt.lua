@@ -1044,7 +1044,8 @@ end
 function light_parsers.infinite (state, params)
    -- ignored params: "integer nsamples"
    local mapname = get_single_param (state, params, "string mapname", false)
-   local scale = get_texture_param (state, params, "float/color scale", false)
+   local scale = get_texture_param (state, params, "float/color scale", 1)
+   local L = get_color_param (state, params, "color L", color (1)) * scale
 
    -- There are two sorts of infinite light: one which loads the image
    -- from a file, specified with a "string mapname" parameter, and
@@ -1058,7 +1059,7 @@ function light_parsers.infinite (state, params)
 
       envmap = image (find_file (mapname, state))
 
-      if scale then
+      if L ~= color (1) then
 	 -- need to scale values (ugh, pixel-by-pixel...)
 	 local w, h = envmap.width, envmap.height
 	 for j = 0, h - 1 do
@@ -1069,11 +1070,6 @@ function light_parsers.infinite (state, params)
       end
    else
       -- constant-valued environment map
-
-      local L = get_color_param (state, params, "color L", color (1))
-      if scale then
-	 L = L * scale
-      end
 
       -- Make a small image to contain the constant level.
       -- envmap_light internally scales the pixels by a cosine factor
