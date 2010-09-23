@@ -1102,6 +1102,56 @@ end
 
 
 ----------------------------------------------------------------
+-- surface-integrators
+--
+
+surface_integrator_parsers = {}
+
+function surface_integrator_parsers.directlighting (state, params)
+   -- ignore parameters: "integer maxdepth"
+   params["integer maxdepth"] = nil -- ignore
+   state:set_param ("render.surface-integ", "direct")
+end
+
+function surface_integrator_parsers.path (state, params)
+   -- ignore parameters: "integer maxdepth"
+   params["integer maxdepth"] = nil -- ignore
+   state:set_param ("render.surface-integ", "path")
+end
+
+function surface_integrator_parsers.photonmap (state, params)
+   -- note that some of these params are only in PBRT v1 or v2 (noted below)
+   -- ignored parameters: "float gatherangle"
+   local maxdist = get_single_param (state, params, "float maxdist", .1)
+   local fgather = get_single_param (state, params, "bool finalgather", true)
+   local fgathersamps
+      = get_single_param (state, params, "integer finalgathersamples", 32)
+   local ncaustic
+      = get_single_param (state, params, "integer causticphotons", 20000)
+   local nindirect
+      = get_single_param (state, params, "integer indirectphotons", 100000)
+   local ndirect		-- v1 only
+      = get_single_param (state, params, "integer directphotons", 100000)
+   local dirwithphot		-- v1 only
+      = get_single_param (state, params, "bool directwithphotons", true)
+   local nused
+      = get_single_param (state, params, "integer nused", 50)
+   local gatherangle		-- v2 only
+      = get_single_param (state, params, "float gatherangle", 10)
+
+   state:set_param ("render.surface-integ", "photon")
+   state:set_param ("render.surface-integ.photon.num", nused)
+   state:set_param ("render.surface-integ.photon.radius", maxdist)
+   state:set_param ("render.surface-integ.photon.caustic", ncaustic)
+   state:set_param ("render.surface-integ.photon.indirect,indir", nindirect)
+   state:set_param ("render.surface-integ.photon.final-gather,fg", fgather)
+   state:set_param ("render.surface-integ.photon.direct-illum,dir-illum", dirwithphot)
+   state:set_param ("render.surface-integ.photon.final-gather-samples,fg-samples,fg-samps",
+		    fgathersamps)
+end
+
+
+----------------------------------------------------------------
 -- main command
 --
 
@@ -1346,8 +1396,14 @@ function load_pbrt_in_state (state, scene, camera)
 	 parse_err ("unknown shape type \""..kind.."\"")
       end
    end
-   local function surfaceintegrator_cmd (...)
-      parse_warn "SurfaceIntegrator command ignored"
+   local function surfaceintegrator_cmd (kind, params)
+      local surfint_parser = surface_integrator_parsers[kind]
+      if surfint_parser then
+	 surfint_parser (state, params)
+	 check_unused_params (params)
+      else
+	 parse_err ("unknown surface-integrator type \""..kind.."\"")
+      end
    end
    local function texture_cmd (name, type, kind, params)
       local tex_parser = texture_parsers[kind]
