@@ -14,7 +14,6 @@
 #define __SCENE_H__
 
 #include <vector>
-#include <string>
 
 #include "surface.h"
 #include "light.h"
@@ -25,10 +24,6 @@
 
 
 namespace snogray {
-
-
-class Space;
-class Camera;
 
 
 class Scene
@@ -80,11 +75,6 @@ public:
   // SPACE_BUILDER_FACTORY says how to do it.
   //
   void build_space (const SpaceBuilderFactory &space_builder_factory);
-
-  // Scene input
-  //
-  void load (const std::string &file_name, const std::string &fmt,
-	     Camera &camera);
 
   // Do final setup for the scene.  This should be called after the scene
   // is completely built, and nothing should be added after it it is

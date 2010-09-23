@@ -995,8 +995,6 @@ namespace snogray {
 
     void add (Surface *surface);
     void add (Light *light);
-
-    void load (const char *file_name, const char *fmt, Camera &camera);
   };
   %extend Scene
   {

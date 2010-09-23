@@ -19,6 +19,7 @@
 #include "image-io.h"
 #include "string-funs.h"
 #include "cmdlineparser.h"
+#include "load.h"
 #if USE_LUA
 # include "load-lua.h"
 #endif
@@ -98,12 +99,11 @@ SceneDef::load (Scene &scene, Camera &camera)
        spec != specs.end(); spec++)
     try
       {
-	scene.load (spec->name, spec->scene_fmt, camera);
+	load_file (spec->name, spec->scene_fmt, scene, camera, params);
       }
     catch (runtime_error &err)
       {
-	throw runtime_error (spec->user_name + ": Error reading scene: "
-			     + err.what ());
+	throw runtime_error (spec->user_name + ": " + err.what ());
       }
 
   // Cleanup Lua loader state if necessary.

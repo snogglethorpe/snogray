@@ -263,7 +263,7 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	 \
 #
 
 libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
-	scene-def.h scene-load.cc
+	scene-def.h load.cc load.h
 
 # Library dependencies of libsnogload.a
 #
