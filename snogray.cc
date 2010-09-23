@@ -512,9 +512,21 @@ int main (int argc, char *const *argv)
   if (width && height)
     camera.set_aspect_ratio (float (width) / float (height));
 
-  // Read in the scene/camera definitions
+  // Read in the scene/camera definitions.  We copy our parameter
+  // tables into SCENE_DEF's parameter table with appropriate
+  // prefixes, so that they're available for scene-loaders to
+  // examine/change.
   //
+  scene_def.params.import (render_params, "render.");
+  scene_def.params.import (output_params, "output.");
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
+
+  // Now rewrite our parameter tables appropriately-prefixed
+  // parameters from SCENE_DEF.  As we earlier stored them, that means
+  // they'll be the same unless the scene-loader changed something.
+  //
+  render_params = scene_def.params.filter_by_prefix ("render.");
+  output_params = scene_def.params.filter_by_prefix ("output.");
 
   // Do post-load scene setup (nothign can be added to scene after this).
   //
