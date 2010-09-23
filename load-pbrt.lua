@@ -1467,10 +1467,53 @@ function load_pbrt_in_state (state, scene, camera)
    return true
 end
 
-function load_pbrt (filename, scene, camera)
+function load_pbrt (filename, scene, camera, params)
    local init_state = {
       scene = scene,
       camera = camera,
+      params = params,
+
+      -- Stores VAL into PARAMS using the name NAME (see below for its
+      -- format), but only if there's no existing entry (allowing any
+      -- settings the user specified on the command-line to take
+      -- precedence).
+      --
+      -- NAME is basically the name of the parameter, but has a
+      -- special format: if the final period-separated component of
+      -- the NAME contains "," characters, then that final component
+      -- is split at the "," characters, and each re-attached to the
+      -- previous components to form multiple names.
+      --
+      -- For instance:  "x.y.a,b,c" => "x.y.a", "x.y.b", "x.y.c".
+      --
+      -- Then, _all_ of them are checked to see if they exist in
+      -- PARAMS, and only if _none_ do, then VAL is stored into PARAMS
+      -- using the last name ("x.y.c" in the example above).
+      --
+      -- [This complexity is due to the fact that many parameters have
+      -- multiple names for user convenience, and we want to avoid
+      -- overriding what the user specified on the command line
+      -- regardless of what name he used].
+      --
+      -- If VAL is nil, then no entry is made regardless.
+      --
+      set_param
+	 = function (self, name, val)
+	      if val ~= nil then
+		 local prefix = smatch (name, "^(.*[.])[^.]+,[^.]+$")
+		 if prefix then
+		    local last = smatch (name, "[^.]*$")
+		    name = nil
+		    for part in string.gmatch (last, "[^,]+") do
+		       name = prefix..part
+		       if self.params[name] ~= nil then break end
+		    end
+		 end
+		 if params[name] == nil then
+		    self.params[name] = val
+		 end
+	      end
+	   end,
 
       xform = identity_xform,
 
