@@ -36,6 +36,7 @@
 // Image output options
 
 #define IMAGE_OUTPUT_OPTIONS_HELP "\
+  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines\n\
   -e, --exposure=EXPOSURE    Increase/decrease output brightness/contrast\n\
                                EXPOSURE can have one of the forms:\n\
                                  +STOPS  -- Make output 2^STOPS times brighter\n\
@@ -57,9 +58,10 @@
                                  \"filter\"  -- output filter\n\
                                  \"exposure\"-- output exposure"
 
-#define IMAGE_OUTPUT_SHORT_OPTIONS "e:F:O:"
+#define IMAGE_OUTPUT_SHORT_OPTIONS "s:e:F:O:"
 
 #define IMAGE_OUTPUT_LONG_OPTIONS			\
+  { "size",		required_argument, 0, 's' },	\
   { "filter",		required_argument, 0, 'F' },	\
   { "exposure",		required_argument, 0, 'e' },	\
   { "output-options",	required_argument, 0, 'O' }
@@ -67,6 +69,9 @@
 #define IMAGE_OUTPUT_OPTION_CASES(clp, params)				\
   case 'F':								\
     clp.store_opt_arg_with_sub_options ("filter", params, ".", "/,");	\
+    break;								\
+  case 's':								\
+    parse_image_size_option (clp, params);				\
     break;								\
   case 'e':								\
     parse_image_exposure_option (clp, params);				\
@@ -81,11 +86,31 @@ namespace snogray {
 class ValTable;
 class CmdLineParser;
 
+// Parse a size option argument.  If both a width and height are
+// specified, "width" and "height" entries are added to params.  If
+// only a single number is specified, a "size" entry is added instead.
+//
+extern void parse_image_size_option (CmdLineParser &clp, ValTable &params);
+
 // Parse the argument of a command-line exposure option, storing the
 // resulting parameters into PARAMS.  Parameters possibly affected are
 // "exposure" and "contrast".
 //
-void parse_image_exposure_option (CmdLineParser &clp, ValTable &params);
+extern void parse_image_exposure_option (CmdLineParser &clp, ValTable &params);
+
+// Return the width/height specified by PARAMS in WIDTH and HEIGHT.
+//
+// If PARAMS contains "width" and "height" parameters (it should
+// contain either both or neither), they are returned directly.
+// Otherwise, if PARAMS contains "size" parameter, it is used to set
+// the largest dimension, and the other dimension calculated using
+// ASPECT_RATIO; if there is no "size" parameter, DEFAULT_SIZE is used
+// instead.
+//
+extern void get_image_size (const ValTable &params,
+			    float aspect_ratio, unsigned default_size,
+			    unsigned &width, unsigned &height);
+
 
 }
 

@@ -1,6 +1,6 @@
 // image-cmdline.cc -- Support for command-line parsing of image parameters
 //
-//  Copyright (C) 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,6 +11,7 @@
 //
 
 #include <cctype>
+#include <cstring>
 #include <cstdlib>
 
 #include "snogmath.h"
@@ -21,6 +22,49 @@
 
 
 using namespace snogray;
+
+
+// parse_image_size_option
+
+// Parse a size option argument.  If both a width and height are
+// specified, "width" and "height" entries are added to params.  If
+// only a single number is specified, a "size" entry is added instead.
+//
+void
+snogray::parse_image_size_option (CmdLineParser &clp, ValTable &params)
+{
+  const char *arg = clp.opt_arg ();
+  char *end = 0;
+
+  unsigned num = strtoul (arg, &end, 10);
+
+  if (end && end != arg)
+    {
+      // If no height is given, it will be set according to the camera's
+      // aspect ratio
+      //
+      if (*end == '\0') 
+	{
+	  params.set ("size", num);
+	  return;
+	}
+
+      arg = end + strspn (end, " ,x");
+
+      unsigned height = strtoul (arg, &end, 10);
+
+      params.set ("width", num);
+      params.set ("height", height);
+
+      if (end && end != arg && *end == '\0')
+	return;
+    }
+
+  clp.opt_err ("requires a size specification (WIDTHxHEIGHT, or SIZE)");
+}
+
+
+// parse_image_exposure_option
 
 // Parse the argument of a command-line exposure option, storing the
 // resulting parameters into PARAMS.  Parameters possibly affected are
@@ -84,4 +128,35 @@ snogray::parse_image_exposure_option (CmdLineParser &clp, ValTable &params)
     clp.opt_err ("argument has invalid syntax (expected (+|-|*|/)NUM[^NUM])");
   else if (arg == arg_beg)
     clp.opt_err ("requires an argument");
+}
+
+
+// get_image_size
+
+// Return the width/height specified by PARAMS in WIDTH and HEIGHT.
+//
+// If PARAMS contains "width" and "height" parameters (it should
+// contain either both or neither), they are returned directly.
+// Otherwise, if PARAMS contains "size" parameter, it is used to set
+// the largest dimension, and the other dimension calculated using
+// ASPECT_RATIO; if there is no "size" parameter, DEFAULT_SIZE is used
+// instead.
+//
+void
+snogray::get_image_size (const ValTable &params,
+			 float aspect_ratio, unsigned default_size,
+			 unsigned &width, unsigned &height)
+{
+  width = params.get_uint ("width", 0);
+  height = params.get_uint ("height", 0);
+
+  if (!width || !height)
+    // Otherwise, the image size was not fully specified, so use a
+    // "size" and ASPECT_RATIO to set them.  SIZE is either a "size"
+    // parameter from PARAMS, or DEFAULT_SIZE.
+    {
+      unsigned size = params.get_uint ("size", default_size);
+      width = (aspect_ratio >= 1) ? size : unsigned (width * aspect_ratio);
+      height = (aspect_ratio >= 1) ? unsigned (width / aspect_ratio) : size;
+    }
 }

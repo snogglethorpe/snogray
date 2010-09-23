@@ -204,43 +204,7 @@ LimitSpec::apply (CmdLineParser &clp, unsigned range, unsigned base) const
 }
 
 
-// Parsers for --size and --limit command-line option arguments
-
-// Parse a size option argument.  If both a width and height are
-// specified WIDTH and HEIGHT are set.  If only a single number is
-// specified, SIZE is set instead.
-//
-static void
-parse_size_opt_arg (CmdLineParser &clp,
-		    unsigned &width, unsigned &height, unsigned &size)
-{
-  const char *arg = clp.opt_arg ();
-  char *end = 0;
-
-  unsigned num = strtoul (arg, &end, 10);
-
-  if (end && end != arg)
-    {
-      // If no height is given, it will be set according to the camera's
-      // aspect ratio
-      //
-      if (*end == '\0') 
-	{
-	  size = num;
-	  return;
-	}
-
-      arg = end + strspn (end, " ,x");
-
-      width = num;
-      height = strtoul (arg, &end, 10);
-
-      if (end && end != arg && *end == '\0')
-	return;
-    }
-
-  clp.opt_err ("requires a size specification (WIDTHxHEIGHT, or SIZE)");
-}
+// Parser for the --limit command-line option argument
 
 static void
 parse_limit_opt_arg (CmdLineParser &clp,
@@ -300,7 +264,6 @@ help (CmdLineParser &clp, ostream &os)
   os <<
   "Ray-trace an image"
 n
-s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 #if USE_THREADS
 s "  -j, --threads=NUM          Use NUM threads for rendering (default all cores)"
 #endif
@@ -357,7 +320,6 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "size",		required_argument, 0, 's' },
     { "limit",		required_argument, 0, 'L' },
     { "quiet",		no_argument,	   0, 'q' },
     { "progress",	no_argument,	   0, 'p' },
@@ -376,7 +338,7 @@ int main (int argc, char *const *argv)
   };
   //
   char short_options[] =
-    "s:w:h:L:qpPCc:"
+    "L:qpPCc:"
 #if USE_THREADS
     "j:"
 #endif
@@ -390,7 +352,6 @@ int main (int argc, char *const *argv)
 
   // Parameters set from the command line
   //
-  unsigned width = 0, height = 0, size = DEFAULT_IMAGE_SIZE;
   LimitSpec limit_x_spec ("min-x", 0), limit_y_spec ("min-y", 0);
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   unsigned num_threads = 0;	// autodetect
@@ -415,11 +376,6 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-	// Size options
-	//
-      case 's':
-	parse_size_opt_arg (clp, width, height, size);
-	break;
       case 'L':
 	parse_limit_opt_arg (clp, limit_x_spec, limit_y_spec,
 			     limit_max_x_spec, limit_max_y_spec);
@@ -504,6 +460,11 @@ int main (int argc, char *const *argv)
   Scene scene;
   Camera camera;
 
+  // Height/width of output image (may not be set yet).
+  //
+  unsigned width = output_params.get_uint ("width", 0);
+  unsigned height = output_params.get_uint ("height", 0);
+
   // If the user specified both a width and a height, set the camera aspect
   // ratio to maintain pixels with a 1:1 aspect ratio.  We do this before
   // loading the scene so that scene camera manipulation commands can see
@@ -528,7 +489,8 @@ int main (int argc, char *const *argv)
   render_params = scene_def.params.filter_by_prefix ("render.");
   output_params = scene_def.params.filter_by_prefix ("output.");
 
-  // Do post-load scene setup (nothign can be added to scene after this).
+
+  // Do post-load scene setup (nothing can be added to scene after this).
   //
   Octree::BuilderFactory octree_builder_factory;
   scene.setup (octree_builder_factory);
@@ -549,33 +511,16 @@ int main (int argc, char *const *argv)
   //
   enable_fp_exceptions ();
 
-  // If the user specified both a width and a height, set the camera aspect
-  // ratio _again_ to maintain pixels with a 1:1 aspect ratio, just in case
-  // the scene file tried to muck with it.
+
+  // Get the final image size.
   //
-  if (width && height)
-    camera.set_aspect_ratio (float (width) / float (height));
-  else
-    // Otherwise, the output image size was not fully specified, so use
-    // the camera's aspect ration to deduce the missing dimension from
-    // the provided one, or from SIZE, which sets the longest dimension
-    // rather than a specific one.
-    {
-      float ar = camera.aspect_ratio ();
+  get_image_size (output_params, camera.aspect_ratio (), DEFAULT_IMAGE_SIZE,
+		  width, height);
 
-      if (!width && !height)
-	{
-	  if (ar > 1)
-	    width = size;
-	  else
-	    height = size;
-	}
-
-      if (width)
-	height = unsigned (width / ar);
-      else
-	width = unsigned (height * ar);
-    }
+  // Set the camera's aspect ration to be consistent with the final
+  // output image size.
+  //
+  camera.set_aspect_ratio (float (width) / float (height));
 
 
   // Set our drawing limits based on the scene size

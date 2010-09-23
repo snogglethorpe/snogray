@@ -1,6 +1,6 @@
 // snogcvt.cc -- Image-type conversion utility
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,27 +26,6 @@ using namespace std;
 
 
 static void
-parse_size_opt_arg (CmdLineParser &clp, unsigned &width, unsigned &height)
-{
-  const char *size = clp.opt_arg ();
-  char *end = 0;
-
-  width = strtoul (size, &end, 10);
-
-  if (end && end != size)
-    {
-      size = end + strspn (end, " ,x");
-
-      height = strtoul (size, &end, 10);
-
-      if (end && end != size && *end == '\0')
-	return;
-    }
-
-  clp.opt_err ("requires a size specification (WIDTHxHEIGHT)");
-}
-
-static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
@@ -65,8 +44,6 @@ help (CmdLineParser &clp, ostream &os)
 
   os <<
   "Change the format of or transform an image file"
-n
-s "  -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines"
 n
 s "  -p, --pad-bottom=NUM_ROWS  Add NUM_ROWS black rows at the bottom of the image"
 s "                               (before doing any size conversion)"
@@ -98,7 +75,6 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "size",		required_argument, 0, 's' },
     { "pad-bottom",	required_argument, 0, 'p' },
     { "underlay",	required_argument, 0, OPT_UNDERLAY },
     IMAGE_INPUT_LONG_OPTIONS,
@@ -107,7 +83,7 @@ int main (int argc, char *const *argv)
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "s:p:"
+    "p:"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -127,9 +103,6 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-      case 's':
-	parse_size_opt_arg (clp, dst_width, dst_height);
-	break;
       case 'p':
 	pad_bottom = clp.unsigned_opt_arg ();
 	break;
@@ -157,23 +130,11 @@ int main (int argc, char *const *argv)
 
   unsigned padded_src_height = src.height + pad_bottom;
 
-  // Default the output image's size from the input image.  If only one
-  // dimension was specified, we scale the other to maintain the source
-  // image's aspect ratio.
-  //
-  if (dst_width == 0 && dst_height == 0)
-    {
-      dst_width = src.width;
-      dst_height = padded_src_height;
-    }
-  else if (dst_width == 0)
-    dst_width
-      = unsigned (src.width * (float (dst_height) / padded_src_height)
-		  + 0.5);
-  else if (dst_height == 0)
-    dst_height
-      = unsigned (padded_src_height * (float (dst_width) / src.width)
-		  + 0.5);
+  float src_aspect_ratio = float (src.width) / float (src.height);
+  unsigned src_size = max (src.width, src.height);
+
+  get_image_size (dst_params, src_aspect_ratio, src_size,
+		  dst_width, dst_height);
 
   // If the user didn't specify a filter, maybe pick a default
   //
