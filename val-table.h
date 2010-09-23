@@ -145,6 +145,11 @@ public:
   // with PREFIX, with PREFIX removed from the entry names in the copy.
   //
   ValTable filter_by_prefix (const std::string &prefix) const;
+
+  // Import all entries from TABLE into this table.  If PREFIX is given,
+  // then it is prepended to each key.
+  //
+  void import (const ValTable &table, const std::string &prefix = "");
 };
 
 

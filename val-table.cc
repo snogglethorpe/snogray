@@ -228,7 +228,7 @@ ValTable::set (const std::string &name, const Val &val)
 }
 
 
-// ValTable::prefixed_entries
+// Table subsetting with prefixed keys.
 
 // Returns a copy of this table containing only entries whose name begins
 // with PREFIX, with PREFIX removed from the entry names in the copy.
@@ -245,6 +245,16 @@ ValTable::filter_by_prefix (const std::string &prefix) const
       copy.set (i->first.substr (pfx_len), i->second);
 
   return copy;
+}
+
+// Import all entries from TABLE into this table.  If PREFIX is given,
+// then it is prepended to each key.
+//
+void
+ValTable::import (const ValTable &table, const std::string &prefix)
+{
+  for (const_iterator i = table.begin (); i != table.end (); ++i)
+    set (prefix + i->first, i->second);
 }
 
 
