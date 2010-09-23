@@ -13,10 +13,8 @@
 #include "config.h"
 #include "excepts.h"
 
-#include "lua-read-file.h"
-#include "load-lua.h"
-
 #include "swigluarun.h"
+#include "lua-funs.h"
 
 extern "C"
 {
@@ -27,8 +25,12 @@ extern "C"
 extern int luaopen_snograw (lua_State *);
 }
 
+#include "load-lua.h"
+
+
 using namespace snogray;
 using namespace std;
+
 
 // Global lua state.  All calls to Lua loaders use the same state.
 //

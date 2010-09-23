@@ -1,4 +1,4 @@
-// lua-read-file.h -- Low-level "read whole file" function for use from Lua
+// lua-funs.h -- Functions for use with Lua
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LUA_READ_FILE_H__
-#define __LUA_READ_FILE_H__
+#ifndef __LUA_FUNS_H__
+#define __LUA_FUNS_H__
 
 #include "config.h"
 
@@ -38,4 +38,4 @@ extern int lua_read_file (lua_State *L);
 
 };
 
-#endif // __LUA_READ_FILE_H__
+#endif // __LUA_FUNS_H__

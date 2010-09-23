@@ -1,4 +1,4 @@
-// lua-read-file.cc -- Low-level "read whole file" function for use from Lua
+// lua-funs.cc -- Functions for use with Lua
 //
 //  Copyright (C) 2010  Miles Bader <miles@gnu.org>
 //
@@ -30,11 +30,14 @@ extern "C"
 #include "lauxlib.h"
 }
 
-#include "lua-read-file.h"
+#include "lua-funs.h"
 
 
 using namespace snogray;
 
+
+
+// lua_read_file
 
 // Return a Lua string containing the entire contents of a file, or
 // return false if that can't be done for some reason (it's expected

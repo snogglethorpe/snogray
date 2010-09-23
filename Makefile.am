@@ -270,8 +270,8 @@ libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
 libsnogload_LIBS =
 
 if use_lua
-  libsnogload_a_SOURCES += load-lua.cc load-lua.h lua-read-file.cc	\
-	  lua-read-file.h
+  libsnogload_a_SOURCES += load-lua.cc load-lua.h lua-funs.cc	\
+	lua-funs.h
   libsnogload_LIBS += libsnograw.a libluaexts.a $(liblua_LIBS)
 
 load-lua.o : swigluarun.h
