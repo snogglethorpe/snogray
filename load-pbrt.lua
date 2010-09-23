@@ -1237,12 +1237,24 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
 
+   -- If the current section in state (state.section) isn't SEC, then
+   -- signal an error.
+   --
+   local function check_section (sec)
+      if state.section ~= sec then
+	 parse_err ("command only valid inside "..sec.." section"
+		    .." (currently in "..state.section.." section)")
+      end
+   end
+
    -- commands
    --
    local function accel_cmd (...)
+      check_section ('options')
       parse_warn "Accelerator command ignored"
    end
    local function area_light_cmd (kind, params)
+      check_section ('world')
       if kind ~= "area" and  kind ~= "diffuse" then
 	 parse_err "AreaLightSource only supports a type of \"area\"/\"diffuse\""
       end
@@ -1260,11 +1272,13 @@ function load_pbrt_in_state (state, scene, camera)
       state.area_light_intens = intens
    end
    local function attrib_begin_cmd ()
+      check_section ('world')
       push (state.attrib_stack,
 	    {state.material, state.xform, state.area_light_intens,
 	     state.reverse_normal})
    end
    local function attrib_end_cmd ()
+      check_section ('world')
       local tos = pop (state.attrib_stack)
       if tos then
 	 state.material = tos[1]
@@ -1276,6 +1290,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function camera_cmd (type, params)
+      check_section ('options')
       if type ~= "perspective" then
 	 parse_err "Camera command only supports \"perspective\" type"
       end
@@ -1325,6 +1340,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function film_cmd (kind, params)
+      check_section ('options')
       if kind ~= "image" then
 	 parse_err "Film command only supports a type of \"image\""
       end
@@ -1337,6 +1353,7 @@ function load_pbrt_in_state (state, scene, camera)
       state.xform = identity_xform
    end
    local function light_cmd (kind, params)
+      check_section ('world')
       local light_parser = light_parsers[kind]
       if light_parser then
 	 add (light_parser (state, params))
@@ -1368,6 +1385,7 @@ function load_pbrt_in_state (state, scene, camera)
       state.xform = state.xform * world_to_cam
    end
    local function material_cmd (kind, params)
+      check_section ('world')
       local mat_parser = material_parsers[kind]
       if mat_parser then
 	 state.material = mat_parser (state, params)
@@ -1377,6 +1395,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function make_named_material_cmd (name, params)
+      check_section ('world')
       local kind = get_single_param (state, params, "string type")
       local mat_parser = material_parsers[kind]
       if mat_parser then
@@ -1387,6 +1406,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function named_material_cmd (name)
+      check_section ('world')
       local mat = state.named_materials[name]
       if mat then
 	 state.material = mat
@@ -1395,14 +1415,14 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function obj_begin_cmd (name)
+      check_section ('world')
       attrib_begin_cmd ()
-
       push (state.obj_stack, {state.object_name, state.object})
-
       state.object_name = name
       state.object = surface_group ()
    end
    local function obj_end_cmd ()
+      check_section ('world')
       local tos = pop (state.obj_stack)
       if tos then
 	 state.objects[state.object_name] = subspace (state.object)
@@ -1414,6 +1434,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function obj_instance_cmd (name)
+      check_section ('world')
       local obj = state.objects[name]
       if obj then
 	 add (instance (obj, state.xform))
@@ -1422,12 +1443,15 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function pixelfilter_cmd (...)
+      check_section ('options')
       parse_warn "PixelFilter command ignored"
    end
    local function renderer_cmd (...)
+      check_section ('options')
       parse_warn "Renderer command ignored"
    end
    local function reverse_orientation_cmd (...)
+      check_section ('world')
       state.reverse_normal = not state.reverse_normal
    end
    local function rotate_cmd (angle, axis_x, axis_y, axis_z)
@@ -1436,6 +1460,7 @@ function load_pbrt_in_state (state, scene, camera)
       state.xform = state.xform * rotate (axis, angle)
    end
    local function sampler_cmd (kind, params)
+      check_section ('options')
       local sampler_parser = sampler_parsers[kind]
       if sampler_parser then
 	 sampler_parser (state, params)
@@ -1448,9 +1473,11 @@ function load_pbrt_in_state (state, scene, camera)
       state.xform = state.xform * scale (x, y, z)
    end
    local function searchpath_cmd ()
+      check_section ('options')
       parse_warn "SearchPath command ignored"
    end
    local function shape_cmd (kind, params)
+      check_section ('world')
       local mat = check_mat ()
       local shape_parser = shape_parsers[kind]
       if shape_parser then
@@ -1461,6 +1488,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function surfaceintegrator_cmd (kind, params)
+      check_section ('options')
       local surfint_parser = surface_integrator_parsers[kind]
       if surfint_parser then
 	 surfint_parser (state, params)
@@ -1470,6 +1498,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function texture_cmd (name, type, kind, params)
+      check_section ('world')
       local tex_parser = texture_parsers[kind]
       if tex_parser then
 	 local tex = tex_parser (state, type, params)
@@ -1500,22 +1529,28 @@ function load_pbrt_in_state (state, scene, camera)
       state.xform = state.xform * translate (x, y, z)
    end
    local function volumeintegrator_cmd (...)
+      check_section ('options')
       parse_warn "VolumeIntegrator command ignored"
    end
    local function volume_cmd (...)
+      check_section ('world')
       parse_warn "Volume command ignored"
    end
    local function world_begin_cmd ()
+      check_section ('options')
       state.xform = identity_xform
       state.named_coord_systems["world"] = state.xform
+      state.section = 'world'
    end
    local function world_end_cmd ()
+      check_section ('world')
       if #state.xform_stack > 0 then
 	 parse_err "transform stack not empty at WorldEnd"
       end
       if #state.attrib_stack > 0 then
 	 parse_err "attribute stack not empty at WorldEnd"
       end
+      state.section = 'post-world'
    end
    local function include_cmd (include_file)
       include_file = find_file (include_file, state)
@@ -1634,6 +1669,8 @@ function load_pbrt (filename, scene, camera, params)
 		 end
 	      end
 	   end,
+
+      section = 'options',	-- which input section we're in
 
       xform = identity_xform,
 
