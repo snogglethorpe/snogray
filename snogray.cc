@@ -397,7 +397,7 @@ int main (int argc, char *const *argv)
   bool recover = false;
   Progress::Verbosity verbosity = Progress::CHATTY;
   bool progress_set = false;
-  ValTable image_params, render_params;
+  ValTable output_params, render_params;
   SceneDef scene_def;
   std::string camera_cmds;	// User commands for the camera
 
@@ -465,7 +465,7 @@ int main (int argc, char *const *argv)
 
 	// Image options
 	//
-	IMAGE_OUTPUT_OPTION_CASES (clp, image_params);
+	IMAGE_OUTPUT_OPTION_CASES (clp, output_params);
 
 	// Generic options
 	//
@@ -613,15 +613,15 @@ int main (int argc, char *const *argv)
   // Set the base-coordinates of the "output sample space" to LIMIT_X, LIMIT_Y.
   //
   if (limit_x != 0)
-    image_params.set ("sample-base-x", limit_x);
+    output_params.set ("sample-base-x", limit_x);
   if (limit_y != 0)
-    image_params.set ("sample-base-y", limit_y);
+    output_params.set ("sample-base-y", limit_y);
 
   // If the scene has a non-default background alpha set, then make sure
   // there's an alpha-channel in the output image.
   //
   if (render_params.get_float ("background-alpha", 1) != 1)
-    image_params.set ("alpha-channel", true);
+    output_params.set ("alpha-channel", true);
 
   // Create output image.  The size of what we output is the same as the
   // limit (which defaults to, but is not the same as the nominal output
@@ -631,9 +631,9 @@ int main (int argc, char *const *argv)
   // with IMAGE_SINK_PARAMS or a problem creating the output image, so
   // we create the image before printing any normal output.
   //
-  ImageOutput output (file_name, limit_width, limit_height, image_params);
+  ImageOutput output (file_name, limit_width, limit_height, output_params);
 
-  if (image_params.get_bool ("alpha-channel,alpha")
+  if (output_params.get_bool ("alpha-channel,alpha")
       && !output.has_alpha_channel())
     {
       std::cerr << clp.err_pfx() << file_name
