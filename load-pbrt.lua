@@ -733,14 +733,14 @@ local texture_parsers = {}
 -- checkerboard texture
 --
 function texture_parsers.checkerboard (state, type, params)
-   local dims = get_single_param (state, params, "integer dimensions", 2)
+   local dims = get_single_param (state, params, "integer dimension", 2)
    local tex1 = get_texture_param (state, params, "color tex1", 1)
    local tex2 = get_texture_param (state, params, "color tex2", 2)
    params["string aamode"] = nil -- ignore
    if dims == 2 then
       return apply_texture_2d_mapping (check_tex (tex1, tex2), state, params)
    elseif dims == 3 then
-      return xform_tex (xform, check3d_tex (tex1, tex2))
+      return state.xform (check3d_tex (tex1, tex2))
    else
       parse_err (tostring(dims).."-dimensional checkerboard not supported")
    end
