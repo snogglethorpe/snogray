@@ -1398,6 +1398,8 @@ function load_pbrt_in_state (state, scene, camera)
       local h = get_single_param (state, params, "integer yresolution",
 				  default_height)
       local crop, cropn = get_param (state, params, "float cropwindow", false)
+      local filename
+	 = get_single_param (state, params, "string filename", false)
       params["bool display"] = nil -- ignore
       check_unused_params (params)
       if crop then
@@ -1405,6 +1407,9 @@ function load_pbrt_in_state (state, scene, camera)
       end
       state.pending_options.width = w
       state.pending_options.height = h
+      if filename then
+	 state:set_param ("output.filename", filename)
+      end
    end
    local function identity_cmd ()
       state.xform = identity_xform
