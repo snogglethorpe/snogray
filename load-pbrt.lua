@@ -1559,7 +1559,10 @@ function load_pbrt_in_state (state, scene, camera)
       if surfint_parser then
 	 surfint_parser (state, params)
 	 check_unused_params (params)
-      else
+      elseif not state.params["render.surface-integ"] then
+	 -- Give an error for an unknown surface integrator, but only
+	 -- if the user didn't explicitly specify what to use on the
+	 -- command line.
 	 parse_err ("unknown surface-integrator type \""..kind.."\"")
       end
    end
