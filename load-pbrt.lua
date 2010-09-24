@@ -46,6 +46,10 @@ local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 local parse_err = lu.parse_err
 -- parse_warn is actually a real function below
 
+
+local default_width, default_height = 640, 480
+
+
 
 ----------------------------------------------------------------
 -- utility functions
@@ -1247,6 +1251,47 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
 
+   -- Finish processing any pending state in state.pending_options.
+   -- This is called at the end of the "option" section (at the
+   -- beginning of the "world" section).
+   --
+   local function process_pending_options ()
+      local params, pending_opts = state.params, state.pending_options
+      local width
+	 = params["output.width"] or pending_opts.width or default_width
+      local height
+	 = params["output.height"] or pending_opts.height or default_height
+      local size = params["output.size"]
+      local aspect_ratio = width / height
+
+      -- There's a (user-specified) "output.size" parameter only if he
+      -- didn't specify a width/height (the command-line parser only
+      -- sets one or the other).  So if there is one, we should use it
+      -- to appropriately scale the image size, maintaining the
+      -- aspect-ratio which came from the scene-file Film command.
+      --
+      if size then
+	 -- user-specified "size" (only set if no user width/height)
+	 if aspect_ratio >= 1 then
+	    width, height = size, math.floor (size / aspect_ratio)
+	 else
+	    width, height = math.floor (size * aspect_ratio), size
+	 end
+      end
+      params["output.width"] = width
+      params["output.height"] = height
+
+      if pending_opts.fov then
+	 if aspect_ratio >= 1 then
+	    camera:set_vert_fov (pending_opts.fov)
+	 else
+	    camera:set_horiz_fov (pending_opts.fov)
+	 end
+      end
+      
+      state.pending_options = {} -- clear
+   end
+
    -- commands
    --
    local function accel_cmd (...)
@@ -1298,31 +1343,27 @@ function load_pbrt_in_state (state, scene, camera)
       -- camera paremters
       local fov = get_single_param (state, params, "float fov", 90)
       local focus = get_single_param (state, params, "float focaldistance",
-				      false)
+				      camera.focus)
       local lradius = get_single_param (state, params, "float lensradius", 0)
-      local screen_win = get_param (state, params, "float screenwindow", false)
-      local hither = get_single_param (state, params, "float hither", 1e-3)
-      local yon = get_single_param (state, params, "float yon", 1e30)
       params["float frameaspectratio"] = nil -- ignore
+      params["float screenwindow"] = nil     -- ignore
       params["float shutteropen"] = nil	     -- ignore
       params["float shutterclose"] = nil     -- ignore
+      params["float hither"] = nil	     -- ignore
+      params["float yon"] = nil		     -- ignore
       check_unused_params (params)
 
       -- PBRT doesn't have separate camera units, so its camera metrics
       -- are in scene-units.
       --
       camera.scene_unit = 1
-
-      -- It's not correct to just set verticle-FOV here -- PBRT
-      -- actually sets the FOV for whichever dimension is smallest
-      -- (usually Y, but not always).
-      --
-      camera:set_vert_fov (fov * math.pi / 180)
-
-      if focus then
-	 camera.focus = focus
-      end
+      camera.focus = focus
       camera.aperture = lradius * 2
+
+      -- Stash away camera info that can't be set in isolation to
+      -- be processed as soon as we have enough info.
+      --
+      state.pending_options.fov = fov * math.pi / 180
 
       local cam_to_world = state.xform:inverse ()
 
@@ -1344,10 +1385,17 @@ function load_pbrt_in_state (state, scene, camera)
       if kind ~= "image" then
 	 parse_err "Film command only supports a type of \"image\""
       end
-      local w = get_single_param (state, params, "integer xresolution", 640)
-      local h = get_single_param (state, params, "integer yresolution", 480)
-      parse_warn ("Film command ignored; size = "
-		     ..tostring(w).."x"..tostring(h))
+      local w = get_single_param (state, params, "integer xresolution",
+				  default_width)
+      local h = get_single_param (state, params, "integer yresolution",
+				  default_height)
+      local crop, cropn = get_param (state, params, "float cropwindow", false)
+      params["bool display"] = nil -- ignore
+      if crop then
+	 parse_warn ("\""..cropn.."\" parameter ignored")
+      end
+      state.pending_options.width = w
+      state.pending_options.height = h
    end
    local function identity_cmd ()
       state.xform = identity_xform
@@ -1538,6 +1586,7 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function world_begin_cmd ()
       check_section ('options')
+      process_pending_options ()
       state.xform = identity_xform
       state.named_coord_systems["world"] = state.xform
       state.section = 'world'
@@ -1684,6 +1733,11 @@ function load_pbrt (filename, scene, camera, params)
       named_coord_systems = {},	-- table of named coordinate systems
       named_textures = {},
       named_materials = {},
+
+      -- Stuff that can't be processed until we're doing setting up
+      -- options.
+      --
+      pending_options = {},
 
       xform_stack = {},		-- stack for TransformBegin/TransformEnd
       attrib_stack = {},	-- stack for AttributeBegin/AttributeEnd
