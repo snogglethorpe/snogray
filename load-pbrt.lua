@@ -1051,6 +1051,14 @@ function light_parsers.infinite (state, params)
    local scale = get_texture_param (state, params, "float/color scale", 1)
    local L = get_color_param (state, params, "color L", color (1)) * scale
 
+   -- If the user specified an environment map on the command-line,
+   -- suppress those in the scene file.
+   --
+   if state.params["scene.background"] then
+      parse_warn "infinite light ignored because of user-specified environment-map"
+      return nil
+   end
+
    -- There are two sorts of infinite light: one which loads the image
    -- from a file, specified with a "string mapname" parameter, and
    -- one which has a constant intensity, specified with a "color L"
