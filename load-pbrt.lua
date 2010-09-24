@@ -1404,10 +1404,14 @@ function load_pbrt_in_state (state, scene, camera)
       check_section ('world')
       local light_parser = light_parsers[kind]
       if light_parser then
-	 add (light_parser (state, params))
+	 local light = light_parser (state, params)
 	 -- none of our lights support "integer nsamples", so ignore it
 	 params["integer nsamples"] = nil -- ignore
 	 check_unused_params (params)
+	 -- the parser can return nil to avoid adding a light, so check
+	 if light then
+	    add (light)
+	 end
       else
 	 parse_err ("unknown LightSource type \""..kind.."\"")
       end
