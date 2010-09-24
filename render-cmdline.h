@@ -15,7 +15,6 @@
 
 
 #define RENDER_OPTIONS_HELP "\
- Rendering options:\n\
   -a, --oversample=NUM       Use NUM samples for each output pixel\n\
   -n, --direct-samples=NUM   Use NUM light samples for direct lighting\n\
 \n\
@@ -23,6 +22,7 @@
                                Options include:\n\
                                  \"direct\"     -- direct-lighting\n\
                                  \"path\"       -- path-tracing\n\
+                                 \"photon\"     -- photon-mapping\n\
 \n\
   -A, --background-alpha=ALPHA Use ALPHA as the opacity of the background\n\
 \n\

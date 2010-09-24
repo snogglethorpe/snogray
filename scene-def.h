@@ -19,7 +19,6 @@
 #include "val-table.h"
 
 #define SCENE_DEF_OPTIONS_HELP "\
- Scene options:\n\
   -b, --background=BG        Use BG as a background and light-source;\n\
                                BG may be a color or the name of an\n\
                                environment-map image file\n\

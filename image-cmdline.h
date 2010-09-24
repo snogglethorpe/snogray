@@ -37,6 +37,8 @@
 
 #define IMAGE_OUTPUT_OPTIONS_HELP "\
   -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines\n\
+  -s, --size=SIZE            Set largest image dimension to SIZE,\n\
+                             preserving aspect ratio\n\
   -e, --exposure=EXPOSURE    Increase/decrease output brightness/contrast\n\
                                EXPOSURE can have one of the forms:\n\
                                  +STOPS  -- Make output 2^STOPS times brighter\n\

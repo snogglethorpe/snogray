@@ -264,9 +264,7 @@ help (CmdLineParser &clp, ostream &os)
   os <<
   "Ray-trace an image"
 n
-#if USE_THREADS
-s "  -j, --threads=NUM          Use NUM threads for rendering (default all cores)"
-#endif
+s " Rendering options:"
 n
 s RENDER_OPTIONS_HELP
 n
@@ -289,11 +287,13 @@ s "                               u SIZE      Set scene unit to SIZE, in mm"
 s "                               h           Set camera orientation to horizontal"
 s "                               v           Set camera orientation to vertic"
 n
+s " Scene options:"
+n
 s SCENE_DEF_OPTIONS_HELP
 n
-s IMAGE_OUTPUT_OPTIONS_HELP
+s " Output image options:"
 n
-s "  -C, --continue             Continue a previously aborted render"
+s IMAGE_OUTPUT_OPTIONS_HELP
 n
 s "  -L, --limit=X,Y+W,H        Limit output to area X,Y - X+W,Y+H"
 s "  -L, --limit=X1,Y1-X2,Y2    Limit output to area X1,Y1 - X2,Y2"
@@ -302,6 +302,14 @@ s "                               (with \"%\") or fractions (with \".\") of the"
 s "                               \"nominal\" output image, or integer numbers"
 s "                               of pixels (note: the -s/--size option always"
 s "                               specifies the size of the nominal image)"
+n
+s " Misc options:"
+n
+#if USE_THREADS
+s "  -j, --threads=NUM          Use NUM threads for rendering (default all cores)"
+n
+#endif
+s "  -C, --continue             Continue a previously aborted render"
 n
 s "  -q, --quiet                Do not output informational or progress messages"
 s "  -P, --no-progress          Do not output progress indicator"
