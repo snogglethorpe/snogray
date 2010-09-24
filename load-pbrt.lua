@@ -1622,7 +1622,9 @@ function load_pbrt_in_state (state, scene, camera)
    local function include_cmd (include_file)
       include_file = find_file (include_file, state)
 
-      print ("* include: "..filename_rel (include_file, state.base_dir))
+      -- It's a nice idea, but some scenes have huge numbers of include
+      -- files, so the output becomes annoying...
+      --print ("* include: "..filename_rel (include_file, state.base_dir))
 
       local old_filename = state.filename
       state.filename = include_file
