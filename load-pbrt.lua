@@ -1399,6 +1399,7 @@ function load_pbrt_in_state (state, scene, camera)
 				  default_height)
       local crop, cropn = get_param (state, params, "float cropwindow", false)
       params["bool display"] = nil -- ignore
+      check_unused_params (params)
       if crop then
 	 parse_warn ("\""..cropn.."\" parameter ignored")
       end
