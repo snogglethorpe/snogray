@@ -441,7 +441,7 @@ int main (int argc, char *const *argv)
 
   // Output filename
   //
-  string file_name = clp.get_arg();
+  output_params.set ("filename", clp.get_arg ());
 
 
   // Start of "overall elapsed" time
@@ -521,6 +521,11 @@ int main (int argc, char *const *argv)
   // output image size.
   //
   camera.set_aspect_ratio (float (width) / float (height));
+
+
+  // Output filename
+  //
+  std::string file_name = output_params.get_string ("filename");
 
 
   // Set our drawing limits based on the scene size
