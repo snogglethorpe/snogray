@@ -1289,6 +1289,15 @@ function load_pbrt_in_state (state, scene, camera)
       params["output.width"] = width
       params["output.height"] = height
 
+      -- Update the camera aspect ratio to match the final image size.
+      -- This must be done before setting the FOV -- otherwise later
+      -- changing the aspect ratio to fit the desired image output
+      -- image size ends up adjusting the FOV incorrectly, as it tries
+      -- to maintain the FOV of the image diagonal, instead of
+      -- whatever the scene file wanted.
+      --
+      camera:set_aspect_ratio (aspect_ratio)
+
       if pending_opts.fov then
 	 if aspect_ratio >= 1 then
 	    camera:set_vert_fov (pending_opts.fov)
