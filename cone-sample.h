@@ -66,6 +66,18 @@ cone_sample_inverse (float cos_half_angle, const Vec &dir)
   return UV (clamp01 (u), clamp01 (v));
 }
 
+// Return the PDF for a cone sample, where COS_HALF_ANGLE is the
+// cosine of half the cone's apex angle.
+//
+static inline float
+cone_sample_pdf (float cos_half_angle)
+{
+  // solid_angle = 2*PI * (1 - COS_HALF_ANGLE)
+  // pdf = 1 / solid_angle
+  //
+  return 0.5f * INV_PIf / (1 - cos_half_angle);
+}
+
 
 }
 
