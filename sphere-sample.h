@@ -40,6 +40,14 @@ sphere_sample_inverse (const Vec &dir)
   return cone_sample_inverse (-1, dir);
 }
 
+// Return the PDF for a sphere sample.
+//
+static inline float
+sphere_sample_pdf ()
+{
+  return cone_sample_pdf (-1);
+}
+
 
 }
 
