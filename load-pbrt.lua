@@ -1057,7 +1057,7 @@ function light_parsers.distant (state, params)
    local from = get_point_param (state, params, "point from", pos(0,0,0))
    local to = get_point_param (state, params, "point to", pos(0,0,1))
    local dir = state.xform ((from - to):unit ())
-   return far_light (dir, math.pi, intens)
+   return far_light (dir, 0, intens)
 end
 
 -- infinite light
