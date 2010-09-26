@@ -959,7 +959,9 @@ namespace snogray {
   {
   public:
 
-    PointLight (const Pos &_pos, const Color &col);
+    PointLight (const Pos &pos, const Color &col);
+    PointLight (const Pos &pos, const Color &col, float angle, const Vec &dir,
+    	        float fringe_angle = 0);
   };
 
   class SphereLight : public Light
