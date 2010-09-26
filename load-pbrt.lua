@@ -1028,9 +1028,10 @@ local light_parsers = {}
 -- point light
 --
 function light_parsers.point (state, params)
-   local intens = get_texture_param (state, params, "color I")
+   local intens = get_color_param (state, params, "color I", 1)
+   local scale = get_color_param (state, params, "color scale", 1)
    local from = get_point_param (state, params, "point from", pos(0,0,0))
-   return point_light (state.xform (from), intens)
+   return point_light (state.xform (from), intens * scale)
 end
 
 -- distant light
