@@ -31,9 +31,16 @@ public:
   // ANGLE is the apparent (linear) angle subtended by of the light.
   // INTENSITY is the amount of light emitted per steradian.
   //
+  // As a special case, when ANGLE is exactly 0 -- creating an
+  // infinitely-far-away point-light -- then INTENSITY is the
+  // absolute intensity, not the intensity per steradian.
+  //
   FarLight (const Vec &_dir, float angle, const Color &_intensity)
     : intensity (_intensity), frame (_dir.unit ()),
-      cos_half_angle (cos (angle / 2)),
+      // To ensure that if ANGLE is zero, COS_HALF_ANGLE becomes
+      // exactly 1 (because we explicitly compare with that), don't
+      // trust the cos function to return exactly the right result.
+      cos_half_angle (angle == 0 ? 1 : cos (angle / 2)),
       scene_radius (0)
   { }
 
@@ -57,6 +64,10 @@ public:
   // with any surface.
   //
   virtual bool is_environ_light () const { return true; }
+
+  // Return true if this is a point light.
+  //
+  virtual bool is_point_light () const { return cos_half_angle == 1; }
 
   // Evaluate this environmental light in direction DIR (in world-coordinates).
   //
