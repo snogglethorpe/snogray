@@ -1138,6 +1138,7 @@ function sampler_parsers.adaptive (state, params)
    local maxsamp = get_single_param (state, params, "integer maxsamples", 32)
    params["string method"] = nil -- ignore
    local nsamp = math.floor ((minsamp + maxsamp) / 2)
+   nsamp = state.params["render.oversample"] or nsamp -- prefer user's
    parse_warn ("sampler \"adaptive\" not implemented; using default with "
 	       ..tostring(nsamp).." samples")
    state:set_param ("render.oversample", nsamp)
@@ -1146,6 +1147,7 @@ end
 local function unimp_typical_sampler (name, state, params)
    local nsamp = get_single_param (state, params, "integer pixelsamples", 4)
    if nsamp ~= 1 then
+      nsamp = state.params["render.oversample"] or nsamp -- prefer user's
       parse_warn ("sampler \""..name.."\" not implemented; using default with "
 		  ..tostring(nsamp).." samples")
    end
@@ -1170,17 +1172,20 @@ function sampler_parsers.stratified (state, params)
    local xsamp = get_single_param (state, params, "integer xsamples", 2)
    local ysamp = get_single_param (state, params, "integer ysamples", 2)
    params["bool jitter"] = nil -- ignore
-   local nsamp = xsamp * ysamp
-   if xsamp ~= ysamp then
-      parse_warn ("using \"stratified\" sampler with "
-		  ..tostring(nsamp).." samples")
+   if not state.params["render.oversample"] then
+      local nsamp = xsamp * ysamp
+      if xsamp ~= ysamp then
+	 parse_warn ("using \"stratified\" sampler with "
+		     ..tostring(nsamp).." samples")
+      end
+      state:set_param ("render.oversample", nsamp)
    end
-   state:set_param ("render.oversample", nsamp)
 end
 
 function sampler_parsers.random (name, state, params)
    local nsamp = get_single_param (state, params, "integer nsamples", 4)
    if nsamp ~= 1 then
+      nsamp = state.params["render.oversample"] or nsamp -- prefer user's
       parse_warn ("sampler \""..name.."\" not implemented; using default with "
 		  ..tostring(nsamp).." samples")
    end
