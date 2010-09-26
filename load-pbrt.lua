@@ -1265,10 +1265,10 @@ function load_pbrt_in_state (state, scene, camera)
    --
    local function process_pending_options ()
       local params, pending_opts = state.params, state.pending_options
-      local width
-	 = params["output.width"] or pending_opts.width or default_width
-      local height
-	 = params["output.height"] or pending_opts.height or default_height
+      local intended_width = pending_opts.width or default_width
+      local intended_height = pending_opts.height or default_height
+      local width = params["output.width"] or intended_width
+      local height = params["output.height"] or intended_height
       local size = params["output.size"]
       local aspect_ratio = width / height
 
@@ -1298,8 +1298,14 @@ function load_pbrt_in_state (state, scene, camera)
       --
       camera:set_aspect_ratio (aspect_ratio)
 
+      -- The PBRT fov parameter sets the FOV of either the horizontal or
+      -- vertical dimension, depending on which is smaller.  Copy this
+      -- behavior, using whatever aspect ratio the scene-file intended,
+      -- so the results are consistent with the intention even if the
+      -- user flips the aspect ratio of the end result.
+      --
       if pending_opts.fov then
-	 if aspect_ratio >= 1 then
+	 if intended_width / intended_height >= 1 then
 	    camera:set_vert_fov (pending_opts.fov)
 	 else
 	    camera:set_horiz_fov (pending_opts.fov)
