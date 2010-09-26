@@ -1034,6 +1034,22 @@ function light_parsers.point (state, params)
    return point_light (state.xform (from), intens * scale)
 end
 
+-- spotlight
+--
+function light_parsers.spot (state, params)
+   local intens = get_color_param (state, params, "color I", 1)
+   local scale = get_color_param (state, params, "color scale", 1)
+   local angle = get_single_param (state, params, "float coneangle", 30)
+   local dangle = get_single_param (state, params, "float conedeltaangle", 5)
+   local from = get_point_param (state, params, "point from", pos(0,0,0))
+   local to = get_point_param (state, params, "point to", pos(0,0,1))
+   angle = angle * 2 * math.pi / 180
+   dangle = dangle * 2 * math.pi / 180
+   from = state.xform (from)
+   to = state.xform (to)
+   return point_light (from, intens * scale, angle, (to - from):unit (), dangle)
+end
+
 -- distant light
 --
 function light_parsers.distant (state, params)
