@@ -29,11 +29,7 @@ sphere_sample (const UV &param)
   // degenerate "cone", where the cone's angle is 2*PI (a rather wacky
   // cone, but it works).
   //
-  // [Note that recent versions of gcc can completely eliminate the
-  // resulting PIf * INV_PIf calculation during constant-folding, so
-  // there's no need to special-case a sphere.]
-  //
-  return cone_sample (2*PIf, param);
+  return cone_sample (-1, param);
 }
  
 // Return a parameter for which sample_sphere would return DIR.
@@ -41,7 +37,7 @@ sphere_sample (const UV &param)
 static inline UV
 sphere_sample_inverse (const Vec &dir)
 {
-  return cone_sample_inverse (2*PIf, dir);
+  return cone_sample_inverse (-1, dir);
 }
 
 

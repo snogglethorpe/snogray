@@ -21,22 +21,23 @@
 namespace snogray {
 
 
-// Return a sample vector uniformly distributed over a cone centered
-// around the z-axis which subtends an angle of ANGLE, which should be
-// between 0 and 2*PI.  PARAM is the parameter sample.
+// Return a vector whose direction is based on PARAM from a set
+// uniformly distributed inside a cone centered around the z-axis,
+// where COS_HALF_ANGLE is the cosine of half the cone's apex angle.
 //
 static inline Vec
-cone_sample (float angle, const UV &param)
+cone_sample (float cos_half_angle, const UV &param)
 {
-  // Choose a slice on the upper part of a unit cylinder.  The total
-  // height of the cylinder is 2 (from -1 to 1), and the height of the
-  // sample area corresponds to ANGLE (so that if ANGLE is 2*PI, the
+  // Choose a slice on the upper part of a unit cylinder.
+  // The total height of the cylinder is 2 (from -1 to 1), and the
+  // height of the sample area corresponds to COS_HALF_ANGLE (so that
+  // if COS_HALF_ANGLE is -1, corresponding to an angle of 2*PI, the
   // entire cylinder surface, from z -1 to 1, will be sampled).
   //
   // Then project the chosen slice onto a unit sphere.  Z is the
   // z-coordinate of the slice, and R is its radius.
   //
-  float z = 1 - param.u * angle * INV_PIf;
+  float z = cos_half_angle + param.u * (1 - cos_half_angle);
   float r = sqrt (abs (1 - z * z));
 
   // Now choose a point around the edge of the radius R disk; X and Y
@@ -55,13 +56,13 @@ cone_sample (float angle, const UV &param)
 // Return a parameter for which cone_sample would return DIR.
 //
 static inline UV
-cone_sample_inverse (float angle, const Vec &dir)
+cone_sample_inverse (float cos_half_angle, const Vec &dir)
 {
   float phi = atan2 (dir.y, dir.x);
   float v = phi * INV_PIf * 0.5f;
   if (v < 0)
     v += 1;
-  float u = (1 - dir.z) * PIf / angle;
+  float u = (1 - dir.z) / (1 - cos_half_angle);
   return UV (clamp01 (u), clamp01 (v));
 }
 

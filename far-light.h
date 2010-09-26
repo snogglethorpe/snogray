@@ -31,9 +31,9 @@ public:
   // ANGLE is the apparent (linear) angle subtended by of the light.
   // INTENSITY is the amount of light emitted per steradian.
   //
-  FarLight (const Vec &_dir, float _angle, const Color &_intensity)
-    : intensity (_intensity), angle (_angle), frame (_dir.unit ()),
-      pdf (1 / angle), min_cos (cos (_angle / 2)),
+  FarLight (const Vec &_dir, float angle, const Color &_intensity)
+    : intensity (_intensity), frame (_dir.unit ()),
+      cos_half_angle (cos (angle / 2)),
       scene_radius (0)
   { }
 
@@ -68,7 +68,6 @@ public:
   virtual void scene_setup (const Scene &scene);
 
   Color intensity;
-  dist_t angle;
 
 private:
   
@@ -76,17 +75,9 @@ private:
   //
   Frame frame;
 
-  // As our light subtends a constant angle, and we sample it uniformly
-  // by solid angle, we have a constant pdf.
+  // The cosine of half the angle subtended by this light's cone.
   //
-  const float pdf;
-
-  // The minimum cosine of the angle between a sample and this light.
-  // Any samples where the cosine is less than this (meaning the angle
-  // between the sample and the light direction is greater) do not hit
-  // the light.
-  //
-  dist_t min_cos;
+  float cos_half_angle;
 
   // Center and radius of a bounding sphere for the entire scene.
   //

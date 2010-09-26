@@ -32,7 +32,9 @@ FarLight::sample (const Intersect &isec, const UV &param) const
 {
   // Sample a cone pointing at our light.
   //
-  Vec s_dir = isec.normal_frame.to (frame.from (cone_sample (angle, param)));
+  Vec s_dir
+    = isec.normal_frame.to (frame.from (cone_sample (cos_half_angle, param)));
+  float pdf = cone_sample_pdf (cos_half_angle);
 
   if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
     return Sample (intensity, pdf, s_dir, 0);
@@ -52,11 +54,12 @@ FarLight::sample (const UV &param, const UV &dir_param) const
   // sample point will appear in the same direction from any location
   // in the scene.
 
-  Vec s_dir = frame.from (cone_sample (angle/2, dir_param));
+  Vec s_dir = frame.from (cone_sample (cos_half_angle, dir_param));
   Pos s_pos = tangent_disk_sample (scene_center, scene_radius, s_dir, param);
 
   // Adjust pdf to include disk sampling.
   //
+  float pdf = cone_sample_pdf (cos_half_angle);
   float s_pdf = pdf / (PIf * scene_radius * scene_radius);
 
   return FreeSample (intensity, s_pdf, s_pos, -s_dir);
@@ -73,8 +76,9 @@ Light::Value
 FarLight::eval (const Intersect &isec, const Vec &dir) const
 {
   Vec light_normal_dir = isec.normal_frame.to (frame.z);
+  float pdf = cone_sample_pdf (cos_half_angle);
 
-  if (dot (dir, light_normal_dir) >= min_cos)
+  if (dot (dir, light_normal_dir) >= cos_half_angle)
     return Value (intensity, pdf, 0);
   else
     return Value ();
@@ -91,11 +95,11 @@ FarLight::eval_environ (const Vec &dir) const
   //
   float cos_light_dir = dot (dir, frame.z);
 
-  // If COS_LIGHT_DIR is greater than MIN_COS, then DIR must be within
-  // ANGLE/2 of the light direction, so return the light's color;
-  // otherwise just return 0.
+  // If COS_LIGHT_DIR is greater than COS_HALF_ANGLE, then DIR must be
+  // within ANGLE/2 of the light direction, so return the light's
+  // color; otherwise just return 0.
   //
-  return (cos_light_dir > min_cos) ? intensity : 0;
+  return (cos_light_dir > cos_half_angle) ? intensity : 0;
 }
 
 
