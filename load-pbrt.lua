@@ -18,20 +18,14 @@
 -- and is quite fast (actually faster than PBRT's native yacc/lex-
 -- based loader in many cases).  Of course there are some issues:
 --
--- + Not all materials/lights/shapes/shape-parameters, etc are
+-- + Not all commands/materials/lights/shapes/parameters, etc are
 --   supported.  When it's reasonable to substitute something else,
---   use an approximation, or simply ignore a parameter, that is done;
+--   use an approximation, or simply ignore something, that is done;
 --   otherwise loading fails with an appropriate error.
---
--- + Most "global" options (integrators, output file, etc) are not
---   supported, as there's currently no mechanism to transfer those
---   from the scene loader to snogray.  These are ignored with an
---   appropriate warning message; often it's possible for the user to
---   then use an equivalent command-line option.
 --
 -- + It loads PBRT v2 scene files; notable differences from v1:
 --   * "LookAt" handedness is reversed (to correct scene files intended
---     for PBRT v1, add "Scale 1 1 -1" before the LookAt directive)
+--     for PBRT v1, add "Scale -1 1 1" before the LookAt directive)
 --   * Include files are searched for relative to the including file
 --
 
