@@ -2,23 +2,11 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 * TODO Metropolis Light Transport
 
-* TODO Efficient Global Illumination.
-
-  * DONE Photon mapping, as described by Henrik Wann Jensen
-    See http://graphics.ucsd.edu/~henrik/papers/ewr7/
+* TODO Efficient Global Illumination
 
   * TODO Instant radiosity
 
   * TODO Irradiance Caching
-
-* TODO Add a more general area-light type
-
-  Currently there are individual light classes for each type of
-  area-light -- e.g. SphereLight and TriparLight.  This might be
-  desirable for commonly used surface types, for efficiency, but to
-  allow other types of surfaces to be used for lighting, it would be
-  nice to have a general AreaLight class that takes care of the lighting
-  and calls Surface methods to handle shape-specific details.
 
 * TODO Add support for area-lights in instances
 
@@ -50,7 +38,7 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 * TODO Add scene loaders:
 
-  * TODO RenderMan/PBRT
+  * TODO RenderMan
 
   * TODO Cinema 4D
 
@@ -231,6 +219,19 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 Completed items:
 
 
+* DONE Add scene loaders:
+
+  * DONE PBRT
+
+* DONE Add a more general area-light type
+
+  Currently there are individual light classes for each type of
+  area-light -- e.g. SphereLight and TriparLight.  This might be
+  desirable for commonly used surface types, for efficiency, but to
+  allow other types of surfaces to be used for lighting, it would be
+  nice to have a general AreaLight class that takes care of the lighting
+  and calls Surface methods to handle shape-specific details.
+
 * DONE Reorganize the Surface abstraction
 
   The Surface type currently contains geometry, and a material pointer.
@@ -305,6 +306,11 @@ Completed items:
 
   For more details on how this is stored into surfaces, see "TODO
   Reorganize the Surface abstraction".
+
+* DONE Efficient Global Illumination
+
+  * DONE Photon mapping, as described by Henrik Wann Jensen
+    See http://graphics.ucsd.edu/~henrik/papers/ewr7/
 
 * DONE Implement better integrators
 
