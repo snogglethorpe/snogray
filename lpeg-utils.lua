@@ -118,7 +118,7 @@ end
 -- parse_file.
 --
 function parse_warn (msg)
-   print (make_err_string (msg))
+   print (make_err_string ("warning: "..msg))
 end
 
 -- Read and parse FILENAME by repeatedly matching PATTERN; nothing is
