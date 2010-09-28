@@ -105,8 +105,9 @@ TgaImageSource::read_row (ByteVec &byte_vec)
 	  unsigned char span_len = read_byte ();
 	  bool dup = (span_len & 0x80) != 0;
 	  span_len &= 0x7F;	// clear dup bit
+	  span_len++;		// number of pixels is encoded value + 1
 
-	  if (span_len > num_pixels)
+	  if (num_pixels + span_len > width)
 	    err ("TGA image RLE span crosses row boundary");
 	    
 	  unsigned pixels_to_read = dup ? 1 : span_len;
@@ -116,7 +117,7 @@ TgaImageSource::read_row (ByteVec &byte_vec)
 	  for (unsigned i = 0; i < span_len; i++)
 	    {
 	      decode_pixel (&row_buf[buf_offs], byte_vec, byte_vec_offs);
-	      if (dup)
+	      if (! dup)
 		buf_offs += bytes_per_pixel;
 	    }
 
