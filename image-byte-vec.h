@@ -1,6 +1,6 @@
 // image-byte-vec.h -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -255,11 +255,14 @@ public:
 protected:
 
   // Called by subclass (usually after reading image header) to finish
-  // setting up stuff.
+  // setting up stuff.  BYTES_PER_COMPONENT is optional and defaults
+  // to 1; BITS_PER_COMPONENT should be less than or equal to
+  // 8*BYTES_PER_COMPONENT, and defaults to 8*BYTES_PER_COMPONENT.
   //
   void set_specs (unsigned _width, unsigned _height,
 		  PixelFormat pxfmt = PIXEL_FORMAT_RGB,
-		  unsigned _bytes_per_component = 1);
+		  unsigned bytes_per_component = 1,
+		  unsigned bits_per_component = 0 /* 0: use default */);
 
   Color::component_t int_to_color_component (unsigned int_cc) const
   {

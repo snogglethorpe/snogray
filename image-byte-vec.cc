@@ -1,6 +1,6 @@
 // image-byte-vec.cc -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -200,15 +200,20 @@ ByteVecImageSource::ByteVecImageSource (const std::string &filename,
 
 void
 ByteVecImageSource::set_specs (unsigned _width, unsigned _height,
-			       PixelFormat pxfmt, unsigned _bytes_per_component)
+			       PixelFormat pxfmt, unsigned _bytes_per_component,
+			       unsigned bits_per_component)
 {
   width = _width;
   height = _height;
 
   set_pixel_format (pxfmt, _bytes_per_component);
 
-  unsigned bit_depth = bytes_per_component * 8;
-  component_scale = 1 / Color::component_t ((1 << bit_depth) - 1);
+  // BITS_PER_COMPONENT== 0 means "use default" (8 * BYTES_PER_COMPONENT).
+  //
+  if (bits_per_component == 0)
+    bits_per_component = 8 * bytes_per_component;
+
+  component_scale = 1 / Color::component_t ((1 << bits_per_component) - 1);
 
   if (width)
     input_row.resize (width * num_channels * bytes_per_component);
