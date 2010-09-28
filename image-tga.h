@@ -93,13 +93,20 @@ private:
     else if (pixel_depth == 16)
       // Three five-bit RGB components and a single alpha/"attribute"
       // bit packed into a 16-bit word:  (MSB) ARRRRRGGGGGBBBBB (LSB)
+      //
+      // Note that in this case we've already told our superclass to
+      // expect 5-bit fields (which it scales properly to cover a
+      // floating-point range of 0-1); we convert the single-bit
+      // alpha/attribute field to a value of either 0 or 31 so that it
+      // covers the same range as the other components.
       {
 	unsigned pixel = read16 (from);
 	byte_vec[byte_vec_offs++] = (pixel >> 10) & 0x1F; // red
 	byte_vec[byte_vec_offs++] = (pixel >> 5) & 0x1F;  // blue
 	byte_vec[byte_vec_offs++] = (pixel & 0x1F);	  // green
 	if (pixel_format == PIXEL_FORMAT_RGBA)
-	  byte_vec[byte_vec_offs++] = ((pixel >> 15) & 1); // alpha
+	  // convert single high alpha bit to either 0 or 31
+	  byte_vec[byte_vec_offs++] = ((pixel >> 10) & 0x20) - 1;
       }
     else
       // Three single-byte RGB components, and optionally a single

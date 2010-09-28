@@ -62,7 +62,14 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
   if (pixel_depth == 32 || attribute_bits != 0)
     pixel_format = pixel_format_add_alpha_channel (pixel_format);
 
-  set_specs (width, height, pixel_format, 1);
+  // The 16-bit-per-pixel format uses 5-bit fields for RGB, and we
+  // convert the alpha bit to 5 bits as well so that it can be handled
+  // consistently by the ByteVecImageSource class.  All other formats
+  // just use 8 bits per component.
+  //
+  unsigned bits_per_component = (pixel_depth == 16) ? 5 : 8;
+
+  set_specs (width, height, pixel_format, 1, bits_per_component);
 
   // Skip to the image data
   //
