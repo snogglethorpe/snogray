@@ -47,19 +47,21 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
   unsigned descriptor = header[HDR_DESCRIPTOR_OFFS];
   unsigned attribute_bits = descriptor & 0xF; // "attribute" == alpha
 
-  pixel_depth = header[HDR_PIXEL_DEPTH_OFFS];
+  unsigned pixel_depth = header[HDR_PIXEL_DEPTH_OFFS];
   if (pixel_depth > 32 || (pixel_depth & 0x7) != 0)
     open_err ("Invalid TGA pixel-depth");
 
-  if ((pixel_depth == 32 && attribute_bits != 8 && attribute_bits != 0)
-      || (pixel_depth == 24 && attribute_bits != 0)
-      || (pixel_depth == 16 && attribute_bits > 1)
-      || (pixel_depth == 8 && attribute_bits != 0))
+  bytes_per_pixel = pixel_depth >> 3;
+
+  if ((bytes_per_pixel == 4 && attribute_bits != 8 && attribute_bits != 0)
+      || (bytes_per_pixel == 3 && attribute_bits != 0)
+      || (bytes_per_pixel == 2 && attribute_bits > 1)
+      || (bytes_per_pixel == 1 && attribute_bits != 0))
     open_err ("TGA pixel-depth inconsistent with attribute bits");
 
   PixelFormat pixel_format
-    = pixel_depth == 8 ? PIXEL_FORMAT_GREY : PIXEL_FORMAT_RGB;
-  if (pixel_depth == 32 || attribute_bits != 0)
+    = (bytes_per_pixel == 1) ? PIXEL_FORMAT_GREY : PIXEL_FORMAT_RGB;
+  if (bytes_per_pixel == 4 || attribute_bits != 0)
     pixel_format = pixel_format_add_alpha_channel (pixel_format);
 
   // The 16-bit-per-pixel format uses 5-bit fields for RGB, and we
@@ -67,7 +69,7 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
   // consistently by the ByteVecImageSource class.  All other formats
   // just use 8 bits per component.
   //
-  unsigned bits_per_component = (pixel_depth == 16) ? 5 : 8;
+  unsigned bits_per_component = (bytes_per_pixel == 2) ? 5 : 8;
 
   set_specs (width, height, pixel_format, 1, bits_per_component);
 
@@ -80,24 +82,23 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
 
   // Allocate temporary row-buffer of the appropriate size.
   //
-  row_buf.assign (width * (pixel_depth >> 3), 0); // bytes per row
+  row_buf.assign (width * bytes_per_pixel, 0); // bytes per row
 }
 
 void
 TgaImageSource::read_row (ByteVec &byte_vec)
 {
-  unsigned bytes_per_pixel = pixel_depth >> 3;
   unsigned byte_vec_offs = 0;
 
   if (use_rle)
     {
       // Simple run-length-encoding.  Basically divided into spans of
       // pixels preceded by a length byte.  The low 7 bits of the
-      // length byte are the number of pixels, NUM, in the span; if
-      // the high bit is 0, then then length byte is followed by NUM
-      // normal pixels.  If the hight bit is 1, the length byte is
-      // followed by a single pixel which should be repeated NUM
-      // times.
+      // length byte are the number of pixels in the following span,
+      // NUM, minus 1.  If the high bit is 0, then then length byte is
+      // followed by NUM normal pixels.  If the hight bit is 1, the
+      // length byte is followed by a single pixel which should be
+      // repeated NUM times.
 
       unsigned num_pixels = 0;
       while (num_pixels < width)

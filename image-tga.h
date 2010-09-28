@@ -85,12 +85,12 @@ private:
   void decode_pixel (const unsigned char *from,
 		     ByteVec &byte_vec, unsigned &byte_vec_offs)
   {
-    if (pixel_depth == 8)
+    if (bytes_per_pixel == 1)
       // Single byte of grey-level
       {
 	byte_vec[byte_vec_offs++] = from[0];
       }
-    else if (pixel_depth == 16)
+    else if (bytes_per_pixel == 2)
       // Three five-bit RGB components and a single alpha/"attribute"
       // bit packed into a 16-bit word:  (MSB) ARRRRRGGGGGBBBBB (LSB)
       //
@@ -139,9 +139,9 @@ private:
     return static_cast<unsigned> (inf.get ());
   }
 
-  // Number of bits in a pixel (8, 16, 24, or 32).
+  // Number of bytes in a pixel (1-4).
   //
-  unsigned pixel_depth;
+  unsigned bytes_per_pixel;
 
   // Temporary buffer for use when reading rows.
   //
