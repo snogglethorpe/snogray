@@ -156,7 +156,7 @@ snogray::get_image_size (const ValTable &params,
     // parameter from PARAMS, or DEFAULT_SIZE.
     {
       unsigned size = params.get_uint ("size", default_size);
-      width = (aspect_ratio >= 1) ? size : unsigned (width * aspect_ratio);
-      height = (aspect_ratio >= 1) ? unsigned (width / aspect_ratio) : size;
+      width = (aspect_ratio >= 1) ? size : unsigned (size * aspect_ratio);
+      height = (aspect_ratio >= 1) ? unsigned (size / aspect_ratio) : size;
     }
 }
