@@ -78,21 +78,6 @@ private:
     return mem[0] + (mem[1] << 8);
   }
 
-  // Read a 16-bit pixel from memory at FROM, and write it into
-  // BYTE_VEC starting at offset BYTE_VEC_OFFS.  BYTE_VEC_OFFS is
-  // incremented by the number of bytes stored into BYTE_VEC.
-  //
-  void decode_16_bit_pixel (const unsigned char *from,
-			    ByteVec &byte_vec, unsigned &byte_vec_offs)
-  {
-    unsigned pixel = read16 (from);
-    byte_vec[byte_vec_offs++] = pixel & 0x1F;
-    byte_vec[byte_vec_offs++] = (pixel >> 5) & 0x1F;
-    byte_vec[byte_vec_offs++] = (pixel >> 10) & 0x1F;
-    if (pixel_format == PIXEL_FORMAT_RGBA)
-      byte_vec[byte_vec_offs++] = (pixel >> 15) & 1;
-  }
-
   // Read a pixel from memory at FROM, and write it into BYTE_VEC
   // starting at offset BYTE_VEC_OFFS.  BYTE_VEC_OFFS is incremented
   // by the number of bytes stored into BYTE_VEC.
@@ -100,15 +85,31 @@ private:
   void decode_pixel (const unsigned char *from,
 		     ByteVec &byte_vec, unsigned &byte_vec_offs)
   {
-    if (pixel_depth == 16)
-      decode_16_bit_pixel (from, byte_vec, byte_vec_offs);
-    else if (pixel_depth == 8)
-      byte_vec[byte_vec_offs++] = from[0];
-    else
+    if (pixel_depth == 8)
+      // Single byte of grey-level
       {
 	byte_vec[byte_vec_offs++] = from[0];
-	byte_vec[byte_vec_offs++] = from[1];
-	byte_vec[byte_vec_offs++] = from[2];
+      }
+    else if (pixel_depth == 16)
+      // Three five-bit RGB components and a single alpha/"attribute"
+      // bit packed into a 16-bit word:  (MSB) ARRRRRGGGGGBBBBB (LSB)
+      {
+	unsigned pixel = read16 (from);
+	byte_vec[byte_vec_offs++] = (pixel >> 10) & 0x1F; // red
+	byte_vec[byte_vec_offs++] = (pixel >> 5) & 0x1F;  // blue
+	byte_vec[byte_vec_offs++] = (pixel & 0x1F);	  // green
+	if (pixel_format == PIXEL_FORMAT_RGBA)
+	  byte_vec[byte_vec_offs++] = ((pixel >> 15) & 1); // alpha
+      }
+    else
+      // Three single-byte RGB components, and optionally a single
+      // alpha byte.  Note that the component bytes are ordered B-G-R
+      // in the TGA file, which we reverse to R-G-B order when storing
+      // into BYTE_VEC.
+      {
+	byte_vec[byte_vec_offs++] = from[2]; // red is last color in TGA
+	byte_vec[byte_vec_offs++] = from[1]; // green is middle
+	byte_vec[byte_vec_offs++] = from[0]; // blue is first
 	if (pixel_format == PIXEL_FORMAT_RGBA)
 	  byte_vec[byte_vec_offs++] = from[3]; // alpha/attribute byte
       }
