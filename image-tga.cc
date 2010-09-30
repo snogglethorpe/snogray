@@ -20,7 +20,7 @@ using namespace snogray;
 TgaImageSource::TgaImageSource (const std::string &_filename,
 				const ValTable &params)
   : ByteVecImageSource (_filename, params),
-    inf (_filename, std::ios::in | std::ios::binary)
+    inf (_filename.c_str(), std::ios::in | std::ios::binary)
 {
   unsigned char header[HEADER_LENGTH];
 
