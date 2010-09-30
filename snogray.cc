@@ -72,12 +72,14 @@ using namespace std;
 static int
 num_cores (int default_cores)
 {
+#if USE_THREADS
 #ifdef _SC_NPROCESSORS_ONLN
   // This works on linux, anyway.
   int sc = sysconf (_SC_NPROCESSORS_ONLN);
   if (sc > 0)
     return sc;
-#endif
+#endif // _SC_NPROCESSORS_ONLN
+#endif // USE_THREADS
 
   return default_cores;
 }
