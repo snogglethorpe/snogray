@@ -46,17 +46,32 @@ typedef boost::thread RealThread;
 
 // Thread is a thin wrapper that just inherits a selected set of
 // operations from RealThread.  The main intent of the wrapper is to
-// export only those few operations we use, to avoid inadvertent
-// dependencies on particular thread implementations.
+// define a minimal subset of C++0x std::thread, exporting only those
+// few operations we use to avoid inadvertent dependencies on
+// particular thread implementations.
 //
 class Thread : public RealThread
 {
 public:
 
-  // Create thread.  We only support a single-argument.
+  // Create a thread, which will call the OBJ->*METH method and then
+  // exit.
+  //
+  template<class C1, class C2>
+  Thread (void (C1::*meth)(), C2 *obj) : RealThread (meth, obj) { }
+
+  // Create a thread, which will call FUNCTOR and then exit.  FUNCTOR
+  // is copied unless something like std::ref is used.
+  //
+  template<typename F>
+  Thread (const F &functor) : RealThread (functor) { }
+
+  // Create a thread, which will call FUNCTOR with an argument of ARG
+  // and then exit.  FUNCTOR and ARG will be copied unless something
+  // like std::ref is used.
   //
   template<typename F, typename A>
-  Thread (const F &f, const A &a) : RealThread (f, a) { }
+  Thread (const F &functor, const A &arg) : RealThread (functor, arg) { }
 
   using RealThread::join;
 };
