@@ -26,31 +26,26 @@ class GlobalRenderState;
 class Camera;
 
 
+// The guts of a single rendering thread.
 //
-class RenderThread
+class RenderWorker
 {
 public:
 
-  RenderThread (const GlobalRenderState &global_state,
+  RenderWorker (const GlobalRenderState &global_state,
 		const Camera &camera, unsigned width, unsigned height,
 		RenderQueue &_in_q, RenderQueue &_out_q)
     : renderer (global_state, camera, width, height),
-      in_q (_in_q), out_q (_out_q), thread (invoke, this)
+      in_q (_in_q), out_q (_out_q)
   { }
-
-  // Wait until the underlying thread finishes.
-  //
-  void join () { thread.join (); }
 
   // Return rendering statistics from this thread.
   //
   RenderStats stats () const { return renderer.stats (); }
 
-private:
-
-  static void invoke (RenderThread *x) { x->run (); }
-
   void run ();
+
+private:
 
   // Per-thread rendering state.
   //
@@ -61,11 +56,20 @@ private:
   // rendering results.
   //
   RenderQueue &in_q, &out_q;
+};
 
-  // Must be the last field in this class, so that all other fields are
-  // initialized when the actual thread starts running.
-  //
-  Thread thread;
+// Thread that runs a RenderWorker.
+//
+class RenderThread : public RenderWorker, public Thread
+{
+public:
+
+  RenderThread (const GlobalRenderState &global_state,
+		const Camera &camera, unsigned width, unsigned height,
+		RenderQueue &_in_q, RenderQueue &_out_q)
+    : RenderWorker (global_state, camera, width, height, _in_q, _out_q),
+      Thread (&RenderThread::run, this)
+  { }
 };
 
 

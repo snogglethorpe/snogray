@@ -19,7 +19,7 @@ using namespace snogray;
 
 
 void
-RenderThread::run ()
+RenderWorker::run ()
 {
   while (RenderPacket *packet = in_q.get ())
     {
