@@ -12,6 +12,7 @@
 
 #include "excepts.h"
 #include "octree.h"
+#include "triv-space.h"
 #include "grid.h"
 #include "direct-integ.h"
 #include "path-integ.h"
@@ -55,9 +56,15 @@ GlobalRenderState::make_sample_gen (const ValTable &)
 }
 
 SpaceBuilderFactory *
-GlobalRenderState::make_space_builder_factory (const ValTable &)
+GlobalRenderState::make_space_builder_factory (const ValTable &params)
 {
-  return new Octree::BuilderFactory;
+  std::string accel = params.get_string ("accel", "octree");
+  if (accel == "octree")
+    return new Octree::BuilderFactory;
+  else if (accel == "trivial" || accel == "list")
+    return new TrivSpace::BuilderFactory;
+  else
+    throw std::runtime_error ("Unknown space accelerator \"" + accel + "\"");
 }
 
 SurfaceInteg::GlobalState *
