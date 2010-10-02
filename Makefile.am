@@ -323,7 +323,8 @@ libsnogimage_a_SOURCES = box-filt.h filter.cc filter.h filter-conv.h	 \
 	tuple-matrix.h tuple-matrix.tcc image-dispatch.cc image-dtors.cc \
 	image-input.h image-io.cc image-io.h image-output.cc		 \
 	image-output.h image-pfm.cc image-pfm.h image-rgbe.cc		 \
-	image-rgbe.h image-tga.cc image-tga.h mitchell-filt.h
+	image-rgbe.h image-tga.cc image-tga.h mitchell-filt.h		 \
+	triangle-filt.h
 
 # Library dependencies of libsnogimage.a
 #

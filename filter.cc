@@ -14,6 +14,7 @@
 #include "val-table.h"
 #include "mitchell-filt.h"
 #include "gauss-filt.h"
+#include "triangle-filt.h"
 #include "box-filt.h"
 
 #include "filter.h"
@@ -42,6 +43,8 @@ Filter::make (const ValTable &params)
 	return new MitchellFilt (filter_params);
       else if (filter_type == "gauss")
 	return new GaussFilt (filter_params);
+      else if (filter_type == "triangle")
+	return new TriangleFilt (filter_params);
       else if (filter_type == "box")
 	return new BoxFilt (filter_params);
       else
