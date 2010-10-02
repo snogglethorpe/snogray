@@ -324,15 +324,22 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       if (bsdf_samp.pdf == 0 || bsdf_samp.val == 0)
 	break;
 
+      // Add this BSDF sample to PATH_TRANSMITTANCE.
+      //
+      path_transmittance
+	*= bsdf_samp.val * abs (isec.cos_n (bsdf_samp.dir)) / bsdf_samp.pdf;
+
       // If this path is getting long, use russian roulette to randomly
       // terminate it.
       //
       if (path_len > global.min_path_len)
 	{
-	  float rr_term_prob = global.russian_roulette_terminate_probability;
 	  float russian_roulette = context.random ();
-
-	  if (russian_roulette < rr_term_prob)
+	  float rr_cont_prob
+	    = min (1 - global.russian_roulette_terminate_probability,
+		   path_transmittance.intensity ());
+	  
+	  if (russian_roulette > rr_cont_prob)
 	    //
 	    // Terminated!
 	    break;
@@ -340,20 +347,15 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	    // Don't terminate.  Adjust PATH_TRANSMITTANCE to reflect
 	    // the fact that we tried.
 	    //
-	    // By dividing by the probability of termination, which is
+	    // By dividing by the probability of continuation, which is
 	    // less than 1, we boost the intensity of paths that survive
 	    // russian-roulette, which will exactly compensate for the
 	    // zero value of paths that are terminated by it.
 	    //
-	    path_transmittance /= 1 - rr_term_prob;
+	    path_transmittance /= rr_cont_prob;
 	}
       if (path_len == global.max_path_len)
 	break;
-
-      // Add this BSDF sample to PATH_TRANSMITTANCE.
-      //
-      path_transmittance
-	*= bsdf_samp.val * abs (isec.cos_n (bsdf_samp.dir)) / bsdf_samp.pdf;
 
       // Update ISEC_RAY to point from ISEC's position in the direction
       // of the BSDF sample.  
