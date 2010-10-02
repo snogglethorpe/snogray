@@ -61,6 +61,7 @@ PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				     const ValTable &params)
   : SurfaceInteg::GlobalState (rstate),
     min_path_len (params.get_uint ("min-len", 5)),
+    max_path_len (params.get_uint ("max-len", 10)),
     russian_roulette_terminate_probability (
       params.get_float ("rr-term-prob,rr-term", 0.5f)),
     direct_illum (
@@ -346,6 +347,8 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	    //
 	    path_transmittance /= 1 - rr_term_prob;
 	}
+      if (path_len == global.max_path_len)
+	break;
 
       // Add this BSDF sample to PATH_TRANSMITTANCE.
       //

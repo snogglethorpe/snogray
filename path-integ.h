@@ -52,6 +52,10 @@ public:
     //
     unsigned min_path_len;
 
+    // Path-length at which we just give up and return 0.
+    //
+    unsigned max_path_len;
+
     // Probability we will terminate a path at each vertex beyond the
     // MIN_PATH_LEN.
     //
