@@ -1200,9 +1200,10 @@ function surface_integrator_parsers.directlighting (state, params)
 end
 
 function surface_integrator_parsers.path (state, params)
-   -- ignore parameters: "integer maxdepth"
-   params["integer maxdepth"] = nil -- ignore
+   local maxdepth = get_single_param (state, params, "integer maxdepth", 5)
    state:set_param ("render.surface-integ", "path")
+   state:set_param ("render.surface-integ.path.min-len", 3) -- PBRT value
+   state:set_param ("render.surface-integ.path.max-len", maxdepth)
 end
 
 function surface_integrator_parsers.photonmap (state, params)
