@@ -1238,6 +1238,50 @@ end
 
 
 ----------------------------------------------------------------
+-- pixel-filters
+--
+
+pixel_filter_parsers = {}
+
+local function set_pixel_filter (state, params, name, default_width)
+   -- All filters have "xwidth" and "ywidth" params, though we insist
+   -- on their values being the same.
+   local xw = get_single_param (state, params, "float xwidth", default_width)
+   local yw = get_single_param (state, params, "float ywidth", default_width)
+   local width = xw
+   if xw ~= yw then
+      width = (xw + yw) / 2
+      parse_warn ("pixel-filters must have identical xwidth and ywidth; using "
+		  ..tostring(width))
+   end
+   state:set_param ("output.filter", name)
+   state:set_param ("output.filter."..name..".width", width)
+end
+
+function pixel_filter_parsers.box (state, params)
+   set_pixel_filter (state, params, "box", 1)
+end
+
+function pixel_filter_parsers.triangle (state, params)
+   set_pixel_filter (state, params, "triangle", 2)
+end
+
+function pixel_filter_parsers.mitchell (state, params)
+   local b = get_single_param (state, params, "float B", 1/3)
+   local c = get_single_param (state, params, "float C", 1/3)
+   set_pixel_filter (state, params, "mitchell", 2)
+   state:set_param ("output.filter.mitchell.b", b)
+   state:set_param ("output.filter.mitchell.c", c)
+end
+
+function pixel_filter_parsers.gaussian (state, params)
+   local alpha = get_single_param (state, params, "float alpha", 2)
+   set_pixel_filter (state, params, "gauss", 2)
+   state:set_param ("output.filter.gauss.alpha", alpha)
+end
+
+
+----------------------------------------------------------------
 -- main command
 --
 
@@ -1328,6 +1372,13 @@ function load_pbrt_in_state (state, scene, camera)
 	 end
       end
       
+      -- If the user hasn't specified an output filter, do so here to
+      -- match PBRT defaults.
+      --
+      if not state.params["output.filter"] then
+	 pixel_filter_parsers.box (state, {})
+      end
+
       state.pending_options = {} -- clear
    end
 
@@ -1539,9 +1590,15 @@ function load_pbrt_in_state (state, scene, camera)
 	 parse_err ("object \""..name.."\" does not exist")
       end
    end
-   local function pixelfilter_cmd (...)
+   local function pixelfilter_cmd (kind, params)
       check_section ('options')
-      parse_warn "PixelFilter command ignored"
+      local pixfilt_parser = pixel_filter_parsers[kind]
+      if pixfilt_parser then
+	 pixfilt_parser (state, params)
+	 check_unused_params (params)
+      else
+	 parse_err ("unknown pixel-filter type \""..kind.."\"")
+      end
    end
    local function renderer_cmd (...)
       check_section ('options')
