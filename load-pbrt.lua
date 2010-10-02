@@ -730,7 +730,7 @@ local texture_parsers = {}
 
 -- checkerboard texture
 --
-function texture_parsers.checkerboard (state, type, params)
+function texture_parsers.checkerboard (state, params, type)
    local dims = get_single_param (state, params, "integer dimension", 2)
    local tex1 = get_texture_param (state, params, "color tex1", 1)
    local tex2 = get_texture_param (state, params, "color tex2", 2)
@@ -746,7 +746,7 @@ end
 
 -- imagemap texture
 --
-function texture_parsers.imagemap (state, type, params)
+function texture_parsers.imagemap (state, params, type)
    -- unsupported params: "string wrap" (non-default)
    -- ignored params: "float maxanisotropy", "bool trilinear", "float gamma"
    local filename = get_single_param (state, params, "string filename")
@@ -780,13 +780,13 @@ end
 
 -- constant texture (used in scene files for named constants)
 --
-function texture_parsers.constant (state, type, params)
+function texture_parsers.constant (state, params, type)
    return get_single_param (state, params, "color/float value", 1)
 end
 
 -- scale texture (multiplies its two inputs)
 --
-function texture_parsers.scale (state, type, params)
+function texture_parsers.scale (state, params, type)
    local tex1 = get_texture_param (state, params, "color/float tex1", 1)
    local tex2 = get_texture_param (state, params, "color/float tex2", 1)
    return tex1 * tex2
@@ -794,7 +794,7 @@ end
 
 -- mix texture (linearly interpolates between its two inputs based on another)
 --
-function texture_parsers.mix (state, type, params)
+function texture_parsers.mix (state, params, type)
    local amount = get_texture_param (state, params, "float amount", 1)
    local tex1 = get_texture_param (state, params, "color/float tex1", 1)
    local tex2 = get_texture_param (state, params, "color/float tex2", 1)
@@ -803,7 +803,7 @@ end
 
 -- windy texture
 --
-function texture_parsers.windy (state, type, params)
+function texture_parsers.windy (state, params, type)
    local wind_strength
       = scale (.1) (perlin_series_tex {octaves = 3, auto_scale = false})
    local wave_height
@@ -816,7 +816,7 @@ end
 
 -- fbm texture
 --
-function texture_parsers.fbm (state, type, params)
+function texture_parsers.fbm (state, params, type)
    local octaves = get_single_param (state, params, "integer octaves", 8)
    local omega = get_single_param (state, params, "float roughness", .5)
    local xf = state.xform:inverse ()
@@ -827,7 +827,7 @@ end
 -- wrinkled texture (basically same as fbm, but uses absolute value of
 -- perlin noise)
 --
-function texture_parsers.wrinkled (state, type, params)
+function texture_parsers.wrinkled (state, params, type)
    local octaves = get_single_param (state, params, "integer octaves", 8)
    local omega = get_single_param (state, params, "float roughness", .5)
    local xf = state.xform:inverse ()
@@ -844,7 +844,7 @@ local shape_parsers = {}
 
 -- mesh shape
 --
-function shape_parsers.trianglemesh (state, mat, params)
+function shape_parsers.trianglemesh (state, params, mat)
    -- ignored params: "vector S"
    local points = get_param (state, params, "point P")
    local normals = get_param (state, params, "normal N", false)
@@ -945,9 +945,9 @@ end
 -- loopsubdiv shape (not implement; workaround: ignore the subdivision
 -- entirely and just render the underlying mesh)
 --
-function shape_parsers.loopsubdiv (state, mat, params)
+function shape_parsers.loopsubdiv (state, params, mat)
    params["integer nlevels"] = nil -- ignore
-   local M = shape_parsers.trianglemesh (state, mat, params)
+   local M = shape_parsers.trianglemesh (state, params, mat)
    -- if not M.vertex_normals then
    --    -- turn on mesh-smoothing in an attempt to hide the low-poly
    --    -- underling mesh...
@@ -958,7 +958,7 @@ end
 
 -- cylinder shape
 --
-function shape_parsers.cylinder (state, mat, params)
+function shape_parsers.cylinder (state, params, mat)
    -- unsupported params: "float phimax"
    local radius = get_single_param (state, params, "float radius", 1)
    local zmin = get_single_param (state, params, "float zmin", -1)
@@ -983,7 +983,7 @@ end
 
 -- sphere shape
 --
-function shape_parsers.sphere (state, mat, params)
+function shape_parsers.sphere (state, params, mat)
    -- unsupported params: "float zmin", "float zmax", "float phimax"
    local radius = get_single_param (state, params, "float radius", 1)
    local xf = state.xform
@@ -998,7 +998,7 @@ end
 
 -- disk shape
 --
-function shape_parsers.disk (state, mat, params)
+function shape_parsers.disk (state, params, mat)
    -- unsupported params: "float innerradius", "float phimax"
    local radius = get_single_param (state, params, "float radius", 1)
    local height = get_single_param (state, params, "float height", 0)
@@ -1319,6 +1319,30 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
 
+   -- Handle a command which needs type-specific parsing of parameters.
+   --
+   -- KIND is looked up in the table PARSERS to find a parser; if
+   -- found, the parser is called with the current state, PARAMS
+   -- (command-specific parameters), and any additional arguments.
+   --
+   -- If KIND is not found in PARSERS and LABEL is non-nil/false, an
+   -- error message is given, using LABEL to indicate what sort of
+   -- entity was incorrect; if LABEL is nil, then no error is given,
+   -- and nil is returned instead for unknown kinds.
+   --
+   local function parse_subcommand (kind, params, parsers, label, ...)
+      local parser = parsers[kind]
+      if parser then
+	 local val = parser (state, params, ...)
+	 check_unused_params (params)
+	 return val
+      elseif label then
+	 parse_err ("unknown "..label.." type \""..kind.."\"")
+      else
+	 return nil
+      end
+   end
+
    -- Finish processing any pending state in state.pending_options.
    -- This is called at the end of the "option" section (at the
    -- beginning of the "world" section).
@@ -1498,18 +1522,12 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function light_cmd (kind, params)
       check_section ('world')
-      local light_parser = light_parsers[kind]
-      if light_parser then
-	 local light = light_parser (state, params)
-	 -- none of our lights support "integer nsamples", so ignore it
-	 params["integer nsamples"] = nil -- ignore
-	 check_unused_params (params)
-	 -- the parser can return nil to avoid adding a light, so check
-	 if light then
-	    add (light)
-	 end
-      else
-	 parse_err ("unknown LightSource type \""..kind.."\"")
+      -- none of our lights support the "integer nsamples" param, so ignore it
+      params["integer nsamples"] = nil -- ignore
+      local light = parse_subcommand (kind, params, light_parsers, "light")
+      -- the parser can return nil to avoid adding a light, so check
+      if light then
+	 add (light)
       end
    end
    local function lookat_cmd (pos_x, pos_y, pos_z, targ_x, targ_y, targ_z, up_x, up_y, up_z)
@@ -1534,24 +1552,14 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function material_cmd (kind, params)
       check_section ('world')
-      local mat_parser = material_parsers[kind]
-      if mat_parser then
-	 state.material = mat_parser (state, params)
-	 check_unused_params (params)
-      else
-	 parse_err ("unknown Material type \""..kind.."\"")
-      end
+      state.material
+	 = parse_subcommand (kind, params, material_parsers, "material")
    end
    local function make_named_material_cmd (name, params)
       check_section ('world')
       local kind = get_single_param (state, params, "string type")
-      local mat_parser = material_parsers[kind]
-      if mat_parser then
-	 state.named_materials[name] = mat_parser (state, params)
-	 check_unused_params (params)
-      else
-	 parse_err ("unknown Material type \""..kind.."\"")
-      end
+      state.named_materials[name]
+	 = parse_subcommand (kind, params, material_parsers, "material")
    end
    local function named_material_cmd (name)
       check_section ('world')
@@ -1592,13 +1600,7 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function pixelfilter_cmd (kind, params)
       check_section ('options')
-      local pixfilt_parser = pixel_filter_parsers[kind]
-      if pixfilt_parser then
-	 pixfilt_parser (state, params)
-	 check_unused_params (params)
-      else
-	 parse_err ("unknown pixel-filter type \""..kind.."\"")
-      end
+      parse_subcommand (kind, params, pixel_filter_parsers, "pixel-filter")
    end
    local function renderer_cmd (...)
       check_section ('options')
@@ -1615,13 +1617,7 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function sampler_cmd (kind, params)
       check_section ('options')
-      local sampler_parser = sampler_parsers[kind]
-      if sampler_parser then
-	 sampler_parser (state, params)
-	 check_unused_params (params)
-      else
-	 parse_err ("unknown sampler type \""..kind.."\"")
-      end
+      parse_subcommand (kind, params, sampler_parsers, "sampler")
    end
    local function scale_cmd (x, y, z)
       state.xform = state.xform * scale (x, y, z)
@@ -1632,38 +1628,24 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function shape_cmd (kind, params)
       check_section ('world')
-      local mat = check_mat ()
-      local shape_parser = shape_parsers[kind]
-      if shape_parser then
-	 add (shape_parser (state, mat, params))
-	 check_unused_params (params)
-      else
-	 parse_err ("unknown shape type \""..kind.."\"")
-      end
+      add (parse_subcommand (kind, params, shape_parsers, "shape",
+			     check_mat ()))
    end
    local function surfaceintegrator_cmd (kind, params)
       check_section ('options')
-      local surfint_parser = surface_integrator_parsers[kind]
-      if surfint_parser then
-	 surfint_parser (state, params)
-	 check_unused_params (params)
-      elseif not state.params["render.surface-integ"] then
-	 -- Give an error for an unknown surface integrator, but only
-	 -- if the user didn't explicitly specify what to use on the
-	 -- command line.
-	 parse_err ("unknown surface-integrator type \""..kind.."\"")
-      end
+      -- Only give an error for unknown surface integrators if the
+      -- user didn't explicitly specify what to use on the command
+      -- line (because it's convenient to allow the user to render
+      -- scene files with unsupported surface-integrators, of which
+      -- there are many...).
+      local err_label  -- string => error if unknown; false/nil => no errors
+	 = not state.params["render.surface-integ"] and "surface-integrator"
+      parse_subcommand (kind, params, surface_integrator_parsers, err_label)
    end
    local function texture_cmd (name, type, kind, params)
       check_section ('world')
-      local tex_parser = texture_parsers[kind]
-      if tex_parser then
-	 local tex = tex_parser (state, type, params)
-	 state.named_textures[name] = tex
-	 check_unused_params (params)
-      else
-	 parse_err ("unknown texture type \""..kind.."\"")
-      end
+      state.named_textures[name]
+	 = parse_subcommand (kind, params, texture_parsers, "texture", type)
    end
    local function transform_begin_cmd ()
       push (state.xform_stack, state.xform)
