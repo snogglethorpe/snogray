@@ -62,7 +62,7 @@ cone_sample_inverse (float cos_half_angle, const Vec &dir)
   float v = phi * INV_PIf * 0.5f;
   if (v < 0)
     v += 1;
-  float u = (1 - dir.z) / (1 - cos_half_angle);
+  float u = (dir.z - cos_half_angle) / (1 - cos_half_angle);
   return UV (clamp01 (u), clamp01 (v));
 }
 
