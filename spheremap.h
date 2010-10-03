@@ -59,8 +59,8 @@ struct MercatorMapping
 {
   static UV map (const Vec &dir) const
   {
-    return UV (clamp ((dir.y_axis_longitude () + PIf) * INV_PIf / 2, 0.f, 1.f),
-	       clamp ((dir.y + 1) / 2, 0.f, 1.f);
+    return UV (clamp01 ((dir.y_axis_longitude () + PIf) * INV_PIf / 2),
+	       clamp01 ((dir.y + 1) / 2);
   }
 
   static Vec map (const UV &uv) const
@@ -102,8 +102,7 @@ struct DebevecMapping
     tparam_t d = sqrt (x * x + y * y);
     tparam_t rpi = (d == 0) ? 0 : INV_PIf * acos (z) / 2 / d;
 
-    return UV (clamp (x * rpi + 0.5f, 0.f, 1.f),
-	       clamp (y * rpi + 0.5f, 0.f, 1.f));
+    return UV (clamp01 (x * rpi + 0.5f), clamp01 (y * rpi + 0.5f));
   }
 
   static Vec map (const UV &uv)
@@ -127,8 +126,7 @@ struct MirrorBallMapping
     tparam_t d = sqrt (x * x + y * y);
     tparam_t rpi = (d == 0) ? 0 : sqrt ((1 - z) / 2) / 2 / d;
 
-    return UV (clamp (x * rpi + 0.5f, 0.f, 1.f),
-	       clamp (y * rpi + 0.5f, 0.f, 1.f));
+    return UV (clamp01 (x * rpi + 0.5f), clamp01 (y * rpi + 0.5f));
   }
 
   // XXXX this is not correct !!!!! XXXX

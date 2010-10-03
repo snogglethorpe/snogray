@@ -162,7 +162,7 @@ public:
 	Rp = Rs * ((Rp_term1 - Rp_term2) / (Rp_term1 + Rp_term2));
       }
 
-    return clamp ((Rs + Rp) / 2, 0.f, 1.f);
+    return clamp01 ((Rs + Rp) / 2);
   }
 
   // Final index of refracetion (the ratio of the indices of refraction on

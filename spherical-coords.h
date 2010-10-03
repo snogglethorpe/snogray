@@ -114,8 +114,8 @@ template<typename T>
 static inline UV
 y_axis_spherical (const TVec<T> &vec)
 {
-  return UV (clamp (y_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f, 0.f, 1.f),
-	     clamp (y_axis_colatitude (vec) * INV_PIf, 0.f, 1.f));
+  return UV (clamp01 (y_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f),
+	     clamp01 (y_axis_colatitude (vec) * INV_PIf));
 }
 
 // Return UV-encoded y-axis-based latitude-longitude coordinates
@@ -128,8 +128,8 @@ template<typename T>
 static inline UV
 y_axis_latlong (const TVec<T> &vec)
 {
-  return UV (clamp (y_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f, 0.f, 1.f),
-	     clamp (y_axis_latitude (vec) * INV_PIf + 0.5f, 0.f, 1.f));
+  return UV (clamp01 (y_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f),
+	     clamp01 (y_axis_latitude (vec) * INV_PIf + 0.5f));
 }
 
 
@@ -182,8 +182,8 @@ template<typename T>
 static inline UV
 z_axis_spherical (const TVec<T> &vec)
 {
-  return UV (clamp (z_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f, 0.f, 1.f),
-	     clamp (z_axis_colatitude (vec) * INV_PIf, 0.f, 1.f));
+  return UV (clamp01 (z_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f),
+	     clamp01 (z_axis_colatitude (vec) * INV_PIf));
 }
 
 // Return UV-encoded z-axis-based latitude-longitude coordinates
@@ -196,8 +196,8 @@ template<typename T>
 static inline UV
 z_axis_latlong (const TVec<T> &vec)
 {
-  return UV (clamp (z_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f, 0.f, 1.f),
-	     clamp (z_axis_latitude (vec) * INV_PIf + 0.5f, 0.f, 1.f));
+  return UV (clamp01 (z_axis_longitude (vec) * INV_PIf * 0.5f + 0.5f),
+	     clamp01 (z_axis_latitude (vec) * INV_PIf + 0.5f));
 }
 
 

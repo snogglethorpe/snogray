@@ -65,8 +65,8 @@ public:
   //
   static UV dir_to_pos (const Vec &dir)
   {
-    return UV (clamp (atan2 (dir.y, dir.x) * INV_PIf * 0.5f + 0.5f, 0.f, 1.f),
-	       clamp ((1 - dir.z) / 2, 0.f, 1.f));
+    return UV (clamp01 (atan2 (dir.y, dir.x) * INV_PIf * 0.5f + 0.5f),
+	       clamp01 ((1 - dir.z) / 2));
   }
 
   // Return the direction corresponding to the position POS in the
