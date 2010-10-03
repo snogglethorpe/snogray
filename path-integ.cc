@@ -60,8 +60,8 @@ public:
 PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				     const ValTable &params)
   : SurfaceInteg::GlobalState (rstate),
-    min_path_len (params.get_uint ("min-len", 5)),
-    max_path_len (params.get_uint ("max-len", 10)),
+    min_path_len (params.get_uint ("min-len", 3)),
+    max_path_len (params.get_uint ("max-len", 25)),
     direct_illum (
       params.get_uint ("direct-samples,dir-samples,dir-samps",
 		       rstate.params.get_uint ("light-samples", 1))),
