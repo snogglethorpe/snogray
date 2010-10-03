@@ -56,11 +56,6 @@ public:
     //
     unsigned max_path_len;
 
-    // Probability we will terminate a path at each vertex beyond the
-    // MIN_PATH_LEN.
-    //
-    float russian_roulette_terminate_probability;
-
     // Global state for DirectIllum objects.
     //
     DirectIllum::GlobalState direct_illum;

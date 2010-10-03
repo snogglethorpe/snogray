@@ -62,8 +62,6 @@ PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
   : SurfaceInteg::GlobalState (rstate),
     min_path_len (params.get_uint ("min-len", 5)),
     max_path_len (params.get_uint ("max-len", 10)),
-    russian_roulette_terminate_probability (
-      params.get_float ("rr-term-prob,rr-term", 0.5f)),
     direct_illum (
       params.get_uint ("direct-samples,dir-samples,dir-samps",
 		       rstate.params.get_uint ("light-samples", 1))),
@@ -334,12 +332,18 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       //
       if (path_len > global.min_path_len)
 	{
+	  // RR_CONTINUE_PROB is the probability that we'll continue
+	  // this path.
+	  //
+	  // We make it proportional to the current path transmittance
+	  // so that paths with high-transmittance, which have a
+	  // bigger effect on the final result, will be explored
+	  // farther.
+	  //
+	  float rr_continue_prob = min (1.f, path_transmittance.intensity ());
 	  float russian_roulette = context.random ();
-	  float rr_cont_prob
-	    = min (1 - global.russian_roulette_terminate_probability,
-		   path_transmittance.intensity ());
 	  
-	  if (russian_roulette > rr_cont_prob)
+	  if (russian_roulette > rr_continue_prob)
 	    //
 	    // Terminated!
 	    break;
@@ -352,7 +356,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	    // russian-roulette, which will exactly compensate for the
 	    // zero value of paths that are terminated by it.
 	    //
-	    path_transmittance /= rr_cont_prob;
+	    path_transmittance /= rr_continue_prob;
 	}
       if (path_len == global.max_path_len)
 	break;
