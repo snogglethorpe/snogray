@@ -69,19 +69,22 @@ ImageOutput::set_raw_min_y (int new_min_y)
       for (unsigned x = 0; x < width; x++)
 	{
 	  Tint pixel = r->pixels[x];
+	  Color col = pixel.alpha_scaled_color ();
+	  Tint::alpha_t alpha = pixel.alpha;
 
 	  float weight = r->weights[x];
 	  if (weight > 0)
-	    pixel /= weight;
+	    {
+	      col *= 1 / weight;
+	      alpha *= 1 / weight;
+	    }
 
 	  if (intensity_scale != 1)
-	    pixel *= intensity_scale;
+	    col *= intensity_scale;
 	  if (intensity_power != 1)
-	    pixel = Tint (pow (max (pixel.unscaled_color(), 0.f),
-			       intensity_power),
-			  pixel.alpha);
+	    col = pow (max (col, 0.f), intensity_power);
 
-	  r->pixels[x] = pixel;
+	  r->pixels[x] = Tint (col, alpha);
 	}
 
       sink->write_row (r->pixels);
