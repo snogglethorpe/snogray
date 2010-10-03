@@ -156,7 +156,7 @@ ImageSource::open (const std::string &filename, const ValTable &params)
     return new PpmImageSource (filename, params);
 #endif
 
-  throw std::runtime_error ("Unknown or unsupported output image type");
+  throw std::runtime_error ("Unknown or unsupported input image type");
 }
 
 
