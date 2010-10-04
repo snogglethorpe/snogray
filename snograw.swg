@@ -68,6 +68,7 @@
 #include "glass.h"
 #include "plastic.h"
 #include "mirror.h"
+#include "stencil.h"
 #include "point-light.h"
 #include "sphere-light.h"
 #include "far-light.h"
@@ -1169,6 +1170,14 @@ namespace snogray {
 	    const TexVal<Color> &col = Color(0))
     {
       return new Mirror (_ior, _reflectance, col);
+    }
+
+    // Stencil
+    static Ref<Material>
+    stencil (const TexVal<Color> &opacity,
+	     const Ref<Material> &underlying_material)
+    {
+      return new Stencil (opacity, underlying_material);
     }
 
     // Glass

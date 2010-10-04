@@ -474,12 +474,23 @@ end
 --
 local function postproc_material (mat, params)
    if type (params) == 'table' then
+      -- bump-mapping
+      --
       local bump = params.bump_map or params.bump
       -- we ignore scalar bump maps, as they have no effect
       if bump and type (bump) ~= 'number' then
 	 mat.bump_map = float_tex (bump)
       end
+
+      -- opacity (alpha transparency)
+      --
+      local opacity = params.opacity or params.alpha
+      -- a simple 1 or color(1) means "fully opaque", so can be ignored
+      if opacity and opacity ~= 1 and opacity ~= color(1) then
+	 mat = stencil (opacity, mat)
+      end
    end
+
    return mat
 end   
 
@@ -626,6 +637,10 @@ function norm_glow (intens)
    return raw.norm_glow (intens or 1)
 end   
 
+function stencil (opacity, underlying)
+   opacity = color_tex_val (opacity)
+   return raw.stencil (opacity, underlying)
+end
 
 ----------------------------------------------------------------
 --
