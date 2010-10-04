@@ -239,9 +239,10 @@ libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
 #
 
 libsnogmat_a_SOURCES = cook-torrance.cc cook-torrance.h cos-dist.h	\
-	fresnel.h glass.cc glass.h glow.cc glow.h lambert.cc lambert.h	\
-	mirror.cc mirror.h norm-glow.cc norm-glow.h phong-dist.h	\
-	phong.cc phong.h plastic.cc plastic.h ward-dist.h
+	fresnel.h glass.cc glass.h glow.cc glow.h lambert.cc		\
+	lambert.h mirror.cc mirror.h norm-glow.cc norm-glow.h		\
+	phong-dist.h phong.cc phong.h plastic.cc plastic.h stencil.cc	\
+	stencil.h ward-dist.h
 
 
 ################################################################
