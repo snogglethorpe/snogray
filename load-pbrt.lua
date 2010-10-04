@@ -627,23 +627,19 @@ end
 -- uber (not implemented; workaround: use cook-torrance)
 --
 function material_parsers.uber (state, params)
-   -- ignored params: "color/float opacity", "color Kr"
+   -- ignored params: "color Kr"
    local kd = get_texture_param (state, params, "color Kd", 1)
    local ks = get_texture_param (state, params, "color Ks", 1)
    local kr,krn = get_texture_param (state, params, "color Kr", false)
    local rough = get_texture_param (state, params, "float roughness", .1)
    local bump = get_texture_param (state, params, "float bumpmap", false)
-   local opacity,opacityn
-      = get_texture_param (state, params, "float/color opacity", 1)
+   local opacity = get_texture_param (state, params, "float/color opacity", 1)
    -- warn about stuff that we're ignoring, but might actually be important
    if kr and kr ~= color(0) then
       parse_warn ("\""..krn.."\" parameter ignored")
    end
-   if opacity ~= 1 then
-      -- ignore, but it's important enough to warn about
-      parse_warn ("\""..opacityn.."\" parameter ignored")
-   end
-   return cook_torrance {d = kd, s = ks, m = rough, bump = bump}
+   return cook_torrance {d = kd, s = ks, m = rough,
+			 bump = bump, opacity = opacity}
 end
 
 -- substrate (not implement; workaround: use cook-torrance)
