@@ -59,8 +59,9 @@ public:
   {
   }
 
-  /* Returns an end point of the ray if it was extended to length LEN.  */
-  TPos<T> extension (float _len) const { return origin + dir * _len; }
+  // Returns the location of this ray with parameter T.
+  //
+  TPos<T> operator() (T t) const { return origin + dir * t; }
 
   TPos<T> begin () const { return origin+dir*t0; }
   TPos<T> end () const { return  origin+dir*t1; }

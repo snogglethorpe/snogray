@@ -35,7 +35,7 @@ Sphere2::intersect (Ray &ray, RenderContext &context) const
   if (sphere_intersects (Pos(0,0,0), dist_t(1), oray, t))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, *this, Vec (oray.extension (t)));
+      return new (context) IsecInfo (ray, *this, Vec (oray (t)));
     }
   return 0;
 }

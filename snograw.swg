@@ -290,9 +290,9 @@ namespace snogray {
     TRay (TPos<T> _origin, TVec<T> _dir, T _t0, T _t1);
     TRay (TPos<T> _origin, TPos<T> _targ);
 
-    TPos<T> extension (float _len) const { return origin + dir * _len; }
-    TPos<T> begin () const { return origin+dir*t0; }
-    TPos<T> end () const { return  origin+dir*t1; }
+    TPos<T> operator() (T t);
+    TPos<T> begin () const;
+    TPos<T> end () const;
 
     T length () const { return t1 - t0; }
 

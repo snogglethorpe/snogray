@@ -113,7 +113,7 @@ Cylinder::intersect (Ray &ray, RenderContext &context) const
   if (cylinder_intersects (oray, t))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, *this, oray.extension (t));
+      return new (context) IsecInfo (ray, *this, oray (t));
     }
 
   return 0;
