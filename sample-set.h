@@ -30,57 +30,13 @@ class SampleSet
 {
 public:
 
-  // A single sample channel.  Sample channels are typed, so they can only
-  // contain a single type of sample (the available types of samples are
-  // restricted to whatever the sample generator can generate).
+  // A single sample channel.  Sample channels are typed, so they can
+  // only contain a single type of sample (the available types of
+  // samples are restricted to whatever the sample generator can
+  // generate).
   //
   template<typename T>
-  class Channel
-  {
-  public:
-
-    // Default constructor zero-initializes, hopefully resulting in a
-    // segfault if an otherwise uninitialized channel is used by mistake.
-    //
-    Channel () {}
-
-    // Copy constructor
-    //
-    Channel (const Channel &from)
-      : size (from.size), base_offset (from.base_offset),
-	num_total_samples (from.num_total_samples)
-    {}
-
-    // Number of sub-samples this channel contains.  There are this many
-    // sub-samples per top-level sample.
-    //
-    unsigned size;
-
-  private:
-
-    friend class SampleSet;
-
-    // Normal constructor.  This is private, as BASE_OFFSET is an
-    // implementation detail.
-    //
-    Channel (unsigned _base_offset, unsigned _size, unsigned _num_total_samples)
-      : size (_size), base_offset (_base_offset),
-	num_total_samples (_num_total_samples)
-    {}
-
-    // Offset of our first sample in the appropriate sample vector of
-    // our SampleSet.
-    //
-    unsigned base_offset;
-
-    // Number of total samples generated for this channel.  This should be
-    // at least SIZE * NUM_TOP_LEVEL_SAMPLES.  In the case that it's
-    // greater, then NUM_TOTAL_SAMPLES - SIZE * NUM_TOP_LEVEL_SAMPLES extra
-    // samples will end up being unused; this should be OK as the samples
-    // are in random order.
-    //
-    unsigned num_total_samples;
-  };
+  class Channel;
 
   // A vector of channels, for cases where we need more than one.
   //
@@ -89,59 +45,12 @@ public:
   {
   };
 
-
   // A reference to a single top-level sample in a sample-set.
   //
   // This is just a convenient package to hold the set and a
   // sample-number.
   //
-  class Sample
-  {
-  public:
-
-    Sample (const SampleSet &_set, unsigned _sample_num)
-      : set (_set), sample_num (_sample_num)
-    { }
-
-    // Return sub-sample SUB_SAMPLE_NUM, from the sample-channel
-    // CHANNEL.  SUB_SAMPLE_NUM may be omitted if there's only one
-    // sample per top-level sample.
-    //
-    template<typename T>
-    T get (const Channel<T> &channel, unsigned sub_sample_num = 0) const
-    {
-      return set.get<T> (channel, sample_num, sub_sample_num);
-    }
-
-    // Return an iterator pointing to the first sub-sample from
-    // sample-channel CHANNEL.
-    //
-    template<typename T>
-    typename std::vector<T>::const_iterator
-    begin (const Channel<T> &channel) const
-    {
-      return set.begin<T> (channel, sample_num);
-    }
-
-    // Return an iterator pointing just past the end of the last
-    // sub-sample for top-level sample SAMPLE_NUM from the sample channel
-    // CHANNEL.
-    //
-    template<typename T>
-    typename std::vector<T>::const_iterator
-    end (const Channel<T> &channel) const
-    {
-      return set.end<T> (channel, sample_num);
-    }
-
-    // The SampleSet this sample is from.
-    //
-    const SampleSet &set;
-
-    // The top-level sample-number of this sample in SET.
-    //
-    unsigned sample_num;
-  };
+  class Sample;
 
 
   // Construct a new sample set, using the sample generator GEN and
@@ -159,21 +68,14 @@ public:
   template<typename T>
   T get (const Channel<T> &channel,
 	 unsigned sample_num, unsigned sub_sample_num = 0)
-    const
-  {
-    return sample<T> (channel.base_offset)
-      [sample_num * channel.size + sub_sample_num];
-  }
+    const;
 
   // Return an iterator pointing to the first sub-sample for top-level
   // sample SAMPLE_NUM from the sample channel CHANNEL.
   //
   template<typename T>
   typename std::vector<T>::const_iterator
-  begin (const Channel<T> &channel, unsigned sample_num) const
-  {
-    return sample<T> (channel.base_offset) + (sample_num * channel.size);
-  }
+  begin (const Channel<T> &channel, unsigned sample_num) const;
 
   // Return an iterator pointing just past the end of the last
   // sub-sample for top-level sample SAMPLE_NUM from the sample channel
@@ -181,10 +83,7 @@ public:
   //
   template<typename T>
   typename std::vector<T>::const_iterator
-  end (const Channel<T> &channel, unsigned sample_num) const
-  {
-    return begin (channel, sample_num) + channel.size;
-  }
+  end (const Channel<T> &channel, unsigned sample_num) const;
 
   // Allocate a new sample-channel in this set, containing
   // NUM_SUB_SAMPLES samples per top-level sample (which defaults to 1).
@@ -192,44 +91,14 @@ public:
   // parameter.
   //
   template<typename T>
-  Channel<T> add_channel (unsigned num_sub_samples = 1)
-  {
-    // There's NUM_SUB_SAMPLES per top-level sample, so calculate the
-    // total number of samples for this channel.
-    //
-    unsigned num_total_samples = num_samples * num_sub_samples;
-
-    // Some sample generators may want a slightly different number of
-    // samples.
-    //
-    num_total_samples = gen.adjust_sample_count<T> (num_total_samples);
-
-    // Adjust NUM_SUB_SAMPLES so that NUM_SAMPLES * NUM_SUB_SAMPLES is as
-    // close to NUM_TOTAL_SAMPLES as possible (it's not possible to change
-    // NUM_SAMPLES).  Any difference will end up being unused.
-    //
-    num_sub_samples = num_total_samples / num_samples;
-
-    // Add enough room to our sample array for all the samples.
-    //
-    unsigned base_sample_offset = add_sample_space<T> (num_total_samples);
-
-    return _add_channel<T> (Channel<T> (base_sample_offset, num_sub_samples,
-					num_total_samples));
-  }
+  Channel<T> add_channel (unsigned num_sub_samples = 1);
 
   // Allocate and return a vector of channels in this set, each
   // containing NUM_SUB_SAMPLES samples per top-level sample.  The type
   // of sample must be specified as the first template parameter.
   //
   template<typename T>
-  ChannelVec<T> add_channel_vec (unsigned size, unsigned num_sub_samples)
-  {
-    ChannelVec<T> vec (size);
-    for (unsigned i = 0; i < size; i++)
-      vec[i] = add_channel<T> (num_sub_samples);
-    return vec;
-  }
+  ChannelVec<T> add_channel_vec (unsigned size, unsigned num_sub_samples);
 
   // Removes all samples from this sample-set, invalidating any previously
   // created channels.  To subsequently generate more samples, new channels
@@ -284,6 +153,204 @@ public:
   Random &random;
 };
 
+
+// SampleSet::Channel
+
+// A single sample channel.  Sample channels are typed, so they can only
+// contain a single type of sample (the available types of samples are
+// restricted to whatever the sample generator can generate).
+//
+template<typename T>
+class SampleSet::Channel
+{
+public:
+
+  // Default constructor zero-initializes, hopefully resulting in a
+  // segfault if an otherwise uninitialized channel is used by mistake.
+  //
+  Channel () {}
+
+  // Copy constructor
+  //
+  Channel (const Channel &from)
+    : size (from.size), base_offset (from.base_offset),
+      num_total_samples (from.num_total_samples)
+  {}
+
+  // Number of sub-samples this channel contains.  There are this many
+  // sub-samples per top-level sample.
+  //
+  unsigned size;
+
+private:
+
+  friend class SampleSet;
+
+  // Normal constructor.  This is private, as BASE_OFFSET is an
+  // implementation detail.
+  //
+  Channel (unsigned _base_offset, unsigned _size, unsigned _num_total_samples)
+    : size (_size), base_offset (_base_offset),
+      num_total_samples (_num_total_samples)
+  {}
+
+  // Offset of our first sample in the appropriate sample vector of
+  // our SampleSet.
+  //
+  unsigned base_offset;
+
+  // Number of total samples generated for this channel.  This should be
+  // at least SIZE * NUM_TOP_LEVEL_SAMPLES.  In the case that it's
+  // greater, then NUM_TOTAL_SAMPLES - SIZE * NUM_TOP_LEVEL_SAMPLES extra
+  // samples will end up being unused; this should be OK as the samples
+  // are in random order.
+  //
+  unsigned num_total_samples;
+};
+
+
+// SampleSet::Sample
+
+// A reference to a single top-level sample in a sample-set.
+//
+// This is just a convenient package to hold the set and a
+// sample-number.
+//
+class SampleSet::Sample
+{
+public:
+
+  Sample (const SampleSet &_set, unsigned _sample_num)
+    : set (_set), sample_num (_sample_num)
+  { }
+
+  // Return sub-sample SUB_SAMPLE_NUM, from the sample-channel
+  // CHANNEL.  SUB_SAMPLE_NUM may be omitted if there's only one
+  // sample per top-level sample.
+  //
+  template<typename T>
+  T get (const Channel<T> &channel, unsigned sub_sample_num = 0) const
+  {
+    return set.get<T> (channel, sample_num, sub_sample_num);
+  }
+
+  // Return an iterator pointing to the first sub-sample from
+  // sample-channel CHANNEL.
+  //
+  template<typename T>
+  typename std::vector<T>::const_iterator
+  begin (const Channel<T> &channel) const
+  {
+    return set.begin<T> (channel, sample_num);
+  }
+
+  // Return an iterator pointing just past the end of the last
+  // sub-sample for top-level sample SAMPLE_NUM from the sample channel
+  // CHANNEL.
+  //
+  template<typename T>
+  typename std::vector<T>::const_iterator
+  end (const Channel<T> &channel) const
+  {
+    return set.end<T> (channel, sample_num);
+  }
+
+  // The SampleSet this sample is from.
+  //
+  const SampleSet &set;
+
+  // The top-level sample-number of this sample in SET.
+  //
+  unsigned sample_num;
+};
+
+
+// SampleSet inline method definitions
+
+// Return sample for top-level sample SAMPLE_NUM, and sub-sample
+// SUB_SAMPLE_NUM, from the sample channel CHANNEL.  SUB_SAMPLE_NUM
+// may be omitted if there's only one sample per top-level sample.
+//
+template<typename T>
+T
+SampleSet::get (const Channel<T> &channel,
+		unsigned sample_num, unsigned sub_sample_num)
+  const
+{
+  return sample<T> (channel.base_offset)
+    [sample_num * channel.size + sub_sample_num];
+}
+
+// Return an iterator pointing to the first sub-sample for top-level
+// sample SAMPLE_NUM from the sample channel CHANNEL.
+//
+template<typename T>
+typename std::vector<T>::const_iterator
+SampleSet::begin (const Channel<T> &channel, unsigned sample_num) const
+{
+  return sample<T> (channel.base_offset) + (sample_num * channel.size);
+}
+
+// Return an iterator pointing just past the end of the last
+// sub-sample for top-level sample SAMPLE_NUM from the sample channel
+// CHANNEL.
+//
+template<typename T>
+typename std::vector<T>::const_iterator
+SampleSet::end (const Channel<T> &channel, unsigned sample_num) const
+{
+  return begin (channel, sample_num) + channel.size;
+}
+
+// Allocate a new sample-channel in this set, containing
+// NUM_SUB_SAMPLES samples per top-level sample (which defaults to 1).
+// The type of sample must be specified as the first template
+// parameter.
+//
+template<typename T>
+SampleSet::Channel<T>
+SampleSet::add_channel (unsigned num_sub_samples)
+{
+  // There's NUM_SUB_SAMPLES per top-level sample, so calculate the
+  // total number of samples for this channel.
+  //
+  unsigned num_total_samples = num_samples * num_sub_samples;
+
+  // Some sample generators may want a slightly different number of
+  // samples.
+  //
+  num_total_samples = gen.adjust_sample_count<T> (num_total_samples);
+
+  // Adjust NUM_SUB_SAMPLES so that NUM_SAMPLES * NUM_SUB_SAMPLES is as
+  // close to NUM_TOTAL_SAMPLES as possible (it's not possible to change
+  // NUM_SAMPLES).  Any difference will end up being unused.
+  //
+  num_sub_samples = num_total_samples / num_samples;
+
+  // Add enough room to our sample array for all the samples.
+  //
+  unsigned base_sample_offset = add_sample_space<T> (num_total_samples);
+
+  return _add_channel<T> (Channel<T> (base_sample_offset, num_sub_samples,
+				      num_total_samples));
+}
+
+// Allocate and return a vector of channels in this set, each
+// containing NUM_SUB_SAMPLES samples per top-level sample.  The type
+// of sample must be specified as the first template parameter.
+//
+template<typename T>
+SampleSet::ChannelVec<T>
+SampleSet::add_channel_vec (unsigned size, unsigned num_sub_samples)
+{
+  ChannelVec<T> vec (size);
+  for (unsigned i = 0; i < size; i++)
+    vec[i] = add_channel<T> (num_sub_samples);
+  return vec;
+}
+
+
+// Template specializations
 
 //
 // Declarations for specialized SampleSet::add_sample_space methods.
