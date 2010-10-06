@@ -18,6 +18,12 @@
 using namespace snogray;
 using namespace std;
 
+
+Octree::~Octree ()
+{
+  delete root;
+}
+
 
 // Ray intersection testing (Octree::for_each_possible_intersector)
 
