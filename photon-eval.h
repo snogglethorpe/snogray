@@ -28,29 +28,9 @@ class PhotonEval
 {
 public:
 
-  // Global state for this evalrator, for rendering an entire scene.
+  // Global state for PhotonEval, for rendering an entire scene.
   //
-  class GlobalState
-  {
-  public:
-
-    GlobalState (unsigned num_search_photons,
-		 dist_t photon_search_radius,
-		 dist_t marker_radius = 0);
-
-    // Number of photons (within the search radius) to use.
-    //
-    unsigned num_photons;
-
-    // Radius-squared of the area around a point, within which to search
-    // for photons.
-    //
-    dist_t search_radius_sq;
-
-    // Radius-squared of photon position markers (for debugging).
-    //
-    dist_t marker_radius_sq;
-  };
+  class GlobalState;
 
   PhotonEval (RenderContext &context, const GlobalState &global_state);
 
@@ -85,6 +65,31 @@ public:
   //
   DirHist photon_dir_hist;
   DirHistDist photon_dir_dist;
+};
+
+
+// Global state for PhotonEval, for rendering an entire scene.
+//
+class PhotonEval::GlobalState
+{
+public:
+
+  GlobalState (unsigned num_search_photons,
+	       dist_t photon_search_radius,
+	       dist_t marker_radius = 0);
+
+  // Number of photons (within the search radius) to use.
+  //
+  unsigned num_photons;
+
+  // Radius-squared of the area around a point, within which to search
+  // for photons.
+  //
+  dist_t search_radius_sq;
+
+  // Radius-squared of photon position markers (for debugging).
+  //
+  dist_t marker_radius_sq;
 };
 
 
