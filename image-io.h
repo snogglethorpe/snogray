@@ -23,6 +23,7 @@
 
 namespace snogray {
 
+
 // A row in an image.
 //
 class ImageRow : std::vector<Tint>
@@ -67,6 +68,8 @@ public:
 };
 
 
+// ImageIo
+
 // Common superclass for ImageSink and ImageSource.  Mainly provides space
 // to hold various fields.
 //
@@ -87,48 +90,7 @@ public:
   // row in the image.  A RowIndices::iterator can be used to
   // incrementally yield the row-indices in file read/write order.
   //
-  struct RowIndices
-  {
-    class iterator
-    {
-    public:
-
-      iterator (const RowIndices &_indices, int index)
-	: indices (_indices), cur (index)
-      { }
-
-      iterator &operator++ ()
-      {
-	cur += (indices.first < indices.last ? 1 : -1);
-	return *this;
-      }
-      iterator operator++ (int)
-      {
-	iterator old (indices, cur); ++*this; return old;
-      }
-      iterator operator+ (int amount) const
-      {
-	int offs = indices.first < indices.last ? amount : -amount;
-	return iterator (indices, cur + offs);
-      }
-
-      int operator* () const { return cur; }
-      bool operator== (const iterator &it) const { return cur == it.cur; }
-      bool operator!= (const iterator &it) const { return cur != it.cur; }
-
-    private:
-
-      const RowIndices &indices;
-      int cur;
-    };
-
-    RowIndices (int _first, int _last) : first (_first), last (_last) { }
-
-    iterator begin () const { return iterator (*this, first); }
-    iterator end () const { return iterator (*this, last) + 1; }
-
-    int first, last;
-  };
+  struct RowIndices;
 
   // If FILENAME has a recognized extension from which we can guess its
   // format, return it (converted to lower-case).
@@ -168,13 +130,7 @@ public:
   // index of the top row of the image, and HEIGHT-1 is the index of
   // the bottom row in the image.
   //
-  RowIndices row_indices () const
-  {
-    if (row_order () == FIRST_ROW_AT_TOP)
-      return RowIndices (0, height - 1);
-    else
-      return RowIndices (height - 1, 0);
-  }
+  RowIndices row_indices () const;
 
   // Handy functions to throw an error.  We use C strings instead of
   // std::string because most uses of this function pass constant strings
@@ -192,6 +148,69 @@ public:
 
   unsigned width, height;
 };
+
+// An object describing the row indices of the first and last (in
+// read/write order) rows in an image file, where 0 is the index of
+// the top row of the image, and HEIGHT-1 is the index of the bottom
+// row in the image.  A RowIndices::iterator can be used to
+// incrementally yield the row-indices in file read/write order.
+//
+struct ImageIo::RowIndices
+{
+  class iterator
+  {
+  public:
+
+    iterator (const RowIndices &_indices, int index)
+      : indices (_indices), cur (index)
+    { }
+
+    iterator &operator++ ()
+    {
+      cur += (indices.first < indices.last ? 1 : -1);
+      return *this;
+    }
+    iterator operator++ (int)
+    {
+      iterator old (indices, cur); ++*this; return old;
+    }
+    iterator operator+ (int amount) const
+    {
+      int offs = indices.first < indices.last ? amount : -amount;
+      return iterator (indices, cur + offs);
+    }
+
+    int operator* () const { return cur; }
+    bool operator== (const iterator &it) const { return cur == it.cur; }
+    bool operator!= (const iterator &it) const { return cur != it.cur; }
+
+  private:
+
+    const RowIndices &indices;
+    int cur;
+  };
+
+  RowIndices (int _first, int _last) : first (_first), last (_last) { }
+
+  iterator begin () const { return iterator (*this, first); }
+  iterator end () const { return iterator (*this, last) + 1; }
+
+  int first, last;
+};
+
+// Return an object describing the row indices of the first and last
+// (in read/write order) rows in this image file, where 0 is the
+// index of the top row of the image, and HEIGHT-1 is the index of
+// the bottom row in the image.
+//
+inline ImageIo::RowIndices
+ImageIo::row_indices () const
+{
+  if (row_order () == FIRST_ROW_AT_TOP)
+    return RowIndices (0, height - 1);
+  else
+    return RowIndices (height - 1, 0);
+}
 
 
 // Image output
@@ -258,8 +277,10 @@ protected:
   { }
 };
 
+
 }
 
-#endif /* __IMAGE_IO_H__ */
+#endif // __IMAGE_IO_H__
+
 
 // arch-tag: 43784b62-1eae-4938-a451-f4fdfb7db5bc
