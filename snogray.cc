@@ -373,13 +373,6 @@ int main (int argc, char *const *argv)
   std::string camera_cmds;	// User commands for the camera
 
 
-  // This speeds up I/O on cin/cout by not syncing with C stdio.
-  //
-  // [Note that in some implementations this leaks about 100KB of memory.]
-  //
-  ios::sync_with_stdio (false);
-
-
   // Parse command-line options
   //
   int opt;
