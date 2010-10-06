@@ -25,40 +25,19 @@ class Space
 {
 public:
 
+  struct IntersectCallback;	// Callback for search methods
+
   virtual ~Space () { }
 
   // Return the closest surface in this space which intersects the
-  // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
-  // to reflect the point of intersection.
+  // bounded-ray RAY, or zero if there is none.  RAY's length is
+  // shortened to reflect the point of intersection.
   //
   const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const;
 
   // Return true if any object intersects RAY.
   //
   bool intersects (const Ray &ray, RenderContext &context) const;
-
-  // A callback for `for_each_possible_intersector'.  Users of
-  // `for_each_possible_intersector' must subclass this, providing their
-  // own operator() method, and adding any extra data fields they need.
-  //
-  struct IntersectCallback
-  {
-    IntersectCallback () : stop (false) { }
-
-    virtual ~IntersectCallback () { }
-
-    // Test SURF to see if it really intersects, and return true if so.
-    // Returning true does not necessarily stop the search; to do that,
-    // call the IntersectCallback::stop_intersection method.
-    //
-    virtual bool operator() (const Surface *surf) = 0;
-
-    void stop_iteration () { stop = true; }
-
-    // If set to true, return from iterator immediately
-    //
-    bool stop;
-  };
 
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
@@ -71,45 +50,72 @@ public:
 					      RenderStats::IsecStats &isec_stats)
     const = 0;
 
-
 protected:
 
-  // This structure is used to hold state during the search.  It will
-  // probably be subclassed by specific types of accelerator.
+  struct SearchState;		// Convenience class for subclasses
+};
+
+
+// A callback for `Space::for_each_possible_intersector'.  Users of
+// `Space::for_each_possible_intersector' must subclass this,
+// providing their own operator() method, and adding any extra data
+// fields they need.
+//
+struct Space::IntersectCallback
+{
+  IntersectCallback () : stop (false) { }
+
+  virtual ~IntersectCallback () { }
+
+  // Test SURF to see if it really intersects, and return true if so.
+  // Returning true does not necessarily stop the search; to do that,
+  // call the IntersectCallback::stop_intersection method.
   //
-  struct SearchState
+  virtual bool operator() (const Surface *surf) = 0;
+
+  void stop_iteration () { stop = true; }
+
+  // If set to true, return from iterator immediately
+  //
+  bool stop;
+};
+
+
+// This structure is used to hold state during the search.  It not
+// actually used by the Space class, but may be useful as a common
+// superclass for internal state held by various Space subclasses.
+//
+struct Space::SearchState
+{
+  SearchState (IntersectCallback &_callback)
+    : callback (_callback),
+      node_intersect_calls (0), surf_isec_tests (0), surf_isec_hits (0)
+  { }
+
+  // Update the global statistical counters in ISEC_STATS with the
+  // results from this search.
+  //
+  void update_isec_stats (RenderStats::IsecStats &isec_stats)
   {
-    SearchState (IntersectCallback &_callback)
-      : callback (_callback),
-	node_intersect_calls (0), surf_isec_tests (0), surf_isec_hits (0)
-    { }
+    isec_stats.surface_intersects_tests   += surf_isec_tests;
+    isec_stats.surface_intersects_hits    += surf_isec_hits;
+    isec_stats.space_node_intersect_calls += node_intersect_calls;
+  }
 
-    // Update the global statistical counters in ISEC_STATS with the
-    // results from this search.
-    //
-    void update_isec_stats (RenderStats::IsecStats &isec_stats)
-    {
-      isec_stats.surface_intersects_tests   += surf_isec_tests;
-      isec_stats.surface_intersects_hits    += surf_isec_hits;
-      isec_stats.space_node_intersect_calls += node_intersect_calls;
-    }
+  // Call back to do surface testing.
+  //
+  IntersectCallback &callback;
 
-    // Call back to do surface testing.
-    //
-    IntersectCallback &callback;
-
-    // Keep track of some intersection statistics.
-    //
-    unsigned long node_intersect_calls;
-    unsigned surf_isec_tests, surf_isec_hits;
-  };
-  
+  // Keep track of some intersection statistics.
+  //
+  unsigned long node_intersect_calls;
+  unsigned surf_isec_tests, surf_isec_hits;
 };
 
 
 }
 
-#endif /* __SPACE_H__ */
+#endif // __SPACE_H__
 
 
 // arch-tag: b992c2ec-257d-4b88-9001-83a90353e668
