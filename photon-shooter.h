@@ -33,40 +33,7 @@ public:
   // A set of photons deposited during shooting.  Subclasses usually
   // have one or more PhotonSets which they are filling in.
   //
-  class PhotonSet
-  {
-  public:
-
-    PhotonSet (unsigned _target_count, const std::string &_name,
-	       PhotonShooter &shooter)
-      : num_paths (0), target_count (_target_count), name (_name)
-    {
-      shooter.photon_sets.push_back (this);
-    }
-
-    // Return true if this set has reached its target photon count.
-    //
-    bool complete () const { return photons.size () == target_count; }
-
-    // Deposited photons;
-    //
-    std::vector<Photon> photons;
-
-    // Number of paths tried so far in generating this set.  This will
-    // be incremented for each new path until this set is declare done
-    // by setting the field PhotonSet::done to true.
-    //
-    unsigned num_paths;
-
-    // Number of photons we'd like to generate for this set.
-    //
-    unsigned target_count;
-
-    // Name of this set; this is used for generating messages after
-    // shooting.
-    //
-    std::string name;
-  };
+  class PhotonSet;
 
   // Shoot photons from the lights, depositing them in photon-sets
   // at appropriate points by calling PhotonSet::deposit.
@@ -87,31 +54,10 @@ public:
 
   // Return true if all photon-sets are complete.
   //
-  bool complete () const
-  {
-    for (std::vector<PhotonSet *>::const_iterator psi = photon_sets.begin();
-	 psi != photon_sets.end(); ++psi)
-      if (! (*psi)->complete ())
-	return false;
-    return true;
-  }
+  bool complete () const;
 
-  unsigned target_count () const
-  {
-    unsigned count = 0;
-    for (std::vector<PhotonSet *>::const_iterator psi = photon_sets.begin();
-	 psi != photon_sets.end(); ++psi)
-      count += (*psi)->target_count;
-    return count;
-  }
-  unsigned cur_count () const
-  {
-    unsigned count = 0;
-    for (std::vector<PhotonSet *>::const_iterator psi = photon_sets.begin();
-	 psi != photon_sets.end(); ++psi)
-      count += (*psi)->photons.size ();
-    return count;
-  }
+  unsigned target_count () const;
+  unsigned cur_count () const;
 
   // Pointers to photon-sets being filled in by this shooter.  The
   // actual photon-sets are located elsewhere (probably as a field
@@ -124,6 +70,78 @@ public:
   //
   std::string name;
 };
+
+
+// A set of photons deposited during shooting.  Subclasses usually
+// have one or more PhotonSets which they are filling in.
+//
+class PhotonShooter::PhotonSet
+{
+public:
+
+  PhotonSet (unsigned _target_count, const std::string &_name,
+	     PhotonShooter &shooter)
+    : num_paths (0), target_count (_target_count), name (_name)
+  {
+    shooter.photon_sets.push_back (this);
+  }
+
+  // Return true if this set has reached its target photon count.
+  //
+  bool complete () const { return photons.size () == target_count; }
+
+  // Deposited photons;
+  //
+  std::vector<Photon> photons;
+
+  // Number of paths tried so far in generating this set.  This will
+  // be incremented for each new path until this set is declare done
+  // by setting the field PhotonSet::done to true.
+  //
+  unsigned num_paths;
+
+  // Number of photons we'd like to generate for this set.
+  //
+  unsigned target_count;
+
+  // Name of this set; this is used for generating messages after
+  // shooting.
+  //
+  std::string name;
+};
+
+
+// Return true if all photon-sets are complete.
+//
+inline bool
+PhotonShooter::complete () const
+{
+  for (std::vector<PhotonSet *>::const_iterator psi = photon_sets.begin();
+       psi != photon_sets.end(); ++psi)
+    if (! (*psi)->complete ())
+      return false;
+  return true;
+}
+
+inline unsigned
+PhotonShooter::target_count () const
+{
+  unsigned count = 0;
+  for (std::vector<PhotonSet *>::const_iterator psi = photon_sets.begin();
+       psi != photon_sets.end(); ++psi)
+    count += (*psi)->target_count;
+  return count;
+}
+
+inline unsigned
+PhotonShooter::cur_count () const
+{
+  unsigned count = 0;
+  for (std::vector<PhotonSet *>::const_iterator psi = photon_sets.begin();
+       psi != photon_sets.end(); ++psi)
+    count += (*psi)->photons.size ();
+  return count;
+}
 
 
 }
