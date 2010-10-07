@@ -28,53 +28,9 @@ class PhotonInteg : public RecursiveInteg
 {
 public:
 
-  // Global state for this integrator, for rendering an entire scene.
+  // Global state for PhotonInteg, for rendering an entire scene.
   //
-  class GlobalState : public SurfaceInteg::GlobalState
-  {
-  public:
-
-    GlobalState (const GlobalRenderState &rstate, const ValTable &params);
-
-    // Return a new integrator, allocated in context.
-    //
-    virtual SurfaceInteg *make_integrator (RenderContext &context);
-
-  private:
-
-    friend class PhotonInteg;
-
-    // Generate the specified number of photons and add them to our photon-maps.
-    //
-    void generate_photons (unsigned num_caustic, unsigned num_direct, unsigned num_indirect);
-
-    // Photon-maps for various types of photons.
-    //
-    PhotonMap direct_photon_map;
-    PhotonMap caustic_photon_map;
-    PhotonMap indirect_photon_map;
-
-    // Amount by which we scale each photon during rendering.
-    //
-    float caustic_scale, direct_scale, indirect_scale;
-
-    PhotonEval::GlobalState photon_eval;
-
-    DirectIllum::GlobalState direct_illum;
-
-    // True if we should use the DIRECT_ILLUM for direction illumination;
-    // otherwise, we use DIRECT_PHOTON_MAP instead (which is less
-    // accurate, but probably cheaper).
-    //
-    bool use_direct_illum;
-
-    // Number of samples to use in "final gathering" for indirect
-    // illumination.  If zero, final gathering is not done.
-    //
-    unsigned num_fgather_samples;
-    unsigned num_fgather_photon_samples;
-    unsigned num_fgather_bsdf_samples;
-  };
+  class GlobalState;
 
 protected:
 
@@ -150,6 +106,58 @@ private:
   SampleSet::Channel<UV> fgather_bsdf_chan;
   SampleSet::Channel<float> fgather_bsdf_layer_chan;
   SampleSet::Channel<UV> fgather_photon_chan;
+};
+
+
+
+// PhotonInteg::GlobalState
+
+// Global state for PhotonInteg, for rendering an entire scene.
+//
+class PhotonInteg::GlobalState : public SurfaceInteg::GlobalState
+{
+public:
+
+  GlobalState (const GlobalRenderState &rstate, const ValTable &params);
+
+  // Return a new integrator, allocated in context.
+  //
+  virtual SurfaceInteg *make_integrator (RenderContext &context);
+
+private:
+
+  friend class PhotonInteg;
+
+  // Generate the specified number of photons and add them to our photon-maps.
+  //
+  void generate_photons (unsigned num_caustic, unsigned num_direct, unsigned num_indirect);
+
+  // Photon-maps for various types of photons.
+  //
+  PhotonMap direct_photon_map;
+  PhotonMap caustic_photon_map;
+  PhotonMap indirect_photon_map;
+
+  // Amount by which we scale each photon during rendering.
+  //
+  float caustic_scale, direct_scale, indirect_scale;
+
+  PhotonEval::GlobalState photon_eval;
+
+  DirectIllum::GlobalState direct_illum;
+
+  // True if we should use the DIRECT_ILLUM for direction illumination;
+  // otherwise, we use DIRECT_PHOTON_MAP instead (which is less
+  // accurate, but probably cheaper).
+  //
+  bool use_direct_illum;
+
+  // Number of samples to use in "final gathering" for indirect
+  // illumination.  If zero, final gathering is not done.
+  //
+  unsigned num_fgather_samples;
+  unsigned num_fgather_photon_samples;
+  unsigned num_fgather_bsdf_samples;
 };
 
 
