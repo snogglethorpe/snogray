@@ -33,44 +33,11 @@ public:
 
   // A class used for building a Space object.
   //
-  class Builder : public SpaceBuilder
-  {
-  public:
-
-    Builder () : space (new TrivSpace) { }
-
-    // Add SURFACE to the space being built.
-    //
-    virtual void add (const Surface *surface)
-    {
-      space->surfaces.push_back (surface);
-    }
-
-    // Make the final space.  Note that this can only be done once.
-    //
-    virtual const Space *make_space ()
-    {
-      return space;
-    }
-
-  private:
-
-    TrivSpace *space;
-  };
+  class Builder;
 
   // Subclass of SpaceBuilderFactory for making TrivSpace builders.
   //
-  class BuilderFactory : public SpaceBuilderFactory
-  {
-  public:
-
-    // Return a new SpaceBuilder object.
-    //
-    virtual SpaceBuilder *make_space_builder () const
-    {
-      return new TrivSpace::Builder ();
-    }
-  };
+  class BuilderFactory;
 
 
   TrivSpace () { }
@@ -96,6 +63,51 @@ public:
 private:  
 
   std::vector<const Surface *> surfaces;
+};
+
+
+
+// TrivSpace::Builder and TrivSpace::BuilderFactory
+
+// A class used for building a Space object.
+//
+class TrivSpace::Builder : public SpaceBuilder
+{
+public:
+
+  Builder () : space (new TrivSpace) { }
+
+  // Add SURFACE to the space being built.
+  //
+  virtual void add (const Surface *surface)
+  {
+    space->surfaces.push_back (surface);
+  }
+
+  // Make the final space.  Note that this can only be done once.
+  //
+  virtual const Space *make_space ()
+  {
+    return space;
+  }
+
+private:
+
+  TrivSpace *space;
+};
+
+// Subclass of SpaceBuilderFactory for making TrivSpace builders.
+//
+class TrivSpace::BuilderFactory : public SpaceBuilderFactory
+{
+public:
+
+  // Return a new SpaceBuilder object.
+  //
+  virtual SpaceBuilder *make_space_builder () const
+  {
+    return new TrivSpace::Builder ();
+  }
 };
 
 
