@@ -214,101 +214,7 @@ private:
 
   // A single triangle in the mesh.
   //
-  class Triangle : public Surface
-  {
-  public:
-
-    Triangle (const Mesh &_mesh) : mesh (_mesh) { }
-
-    Triangle (const Mesh &_mesh,
-	      vert_index_t v0i, vert_index_t v1i, vert_index_t v2i)
-      : mesh (_mesh)
-    {
-      vi[0] = v0i;
-      vi[1] = v1i;
-      vi[2] = v2i;
-    }
-
-    void operator= (const Triangle &triang)
-    {
-      vi[0] = triang.vi[0];
-      vi[1] = triang.vi[1];
-      vi[2] = triang.vi[2];
-    }
-
-    // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-    // to reflect the point of intersection, and return a Surface::IsecInfo
-    // object describing the intersection (which should be allocated using
-    // placement-new with CONTEXT); otherwise return zero.
-    //
-    virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
-
-    // Return true if this surface intersects RAY.
-    //
-    virtual bool intersects (const Ray &ray, RenderContext &context)
-      const;
-
-    // Return a bounding box for this surface.
-    //
-    virtual BBox bbox () const;
-
-    // Vertex NUM of this triangle
-    //
-    Pos v (unsigned num) const { return Pos (mesh.vertices[vi[num]]); }
-
-    // Normal of vertex NUM (assuming this mesh contains vertex normals!)
-    //
-    Vec vnorm (unsigned num) const
-    {
-      return Vec (mesh.vertex_normals[vi[num]]);
-    }
-
-    // UV value of vertex NUM (assuming this mesh contains vertex UV values!)
-    //
-    UV vuv (unsigned num) const
-    {
-      return mesh.vertex_uvs[vi[num]];
-    }
-
-    // These both return the "raw" normal of this triangle, not doing
-    // any normal interpolation.  Note that they return ordinary
-    // double-precision vectors, not the single-precision vectors used
-    // in the mesh (because most uses want the former).
-    //
-    const Vec raw_normal_unscaled () const
-    {
-      Vec e1 = v(1) - v(0), e2 = v(2) - v(0);
-      return mesh.left_handed ? cross (e2, e1) : cross (e1, e2);
-    }
-    const Vec raw_normal () const
-    {
-      return raw_normal_unscaled().unit ();
-    }
-
-    struct IsecInfo : public Surface::IsecInfo
-    {
-      IsecInfo (const Ray &ray, const Triangle &_triangle, dist_t _u, dist_t _v)
-	: Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
-      { }
-
-      virtual Intersect make_intersect (const Media &media, RenderContext &context)
-	const;
-
-      // Return a normal frame FRAME at ORIGIN, with basis vectors
-      // calculated from the normal NORM.
-      //
-      Frame make_frame (const Pos &orgin, const Vec &norm) const;
-
-      const Triangle &triangle;
-      dist_t u, v;
-    };
-
-    const Mesh &mesh;
-
-    // Indices into mesh vertices array
-    //
-    vert_index_t vi[3];
-  };
+  class Triangle;
 
   // Recalculate this mesh's bounding box.
   //
@@ -351,6 +257,108 @@ public:
   // and need to have their normals reversed.
   //
   bool left_handed;
+};
+
+
+
+// Mesh::Triangle
+
+// A single triangle in a Mesh.
+//
+class Mesh::Triangle : public Surface
+{
+public:
+
+  Triangle (const Mesh &_mesh) : mesh (_mesh) { }
+
+  Triangle (const Mesh &_mesh,
+	    vert_index_t v0i, vert_index_t v1i, vert_index_t v2i)
+    : mesh (_mesh)
+  {
+    vi[0] = v0i;
+    vi[1] = v1i;
+    vi[2] = v2i;
+  }
+
+  void operator= (const Triangle &triang)
+  {
+    vi[0] = triang.vi[0];
+    vi[1] = triang.vi[1];
+    vi[2] = triang.vi[2];
+  }
+
+  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
+  // to reflect the point of intersection, and return a Surface::IsecInfo
+  // object describing the intersection (which should be allocated using
+  // placement-new with CONTEXT); otherwise return zero.
+  //
+  virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
+
+  // Return true if this surface intersects RAY.
+  //
+  virtual bool intersects (const Ray &ray, RenderContext &context)
+    const;
+
+  // Return a bounding box for this surface.
+  //
+  virtual BBox bbox () const;
+
+  // Vertex NUM of this triangle
+  //
+  Pos v (unsigned num) const { return Pos (mesh.vertices[vi[num]]); }
+
+  // Normal of vertex NUM (assuming this mesh contains vertex normals!)
+  //
+  Vec vnorm (unsigned num) const
+  {
+    return Vec (mesh.vertex_normals[vi[num]]);
+  }
+
+  // UV value of vertex NUM (assuming this mesh contains vertex UV values!)
+  //
+  UV vuv (unsigned num) const
+  {
+    return mesh.vertex_uvs[vi[num]];
+  }
+
+  // These both return the "raw" normal of this triangle, not doing
+  // any normal interpolation.  Note that they return ordinary
+  // double-precision vectors, not the single-precision vectors used
+  // in the mesh (because most uses want the former).
+  //
+  const Vec raw_normal_unscaled () const
+  {
+    Vec e1 = v(1) - v(0), e2 = v(2) - v(0);
+    return mesh.left_handed ? cross (e2, e1) : cross (e1, e2);
+  }
+  const Vec raw_normal () const
+  {
+    return raw_normal_unscaled().unit ();
+  }
+
+  struct IsecInfo : public Surface::IsecInfo
+  {
+    IsecInfo (const Ray &ray, const Triangle &_triangle, dist_t _u, dist_t _v)
+      : Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
+    { }
+
+    virtual Intersect make_intersect (const Media &media, RenderContext &context)
+      const;
+
+    // Return a normal frame FRAME at ORIGIN, with basis vectors
+    // calculated from the normal NORM.
+    //
+    Frame make_frame (const Pos &orgin, const Vec &norm) const;
+
+    const Triangle &triangle;
+    dist_t u, v;
+  };
+
+  const Mesh &mesh;
+
+  // Indices into mesh vertices array
+  //
+  vert_index_t vi[3];
 };
 
 
