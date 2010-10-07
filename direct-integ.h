@@ -31,32 +31,9 @@ class DirectInteg : public RecursiveInteg
 {
 public:
 
-  // Global state for this integrator, for rendering an entire scene.
+  // Global state for DirectInteg, for rendering an entire scene.
   //
-  class GlobalState : public SurfaceInteg::GlobalState
-  {
-  public:
-
-    GlobalState (const GlobalRenderState &rstate, const ValTable &params)
-      : SurfaceInteg::GlobalState (rstate),
-	direct_illum (params.get_uint ("light-samples,samples,samps",
-				       rstate.params.get_uint ("light-samples",
-							       16)))
-    { }
-
-    // Return a new integrator, allocated in context.
-    //
-    virtual SurfaceInteg *make_integrator (RenderContext &context)
-    {
-      return new DirectInteg (context, *this);
-    }
-
-  private:
-
-    friend class DirectInteg;
-
-    DirectIllum::GlobalState direct_illum;
-  };
+  class GlobalState;
 
 protected:
 
@@ -73,15 +50,55 @@ private:
 
   // Integrator state for rendering a group of related samples.
   //
-  DirectInteg (RenderContext &context, GlobalState &global_state)
-    : RecursiveInteg (context),
-      direct_illum (context, global_state.direct_illum)
-  { }
+  DirectInteg (RenderContext &context, GlobalState &global_state);
 
   // State used by the direct-lighting calculator.
   //
   DirectIllum direct_illum;
 };
+
+
+
+// DirectInteg::GlobalState
+
+// Global state for DirectInteg, for rendering an entire scene.
+//
+class DirectInteg::GlobalState : public SurfaceInteg::GlobalState
+{
+public:
+
+  GlobalState (const GlobalRenderState &rstate, const ValTable &params)
+    : SurfaceInteg::GlobalState (rstate),
+      direct_illum (params.get_uint ("light-samples,samples,samps",
+				     rstate.params.get_uint ("light-samples",
+							     16)))
+  { }
+
+  // Return a new integrator, allocated in context.
+  //
+  virtual SurfaceInteg *make_integrator (RenderContext &context)
+  {
+    return new DirectInteg (context, *this);
+  }
+
+private:
+
+  friend class DirectInteg;
+
+  DirectIllum::GlobalState direct_illum;
+};
+
+
+
+// inline methods
+
+// Integrator state for rendering a group of related samples.
+//
+inline
+DirectInteg::DirectInteg (RenderContext &context, GlobalState &global_state)
+  : RecursiveInteg (context),
+    direct_illum (context, global_state.direct_illum)
+{ }
 
 
 }
