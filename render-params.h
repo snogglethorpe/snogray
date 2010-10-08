@@ -35,17 +35,11 @@ public:
   static const dist_t DEFAULT_MIN_TRACE = 1e-10;
 #endif
 
-  static const float DEFAULT_ENVLIGHT_INTENS_FRAC = 0.5;
-
   RenderParams ()
-    : min_trace (DEFAULT_MIN_TRACE),
-      envlight_intens_frac (DEFAULT_ENVLIGHT_INTENS_FRAC)
+    : min_trace (DEFAULT_MIN_TRACE)
   { }
   RenderParams (const ValTable &params)
-    : min_trace (
-	params.get_float ("min-media", DEFAULT_MIN_TRACE)),
-      envlight_intens_frac (
-	params.get_float ("envlight-intens-frac", DEFAULT_ENVLIGHT_INTENS_FRAC))
+    : min_trace (params.get_float ("min-media", DEFAULT_MIN_TRACE))
   { }
 
   // Minimum length of a mediad ray; any objects closer than this to the
@@ -59,8 +53,6 @@ public:
   // parts which are all enabled by default).
   //
   dist_t min_trace;
-
-  float envlight_intens_frac;
 };
 
 }
