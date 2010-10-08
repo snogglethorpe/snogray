@@ -1,6 +1,6 @@
 // tuple-matrix.cc -- Generic matrix storage type
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,9 +28,9 @@ using namespace snogray;
 // declarations at the end of "arith-tex.tcc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-template class TupleMatrixData<default_tuple_element_type>;
-template class TupleMatrix<float>;
-template class TupleMatrix<Color>;
+template class snogray::TupleMatrixData<default_tuple_element_type>;
+template class snogray::TupleMatrix<float>;
+template class snogray::TupleMatrix<Color>;
 #endif
 
 
