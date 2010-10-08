@@ -1,6 +1,6 @@
 // llist.h -- Linked-list wrapper type
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,6 +31,8 @@ class LinkedList
 {
 public:
 
+  class iterator; // fwd decl
+
   LinkedList () : head (0), tail (0), num_entries (0) { }
 
   // The superclass from which T should inherit
@@ -43,8 +45,8 @@ public:
 
   private:
 
-    friend class LinkedList<T>;
-    friend class LinkedList<T>::iterator;
+    friend class LinkedList;
+    friend class LinkedList::iterator;
 
     T *prev, *next;
   };
