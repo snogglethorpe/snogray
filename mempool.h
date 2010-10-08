@@ -1,6 +1,6 @@
 // mempool.h -- Quick but stupid memory allocator
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -127,7 +127,7 @@ private:
 };
 
 
-extern void anon_mempool_alloc_barf ();
+extern Mempool &anon_mempool_alloc_barf ();
 
 
 // An STL allocator for allocating from an Intersect object.
@@ -142,10 +142,7 @@ public:
   // STL constructors need this, though using it would certainly be
   // incorrect.
   //
-  MempoolAlloc ()
-  {
-    anon_mempool_alloc_barf ();
-  }
+  MempoolAlloc () : mempool (anon_mempool_alloc_barf ()) { }
 
   typedef T		 value_type;
   typedef T		*pointer;
