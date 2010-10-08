@@ -1,6 +1,6 @@
 // cmp-tex.h -- Texture comparison
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,6 +26,6 @@ using namespace snogray;
 // declarations at the end of "cmp-tex.tcc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-template class CmpTex<Color>;
-template class CmpTex<float>;
+template class snogray::CmpTex<Color>;
+template class snogray::CmpTex<float>;
 #endif
