@@ -40,10 +40,10 @@
 //
 #define CMDLINEPARSER_GENERAL_OPTION_CASES(clp)			\
   case CMDLINEPARSER_OPT_HELP:					\
-    help (clp, cout);						\
+    help (clp, std::cout);					\
     exit (0);							\
   case CMDLINEPARSER_OPT_VERSION:				\
-    cout << clp.version_string () << endl;			\
+    std::cout << clp.version_string () << std::endl;		\
     exit (0);
 
 
