@@ -271,7 +271,27 @@ if test "$enable_fp_exceptions" = yes; then
   AC_CHECK_HEADERS([fenv.h])
 
   have_feenableexcept=no
-  AC_CHECK_LIB([m], [feenableexcept], [have_feenableexcept=yes])
+  if test "$ac_cv_header_fenv_h" = yes; then
+    AC_CHECK_LIB([m], [feenableexcept], [have_feenableexcept=yes])
+
+    if test "$have_feenableexcept" = yes; then
+      # Clang has some bad interactions with libstdc++ header files that
+      # cause it to screw up <fenv.h>, so test for that.
+      AC_MSG_CHECKING([whether feenableexcept seems broken])
+      AC_COMPILE_IFELSE(
+	AC_LANG_SOURCE(
+	  [#include <fenv.h>
+	   bool test () { fexcept_t fe; feenableexcept (fe); }]),
+	[feenableexcept_broken=no],
+	[feenableexcept_broken=yes])
+      AC_MSG_RESULT([$feenableexcept_broken])
+
+      if test $feenableexcept_broken = yes; then
+	have_feenableexcept=no
+      fi
+    fi
+  fi
+
   if test $have_feenableexcept = yes; then
     AC_DEFINE([HAVE_FEENABLEEXCEPT], [1],
 	      [Define if feenableexcept is defined in -lm])
@@ -281,7 +301,6 @@ if test "$enable_fp_exceptions" = yes; then
   then
     use_fp_exceptions=yes
   fi
-
 fi
 
 AC_MSG_CHECKING([whether to enable floating-point exceptions])
