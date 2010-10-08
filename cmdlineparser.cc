@@ -1,6 +1,6 @@
 // cmdlineparser.cc -- Command-line parser
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -265,6 +265,18 @@ CmdLineParser::store_opt_arg_with_sub_options (
     }
   else
     table.set (name, val);
+}
+
+// Return a string containing the program name and version.
+//
+std::string
+CmdLineParser::version_string () const
+{
+  std::string name = prog_name ();
+  if (name != PACKAGE_NAME)
+    name = name + " (" + PACKAGE_NAME + ")";
+  name = name + " " + snogray_version;
+  return name;
 }
 
 

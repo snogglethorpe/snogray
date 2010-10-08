@@ -43,8 +43,7 @@
     help (clp, cout);						\
     exit (0);							\
   case CMDLINEPARSER_OPT_VERSION:				\
-    cout << clp.prog_name() << " (snogray) " << snogray_version	\
-         << endl;						\
+    cout << clp.version_string () << endl;			\
     exit (0);
 
 
@@ -136,6 +135,10 @@ public:
 	 const std::string &option_name_prefix_sep,
 	 const std::string &first_option_seps,
 	 const std::string &multiple_option_seps = "");
+
+  // Return a string containing the program name and version.
+  //
+  std::string version_string () const;
 
 private:
 
