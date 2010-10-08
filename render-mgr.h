@@ -24,7 +24,7 @@ namespace snogray {
 class Camera;
 class Progress;
 class RenderPacket;
-class RenderStats;
+struct RenderStats;
 class GlobalRenderState;
 
 
