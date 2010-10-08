@@ -1,6 +1,6 @@
 // matrix4.cc -- 4 x 4 matrices
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,5 +26,5 @@ using namespace snogray;
 // class" declarations at the end of "matrix4.tcc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-template class Matrix4<dist_t>;
+template class snogray::Matrix4<dist_t>;
 #endif
