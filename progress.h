@@ -26,8 +26,8 @@ public:
 
   enum Verbosity { QUIET, MINIMAL, CHATTY };
 
-  static const float default_update_interval = 10;
-  static const float startup_interval = 20;
+  static float default_update_interval () { return 10; }
+  static float startup_interval () { return 20; }
 
   // Initialize with the desired bounds.  Note that nothing actually
   // happens until the `start' method is called.
@@ -35,7 +35,7 @@ public:
   Progress (std::ostream &stream, const std::string &_prefix,
 	    int _start_pos, int num,
 	    Verbosity _verbosity = CHATTY,
-	    float _update_interval = default_update_interval)
+	    float _update_interval = default_update_interval())
     : prefix (_prefix),
       start_pos (_start_pos), end_pos (_start_pos + num),
       last_pos (0), last_update_time (0), update_pos (0),

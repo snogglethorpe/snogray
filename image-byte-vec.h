@@ -46,7 +46,10 @@ public:
   typedef unsigned char byte;
   typedef std::vector<byte> ByteVec;
 
-  static const float DEFAULT_TARGET_GAMMA = 2.2;
+  // This should be a simple named constant, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  static float default_target_gamma () { return 2.2; }
 
   ByteVecIo (PixelFormat pxfmt, unsigned _bytes_per_component,
 	     float _target_gamma);

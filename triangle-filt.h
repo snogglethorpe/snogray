@@ -23,10 +23,13 @@ class TriangleFilt : public Filter
 {
 public:
 
-  static const float DEFAULT_WIDTH = 2;
+  // This should be a simple named constant, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  static float default_width () { return 2; }
 
-  TriangleFilt (float _width = DEFAULT_WIDTH) : Filter (_width) { }
-  TriangleFilt (const ValTable &params) : Filter (params, DEFAULT_WIDTH) { }
+  TriangleFilt (float _width = default_width()) : Filter (_width) { }
+  TriangleFilt (const ValTable &params) : Filter (params, default_width()) { }
 
   virtual float val (float x, float y) const
   {

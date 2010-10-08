@@ -27,7 +27,7 @@ ByteVecIo::ByteVecIo (const ValTable &params)
   //
   // pixel-format related fields are set in the body below.
   //
-  : target_gamma (params.get_float ("gamma", DEFAULT_TARGET_GAMMA))
+  : target_gamma (params.get_float ("gamma", default_target_gamma()))
 {
   // We figure out pixel-format from these two user parameters.
   // "pixel-format", aka "pxfmt", is the main parameter, and

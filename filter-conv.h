@@ -1,6 +1,6 @@
 // filter-conv.h -- "Filter Convolver" for convolving samples through a filter
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,13 +29,16 @@ class FilterConvBase
 {
 public:
 
-  static const float DEFAULT_NEG_CLAMP = -0.1;
-  static const float MAX_FILTER_WIDTH_SCALE = 2.f;
+  // These should be simple named constants, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  static float default_neg_clamp () { return -0.1; }
+  static float max_filter_width_scale () { return 2.f; }
 
   FilterConvBase (const ValTable &params = ValTable::NONE)
     : filter (Filter::make (params)),
       filter_radius (filter ? int (ceil (filter->width - 1.0001)) : 0),
-      neg_clamp (-abs (params.get_float ("neg-clamp", DEFAULT_NEG_CLAMP)))
+      neg_clamp (-abs (params.get_float ("neg-clamp", default_neg_clamp ())))
   { }
   ~FilterConvBase () { delete filter; }
 

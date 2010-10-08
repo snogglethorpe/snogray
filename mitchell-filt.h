@@ -1,6 +1,6 @@
 // mitchell-filt.h -- Mitchell filter
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,18 +25,21 @@ class MitchellFilt : public Filter
 {
 public:
 
-  static const float DEFAULT_B = 1.f / 3.f;
-  static const float DEFAULT_C = 1.f / 3.f;
-  static const float DEFAULT_WIDTH = 2;
+  // These should be simple named constants, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  static float default_b () { return 1.f / 3.f; }
+  static float default_c () { return 1.f / 3.f; }
+  static float default_width () { return 2; }
 
-  MitchellFilt (float _b = DEFAULT_B, float _c = DEFAULT_C,
-		float _width = DEFAULT_WIDTH)
+  MitchellFilt (float _b = default_b(), float _c = default_c(),
+		float _width = default_width())
     : Filter (_width), b (_b), c (_c)
   { }
   MitchellFilt (const ValTable &params)
-    : Filter (params, DEFAULT_WIDTH),
-      b (params.get_float ("b", DEFAULT_B)),
-      c (params.get_float ("c", DEFAULT_C))
+    : Filter (params, default_width()),
+      b (params.get_float ("b", default_b())),
+      c (params.get_float ("c", default_c()))
   { }
 
   virtual float val (float x, float y) const

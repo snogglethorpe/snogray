@@ -886,8 +886,6 @@ namespace snogray {
     static const Format FMT_APS_C, FMT_APS_H, FMT_APS_P;
     static const Format FMT_4x3, FMT_5x4, FMT_16x9;
 
-    static const float DEFAULT_SCENE_UNIT = 25.4;
-
     void move (const Pos &_pos);
     void move (const Vec &offs);
 

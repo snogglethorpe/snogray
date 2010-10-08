@@ -54,7 +54,7 @@ Progress::update (int pos)
       // We don't start trying to measure our speed until some time has
       // elapsed.
       //
-      if (elapsed > startup_interval)
+      if (elapsed > startup_interval())
 	{
 	  float last_interval = now - last_update_time;
 

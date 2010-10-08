@@ -219,7 +219,10 @@ class ImageSink : public ImageIo
 {
 public:
 
-  static const float DEFAULT_TARGET_GAMMA = 2.2;
+  // This should be a simple named constant, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  static float default_target_gamma () { return 2.2; }
 
   static ImageSink *open (const std::string &filename,
 			  unsigned width, unsigned height,

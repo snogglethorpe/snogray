@@ -1,6 +1,6 @@
 // box.h -- Boxian filter
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -23,10 +23,13 @@ class BoxFilt : public Filter
 {
 public:
 
-  static const float DEFAULT_WIDTH = 0.5;
+  // This should be a simple named constant, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  static float default_width () { return 0.5; }
 
-  BoxFilt (float _width = DEFAULT_WIDTH) : Filter (_width) { }
-  BoxFilt (const ValTable &params) : Filter (params, DEFAULT_WIDTH) { }
+  BoxFilt (float _width = default_width()) : Filter (_width) { }
+  BoxFilt (const ValTable &params) : Filter (params, default_width()) { }
 
   virtual float val (float, float) const
   {

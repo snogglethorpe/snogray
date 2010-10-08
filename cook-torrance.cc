@@ -33,7 +33,11 @@ public:
 
   // Values of M (RMS slope) less than this are considered "glossy".
   //
-  static const float GLOSSY_M = 0.5;
+  // This should be a simple named constant, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  //
+  static float glossy_m () { return 0.5; }
 
   CookTorranceBsdf (const CookTorrance &ct, const Intersect &_isec)
     : Bsdf (_isec),
@@ -50,7 +54,7 @@ public:
       fres (isec.media.medium.ior, ct.ior),
       nv (isec.cos_n (isec.v)),
       inv_4_nv ((nv != 0) ? 1 / (4 * nv) : 0),
-      gloss_layer (m < GLOSSY_M ? GLOSSY : DIFFUSE),
+      gloss_layer (m < glossy_m() ? GLOSSY : DIFFUSE),
       have_layers ((diff_weight > 0 ? DIFFUSE : 0)
 		   | (diff_weight < 1 ? gloss_layer : 0))
   { }

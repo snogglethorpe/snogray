@@ -70,9 +70,16 @@ public:
   static const Format FMT_APS_C, FMT_APS_H, FMT_APS_P; // who cares, but ...
   static const Format FMT_4x3, FMT_5x4, FMT_16x9; // ersatz formats for video
 
-  static const float DEFAULT_SCENE_UNIT = 25.4; // 1 scene unit in camera units
+  // One scene unit in camera units.
+  //
+  // This should be a simple named constant, but C++ (stupidly)
+  // disallows non-integral named constants.  Someday when "constexpr"
+  // support is widespread, that can be used instead.
+  //
+  static float default_scene_unit () { return 25.4; }
 
-  Camera (const Format &fmt = FMT_35mm, float _scene_unit = DEFAULT_SCENE_UNIT,
+  Camera (const Format &fmt = FMT_35mm,
+	  float _scene_unit = default_scene_unit(),
 	  float focal_length = 0 /* 0==auto */);
 
 

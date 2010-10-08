@@ -30,16 +30,16 @@ public:
   // this by bumping up the minimum media distance to something fairly large.
   //
 #if USE_FLOAT_COORDS
-  static const dist_t DEFAULT_MIN_TRACE = 1e-3;
+  static dist_t default_min_trace () { return 1e-3; }
 #else
-  static const dist_t DEFAULT_MIN_TRACE = 1e-10;
+  static dist_t default_min_trace () { return 1e-10; }
 #endif
 
   RenderParams ()
-    : min_trace (DEFAULT_MIN_TRACE)
+    : min_trace (default_min_trace())
   { }
   RenderParams (const ValTable &params)
-    : min_trace (params.get_float ("min-media", DEFAULT_MIN_TRACE))
+    : min_trace (params.get_float ("min-media", default_min_trace()))
   { }
 
   // Minimum length of a mediad ray; any objects closer than this to the

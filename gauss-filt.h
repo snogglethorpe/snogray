@@ -1,6 +1,6 @@
 // gauss.h -- Gaussian filter
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,16 +25,16 @@ class GaussFilt : public Filter
 {
 public:
 
-  static const float DEFAULT_ALPHA = 2;
-  static const float DEFAULT_WIDTH = 2;
+  static float default_alpha () { return 2; }
+  static float default_width () { return 2; }
 
-  GaussFilt (float _alpha = DEFAULT_ALPHA, float _width = DEFAULT_WIDTH)
+  GaussFilt (float _alpha = default_alpha(), float _width = default_width())
     : Filter (_width), alpha (_alpha),
       _exp (exp (-alpha * width * width))
   { }
   GaussFilt (const ValTable &params)
-    : Filter (params, DEFAULT_WIDTH),
-      alpha (params.get_float ("alpha,a", DEFAULT_ALPHA)),
+    : Filter (params, default_width()),
+      alpha (params.get_float ("alpha,a", default_alpha())),
       _exp (exp (-alpha * width * width))
   { }
 
