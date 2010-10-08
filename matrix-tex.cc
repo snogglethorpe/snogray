@@ -1,6 +1,6 @@
 // matrix-tex.h -- 2d texture based on discrete matrix of values
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -24,8 +24,8 @@ using namespace snogray;
 // declarations at the end of "matrix-tex.tcc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-template class MatrixTex<Color>;
-template class MatrixTex<float>;
+template class snogray::MatrixTex<Color>;
+template class snogray::MatrixTex<float>;
 #endif
 
 
