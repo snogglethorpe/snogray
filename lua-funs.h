@@ -50,6 +50,6 @@ extern int lua_store_into_val_table (lua_State *L, ValTable &val_table);
 extern int lua_read_file (lua_State *L);
 
 
-};
+}
 
 #endif // __LUA_FUNS_H__
