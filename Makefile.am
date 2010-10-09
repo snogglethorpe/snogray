@@ -490,9 +490,16 @@ endif
 
 libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 
-# Note that we use AM_CXXFLAGS_SIZE to optimize for size.
+# Compiler options for compiling SWIG-generated Lua interface.
 #
-libsnograw_a_CXXFLAGS = $(AM_CXXFLAGS_SIZE) -fno-strict-aliasing
+# These are the same as the default compiler options, except:
+# (1) Optimize for size (SWIG-generated code can be bloated)
+# (2) Add "-fno-strict-aliasing", as the generated code uses some
+#     dodgy aliasing tricks
+# (3) Don't use pedantic checking options (the quality of the
+#     generated code is not something we can easily control)
+#
+libsnograw_a_CXXFLAGS = $(OPT_SIZE) $(DEBUG) $(CXX_STD_FLAGS) -fno-strict-aliasing $(EXTRA_COMPILE_FLAGS)
 
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl
