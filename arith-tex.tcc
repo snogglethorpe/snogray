@@ -1,6 +1,6 @@
 // arith-tex.tcc -- arithmetic on textured values
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -80,8 +80,8 @@ ArithTex<T>::eval (const TexCoords &tex_coords) const
 // declarations at the end of "arith-tex.cc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-extern template class ArithTex<Color>;
-extern template class ArithTex<float>;
+EXTERN_TEMPLATE_EXTENSION extern template class ArithTex<Color>;
+EXTERN_TEMPLATE_EXTENSION extern template class ArithTex<float>;
 #endif
 
 

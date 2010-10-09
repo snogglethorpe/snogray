@@ -1,6 +1,6 @@
 // cmp-tex.tcc -- Texture comparison
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -58,8 +58,8 @@ CmpTex<T>::eval (const TexCoords &coords) const
 // declarations at the end of "cmp-tex.cc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-extern template class CmpTex<Color>;
-extern template class CmpTex<float>;
+EXTERN_TEMPLATE_EXTENSION extern template class CmpTex<Color>;
+EXTERN_TEMPLATE_EXTENSION extern template class CmpTex<float>;
 #endif
 
 

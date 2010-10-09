@@ -263,7 +263,7 @@ Matrix4<T>::is_identity () const
 // declarations at the end of "matrix4.cc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-extern template class Matrix4<dist_t>;
+EXTERN_TEMPLATE_EXTENSION extern template class Matrix4<dist_t>;
 #endif
 
 

@@ -1,6 +1,6 @@
 // matrix-tex.tcc -- Methods for MatrixTex class
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -74,8 +74,8 @@ MatrixTex<T,DT>::eval (const TexCoords &tex_coords) const
 // declarations at the end of "matrix-tex.cc".
 // 
 #if HAVE_EXTERN_TEMPLATE
-extern template class MatrixTex<Color>;
-extern template class MatrixTex<float>;
+EXTERN_TEMPLATE_EXTENSION extern template class MatrixTex<Color>;
+EXTERN_TEMPLATE_EXTENSION extern template class MatrixTex<float>;
 #endif
 
 
