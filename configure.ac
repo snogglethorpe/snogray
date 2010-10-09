@@ -210,7 +210,12 @@ AC_SUBST([CXX_STD_FLAGS], [$opt])
 
 # Try to be very picky, if the compiler lets us.
 #
-SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra])
+# We turn on all warnings, and use -pedantic-errors to cause an error
+# for standard violations.  However we also inhibit warnings about
+# "long long", as we use that too much.
+#
+SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS],
+  [-Wall -Wextra -pedantic-errors -Wno-long-long])
 
 
 ##
