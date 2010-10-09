@@ -549,11 +549,11 @@ end
 -- materials
 --
 
-local material_parsers = {}
+local materials = {}
 
 -- matte (lambertian)
 --
-function material_parsers.matte (state, params)
+function materials.matte (state, params)
    -- ignored params: "float sigma"
    local kd = get_texture_param (state, params, "color Kd", 1)
    local bump = get_texture_param (state, params, "float bumpmap", false)
@@ -564,7 +564,7 @@ end
 
 -- clay (not implemented; workaround: use cook_torrance)
 --
-function material_parsers.clay (state, params)
+function materials.clay (state, params)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    local kd = {0.383626, 0.260749, 0.274207}
    return lambert {kd, bump = bump}
@@ -572,7 +572,7 @@ end
 
 -- "bluepaint" (not implemented; workaround: use cook_torrance)
 --
-function material_parsers.bluepaint (state, params)
+function materials.bluepaint (state, params)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    local kd = {0.3094, 0.39667, 0.70837}
    return cook_torrance {d = kd, s = .6, m = .5, bump = bump}
@@ -580,7 +580,7 @@ end
 
 -- plastic (cook-torrance)
 --
-function material_parsers.plastic (state, params)
+function materials.plastic (state, params)
    local kd = get_texture_param (state, params, "color Kd", 1)
    local ks = get_texture_param (state, params, "color Ks", 1) * 5
    local rough = get_texture_param (state, params, "float roughness", .1)
@@ -590,7 +590,7 @@ end
 
 -- translucent (cook-torrance, just ignore translucency)
 --
-function material_parsers.translucent (state, params)
+function materials.translucent (state, params)
    local kd = get_texture_param (state, params, "color Kd", 1)
    local ks = get_texture_param (state, params, "color Ks", 1) * 5
    local rough = get_texture_param (state, params, "float roughness", .1)
@@ -604,7 +604,7 @@ end
 
 -- glass
 --
-function material_parsers.glass (state, params)
+function materials.glass (state, params)
    -- unsupported params: "texture index"
    -- ignored params: "color Kr", "color Kt"   
    local ior = get_single_param (state, params, "float index", 1.5)
@@ -618,7 +618,7 @@ end
 
 -- mirror
 --
-function material_parsers.mirror (state, params)
+function materials.mirror (state, params)
    local kr = get_texture_param (state, params, "color Kr", 1)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    return mirror {reflectance = kr, bump = bump}
@@ -626,7 +626,7 @@ end
 
 -- uber (not implemented; workaround: use cook-torrance)
 --
-function material_parsers.uber (state, params)
+function materials.uber (state, params)
    -- ignored params: "color Kr"
    local kd = get_texture_param (state, params, "color Kd", 1)
    local ks = get_texture_param (state, params, "color Ks", 1)
@@ -644,7 +644,7 @@ end
 
 -- substrate (not implement; workaround: use cook-torrance)
 --
-function material_parsers.substrate (state, params)
+function materials.substrate (state, params)
    local kd = get_texture_param (state, params, "color Kd", .5)
    local ks = get_texture_param (state, params, "color Ks", .5)
    local urough = get_texture_param (state, params, "float uroughness", .1)
@@ -659,7 +659,7 @@ end
 
 -- shinymetal (we use cook-torrance with an appropriate IOR)
 --
-function material_parsers.shinymetal (state, params)
+function materials.shinymetal (state, params)
    local kd = get_texture_param (state, params, "color Kd", 1)
    local ks = get_texture_param (state, params, "color Ks", 1)
    local rough = get_texture_param (state, params, "float roughness", .1)
@@ -670,7 +670,7 @@ end
 
 -- metal (we use cook-torrance with an appropriate IOR)
 --
-function material_parsers.metal (state, params)
+function materials.metal (state, params)
    local eta = get_spectrum_param (state, params, "spectrum eta")
    local k = get_spectrum_param (state, params, "spectrum k")
    local rough = get_texture_param (state, params, "float roughness", .1)
@@ -722,11 +722,11 @@ local function apply_texture_2d_mapping (tex, state, params)
    return tex
 end
 
-local texture_parsers = {}
+local textures = {}
 
 -- checkerboard texture
 --
-function texture_parsers.checkerboard (state, params, type)
+function textures.checkerboard (state, params, type)
    local dims = get_single_param (state, params, "integer dimension", 2)
    local tex1 = get_texture_param (state, params, "color tex1", 1)
    local tex2 = get_texture_param (state, params, "color tex2", 2)
@@ -742,7 +742,7 @@ end
 
 -- imagemap texture
 --
-function texture_parsers.imagemap (state, params, type)
+function textures.imagemap (state, params, type)
    -- unsupported params: "string wrap" (non-default)
    -- ignored params: "float maxanisotropy", "bool trilinear", "float gamma"
    local filename = get_single_param (state, params, "string filename")
@@ -776,13 +776,13 @@ end
 
 -- constant texture (used in scene files for named constants)
 --
-function texture_parsers.constant (state, params, type)
+function textures.constant (state, params, type)
    return get_single_param (state, params, "color/float value", 1)
 end
 
 -- scale texture (multiplies its two inputs)
 --
-function texture_parsers.scale (state, params, type)
+function textures.scale (state, params, type)
    local tex1 = get_texture_param (state, params, "color/float tex1", 1)
    local tex2 = get_texture_param (state, params, "color/float tex2", 1)
    return tex1 * tex2
@@ -790,7 +790,7 @@ end
 
 -- mix texture (linearly interpolates between its two inputs based on another)
 --
-function texture_parsers.mix (state, params, type)
+function textures.mix (state, params, type)
    local amount = get_texture_param (state, params, "float amount", 1)
    local tex1 = get_texture_param (state, params, "color/float tex1", 1)
    local tex2 = get_texture_param (state, params, "color/float tex2", 1)
@@ -799,7 +799,7 @@ end
 
 -- windy texture
 --
-function texture_parsers.windy (state, params, type)
+function textures.windy (state, params, type)
    local wind_strength
       = scale (.1) (perlin_series_tex {octaves = 3, auto_scale = false})
    local wave_height
@@ -812,7 +812,7 @@ end
 
 -- fbm texture
 --
-function texture_parsers.fbm (state, params, type)
+function textures.fbm (state, params, type)
    local octaves = get_single_param (state, params, "integer octaves", 8)
    local omega = get_single_param (state, params, "float roughness", .5)
    local xf = state.xform:inverse ()
@@ -823,7 +823,7 @@ end
 -- wrinkled texture (basically same as fbm, but uses absolute value of
 -- perlin noise)
 --
-function texture_parsers.wrinkled (state, params, type)
+function textures.wrinkled (state, params, type)
    local octaves = get_single_param (state, params, "integer octaves", 8)
    local omega = get_single_param (state, params, "float roughness", .5)
    local xf = state.xform:inverse ()
@@ -836,11 +836,11 @@ end
 -- shapes
 --
 
-local shape_parsers = {}
+local shapes = {}
 
 -- mesh shape
 --
-function shape_parsers.trianglemesh (state, params, mat)
+function shapes.trianglemesh (state, params, mat)
    -- ignored params: "vector S"
    local points = get_param (state, params, "point P")
    local normals = get_param (state, params, "normal N", false)
@@ -941,9 +941,9 @@ end
 -- loopsubdiv shape (not implement; workaround: ignore the subdivision
 -- entirely and just render the underlying mesh)
 --
-function shape_parsers.loopsubdiv (state, params, mat)
+function shapes.loopsubdiv (state, params, mat)
    params["integer nlevels"] = nil -- ignore
-   local M = shape_parsers.trianglemesh (state, params, mat)
+   local M = shapes.trianglemesh (state, params, mat)
    -- if not M.vertex_normals then
    --    -- turn on mesh-smoothing in an attempt to hide the low-poly
    --    -- underling mesh...
@@ -954,7 +954,7 @@ end
 
 -- cylinder shape
 --
-function shape_parsers.cylinder (state, params, mat)
+function shapes.cylinder (state, params, mat)
    -- unsupported params: "float phimax"
    local radius = get_single_param (state, params, "float radius", 1)
    local zmin = get_single_param (state, params, "float zmin", -1)
@@ -979,7 +979,7 @@ end
 
 -- sphere shape
 --
-function shape_parsers.sphere (state, params, mat)
+function shapes.sphere (state, params, mat)
    -- unsupported params: "float zmin", "float zmax", "float phimax"
    local radius = get_single_param (state, params, "float radius", 1)
    local xf = state.xform
@@ -994,7 +994,7 @@ end
 
 -- disk shape
 --
-function shape_parsers.disk (state, params, mat)
+function shapes.disk (state, params, mat)
    -- unsupported params: "float innerradius", "float phimax"
    local radius = get_single_param (state, params, "float radius", 1)
    local height = get_single_param (state, params, "float height", 0)
@@ -1013,11 +1013,11 @@ end
 -- lights
 --
 
-local light_parsers = {}
+local lights = {}
 
 -- point light
 --
-function light_parsers.point (state, params)
+function lights.point (state, params)
    local intens = get_color_param (state, params, "color I", 1)
    local scale = get_color_param (state, params, "color scale", 1)
    local from = get_point_param (state, params, "point from", pos(0,0,0))
@@ -1026,7 +1026,7 @@ end
 
 -- spotlight
 --
-function light_parsers.spot (state, params)
+function lights.spot (state, params)
    local intens = get_color_param (state, params, "color I", 1)
    local scale = get_color_param (state, params, "color scale", 1)
    local angle = get_single_param (state, params, "float coneangle", 30)
@@ -1042,7 +1042,7 @@ end
 
 -- distant light
 --
-function light_parsers.distant (state, params)
+function lights.distant (state, params)
    local intens = get_texture_param (state, params, "color L", 1)
    local from = get_point_param (state, params, "point from", pos(0,0,0))
    local to = get_point_param (state, params, "point to", pos(0,0,1))
@@ -1052,7 +1052,7 @@ end
 
 -- infinite light
 --
-function light_parsers.infinite (state, params)
+function lights.infinite (state, params)
    -- ignored params: "integer nsamples"
    local mapname = get_single_param (state, params, "string mapname", false)
    local scale = get_texture_param (state, params, "float/color scale", 1)
@@ -1120,9 +1120,9 @@ end
 -- samplers
 --
 
-sampler_parsers = {}
+samplers = {}
 
-function sampler_parsers.adaptive (state, params)
+function samplers.adaptive (state, params)
    -- ignored parameters: "string method"
    local minsamp = get_single_param (state, params, "integer minsamples", 4)
    local maxsamp = get_single_param (state, params, "integer maxsamples", 32)
@@ -1144,20 +1144,20 @@ local function unimp_typical_sampler (name, state, params)
    state:set_param ("render.oversample", nsamp)
 end
 
-function sampler_parsers.bestcandidate (...)
+function samplers.bestcandidate (...)
    unimp_typical_sampler ("bestcandidate", ...)
 end
-function sampler_parsers.halton (...)
+function samplers.halton (...)
    unimp_typical_sampler ("halton", ...)
 end
-function sampler_parsers.lowdiscrepancy (...)
+function samplers.lowdiscrepancy (...)
    unimp_typical_sampler ("lowdiscrepancy", ...)
 end
 
 -- Our standard sampler is stratified, but doesn't allow separate
 -- setting of x and y sizes, only the product.
 --
-function sampler_parsers.stratified (state, params)
+function samplers.stratified (state, params)
    -- ignored parameters: "bool jitter"
    local xsamp = get_single_param (state, params, "integer xsamples", 2)
    local ysamp = get_single_param (state, params, "integer ysamples", 2)
@@ -1172,7 +1172,7 @@ function sampler_parsers.stratified (state, params)
    end
 end
 
-function sampler_parsers.random (name, state, params)
+function samplers.random (name, state, params)
    local nsamp = get_single_param (state, params, "integer nsamples", 4)
    if nsamp ~= 1 then
       nsamp = state.params["render.oversample"] or nsamp -- prefer user's
@@ -1187,22 +1187,22 @@ end
 -- surface-integrators
 --
 
-surface_integrator_parsers = {}
+surface_integrators = {}
 
-function surface_integrator_parsers.directlighting (state, params)
+function surface_integrators.directlighting (state, params)
    -- ignore parameters: "integer maxdepth"
    params["integer maxdepth"] = nil -- ignore
    state:set_param ("render.surface-integ", "direct")
 end
 
-function surface_integrator_parsers.path (state, params)
+function surface_integrators.path (state, params)
    local maxdepth = get_single_param (state, params, "integer maxdepth", 5)
    state:set_param ("render.surface-integ", "path")
    state:set_param ("render.surface-integ.path.min-len", 3) -- PBRT value
    state:set_param ("render.surface-integ.path.max-len", maxdepth)
 end
 
-function surface_integrator_parsers.photonmap (state, params)
+function surface_integrators.photonmap (state, params)
    -- note that some of these params are only in PBRT v1 or v2 (noted below)
    -- ignored parameters: "float gatherangle"
    local maxdist = get_single_param (state, params, "float maxdist", .1)
@@ -1238,7 +1238,7 @@ end
 -- pixel-filters
 --
 
-pixel_filter_parsers = {}
+pixel_filters = {}
 
 local function set_pixel_filter (state, params, name, default_width)
    -- All filters have "xwidth" and "ywidth" params, though we insist
@@ -1255,15 +1255,15 @@ local function set_pixel_filter (state, params, name, default_width)
    state:set_param ("output.filter."..name..".width", width)
 end
 
-function pixel_filter_parsers.box (state, params)
+function pixel_filters.box (state, params)
    set_pixel_filter (state, params, "box", 1)
 end
 
-function pixel_filter_parsers.triangle (state, params)
+function pixel_filters.triangle (state, params)
    set_pixel_filter (state, params, "triangle", 2)
 end
 
-function pixel_filter_parsers.mitchell (state, params)
+function pixel_filters.mitchell (state, params)
    local b = get_single_param (state, params, "float B", 1/3)
    local c = get_single_param (state, params, "float C", 1/3)
    set_pixel_filter (state, params, "mitchell", 2)
@@ -1271,7 +1271,7 @@ function pixel_filter_parsers.mitchell (state, params)
    state:set_param ("output.filter.mitchell.c", c)
 end
 
-function pixel_filter_parsers.gaussian (state, params)
+function pixel_filters.gaussian (state, params)
    local alpha = get_single_param (state, params, "float alpha", 2)
    set_pixel_filter (state, params, "gauss", 2)
    state:set_param ("output.filter.gauss.alpha", alpha)
@@ -1327,7 +1327,7 @@ function load_pbrt_in_state (state, scene, camera)
    -- entity was incorrect; if LABEL is nil, then no error is given,
    -- and nil is returned instead for unknown kinds.
    --
-   local function parse_subcommand (kind, params, parsers, label, ...)
+   local function handle_subcommand (kind, params, parsers, label, ...)
       local parser = parsers[kind]
       if parser then
 	 local val = parser (state, params, ...)
@@ -1397,7 +1397,7 @@ function load_pbrt_in_state (state, scene, camera)
       -- match PBRT defaults.
       --
       if not state.params["output.filter"] then
-	 pixel_filter_parsers.box (state, {})
+	 pixel_filters.box (state, {})
       end
 
       state.pending_options = {} -- clear
@@ -1521,7 +1521,7 @@ function load_pbrt_in_state (state, scene, camera)
       check_section ('world')
       -- none of our lights support the "integer nsamples" param, so ignore it
       params["integer nsamples"] = nil -- ignore
-      local light = parse_subcommand (kind, params, light_parsers, "light")
+      local light = handle_subcommand (kind, params, lights, "light")
       -- the parser can return nil to avoid adding a light, so check
       if light then
 	 add (light)
@@ -1549,14 +1549,13 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function material_cmd (kind, params)
       check_section ('world')
-      state.material
-	 = parse_subcommand (kind, params, material_parsers, "material")
+      state.material = handle_subcommand (kind, params, materials, "material")
    end
    local function make_named_material_cmd (name, params)
       check_section ('world')
       local kind = get_single_param (state, params, "string type")
       state.named_materials[name]
-	 = parse_subcommand (kind, params, material_parsers, "material")
+	 = handle_subcommand (kind, params, materials, "material")
    end
    local function named_material_cmd (name)
       check_section ('world')
@@ -1597,7 +1596,7 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function pixelfilter_cmd (kind, params)
       check_section ('options')
-      parse_subcommand (kind, params, pixel_filter_parsers, "pixel-filter")
+      handle_subcommand (kind, params, pixel_filters, "pixel-filter")
    end
    local function renderer_cmd (...)
       check_section ('options')
@@ -1614,7 +1613,7 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function sampler_cmd (kind, params)
       check_section ('options')
-      parse_subcommand (kind, params, sampler_parsers, "sampler")
+      handle_subcommand (kind, params, samplers, "sampler")
    end
    local function scale_cmd (x, y, z)
       state.xform = state.xform * scale (x, y, z)
@@ -1625,8 +1624,7 @@ function load_pbrt_in_state (state, scene, camera)
    end
    local function shape_cmd (kind, params)
       check_section ('world')
-      add (parse_subcommand (kind, params, shape_parsers, "shape",
-			     check_mat ()))
+      add (handle_subcommand (kind, params, shapes, "shape", check_mat ()))
    end
    local function surfaceintegrator_cmd (kind, params)
       check_section ('options')
@@ -1637,12 +1635,12 @@ function load_pbrt_in_state (state, scene, camera)
       -- there are many...).
       local err_label  -- string => error if unknown; false/nil => no errors
 	 = not state.params["render.surface-integ"] and "surface-integrator"
-      parse_subcommand (kind, params, surface_integrator_parsers, err_label)
+      handle_subcommand (kind, params, surface_integrators, err_label)
    end
    local function texture_cmd (name, type, kind, params)
       check_section ('world')
       state.named_textures[name]
-	 = parse_subcommand (kind, params, texture_parsers, "texture", type)
+	 = handle_subcommand (kind, params, textures, "texture", type)
    end
    local function transform_begin_cmd ()
       push (state.xform_stack, state.xform)
