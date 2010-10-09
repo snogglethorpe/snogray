@@ -45,40 +45,6 @@ fi
 
 ##
 ## --------------------------------
-## Language feature tests
-##
-
-
-# See if this compiler supports the "extern template class Foo<T>"
-# syntax for suppressing template instantiation of specific types
-# (currently this is a g++ extension).
-
-AC_ARG_ENABLE([extern-template],
-    AS_HELP_STRING([--disable-extern-template],
-		   [Disable use of C++ "extern template" extension]),
-    [enable_extern_template="$enableval"],
-    [enable_extern_template=yes])
-
-if test "$enable_extern_template" = yes; then
-  AC_MSG_CHECKING([whether C++ compiler supports "extern template"])
-  AC_COMPILE_IFELSE(
-      AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
-		      extern template class Foo<int>;]),
-      [have_extern_template=yes],
-      [have_extern_template=no])
-  AC_MSG_RESULT([$have_extern_template])
-else
-  have_extern_template="no"
-fi
-
-if test $have_extern_template = yes; then
-  AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
-	    [Define if C++ compiler supports "extern template" extension])
-fi
-
-
-##
-## --------------------------------
 ## Optional addons
 ##
 
@@ -245,6 +211,67 @@ AC_SUBST([CXX_STD_FLAGS], [$opt])
 # Try to be very picky, if the compiler lets us.
 #
 SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS], [-Wall -Wextra])
+
+
+##
+## --------------------------------
+## Language feature tests
+##
+
+#
+# See if this compiler supports the "extern template class Foo<T>"
+# syntax for suppressing template instantiation of specific types.
+# This is availble in C++0x, and also as a g++ extension to C++98.
+#
+
+AC_ARG_ENABLE([extern-template],
+    AS_HELP_STRING([--disable-extern-template],
+		   [Disable use of C++ "extern template" extension]),
+    [enable_extern_template="$enableval"],
+    [enable_extern_template=yes])
+
+have_extern_template="no"
+extern_template_extension_kw=""
+if test "$enable_extern_template" = yes; then
+  #
+  # See if the compiler supports "extern template".
+  #
+  # There are two subtleties:
+  # (1) We test with $CXX_STD_FLAGS and $CXX_CHECK_FLAGS added to the
+  #     compiler flags (which is what will be used later for actual
+  #     program compilation), as "extern template" may not be
+  #     supported when they are used.
+  # (2) If it doesn't seem to work at first, we try again, this time
+  #     prefixing "extern template" with "__extension__"; this tells
+  #     g++ to allow the feature even in strict compatibility mode.
+  #
+  for extension_kw in '' '__extension__'; do
+    msg_suffix=""
+    test x$extension_kw = x__extension__ && msg_suffix=" with $extension_kw"
+    AC_MSG_CHECKING([whether C++ compiler supports "extern template"$msg_suffix])
+    _OLD_CXXFLAGS="$CXXFLAGS"
+    CXXFLAGS="$CXX_STD_FLAGS $CXX_CHECK_FLAGS $CXXFLAGS"
+    AC_COMPILE_IFELSE(
+      AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
+	  $extension_kw extern template class Foo<int>;]),
+      [have_extern_template=yes],
+      [have_extern_template=no])
+    CXXFLAGS="$_OLD_CXXFLAGS"
+    AC_MSG_RESULT([$have_extern_template])
+    if test $have_extern_template = yes; then
+      extern_template_extension_kw="$extension_kw"
+      break
+    fi
+  done
+fi
+
+if test $have_extern_template = yes; then
+  AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
+	    [Define if C++ compiler supports "extern template" extension])
+  AC_DEFINE_UNQUOTED([EXTERN_TEMPLATE_EXTENSION],
+		     [$extern_template_extension_kw],
+		     [Prefix used before "extern template" (so that the compiler accepts it even in strict C++98 mode)])
+fi
 
 
 ##
