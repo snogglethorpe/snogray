@@ -15,7 +15,22 @@
 
 #include <cstdio>
 #include <csetjmp>
+
+// Some versions of the libjpeg header files define "HAVE_STDLIB_H" (which
+// they probably shouldn't, but...), which results in the compiler
+// complaining (or aborting, if --pedantic-errors or -Werror is used).
+// To avoid this, undefine HAVE_STDLIB_H before including <jpeglib.h>, and
+// then maybe redefine it again afterwards if necessary ... arghh...
+//
+#ifdef HAVE_STDLIB_H
+#define SNOGRAY_HAD_STDLIB_H 1
+#undef HAVE_STDLIB_H
+#endif
 #include <jpeglib.h>
+#if !defined(HAVE_STDLIB_H) && SNOGRAY_HAD_STDLIB_H
+#define HAVE_STDLIB_H 1
+#endif
+
 
 #include "image-byte-vec.h"
 
