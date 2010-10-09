@@ -72,7 +72,7 @@ public:
   // support sampling.  The caller is responsible for destroying
   // returned samplers.
   //
-  virtual Sampler *make_sampler () const { return 0; };
+  virtual Sampler *make_sampler () const { return 0; }
 };
 
 
