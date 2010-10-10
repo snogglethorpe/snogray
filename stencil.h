@@ -30,7 +30,9 @@ public:
   Stencil (const TexVal<Color> &_opacity,
 	   const Ref<const Material> &_underlying_material)
     : opacity (_opacity), underlying_material (_underlying_material)
-  { }
+  {
+    bump_map = _underlying_material->bump_map;
+  }
 
   // Return a new BSDF object for this material instantiated at ISEC.
   //
