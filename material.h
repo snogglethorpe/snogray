@@ -36,6 +36,12 @@ public:
   // Flags for materials.  "Typical" materials usually have no flags set.
   //
   enum {
+    // This material may return a value other than zero from the
+    // Material::transmittance method (see the method comment for more
+    // detail).
+    //
+    PARTIALLY_OCCLUDING = 0x1,
+
     // This material may emit light.
     //
     EMITS_LIGHT = 0x2
