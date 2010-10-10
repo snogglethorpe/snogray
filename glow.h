@@ -41,10 +41,6 @@ public:
   //
   virtual Color Le (const Intersect &isec) const;
 
-  // Return true if this material emits light.
-  //
-  virtual bool emits_light () const { return true; }
-
   // If this is a light-emitting material, call PRIMITIVE's
   // Primitive::add_light method with an appropriate intensity to add a
   // light to LIGHTS (for non-light-emitting materials, do nothing).

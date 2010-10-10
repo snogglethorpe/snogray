@@ -19,12 +19,14 @@ using namespace snogray;
 
 
 Glow::Glow (const TexVal<Color> &col)
-  : color (col)
+  : Material (EMITS_LIGHT),
+    color (col)
 { }
 
 Glow::Glow (const TexVal<Color> &col,
 	    const Ref<const Material> &_underlying_material)
-  : color (col), underlying_material (_underlying_material)
+  : Material (EMITS_LIGHT),
+    color (col), underlying_material (_underlying_material)
 {
   bump_map = _underlying_material->bump_map;
 }

@@ -33,7 +33,15 @@ class Material : public RefCounted
 {
 public:
 
-  Material () : bump_map (0) { }
+  // Flags for materials.  "Typical" materials usually have no flags set.
+  //
+  enum {
+    // This material may emit light.
+    //
+    EMITS_LIGHT = 0x2
+  };
+
+  Material (unsigned _flags = 0) : bump_map (0), flags (_flags)  { }
   virtual ~Material () { }
 
   // Return a new BSDF object for this material instantiated at ISEC.
@@ -50,7 +58,7 @@ public:
 
   // Return true if this material emits light.
   //
-  virtual bool emits_light () const { return false; }
+  bool emits_light () const { return (flags & EMITS_LIGHT); }
 
   // If this is a light-emitting material, call PRIMITIVE's
   // Primitive::add_light method with an appropriate intensity to add a
@@ -63,6 +71,8 @@ public:
   }
 
   Ref<const Tex<float> > bump_map;
+
+  unsigned char flags;
 };
 
 
