@@ -60,6 +60,16 @@ public:
   //
   bool emits_light () const { return (flags & EMITS_LIGHT); }
 
+  // Return the transmittance of this material at texture-coordinates COORDS.
+  //
+  // Note that this method only applies to "simple"
+  // transparency/translucency, where transmitted rays don't change
+  // direction; materials that are conceptually "transparent," but
+  // which exhibit more complex effects like refraction (which change
+  // the direction) may return zero from this method.
+  //
+  virtual Color transmittance (const TexCoords &/*coords*/) const { return 0; }
+
   // If this is a light-emitting material, call PRIMITIVE's
   // Primitive::add_light method with an appropriate intensity to add a
   // light to LIGHTS (for non-light-emitting materials, do nothing).
