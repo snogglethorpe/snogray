@@ -38,7 +38,9 @@ public:
 	  const Ref<const Material> &_underlying_material)
     : ior (_ior), reflectance (_reflectance),
       underlying_material (_underlying_material)
-  { }
+  {
+    bump_map = _underlying_material->bump_map;
+  }
 
   // A mirror with a simple lambertian underlying material.
   //
