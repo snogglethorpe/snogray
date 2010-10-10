@@ -66,6 +66,10 @@ public:
   //
   bool emits_light () const { return (flags & EMITS_LIGHT); }
 
+  // Return true if Material::transmittance will always return zero.
+  //
+  bool fully_occluding () const { return ! (flags & PARTIALLY_OCCLUDING); }
+
   // Return the transmittance of this material at texture-coordinates COORDS.
   //
   // Note that this method only applies to "simple"
