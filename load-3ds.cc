@@ -29,7 +29,7 @@
 #include "excepts.h"
 #include "scene.h"
 #include "mirror.h"
-#include "plastic.h"
+#include "thin-glass.h"
 #include "sphere.h"
 #include "mesh.h"
 #include "scene.h"
@@ -172,15 +172,16 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
 
   if (m->transparency > 0)
     //
-    // The plastic material we use for transparency has no real color;
-    // it only transmits light, or reflects due to Fresnel reflection.
+    // The thin_glass material we use for transparency has no real
+    // color; it only transmits light, or reflects due to Fresnel
+    // reflection.
     //
     // We use the plastic's index of refraction to try to control
     // shininess: a shininess of 0 means an IOR of 1, so no Fresnel
-    // reflection from the surface; a shininess of 1 means an IOR of 2,
-    // which should provide some nice reflections.
+    // reflection from the surface; a shininess of 1 means an IOR of
+    // 2, which should provide some nice reflections.
     //
-    mat = new Plastic (m->transparency, 1 + m->shininess);
+    mat = new ThinGlass (m->transparency, 1 + m->shininess);
   else
     {
       Color diffuse = color (m->diffuse);

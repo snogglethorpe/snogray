@@ -597,14 +597,14 @@ function glass (params)
    return postproc_material (raw.glass (raw.Medium (_ior, _absorb)), params)
 end
 
--- Return a plastic material.
+-- Return a thin_glass material.
 -- PARAMS can be:
 --   IOR
 --   {ior=IOR, color=COLOR}
 --   {COLOR, ior=IOR}
 -- etc
 --
-function plastic (params)
+function thin_glass (params)
    local _ior = 1.5
    local _color = white
 
@@ -621,7 +621,7 @@ function plastic (params)
 
    _color = color (_color)
 
-   return postproc_material (raw.plastic (_color, _ior), params)
+   return postproc_material (raw.thin_glass (_color, _ior), params)
 end
 
 function glow (col, underlying)

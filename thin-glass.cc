@@ -1,4 +1,4 @@
-// plastic.h -- Plastic (thin, transmissive, reflective) material
+// thin-glass.cc -- ThinGlass (thin, transmissive, reflective) material
 //
 //  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
 //
@@ -15,19 +15,19 @@
 #include "fresnel.h"
 #include "bsdf.h"
 
-#include "plastic.h"
+#include "thin-glass.h"
 
 using namespace snogray;
 
 
 // Common information used for refraction methods.
 //
-class PlasticBsdf : public Bsdf
+class ThinGlassBsdf : public Bsdf
 {
 public:
 
-  PlasticBsdf (const Plastic &_plastic, const Intersect &isec)
-    : Bsdf (isec), plastic (_plastic)
+  ThinGlassBsdf (const ThinGlass &_thin_glass, const Intersect &isec)
+    : Bsdf (isec), thin_glass (_thin_glass)
   { }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
@@ -46,12 +46,12 @@ public:
 	float cos_xmit_angle = isec.cos_n (isec.v);
 	float medium_ior = isec.media.medium.ior;
 	float refl
-	  = Fresnel (medium_ior, plastic.ior).reflectance (cos_xmit_angle);
+	  = Fresnel (medium_ior, thin_glass.ior).reflectance (cos_xmit_angle);
 
 	// Render transmitted light (some light is lost due to fresnel
 	// reflection from the back surface).
 	//
-	Color xmit = plastic.color * (1 - refl);
+	Color xmit = thin_glass.color * (1 - refl);
 
 	// If we're only allowed to choose a single direction, always
 	// return that, otherwise choose between them based on their
@@ -98,16 +98,16 @@ public:
 
 private:
 
-  const Plastic &plastic;
+  const ThinGlass &thin_glass;
 };
 
 
 // Return a new BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-Plastic::get_bsdf (const Intersect &isec) const
+ThinGlass::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) PlasticBsdf (*this, isec);
+  return new (isec) ThinGlassBsdf (*this, isec);
 }
 
 

@@ -66,7 +66,7 @@
 #include "glow.h"
 #include "norm-glow.h"
 #include "glass.h"
-#include "plastic.h"
+#include "thin-glass.h"
 #include "mirror.h"
 #include "stencil.h"
 #include "point-light.h"
@@ -1184,14 +1184,14 @@ namespace snogray {
       return new Glass (medium);
     }      
 
-    // Plastic
-    static Ref<Material> plastic (const Color &col, float _ior = 1.5)
+    // ThinGlass
+    static Ref<Material> thin_glass (const Color &col, float _ior = 1.5)
     {
-      return new Plastic (col, _ior);
+      return new ThinGlass (col, _ior);
     }      
-    static Ref<Material> plastic (float _ior = 1.5)
+    static Ref<Material> thin_glass (float _ior = 1.5)
     {
-      return new Plastic (_ior);
+      return new ThinGlass (_ior);
     }      
 
     // Glow, NormGlow

@@ -1,4 +1,4 @@
-// plastic.h -- Plastic (thin, transmissive, reflective) material
+// thin-glass.h -- ThinGlass (thin, transmissive, reflective) material
 //
 //  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
 //
@@ -10,27 +10,27 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PLASTIC_H__
-#define __PLASTIC_H__
+#ifndef __THIN_GLASS_H__
+#define __THIN_GLASS_H__
 
 #include "material.h"
 #include "medium.h"
 
 namespace snogray {
 
-// "Plastic" is like our Glass material, but doesn't contain a medium, so
+// "ThinGlass" is like our Glass material, but doesn't contain a medium, so
 // all filtering effects take place during the surface transition.  This is
 // a better match for typical "transparent" materials in many scene
 // definition languages than Glass.
 //
-class Plastic : public Material
+class ThinGlass : public Material
 {
 public:
 
-  Plastic (const Color &col, float _ior = 1.5)
+  ThinGlass (const Color &col, float _ior = 1.5)
     : color (col), ior (_ior)
   { }
-  Plastic (float _ior = 1.5)
+  ThinGlass (float _ior = 1.5)
     : color (1), ior (_ior)
   { }
 
@@ -48,6 +48,6 @@ public:
 
 }
 
-#endif /* __PLASTIC_H__ */
+#endif /* __THIN_GLASS_H__ */
 
 // arch-tag: eb5d0a02-3751-421d-9ddd-5daf10d56a1e
