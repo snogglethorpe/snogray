@@ -38,6 +38,16 @@ class Bsdf
 public:
 
   enum Flags {
+    //
+    // BSDF sample classification flags:  These classify BSDF samples
+    // into a number of different categories.
+    //
+    // They are used both descriptively, e.g., in the
+    // Bsdf::Sample::flags field, and as input arguments for various
+    // Bsdf methods (e.g. Bsdf::sample and Bsdf::eval), for describing
+    // what sorts of samples are to be considered.
+    //
+
     // Sample directions: reflection, or transmission (through the surface)
     //
     REFLECTIVE		= 0x10,
