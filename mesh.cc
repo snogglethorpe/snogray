@@ -455,33 +455,11 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
   else
     normal_frame = geom_frame;
 
-  // Texture-coordinates for the three vertices of the triangle.
+  // Calculate 2d texture-coordinates for POINT (as opposed to the
+  // "raw" triangle UV value in the variables "u" and "v").
   //
-  // If this mesh doesn't have per-vertex UV values, then they are just the
-  // raw barycentric coordinates of the vertices.
-  //
-  UV T0, T1, T2;
-  if (triangle.mesh.vertex_uvs.empty ())
-    {
-      T0 = UV (0, 0);
-      T1 = UV (1, 0);
-      T2 = UV (0, 1);
-    }
-  else
-    {
-      T0 = triangle.vuv (0);
-      T1 = triangle.vuv (1);
-      T2 = triangle.vuv (2);
-    }
-
-  // Change in UV values for edge1 and edge2 of the triangle.
-  //
-  UV dTdu = T1 - T0;
-  UV dTdv = T2 - T0;
-
-  // Texture-coordinates for POINT (as opposed to the "raw" triangle UV
-  // value in the variables "u" and "v").
-  //
+  UV T0, dTdu, dTdv;
+  triangle.get_texture_params (T0, dTdu, dTdv);
   UV T = T0 + dTdu * u + dTdv * v;
 
   //

@@ -269,6 +269,8 @@ class Mesh::Triangle : public Surface
 {
 public:
 
+  friend class Mesh;
+
   Triangle (const Mesh &_mesh) : mesh (_mesh) { }
 
   Triangle (const Mesh &_mesh,
@@ -334,6 +336,43 @@ public:
   const Vec raw_normal () const
   {
     return raw_normal_unscaled().unit ();
+  }
+
+private:
+
+  // Return 2D texture-coordinate information for this triangle.
+  // The 2D texture-coordinate of vertex 0 (with barycentric
+  // coordinate 0,0) is returned in T0.  The change in 2D
+  // texture-coordinates between vertex 0 and vertex 1 (corresponding
+  // to barycentric coordinate "u") is returned in DTDU, and the
+  // change between vertex 0 and vertex 2 (corresponding to
+  // barycentric coordinate "v") is returned in DTDV.
+  //
+  void get_texture_params (UV &T0, UV &dTdu, UV &dTdv) const
+  {
+    // Texture-coordinates for the three vertices of the triangle.
+    //
+    // If this mesh doesn't have per-vertex UV values, a per-triangle
+    // mapping is used.
+    //
+    UV T1, T2;
+    if (mesh.vertex_uvs.empty ())
+      {
+	T0 = UV (0, 0);
+	T1 = UV (1, 0);
+	T2 = UV (0, 1);
+      }
+    else
+      {
+	T0 = vuv (0);
+	T1 = vuv (1);
+	T2 = vuv (2);
+      }
+
+    // Change in UV values for edge1 and edge2 of the triangle.
+    //
+    dTdu = T1 - T0;
+    dTdv = T2 - T0;
   }
 
   struct IsecInfo : public Surface::IsecInfo
