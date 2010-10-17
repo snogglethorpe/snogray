@@ -1083,7 +1083,7 @@ function lights.infinite (state, params)
 	 local w, h = envmap.width, envmap.height
 	 for j = 0, h - 1 do
 	    for i = 0, w - 1 do
-	       envmap:set (i, j, envmap (i, j) * scale)
+	       envmap:set (i, j, envmap (i, j) * L)
 	    end
 	 end
       end
