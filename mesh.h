@@ -358,8 +358,16 @@ private:
     UV T1, T2;
     if (mesh.vertex_uvs.empty ())
       {
-	T0 = UV (0, 0);
-	T1 = UV (1, 0);
+	// The assignment of UV values to triangle vertices in the
+	// absence of UV-mapping information is fairly arbitrary.
+	//
+	// We just use a mapping compaible with PBRT, where the middle
+	// vertex of a triangle has UV coordinates 0,0, and the first
+	// and last vertices have coordinates 1,0 and 0,1
+	// respectively.
+
+	T0 = UV (1, 0);
+	T1 = UV (0, 0);
 	T2 = UV (0, 1);
       }
     else
