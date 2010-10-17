@@ -497,9 +497,9 @@ namespace snogray {
     Color operator- (component_t v) { return *$self - snogray::Color (v); }
     Color operator* (component_t v) { return *$self * v; }
 
-    Color operator== (const Color &col) { return *$self == col; }
-    Color operator< (const Color &col) { return *$self < col; }
-    Color operator<= (const Color &col) { return *$self <= col; }
+    bool operator== (const Color &col) { return *$self == col; }
+    bool operator< (const Color &col) { return *$self < col; }
+    bool operator<= (const Color &col) { return *$self <= col; }
     
     const char* __str__() { return static_rep (*$self); }
   }
