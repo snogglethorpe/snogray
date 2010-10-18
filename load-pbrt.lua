@@ -888,7 +888,7 @@ function shapes.trianglemesh (state, params, mat)
       local i2 = indices[3] * 3
       local p2 = xf (pos (points[i2+1], points[i2+2], points[i2+3]))
       if #indices == 3 then
-	 return triangle (mat, p0, p1-p0, p2-p0)
+	 return triangle (mat, p1, p0-p1, p2-p1)
       else
 	 local i3 = indices[4] * 3
 	 local p3 = xf (pos (points[i3+1], points[i3+2], points[i3+3]))
@@ -897,8 +897,8 @@ function shapes.trianglemesh (state, params, mat)
 	 local i5 = indices[6] * 3
 	 local p5 = xf (pos (points[i5+1], points[i5+2], points[i5+3]))
 	 return surface_group{
-	    triangle (mat, p0, p1-p0, p2-p0),
-	    triangle (mat, p3, p4-p3, p5-p3)
+	    triangle (mat, p1, p0-p1, p2-p1),
+	    triangle (mat, p4, p3-p4, p5-p4)
 	 }
       end
    end
