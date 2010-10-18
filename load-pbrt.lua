@@ -871,7 +871,15 @@ function shapes.trianglemesh (state, params, mat)
 
    local xf = state.xform
 
-   -- arghhh wotta hack...XXXXXXXXXXXXXX
+   -- Snogray doesn't currently support meshes as area lights, so when
+   -- we notice such a trianglemesh being used as an arealight that
+   -- only has one or two triangles, use discrete triangle objects
+   -- instead (which do support area lighting).
+   --
+   -- [This is a pretty gross hack, but seems to catch many uses, as
+   -- PBRT doesn't have a primitive rectangle or triangle shape, so
+   -- scenes use meshes for rectangular lights.  XXXXXXXXXXXXXX]
+   --
    if #indices <= 6 and state.area_light_intens then
       local i0 = indices[1] * 3
       local p0 = xf (pos (points[i0+1], points[i0+2], points[i0+3]))
@@ -894,7 +902,6 @@ function shapes.trianglemesh (state, params, mat)
 	 }
       end
    end
-   -- XXXXXXXXXXXXXX
 
    if state.reverse_normal then
       -- Do two things: negate all the normals, and reverse the indices
