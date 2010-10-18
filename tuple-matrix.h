@@ -60,10 +60,9 @@ public:
   // Constructors for a matrix loaded from an image file.
   //
   TupleMatrixData (unsigned _tuple_len, const std::string &filename,
-		   unsigned border = 0);
-  TupleMatrixData (unsigned _tuple_len, const std::string &filename,
-		   const ValTable &params, unsigned border = 0);
-  TupleMatrixData (unsigned _tuple_len, ImageInput &src, unsigned border = 0);
+		   const ValTable &params = ValTable::NONE);
+  TupleMatrixData (unsigned _tuple_len, ImageInput &src,
+		   const ValTable &params = ValTable::NONE);
 
   // Constructor for extracting a sub-matrix of BASE.  If W or H are 0,
   // the maximum available width or height is used.  Note that because
@@ -96,27 +95,28 @@ public:
     return &data[(y * width + x) * tuple_len];
   }
 
-  // Load tuple matrix from the file FILENAME.  PARAMS contains various
-  // tuple-format-specific parameters that might be needed.  The loaded
-  // tuple is surrounded by a black border BORDER pixels wide.
+  // Load tuple matrix from the file FILENAME.  PARAMS contains
+  // various tuple-format-specific parameters that might be needed.
   //
-  void load (const std::string &filename, const ValTable &params,
-	     unsigned border = 0);
+  void load (const std::string &filename,
+	     const ValTable &params = ValTable::NONE);
 
-  // Load tuple matrix from the image input SRC.  The loaded tuple is
-  // surrounded by a black border BORDER pixels wide.
+  // Load tuple matrix from the image input SRC.  PARAMS contains
+  // various tuple-format-specific parameters that might be needed.
   //
-  void load (ImageInput &src, unsigned border = 0);
+  void load (ImageInput &src, const ValTable &params = ValTable::NONE);
 
   // Save the tuple matrix to the file FILENAME.  PARAMS contains
   // various tuple-format-specific parameters that might be needed.
   //
-  void save (const std::string &filename, const ValTable &params = ValTable::NONE)
+  void save (const std::string &filename,
+	     const ValTable &params = ValTable::NONE)
     const;
 
-  // Save the tuple matrix to the output OUT.
+  // Save the tuple matrix to the output OUT.  PARAMS contains various
+  // tuple-format-specific parameters that might be needed.
   //
-  void save (ImageOutput &out) const;
+  void save (ImageOutput &out, const ValTable &params = ValTable::NONE) const;
 
   // Number of elements in each tuple tuple; should be greater than 0.
   //
@@ -161,15 +161,12 @@ public:
 
   // Constructors for a matrix loaded from an image file.
   //
-  TupleMatrix (const std::string &filename, unsigned border = 0)
-    : TMD (TA::TUPLE_LEN, filename, border)
+  TupleMatrix (const std::string &filename,
+	       const ValTable &params = ValTable::NONE)
+    : TMD (TA::TUPLE_LEN, filename, params)
   { }
-  TupleMatrix (const std::string &filename, const ValTable &params,
-	       unsigned border = 0)
-    : TMD (TA::TUPLE_LEN, filename, params, border)
-  { }
-  TupleMatrix (ImageInput &src, unsigned border = 0)
-    : TMD (TA::TUPLE_LEN, src, border)
+  TupleMatrix (ImageInput &src, const ValTable &params = ValTable::NONE)
+    : TMD (TA::TUPLE_LEN, src, params)
   { }
 
   // Constructor for extracting a sub-matrix of BASE.  If W or H are 0, the

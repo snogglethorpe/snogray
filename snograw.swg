@@ -1032,8 +1032,7 @@ namespace snogray {
   {
   public:
 
-    void load (const char *filename, const ValTable &params,
-	       unsigned border = 0);
+    void load (const char *filename, const ValTable &params = ValTable::NONE);
     void save (const char *filename, const ValTable &params = ValTable::NONE)
       const;
 
@@ -1227,15 +1226,11 @@ namespace snogray {
     {
       return new Image (_width, _height);
     }
-    static Ref<Image> image (const char *filename, unsigned border = 0)
+    static Ref<Image> image (const char *filename,
+			     const ValTable &params = ValTable::NONE)
     {
-      return new Image (filename, border);
+      return new Image (filename, params);
     }
-    // static Ref<Image> image (const std::string &filename, const ValTable &params,
-    // 		   unsigned border = 0)
-    // {
-    // 	return new Image (filename, params, border);
-    // }
 
     // ImageTex
     static Ref<Tex<Color> > image_tex (const char *filename)

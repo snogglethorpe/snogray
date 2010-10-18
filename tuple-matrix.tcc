@@ -31,27 +31,19 @@ namespace snogray {
 template<typename DT>
 TupleMatrixData<DT>::TupleMatrixData (unsigned _tuple_len,
 				      const std::string &filename,
-				      unsigned border)
+				      const ValTable &params)
   : tuple_len (_tuple_len), width (0), height (0)
 {
-  load (filename, ValTable::NONE, border);
+  load (filename, params);
 }
 
 template<typename DT>
 TupleMatrixData<DT>::TupleMatrixData (unsigned _tuple_len,
-				      const std::string &filename,
-				      const ValTable &params, unsigned border)
+				      ImageInput &src,
+				      const ValTable &params)
   : tuple_len (_tuple_len), width (0), height (0)
 {
-  load (filename, params, border);
-}
-
-template<typename DT>
-TupleMatrixData<DT>::TupleMatrixData (unsigned _tuple_len,
-				      ImageInput &src, unsigned border)
-  : tuple_len (_tuple_len), width (0), height (0)
-{
-  load (src, border);
+  load (src, params);
 }
 
 
@@ -108,8 +100,7 @@ TupleMatrixData<DT>::set_pixel (unsigned x, unsigned y, const Color &col)
 
 template<typename DT>
 void
-TupleMatrixData<DT>::load (const std::string &filename, const ValTable &params,
-		       unsigned border)
+TupleMatrixData<DT>::load (const std::string &filename, const ValTable &params)
 {
   ImageInput src (filename, params);
 
@@ -134,7 +125,7 @@ TupleMatrixData<DT>::load (const std::string &filename, const ValTable &params,
       std::cout.flush ();
     }
 
-  load (src, border);
+  load (src, params);
 
   if (emit_size_note)
     {
@@ -145,8 +136,9 @@ TupleMatrixData<DT>::load (const std::string &filename, const ValTable &params,
 
 template<typename DT>
 void
-TupleMatrixData<DT>::load (ImageInput &src, unsigned border)
+TupleMatrixData<DT>::load (ImageInput &src, const ValTable &params)
 {
+  unsigned border = params.get_uint ("border", 0);
   const_cast<unsigned &> (width) = src.width + border * 2;
   const_cast<unsigned &> (height) = src.height + border * 2;
 
@@ -179,12 +171,12 @@ TupleMatrixData<DT>::save (const std::string &filename, const ValTable &params)
   const
 {
   ImageOutput out (filename, width, height, params);
-  save (out);
+  save (out, params);
 }
 
 template<typename DT>
 void
-TupleMatrixData<DT>::save (ImageOutput &out) const
+TupleMatrixData<DT>::save (ImageOutput &out, const ValTable &) const
 {
   for (unsigned y = 0; y < height; y++)
     {
