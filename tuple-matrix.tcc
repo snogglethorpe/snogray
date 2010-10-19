@@ -139,6 +139,8 @@ void
 TupleMatrixData<DT>::load (ImageInput &src, const ValTable &params)
 {
   unsigned border = params.get_uint ("border", 0);
+  bool reverse_rows = params.get_bool ("reverse-rows", false);
+
   const_cast<unsigned &> (width) = src.width + border * 2;
   const_cast<unsigned &> (height) = src.height + border * 2;
 
@@ -147,6 +149,9 @@ TupleMatrixData<DT>::load (ImageInput &src, const ValTable &params)
   ImageRow row (src.width);
 
   ImageIo::RowIndices row_indices = src.row_indices ();
+  if (reverse_rows)
+    std::swap (row_indices.first, row_indices.last);
+
   for (ImageIo::RowIndices::iterator i = row_indices.begin ();
        i != row_indices.end (); ++i)
     {
