@@ -740,17 +740,6 @@ function textures.checkerboard (state, params, type)
    end
 end
 
--- Parameters we use when loading texture images, which reflect how
--- PBRT operates; currently we set:
---
--- "reverse-rows" = true
---     Reverse the order of rows from our normal order.  Snogray
---     normally maps the _bottom_ of image textures at texture-
---     coordinate v=0, but PBRT puts the _top_ at v=0.  Reversing the
---     row read order flips the image, and so fixes this discrepancy.
---
-local tex_image_params = { ["reverse-rows"] = true }
-
 -- imagemap texture
 --
 function textures.imagemap (state, params, type)
@@ -769,6 +758,31 @@ function textures.imagemap (state, params, type)
 
    filename = find_file (filename, state)
 
+   -- If true, reverse the order of rows from our normal order.
+   -- Snogray normally maps the _bottom_ of image textures at texture-
+   -- coordinate v=0, but PBRT puts the _top_ at v=0.  Reversing the
+   -- row read order flips the image, and so fixes this discrepancy.
+   --
+   local reverse_rows = true
+
+   -- PBRT seems to have a bug with handling TGA files: it pays
+   -- attention to the "y origin at top" flag in the TGA header, and
+   -- vertically flips the image if it's set -- but gets it backwards!
+   --
+   -- Emulate this bug here by toggling our normal row-reversing
+   -- behavior for TGA files.
+   --
+   local ext = filename_ext (filename)
+   if ext == "tga" or ext == "TGA" then
+      reverse_rows = not reverse_rows
+   end
+
+   -- Parameters we use for loading the texture image.
+   --
+   local tex_image_params = { ["reverse-rows"] = reverse_rows }
+
+   -- Load the image texture.
+   --
    local tex
    if type == 'float' then
       tex = mono_image_tex (filename, tex_image_params)
