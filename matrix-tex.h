@@ -1,6 +1,6 @@
 // matrix-tex.h -- 2d texture based on discrete matrix of values
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,7 +31,8 @@ class MatrixTex : public Tex<T>
 {
 public:
 
-  MatrixTex (const std::string &filename);
+  MatrixTex (const std::string &filename,
+	     const ValTable &params = ValTable::NONE);
 
   // This constructor stores a (ref-counted) reference to CONTENTS.
   //

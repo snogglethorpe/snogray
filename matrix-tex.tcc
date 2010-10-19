@@ -26,8 +26,8 @@ namespace snogray {
 
 
 template<typename T, typename DT>
-MatrixTex<T,DT>::MatrixTex (const std::string &filename)
-  : matrix (new TupleMatrix<T,DT> (filename)),
+MatrixTex<T,DT>::MatrixTex (const std::string &filename, const ValTable &params)
+  : matrix (new TupleMatrix<T,DT> (filename, params)),
     interp (matrix->width, matrix->height)
 { }
 
