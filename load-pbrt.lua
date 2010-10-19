@@ -740,6 +740,17 @@ function textures.checkerboard (state, params, type)
    end
 end
 
+-- Parameters we use when loading texture images, which reflect how
+-- PBRT operates; currently we set:
+--
+-- "reverse-rows" = true
+--     Reverse the order of rows from our normal order.  Snogray
+--     normally maps the _bottom_ of image textures at texture-
+--     coordinate v=0, but PBRT puts the _top_ at v=0.  Reversing the
+--     row read order flips the image, and so fixes this discrepancy.
+--
+local tex_image_params = { ["reverse-rows"] = true }
+
 -- imagemap texture
 --
 function textures.imagemap (state, params, type)
@@ -760,9 +771,9 @@ function textures.imagemap (state, params, type)
 
    local tex
    if type == 'float' then
-      tex = mono_image_tex (filename)
+      tex = mono_image_tex (filename, tex_image_params)
    else
-      tex = image_tex (filename)
+      tex = image_tex (filename, tex_image_params)
    end
 
    tex = apply_texture_2d_mapping (tex, state, params)
