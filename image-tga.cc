@@ -58,15 +58,24 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
 
   bytes_per_pixel = pixel_depth >> 3;
 
+  // Verify that the number of "attribute" (usually alpha) bits is
+  // valid for the pixel format.  Only RGB images actually have
+  // alpha/attributes stored in the image data, but greyscale images
+  // can sometimes have a non-zero attribute_bits field, so we just
+  // ignore it in that case.
+  //
   if ((bytes_per_pixel == 4 && attribute_bits != 8 && attribute_bits != 0)
       || (bytes_per_pixel == 3 && attribute_bits != 0)
-      || (bytes_per_pixel == 2 && attribute_bits > 1)
-      || (bytes_per_pixel == 1 && attribute_bits != 0))
+      || (bytes_per_pixel == 2 && attribute_bits > 1))
     open_err ("TGA pixel-depth inconsistent with attribute bits");
 
+  // Set the final pixel format.  Note that only RGB images can have
+  // an alpha channel in the TGA format.
+  //
   PixelFormat pixel_format
     = (bytes_per_pixel == 1) ? PIXEL_FORMAT_GREY : PIXEL_FORMAT_RGB;
-  if (bytes_per_pixel == 4 || attribute_bits != 0)
+  if (pixel_format == PIXEL_FORMAT_RGB
+      && (bytes_per_pixel == 4 || attribute_bits != 0))
     pixel_format = pixel_format_add_alpha_channel (pixel_format);
 
   // The 16-bit-per-pixel format uses 5-bit fields for RGB, and we
