@@ -1233,9 +1233,10 @@ namespace snogray {
     }
 
     // ImageTex
-    static Ref<Tex<Color> > image_tex (const char *filename)
+    static Ref<Tex<Color> > image_tex (const char *filename,
+    	   		  	       const ValTable &params = ValTable::NONE)
     {
-      return new MatrixTex<Color> (filename);
+      return new MatrixTex<Color> (filename, params);
     }
     static Ref<Tex<Color> > image_tex (const Ref<Image> &contents)
     {
@@ -1243,9 +1244,10 @@ namespace snogray {
     }
 
     // "mono" ImageTex (float-valued)
-    static Ref<Tex<float> > mono_image_tex (const char *filename)
+    static Ref<Tex<float> > mono_image_tex (const char *filename,
+    	   		  	            const ValTable &params = ValTable::NONE)
     {
-      return new MatrixTex<float> (filename);
+      return new MatrixTex<float> (filename, params);
     }
     static Ref<Tex<float> > mono_image_tex (const Ref<TupleMatrix<float> > &contents)
     {
