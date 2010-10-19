@@ -20,7 +20,8 @@ using namespace snogray;
 TgaImageSource::TgaImageSource (const std::string &_filename,
 				const ValTable &params)
   : ByteVecImageSource (_filename, params),
-    inf (_filename.c_str(), std::ios::in | std::ios::binary)
+    inf (_filename.c_str(), std::ios::in | std::ios::binary),
+    _row_order (FIRST_ROW_AT_BOTTOM) // default
 {
   unsigned char header[HEADER_LENGTH];
 
@@ -46,6 +47,10 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
 
   unsigned descriptor = header[HDR_DESCRIPTOR_OFFS];
   unsigned attribute_bits = descriptor & 0xF; // "attribute" == alpha
+
+  // Descriptor bit 0x20 is the "y origin at top of image" flag.
+  //
+  _row_order = (descriptor & 0x20) ? FIRST_ROW_AT_TOP : FIRST_ROW_AT_BOTTOM;
 
   unsigned pixel_depth = header[HDR_PIXEL_DEPTH_OFFS];
   if (pixel_depth > 32 || (pixel_depth & 0x7) != 0)

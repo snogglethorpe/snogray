@@ -29,7 +29,7 @@ public:
   TgaImageSource (const std::string &filename,
 		  const ValTable &params = ValTable::NONE);
 
-  virtual RowOrder row_order () const { return FIRST_ROW_AT_BOTTOM; }
+  virtual RowOrder row_order () const { return _row_order; }
 
   virtual void read_row (ByteVec &rgb_bytes);
 
@@ -155,6 +155,10 @@ private:
   // Input file.
   //
   std::ifstream inf;
+
+  // Order of rows in the file.
+  //
+  RowOrder _row_order;
 };
 
 
