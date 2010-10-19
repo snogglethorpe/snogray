@@ -68,7 +68,7 @@ private:
   static const unsigned HDR_WIDTH_OFFS		  = 8+4; // 2 bytes
   static const unsigned HDR_HEIGHT_OFFS		  = 8+6; // 2 bytes
   static const unsigned HDR_PIXEL_DEPTH_OFFS	  = 8+8; // 1 byte
-  static const unsigned HDR_DESCRIPTOR_OFFS	  = 8+1; // 1 byte
+  static const unsigned HDR_DESCRIPTOR_OFFS	  = 8+9; // 1 byte
 
   // Return the value of a 2-byte number at memory MEM, encoded in the TGA
   // standard encodig (little-endian).
