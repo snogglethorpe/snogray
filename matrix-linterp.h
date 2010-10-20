@@ -32,7 +32,7 @@ public:
   //
   MatrixLinterp (unsigned _width, unsigned _height)
     : width (_width), height (_height),
-      u_scale (width - 1), v_scale (height - 1)
+      u_scale (width), v_scale (height)
   { }
 
   // Calculate interpolation coordinates and weights.  Subclasses must do
@@ -50,23 +50,30 @@ public:
     float u = uv.u - floor (uv.u);
     float v = uv.v - floor (uv.v);
 
-    float   x    = u * u_scale,  y    = v * v_scale;
-    float   x_lo = floor (x),    y_lo = floor (y);
+    float   x    = u * u_scale - 0.5f,  y    = v * v_scale - 0.5f;
+    float   x_lo = floor (x),           y_lo = floor (y);
 
     x_hi_fr = x - x_lo;
     y_hi_fr = y - y_lo;
     x_lo_fr = 1 - x_hi_fr;
     y_lo_fr = 1 - y_hi_fr;
 
-    xi_lo = unsigned (x_lo);
-    yi_lo = unsigned (y_lo);
-    xi_hi = xi_lo + 1;
-    yi_hi = yi_lo + 1;
+    int xi_lo_unwr = int (x_lo);
+    int yi_lo_unwr = int (y_lo);
+    xi_hi = xi_lo_unwr + 1;
+    yi_hi = yi_lo_unwr + 1;
 
+    if (xi_lo_unwr < 0)
+      xi_lo_unwr += width;
+    if (yi_lo_unwr < 0)
+      yi_lo_unwr += width;
     if (xi_hi >= width)
       xi_hi -= width;
     if (yi_hi >= height)
       yi_hi -= height;
+
+    xi_lo = unsigned (xi_lo_unwr);
+    yi_lo = unsigned (yi_lo_unwr);
 
     yi_lo = height - yi_lo - 1;
     yi_hi = height - yi_hi - 1;
@@ -74,7 +81,8 @@ public:
 
   UV map (unsigned x, unsigned y) const 
   {
-    return UV (float (x) / u_scale, float (y) / v_scale);
+    return UV ((float (x) + 0.5f) / u_scale,
+	       (float (y) + 0.5f) / v_scale);
   }
   
 private:
