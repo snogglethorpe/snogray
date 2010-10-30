@@ -1,7 +1,3 @@
-#include "cone-sample.h"
-#include<iostream>
-#include "pos-io.h"
-#include "vec-io.h"
 // point-light.h -- Point light
 //
 //  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
