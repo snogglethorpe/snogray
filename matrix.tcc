@@ -19,6 +19,8 @@
 namespace snogray {
 
 
+// MATRIX * SCALAR multiplication operator.
+//
 template<typename T>
 Matrix<T>
 Matrix<T>::operator* (T scale) const
@@ -31,6 +33,8 @@ Matrix<T>::operator* (T scale) const
 }
 
 
+// MATRIX * MATRIX multiplication operator.
+//
 template<typename T>
 Matrix<T>
 Matrix<T>::operator* (const Matrix &mat) const
@@ -49,6 +53,8 @@ Matrix<T>::operator* (const Matrix &mat) const
 }
 
 
+// Return the transpose (rows and columns interchanged) of this matrix.
+//
 template<typename T>
 Matrix<T>
 Matrix<T>::transpose () const

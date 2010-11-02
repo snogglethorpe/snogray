@@ -32,6 +32,8 @@ public:
   //
   Matrix () : _columns (0), _rows (0) { }
 
+  // Make a COLUMNS x ROWS sized matrix with uninitialized ata.
+  //
   Matrix (unsigned columns, unsigned rows)
     : _columns (columns), _rows (rows),
       _data (columns * rows)	// default-initialized!
@@ -44,10 +46,14 @@ public:
     : _columns (columns), _rows (rows), _data (init)
   { }
 
+  // Copy-constructor.
+  //
   Matrix (const Matrix &mat)
     : _columns (mat._columns), _rows (mat._rows), _data (mat._data)
   { }
 
+  // COL,ROW element-access operator.
+  //
   T &operator() (unsigned col, unsigned row)
   {
     return _data[row * _columns + col];
@@ -57,16 +63,27 @@ public:
     return _data[row * _columns + col];
   }
 
+  // Matrix sizes.
+  //
   unsigned columns () const { return _columns; }
   unsigned rows () const { return _rows; }
 
+  // Return a raw pointer to the matrix data, which is stored in
+  // standard row-major C order.
+  //
   T *data () { return _data.data (); }
   const T *data () const { return _data.data (); }
 
+  // MATRIX * SCALAR multiplication operator.
+  //
   Matrix operator* (T scale) const;
 
+  // MATRIX * MATRIX multiplication operator.
+  //
   Matrix operator* (const Matrix &mat) const;
 
+  // Return the transpose (rows and columns interchanged) of this matrix.
+  //
   Matrix transpose () const;
 
 private:
@@ -76,6 +93,8 @@ private:
 };
 
 
+// SCALAR * MATRIX multiplication operator.
+//
 template<typename T>
 Matrix<T> operator* (T scale, const Matrix<T> &mat) { return mat * scale; }
 
