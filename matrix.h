@@ -48,8 +48,8 @@ public:
   unsigned columns () const { return _columns; }
   unsigned rows () const { return _rows; }
 
-  T *data () { return _data; }
-  const T *data () const { return _data; }
+  T *data () { return _data.data (); }
+  const T *data () const { return _data.data (); }
 
   Matrix operator* (T scale) const;
 
