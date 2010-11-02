@@ -27,9 +27,21 @@ class Matrix
 {
 public:
 
+  // Make an empty matrix, which can later be assigned to from a
+  // non-empty matrix.
+  //
+  Matrix () : _columns (0), _rows (0) { }
+
   Matrix (unsigned columns, unsigned rows)
     : _columns (columns), _rows (rows),
       _data (columns * rows)	// default-initialized!
+  { }
+
+  // Make a COLUMNS x ROWS sized matrix with data copied from INIT
+  // (which should contain the data in standard row-major C order).
+  //
+  Matrix (unsigned columns, unsigned rows, const std::vector<T> &init)
+    : _columns (columns), _rows (rows), _data (init)
   { }
 
   Matrix (const Matrix &mat)
