@@ -126,7 +126,14 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAGS], [
     for OPT in $2; do
       CXXFLAGS="$_SAVED_CXXFLAGS $OPT"
       AC_MSG_CHECKING(whether C++ compiler accepts "$OPT" option)
-      AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]), [opt_ok=yes], [opt_ok=no])
+      AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]),
+        [opt_ok=yes
+	 # Some compilers only warn about unsupported options, so
+	 # try to detect such warnings.
+	 if test -s conftest.err && grep ".*$OPT" conftest.err >/dev/null; then
+	   opt_ok=no
+	 fi],
+	[opt_ok=no])
       AC_MSG_RESULT([$opt_ok])
       if test "$opt_ok" = yes; then
 	if test "$OK_FLAGS" = ""; then
@@ -146,13 +153,26 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAGS], [
 AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
     AC_LANG_ASSERT(C++)
     _SAVED_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS $2"
-    case "$2" in *' '*) S=s;; *) S="";; esac
-    AC_MSG_CHECKING([whether C++ compiler accepts "$2" option$S])
-    AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]), [opt_ok=yes], [opt_ok=no])
+    OPT="$2"
+    CXXFLAGS="$CXXFLAGS $OPT"
+    case "$OPT" in *' '*) S=s;; *) S="";; esac
+    AC_MSG_CHECKING([whether C++ compiler accepts "$OPT" option$S])
+    AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]),
+      [opt_ok=yes
+       # Some compilers only warn about unsupported options, so
+       # try to detect such warnings.
+       if test -s conftest.err; then
+         for ONE_OPT in $OPT; do
+	   if grep ".*$ONE_OPT" conftest.err >/dev/null; then
+	     opt_ok=no
+	     break
+	   fi
+	 done
+       fi],
+      [opt_ok=no])
     AC_MSG_RESULT([$opt_ok])
     if test "$opt_ok" = yes; then
-      AC_SUBST([$1], ["$2"])
+      AC_SUBST([$1], ["$OPT"])
     fi
     CXXFLAGS="$_SAVED_CXXFLAGS"
 ])
