@@ -7,7 +7,7 @@ new_source="$version_source_file.new"
 
 (
   echo '#include "version.h"'
-  ( git describe 2>/dev/null || echo "$default_version" )	\
+  ( git describe --dirty 2>/dev/null || echo "$default_version" )	\
   | sed 's@v*\(.*\)@const char *snogray::snogray_version = "\1";@'
 ) > "$new_source"
 
