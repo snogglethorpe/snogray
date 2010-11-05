@@ -66,7 +66,7 @@ public:
     if (xi_lo_unwr < 0)
       xi_lo_unwr += width;
     if (yi_lo_unwr < 0)
-      yi_lo_unwr += width;
+      yi_lo_unwr += height;
     if (xi_hi >= width)
       xi_hi -= width;
     if (yi_hi >= height)
