@@ -12,9 +12,17 @@ AC_PROG_RANLIB
 
 AC_CHECK_PROG([SWIG], [swig], [swig])
 
+
 # We use C++ for everything, so do all our tests using that too.
 #
 AC_LANG(C++)
+
+
+# Use terse build output by default (can be disabled at
+# compile time with "make V=0" or at configure time with
+# "configure --disable-silent-rules")
+#
+AM_SILENT_RULES([yes])
 
 
 # This is a fake "conditional" we use for commenting out stuff in

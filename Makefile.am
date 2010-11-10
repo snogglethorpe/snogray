@@ -473,13 +473,27 @@ endif
 #
 if have_swig
 
+# automake "silent-rules" hooks for swig.
+#
+swig_verbose = $(swig_verbose_$(V))
+swig_verbose_ = $(swig_verbose_$(AM_DEFAULT_VERBOSITY))
+swig_verbose_0 = @echo "  SWIG  " $@;
+
+# Build rules for swig-generated files we use.
+#
 %_lua_wrap.cc : %.swg
-	$(SWIG) -o $@ -c++ -lua $<
+	$(swig_verbose)$(SWIG) -o $@ -c++ -lua $<
 swigluarun.h:
-	$(SWIG) -lua -c++ -external-runtime $@
+	$(swig_verbose)$(SWIG) -lua -c++ -external-runtime $@
 
 else
 
+# A dummy build rule for swig-generated files that gets used when the
+# swig program isn't available; it just prints an warning/error
+# message when make tries to regenerate the file (which normally
+# shouldn't be necessary with a tarball distribution, as
+# swig-generated files are distributed in the tarball).
+#
 %_wrap.cc : %.swg
 	@if test -r "$@"; then						       \
 	  echo '** Warning: $< is newer than $@, but cannot run swig interface generator'; \
