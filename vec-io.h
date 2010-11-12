@@ -13,7 +13,7 @@
 #ifndef __VEC_IO_H__
 #define __VEC_IO_H__
 
-#include <fstream>
+#include <iosfwd>
 
 #include "vec.h"
 

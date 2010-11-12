@@ -13,7 +13,7 @@
 #ifndef __POS_IO_H__
 #define __POS_IO_H__
 
-#include <fstream>
+#include <iosfwd>
 
 #include "pos.h"
 

@@ -13,7 +13,7 @@
 #ifndef __NICE_IO_H__
 #define __NICE_IO_H__
 
-#include <fstream>
+#include <iosfwd>
 
 namespace snogray {
 

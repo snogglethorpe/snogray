@@ -13,7 +13,7 @@
 #ifndef __COLOR_IO_H__
 #define __COLOR_IO_H__
 
-#include <fstream>
+#include <iosfwd>
 
 #include "color.h"
 

@@ -13,7 +13,7 @@
 #ifndef __RENDER_STATS_H__
 #define __RENDER_STATS_H__
 
-#include <ostream>
+#include <iosfwd>
 
 
 namespace snogray {

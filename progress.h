@@ -13,7 +13,7 @@
 #ifndef __PROGRESS_H__
 #define __PROGRESS_H__
 
-#include <iostream>
+#include <iosfwd>
 #include <string>
 
 #include "timeval.h"

@@ -10,6 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <ostream>
 #include <iomanip>
 
 #include "snogmath.h"

@@ -13,7 +13,7 @@
 #ifndef __RAY_IO_H__
 #define __RAY_IO_H__
 
-#include <fstream>
+#include <iosfwd>
 
 #include "ray.h"
 

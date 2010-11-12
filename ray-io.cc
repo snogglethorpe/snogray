@@ -10,6 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <ostream>
+
 #include "nice-io.h"
 
 #include "ray-io.h"

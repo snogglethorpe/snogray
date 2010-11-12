@@ -13,7 +13,7 @@
 #ifndef __BBOX_IO_H__
 #define __BBOX_IO_H__
 
-#include <fstream>
+#include <iosfwd>
 
 #include "bbox.h"
 

@@ -13,7 +13,7 @@
 #ifndef __TINT_IO_H__
 #define __TINT_IO_H__
 
-#include <fstream>
+#include <iosfwd>
 
 #include "tint.h"
 

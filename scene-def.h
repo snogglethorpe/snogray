@@ -13,7 +13,7 @@
 #ifndef __SCENE_DEF_H__
 #define __SCENE_DEF_H__
 
-#include <iostream>
+#include <iosfwd>
 #include <iomanip>
 
 #include "val-table.h"
