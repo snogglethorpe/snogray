@@ -23,8 +23,12 @@ namespace snogray {
 
 // cholesky_decomposition 
 
-// Return the cholesky decomposition, L, of the matrix M.  L is a
-// lower-triangular matrix such that L * L^T = M.
+// Return the cholesky decomposition, L, of the positive-definite
+// symmetric matrix M.  L is a lower-triangular matrix such that
+// L * L^T = M.
+//
+// If M is not positive-definite and symmetric, an empty matrix
+// will be returned instead.
 //
 template<typename T>
 Matrix<T>
@@ -76,6 +80,14 @@ cholesky_decomposition (const Matrix<T> &M)
 
       L(i,i) = sqrt (M(i,i) - sum_Lki_sq);
 
+      // If decomposition failed, return a failure indicator.
+      //
+      if (L(i,i) == 0)
+	{
+	  L.clear ();
+	  break;
+	}
+
       // Fill in Lji with zero for j > i
       //
       for (unsigned j = i + 1; j < size; j++)
@@ -84,6 +96,7 @@ cholesky_decomposition (const Matrix<T> &M)
 
   return L;
 }
+
 
 
 // forward_substitution
