@@ -52,6 +52,23 @@ public:
     : _columns (mat._columns), _rows (mat._rows), _data (mat._data)
   { }
 
+  // Make this into an empty matrix, by setting the number of rows and
+  // columns to zero.
+  //
+  void clear ()
+  {
+    _columns = _rows = 0;
+    _data.clear ();
+  }
+
+  // Return true if this is an empty matrix (zero rows and columns).
+  // Such matrices are sometimes used to indicate errors.
+  //
+  bool empty ()
+  {
+    return _columns == 0 || _rows == 0;
+  }
+
   // COL,ROW element-access operator.
   //
   T &operator() (unsigned col, unsigned row)
