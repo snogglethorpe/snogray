@@ -88,127 +88,139 @@ cholesky_decomposition (const Matrix<T> &M)
 
 // forward_substitution
 
-// Given an lower-triangular matrix L, and a column-matrix b, solve
-// the equation L * x = b for x, and return the column-matrix x.
+// Given an lower-triangular matrix L, and a matrix B with the same
+// number of rows, solve the equation L * X = B for X, and return the
+// matrix X (which will have the same dimensions as B).
 //
 template<typename T>
 Matrix<T>
-forward_substitution (const Matrix<T> &L, const Matrix<T> &b)
+forward_substitution (const Matrix<T> &L, const Matrix<T> &B)
 {
   ASSERT (L.rows() == L.columns());
-  ASSERT (b.columns() == 1);
-  ASSERT (b.rows() == L.rows());
+  ASSERT (B.rows() == L.rows());
 
   unsigned size = L.rows();
+  unsigned num_eqns = B.columns();
 
-  Matrix<T> x (1, size);
+  Matrix<T> X (num_eqns, size);
 
+  // Each column of B represents a separate equation, which we solve
+  // one by one.
   //
-  // Since L is a lower-triangular matrix, the expanded form of the
-  // matrix equation is:
-  //
-  //    L0,0*x0 +       0 +       0 + 0 + ... + 0 = b0
-  //    L0,1*x0 + L1,1*x1 +       0 + 0 + ... + 0 = b1
-  //    L0,2*x0 + L1,2*x1 + L2,2*x2 + 0 + ... + 0 = b2
-  //                          ...
-  //    L0,n*x0 + L1,n*x1 +     ...     + Ln,n*xn = bn
-  //
-  // This allows x0 to be solved for using the first row only, and
-  // then x1 to be solved using the second row plus the previously
-  // computed value of x0.  Similarly, xn can be solved using row n
-  // plus the results xi for i<n computed using previous rows.
-  //
-
-  // The computation starts with the first row, and moves forwards.
-  //
-  for (unsigned row = 0; row < size; row++)
+  for (unsigned eqn = 0; eqn < num_eqns; eqn++)
     {
-      // This row represents the equation:
+      // Since L is a lower-triangular matrix, the expanded form of
+      // the matrix equation is:
       //
-      //   L(0,row) * x(0) + ... + L(row,row) * x(row) + 0 + ... + 0 = b(row)
+      //    L0,0*x0 +       0 +       0 + 0 + ... + 0 = b0
+      //    L0,1*x0 + L1,1*x1 +       0 + 0 + ... + 0 = b1
+      //    L0,2*x0 + L1,2*x1 + L2,2*x2 + 0 + ... + 0 = b2
+      //                          ...
+      //    L0,n*x0 + L1,n*x1 +     ...     + Ln,n*xn = bn
       //
-      // As we've already computed x(i) for all i < row, we can just
-      // compute the sum of L(i,row)*x(i) for all i < row, and then
-      // compute x(row) as:
+      // This allows x0 to be solved for using the first row only, and
+      // then x1 to be solved using the second row plus the previously
+      // computed value of x0.  Similarly, xn can be solved using row
+      // n plus the results xi for i<n computed using previous rows.
       //
-      //   x(row) = (b(row) - SUM) / L(row,row)
-      //
-      float sum = 0;
-      for (unsigned col = 0; col < row; col++)
-	sum += L (col, row) * x (0, col);
 
-      // Now compute x(row).
+      // The computation starts with the first row, and moves forwards.
       //
-      x (0, row) = (b (0, row) - sum) / L (row, row);
+      for (unsigned row = 0; row < size; row++)
+	{
+	  // This row represents the equation:
+	  //
+	  //   L(0,row)*x(0) + ... + L(row,row)*x(row) + 0 + ... + 0 = b(row)
+	  //
+	  // As we've already computed x(i) for all i < row, we can just
+	  // compute the sum of L(i,row)*x(i) for all i < row, and then
+	  // compute x(row) as:
+	  //
+	  //   x(row) = (b(row) - SUM) / L(row,row)
+	  //
+	  float sum = 0;
+	  for (unsigned col = 0; col < row; col++)
+	    sum += L (col, row) * X (eqn, col);
+
+	  // Now compute X(row).
+	  //
+	  X (eqn, row) = (B (eqn, row) - sum) / L (row, row);
+	}
     }
 
-  return x;
+  return X;
 }
 
 
 // back_substitution
 
-// Given an upper-triangular matrix U, and a column-matrix b, solve
-// the equation U * x = b for b, and return the column-matrix b.
+// Given an upper-triangular matrix U, and a matrix B with the same
+// number of rows, solve the equation U * X = B for X, and return the
+// matrix X (which will have the same dimensions as B).
 //
 template<typename T>
 Matrix<T>
-back_substitution (const Matrix<T> &U, const Matrix<T> &b)
+back_substitution (const Matrix<T> &U, const Matrix<T> &B)
 {
   ASSERT (U.rows() == U.columns());
-  ASSERT (b.columns() == 1);
-  ASSERT (b.rows() == U.rows());
+  ASSERT (B.rows() == U.rows());
 
   unsigned size = U.rows();
+  unsigned num_eqns = B.columns();
 
-  Matrix<T> x (1, size);
+  Matrix<T> X (num_eqns, size);
 
+  // Each column of B represents a separate equation, which we solve
+  // one by one.
   //
-  // Since U is an upper-triangular matrix, the expanded form of the
-  // matrix equation is:
-  //
-  //    L0,0*x0 + L1,0*x1 + ...                 ... + Ln,0 * xn = bn
-  //                                  ...
-  //    0 + ... + 0 + Ln-2,n-2*xn-2 + Ln-1,n-2*xn-1 + Ln,n-2*xn = bn
-  //    0 + ... + 0 +             0 + Ln-1,n-1*xn-1 + Ln,n-1*xn = bn
-  //    0 + ... + 0 +                             0 + Ln,n  *xn = bn
-  //
-  // where n = size - 1.
-  //
-  // This allows xn to be solved for using the last row only, and then
-  // xn-1 to be solved using the last row plus the previously computed
-  // value of xn.  Similarly, xn can be solved using row n plus the
-  // results xi for i>n computed using following rows.
-  //
-
-  // (note we need to use int indices because the terminating value is -1)
-
-  // The computation starts with the last row, and moves backwards.
-  //
-  for (int row = size - 1; row >= 0; row--)
+  for (unsigned eqn = 0; eqn < num_eqns; eqn++)
     {
-      // This row represents the equation:
+      // Since U is an upper-triangular matrix, the expanded form of the
+      // matrix equation is:
       //
-      //    0 + ... + 0 + U(row,row)*x(row) + ... + U(n,row)*x(n) = b(row)
+      //    L0,0*x0 + L1,0*x1 + ...                 ... + Ln,0 * xn = bn
+      //                                  ...
+      //    0 + ... + 0 + Ln-2,n-2*xn-2 + Ln-1,n-2*xn-1 + Ln,n-2*xn = bn
+      //    0 + ... + 0 +             0 + Ln-1,n-1*xn-1 + Ln,n-1*xn = bn
+      //    0 + ... + 0 +                             0 + Ln,n  *xn = bn
       //
       // where n = size - 1.
       //
-      // As we've already computed x(i) for all i > row, we can just
-      // compute the sum of U(i,row)*x(i) for all i > row, and then
-      // compute x(row) as:
+      // This allows xn to be solved for using the last row only, and then
+      // xn-1 to be solved using the last row plus the previously computed
+      // value of xn.  Similarly, xn can be solved using row n plus the
+      // results xi for i>n computed using following rows.
       //
-      //   x(row) = (b(row) - SUM) / U(row,row)
-      //
-      float sum = 0;
-      for (int col = size - 1; col > row; col--)
-	sum += U (col, row) * x (0, col);
 
-      // Now compute x(row).
+      // (note we need to use int indices because the terminating value is -1)
+
+      // The computation starts with the last row, and moves backwards.
       //
-      x (0, row) = (b (0, row) - sum) / U (row, row);
+      for (int row = size - 1; row >= 0; row--)
+	{
+	  // This row represents the equation:
+	  //
+	  //    0 + ... + 0 + U(row,row)*X(row) + ... + U(n,row)*X(n) = b(row)
+	  //
+	  // where n = size - 1.
+	  //
+	  // As we've already computed x(i) for all i > row, we can just
+	  // compute the sum of U(i,row)*x(i) for all i > row, and then
+	  // compute x(row) as:
+	  //
+	  //   x(row) = (b(row) - SUM) / U(row,row)
+	  //
+	  float sum = 0;
+	  for (int col = size - 1; col > row; col--)
+	    sum += U (col, row) * X (eqn, col);
+
+	  // Now compute X(row).
+	  //
+	  X (eqn, row) = (B (eqn, row) - sum) / U (row, row);
+	}
     }
 
-  return x;
+  return X;
 }
 
 

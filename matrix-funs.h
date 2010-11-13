@@ -25,17 +25,19 @@ namespace snogray {
 template<typename T>
 Matrix<T> cholesky_decomposition (const Matrix<T> &M);
 
-// Given an lower-triangular matrix L, and a column-matrix b, solve
-// the equation L * x = b for x, and return the column-matrix x.
+// Given an lower-triangular matrix L, and a matrix B with the same
+// number of rows, solve the equation L * X = B for X, and return the
+// matrix X (which will have the same dimensions as B).
 //
 template<typename T>
-Matrix<T> forward_substitution (const Matrix<T> &L, const Matrix<T> &b);
+Matrix<T> forward_substitution (const Matrix<T> &L, const Matrix<T> &B);
 
-// Given an upper-triangular matrix U, and a column-matrix b, solve
-// the equation U * x = b for b, and return the column-matrix b.
+// Given an upper-triangular matrix U, and a matrix B with the same
+// number of rows, solve the equation U * X = B for X, and return the
+// matrix X (which will have the same dimensions as B).
 //
 template<typename T>
-Matrix<T> back_substitution (const Matrix<T> &U, const Matrix<T> &b);
+Matrix<T> back_substitution (const Matrix<T> &U, const Matrix<T> &B);
 
 
 }
