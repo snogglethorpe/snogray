@@ -21,7 +21,9 @@ namespace snogray {
 
 
 
+// ----------------------------------------------------------------
 // cholesky_decomposition 
+
 
 // Return the cholesky decomposition, L, of the positive-definite
 // symmetric matrix M.  L is a lower-triangular matrix such that
@@ -99,7 +101,9 @@ cholesky_decomposition (const Matrix<T> &M)
 
 
 
+// ----------------------------------------------------------------
 // forward_substitution
+
 
 // Given an lower-triangular matrix L, and a matrix B with the same
 // number of rows, solve the equation L * X = B for X, and return the
@@ -164,8 +168,11 @@ forward_substitution (const Matrix<T> &L, const Matrix<T> &B)
   return X;
 }
 
+
 
+// ----------------------------------------------------------------
 // back_substitution
+
 
 // Given an upper-triangular matrix U, and a matrix B with the same
 // number of rows, solve the equation U * X = B for X, and return the
