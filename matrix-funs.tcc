@@ -13,6 +13,8 @@
 #ifndef __MATRIX_FUNS_TCC__
 #define __MATRIX_FUNS_TCC__
 
+#include <algorithm>
+
 #include "snogassert.h"
 #include "snogmath.h"
 
@@ -241,6 +243,78 @@ back_substitution (const Matrix<T> &U, const Matrix<T> &B)
     }
 
   return X;
+}
+
+
+
+// ----------------------------------------------------------------
+// pseudo-inverse
+
+
+// Return the Moore-Penrose pseudo-inverse, M+, of M.
+//
+// If there is no pseudo-inverse, an empty matrix is returned.
+//
+template<typename T>
+Matrix<T> pseudo_inverse (const Matrix<T> &M)
+{
+  // Transpose of M.
+  //
+  const Matrix<T> Mt = M.transpose ();
+
+  // If M has more columns than rows, then (M^T * M) is guaranteed to
+  // not have full row-rank (it will be a square matrix with size
+  // max(M.columns, M.rows), which I guess lowers the information
+  // density), and that will cause cholesky_decomposition to fail.
+  //
+  // To avoid that, we actually operate on N and Nt, where N is
+  // whichever of M or Mt has fewer columns than rows (think of it
+  // meaning "Narrow"), and Nt its transpose.  Thus (N^T * N) will be
+  // a square matrix with size min(N.columns, N.rows), and so stands a
+  // better chance of having full rank.  In the case where N is Mt,
+  // then the resulting pseudo-inverse will be the transpose of M's
+  // pseudo-inverse, so we transpose the return value.
+  //
+  // cholesky_decomposition may still fail, but at least it's not
+  // guaranteed.
+  //
+  bool swapped = (M.columns() > M.rows());
+  const Matrix<T> &N = swapped ? Mt : M;
+  const Matrix<T> &Nt = swapped ? M : Mt;
+
+  // Compute cholesky decomposition, R, of (N^T * N).
+  // Then R will be a upper-triangular matrix such that R^T * R = N^T * N.
+  //
+  // The cholesky_decomposition function actually returns a
+  // lower-triangular matrix which is just the transpose of R.
+  //
+  Matrix<T> Rt = cholesky_decomposition (Nt * N);
+
+  // cholesky_decomposition may have failed -- which it signals by
+  // returning an empty matrix -- if (N^T * N) had linearly-dependent
+  // columns.  In that case, we try again using (N * N^T); if that
+  // succeeds using, we can just proceed as normal and transpose the
+  // final result.  If that fails too, we just return an empty matrix.
+  //
+  if (Rt.empty ())
+    return Matrix<T> ();
+
+  Matrix<T> R = Rt.transpose ();
+
+  // As R^T is a lower-triangular matrix, we can use a forward-
+  // substitution step to solve the equation R^T * z = N^T, for z.
+  //
+  Matrix<T> z = forward_substitution (Rt, Nt);
+
+  // Similarly, as R is an upper-triangular matrix, we can use a
+  // back-substitution step to solve the equation R * N+ = z, for N+.
+  //
+  Matrix<T> Np = back_substitution (R, z);
+
+  if (swapped)
+    Np = Np.transpose ();
+
+  return Np;
 }
 
 

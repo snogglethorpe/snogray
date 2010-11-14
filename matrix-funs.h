@@ -39,6 +39,11 @@ Matrix<T> forward_substitution (const Matrix<T> &L, const Matrix<T> &B);
 template<typename T>
 Matrix<T> back_substitution (const Matrix<T> &U, const Matrix<T> &B);
 
+// Return the Moore-Penrose pseudo-inverse of M.
+//
+template<typename T>
+Matrix<T> pseudo_inverse (const Matrix<T> &M);
+
 
 }
 
