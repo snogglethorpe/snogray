@@ -77,7 +77,9 @@ public:
 
 
 
+// ----------------------------------------------------------------
 // Surface::IsecInfo
+
 
 // A lightweight object used to return infomation from the
 // Surface::intersect method.  If that intersection ends up being used
@@ -86,14 +88,24 @@ public:
 // rendering.
 //
 // These objects should be allocated using placement new with the
-// RenderContext object passed to Surface::intersect.
+// RenderContext object passed to Surface::intersect.  Their
+// destructor is never called (and so should all be trivial and
+// non-virtual).
 //
 class Surface::IsecInfo
 {
 public:
 
   IsecInfo (const Ray &_ray) : ray (_ray) { }
-  virtual ~IsecInfo () { }
+
+  // Note: Surface::IsecInfo does not have a virtual destructor (and
+  // subclasses should not add one)!
+  //
+  // Indeed, IsecInfo destructors should never be called at all --
+  // allocation of IsecInfo objects is done using a special arena, and
+  // they are never explicitly destroyed.  Therefore, all subclasses
+  // of Surface::IsecInfo should have trivial destructors, and should
+  // never contain any information which needs to be destroyed.
 
   // Create an Intersect object for this intersection.
   //
