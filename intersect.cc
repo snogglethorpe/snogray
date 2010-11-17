@@ -165,6 +165,7 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
 //
 Intersect::Intersect (const Intersect &isec)
   : normal_frame (isec.normal_frame), geom_frame (isec.geom_frame),
+    v (isec.v), geom_n (isec.geom_n), back (isec.back),
     material (isec.material), bsdf (isec.bsdf),
     tex_coords (isec.tex_coords),
     media (isec.media), context (isec.context)
