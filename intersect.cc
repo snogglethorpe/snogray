@@ -172,9 +172,5 @@ Intersect::Intersect (const Intersect &isec)
 {
 }
 
-Intersect::~Intersect ()
-{
-}
-
 
 // arch-tag: 4e2a9676-9a81-4f69-8702-194e8b9158a9
