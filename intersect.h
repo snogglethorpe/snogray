@@ -150,7 +150,7 @@ public:
 
   // BSDF used at this intersection.
   //
-  Ref<const Bsdf> bsdf;
+  const Bsdf *bsdf;
 
   // Texture coordinates for this intersection.
   //

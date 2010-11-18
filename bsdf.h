@@ -28,10 +28,20 @@ class Intersect;
 // particular direction), and is used to calculate how light scatters
 // from the surface.
 //
-// The Bsdf may be reference-counted using Ref<Bsdf>.  However Bsdf
-// objects are not deleted when the reference-count goes to zero, only
-// the destructor is called.  This is because Bsdf objects are not
-// allocated using the standard allocator.
+// Because Bsdf objects are allocated extremely often, they are
+// allocated using a special memory-arena, and only freed in bulk
+// later on.  Morever, their destructor is never called.
+//
+// So subclasses of Bsdf should:
+//
+//  (1) Only allocate memory using the Intersect object pointed to by
+//      Bsdf::isec as an arena, i.e., using "new (isec) ...".  Note
+//      that this means STL classes should not be used without a
+//      custom allocator.
+//
+//  (2) Not depend on their destructor being called, as it usually
+//      won't be.  In practice this means they should never declare a
+//      destructor.
 //
 class Bsdf
 {
@@ -122,18 +132,8 @@ public:
     float pdf;
   };
 
-  Bsdf (const Intersect &_isec) : isec (_isec), ref_count (0) { }
+  Bsdf (const Intersect &_isec) : isec (_isec) { }
   virtual ~Bsdf () {}
-
-  // Methods implementing the reference-counting protocol used by Ref<>.
-  //
-  // Unlike the RefCounted class most reference-counted classes use as a
-  // superclass, Bsdf objects are not deleted when the reference-count
-  // goes to zero, only the destructor is called.  This is because Bsdf
-  // objects are not allocated using the standard allocator.
-  //
-  void ref () const { ++ref_count; }
-  void deref () const { if (--ref_count <= 0) this->~Bsdf (); }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
   // FLAGS is the types of samples we'd like.
@@ -162,12 +162,6 @@ public:
   // The intersection where this Bsdf was created.
   //
   const Intersect &isec;
-
-private:
-
-  // Reference-count.
-  //
-  mutable int ref_count;
 };
 
 

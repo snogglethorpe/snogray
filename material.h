@@ -50,7 +50,22 @@ public:
   Material (unsigned _flags = 0) : bump_map (0), flags (_flags)  { }
   virtual ~Material () { }
 
-  // Return a new BSDF object for this material instantiated at ISEC.
+  // Return a new Bsdf object for this material instantiated at ISEC.
+  //
+  // Bsdf objects are allocated extremely often, and they need to
+  // follow certain rules:
+  //
+  //  (1) They should be allocated using ISEC as an arena, i.e., with
+  //      "new (isec) SomeBsdfClass (...)"
+  //	  This allocator is very fast, and does no locking.
+  //
+  //  (2) They should not depend on their destructor being called,
+  //      because it won't be.  The memory they occupy (allocated
+  //      using ISEC) will be eventually freed in bulk.
+  //
+  // Consequently, it's unnecessary to do careful tracking of Bsdf
+  // objects for memory management purposes, and no attempt is made to
+  // do so.
   //
   virtual Bsdf *get_bsdf (const Intersect &/*isec*/) const { return 0; }
 
