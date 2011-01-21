@@ -1,6 +1,6 @@
 // image-tga.h -- TGA ("Targa") format image handling
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,19 +22,10 @@
 namespace snogray {
 
 
-class TgaImageSource : public ByteVecImageSource
-{  
-public:
-
-  TgaImageSource (const std::string &filename,
-		  const ValTable &params = ValTable::NONE);
-
-  virtual RowOrder row_order () const { return _row_order; }
-
-  virtual void read_row (ByteVec &rgb_bytes);
-
-private:
-
+// Common definitions for TGA input and output.
+//
+struct TgaDefs
+{
   // Color-map types; we only include those we support.
   //
   enum ColorMapType {
@@ -69,6 +60,21 @@ private:
   static const unsigned HDR_HEIGHT_OFFS		  = 8+6; // 2 bytes
   static const unsigned HDR_PIXEL_DEPTH_OFFS	  = 8+8; // 1 byte
   static const unsigned HDR_DESCRIPTOR_OFFS	  = 8+9; // 1 byte
+};
+
+
+class TgaImageSource : public ByteVecImageSource, TgaDefs
+{  
+public:
+
+  TgaImageSource (const std::string &filename,
+		  const ValTable &params = ValTable::NONE);
+
+  virtual RowOrder row_order () const { return _row_order; }
+
+  virtual void read_row (ByteVec &rgb_bytes);
+
+private:
 
   // Return the value of a 2-byte number at memory MEM, encoded in the TGA
   // standard encodig (little-endian).
