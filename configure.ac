@@ -389,6 +389,7 @@ PKG_PROG_PKG_CONFIG
 #
 m4_define_default([PKG_CHECK_MODULES],
   [AC_MSG_CHECKING([$1])
+   AC_MSG_RESULT([no])
    $4])
 
 
