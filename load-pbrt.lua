@@ -1328,6 +1328,10 @@ function load_pbrt_in_state (state, scene, camera)
    local function add (surface)
       if state.object then
 	 state.object:add (surface)
+      elseif type (surface) == 'table' then
+	 for i = 1, #surface do
+	    add (surface[i])
+	 end
       else
 	 scene:add (surface)
       end
