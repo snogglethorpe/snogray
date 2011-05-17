@@ -73,15 +73,23 @@ local function find_file (name, state)
    -- former).
 
    local cur_rel_name = filename_in_dir (name, filename_dir (state.filename))
-   local base_rel_name = filename_in_dir (name, state.base_dir)
 
    local try = io.open (cur_rel_name, "r")
    if (try) then
       try:close()
       return cur_rel_name
-   else
-      return base_rel_name
    end
+
+   for i,dir in ipairs (state.file_search_path) do
+      local dir_rel_name = filename_in_dir (name, dir)
+      try = io.open (dir_rel_name, "r")
+      if try then
+	 try:close ()
+	 return dir_rel_name
+      end
+   end
+
+   parse_err ("file \""..name.."\" not found")
 end
 
 local max_identical_warning_msgs = 3
@@ -1881,7 +1889,8 @@ function load_pbrt (filename, scene, camera, params)
       spectrums = {},		-- named spectrum cache
 
       filename = filename,
-      base_dir = filename_dir (filename)
+      base_dir = filename_dir (filename),
+      file_search_path = {filename_dir (filename), params["search-path"]}
    }
    return load_pbrt_in_state (init_state, scene, camera)
 end
