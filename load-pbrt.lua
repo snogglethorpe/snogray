@@ -616,6 +616,15 @@ function materials.glass (state, params)
    return glass {ior = ior, bump = bump}
 end
 
+-- thin_glass
+--
+function materials.thin_glass (state, params)
+   local ior = get_single_param (state, params, "float index", 1.5)
+   local bump = get_texture_param (state, params, "float bumpmap", false)
+   local col = get_color_param (state, params, "color Kt", false)
+   return thin_glass {ior = ior, color = col, bump = bump}
+end
+
 -- mirror
 --
 function materials.mirror (state, params)
