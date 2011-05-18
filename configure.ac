@@ -134,7 +134,8 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAGS], [
     for OPT in $2; do
       CXXFLAGS="$_SAVED_CXXFLAGS $OPT"
       AC_MSG_CHECKING(whether C++ compiler accepts "$OPT" option)
-      AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]),
+      AC_COMPILE_IFELSE(
+        [AC_LANG_SOURCE([int x;])],
         [opt_ok=yes
 	 # Some compilers only warn about unsupported options, so
 	 # try to detect such warnings.
@@ -165,7 +166,8 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
     CXXFLAGS="$CXXFLAGS $OPT"
     case "$OPT" in *' '*) S=s;; *) S="";; esac
     AC_MSG_CHECKING([whether C++ compiler accepts "$OPT" option$S])
-    AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]),
+    AC_COMPILE_IFELSE(
+      [AC_LANG_SOURCE([int x;])],
       [opt_ok=yes
        # Some compilers only warn about unsupported options, so
        # try to detect such warnings.
@@ -195,17 +197,17 @@ cxx_level_note=""
 
 for opt in -std=c++0x -std=c++98; do
   CXXFLAGS="$_SAVED_CXXFLAGS $opt"
-  AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]), [opt_ok=yes], [opt_ok=no])
+  AC_COMPILE_IFELSE([AC_LANG_SOURCE([int x;])], [opt_ok=yes], [opt_ok=no])
 
   if test "$opt_ok" = yes && test x"$opt" = x"-std=c++0x"; then
     # Some versions of g++ 4.3 have broken support for c++0x, so use a simple
     # test for that, and revert to c++98 if we detect it.
     AC_COMPILE_IFELSE(
-      AC_LANG_SOURCE(
-        [#include <iostream>
-    	 bool file_exists () { return true; }
-	 using namespace std;
-	 bool test () { return file_exists (); }]),
+      [AC_LANG_SOURCE(
+	 [#include <iostream>
+	  bool file_exists () { return true; }
+	  using namespace std;
+	  bool test () { return file_exists (); }])],
       [broken_cxx0x=no],
       [broken_cxx0x=yes])
     if test "$broken_cxx0x" = yes; then
@@ -285,8 +287,8 @@ if test "$enable_extern_template" = yes; then
     _OLD_CXXFLAGS="$CXXFLAGS"
     CXXFLAGS="$CXX_STD_FLAGS $CXX_CHECK_FLAGS $CXXFLAGS"
     AC_COMPILE_IFELSE(
-      AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
-	  $extension_kw extern template class Foo<int>;]),
+      [AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
+	 $extension_kw extern template class Foo<int>;])],
       [have_extern_template=yes],
       [have_extern_template=no])
     CXXFLAGS="$_OLD_CXXFLAGS"
@@ -339,9 +341,9 @@ if test "$enable_fp_exceptions" = yes; then
       # cause it to screw up <fenv.h>, so test for that.
       AC_MSG_CHECKING([whether feenableexcept seems broken])
       AC_COMPILE_IFELSE(
-	AC_LANG_SOURCE(
-	  [#include <fenv.h>
-	   bool test () { fexcept_t fe; feenableexcept (fe); }]),
+	[AC_LANG_SOURCE(
+	   [#include <fenv.h>
+	    bool test () { fexcept_t fe; feenableexcept (fe); }])],
 	[feenableexcept_broken=no],
 	[feenableexcept_broken=yes])
       AC_MSG_RESULT([$feenableexcept_broken])
@@ -416,7 +418,7 @@ AC_DEFUN([SNOGRAY_CHECK_SUBDIR_HEADER], [
       for _snogray_check_subdir_header_sfx in $3; do
 	_snogray_check_subdir_header_dir="$_snogray_check_subdir_header_root/$_snogray_check_subdir_header_sfx"
 	CPPFLAGS="$_SAVED_CPPFLAGS -I$_snogray_check_subdir_header_dir"
-	AC_COMPILE_IFELSE(AC_LANG_SOURCE([[#include $2]]), [break 2])
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include $2]])], [break 2])
 	_snogray_check_subdir_header_dir=""
       done
     done
