@@ -1,6 +1,6 @@
 // sphere2.cc -- Alternative sphere surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -70,12 +70,6 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
   Vec t = sphere.local_to_world (ot).unit ();
   Vec s = cross (norm, t);
 
-  // Calculate texture coords.  Note that ONORM is also the intersection
-  // location in object coordinates.
-  //
-  UV tex_coords (atan2 (onorm.y, onorm.x) * INV_PIf * 0.5f + 0.5f,
-		 asin (clamp (onorm.z, -1.f, 1.f)) * INV_PIf + 0.5f);
-
   // Calculate partial derivatives of texture coordinates dTds and dTdt,
   // where T is the texture coordinates (for bump mapping).
   //
@@ -83,7 +77,7 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
 
   return Intersect (ray, media, context, *sphere.material,
 		    Frame (point, s, t, norm),
-		    tex_coords, dTds, dTdt);
+		    sphere.tex_coords (Pos (onorm)), dTds, dTdt);
 }
 
 // Return true if this surface intersects RAY.
