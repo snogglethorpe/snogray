@@ -76,7 +76,27 @@ public:
     ALL_LAYERS		= SPECULAR|GLOSSY|DIFFUSE,
 
     // Mask of all flags
-    ALL			= ALL_DIRECTIONS|ALL_LAYERS
+    ALL			= ALL_DIRECTIONS|ALL_LAYERS,
+
+
+    //
+    // Informational BSDF flags: these give extra information about a
+    // BSDF sample.  They are only used descriptively.
+    //
+
+    // This is an output-only flag that says a sample comes from
+    // "translucency" -- basically this is a special type of
+    // SPECULAR+TRANSMISSIVE sample corresponding to a non-zero
+    // transmittance return value from Material::transmittance /
+    // Surface::occludes / Scene::occludes (typically resulting from
+    // use of alpha/opacity in a material).
+    //
+    // Rendering methods that use Scene::occludes to do shadow-testing
+    // in calculating direct illumination may have to handle samples
+    // with the Bsdf::TRANSLUCENT flag set specially, in order to
+    // avoid double-counting of light from such rays.
+    //
+    TRANSLUCENT		= 0x08
   };
 
   struct Sample
