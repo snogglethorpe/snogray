@@ -1,6 +1,6 @@
 // sphere.cc -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -74,18 +74,14 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   dist_t inv_z_radius = z_radius ? 1 / z_radius : 0;
   dist_t inv_z_circum = inv_z_radius * INV_PIf * 0.5f;
 
-  // Calculate texture coordinates, T.
-  //
-  UV T (atan2 (opoint.y, opoint.x) * INV_PIf * 0.5f + 0.5f,
-	asin (clamp (opoint.z * inv_radius, -1.f, 1.f)) * INV_PIf + 0.5f);
-
   // Calculate partial derivatives of texture coordinates dTds and dTdt,
   // where T is the texture coordinates (for bump mapping).
   //
   UV dTds (inv_z_circum, 0), dTdt (0, inv_circum * 2);
 
   return Intersect (ray, media, context, *sphere.material,
-		    Frame (point, s, t, norm), T, dTds, dTdt);
+		    Frame (point, s, t, norm),
+		    sphere.tex_coords (opoint), dTds, dTdt);
 }
 
 // Return true if this surface intersects RAY.

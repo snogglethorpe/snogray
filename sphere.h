@@ -1,6 +1,6 @@
 // sphere.h -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -104,6 +104,15 @@ private:
       const;
     const Sphere &sphere;
   };
+
+  // Return the texture coordinates for object-space position OPOS on
+  // the sphere.
+  //
+  UV tex_coords (const Vec &opos) const
+  {
+    return UV (atan2 (opos.y, opos.x) * INV_PIf * 0.5f + 0.5f,
+	       asin (clamp (opos.z / radius, -1.f, 1.f)) * INV_PIf + 0.5f);
+  }
 
   dist_t radius;
 
