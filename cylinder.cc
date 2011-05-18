@@ -1,6 +1,6 @@
 // cylinder.cc -- Cylindrical surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -132,9 +132,6 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   Vec t = cylinder.local_to_world (Vec (0, 0, 1)).unit ();
   Vec s = cross (norm, t);
 
-  UV tex_coords (atan2 (isec_point.y, isec_point.x) * INV_PIf * 0.5f + 0.5f,
-		 isec_point.z * 0.5f + 0.5f);
-
   // Calculate partial derivatives of texture coordinates dTds and dTdt,
   // where T is the texture coordinates (for bump mapping).
   //
@@ -142,7 +139,7 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 
   return Intersect (ray, media, context, *cylinder.material,
 		    Frame (point, s, t, norm),
-		    tex_coords, dTds, dTdt);
+		    cylinder.tex_coords (isec_point), dTds, dTdt);
 }
 
 // Return true if this surface intersects RAY.
