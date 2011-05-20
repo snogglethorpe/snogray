@@ -39,6 +39,28 @@ public:
   //
   bool intersects (const Ray &ray, RenderContext &context) const;
 
+  // Return true if some surface in this space completely occludes
+  // RAY.  If no surface completely occludes RAY, then return false,
+  // and multiply TOTAL_TRANSMITTANCE by the transmittance of any
+  // surfaces in this space which partially occlude RAY, evaluated in
+  // medium MEDIUM.
+  //
+  // Note that this method does not try to handle non-trivial forms of
+  // transparency/translucency (for instance, a "glass" material is
+  // probably considered opaque because it changes light direction as
+  // well as transmitting it), nor does it deal with anything except
+  // surfaces.
+  //
+  // [This interface is slight awkward for reasons of speed --
+  // returning and checking for a boolean value for common cases is
+  // significantly faster than, for instance, a simple "transmittance"
+  // method, which requires handling Color values for all cases.]
+  //
+  virtual bool occludes (const Ray &ray, const Medium &medium,
+			 Color &total_transmittance,
+			 RenderContext &context)
+    const;
+
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
   // directly on the resulting surfaces).  CONTEXT is used to access
