@@ -1,6 +1,6 @@
 // mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -519,6 +519,26 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
   //
   return Intersect (ray, media, context, *triangle.mesh.material,
 		    normal_frame, geom_frame, T, dTds,dTdt);
+}
+
+// Return the texture-coordinates of this intersection.
+//
+TexCoords
+Mesh::Triangle::IsecInfo::tex_coords () const
+{
+  UV T0, dTdu, dTdv;
+  triangle.get_texture_params (T0, dTdu, dTdv);
+  UV T = T0 + dTdu * u + dTdv * v;
+  return TexCoords (ray.end(), T);
+}
+
+// Return the normal of this intersection (in the world frame).
+//
+Vec
+Mesh::Triangle::IsecInfo::normal () const
+{
+  // XXX is geometric normal enough?
+  return triangle.raw_normal ();
 }
 
 // Return true if this surface intersects RAY.

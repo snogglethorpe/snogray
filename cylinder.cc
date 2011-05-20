@@ -142,6 +142,23 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 		    cylinder.tex_coords (isec_point), dTds, dTdt);
 }
 
+// Return the texture-coordinates of this intersection.
+//
+TexCoords
+Cylinder::IsecInfo::tex_coords () const
+{
+  return TexCoords (ray.end(), cylinder.tex_coords (isec_point));
+}
+
+// Return the normal of this intersection (in the world frame).
+//
+Vec
+Cylinder::IsecInfo::normal () const
+{
+  Vec onorm (isec_point.x, isec_point.y, 0);
+  return cylinder.normal_to_world (onorm).unit ();
+}
+
 // Return true if this surface intersects RAY.
 //
 bool

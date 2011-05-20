@@ -1,6 +1,6 @@
 // tripar.cc -- Triangle/parallelogram surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -66,6 +66,22 @@ Tripar::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
 
   return Intersect (ray, media, context, *tripar.material,
 		    normal_frame, UV (u, v), dTds, dTdt);
+}
+
+// Return the texture-coordinates of this intersection.
+//
+TexCoords
+Tripar::IsecInfo::tex_coords () const
+{
+  return TexCoords (ray.end(), UV (u, v));
+}
+
+// Return the normal of this intersection (in the world frame).
+//
+Vec
+Tripar::IsecInfo::normal () const
+{
+  return cross (tripar.e2, tripar.e1).unit ();
 }
 
 // Return true if this surface intersects RAY.

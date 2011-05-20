@@ -1,6 +1,6 @@
 // instance.cc -- Transformed object subspace
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -66,6 +66,22 @@ Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
     = instance.normal_to_world (isec.normal_frame.z).unit ();
 
   return isec;
+}
+
+// Return the texture-coordinates of this intersection.
+//
+TexCoords
+Instance::IsecInfo::tex_coords () const
+{
+  throw std::runtime_error ("Instance::IsecInfo::tex_coords");
+}
+
+// Return the normal of this intersection (in the world frame).
+//
+Vec
+Instance::IsecInfo::normal () const
+{
+  throw std::runtime_error ("Instance::IsecInfo::normal");
 }
 
 // Return true if this surface intersects RAY.

@@ -118,6 +118,25 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 		    isec_details.dTds, isec_details.dTdt);
 }
 
+// Return the texture-coordinates of this intersection.
+//
+TexCoords
+Ellipse::IsecInfo::tex_coords () const
+{
+  Pos point = ray.end ();
+  IsecDetails isec_details (point, ellipse);
+
+  return TexCoords (point, isec_details.tex_coords);
+}
+
+// Return the normal of this intersection (in the world frame).
+//
+Vec
+Ellipse::IsecInfo::normal () const
+{
+  return ellipse.normal;
+}
+
 // Return true if this surface intersects RAY.
 //
 bool

@@ -103,6 +103,9 @@ private:
 				      RenderContext &context)
       const;
 
+    virtual TexCoords tex_coords () const;
+    virtual Vec normal () const;
+
     const Cylinder &cylinder;
 
     // Intersection point in the cylinder's local coordinate system.

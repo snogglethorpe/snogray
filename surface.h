@@ -1,6 +1,6 @@
 // surface.h -- Physical surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -111,6 +111,14 @@ public:
   //
   virtual Intersect make_intersect (const Media &media, RenderContext &context)
     const = 0;
+
+  // Return the texture-coordinates of this intersection.
+  //
+  virtual TexCoords tex_coords () const = 0;
+
+  // Return the normal of this intersection (in the world frame).
+  //
+  virtual Vec normal () const = 0;
 
   Ray ray;
 };

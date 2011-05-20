@@ -1,6 +1,6 @@
 // instance.h -- Transformed virtual instance of a surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -60,6 +60,9 @@ private:
     virtual Intersect make_intersect (const Media &media,
 				      RenderContext &context)
       const;
+
+    virtual TexCoords tex_coords () const;
+    virtual Vec normal () const;
 
     const Instance &instance;
 
