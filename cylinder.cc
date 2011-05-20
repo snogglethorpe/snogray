@@ -169,6 +169,40 @@ Cylinder::intersects (const Ray &ray, RenderContext &) const
   return cylinder_intersects (oray, t);
 }
 
+// Return true if this surface completely occludes RAY.  If it does
+// not completely occlude RAY, then return false, and multiply
+// TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
+// MEDIUM.
+//
+// Note that this method does not try to handle non-trivial forms of
+// transparency/translucency (for instance, a "glass" material is
+// probably considered opaque because it changes light direction as
+// well as transmitting it).
+//
+// [This interface is slight awkward for reasons of speed --
+// returning and checking for a boolean value for common cases is
+// significantly faster than, for instance, a simple "transmittance"
+// method, which requires handling Color values for all cases.]
+//
+bool
+Cylinder::occludes (const Ray &ray, const Medium &medium,
+		    Color &total_transmittance, RenderContext &)
+  const
+{
+  Ray oray = world_to_local (ray);
+  dist_t t;
+  if (cylinder_intersects (oray, t))
+    {
+      // avoid calculating texture coords if possible
+      if (material->fully_occluding ())
+	return true;
+
+      IsecInfo isec_info (Ray (ray, t), *this, oray (t));
+      return material->occludes (isec_info, medium, total_transmittance);
+    }
+  return false;
+}
+
 // Return a sampler for this surface, or zero if the surface doesn't
 // support sampling.  The caller is responsible for destroying
 // returned samplers.
