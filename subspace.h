@@ -55,6 +55,32 @@ public:
     return space->intersects (ray, context);
   }
 
+  // Return true if some surface in this subspace completely occludes
+  // RAY.  If no surface completely occludes RAY, then return false,
+  // and multiply TOTAL_TRANSMITTANCE by the transmittance of any
+  // surfaces in this subspace which partially occlude RAY, evaluated
+  // in medium MEDIUM.
+  //
+  // Note that this method does not try to handle non-trivial forms of
+  // transparency/translucency (for instance, a "glass" material is
+  // probably considered opaque because it changes light direction as
+  // well as transmitting it), nor does it deal with anything except
+  // surfaces.
+  //
+  // [This interface is slight awkward for reasons of speed --
+  // returning and checking for a boolean value for common cases is
+  // significantly faster than, for instance, a simple "transmittance"
+  // method, which requires handling Color values for all cases.]
+  //
+  virtual bool occludes (const Ray &ray, const Medium &medium,
+			 Color &total_transmittance,
+			 RenderContext &context)
+    const
+  {
+    ensure_space (context);
+    return space->occludes (ray, medium, total_transmittance, context);
+  }
+
   // Return a bounding box for the associated surface.
   //
   BBox bbox () const { return surface->bbox (); }
