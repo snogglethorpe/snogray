@@ -1,6 +1,6 @@
 // material.h -- Surface material datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,6 +18,7 @@
 #include "color.h"
 #include "ref.h"
 #include "tex.h"
+#include "surface.h"
 
 
 namespace snogray {
@@ -85,7 +86,8 @@ public:
   //
   bool fully_occluding () const { return ! (flags & PARTIALLY_OCCLUDING); }
 
-  // Return the transmittance of this material at texture-coordinates COORDS.
+  // Return the transmittance of this material at the intersection
+  // described by ISEC_INFO in medium MEDIUM.
   //
   // Note that this method only applies to "simple"
   // transparency/translucency, where transmitted rays don't change
@@ -93,7 +95,13 @@ public:
   // which exhibit more complex effects like refraction (which change
   // the direction) may return zero from this method.
   //
-  virtual Color transmittance (const TexCoords &/*coords*/) const { return 0; }
+  virtual Color transmittance (const Surface::IsecInfo &/*isec_info*/,
+			       const Medium &/* medium */)
+    const
+  {
+    return 0;
+  }
+
 
   // If this is a light-emitting material, call PRIMITIVE's
   // Primitive::add_light method with an appropriate intensity to add a
