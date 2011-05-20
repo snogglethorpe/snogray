@@ -174,7 +174,12 @@ PhotonShooter::shoot (const GlobalRenderState &global_render_state)
 
 	  // Remember the type of reflection/refraction in our history.
 	  //
-	  bsdf_history |= bsdf_samp.flags;
+	  // We don't record any history for "translucent" samples, as
+	  // they are generally treated as if they come directly from
+	  // the light.
+	  //
+	  if (! (bsdf_samp.flags & Bsdf::TRANSLUCENT))
+	    bsdf_history |= bsdf_samp.flags;
 
 	  // If we just followed a refractive (transmissive) sample, we need
 	  // to update our stack of Media entries:  entering a refractive
