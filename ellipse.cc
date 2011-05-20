@@ -1,6 +1,6 @@
 // ellipse.cc -- Ellipse surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -36,51 +36,86 @@ Ellipse::intersect (Ray &ray, RenderContext &context) const
   return 0;
 }
 
+
+// Ellipse::IsecInfo::IsecDetails class
+
+// This class encapsulates calculation of some ellipse intersection
+// details.
+//
+struct Ellipse::IsecInfo::IsecDetails
+{
+  // Construct a texture-calculator at POINT, for ellipse ELLIPSE.
+  //
+  IsecDetails (const Pos &point, const Ellipse &ellipse)
+  {
+    // [We do initialization in the constructor body, rather than
+    // using initialization forms, because it allows us to use
+    // temporary variables.]
+
+    // The ellipse's two "radii".
+    //
+    Vec rad1 = ellipse.edge1 / 2;
+    Vec rad2 = ellipse.edge2 / 2;
+    dist_t inv_rad1_len = 1 / rad1.length ();
+    dist_t inv_rad2_len = 1 / rad1.length ();
+
+    // Center of ellipse.
+    //
+    Pos center = ellipse.corner + rad1 + rad2;
+
+    // Tangent vectors.
+    //
+    Vec s = rad1 * inv_rad1_len;
+    Vec t = cross (s, ellipse.normal);
+
+    // Normal frame.
+    //
+    norm_frame = Frame (point, s, t, ellipse.normal);
+
+    // 2d texture coordinates.
+    //
+    Vec ocent = norm_frame.to (center);
+    tex_coords = UV (-ocent.x * inv_rad1_len * 0.5f + 0.5f,
+		     -ocent.y * inv_rad2_len * 0.5f + 0.5f);
+    //
+    // TEX_COORDS will not be "correct" in case where edge1 and edge2 are
+    // skewed (not perpendicular); it's not really hard to calculate it
+    // correctly in that case, but a bit annoying.
+
+    // Calculate partial derivatives of texture coordinates dTds and dTdt,
+    // where T is the texture coordinates (for bump mapping).
+    //
+    dTds = UV (0.5f * inv_rad1_len, 0);
+    dTdt = UV (0, 0.5f * inv_rad2_len);
+  }
+
+  // Normal frame.
+  //
+  Frame norm_frame;
+
+  // Ellipse texture coordinates.
+  //
+  UV tex_coords;
+
+  // Texture-coordinate partial derivatives (for bump mapping).
+  //
+  UV dTds, dTdt;
+};
+
+
+// Ellipse::IsecInfo methods
+
 // Create an Intersect object for this intersection.
 //
 Intersect
 Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   const
 {
-  Pos point = ray.end ();
-
-  // The ellipse's two "radii".
-  //
-  Vec rad1 = ellipse.edge1 / 2;
-  Vec rad2 = ellipse.edge2 / 2;
-  dist_t inv_rad1_len = 1 / rad1.length ();
-  dist_t inv_rad2_len = 1 / rad1.length ();
-
-  // Center of ellipse.
-  //
-  Pos center = ellipse.corner + rad1 + rad2;
-
-  // Tangent vectors.
-  //
-  Vec s = rad1 * inv_rad1_len;
-  Vec t = cross (s, ellipse.normal);
-
-  // Normal frame.
-  //
-  Frame norm_frame (point, s, t, ellipse.normal);
-
-  // 2d texture coordinates.
-  //
-  Vec ocent = norm_frame.to (center);
-  UV tex_coords (-ocent.x * inv_rad1_len * 0.5f + 0.5f,
-		 -ocent.y * inv_rad2_len * 0.5f + 0.5f);
-  //
-  // TEX_COORDS will not be "correct" in case where edge1 and edge2 are
-  // skewed (not perpendicular); it's not really hard to calculate it
-  // correctly in that case, but a bit annoying.
-
-  // Calculate partial derivatives of texture coordinates dTds and dTdt,
-  // where T is the texture coordinates (for bump mapping).
-  //
-  UV dTds (0.5f * inv_rad1_len, 0), dTdt (0, 0.5f * inv_rad2_len);
+  IsecDetails isec_details (ray.end (), ellipse);
 
   return Intersect (ray, media, context, *ellipse.material,
-		    norm_frame, tex_coords, dTds, dTdt);
+		    isec_details.norm_frame, isec_details.tex_coords,
+		    isec_details.dTds, isec_details.dTdt);
 }
 
 // Return true if this surface intersects RAY.
