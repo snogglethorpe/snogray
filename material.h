@@ -102,6 +102,27 @@ public:
     return 0;
   }
 
+  // Return true if this material completely occludes a ray at the
+  // intersection described by ISEC_INFO.  If it does not, then return
+  // false, and multiply TOTAL_TRANSMITTANCE by the transmittance of
+  // the material at ISEC_INFO in medium MEDIUM.
+  //
+  // Note that this method does not try to handle non-trivial forms of
+  // transparency/translucency (for instance, a "glass" material is
+  // probably considered opaque because it changes light direction as
+  // well as transmitting it).
+  //
+  bool occludes (const Surface::IsecInfo &isec_info, const Medium &medium,
+		 Color &total_transmittance)
+    const
+  {
+    // avoid calling Material::transmittance if possible
+    if (fully_occluding ())
+      return true;
+
+    total_transmittance *= transmittance (isec_info, medium);
+    return total_transmittance < Eps;
+  }
 
   // If this is a light-emitting material, call PRIMITIVE's
   // Primitive::add_light method with an appropriate intensity to add a
