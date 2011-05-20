@@ -58,6 +58,33 @@ public:
     return space->intersects (ray, context);
   }
 
+  // Return true if some surface in the scene completely occludes RAY.
+  // If no surface completely occludes RAY, then return false, and
+  // multiply TOTAL_TRANSMITTANCE by the transmittance of any surfaces
+  // in this space which partially occlude RAY, evaluated in medium
+  // MEDIUM.
+  //
+  // Note that this method does not try to handle non-trivial forms of
+  // transparency/translucency (for instance, a "glass" material is
+  // probably considered opaque because it changes light direction as
+  // well as transmitting it), nor does it deal with anything except
+  // surfaces.
+  //
+  // [This interface is slight awkward for reasons of speed --
+  // returning and checking for a boolean value for common cases is
+  // significantly faster than, for instance, a simple "transmittance"
+  // method, which requires handling Color values for all cases.]
+  //
+  virtual bool occludes (const Ray &ray, const Medium &medium,
+			 Color &total_transmittance,
+			 RenderContext &context)
+    const
+  {
+    context.stats.scene_shadow_tests++;
+    return space->occludes (ray, medium, total_transmittance, context);
+  }
+
+
   //
   // Add various items to a scene.  All of the following "give" the
   // surface to the scene -- freeing the scene will free them too.
