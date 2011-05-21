@@ -53,7 +53,9 @@ public:
       = ((opacity_intens < 1)
 	 && ((flags & (TRANSMISSIVE|SPECULAR)) == (TRANSMISSIVE|SPECULAR)));
     bool undl_ok
-      = (opacity_intens > 0) && underlying_bsdf->supports (flags);
+      = ((opacity_intens > 0)
+	 && underlying_bsdf
+	 && underlying_bsdf->supports (flags));
 
     if (!thru_ok && !undl_ok)
       return Sample ();
@@ -81,10 +83,14 @@ public:
   //
   virtual Value eval (const Vec &dir, unsigned flags) const
   {
-    Value val = underlying_bsdf->eval (dir, flags);
-    val.val *= opacity;
-    val.pdf *= inv_opacity_intens;
-    return val;
+    if (underlying_bsdf)
+      {
+	Value val = underlying_bsdf->eval (dir, flags);
+	val.val *= opacity;
+	val.pdf *= inv_opacity_intens;
+	return val;
+      }
+    return Value ();
   }
 
   // Return a bitmask of flags from Bsdf::Flags, describing what
