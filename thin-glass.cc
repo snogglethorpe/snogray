@@ -111,4 +111,34 @@ ThinGlass::get_bsdf (const Intersect &isec) const
 }
 
 
+// Return the transmittance of this material at the intersection
+// described by ISEC_INFO in medium MEDIUM.
+//
+// Note that this method only applies to "simple"
+// transparency/translucency, where transmitted rays don't change
+// direction; materials that are conceptually "transparent," but which
+// exhibit more complex effects like refraction (which change the
+// direction) may return zero from this method.
+//
+Color
+ThinGlass::transmittance (const Surface::IsecInfo &isec_info,
+			  const Medium &medium)
+  const
+{
+  Vec norm = isec_info.normal ();
+  
+  // Calculate fresnel surface reflection at the ray angle
+  //
+  float cos_xmit_angle = dot (norm, -isec_info.ray.dir);
+  float refl = Fresnel (medium.ior, ior).reflectance (cos_xmit_angle);
+
+  // Transmitted light (some light is lost due to fresnel reflection
+  // from the back surface).
+  //
+  Color xmit = color * (1 - refl);
+
+  return xmit;
+}
+
+
 // arch-tag: cd843fe9-2c15-4212-80d7-7e302850c1a7

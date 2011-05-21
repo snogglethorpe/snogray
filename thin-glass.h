@@ -38,6 +38,19 @@ public:
   //
   virtual Bsdf *get_bsdf (const Intersect &isec) const;
 
+  // Return the transmittance of this material at the intersection
+  // described by ISEC_INFO in medium MEDIUM.
+  //
+  // Note that this method only applies to "simple"
+  // transparency/translucency, where transmitted rays don't change
+  // direction; materials that are conceptually "transparent," but
+  // which exhibit more complex effects like refraction (which change
+  // the direction) may return zero from this method.
+  //
+  virtual Color transmittance (const Surface::IsecInfo &isec_info,
+			       const Medium &medium)
+    const;
+
   Color color;
 
   // The index of refraction here is only used for calculating surface
