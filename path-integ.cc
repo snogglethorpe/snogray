@@ -1,6 +1,6 @@
 // path-integ.cc -- Path-tracing surface integrator
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -368,9 +368,21 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 		      isec.normal_frame.from (bsdf_samp.dir),
 		      min_dist, scene.horizon);
 
-      // Remember whether we followed a specular sample.
+      // Remember whether we followed a specular sample, because such
+      // samples are normally not accounted for in the direct-lighting
+      // term, and so if the sample hits an emitter, the emitter
+      // should be included (normally emission terms are ignored
+      // because their contribution is accounted for by the preceding
+      // direct-lighting term).
       //
-      after_specular_sample = (bsdf_samp.flags & Bsdf::SPECULAR);
+      // We "don't count" Bsdf::TRANSLUCENT for this purpose (even
+      // though they're nominally "specular"), because they actually
+      // _are_ accounted for in the direct-lighting term.
+      //
+      after_specular_sample
+	= ((bsdf_samp.flags & Bsdf::SPECULAR)
+	   && !((bsdf_samp.flags & Bsdf::TRANSLUCENT)
+		&& path_len > 0));
 
       // If we just followed a refractive (transmissive) sample, we need
       // to update our stack of Media entries:  entering a refractive
