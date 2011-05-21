@@ -887,16 +887,11 @@ function shapes.trianglemesh (state, params, mat)
    local points = get_param (state, params, "point P")
    local normals = get_param (state, params, "normal N", false)
    local indices = get_param (state, params, "integer indices")
-   local alpha, alphan = get_texture_param (state, params, "float alpha", false)
+   local alpha = get_texture_param (state, params, "float alpha", false)
    local uvs = (get_param (state, params, "float uv", false)
 	     or get_param (state, params, "float st", false))
 
    params["bool discarddegenerateUVs"] = nil -- ignore
-
-   if alpha then
-      -- ignore, but it's important enough to warn about
-      parse_warn ("\""..alphan.."\" parameter ignored")
-   end
 
    if mod (#indices, 3) ~= 0 then
       parse_err ("number of indices ("..tostring(#indices)..")"
@@ -909,6 +904,10 @@ function shapes.trianglemesh (state, params, mat)
    if uvs and #uvs * 3 ~= #points * 2 then
       parse_err ("number of uvs ("..tostring(#uvs)..")"
 		 .." does not match number of points ("..tostring(#points/3)..")")
+   end
+
+   if alpha then
+      mat = stencil (alpha, mat)
    end
 
    local xf = state.xform
