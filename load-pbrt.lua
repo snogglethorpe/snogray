@@ -1164,6 +1164,48 @@ function lights.infinite (state, params)
    return envmap_light (envmap, frame (xf))
 end
 
+-- projection light (not natively supported, but emulated using a clever
+-- trick)
+--
+function lights.projection (state, params)
+   local intens = get_color_param (state, params, "color I", 1)
+   local scale = get_texture_param (state, params, "float/color scale", 1)
+   local fov = get_single_param (state, params, "float fov", 45)
+   local mapname = get_single_param (state, params, "string mapname", false)
+   
+   fov = fov * 2 * math.pi / 180 -- convert degrees to radians
+
+   -- get details of projection map
+   local img = image (find_file (mapname, state))
+   local aspect_ratio = img.width / img.height
+
+   -- decide how large the projection mask should be
+   local d = .01
+   local hwd = d * math.atan (fov / 2)
+   local hw, hh
+   if aspect_ratio > 1 then
+      hw, hh = hwd * aspect_ratio, hwd
+   else
+      hw, hh = hwd, hwd / aspect_ratio
+   end
+
+   -- and compute a projection angle to cover it
+   local hdiag = math.sqrt (hh*hh + hw*hw)
+   local proj_angle = math.atan (hdiag / d) * 2
+
+   -- projection mask material
+   local mask_mat = stencil (1 - image_tex (img), lambert (0))
+
+   -- return a spotlight shining through a stencil rectangle
+   local xf = state.xform
+   return {
+      point_light (xf (pos (0,0,0)), intens * scale,
+		   proj_angle, xf (vec (0,0,1))),
+      rectangle (mask_mat, xf (pos (-hw,-hh, d)),
+		 xf (vec (hw*2,0,0)), xf (vec (0,hh*2,0)))
+   }
+end
+
 
 ----------------------------------------------------------------
 -- samplers
