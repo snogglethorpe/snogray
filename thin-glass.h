@@ -28,7 +28,7 @@ class ThinGlass : public Material
 public:
 
   ThinGlass (const Color &col, float _ior = 1.5)
-    : color (col), ior (_ior)
+    : Material (PARTIALLY_OCCLUDING), color (col), ior (_ior)
   { }
   ThinGlass (float _ior = 1.5)
     : color (1), ior (_ior)
