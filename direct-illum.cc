@@ -163,12 +163,13 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
 	  Ray ray (isec.normal_frame.origin,
 		   isec.normal_frame.from (lsamp.dir),
 		   min_dist, max_dist);
- 
-	  if (! scene.intersects (ray, context))
+
+	  Color transmittance = 1;
+	  if (! scene.occludes (ray, isec.media.medium, transmittance, context))
 	    {
 	      // The sample is not occluded, calculate the actual radiance.
 
-	      Color lsamp_radiance = lsamp.val;
+	      Color lsamp_radiance = lsamp.val * transmittance;
 
 	      lsamp_radiance
 		*= context.volume_integ->transmittance (ray, isec.media.medium);
@@ -234,11 +235,13 @@ DirectIllum::sample_light (const Intersect &isec, const Light *light,
 		       isec.normal_frame.from (bsamp.dir),
 		       min_dist, max_dist);
 
-	      if (! scene.intersects (ray, context))
+	      Color transmittance = 1;
+	      if (! scene.occludes (ray, isec.media.medium, transmittance,
+				    context))
 		{
 		  // The sample is not occluded
 
-		  Color bsamp_radiance = lval.val;
+		  Color bsamp_radiance = lval.val * transmittance;
 
 		  bsamp_radiance
 		    *= context.volume_integ->transmittance (ray,
