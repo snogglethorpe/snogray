@@ -61,12 +61,11 @@ public:
       return Sample ();
     else if (! thru_ok)
       return underlying_bsdf->sample (param, flags);
-    else if (! undl_ok)
-      return Sample (1 / isec.cos_n (isec.v), 1, -isec.v,
-		     SPECULAR|TRANSMISSIVE);
-    else if (param.u > opacity_intens)
-      return Sample ((1 - opacity) /  isec.cos_n (isec.v), 1, -isec.v,
-		     SPECULAR|TRANSMISSIVE);
+    else if (! undl_ok || param.u > opacity_intens)
+      return Sample ((1 - opacity) /  isec.cos_n (isec.v),
+		     undl_ok ? 1 - opacity_intens : 1,
+		     -isec.v,
+		     SPECULAR|TRANSMISSIVE|TRANSLUCENT);
     else
       {
 	UV scaled_param (param.u * inv_opacity_intens, param.v);
