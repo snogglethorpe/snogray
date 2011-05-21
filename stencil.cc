@@ -135,3 +135,19 @@ Stencil::get_bsdf (const Intersect &isec) const
 
   return new (isec) StencilBsdf (opac, underlying_bsdf, isec);
 }
+
+// Return the transmittance of this material at the intersection
+// described by ISEC_INFO in medium MEDIUM.
+//
+// Note that this method only applies to "simple"
+// transparency/translucency, where transmitted rays don't change
+// direction; materials that are conceptually "transparent," but which
+// exhibit more complex effects like refraction (which change the
+// direction) may return zero from this method.
+//
+Color
+Stencil::transmittance (const Surface::IsecInfo &isec_info, const Medium &)
+  const
+{
+  return max (1 - opacity.eval (isec_info.tex_coords ()), 0);
+}
