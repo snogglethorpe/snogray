@@ -1,6 +1,6 @@
 # Automake Makefile template for snogray
 #
-#  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -364,12 +364,12 @@ libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
 	freelist.h globals.cc globals.h grab.h interp.h llist.h		\
 	least-squares-fit.h matrix.h matrix.tcc matrix-funs.h		\
 	matrix-funs.tcc matrix-io.h mempool.cc mempool.h mutex.h	\
-	nice-io.cc nice-io.h pool.h radical-inverse.h random.h		\
-	random-boost.h random-c0x.h random-rand.h random-tr1.h ref.h	\
-	rusage.h snogassert.cc snogassert.h snogmath.h string-funs.cc	\
-	string-funs.h thread.h timeval.cc timeval.h tint.h tint-io.cc	\
-	tint-io.h val-table.cc unique-ptr.h val-table.h version.cc	\
-	version.h
+	nice-io.cc nice-io.h num-cores.cc num-cores.h pool.h		\
+	radical-inverse.h random.h random-boost.h random-c0x.h		\
+	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
+	snogassert.h snogmath.h string-funs.cc string-funs.h thread.h	\
+	timeval.cc timeval.h tint.h tint-io.cc tint-io.h val-table.cc	\
+	unique-ptr.h val-table.h version.cc version.h
 
 
 ################################################################

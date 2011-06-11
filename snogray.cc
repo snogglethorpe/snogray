@@ -1,6 +1,6 @@
 // snogray.cc -- Main driver for snogray ray tracer
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,8 +19,6 @@
 #include <cstring>
 #include <stdexcept>
 
-#include <unistd.h> // sysconf
-
 #ifdef HAVE_FENV_H
 #include <fenv.h>
 #endif
@@ -29,6 +27,7 @@
 #include "rusage.h"
 #include "string-funs.h"
 #include "file-funs.h"
+#include "num-cores.h"
 #include "progress.h"
 #include "globals.h"
 
@@ -62,27 +61,6 @@ using namespace std;
 // The maximum number of "backup" files we make when recovering a partial image.
 //
 #define RECOVER_BACKUP_LIMIT 100
-
-
-// CPU cores
-
-// If the number of available CPU cores on this system can be
-// determined, return it, otherwise return DEFAULT_CORES.
-//
-static int
-num_cores (int default_cores)
-{
-#if USE_THREADS
-#ifdef _SC_NPROCESSORS_ONLN
-  // This works on linux, anyway.
-  int sc = sysconf (_SC_NPROCESSORS_ONLN);
-  if (sc > 0)
-    return sc;
-#endif // _SC_NPROCESSORS_ONLN
-#endif // USE_THREADS
-
-  return default_cores;
-}
 
 
 // Floating-point exceptions
