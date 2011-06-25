@@ -1,3 +1,51 @@
+v0.4
+
+    + Implement material-based surface transparency/translucency.
+      Materials that implement this can give arbitrary surfaces an
+      additional level of transparency/translucency beyond that due to
+      geometry.  This only affects _surfaces_, so it cannot be used to
+      implement refraction, but because it operates on a very low
+      level, it affects shadow-casting in direct-lighting, etc.,
+      making it a very efficient way to add a fine "geometry" to
+      surfaces.
+
+      To use this feature, use a "Stencil" ("stencil" in Lua) wrapper
+      material; the degree opacity can be a texture, so this can be
+      used to implement opacity maps.  In Lua, an "opacity" or "alpha"
+      parameter can also be added to a material description instead
+      (which just causes a "stencil" wrapper to be automatically used).
+
+    + Make light-emission a material property, rather than requiring
+      explicit light objects for area lights.
+
+      To make a surface into an area light give it a "Glow" material
+      ("glow" in Lua).  However, currently meshes cannot be used as
+      lights.
+
+      Traditional Light objects still exist, for cases where
+      light-emission isn't associated with a surface.
+
+    + Implement loading of PBRT format scene files.  Not all PBRT
+      features are supported, and sometimes the results may be
+      somewhat different (e.g., due to substitution of a different
+      material for PBRT material types that we don't implement), but
+      many PBRT scene files work pretty well, especially geometry.
+
+    + Implement reading of TGA (aka Targa) image files.
+
+    + Rename the "Plastic" material to "ThinGlass" ("thin_glass" in
+      Lua).
+
+    + Use all CPU cores by default.
+
+    + The -h/--height and -w/--width command-line options are removed;
+      use -s/--size instead.
+
+    + Automatically use LuaJIT instead of Lua if it's detected.
+
+    + Many bug fixes and code improvements.
+
+
 v0.3
 
     + Implement multi-threaded rendering (-j/--threads).
