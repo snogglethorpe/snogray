@@ -36,7 +36,7 @@ public:
 
   // Return the row-order of this image file.
   //
-  virtual ImageIo::RowOrder row_order () const { return source->row_order (); }
+  ImageIo::RowOrder row_order () const { return source->row_order (); }
 
   // Return an object describing the row indices of the first and last
   // (in read order) rows in this image file, where 0 is the index of
