@@ -1,6 +1,6 @@
 -- snogray.lua -- Lua scene interface for snogray
 --
---  Copyright (C) 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -869,9 +869,13 @@ function triangle (mat, v0, e1, e2)
    return tripar (mat, v0, e1, e2, false)
 end
 
-function rectangle (mat, v0, e1, e2)
+function parallelogram (mat, v0, e1, e2)
    return tripar (mat, v0, e1, e2, true)
 end
+
+-- Alias for common usage
+--
+rectangle = parallelogram
 
 -- Return an elliptical surface.
 --
