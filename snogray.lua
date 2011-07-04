@@ -877,6 +877,22 @@ end
 --
 rectangle = parallelogram
 
+function parallelepiped (mat, corner, up, right, fwd)
+   return surface_group {
+      parallelogram (mat, corner, right, up);
+      parallelogram (mat, corner, up, fwd);
+      parallelogram (mat, corner, fwd, right);
+
+      parallelogram (mat, corner + up, right, fwd);
+      parallelogram (mat, corner + right, fwd, up);
+      parallelogram (mat, corner + fwd, up, right);
+   }
+end
+
+-- Alias for common usage
+--
+cube = parallelepiped
+
 -- Return an elliptical surface.
 --
 -- args: MAT, XFORM
