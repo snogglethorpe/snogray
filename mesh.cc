@@ -844,5 +844,80 @@ Mesh::transform (const Xform &xform)
   recalc_bbox ();
 }
 
+
+// Mesh intersection methods
+//
+// These are not normally called during rendering -- instead,
+// individual triangles in a mesh are added to acceleration
+// structures, and their intersection methods are called instead --
+// but are provided for completeness, and to make the Mesh class
+// concrete (Surface is an abstract class).
+
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with CONTEXT); otherwise return zero.
+//
+const Surface::IsecInfo *
+Mesh::intersect (Ray &ray, RenderContext &context) const
+{
+  const Surface::IsecInfo *closest = 0;
+
+  unsigned num_triangles = triangles.size();
+  for (unsigned t = 0; t < num_triangles; t++)
+    {
+      const Surface::IsecInfo *isec_info = triangles[t].intersect (ray, context);
+      if (isec_info)
+	closest = isec_info;
+    }
+
+  return closest;
+}
+
+// Return true if this surface intersects RAY.
+//
+bool
+Mesh::intersects (const Ray &ray, RenderContext &context) const
+{
+  unsigned num_triangles = triangles.size();
+  for (unsigned t = 0; t < num_triangles; t++)
+    if (triangles[t].intersects (ray, context))
+      return true;
+
+  return false;
+}
+
+// Return true if this surface completely occludes RAY.  If it does
+// not completely occlude RAY, then return false, and multiply
+// TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
+// MEDIUM.
+//
+// Note that this method does not try to handle non-trivial forms of
+// transparency/translucency (for instance, a "glass" material is
+// probably considered opaque because it changes light direction as
+// well as transmitting it).
+//
+// [This interface is slight awkward for reasons of speed --
+// returning and checking for a boolean value for common cases is
+// significantly faster than, for instance, a simple "transmittance"
+// method, which requires handling Color values for all cases.]
+//
+bool
+Mesh::occludes (const Ray &ray, const Medium &medium,
+			Color &total_transmittance,
+			RenderContext &context)
+  const
+{
+  unsigned num_triangles = triangles.size();
+
+  for (unsigned t = 0; t < num_triangles; t++)
+    if (triangles[t].occludes (ray, medium, total_transmittance, context))
+      return true;
+
+  return false;
+}
+
+
 
 // arch-tag: 3090c323-f2dd-48ef-b8fc-20ce5d687c66
