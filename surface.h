@@ -32,6 +32,8 @@ class Light;
 // Surfaces exist in 3D space, but are basically 2D -- volumetric
 // properties are only modelled in certain special cases.
 //
+// This is an abstract class.
+//
 class Surface 
 {
 public:
@@ -49,11 +51,11 @@ public:
   // object describing the intersection (which should be allocated using
   // placement-new with CONTEXT); otherwise return zero.
   //
-  virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
+  virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const =0;
 
   // Return true if this surface intersects RAY.
   //
-  virtual bool intersects (const Ray &ray, RenderContext &context) const;
+  virtual bool intersects (const Ray &ray, RenderContext &context) const = 0;
 
   // Return true if this surface completely occludes RAY.  If it does
   // not completely occlude RAY, then return false, and multiply
@@ -73,11 +75,11 @@ public:
   virtual bool occludes (const Ray &ray, const Medium &medium,
 			 Color &total_transmittance,
 			 RenderContext &context)
-    const;
+    const = 0;
 
   // Return a bounding box for this surface.
   //
-  virtual BBox bbox () const;
+  virtual BBox bbox () const = 0;
 
   // Add this (or some other) surfaces to the space being built by
   // SPACE_BUILDER.

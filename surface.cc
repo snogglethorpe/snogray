@@ -27,23 +27,6 @@ Surface::add_to_space (SpaceBuilder &space_builder) const
   space_builder.add (this);
 }
 
-// Stubs -- these should be abstract methods, but C++ doesn't allow a
-// class with abstract methods to be used in a list/vector, so we just
-// signal a runtime error if they're ever called.
-
-static void barf () __attribute__ ((noreturn));
-static void
-barf ()
-{
-  throw std::runtime_error ("tried to render abstract surface");
-}
-
-const Surface::IsecInfo *
-Surface::intersect (Ray &, RenderContext &) const { barf (); }
-bool Surface::intersects (const Ray &, RenderContext &) const { barf (); }
-bool Surface::occludes (const Ray &, const Medium &, Color &, RenderContext &) const { barf ();}
-BBox Surface::bbox () const { barf (); }
-
 
 
 // Surface::Sampler
