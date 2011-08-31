@@ -1,6 +1,6 @@
 // primitive.h -- Primitive surface
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -23,6 +23,8 @@ namespace snogray {
 // Primitive is a subclass of Surface that sort of represents
 // "concrete", non-composite, surfaces.  In particular, a Primitive
 // object has a material associated with it.
+//
+// This is an abstract class.
 //
 class Primitive : public Surface
 {
