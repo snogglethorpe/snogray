@@ -70,11 +70,6 @@ public:
   // well as transmitting it), nor does it deal with anything except
   // surfaces.
   //
-  // [This interface is slight awkward for reasons of speed --
-  // returning and checking for a boolean value for common cases is
-  // significantly faster than, for instance, a simple "transmittance"
-  // method, which requires handling Color values for all cases.]
-  //
   bool occludes (const Ray &ray, const Medium &medium,
 		 Color &total_transmittance,
 		 RenderContext &context)

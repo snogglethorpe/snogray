@@ -1,6 +1,6 @@
 // space.cc -- Space-division abstraction (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -164,11 +164,6 @@ struct OccludesCallback : Space::IntersectCallback
 // probably considered opaque because it changes light direction as
 // well as transmitting it), nor does it deal with anything except
 // surfaces.
-//
-// [This interface is slight awkward for reasons of speed --
-// returning and checking for a boolean value for common cases is
-// significantly faster than, for instance, a simple "transmittance"
-// method, which requires handling Color values for all cases.]
 //
 bool
 Space::occludes (const Ray &ray, const Medium &medium,

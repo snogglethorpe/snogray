@@ -51,11 +51,6 @@ public:
   // probably considered opaque because it changes light direction as
   // well as transmitting it).
   //
-  // [This interface is slight awkward for reasons of speed --
-  // returning and checking for a boolean value for common cases is
-  // significantly faster than, for instance, a simple "transmittance"
-  // method, which requires handling Color values for all cases.]
-  //
   virtual bool occludes (const Ray &ray, const Medium &medium,
 			 Color &total_transmittance,
 			 RenderContext &context)

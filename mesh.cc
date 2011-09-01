@@ -565,11 +565,6 @@ Mesh::Triangle::intersects (const Ray &ray, RenderContext &) const
 // probably considered opaque because it changes light direction as
 // well as transmitting it).
 //
-// [This interface is slight awkward for reasons of speed --
-// returning and checking for a boolean value for common cases is
-// significantly faster than, for instance, a simple "transmittance"
-// method, which requires handling Color values for all cases.]
-//
 bool
 Mesh::Triangle::occludes (const Ray &ray, const Medium &medium,
 			  Color &total_transmittance,
@@ -897,11 +892,6 @@ Mesh::intersects (const Ray &ray, RenderContext &context) const
 // transparency/translucency (for instance, a "glass" material is
 // probably considered opaque because it changes light direction as
 // well as transmitting it).
-//
-// [This interface is slight awkward for reasons of speed --
-// returning and checking for a boolean value for common cases is
-// significantly faster than, for instance, a simple "transmittance"
-// method, which requires handling Color values for all cases.]
 //
 bool
 Mesh::occludes (const Ray &ray, const Medium &medium,
