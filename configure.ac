@@ -1164,6 +1164,37 @@ else
 
 fi
 
+
+# Test for the GNU gold linker's "--icf=all" option, which folds
+# duplicate sections of code, using the gcc linker-flag prefix "-Wl,".
+#
+# "--icf=all" folds all duplicate sections.  "--icf=safe" is a
+# somewhat less aggressive variant, which uses heuristics to avoid
+# folding potentially unsafe cases (where function pointers are used
+# in non-vtable context); however our code should all be safe for
+# --icf=all (the real question is libraries ...).
+#
+SNOGRAY_CHECK_CXX_LINK_FLAG([CXX_LDFLAGS], [-Wl,--icf=all])
+
+# If "-Wl,--icf=all" is supported, also check for the compiler
+# "--ffunction-sections" option; this puts each function into its own
+# separate linker section, which increases the opportunities for --icf
+# to work.
+#
+if test x"$CXX_LDFLAGS" != x; then
+  SNOGRAY_CHECK_CXX_FLAG([CXX_FUNCTION_SECS], [-ffunction-sections])
+
+  # We've already defined CXX_EXTRA_REQ_FLAGS above, so append to it.
+  #
+  CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS $CXX_FUNCTION_SECS"
+fi
+
+
+# Set linker flags.
+#
+LDFLAGS="$CXX_LDFLAGS"
+
+
 # This variable can be set by the user to pass in extra compiler
 # options, in addition to optimization and debug options (which are
 # usually set by other means).
