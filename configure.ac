@@ -187,6 +187,41 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_FLAG], [
     CXXFLAGS="$_SAVED_CXXFLAGS"
 ])
 
+# Checks whether the C++ compiler accepts the linker flags in $2,
+# and if so defines a subst named $1 containing $2.
+#
+# Note that $2 is still passed to the compiler driver for linking, so
+# it should use whatever syntax is necessary (e.g., for gcc, a "-Wl,"
+# prefix is usually used to pass flags to the linker).
+#
+AC_DEFUN([SNOGRAY_CHECK_CXX_LINK_FLAG], [
+    AC_LANG_ASSERT(C++)
+    _SAVED_LDFLAGS="$LDFLAGS"
+    OPT="$2"
+    LDFLAGS="$LDFLAGS $OPT"
+    case "$OPT" in *' '*) S=s;; *) S="";; esac
+    AC_MSG_CHECKING([whether C++ compiler accepts "$OPT" linker option$S])
+    AC_LINK_IFELSE(
+      [AC_LANG_SOURCE([int main () { return 0; } ])],
+      [opt_ok=yes
+       # Some compilers only warn about unsupported options, so
+       # try to detect such warnings.
+       if test -s conftest.err; then
+         for ONE_OPT in $OPT; do
+	   if grep ".*$ONE_OPT" conftest.err >/dev/null; then
+	     opt_ok=no
+	     break
+	   fi
+	 done
+       fi],
+      [opt_ok=no])
+    AC_MSG_RESULT([$opt_ok])
+    if test "$opt_ok" = yes; then
+      AC_SUBST([$1], ["$OPT"])
+    fi
+    LDFLAGS="$_SAVED_LDFLAGS"
+])
+
 
 # Try to choose a compiler support level option.
 #
