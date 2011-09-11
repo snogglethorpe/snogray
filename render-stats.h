@@ -1,6 +1,6 @@
 // render-stats.h -- Print post-rendering statistics
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RENDER_STATS_H__
-#define __RENDER_STATS_H__
+#ifndef SNOGRAY_RENDER_STATS_H
+#define SNOGRAY_RENDER_STATS_H
 
 #include <iosfwd>
 
@@ -72,6 +72,6 @@ struct RenderStats
 
 }
 
-#endif /*__RENDER_STATS_H__ */
+#endif /*SNOGRAY_RENDER_STATS_H */
 
 // arch-tag: b7800699-80ca-46da-9f30-732a78beb547

@@ -1,6 +1,6 @@
 // image-png.h -- PNG format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_PNG_H__
-#define __IMAGE_PNG_H__
+#ifndef SNOGRAY_IMAGE_PNG_H
+#define SNOGRAY_IMAGE_PNG_H
 
 #include <cstdio>
 
@@ -87,6 +87,6 @@ private:
 
 }
 
-#endif /* __IMAGE_PNG_H__ */
+#endif /* SNOGRAY_IMAGE_PNG_H */
 
 // arch-tag: fb6efedc-7ae1-433c-a703-59cafdfb9882

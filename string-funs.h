@@ -1,6 +1,6 @@
 // string-funs.h -- Random string helper functions
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __STRING_FUNS__
-#define __STRING_FUNS__
+#ifndef SNOGRAY_STRING_FUNS
+#define SNOGRAY_STRING_FUNS
 
 #include <string>
 
@@ -71,6 +71,6 @@ begins_with (const std::string &str, const std::string &pfx)
 
 }
 
-#endif /* __STRING_FUNS__ */
+#endif /* SNOGRAY_STRING_FUNS */
 
 // arch-tag: 9fcb681e-6711-4d6c-bc4a-293f5cbfabe3

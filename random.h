@@ -1,6 +1,6 @@
 // random.h -- Random number classes
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RANDOM_H__
-#define __RANDOM_H__
+#ifndef SNOGRAY_RANDOM_H
+#define SNOGRAY_RANDOM_H
 
 #include "config.h"
 
@@ -63,4 +63,4 @@ public:
 
 }
 
-#endif // __RANDOM_H__
+#endif // SNOGRAY_RANDOM_H

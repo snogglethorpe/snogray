@@ -1,6 +1,6 @@
 // sample-gen.h -- Sample generator
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SAMPLE_GEN_H__
-#define __SAMPLE_GEN_H__
+#ifndef SNOGRAY_SAMPLE_GEN_H
+#define SNOGRAY_SAMPLE_GEN_H
 
 #include <vector>
 
@@ -122,4 +122,4 @@ SampleGen::adjust_sample_count<UV> (unsigned num) const
 
 }
 
-#endif // __SAMPLE_GEN_H__
+#endif // SNOGRAY_SAMPLE_GEN_H

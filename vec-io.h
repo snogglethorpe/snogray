@@ -1,6 +1,6 @@
 // vec-io.h -- Debugging output for Vec type
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __VEC_IO_H__
-#define __VEC_IO_H__
+#ifndef SNOGRAY_VEC_IO_H
+#define SNOGRAY_VEC_IO_H
 
 #include <iosfwd>
 
@@ -23,4 +23,4 @@ std::ostream& operator<< (std::ostream &os, const Vec &vec);
 
 }
 
-#endif // __VEC_IO_H__
+#endif // SNOGRAY_VEC_IO_H

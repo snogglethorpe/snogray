@@ -1,6 +1,6 @@
 // ray.h -- Datatype describing a directional, positioned, line-segment
 //
-//  Copyright (C) 2005, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RAY_H__
-#define __RAY_H__
+#ifndef SNOGRAY_RAY_H
+#define SNOGRAY_RAY_H
 
 #include "pos.h"
 #include "vec.h"
@@ -92,6 +92,6 @@ typedef TRay<dist_t> Ray;
 }
 
 
-#endif /* __RAY_H__ */
+#endif /* SNOGRAY_RAY_H */
 
 // arch-tag: e8ba773e-11bd-4fb2-83b6-ace5f2908aad

@@ -1,6 +1,6 @@
 // ref.h -- Reference-counting framework
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __REF_H__
-#define __REF_H__
+#ifndef SNOGRAY_REF_H
+#define SNOGRAY_REF_H
 
 
 namespace snogray {
@@ -91,7 +91,7 @@ private:
 
 }
 
-#endif // __REF_H__
+#endif // SNOGRAY_REF_H
 
 
 // arch-tag: 6f4ae6fe-3aa0-4575-b051-853e7ea49d32

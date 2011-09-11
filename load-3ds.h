@@ -1,6 +1,6 @@
 // load-3ds.h -- Load 3ds scene file
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LOAD_3DS_H__
-#define __LOAD_3DS_H__
+#ifndef SNOGRAY_LOAD_3DS_H
+#define SNOGRAY_LOAD_3DS_H
 
 #include <string>
 
@@ -34,6 +34,6 @@ extern void load_3ds_file (const std::string &filename, Mesh &mesh);
 
 }
 
-#endif /* __LOAD_3DS_H__ */
+#endif /* SNOGRAY_LOAD_3DS_H */
 
 // arch-tag: e4ac5abf-2695-4f3f-99c3-16f723ec0bef

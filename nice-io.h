@@ -1,6 +1,6 @@
 // nice-io.h -- Helper functions for user-friendly I/O
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __NICE_IO_H__
-#define __NICE_IO_H__
+#ifndef SNOGRAY_NICE_IO_H
+#define SNOGRAY_NICE_IO_H
 
 #include <iosfwd>
 
@@ -27,4 +27,4 @@ output_nicely (std::ostream &os, float num);
 
 }
 
-#endif // __NICE_IO_H__
+#endif // SNOGRAY_NICE_IO_H

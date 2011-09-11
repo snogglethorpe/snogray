@@ -1,6 +1,6 @@
 // cmdlineparser.h -- Command-line parser
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __CMDLINEPARSER_H__
-#define __CMDLINEPARSER_H__
+#ifndef SNOGRAY_CMDLINEPARSER_H
+#define SNOGRAY_CMDLINEPARSER_H
 
 #include <string>
 #include <stdexcept>
@@ -179,6 +179,6 @@ private:
 
 }
 
-#endif /* __CMDLINEPARSER_H__ */
+#endif /* SNOGRAY_CMDLINEPARSER_H */
 
 // arch-tag: 5852e7d6-c333-492e-8c89-0f6ef8f09056

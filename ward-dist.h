@@ -1,6 +1,6 @@
 // ward-dist.h -- Isotropic Ward distribution
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __WARD_DIST_H__
-#define __WARD_DIST_H__
+#ifndef SNOGRAY_WARD_DIST_H
+#define SNOGRAY_WARD_DIST_H
 
 #include "dist.h"
 
@@ -84,6 +84,6 @@ private:
 }
 
 
-#endif /* __WARD_DIST_H__ */
+#endif /* SNOGRAY_WARD_DIST_H */
 
 // arch-tag: 0bcce561-b31d-4b85-af21-deeeac6abff7

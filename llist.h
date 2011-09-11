@@ -1,6 +1,6 @@
 // llist.h -- Linked-list wrapper type
 //
-//  Copyright (C) 2005, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LLIST_H__
-#define __LLIST_H__
+#ifndef SNOGRAY_LLIST_H
+#define SNOGRAY_LLIST_H
 
 namespace snogray {
 
@@ -168,6 +168,6 @@ private:
 
 }
 
-#endif /* __LLIST_H__ */
+#endif /* SNOGRAY_LLIST_H */
 
 // arch-tag: 34227d90-5372-43ec-b4f2-c7b4e8f70601

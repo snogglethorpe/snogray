@@ -1,6 +1,6 @@
 // mitchell-filt.h -- Mitchell filter
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MITCHELL_FILT_H__
-#define __MITCHELL_FILT_H__
+#ifndef SNOGRAY_MITCHELL_FILT_H
+#define SNOGRAY_MITCHELL_FILT_H
 
 #include "filter.h"
 
@@ -68,7 +68,7 @@ public:
 
 }
 
-#endif /* __MITCHELL_FILT_H__ */
+#endif /* SNOGRAY_MITCHELL_FILT_H */
 
 
 // arch-tag: 7fd2ef94-7377-449a-a24a-dfbea8c016bc

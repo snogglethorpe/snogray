@@ -1,6 +1,6 @@
 // image-cmdline.h -- Support for command-line parsing of image parameters
 //
-//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_CMDLINE_H__
-#define __IMAGE_CMDLINE_H__
+#ifndef SNOGRAY_IMAGE_CMDLINE_H
+#define SNOGRAY_IMAGE_CMDLINE_H
 
 // The following macros can be used in defining option parsers.
 
@@ -117,7 +117,7 @@ extern void get_image_size (const ValTable &params,
 }
 
 
-#endif /* __IMAGE_CMDLINE_H__ */
+#endif /* SNOGRAY_IMAGE_CMDLINE_H */
 
 
 // arch-tag: d728801d-ce3a-414e-89a1-60b259197526

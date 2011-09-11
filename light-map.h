@@ -1,6 +1,6 @@
 // light-map.h -- An image-based map of light for LmapAnalyzer to analyze
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LIGHT_MAP_H__
-#define __LIGHT_MAP_H__
+#ifndef SNOGRAY_LIGHT_MAP_H
+#define SNOGRAY_LIGHT_MAP_H
 
 
 #include "image.h"
@@ -59,6 +59,6 @@ public:
 }
 
 
-#endif // __LIGHT_MAP_H__
+#endif // SNOGRAY_LIGHT_MAP_H
 
 // arch-tag: 7cccd114-cb70-43a0-91e1-7b451d43a899

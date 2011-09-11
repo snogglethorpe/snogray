@@ -1,6 +1,6 @@
 // sample-map.h -- Visual representation of sample distribution
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SAMPLE_MAP_H__
-#define __SAMPLE_MAP_H__
+#ifndef SNOGRAY_SAMPLE_MAP_H
+#define SNOGRAY_SAMPLE_MAP_H
 
 #include "color.h"
 #include "image.h"
@@ -72,6 +72,6 @@ private:
 
 }
 
-#endif /* __SAMPLE_MAP_H__ */
+#endif /* SNOGRAY_SAMPLE_MAP_H */
 
 // arch-tag: eba7cd69-4c62-45e2-88e0-400cc3b22158

@@ -1,6 +1,6 @@
 // triangle.h -- Triangleian filter
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRIANGLE_FILT_H__
-#define __TRIANGLE_FILT_H__
+#ifndef SNOGRAY_TRIANGLE_FILT_H
+#define SNOGRAY_TRIANGLE_FILT_H
 
 #include "filter.h"
 
@@ -40,4 +40,4 @@ public:
 
 }
 
-#endif // __TRIANGLE_FILT_H__
+#endif // SNOGRAY_TRIANGLE_FILT_H

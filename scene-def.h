@@ -1,6 +1,6 @@
 // scene-def.h -- Scene definition object
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SCENE_DEF_H__
-#define __SCENE_DEF_H__
+#ifndef SNOGRAY_SCENE_DEF_H
+#define SNOGRAY_SCENE_DEF_H
 
 #include <iosfwd>
 #include <iomanip>
@@ -108,6 +108,6 @@ public:
 
 }
 
-#endif /* __SCENE_DEF_H__ */
+#endif /* SNOGRAY_SCENE_DEF_H */
 
 // arch-tag: 4628d634-58c1-4054-b89d-2b88618e6a9f

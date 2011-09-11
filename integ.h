@@ -1,6 +1,6 @@
 // integ.h -- Light integrator interface
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __INTEG_H__
-#define __INTEG_H__
+#ifndef SNOGRAY_INTEG_H
+#define SNOGRAY_INTEG_H
 
 
 namespace snogray {
@@ -52,4 +52,4 @@ protected:
 
 }
 
-#endif // __INTEG_H__
+#endif // SNOGRAY_INTEG_H

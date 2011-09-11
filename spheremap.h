@@ -1,6 +1,6 @@
 // spheremap.h -- Texture wrapped around a sphere
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPHEREMAP_H__
-#define __SPHEREMAP_H__
+#ifndef SNOGRAY_SPHEREMAP_H
+#define SNOGRAY_SPHEREMAP_H
 
 #include "tex.h"
 #include "snogmath.h"
@@ -195,7 +195,7 @@ Ref<Image> Spheremap<LatLongMapping>::light_map () const;
 
 }
 
-#endif // __SPHEREMAP_H__
+#endif // SNOGRAY_SPHEREMAP_H
 
 
 // arch-tag: 13f3c349-9a3e-4337-ba26-cf083997542f

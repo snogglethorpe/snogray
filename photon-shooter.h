@@ -1,6 +1,6 @@
 // photon-shooter.h -- Photon-shooting infrastructure
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PHOTON_SHOOTER_H__
-#define __PHOTON_SHOOTER_H__
+#ifndef SNOGRAY_PHOTON_SHOOTER_H
+#define SNOGRAY_PHOTON_SHOOTER_H
 
 #include <vector>
 
@@ -146,4 +146,4 @@ PhotonShooter::cur_count () const
 
 }
 
-#endif // __PHOTON_SHOOTER_H__
+#endif // SNOGRAY_PHOTON_SHOOTER_H

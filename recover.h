@@ -1,6 +1,6 @@
 // recover.h -- Recovery of partial output images
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RECOVER_H__
-#define __RECOVER_H__
+#ifndef SNOGRAY_RECOVER_H
+#define SNOGRAY_RECOVER_H
 
 
 #include <string>
@@ -40,7 +40,7 @@ extern unsigned recover_image (ImageInput *src, ImageOutput &dst);
 
 }
 
-#endif // __RECOVER_H__
+#endif // SNOGRAY_RECOVER_H
 
 
 // arch-tag: 84ae5ac2-df53-4f17-9a42-08d9d0fb51db

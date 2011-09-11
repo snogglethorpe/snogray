@@ -1,6 +1,6 @@
 // matrix-io.h -- Debugging output for Matrix type
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATRIX_IO_H__
-#define __MATRIX_IO_H__
+#ifndef SNOGRAY_MATRIX_IO_H
+#define SNOGRAY_MATRIX_IO_H
 
 #include <iosfwd>
 
@@ -52,4 +52,4 @@ operator<< (std::ostream &os, const Matrix<T> &matrix)
 
 }
 
-#endif // __MATRIX_IO_H__
+#endif // SNOGRAY_MATRIX_IO_H

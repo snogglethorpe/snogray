@@ -1,6 +1,6 @@
 // dir-hist.h -- Directional histogram
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __DIR_HIST_H__
-#define __DIR_HIST_H__
+#ifndef SNOGRAY_DIR_HIST_H
+#define SNOGRAY_DIR_HIST_H
 
 #include "uv.h"
 #include "hist-2d.h"
@@ -86,4 +86,4 @@ public:
 
 }
 
-#endif // __DIR_HIST_H__
+#endif // SNOGRAY_DIR_HIST_H

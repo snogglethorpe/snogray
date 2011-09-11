@@ -11,8 +11,8 @@
 //
 
 
-#ifndef __NUM_CORES_H__
-#define __NUM_CORES_H__
+#ifndef SNOGRAY_NUM_CORES_H
+#define SNOGRAY_NUM_CORES_H
 
 
 namespace snogray {
@@ -27,4 +27,4 @@ extern int num_cores (int default_cores);
 }
 
 
-#endif // __NUM_CORES_H__
+#endif // SNOGRAY_NUM_CORES_H

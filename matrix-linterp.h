@@ -1,6 +1,6 @@
 // tex-linterp.h -- texture linear interpolation
 //
-//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TEX_LINTERP_H__
-#define __TEX_LINTERP_H__
+#ifndef SNOGRAY_TEX_LINTERP_H
+#define SNOGRAY_TEX_LINTERP_H
 
 #include "uv.h"
 
@@ -95,4 +95,4 @@ private:
 
 }
 
-#endif // __TEX_LINTERP_H__
+#endif // SNOGRAY_TEX_LINTERP_H

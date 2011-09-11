@@ -1,6 +1,6 @@
 // lambert.h -- Lambertian material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LAMBERT_H__
-#define __LAMBERT_H__
+#ifndef SNOGRAY_LAMBERT_H
+#define SNOGRAY_LAMBERT_H
 
 #include "tex.h"
 #include "color.h"
@@ -38,7 +38,7 @@ public:
 
 }
 
-#endif // __LAMBERT_H__
+#endif // SNOGRAY_LAMBERT_H
 
 
 // arch-tag: ca8981f3-5471-4e8a-ac8b-2e3e54c83b64

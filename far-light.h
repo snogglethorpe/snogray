@@ -1,6 +1,6 @@
 // far-light.h -- Light at infinite distance
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __FAR_LIGHT_H__
-#define __FAR_LIGHT_H__
+#ifndef SNOGRAY_FAR_LIGHT_H
+#define SNOGRAY_FAR_LIGHT_H
 
 #include "snogmath.h"
 #include "light.h"
@@ -99,6 +99,6 @@ private:
 
 }
 
-#endif // __FAR_LIGHT_H__
+#endif // SNOGRAY_FAR_LIGHT_H
 
 // arch-tag: 0691dd09-998d-4cdf-b5e9-da71aed2ec41

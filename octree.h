@@ -1,6 +1,6 @@
 // octree.h -- Voxel tree datatype (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2005, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __OCTREE_H__
-#define __OCTREE_H__
+#ifndef SNOGRAY_OCTREE_H
+#define SNOGRAY_OCTREE_H
 
 #include <list>
 
@@ -273,7 +273,7 @@ struct Octree::SearchState : Space::SearchState
 
 }
 
-#endif /* __OCTREE_H__ */
+#endif /* SNOGRAY_OCTREE_H */
 
 
 // arch-tag: 0b44a400-1a03-4967-ac84-a8984a4f2752

@@ -1,6 +1,6 @@
 // local-surface.h -- Transformed surface
 //
-//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LOCAL_SURFACE_H__
-#define __LOCAL_SURFACE_H__
+#ifndef SNOGRAY_LOCAL_SURFACE_H
+#define SNOGRAY_LOCAL_SURFACE_H
 
 
 #include "surface.h"
@@ -49,4 +49,4 @@ public:
 }
 
 
-#endif // __LOCAL_SURFACE_H__
+#endif // SNOGRAY_LOCAL_SURFACE_H

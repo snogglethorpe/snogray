@@ -1,6 +1,6 @@
 // sphere-light.h -- Spherical light
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPHERE_LIGHT_H__
-#define __SPHERE_LIGHT_H__
+#ifndef SNOGRAY_SPHERE_LIGHT_H
+#define SNOGRAY_SPHERE_LIGHT_H
 
 #include "color.h"
 #include "pos.h"
@@ -64,6 +64,6 @@ private:
 
 }
 
-#endif // __SPHERE_LIGHT_H__
+#endif // SNOGRAY_SPHERE_LIGHT_H
 
 // arch-tag: e40bcb89-44fb-478a-b8b6-c5265c4537d2

@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __COLOR_H__
-#define __COLOR_H__
+#ifndef SNOGRAY_COLOR_H
+#define SNOGRAY_COLOR_H
 
 #include "snogmath.h"
 #include "tuple-adaptor.h"
@@ -452,7 +452,7 @@ private:
 
 }
 
-#endif /* __COLOR_H__ */
+#endif /* SNOGRAY_COLOR_H */
 
 
 // arch-tag: 389b3ebb-55a4-4d70-afbe-91bdb72d28ed

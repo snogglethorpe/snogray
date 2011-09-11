@@ -1,6 +1,6 @@
 // mis-sample-weight.h -- Weighting function for multiple-importance-sampling
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MIS_SAMPLE_WEIGHT_H__
-#define __MIS_SAMPLE_WEIGHT_H__
+#ifndef SNOGRAY_MIS_SAMPLE_WEIGHT_H
+#define SNOGRAY_MIS_SAMPLE_WEIGHT_H
 
 
 namespace snogray {
@@ -79,4 +79,4 @@ mis_sample_weight (float pdf, float num_samples,
 
 }
 
-#endif // __MIS_SAMPLE_WEIGHT_H__
+#endif // SNOGRAY_MIS_SAMPLE_WEIGHT_H

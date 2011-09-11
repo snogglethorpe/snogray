@@ -1,6 +1,6 @@
 // image-exr.h -- EXR format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_EXR_H__
-#define __IMAGE_EXR_H__
+#ifndef SNOGRAY_IMAGE_EXR_H
+#define SNOGRAY_IMAGE_EXR_H
 
 #include <ImfRgbaFile.h>
 
@@ -72,7 +72,7 @@ private:
 
 }
 
-#endif /* __IMAGE_EXR_H__ */
+#endif /* SNOGRAY_IMAGE_EXR_H */
 
 
 // arch-tag: aefc9982-81ff-4087-a25a-85c97c09475d

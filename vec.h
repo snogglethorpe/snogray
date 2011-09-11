@@ -1,6 +1,6 @@
 // vec.h -- Vector datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __VEC_H__
-#define __VEC_H__
+#ifndef SNOGRAY_VEC_H
+#define SNOGRAY_VEC_H
 
 #include "tuple3.h"
 #include "xform-base.h"
@@ -228,6 +228,6 @@ typedef TVec<dist_t>  Vec;
 }
 
 
-#endif /* __VEC_H__ */
+#endif /* SNOGRAY_VEC_H */
 
 // arch-tag: f86f6a3f-def9-477b-84a0-0935f0b76e9b

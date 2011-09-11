@@ -1,6 +1,6 @@
 // matrix-funs.h -- Miscellanous matrix functions
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATRIX_FUNS_H__
-#define __MATRIX_FUNS_H__
+#ifndef SNOGRAY_MATRIX_FUNS_H
+#define SNOGRAY_MATRIX_FUNS_H
 
 #include "matrix.h"
 
@@ -53,4 +53,4 @@ Matrix<T> pseudo_inverse (const Matrix<T> &M);
 #include "matrix-funs.tcc"
 
 
-#endif // __MATRIX_FUNS_H__
+#endif // SNOGRAY_MATRIX_FUNS_H

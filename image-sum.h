@@ -1,6 +1,6 @@
 // image-sum.h -- Quick calculation of the sum of regions in an image
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_SUM_H__
-#define __IMAGE_SUM_H__
+#ifndef SNOGRAY_IMAGE_SUM_H
+#define SNOGRAY_IMAGE_SUM_H
 
 #include "image.h"
 
@@ -141,7 +141,7 @@ private:
 
 }
 
-#endif /* __IMAGE_SUM_H__ */
+#endif /* SNOGRAY_IMAGE_SUM_H */
 
 
 // arch-tag: 93672e60-184b-4abd-ac1e-14cae85d12b6

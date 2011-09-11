@@ -1,6 +1,6 @@
 // sphere-isec.h -- Sphere intersection
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPHERE_ISEC_H__
-#define __SPHERE_ISEC_H__
+#ifndef SNOGRAY_SPHERE_ISEC_H
+#define SNOGRAY_SPHERE_ISEC_H
 
 #include "pos.h"
 #include "vec.h"
@@ -96,7 +96,7 @@ sphere_intersects (const Pos &center, dist_t radius, const Ray &ray, dist_t &t)
 
 }
 
-#endif // __SPHERE_ISEC_H__
+#endif // SNOGRAY_SPHERE_ISEC_H
 
 
 // arch-tag: 032d0cc1-ccae-4dfe-8806-e6dbdaee0cce

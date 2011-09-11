@@ -1,6 +1,6 @@
 // image-ppm.h -- PPM format image handling
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_PPM_H__
-#define __IMAGE_PPM_H__
+#ifndef SNOGRAY_IMAGE_PPM_H
+#define SNOGRAY_IMAGE_PPM_H
 
 extern "C" {
 #include <ppm.h>
@@ -130,6 +130,6 @@ private:
 
 }
 
-#endif /* __IMAGE_PPM_H__ */
+#endif /* SNOGRAY_IMAGE_PPM_H */
 
 // arch-tag: 0b6f409a-0140-4dd4-933a-2e8c16541952

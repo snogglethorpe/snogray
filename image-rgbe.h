@@ -1,6 +1,6 @@
 // image-rgbe.h -- Radiance RGBE / .hdr (aka .pic) format image handling
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_RGBE_H__
-#define __IMAGE_RGBE_H__
+#ifndef SNOGRAY_IMAGE_RGBE_H
+#define SNOGRAY_IMAGE_RGBE_H
 
 #include <fstream>
 
@@ -111,7 +111,7 @@ private:
 
 }
 
-#endif /* __IMAGE_RGBE_H__ */
+#endif /* SNOGRAY_IMAGE_RGBE_H */
 
 
 // arch-tag: 40458d24-baf7-45ab-a68a-141a761eb39d

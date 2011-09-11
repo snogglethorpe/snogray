@@ -1,6 +1,6 @@
 // coord-tex.h -- Texture access to raw texture coordinates
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __COORD_TEX_H__
-#define __COORD_TEX_H__
+#ifndef SNOGRAY_COORD_TEX_H
+#define SNOGRAY_COORD_TEX_H
 
 #include "tex.h"
 
@@ -50,4 +50,4 @@ private:
 
 }
 
-#endif // __COORD_TEX_H__
+#endif // SNOGRAY_COORD_TEX_H

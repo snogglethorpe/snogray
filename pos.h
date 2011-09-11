@@ -1,6 +1,6 @@
 // pos.h -- Position datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __POS_H__
-#define __POS_H__
+#ifndef SNOGRAY_POS_H
+#define SNOGRAY_POS_H
 
 #include "vec.h"
 #include "xform-base.h"
@@ -144,7 +144,7 @@ typedef TPos<scoord_t> SPos;
 }
 
 
-#endif /* __POS_H__ */
+#endif /* SNOGRAY_POS_H */
 
 
 // arch-tag: b1fbd699-066c-42c8-9d21-587c24b92f8d

@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PRIMITIVE_H__
-#define __PRIMITIVE_H__
+#ifndef SNOGRAY_PRIMITIVE_H
+#define SNOGRAY_PRIMITIVE_H
 
 #include "surface.h"
 #include "material.h"
@@ -58,4 +58,4 @@ public:
 }
 
 
-#endif // __PRIMITIVE_H__
+#endif // SNOGRAY_PRIMITIVE_H

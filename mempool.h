@@ -1,6 +1,6 @@
 // mempool.h -- Quick but stupid memory allocator
 //
-//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MEMPOOL_H__
-#define __MEMPOOL_H__
+#ifndef SNOGRAY_MEMPOOL_H
+#define SNOGRAY_MEMPOOL_H
 
 #include <new>
 
@@ -206,7 +206,7 @@ inline void operator delete (void *, snogray::Mempool &)
 }
 
 
-#endif // __MEMPOOL_H__
+#endif // SNOGRAY_MEMPOOL_H
 
 
 // arch-tag: ce37e99d-810f-498b-ad0b-d98ccb5cdf2f

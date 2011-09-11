@@ -1,6 +1,6 @@
 // thin-glass.h -- ThinGlass (thin, transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __THIN_GLASS_H__
-#define __THIN_GLASS_H__
+#ifndef SNOGRAY_THIN_GLASS_H
+#define SNOGRAY_THIN_GLASS_H
 
 #include "material.h"
 #include "medium.h"
@@ -61,6 +61,6 @@ public:
 
 }
 
-#endif /* __THIN_GLASS_H__ */
+#endif /* SNOGRAY_THIN_GLASS_H */
 
 // arch-tag: eb5d0a02-3751-421d-9ddd-5daf10d56a1e

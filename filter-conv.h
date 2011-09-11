@@ -1,6 +1,6 @@
 // filter-conv.h -- "Filter Convolver" for convolving samples through a filter
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __FILTER_CONV_H__
-#define __FILTER_CONV_H__
+#ifndef SNOGRAY_FILTER_CONV_H
+#define SNOGRAY_FILTER_CONV_H
 
 #include "snogmath.h"
 #include "val-table.h"
@@ -189,7 +189,7 @@ public:
 
 }
 
-#endif // __FILTER_CONV_H__
+#endif // SNOGRAY_FILTER_CONV_H
 
 
 // arch-tag: aeab9dc8-70b4-48d8-8331-0bc1a3d2d7df

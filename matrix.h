@@ -1,6 +1,6 @@
 // matrix.h -- General-purpose matrix type
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
+#ifndef SNOGRAY_MATRIX_H
+#define SNOGRAY_MATRIX_H
 
 #include <vector>
 
@@ -124,4 +124,4 @@ Matrix<T> operator* (T scale, const Matrix<T> &mat) { return mat * scale; }
 #include "matrix.tcc"
 
 
-#endif // __MATRIX_H__
+#endif // SNOGRAY_MATRIX_H

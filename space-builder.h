@@ -1,6 +1,6 @@
 // space-builder.h -- Builder for Space objects
 //
-//  Copyright (C) 2007, 2009  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPACE_BUILDER_H__
-#define __SPACE_BUILDER_H__
+#ifndef SNOGRAY_SPACE_BUILDER_H
+#define SNOGRAY_SPACE_BUILDER_H
 
 #include <vector>
 
@@ -61,4 +61,4 @@ public:
 
 }
 
-#endif // __SPACE_BUILDER_H__
+#endif // SNOGRAY_SPACE_BUILDER_H

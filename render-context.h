@@ -1,6 +1,6 @@
 // render-context.h --  "semi-global" information used during rendering
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RENDER_CONTEXT_H__
-#define __RENDER_CONTEXT_H__
+#ifndef SNOGRAY_RENDER_CONTEXT_H
+#define SNOGRAY_RENDER_CONTEXT_H
 
 #include "global-render-state.h"
 #include "render-stats.h"
@@ -127,7 +127,7 @@ inline void operator delete (void *mem, snogray::RenderContext &context)
 }
 
 
-#endif /* __RENDER_CONTEXT_H__ */
+#endif /* SNOGRAY_RENDER_CONTEXT_H */
 
 
 // arch-tag: f3691316-99dd-4b9c-a405-8c816ba4e361

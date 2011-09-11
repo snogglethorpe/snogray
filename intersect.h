@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording scene-ray intersection result
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __INTERSECT_H__
-#define __INTERSECT_H__
+#ifndef SNOGRAY_INTERSECT_H
+#define SNOGRAY_INTERSECT_H
 
 #include "uv.h"
 #include "ref.h"
@@ -196,7 +196,7 @@ inline void operator delete (void *mem, const snogray::Intersect &isec)
 }
 
 
-#endif // __INTERSECT_H__
+#endif // SNOGRAY_INTERSECT_H
 
 
 // arch-tag: cce437f9-75b6-42e5-bb0f-ee18693d6799

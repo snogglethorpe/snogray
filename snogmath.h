@@ -1,6 +1,6 @@
 // snogmath.h -- Math operations
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SNOGMATH_H__
-#define __SNOGMATH_H__
+#ifndef SNOGRAY_SNOGMATH_H
+#define SNOGRAY_SNOGMATH_H
 
 #include <cmath>
 #include <algorithm>  		// for min and max
@@ -101,7 +101,7 @@ using ::trunc;			// not defined in <cmath>?!
 
 }
 
-#endif // __SNOGMATH_H__
+#endif // SNOGRAY_SNOGMATH_H
 
 
 // arch-tag: 03228538-6bb5-4ab4-817b-925702c2c379

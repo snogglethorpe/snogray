@@ -1,6 +1,6 @@
 // image.h -- Image datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
+#ifndef SNOGRAY_IMAGE_H
+#define SNOGRAY_IMAGE_H
 
 #include "tuple-matrix.h"
 
@@ -33,6 +33,6 @@ typedef TupleMatrix<Color, float> DeepImage;
 
 }
 
-#endif /* __IMAGE_H__ */
+#endif /* SNOGRAY_IMAGE_H */
 
 // arch-tag: 2dfba5e6-470e-4dfa-8bbb-4fbd41fbf303

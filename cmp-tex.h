@@ -1,6 +1,6 @@
 // cmp-tex.h -- Texture comparison
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __CMP_TEX_H__
-#define __CMP_TEX_H__
+#ifndef SNOGRAY_CMP_TEX_H
+#define SNOGRAY_CMP_TEX_H
 
 #include "tex.h"
 
@@ -61,4 +61,4 @@ public:
 #include "cmp-tex.tcc"
 
 
-#endif // __CMP_TEX_H__
+#endif // SNOGRAY_CMP_TEX_H

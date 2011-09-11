@@ -1,6 +1,6 @@
 // misc-map-tex.h -- Miscellaneous coordinate mappings textures
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MISC_MAP_TEX_H__
-#define __MISC_MAP_TEX_H__
+#ifndef SNOGRAY_MISC_MAP_TEX_H
+#define SNOGRAY_MISC_MAP_TEX_H
 
 #include "snogmath.h"
 
@@ -84,4 +84,4 @@ public:
 
 }
 
-#endif // __MISC_MAP_TEX_H__
+#endif // SNOGRAY_MISC_MAP_TEX_H

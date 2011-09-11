@@ -1,6 +1,6 @@
 // mirror.h -- Mirror (perfectly reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MIRROR_H__
-#define __MIRROR_H__
+#ifndef SNOGRAY_MIRROR_H
+#define SNOGRAY_MIRROR_H
 
 #include "tex.h"
 #include "material.h"
@@ -71,7 +71,7 @@ public:
 
 }
 
-#endif /* __MIRROR_H__ */
+#endif /* SNOGRAY_MIRROR_H */
 
 
 // arch-tag: b622d70c-03ff-49ee-a020-2a44ccfcfdb1

@@ -1,6 +1,6 @@
 // hemi-dist.h -- Hemisphere distribution
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __HEMI_DIST_H__
-#define __HEMI_DIST_H__
+#ifndef SNOGRAY_HEMI_DIST_H
+#define SNOGRAY_HEMI_DIST_H
 
 #include "dist.h"
 
@@ -61,6 +61,6 @@ public:
 }
 
 
-#endif /* __HEMI_DIST_H__ */
+#endif /* SNOGRAY_HEMI_DIST_H */
 
 // arch-tag: 06af2c27-b81d-4f17-90d1-07cf0a59f64b

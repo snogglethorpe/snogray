@@ -1,6 +1,6 @@
 // material-dict.h -- Named set of materials
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATERIAL_DICT_H__
-#define __MATERIAL_DICT_H__
+#ifndef SNOGRAY_MATERIAL_DICT_H
+#define SNOGRAY_MATERIAL_DICT_H
 
 #include <string>
 #include <map>
@@ -88,6 +88,6 @@ private:
 }
 
 
-#endif // __MATERIAL_DICT_H__
+#endif // SNOGRAY_MATERIAL_DICT_H
 
 // arch-tag: 9022ef65-f4b5-4064-885f-75edfb5b99c3

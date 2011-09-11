@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRIPAR_H__
-#define __TRIPAR_H__
+#ifndef SNOGRAY_TRIPAR_H
+#define SNOGRAY_TRIPAR_H
 
 #include "tripar-isec.h"
 
@@ -139,7 +139,7 @@ private:
 
 }
 
-#endif // __TRIPAR_H__
+#endif // SNOGRAY_TRIPAR_H
 
 
 // arch-tag: cf7f49db-937d-4328-b7c0-3959241a191e

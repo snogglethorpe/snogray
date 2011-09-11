@@ -1,6 +1,6 @@
 // tex-coords.h -- Structure to hold texture coordinates
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TEX_COORDS_H__
-#define __TEX_COORDS_H__
+#ifndef SNOGRAY_TEX_COORDS_H
+#define SNOGRAY_TEX_COORDS_H
 
 #include "uv.h"
 #include "pos.h"
@@ -35,4 +35,4 @@ public:
 
 }
 
-#endif // __TEX_COORDS_H__
+#endif // SNOGRAY_TEX_COORDS_H

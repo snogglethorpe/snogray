@@ -1,6 +1,6 @@
 // matrix4.h -- 4 x 4 matrices
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATRIX4_H__
-#define __MATRIX4_H__
+#ifndef SNOGRAY_MATRIX4_H
+#define SNOGRAY_MATRIX4_H
 
 #include "snogmath.h"
 
@@ -78,6 +78,6 @@ template<typename T> const Matrix4<T> Matrix4<T>::identity;
 #include "matrix4.tcc"
 
 
-#endif // __MATRIX4_H__
+#endif // SNOGRAY_MATRIX4_H
 
 // arch-tag: f013901a-016f-4c68-b102-c5f4c7a5b4a8

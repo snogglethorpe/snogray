@@ -1,6 +1,6 @@
 // cond-var.h -- condition_variable wrapper
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,8 +18,8 @@
 //
 
 
-#ifndef __COND_VAR_H__
-#define __COND_VAR_H__
+#ifndef SNOGRAY_COND_VAR_H
+#define SNOGRAY_COND_VAR_H
 
 #include "config.h"
 
@@ -81,4 +81,4 @@ public:
 }
 
 
-#endif // __COND_VAR_H__
+#endif // SNOGRAY_COND_VAR_H

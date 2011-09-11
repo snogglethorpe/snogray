@@ -1,6 +1,6 @@
 // interp-tex.h -- Interpolation textures
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __INTERP_TEX_H__
-#define __INTERP_TEX_H__
+#ifndef SNOGRAY_INTERP_TEX_H
+#define SNOGRAY_INTERP_TEX_H
 
 #include "interp.h"
 
@@ -77,4 +77,4 @@ private:
 
 }
 
-#endif // __INTERP_TEX_H__
+#endif // SNOGRAY_INTERP_TEX_H

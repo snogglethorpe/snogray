@@ -1,6 +1,6 @@
 // freelist.h -- Memory freelists
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __FREELIST_H__
-#define __FREELIST_H__
+#ifndef SNOGRAY_FREELIST_H
+#define SNOGRAY_FREELIST_H
 
 #include <new>
 
@@ -154,6 +154,6 @@ inline void operator delete (void *m, snogray::Freelist<T> &fl)
   fl.put (static_cast<T *>(m));
 }
 
-#endif /* __FREELIST_H__ */
+#endif /* SNOGRAY_FREELIST_H */
 
 // arch-tag: f5bdeaf5-d075-4221-adc1-3a48826ef92d

@@ -1,6 +1,6 @@
 // recursive-integ.h -- Superclass for simple recursive surface integrators
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RECURSIVE_INTEG_H__
-#define __RECURSIVE_INTEG_H__
+#ifndef SNOGRAY_RECURSIVE_INTEG_H
+#define SNOGRAY_RECURSIVE_INTEG_H
 
 #include "surface-integ.h"
 
@@ -83,4 +83,4 @@ private:
 
 }
 
-#endif // __RECURSIVE_INTEG_H__
+#endif // SNOGRAY_RECURSIVE_INTEG_H

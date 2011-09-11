@@ -1,6 +1,6 @@
 // stencil.h -- Masking material for partial transparency/translucency
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __STENCIL_H__
-#define __STENCIL_H__
+#ifndef SNOGRAY_STENCIL_H
+#define SNOGRAY_STENCIL_H
 
 #include "tex.h"
 #include "material.h"
@@ -65,4 +65,4 @@ public:
 
 }
 
-#endif // __STENCIL_H__
+#endif // SNOGRAY_STENCIL_H

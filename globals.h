@@ -1,6 +1,6 @@
 // globals.h -- Global variables
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GLOBALS_H__
-#define __GLOBALS_H__
+#ifndef SNOGRAY_GLOBALS_H
+#define SNOGRAY_GLOBALS_H
 
 
 namespace snogray {
@@ -24,6 +24,6 @@ extern bool quiet;
 
 }
 
-#endif // __GLOBALS_H__
+#endif // SNOGRAY_GLOBALS_H
 
 // arch-tag: 1ea2a088-c2a4-438b-b4b9-3d95225b93bd

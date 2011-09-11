@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __CAMERA_H__
-#define __CAMERA_H__
+#ifndef SNOGRAY_CAMERA_H
+#define SNOGRAY_CAMERA_H
 
 #include "snogmath.h"
 #include "coords.h"
@@ -373,7 +373,7 @@ private:
 
 }
 
-#endif /* __CAMERA_H__ */
+#endif /* SNOGRAY_CAMERA_H */
 
 
 // arch-tag: 45c04676-91b9-4fdb-ae65-2fd3ea0f0228

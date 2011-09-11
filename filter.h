@@ -1,6 +1,6 @@
 // filter.h -- Filter datatype
 //
-//  Copyright (C) 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __FILTER_H__
-#define __FILTER_H__
+#ifndef SNOGRAY_FILTER_H
+#define SNOGRAY_FILTER_H
 
 #include "snogmath.h"
 #include "val-table.h"
@@ -53,7 +53,7 @@ protected:
 
 }
 
-#endif /* __FILTER_H__ */
+#endif /* SNOGRAY_FILTER_H */
 
 
 // arch-tag: 872c9e08-6d72-4d0b-89ca-d5423c1ea696

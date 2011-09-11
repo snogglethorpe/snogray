@@ -1,6 +1,6 @@
 // cone-sample.h -- Sample a cone
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __CONE_SAMPLE_H__
-#define __CONE_SAMPLE_H__
+#ifndef SNOGRAY_CONE_SAMPLE_H
+#define SNOGRAY_CONE_SAMPLE_H
 
 #include "snogmath.h"
 #include "vec.h"
@@ -81,4 +81,4 @@ cone_sample_pdf (float cos_half_angle)
 
 }
 
-#endif // __CONE_SAMPLE_H__
+#endif // SNOGRAY_CONE_SAMPLE_H

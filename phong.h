@@ -1,6 +1,6 @@
 // phog.h -- Phong material
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PHONG_H__
-#define __PHONG_H__
+#ifndef SNOGRAY_PHONG_H
+#define SNOGRAY_PHONG_H
 
 #include "material.h"
 
@@ -39,7 +39,7 @@ public:
 
 }
 
-#endif /* __PHONG_H__ */
+#endif /* SNOGRAY_PHONG_H */
 
 
 // arch-tag: 4d54b6d1-a774-4a04-bacc-734927ab6c67

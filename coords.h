@@ -1,6 +1,6 @@
 // coords.h -- Definitions related to describing 3D coords
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __COORDS_H__
-#define __COORDS_H__
+#ifndef SNOGRAY_COORDS_H
+#define SNOGRAY_COORDS_H
 
 #include <limits>
 
@@ -57,6 +57,6 @@ typedef dcoord_t ddist_t;
 
 }
 
-#endif /* __COORDS_H__ */
+#endif /* SNOGRAY_COORDS_H */
 
 // arch-tag: 545c5b4f-ae0d-41a1-a743-e285876c5580

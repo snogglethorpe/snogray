@@ -1,6 +1,6 @@
 // fresnel.h -- Calculation of fresnel reflection
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __FRESNEL_H__
-#define __FRESNEL_H__
+#ifndef SNOGRAY_FRESNEL_H
+#define SNOGRAY_FRESNEL_H
 
 #include "snogmath.h"
 #include "intersect.h"
@@ -178,6 +178,6 @@ public:
 
 }
 
-#endif /* __FRESNEL_H__ */
+#endif /* SNOGRAY_FRESNEL_H */
 
 // arch-tag: c0eb92bc-2471-485e-bbde-0fde045a2f86

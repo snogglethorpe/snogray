@@ -1,6 +1,6 @@
 // val_table.h -- Tables of named values
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __VAL_TABLE_H__
-#define __VAL_TABLE_H__
+#ifndef SNOGRAY_VAL_TABLE_H
+#define SNOGRAY_VAL_TABLE_H
 
 #include <map>
 #include <string>
@@ -156,7 +156,7 @@ public:
 }
 
 
-#endif /* __VAL_TABLE_H__ */
+#endif /* SNOGRAY_VAL_TABLE_H */
 
 
 // arch-tag: 6e4c7d8e-7c7d-4552-9c88-c610896d12b6

@@ -1,6 +1,6 @@
 // load-lua.h -- Load lua scene file
 //
-//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LOAD_LUA_H__
-#define __LOAD_LUA_H__
+#ifndef SNOGRAY_LOAD_LUA_H
+#define SNOGRAY_LOAD_LUA_H
 
 #include <string>
 
@@ -49,6 +49,6 @@ extern void cleanup_load_lua_state ();
 }
 
 
-#endif /* __LOAD_LUA_H__ */
+#endif /* SNOGRAY_LOAD_LUA_H */
 
 // arch-tag: 3952dbec-b73a-40ac-92a9-38382f1e720e

@@ -1,6 +1,6 @@
 // image-input.h -- High-level image input
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_INPUT_H__
-#define __IMAGE_INPUT_H__
+#ifndef SNOGRAY_IMAGE_INPUT_H
+#define SNOGRAY_IMAGE_INPUT_H
 
 #include "unique-ptr.h"
 #include "image-io.h"
@@ -63,7 +63,7 @@ public:
 
 }
 
-#endif /* __IMAGE_INPUT_H__ */
+#endif /* SNOGRAY_IMAGE_INPUT_H */
 
 
 // arch-tag: 2c10d011-42a4-4ec4-b813-8e8f150c22ac

@@ -1,6 +1,6 @@
 // sphere-sample.h -- Sample a sphere
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPHERE_SAMPLE_H__
-#define __SPHERE_SAMPLE_H__
+#ifndef SNOGRAY_SPHERE_SAMPLE_H
+#define SNOGRAY_SPHERE_SAMPLE_H
 
 #include "cone-sample.h"
 
@@ -51,4 +51,4 @@ sphere_sample_pdf ()
 
 }
 
-#endif // __SPHERE_SAMPLE_H__
+#endif // SNOGRAY_SPHERE_SAMPLE_H

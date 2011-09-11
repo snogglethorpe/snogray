@@ -1,6 +1,6 @@
 // lua-funs.h -- Functions for use with Lua
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LUA_FUNS_H__
-#define __LUA_FUNS_H__
+#ifndef SNOGRAY_LUA_FUNS_H
+#define SNOGRAY_LUA_FUNS_H
 
 #include "config.h"
 
@@ -52,4 +52,4 @@ extern int lua_read_file (lua_State *L);
 
 }
 
-#endif // __LUA_FUNS_H__
+#endif // SNOGRAY_LUA_FUNS_H

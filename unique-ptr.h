@@ -1,6 +1,6 @@
 // unique-ptr.h -- Portability layer for std::unique_ptr/auto_ptr
 //
-//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,8 +19,8 @@
 //
 
 
-#ifndef __UNIQUE_PTR_H__
-#define __UNIQUE_PTR_H__
+#ifndef SNOGRAY_UNIQUE_PTR_H
+#define SNOGRAY_UNIQUE_PTR_H
 
 #include <memory>
 
@@ -85,4 +85,4 @@ public:
 }
 
 
-#endif // __UNIQUE_PTR_H__
+#endif // SNOGRAY_UNIQUE_PTR_H

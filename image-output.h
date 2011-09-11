@@ -1,6 +1,6 @@
 // image-output.h -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_OUTPUT_H__
-#define __IMAGE_OUTPUT_H__
+#ifndef SNOGRAY_IMAGE_OUTPUT_H
+#define SNOGRAY_IMAGE_OUTPUT_H
 
 #include <string>
 #include <vector>
@@ -185,6 +185,6 @@ private:
 
 }
 
-#endif /* __IMAGE_OUTPUT_H__ */
+#endif /* SNOGRAY_IMAGE_OUTPUT_H */
 
 // arch-tag: 4e362922-5358-4423-80c0-2a3d3d8100fe

@@ -1,6 +1,6 @@
 // compiler.h -- compiler-specific definitions
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __COMPILER_H__
-#define __COMPILER_H__
+#ifndef SNOGRAY_COMPILER_H
+#define SNOGRAY_COMPILER_H
 
 // unlikely(EXPR) returns EXPR (which is usually a boolean expression),
 // and as a side-effect tries to tell the compiler that the expected
@@ -32,4 +32,4 @@
 # define likely(expr) (!!(expr))
 #endif
 
-#endif // __COMPILER_H__
+#endif // SNOGRAY_COMPILER_H

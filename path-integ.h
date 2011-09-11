@@ -1,6 +1,6 @@
 // path-integ.h -- Path-tracing surface integrator
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PATH_INTEG_H__
-#define __PATH_INTEG_H__
+#ifndef SNOGRAY_PATH_INTEG_H
+#define SNOGRAY_PATH_INTEG_H
 
 #include "surface-integ.h"
 #include "direct-illum.h"
@@ -141,4 +141,4 @@ private:
 
 }
 
-#endif // __PATH_INTEG_H__
+#endif // SNOGRAY_PATH_INTEG_H

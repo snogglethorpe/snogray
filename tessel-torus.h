@@ -1,6 +1,6 @@
 // tessel-torus.h -- Torus tessellation
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TESSEL_TORUS_H__
-#define __TESSEL_TORUS_H__
+#ifndef SNOGRAY_TESSEL_TORUS_H
+#define SNOGRAY_TESSEL_TORUS_H
 
 #include "tessel-param.h"
 
@@ -90,4 +90,4 @@ Mesh *tessel_torus (const Ref<const Material> &mat,
 
 }
 
-#endif // __TESSEL_TORUS_H__
+#endif // SNOGRAY_TESSEL_TORUS_H

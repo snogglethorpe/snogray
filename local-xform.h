@@ -1,6 +1,6 @@
 // local-xform.h -- Local/world transformation helper class
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LOCAL_XFORM_H__
-#define __LOCAL_XFORM_H__
+#ifndef SNOGRAY_LOCAL_XFORM_H
+#define SNOGRAY_LOCAL_XFORM_H
 
 #include "xform.h"
 #include "bbox.h"
@@ -59,4 +59,4 @@ public:
 
 }
 
-#endif // __LOCAL_XFORM_H__
+#endif // SNOGRAY_LOCAL_XFORM_H

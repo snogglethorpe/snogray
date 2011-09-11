@@ -1,6 +1,6 @@
 // uv.h -- UV datatype, for holding 2d texture coordinates
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __UV_H__
-#define __UV_H__
+#ifndef SNOGRAY_UV_H
+#define SNOGRAY_UV_H
 
 #include "xform-base.h"
 
@@ -60,7 +60,7 @@ typedef TUV<float> UV;
 
 }
 
-#endif // __UV_H__
+#endif // SNOGRAY_UV_H
 
 
 // arch-tag: b1f1e25c-0a80-4db0-a0e4-a4fcf52bfa6e

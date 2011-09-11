@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_TGA_H__
-#define __IMAGE_TGA_H__
+#ifndef SNOGRAY_IMAGE_TGA_H
+#define SNOGRAY_IMAGE_TGA_H
 
 #include <fstream>
 #include <vector>
@@ -170,4 +170,4 @@ private:
 
 }
 
-#endif // __IMAGE_TGA_H__
+#endif // SNOGRAY_IMAGE_TGA_H

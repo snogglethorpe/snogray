@@ -1,6 +1,6 @@
 // random-rand.h -- Random number classes using rand()
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RANDOM_RAND_H__
-#define __RANDOM_RAND_H__
+#ifndef SNOGRAY_RANDOM_RAND_H
+#define SNOGRAY_RANDOM_RAND_H
 
 #include <cstdlib>
 
@@ -57,4 +57,4 @@ protected:
 
 }
 
-#endif // __RANDOM_RAND_H__
+#endif // SNOGRAY_RANDOM_RAND_H

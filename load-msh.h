@@ -1,6 +1,6 @@
 // load-msh.h -- Load a .msh format mesh file
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,8 +11,8 @@
 //
 
 
-#ifndef __LOAD_MSH_H__
-#define __LOAD_MSH_H__
+#ifndef SNOGRAY_LOAD_MSH_H
+#define SNOGRAY_LOAD_MSH_H
 
 #include <string>
 
@@ -28,4 +28,4 @@ extern void load_msh_file (const std::string &filename, Mesh &mesh);
 
 }
 
-#endif // __LOAD_MSH_H__
+#endif // SNOGRAY_LOAD_MSH_H

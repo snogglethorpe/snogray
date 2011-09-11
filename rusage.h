@@ -1,6 +1,6 @@
 // rusage.h -- Resource usage measurement
 //
-//  Copyright (C) 2005, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RUSAGE_H__
-#define __RUSAGE_H__
+#ifndef SNOGRAY_RUSAGE_H
+#define SNOGRAY_RUSAGE_H
 
 #include <sys/resource.h>
 
@@ -29,6 +29,6 @@ struct Rusage : rusage
 
 }
 
-#endif /* __RUSAGE_H__ */
+#endif /* SNOGRAY_RUSAGE_H */
 
 // arch-tag: 7a4422b7-3908-44f2-9105-95b6905b6905

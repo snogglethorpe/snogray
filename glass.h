@@ -1,6 +1,6 @@
 // glass.h -- Glass (transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GLASS_H__
-#define __GLASS_H__
+#ifndef SNOGRAY_GLASS_H
+#define SNOGRAY_GLASS_H
 
 #include "material.h"
 #include "medium.h"
@@ -46,7 +46,7 @@ private:
 
 }
 
-#endif /* __GLASS_H__ */
+#endif /* SNOGRAY_GLASS_H */
 
 
 // arch-tag: 4f86bd63-4099-40de-b81b-c5d397002a3e

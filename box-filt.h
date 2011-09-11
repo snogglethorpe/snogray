@@ -1,6 +1,6 @@
 // box.h -- Boxian filter
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __BOX_FILT_H__
-#define __BOX_FILT_H__
+#ifndef SNOGRAY_BOX_FILT_H
+#define SNOGRAY_BOX_FILT_H
 
 #include "filter.h"
 
@@ -40,7 +40,7 @@ public:
 
 }
 
-#endif /* __BOX_FILT_H__ */
+#endif /* SNOGRAY_BOX_FILT_H */
 
 
 // arch-tag: bd67bb8b-e1c1-42db-b623-a4169b5070fc

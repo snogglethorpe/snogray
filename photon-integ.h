@@ -1,6 +1,6 @@
 // photon-integ.h -- Photon-mapping surface integrator
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PHOTON_INTEG_H__
-#define __PHOTON_INTEG_H__
+#ifndef SNOGRAY_PHOTON_INTEG_H
+#define SNOGRAY_PHOTON_INTEG_H
 
 #include "bsdf.h"
 #include "photon-map.h"
@@ -163,4 +163,4 @@ private:
 
 }
 
-#endif // __PHOTON_INTEG_H__
+#endif // SNOGRAY_PHOTON_INTEG_H

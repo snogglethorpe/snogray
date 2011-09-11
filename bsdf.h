@@ -1,6 +1,6 @@
 // bsdf.h -- Bi-directional scattering distribution function
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __BSDF_H__
-#define __BSDF_H__
+#ifndef SNOGRAY_BSDF_H
+#define SNOGRAY_BSDF_H
 
 #include "color.h"
 #include "vec.h"
@@ -187,7 +187,7 @@ public:
 
 }
 
-#endif // __BSDF_H__
+#endif // SNOGRAY_BSDF_H
 
 
 // arch-tag: 8360ddd7-dc17-40b8-8319-8f6d61fe62bf

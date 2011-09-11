@@ -1,6 +1,6 @@
 // least-squares-fit.h -- Least-squares curve-fitting
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LEAST_SQUARES_FIT_H__
-#define __LEAST_SQUARES_FIT_H__
+#ifndef SNOGRAY_LEAST_SQUARES_FIT_H
+#define SNOGRAY_LEAST_SQUARES_FIT_H
 
 #include "matrix.h"
 #include "matrix-funs.h"
@@ -76,4 +76,4 @@ least_squares_fit (const Matrix<T> &X, const Matrix<T> &y)
 }
 
 
-#endif // __LEAST_SQUARES_FIT_H__
+#endif // SNOGRAY_LEAST_SQUARES_FIT_H

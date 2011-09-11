@@ -1,6 +1,6 @@
 // tripar-isec.h -- Triangle/parallelogram intersection  -*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TRIPAR_ISEC_H__
-#define __TRIPAR_ISEC_H__
+#ifndef SNOGRAY_TRIPAR_ISEC_H
+#define SNOGRAY_TRIPAR_ISEC_H
 
 #include "pos.h"
 #include "vec.h"
@@ -319,6 +319,6 @@ parallelogram_intersects (const TPos<T> &corner,
 
 }
 
-#endif /* __TRIPAR_ISEC_H__ */
+#endif /* SNOGRAY_TRIPAR_ISEC_H */
 
 // arch-tag: 5f366ddc-c590-4813-a245-7551784eea7c

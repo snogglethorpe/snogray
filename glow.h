@@ -1,6 +1,6 @@
 // glow.h -- Constant-color reflectance function
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GLOW_H__
-#define __GLOW_H__
+#ifndef SNOGRAY_GLOW_H
+#define SNOGRAY_GLOW_H
 
 #include "tex.h"
 
@@ -64,7 +64,7 @@ private:
 
 }
 
-#endif /* __GLOW_H__ */
+#endif /* SNOGRAY_GLOW_H */
 
 
 // arch-tag: d53c41c0-1970-4b3e-9047-2f67dd943922

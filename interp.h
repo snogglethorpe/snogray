@@ -1,6 +1,6 @@
 // interp.h -- Interpolation functions
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __INTERP_H__
-#define __INTERP_H__
+#ifndef SNOGRAY_INTERP_H
+#define SNOGRAY_INTERP_H
 
 
 namespace snogray {
@@ -45,4 +45,4 @@ T2 sinterp (T1 frac, T2 val1, T2 val2)
 
 }
 
-#endif // __INTERP_H__
+#endif // SNOGRAY_INTERP_H

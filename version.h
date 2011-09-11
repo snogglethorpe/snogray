@@ -1,5 +1,5 @@
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef SNOGRAY_VERSION_H
+#define SNOGRAY_VERSION_H
 
 namespace snogray {
 extern const char *snogray_version;

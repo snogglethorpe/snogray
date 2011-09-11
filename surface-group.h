@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SURFACE_GROUP_H__
-#define __SURFACE_GROUP_H__
+#ifndef SNOGRAY_SURFACE_GROUP_H
+#define SNOGRAY_SURFACE_GROUP_H
 
 
 #include <vector>
@@ -96,4 +96,4 @@ private:
 }
 
 
-#endif /* __SURFACE_GROUP_H__ */
+#endif /* SNOGRAY_SURFACE_GROUP_H */

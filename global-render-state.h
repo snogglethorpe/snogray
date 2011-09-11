@@ -1,6 +1,6 @@
 // global-render-state.h -- global information used during rendering
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GLOBAL_RENDER_STATE_H__
-#define __GLOBAL_RENDER_STATE_H__
+#ifndef SNOGRAY_GLOBAL_RENDER_STATE_H
+#define SNOGRAY_GLOBAL_RENDER_STATE_H
 
 #include "space-builder.h"
 #include "sample-gen.h"
@@ -104,4 +104,4 @@ private:
 
 }
 
-#endif // __GLOBAL_RENDER_STATE_H__
+#endif // SNOGRAY_GLOBAL_RENDER_STATE_H

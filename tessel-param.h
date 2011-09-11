@@ -1,6 +1,6 @@
 // tessel-param.h -- Parametric tessellation functions
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TESSEL_PARAM_H__
-#define __TESSEL_PARAM_H__
+#ifndef SNOGRAY_TESSEL_PARAM_H
+#define SNOGRAY_TESSEL_PARAM_H
 
 #include "tessel.h"
 #include "xform.h"
@@ -141,6 +141,6 @@ protected:
 
 }
 
-#endif /* __TESSEL_PARAM_H__ */
+#endif /* SNOGRAY_TESSEL_PARAM_H */
 
 // arch-tag: 9854c54e-f31a-43bb-9927-94bf75c8efaf

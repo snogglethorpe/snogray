@@ -1,6 +1,6 @@
 // hist-2d-dist.h -- Sampling distribution based on a 2d histogram
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __HIST_2D_DIST_H__
-#define __HIST_2D_DIST_H__
+#ifndef SNOGRAY_HIST_2D_DIST_H
+#define SNOGRAY_HIST_2D_DIST_H
 
 #include <vector>
 #include <algorithm>
@@ -281,4 +281,4 @@ private:
 
 }
 
-#endif // __HIST_2D_DIST_H__
+#endif // SNOGRAY_HIST_2D_DIST_H

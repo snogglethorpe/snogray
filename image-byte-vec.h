@@ -1,6 +1,6 @@
 // image-byte-vec.h -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_INT_VEC_H__
-#define __IMAGE_INT_VEC_H__
+#ifndef SNOGRAY_IMAGE_INT_VEC_H
+#define SNOGRAY_IMAGE_INT_VEC_H
 
 #include <vector>
 
@@ -321,7 +321,7 @@ private:
 
 }
 
-#endif // __IMAGE_BYTE_VEC_H__
+#endif // SNOGRAY_IMAGE_BYTE_VEC_H
 
 
 // arch-tag: e442d880-ba85-423e-8b1c-e3c4d9500528

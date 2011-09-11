@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SUBSPACE_H__
-#define __SUBSPACE_H__
+#ifndef SNOGRAY_SUBSPACE_H
+#define SNOGRAY_SUBSPACE_H
 
 #include "ref.h"
 #include "space.h"
@@ -114,4 +114,4 @@ private:
 }
 
 
-#endif /* __SUBSPACE_H__ */
+#endif /* SNOGRAY_SUBSPACE_H */

@@ -1,6 +1,6 @@
 // disk-sample.h -- Disk sample distribution
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __DISK_SAMPLE_H__
-#define __DISK_SAMPLE_H__
+#ifndef SNOGRAY_DISK_SAMPLE_H
+#define SNOGRAY_DISK_SAMPLE_H
 
 #include "snogmath.h"
 #include "coords.h"
@@ -82,7 +82,7 @@ disk_sample (const UV &param, dist_t &dx, dist_t &dy)
 
 }
 
-#endif // __DISK_SAMPLE_H__
+#endif // SNOGRAY_DISK_SAMPLE_H
 
 
 // arch-tag: be2d668d-431a-4354-8283-823cdd0fe6bc

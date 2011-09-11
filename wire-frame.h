@@ -1,6 +1,6 @@
 // wire-frame.h -- Wire-frame output support
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __WIRE_FRAME_H__
-#define __WIRE_FRAME_H__
+#ifndef SNOGRAY_WIRE_FRAME_H
+#define SNOGRAY_WIRE_FRAME_H
 
 #include <cstring>
 #include <cstdlib>
@@ -287,6 +287,6 @@ private:
 
 }
 
-#endif /* __WIRE_FRAME_H__ */
+#endif /* SNOGRAY_WIRE_FRAME_H */
 
 // arch-tag: 227dfc57-de9b-4ef5-bc3d-d54d3ebd8ae0

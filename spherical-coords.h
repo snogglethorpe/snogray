@@ -1,6 +1,6 @@
 // spherical-coords.h -- Mappings from spherical coordinates to/from vectors
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPHERICAL_COORDS_H__
-#define __SPHERICAL_COORDS_H__
+#ifndef SNOGRAY_SPHERICAL_COORDS_H
+#define SNOGRAY_SPHERICAL_COORDS_H
 
 //
 // This file contains functions for converting between spherical
@@ -357,4 +357,4 @@ z_axis_latlong_to_vec (const UV &coords)
 
 }
 
-#endif // __SPHERICAL_COORDS_H__
+#endif // SNOGRAY_SPHERICAL_COORDS_H

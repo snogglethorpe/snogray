@@ -1,6 +1,6 @@
 // isec_cache.h -- Simple mailboxing cache for intersection testing
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __ISEC_CACHE_H__
-#define __ISEC_CACHE_H__
+#ifndef SNOGRAY_ISEC_CACHE_H
+#define SNOGRAY_ISEC_CACHE_H
 
 namespace snogray {
 
@@ -95,6 +95,6 @@ private:
 }
 
 
-#endif // __ISEC_CACHE_H__
+#endif // SNOGRAY_ISEC_CACHE_H
 
 // arch-tag: 6342f4d6-028b-40f8-a7ff-836a7e1bdbe9

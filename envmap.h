@@ -1,6 +1,6 @@
 // envmap.h -- Environment maps
 //
-//  Copyright (C) 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __ENVMAP_H__
-#define __ENVMAP_H__
+#ifndef SNOGRAY_ENVMAP_H
+#define SNOGRAY_ENVMAP_H
 
 #include <string>
 
@@ -61,7 +61,7 @@ Ref<Envmap> make_envmap (const Ref<Image> &image, const std::string &fmt = "");
 
 }
 
-#endif /* __ENVMAP_H__ */
+#endif /* SNOGRAY_ENVMAP_H */
 
 
 // arch-tag: 9695753e-771b-4555-83c4-593486374642

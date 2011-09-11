@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MESH_H__
-#define __MESH_H__
+#ifndef SNOGRAY_MESH_H
+#define SNOGRAY_MESH_H
 
 #include <string>
 #include <vector>
@@ -455,7 +455,7 @@ private:
 
 }
 
-#endif /* __MESH_H__ */
+#endif /* SNOGRAY_MESH_H */
 
 
 // arch-tag: e9987003-cf70-4bd5-b30c-90620e2317ad

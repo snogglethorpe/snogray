@@ -1,6 +1,6 @@
 // xform.h -- 3d affine transformations
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __XFORM_H__
-#define __XFORM_H__
+#ifndef SNOGRAY_XFORM_H
+#define SNOGRAY_XFORM_H
 
 #include "coords.h"
 #include "vec.h"
@@ -321,7 +321,7 @@ typedef TXform<sdist_t> SXform;
 
 }
 
-#endif // __XFORM_H__
+#endif // SNOGRAY_XFORM_H
 
 
 // arch-tag: e168d3bc-8dfe-4a9a-8708-a79db007005e

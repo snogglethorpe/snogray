@@ -1,6 +1,6 @@
 // grid.h -- sample generator using a simple jittered grid
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GRID_H__
-#define __GRID_H__
+#ifndef SNOGRAY_GRID_H
+#define SNOGRAY_GRID_H
 
 #include "sample-gen.h"
 
@@ -41,6 +41,6 @@ protected:
 
 }
 
-#endif /* __GRID_H__ */
+#endif /* SNOGRAY_GRID_H */
 
 // arch-tag: 922e8ac5-56ed-425f-80ab-2acd5092b203

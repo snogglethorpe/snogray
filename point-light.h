@@ -1,6 +1,6 @@
 // point-light.h -- Point light
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __POINT_LIGHT_H__
-#define __POINT_LIGHT_H__
+#ifndef SNOGRAY_POINT_LIGHT_H
+#define SNOGRAY_POINT_LIGHT_H
 
 #include "snogmath.h"
 #include "color.h"
@@ -112,7 +112,7 @@ private:
 
 }
 
-#endif // __POINT_LIGHT_H__
+#endif // SNOGRAY_POINT_LIGHT_H
 
 
 // arch-tag: de5d75ba-f8bd-4dde-a729-37ea8f37a7cc

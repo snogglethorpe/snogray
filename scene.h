@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SCENE_H__
-#define __SCENE_H__
+#ifndef SNOGRAY_SCENE_H
+#define SNOGRAY_SCENE_H
 
 #include <vector>
 
@@ -136,7 +136,7 @@ public:
 
 }
 
-#endif /* __SCENE_H__ */
+#endif /* SNOGRAY_SCENE_H */
 
 
 // arch-tag: 113d6236-471b-4184-92f5-9a03cf3a5221

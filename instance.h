@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __INSTANCE_H__
-#define __INSTANCE_H__
+#ifndef SNOGRAY_INSTANCE_H
+#define SNOGRAY_INSTANCE_H
 
 #include "xform.h"
 #include "subspace.h"
@@ -93,6 +93,6 @@ private:
 }
 
 
-#endif /* __INSTANCE_H__ */
+#endif /* SNOGRAY_INSTANCE_H */
 
 // arch-tag: 553e4e51-689d-4637-8a93-a9ee9db7d8ad

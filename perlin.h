@@ -1,6 +1,6 @@
 // perlin.h -- Perlin noise function
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PERLIN_H__
-#define __PERLIN_H__
+#ifndef SNOGRAY_PERLIN_H
+#define SNOGRAY_PERLIN_H
 
 #include "pos.h"
 #include "vec.h"
@@ -63,4 +63,4 @@ private:
 
 }
 
-#endif // __PERLIN_H__
+#endif // SNOGRAY_PERLIN_H

@@ -1,6 +1,6 @@
 // dist.h -- Common superclass for distribution classes
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __DIST_H__
-#define __DIST_H__
+#ifndef SNOGRAY_DIST_H
+#define SNOGRAY_DIST_H
 
 #include "snogmath.h"
 #include "vec.h"
@@ -42,6 +42,6 @@ public:
 }
 
 
-#endif /* __DIST_H__ */
+#endif /* SNOGRAY_DIST_H */
 
 // arch-tag: 0df2598b-4960-43ab-94d1-367835050ed9

@@ -1,6 +1,6 @@
 // cyl-xform.h -- Helper functions for making transformations
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __CYL_XFORM_H__
-#define __CYL_XFORM_H__
+#ifndef SNOGRAY_CYL_XFORM_H
+#define SNOGRAY_CYL_XFORM_H
 
 #include "xform.h"
 #include "pos.h"
@@ -35,4 +35,4 @@ Xform cyl_xform (const Pos &origin, const Vec &axis,
 
 }
 
-#endif // __CYL_XFORM_H__
+#endif // SNOGRAY_CYL_XFORM_H

@@ -1,6 +1,6 @@
 // load.h -- Snogray scene (etc) loader
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LOAD_H__
-#define __LOAD_H__
+#ifndef SNOGRAY_LOAD_H
+#define SNOGRAY_LOAD_H
 
 
 namespace snogray {
@@ -34,4 +34,4 @@ extern void load_file (const std::string &filename, const std::string &fmt,
 
 }
 
-#endif // __LOAD_H__
+#endif // SNOGRAY_LOAD_H

@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __ELLIPSE_H__
-#define __ELLIPSE_H__
+#ifndef SNOGRAY_ELLIPSE_H
+#define SNOGRAY_ELLIPSE_H
 
 #include "tripar-isec.h"
 
@@ -188,4 +188,4 @@ private:
 
 }
 
-#endif /* __ELLIPSE_H__ */
+#endif /* SNOGRAY_ELLIPSE_H */

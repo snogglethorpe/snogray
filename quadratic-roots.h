@@ -1,6 +1,6 @@
 // quadratic-roots.h -- Quadratic surface intersection
 //
-//  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __QUADRATIC_ROOTS_H__
-#define __QUADRATIC_ROOTS_H__
+#ifndef SNOGRAY_QUADRATIC_ROOTS_H
+#define SNOGRAY_QUADRATIC_ROOTS_H
 
 #include "snogmath.h"
 #include "ray.h"
@@ -70,6 +70,6 @@ quadratic_roots (T a, T b, T c, T roots[2])
 }
 
 
-#endif // __QUADRATIC_ROOTS_H__
+#endif // SNOGRAY_QUADRATIC_ROOTS_H
 
 // arch-tag: ea3d793e-aa16-424e-ad19-0e2f0edfa353

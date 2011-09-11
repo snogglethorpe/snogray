@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPHERE_H__
-#define __SPHERE_H__
+#ifndef SNOGRAY_SPHERE_H
+#define SNOGRAY_SPHERE_H
 
 #include "primitive.h"
 
@@ -141,7 +141,7 @@ private:
 
 }
 
-#endif // __SPHERE_H__
+#endif // SNOGRAY_SPHERE_H
 
 
 // arch-tag: 0284bdaf-1330-46c4-875b-919152357490

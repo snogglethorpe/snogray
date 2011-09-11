@@ -1,6 +1,6 @@
 // gauss.h -- Gaussian filter
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GAUSS_FILT_H__
-#define __GAUSS_FILT_H__
+#ifndef SNOGRAY_GAUSS_FILT_H
+#define SNOGRAY_GAUSS_FILT_H
 
 #include "filter.h"
 
@@ -58,7 +58,7 @@ private:
 
 }
 
-#endif /* __GAUSS_FILT_H__ */
+#endif /* SNOGRAY_GAUSS_FILT_H */
 
 
 // arch-tag: 6599c368-7f8e-4636-8ff8-6eb1688f033a

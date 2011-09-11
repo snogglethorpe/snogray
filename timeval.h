@@ -1,6 +1,6 @@
 // timeval.h -- Time measurement
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TIMEVAL_H__
-#define __TIMEVAL_H__
+#ifndef SNOGRAY_TIMEVAL_H
+#define SNOGRAY_TIMEVAL_H
 
 #include <string>
 
@@ -81,6 +81,6 @@ operator<< (std::ostream &os, const Timeval &tv)
 
 }
 
-#endif /* __TIMEVAL_H__ */
+#endif /* SNOGRAY_TIMEVAL_H */
 
 // arch-tag: 22923e7e-e21c-4faf-88a3-13bb51149478

@@ -1,6 +1,6 @@
 // phong-dist.h -- Phong distribution
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __PHONG_DIST_H__
-#define __PHONG_DIST_H__
+#ifndef SNOGRAY_PHONG_DIST_H
+#define SNOGRAY_PHONG_DIST_H
 
 #include "dist.h"
 
@@ -71,6 +71,6 @@ private:
 }
 
 
-#endif /* __PHONG_DIST_H__ */
+#endif /* SNOGRAY_PHONG_DIST_H */
 
 // arch-tag: 9a57ed96-ec71-4d7e-bee0-f2c918277995

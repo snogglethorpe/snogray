@@ -1,6 +1,6 @@
 // load-ply.h -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,8 +11,8 @@
 //
 
 
-#ifndef __LOAD_PLY_H__
-#define __LOAD_PLY_H__
+#ifndef SNOGRAY_LOAD_PLY_H
+#define SNOGRAY_LOAD_PLY_H
 
 #include <string>
 
@@ -29,6 +29,6 @@ extern void load_ply_file (const std::string &filename, Mesh &mesh);
 
 }
 
-#endif /* __LOAD_PLY_H__ */
+#endif /* SNOGRAY_LOAD_PLY_H */
 
 // arch-tag: 12587fbc-45b0-4843-82b2-5e11bc9b86ec

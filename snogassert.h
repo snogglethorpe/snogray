@@ -1,6 +1,6 @@
 // snogassert.h -- Simple sanity checking
 //
-//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SNOGASSERT_H__
-#define __SNOGASSERT_H__
+#ifndef SNOGRAY_SNOGASSERT_H
+#define SNOGRAY_SNOGASSERT_H
 
 #include "compiler.h"
 #include "excepts.h"
@@ -63,4 +63,4 @@ inline void assert_with_msg (bool cond, const char *failure_msg,
 }
 
 
-#endif /* __SNOGASSERT_H__ */
+#endif /* SNOGRAY_SNOGASSERT_H */

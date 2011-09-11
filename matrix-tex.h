@@ -1,6 +1,6 @@
 // matrix-tex.h -- 2d texture based on discrete matrix of values
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATRIX_TEX_H__
-#define __MATRIX_TEX_H__
+#ifndef SNOGRAY_MATRIX_TEX_H
+#define SNOGRAY_MATRIX_TEX_H
 
 #include <string>
 
@@ -124,7 +124,7 @@ private:
 #include "matrix-tex.tcc"
 
 
-#endif // __MATRIX_TEX_H__
+#endif // SNOGRAY_MATRIX_TEX_H
 
 
 // arch-tag: 0d92b346-d347-4025-aab0-cbaf594f6789

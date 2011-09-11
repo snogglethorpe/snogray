@@ -1,6 +1,6 @@
 // file-funs.h -- Functions for operating on files
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __FILE_FUNS_H__
-#define __FILE_FUNS_H__
+#ifndef SNOGRAY_FILE_FUNS_H
+#define SNOGRAY_FILE_FUNS_H
 
 
 #include <string>
@@ -34,7 +34,7 @@ extern std::string rename_to_backup_file (const std::string &file_name,
 
 }
 
-#endif // __FILE_FUNS_H__
+#endif // SNOGRAY_FILE_FUNS_H
 
 
 // arch-tag: 7fbb5346-812e-461b-9308-5de6b02d32ab

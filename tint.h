@@ -1,6 +1,6 @@
 // tint.h -- Tint is color + alpha channel
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TINT_H__
-#define __TINT_H__
+#ifndef SNOGRAY_TINT_H
+#define SNOGRAY_TINT_H
 
 #include "color.h"
 
@@ -208,6 +208,6 @@ inline Tint max (const Tint &tint1, const Tint &tint2)
 
 }
 
-#endif // __TINT_H__
+#endif // SNOGRAY_TINT_H
 
 // arch-tag: 1177d068-efe9-45fb-a517-379d07bd3609

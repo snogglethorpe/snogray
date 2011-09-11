@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SURFACE_H__
-#define __SURFACE_H__
+#ifndef SNOGRAY_SURFACE_H
+#define SNOGRAY_SURFACE_H
 
 #include <vector>
 
@@ -288,7 +288,7 @@ protected:
 
 }
 
-#endif // __SURFACE_H__
+#endif // SNOGRAY_SURFACE_H
 
 
 // arch-tag: 85997b65-c9ab-4542-80be-0c3a114593ba

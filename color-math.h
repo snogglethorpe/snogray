@@ -1,6 +1,6 @@
 // color-math.h -- Various standard math functions overloaded to work on colors
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __COLOR_MATH_H__
-#define __COLOR_MATH_H__
+#ifndef SNOGRAY_COLOR_MATH_H
+#define SNOGRAY_COLOR_MATH_H
 
 #include "snogmath.h"
 #include "color.h"
@@ -51,7 +51,7 @@ DEF_COLOR_MATH_FUN2 (atan2)
 
 }
 
-#endif /* __COLOR_H__ */
+#endif /* SNOGRAY_COLOR_H */
 
 
 // arch-tag: 389b3ebb-55a4-4d70-afbe-91bdb72d28ed

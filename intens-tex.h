@@ -1,6 +1,6 @@
 // intens-tex.h -- color-to-float conversion texture
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __INTENS_TEX_H__
-#define __INTENS_TEX_H__
+#ifndef SNOGRAY_INTENS_TEX_H
+#define SNOGRAY_INTENS_TEX_H
 
 #include "tex.h"
 #include "color.h"
@@ -44,4 +44,4 @@ public:
 }
 
 
-#endif // __INTENS_TEX_H__
+#endif // SNOGRAY_INTENS_TEX_H

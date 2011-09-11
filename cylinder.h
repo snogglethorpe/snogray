@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __CYLINDER_H__
-#define __CYLINDER_H__
+#ifndef SNOGRAY_CYLINDER_H
+#define SNOGRAY_CYLINDER_H
 
 
 #include "local-primitive.h"
@@ -142,7 +142,7 @@ private:
 
 }
 
-#endif // __CYLINDER_H__
+#endif // SNOGRAY_CYLINDER_H
 
 
 // arch-tag: 583e4c68-5f8f-4d18-9100-3abab4b525ce

@@ -1,6 +1,6 @@
 // image-jpeg.h -- JPEG format image handling
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __IMAGE_JPEG_H__
-#define __IMAGE_JPEG_H__
+#ifndef SNOGRAY_IMAGE_JPEG_H
+#define SNOGRAY_IMAGE_JPEG_H
 
 #include <cstdio>
 #include <csetjmp>
@@ -139,7 +139,7 @@ private:
 
 }
 
-#endif /* __IMAGE_JPEG_H__ */
+#endif /* SNOGRAY_IMAGE_JPEG_H */
 
 
 // arch-tag: 354fa041-9c04-419b-a6e5-5c76fb3734cb

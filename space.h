@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __SPACE_H__
-#define __SPACE_H__
+#ifndef SNOGRAY_SPACE_H
+#define SNOGRAY_SPACE_H
 
 #include "ray.h"
 #include "surface.h"
@@ -132,7 +132,7 @@ struct Space::SearchState
 
 }
 
-#endif // __SPACE_H__
+#endif // SNOGRAY_SPACE_H
 
 
 // arch-tag: b992c2ec-257d-4b88-9001-83a90353e668

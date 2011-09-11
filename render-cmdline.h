@@ -1,6 +1,6 @@
 // render-cmdline.h -- Command-line options for rendering parameters
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RENDER_CMDLINE_H__
-#define __RENDER_CMDLINE_H__
+#ifndef SNOGRAY_RENDER_CMDLINE_H
+#define SNOGRAY_RENDER_CMDLINE_H
 
 
 #define RENDER_OPTIONS_HELP "\
@@ -76,6 +76,6 @@
     params.set ("background-alpha", clp.float_opt_arg ());		\
     break;
 
-#endif /* __RENDER_CMDLINE_H__ */
+#endif /* SNOGRAY_RENDER_CMDLINE_H */
 
 // arch-tag: 52eb3dc2-2c90-4a00-a093-216a52ca0f6d

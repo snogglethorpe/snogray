@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __BBOX_H__
-#define __BBOX_H__
+#ifndef SNOGRAY_BBOX_H
+#define SNOGRAY_BBOX_H
 
 #include "pos.h"
 #include "vec.h"
@@ -165,7 +165,7 @@ operator+ (const Pos &pos, const BBox &bbox)
 
 }
 
-#endif /* __BBOX_H__ */
+#endif /* SNOGRAY_BBOX_H */
 
 
 // arch-tag: 598693e3-61e0-4b84-b80c-fe37d3c5fea6

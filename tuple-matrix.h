@@ -1,6 +1,6 @@
 // tuple-matrix.h -- Generic matrix storage type
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TUPLE_MATRIX_H__
-#define __TUPLE_MATRIX_H__
+#ifndef SNOGRAY_TUPLE_MATRIX_H
+#define SNOGRAY_TUPLE_MATRIX_H
 
 #include "config.h"
 
@@ -203,6 +203,6 @@ public:
 #include "tuple-matrix.tcc"
 
 
-#endif /* __TUPLE_MATRIX_H__ */
+#endif /* SNOGRAY_TUPLE_MATRIX_H */
 
 // arch-tag: 810abe16-816a-4fe0-a417-ab25c4f306ac

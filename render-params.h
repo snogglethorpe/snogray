@@ -1,6 +1,6 @@
 // render-params.h -- Rendering parameters
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __RENDER_PARAMS_H__
-#define __RENDER_PARAMS_H__
+#ifndef SNOGRAY_RENDER_PARAMS_H
+#define SNOGRAY_RENDER_PARAMS_H
 
 #include "coords.h"
 #include "val-table.h"
@@ -57,6 +57,6 @@ public:
 
 }
 
-#endif /* __RENDER_PARAMS_H__ */
+#endif /* SNOGRAY_RENDER_PARAMS_H */
 
 // arch-tag: eeaa2e45-8ad3-4174-bac9-6814468841ee

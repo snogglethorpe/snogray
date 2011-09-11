@@ -1,6 +1,6 @@
 // medium.h -- Representation of physical medium
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MEDIUM_H__
-#define __MEDIUM_H__
+#ifndef SNOGRAY_MEDIUM_H
+#define SNOGRAY_MEDIUM_H
 
 #include "coords.h"
 #include "color.h"
@@ -59,6 +59,6 @@ public:
 
 }
 
-#endif /* __MEDIUM_H__ */
+#endif /* SNOGRAY_MEDIUM_H */
 
 // arch-tag: f0df2c38-6387-4801-887c-669001eeff61

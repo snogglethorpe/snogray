@@ -1,6 +1,6 @@
 // tessel.h -- Surface tessellation
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __TESSEL_H__
-#define __TESSEL_H__
+#ifndef SNOGRAY_TESSEL_H
+#define SNOGRAY_TESSEL_H
 
 #include <map>
 #include <utility>		// for std::pair
@@ -531,7 +531,7 @@ struct Tessel::Subdiv : public LinkedList<Tessel::Subdiv>::Node
 
 }
 
-#endif /* __TESSEL_H__ */
+#endif /* SNOGRAY_TESSEL_H */
 
 
 // arch-tag: 8c445032-6d14-4ff7-a415-a1ecf2683d7c

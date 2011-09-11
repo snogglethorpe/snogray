@@ -1,6 +1,6 @@
 // envmap-light.v_sz -- Abstract class for envmapured light sources
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __ENVMAP_LIGHT_H__
-#define __ENVMAP_LIGHT_H__
+#ifndef SNOGRAY_ENVMAP_LIGHT_H
+#define SNOGRAY_ENVMAP_LIGHT_H
 
 
 #include "light.h"
@@ -90,4 +90,4 @@ private:
 
 }
 
-#endif /* __ENVMAP_LIGHT_H__ */
+#endif /* SNOGRAY_ENVMAP_LIGHT_H */

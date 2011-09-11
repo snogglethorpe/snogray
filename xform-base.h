@@ -1,6 +1,6 @@
 // xform-base.h -- Base-class for transformation matrices
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __XFORM_BASE_H__
-#define __XFORM_BASE_H__
+#ifndef SNOGRAY_XFORM_BASE_H
+#define SNOGRAY_XFORM_BASE_H
 
 #include "matrix4.h"
 
@@ -87,4 +87,4 @@ protected:
 }
 
 
-#endif /* __XFORM_BASE_H__ */
+#endif /* SNOGRAY_XFORM_BASE_H */

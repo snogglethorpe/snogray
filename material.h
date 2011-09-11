@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __MATERIAL_H__
-#define __MATERIAL_H__
+#ifndef SNOGRAY_MATERIAL_H
+#define SNOGRAY_MATERIAL_H
 
 #include <vector>
 
@@ -142,7 +142,7 @@ public:
 
 }
 
-#endif /* __MATERIAL_H__ */
+#endif /* SNOGRAY_MATERIAL_H */
 
 
 // arch-tag: 4e4442a2-254d-4635-bcf5-a03508c2057e

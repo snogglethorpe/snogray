@@ -1,6 +1,6 @@
 // light.h -- Light object
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __LIGHT_H__
-#define __LIGHT_H__
+#ifndef SNOGRAY_LIGHT_H
+#define SNOGRAY_LIGHT_H
 
 #include "color.h"
 #include "pos.h"
@@ -153,6 +153,6 @@ public:
 
 }
 
-#endif /* __LIGHT_H__ */
+#endif /* SNOGRAY_LIGHT_H */
 
 // arch-tag: 07d0a36e-d44f-44f8-bb69-e57c9681de14

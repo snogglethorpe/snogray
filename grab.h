@@ -1,6 +1,6 @@
 // grab.h -- Temporarily acquired reference to an object from a pool
 //
-//  Copyright (C) 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef __GRAB_H__
-#define __GRAB_H__
+#ifndef SNOGRAY_GRAB_H
+#define SNOGRAY_GRAB_H
 
 #include "pool.h"
 
@@ -44,4 +44,4 @@ private:
 }
 
 
-#endif // __GRAB_H__
+#endif // SNOGRAY_GRAB_H
