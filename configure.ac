@@ -431,6 +431,14 @@ m4_define_default([PKG_CHECK_MODULES],
    AC_MSG_RESULT([no])
    $4])
 
+# If we're cross-compiling, forcibly disable pkg-config stuff, as
+# pkg-config doesn't currently handle cross-compilation properly.
+#
+if test $cross_compiling = yes && test -n "$PKG_CONFIG"; then
+   AC_MSG_WARN([disabling use of pkg-config due to cross-compiling])
+   PKG_CONFIG=""
+fi
+
 
 ##
 ## --------------------------------
