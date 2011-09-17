@@ -13,6 +13,7 @@
 #include "intersect.h"
 #include "space.h"
 #include "subspace.h"
+#include "excepts.h"
 
 #include "instance.h"
 
