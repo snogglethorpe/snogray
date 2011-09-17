@@ -47,7 +47,7 @@ usage (const char *prog_name)
 
 int main (int argc, char *argv[])
 {
-  const char *prog_name = basename (argv[0]);
+  const char *prog_name = argv[0];
   const char *meth_name = "radical";
   unsigned num_samples = 1000000;
   Color samp_color = 0.1;
