@@ -578,7 +578,9 @@ AM_CONDITIONAL([have_libnetpbm], [test $have_libnetpbm = yes])
 #
 have_lib3ds=no
 m4_define_default([AM_PATH_LIB3DS], [])
-AM_PATH_LIB3DS([1.2.0], [have_lib3ds=yes])
+if test $cross_compiling = no; then
+  AM_PATH_LIB3DS([1.2.0], [have_lib3ds=yes])
+fi
 if test $have_lib3ds = yes; then
   AC_DEFINE([HAVE_LIB3DS], [1], [Define if lib3ds is installed])
 fi
