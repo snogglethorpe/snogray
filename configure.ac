@@ -352,6 +352,8 @@ fi
 
 AC_CHECK_HEADERS([stdint.h unistd.h fcntl.h sys/mman.h sys/stat.h])
 
+AC_TYPE_INTPTR_T
+
 
 # Allow point exceptions to be enabled (which can make debugging much easier).
 

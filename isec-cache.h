@@ -13,6 +13,21 @@
 #ifndef SNOGRAY_ISEC_CACHE_H
 #define SNOGRAY_ISEC_CACHE_H
 
+#include "config.h"
+
+// We use intptr_t below.  If the system defines, it we must include
+// the proper include file, otherwise, it should be defined in
+// "config.h".  Note that we use the C versions of the header files.
+//
+#if HAVE_INTPTR_T
+# if HAVE_STDINT_H
+#  include <stdint.h>
+# elif HAVE_INTTYPES_H
+#  include <inttypes.h>
+# endif
+#endif // HAVE_INTPTR_T
+
+
 namespace snogray {
 
 
@@ -74,7 +89,14 @@ private:
 
   hash_t hash (const Surface *surf) const
   {
-    return ((unsigned long)surf) >> 3;
+    // Just use the pointer as a hash value, throwing away some of the
+    // lower bits as they're usually zero.
+    //
+    // We first cast to intptr_t to avoid compiler warnings about a
+    // lossy cast (as hash_t may be smaller than a pointer), and then
+    // to hash_t to throw away any upper bits we don't care about.
+    //
+    return (hash_t)((intptr_t)surf >> 3);
   }
 
   Mbox &lookup (const Surface *surf)
