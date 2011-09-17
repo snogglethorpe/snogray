@@ -1,6 +1,6 @@
 // sampleimg.cc -- Generate samples from an input image
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -144,7 +144,7 @@ int main (int argc, char *argv[])
 
       if (pdf == 0)
 	zero_count++;
-      else if (isnan (pdf))
+      else if (std::isnan (pdf))
 	nan_count++;
       else
 	inv_pdf_sum += 1 / pdf;
