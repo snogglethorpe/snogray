@@ -1,6 +1,6 @@
 // image-output.cc -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -69,7 +69,7 @@ ImageOutput::set_raw_min_y (int new_min_y)
       for (unsigned x = 0; x < width; x++)
 	{
 	  Tint pixel = r->pixels[x];
-	  Color col = pixel.alpha_scaled_color ();
+	  Color col = pixel.unscaled_color ();
 	  Tint::alpha_t alpha = pixel.alpha;
 
 	  float weight = r->weights[x];
