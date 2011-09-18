@@ -64,6 +64,8 @@ public:
   {
     if (alpha == 0)
       return 0;
+    else if (alpha == 1)
+      return color;		// avoid division if alpha == 1
     else
       return color / alpha;
   }
