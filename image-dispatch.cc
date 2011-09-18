@@ -1,6 +1,6 @@
 // image-dispatch.cc -- Image backend selection
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -98,6 +98,8 @@ ImageSink::open (const std::string &filename, unsigned width, unsigned height,
     return new PfmImageSink (filename, width, height, params);
   else if (fmt == "rgbe" || fmt == "hdr" || fmt == "pic")
     return new RgbeImageSink (filename, width, height, params);
+  else if (fmt == "tga" || fmt == "targa")
+    return new TgaImageSink (filename, width, height, params);
 
   // Formats which are only supported if an appropriate library  is available
   //

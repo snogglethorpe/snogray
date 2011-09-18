@@ -62,6 +62,94 @@ struct TgaDefs
   static const unsigned HDR_DESCRIPTOR_OFFS	  = 8+9; // 1 byte
 };
 
+
+// Output
+
+class TgaImageSink : public ByteVecImageSink, TgaDefs
+{  
+public:
+
+  TgaImageSink (const std::string &filename,
+		unsigned width, unsigned height,
+		const ValTable &params = ValTable::NONE);
+  ~TgaImageSink ();
+
+  virtual void write_row (const ByteVec &byte_vec);
+
+  // Write previously written rows to disk, if possible.  This may flush
+  // I/O buffers etc., but will not in any way change the output (so for
+  // instance, it will _not_ flush the compression state of a TGA output
+  // image, as that can make the resulting compression worse).
+  //
+  virtual void flush () { outf.flush (); }
+
+private:
+
+  // Write out BYTE_VEC using TGA's simple run-length-encoding format.
+  //
+  // Each row is divided into spans of pixels preceded by a length
+  // byte.  The low 7 bits of the length byte are the number of pixels
+  // in the following span, NUM, minus 1.  If the high bit is 0, then
+  // then length byte is followed by NUM normal pixels.  If the hight
+  // bit is 1, the length byte is followed by a single pixel which
+  // should be repeated NUM times.
+  //
+  void write_rle_row (const ByteVec &byte_vec);
+
+  // Write a span of pixels in BYTE_VEC, from from START_OFFS to
+  // END_OFFS, in the TGA RLE format using repeat-mode REPEAT.
+  //
+  void write_rle_span (const ByteVec &byte_vec,
+		       unsigned start_offs, unsigned end_offs,
+		       bool repeat);
+
+  // Write a single pixel from offset OFFS in the RGB[A] byte-vector
+  // BYTE_VEC to the output stream.
+  //
+  void write_pixel (const ByteVec &byte_vec, unsigned offs)
+  {
+    // Color components in BYTE_VEC are stored in RGB order.
+    unsigned r = byte_vec[offs];
+    unsigned g = byte_vec[offs + 1];
+    unsigned b = byte_vec[offs + 2];
+
+    // ... and we write them to the image file in TGA BGR order.
+    //
+    outf.put (b);
+    outf.put (g);
+    outf.put (r);
+
+    // If there's an alpha channel, write that too.
+    //
+    if (alpha_bytes)
+      outf.put (byte_vec[offs + 3]);
+  }
+
+  // Write VAL as a 2-byte number at memory location MEM, encoded in
+  // the TGA standard encoding (little-endian).
+  //
+  static void write16 (unsigned char *mem, unsigned val)
+  {
+    mem[0] = val & 0xFF;
+    mem[1] = (val >> 8) & 0xFF;
+  }
+
+  // Output stream.
+  //
+  std::ofstream outf;
+
+  // 1 if we have an alpha channel, 0 if not (used both as a boolean,
+  // and in some arithmetic).
+  //
+  unsigned alpha_bytes;
+
+  // Size in bytes of a pixel in BYTE_VEC.
+  //
+  unsigned pixel_bytes;
+};
+
+
+// Input
 
 class TgaImageSource : public ByteVecImageSource, TgaDefs
 {  
