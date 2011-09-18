@@ -69,15 +69,23 @@ ImageOutput::set_raw_min_y (int new_min_y)
       for (unsigned x = 0; x < width; x++)
 	{
 	  Tint pixel = r->pixels[x];
-	  Color col = pixel.unscaled_color ();
+	  Color col = pixel.alpha_scaled_color ();
 	  Tint::alpha_t alpha = pixel.alpha;
 
 	  float weight = r->weights[x];
-	  if (weight > 0)
+	  if (weight > 0 && weight != 1)
 	    {
 	      col *= 1 / weight;
 	      alpha *= 1 / weight;
 	    }
+
+	  // We "alpha unscale" COL ourselves, instead of using
+	  // Tint::unscaled_color above, as we need to do it _after_
+	  // scaling ALPHA by 1/WEIGHT; otherwise the alpha value will
+	  // be wrong.
+	  //
+	  if (alpha != 0 && alpha != 1)
+	    col *= 1 / alpha;
 
 	  if (intensity_scale != 1)
 	    col *= intensity_scale;
