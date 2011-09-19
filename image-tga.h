@@ -125,10 +125,10 @@ private:
       outf.put (byte_vec[offs + 3]);
   }
 
-  // Write VAL as a 2-byte number at memory location MEM, encoded in
+  // Store VAL as a 2-byte number at memory location MEM, encoded in
   // the TGA standard encoding (little-endian).
   //
-  static void write16 (unsigned char *mem, unsigned val)
+  static void put16 (unsigned char *mem, unsigned val)
   {
     mem[0] = val & 0xFF;
     mem[1] = (val >> 8) & 0xFF;

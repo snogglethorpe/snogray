@@ -46,8 +46,8 @@ TgaImageSink::TgaImageSink (const std::string &filename,
   header[HDR_COLOR_MAP_TYPE_OFFS] = COLOR_MAP_NONE;
 
   // image size
-  write16 (header + HDR_WIDTH_OFFS, width);
-  write16 (header + HDR_HEIGHT_OFFS, height);
+  put16 (header + HDR_WIDTH_OFFS, width);
+  put16 (header + HDR_HEIGHT_OFFS, height);
 
   // image attributes
   unsigned descriptor = 0;
