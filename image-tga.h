@@ -164,10 +164,10 @@ public:
 
 private:
 
-  // Return the value of a 2-byte number at memory MEM, encoded in the TGA
-  // standard encodig (little-endian).
+  // Return the value of a 2-byte number at memory MEM, encoded in the
+  // TGA standard encodig (little-endian).
   //
-  static unsigned read16 (const unsigned char *mem)
+  static unsigned get16 (const unsigned char *mem)
   {
     return mem[0] + (mem[1] << 8);
   }
@@ -194,7 +194,7 @@ private:
       // alpha/attribute field to a value of either 0 or 31 so that it
       // covers the same range as the other components.
       {
-	unsigned pixel = read16 (from);
+	unsigned pixel = get16 (from);
 	byte_vec[byte_vec_offs++] = (pixel >> 10) & 0x1F; // red
 	byte_vec[byte_vec_offs++] = (pixel >> 5) & 0x1F;  // blue
 	byte_vec[byte_vec_offs++] = (pixel & 0x1F);	  // green

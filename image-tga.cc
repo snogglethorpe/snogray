@@ -245,8 +245,8 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
       && color_map_type != COLOR_MAP_PRESENT)
     open_err ("Unsupported TGA color-map type");
 
-  unsigned width = read16 (header + HDR_WIDTH_OFFS);
-  unsigned height = read16 (header + HDR_HEIGHT_OFFS);
+  unsigned width = get16 (header + HDR_WIDTH_OFFS);
+  unsigned height = get16 (header + HDR_HEIGHT_OFFS);
 
   unsigned descriptor = header[HDR_DESCRIPTOR_OFFS];
   unsigned attribute_bits = descriptor & 0xF; // "attribute" == alpha
@@ -294,7 +294,7 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
   //
   unsigned skip_bytes = header[HDR_IMAGE_ID_LEN_OFFS];
   if (color_map_type == COLOR_MAP_PRESENT)
-    skip_bytes += read16 (header + HDR_COLOR_MAP_LENGTH_OFFS);
+    skip_bytes += get16 (header + HDR_COLOR_MAP_LENGTH_OFFS);
   inf.seekg (skip_bytes, std::ios::cur);
 
   // Allocate temporary row-buffer of the appropriate size.
