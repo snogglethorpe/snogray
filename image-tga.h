@@ -172,9 +172,10 @@ private:
     return mem[0] + (mem[1] << 8);
   }
 
-  // Read a pixel from memory at FROM, and write it into BYTE_VEC
-  // starting at offset BYTE_VEC_OFFS.  BYTE_VEC_OFFS is incremented
-  // by the number of bytes stored into BYTE_VEC.
+  // Decode the TGA pixel stored at FROM, and write it in RGB[A]
+  // format into BYTE_VEC starting at offset BYTE_VEC_OFFS.
+  // BYTE_VEC_OFFS is incremented by the number of bytes stored into
+  // BYTE_VEC.
   //
   void decode_pixel (const unsigned char *from,
 		     ByteVec &byte_vec, unsigned &byte_vec_offs)
