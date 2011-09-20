@@ -158,10 +158,12 @@ TgaImageSink::write_rle_row (const ByteVec &byte_vec)
 	      span_offs = new_span_offs;
 	      is_repeat_span = is_repeat_pixel;
 	    }
-	  else if (span_size == 127)
+	  else if (span_size == 128)
 	    {
 	      // The current span's repeat count would overflow a
-	      // 7-bit counter, write it out anyway.
+	      // 7-bit counter, write it out anyway; the maximum
+	      // repeat count is 128, not 127, because the actual
+	      // value stored is COUNT - 1.
 
 	      write_rle_span (byte_vec, span_offs, offs, is_repeat_span);
 	      span_size = 0;
