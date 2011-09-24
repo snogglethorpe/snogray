@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -49,6 +49,14 @@ RenderMgr::render (unsigned num_threads,
 		   RenderPattern &pattern, ImageOutput &output,
 		   Progress &prog, RenderStats &stats)
 {
+  // Tell the progress indicator the bounds we will be using.
+  //
+  prog.set_start (pattern.position (pattern.begin ()));
+  prog.set_size (pattern.position (pattern.end ())
+		 - pattern.position (pattern.begin ()));
+
+  // Render!
+  //
 #if USE_THREADS
   if (num_threads != 1)
     render_multi_threaded (num_threads, pattern, output, prog, stats);

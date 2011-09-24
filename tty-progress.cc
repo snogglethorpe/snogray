@@ -1,6 +1,6 @@
-// progress.h -- Progress indicator
+// tty-progress.h -- Progress indicator for terminals
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,13 +15,51 @@
 
 #include "snogmath.h"
 
-#include "progress.h"
+#include "tty-progress.h"
 
 using namespace snogray;
 using namespace std;
 
+// Set the start position of the progress range; positions before this
+// are not counted as progress.  This is normally called before
+// Progress::start, but may be called afterwards and should do
+// something reasonable.
+//
 void
-Progress::start ()
+TtyProgress::set_start (int new_start)
+{
+  unsigned size = end_pos - start_pos;
+
+  start_pos = new_start;
+  end_pos = new_start + size;
+
+  if (last_pos < start_pos)
+    last_pos = start_pos;
+  else if (last_pos > end_pos)
+    last_pos = end_pos;
+
+  update_pos = last_pos;
+}
+
+// Set the size of the progress range, following the start position.
+// This is normally called before Progress::start, but may be called
+// afterwards and should do something reasonable.
+//
+void
+TtyProgress::set_size (unsigned size)
+{
+  end_pos = start_pos + size;
+
+  if (last_pos > end_pos)
+    last_pos = end_pos;
+
+  update_pos = last_pos;
+}
+
+// Start displaying the progress indicator.
+//
+void
+TtyProgress::start ()
 {
   if (verbosity != QUIET)
     {
@@ -36,8 +74,10 @@ Progress::start ()
   update_pos = start_pos + 1;
 }
 
+// Update the progress indicator to position POS.
+//
 void
-Progress::update (int pos)
+TtyProgress::update (int pos)
 {
   if (verbosity > MINIMAL
       && (pos >= update_pos
@@ -112,8 +152,10 @@ Progress::update (int pos)
     }
 }
 
+// Finish the progress indicator.
+//
 void
-Progress::end ()
+TtyProgress::end ()
 {
   if (verbosity != QUIET)
     {
@@ -124,5 +166,6 @@ Progress::end ()
 	   << "\r" << prefix << "done" << endl;
     }
 }
+
 
 // arch-tag: 47323aa4-dbdc-42d9-ac12-09af4130ed3c

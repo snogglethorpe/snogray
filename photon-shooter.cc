@@ -1,6 +1,6 @@
 // photon-shooter.cc -- Photon-shooting infrastructure
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 #include "render-context.h"
 #include "global-render-state.h"
 
-#include "progress.h"
+#include "tty-progress.h"
 #include "string-funs.h"
 
 #include "photon-shooter.h"
@@ -42,9 +42,9 @@ PhotonShooter::shoot (const GlobalRenderState &global_render_state)
   if (lights.size () == 0)
     return;			// no lights, so no point
 
-  Progress prog (std::cout, "* " + name + ": shooting photons...",
-		 0, target_count ());
+  TtyProgress prog (std::cout, "* " + name + ": shooting photons...");
 
+  prog.set_size (target_count ());
   prog.start ();
 
   for (unsigned path_num = 0; ! complete(); path_num++) 

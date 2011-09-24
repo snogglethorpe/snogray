@@ -1,4 +1,4 @@
-// progress.h -- Progress indicator
+// progress.h -- Progress indicator interface
 //
 //  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
@@ -13,82 +13,45 @@
 #ifndef SNOGRAY_PROGRESS_H
 #define SNOGRAY_PROGRESS_H
 
-#include <iosfwd>
-#include <string>
-
-#include "timeval.h"
 
 namespace snogray {
 
+
+// A progress-indicator.
+//
 class Progress
 {
 public:
 
-  enum Verbosity { QUIET, MINIMAL, CHATTY };
+  Progress () { }
 
-  static float default_update_interval () { return 10; }
-  static float startup_interval () { return 20; }
-
-  // Initialize with the desired bounds.  Note that nothing actually
-  // happens until the `start' method is called.
+  // Set the start position of the progress range; positions before
+  // this are not counted as progress.  This is normally called before
+  // Progress::start, but may be called afterwards and should do
+  // something reasonable.
   //
-  Progress (std::ostream &stream, const std::string &_prefix,
-	    int _start_pos, int num,
-	    Verbosity _verbosity = CHATTY,
-	    float _update_interval = default_update_interval())
-    : prefix (_prefix),
-      start_pos (_start_pos), end_pos (_start_pos + num),
-      last_pos (0), last_update_time (0), update_pos (0),
-      ticks_until_forced_update (0), start_time (0),
-      verbosity (_verbosity), os (stream),
-      update_interval (_update_interval)
-  { }
+  virtual void set_start (int pos) = 0;
 
-  void start ();
-  void update (int pos);
-  void end ();
-
-  // Prefix string printed on the progress line.
+  // Set the size of the progress range, following the start position.
+  // This is normally called before Progress::start, but may be called
+  // afterwards and should do something reasonable.
   //
-  std::string prefix;
+  virtual void set_size (unsigned size) = 0;
 
-  // Overall rendering bounds
+  // Start displaying the progress indicator.
   //
-  int start_pos, end_pos;
+  virtual void start () = 0;
 
-  // When we last updated the progress indicator
+  // Update the progress indicator to position POS.
   //
-  int last_pos;
-  Timeval last_update_time;
+  virtual void update (int pos) = 0;
 
-  // When we will next update it
+  // Finish the progress indicator.
   //
-  int update_pos;
-
-  // After this many calls to Progress::update, an update will be forced
-  // even if the position hasn't changed much.
-  //
-  unsigned ticks_until_forced_update;
-
-  // When we started
-  //
-  Timeval start_time;
-
-  // How chatty to be
-  //
-  Verbosity verbosity;
-
-  // Where to send progress reports to
-  //
-  std::ostream &os;
-
-  // How often (approximately) to update (in seconds)
-  //
-  Timeval update_interval;
+  virtual void end () = 0;
 };
+
 
 }
 
-#endif /* SNOGRAY_PROGRESS_H */
-
-// arch-tag: 54fddbd6-cd1a-4b36-81b6-8260d700dd24
+#endif // SNOGRAY_PROGRESS_H

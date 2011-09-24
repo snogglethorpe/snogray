@@ -28,7 +28,7 @@
 #include "string-funs.h"
 #include "file-funs.h"
 #include "num-cores.h"
-#include "progress.h"
+#include "tty-progress.h"
 #include "globals.h"
 
 #include "scene.h"
@@ -344,7 +344,7 @@ int main (int argc, char *const *argv)
   LimitSpec limit_max_x_spec ("max-x", 1.0), limit_max_y_spec ("max-y", 1.0);
   unsigned num_threads = 0;	// autodetect
   bool recover = false;
-  Progress::Verbosity verbosity = Progress::CHATTY;
+  TtyProgress::Verbosity verbosity = TtyProgress::CHATTY;
   bool progress_set = false;
   ValTable output_params, render_params;
   SceneDef scene_def;
@@ -381,14 +381,14 @@ int main (int argc, char *const *argv)
       case 'q':
 	quiet = true;
 	if (! progress_set)
-	  verbosity = Progress::QUIET;
+	  verbosity = TtyProgress::QUIET;
 	break;
       case 'p':
-	verbosity = Progress::CHATTY;
+	verbosity = TtyProgress::CHATTY;
 	progress_set = true;
 	break;
       case 'P':
-	verbosity = Progress::QUIET;
+	verbosity = TtyProgress::QUIET;
 	progress_set = true;
 	break;
 
@@ -661,11 +661,7 @@ int main (int argc, char *const *argv)
 
   // Start progress indicator
   //
-  Progress prog (std::cout, "rendering...",
-		 pattern.position (pattern.begin ()),
-		 (pattern.position (pattern.end ())
-		  - pattern.position (pattern.begin ())),
-		 verbosity);
+  TtyProgress prog (std::cout, "rendering...", verbosity);
 
   // Do the actual rendering.
   //
