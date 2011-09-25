@@ -15,12 +15,16 @@ module ("snogray", package.seeall)
 
 local raw = require "snograw"
 
--- Swig-generated Lua modules don't return the module table from require
--- (as is recommended), but instead store it into a global variable
--- "snograw".
+-- Until recently, Swig-generated Lua modules didn't return the module
+-- table from require (as is recommended), but instead stored it into
+-- the global variable "snograw", and returned the module name
+-- instead.  For compatibility, handle both behaviors, by first
+-- calling require, and if it doesn't return a table, looking in the
+-- global variable.
 --
-raw = snograw
-
+if type (raw) ~= 'table' then
+   raw = snograw
+end
 
 ----------------------------------------------------------------
 --

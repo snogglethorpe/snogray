@@ -475,6 +475,8 @@ endif
 #
 if have_swig
 
+SWIG_FLAGS = $(SWIG_NOMODULEGLOBAL_FLAG)
+
 # automake "silent-rules" hooks for swig.
 #
 swig_verbose = $(swig_verbose_$(V))
@@ -484,9 +486,9 @@ swig_verbose_0 = @echo "  SWIG  " $@;
 # Build rules for swig-generated files we use.
 #
 %_lua_wrap.cc : %.swg
-	$(swig_verbose)$(SWIG) -o $@ -c++ -lua $<
+	$(swig_verbose)$(SWIG) $(SWIG_FLAGS) -o $@ -c++ -lua $<
 swigluarun.h:
-	$(swig_verbose)$(SWIG) -lua -c++ -external-runtime $@
+	$(swig_verbose)$(SWIG) $(SWIG_FLAGS) -lua -c++ -external-runtime $@
 
 else
 

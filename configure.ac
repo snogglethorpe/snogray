@@ -910,7 +910,7 @@ AM_CONDITIONAL([use_lua], [test $use_lua = yes])
 #
 if test $use_lua = yes; then
   if test $have_swig = yes; then
-    AC_MSG_CHECKING([whether swig "disown" feature is supported])
+    AC_MSG_CHECKING([whether swig supports "disown" feature])
 
     cat > conftest.swg <<EOF
 %module test;
@@ -929,6 +929,28 @@ EOF
       AC_DEFINE([HAVE_SWIG_DISOWN], [1], [Define if swig supports "disown" feature for Lua])
     fi
   fi
+fi
+
+# See whether we can use the swig -nomoduleglobal option.
+#
+if test $have_swig = yes; then
+    AC_MSG_CHECKING([whether swig supports "-nomoduleglobal" option])
+
+    cat > conftest.swg <<EOF
+%module test;
+EOF
+    if $SWIG 2>/dev/null -o /dev/null -c++ -lua -nomoduleglobal conftest.swg; then
+      have_swig_nomoduleglobal=yes
+    else
+      have_swig_nomoduleglobal=no
+    fi
+    rm -f conftest.swg
+
+    AC_MSG_RESULT([$have_swig_nomoduleglobal])
+
+    if test "$have_swig_nomoduleglobal" = yes; then
+      AC_SUBST([SWIG_NOMODULEGLOBAL_FLAG], [-nomoduleglobal])
+    fi
 fi
 
 

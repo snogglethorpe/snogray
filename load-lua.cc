@@ -1,6 +1,6 @@
 // load-lua.cc -- Load lua scene file
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -111,7 +111,22 @@ setup_lua ()
 
   // Add extra functions into snograw table.
   //
-  lua_getfield (L, LUA_GLOBALSINDEX, "snograw");
+  // Until recently, Swig-generated Lua modules didn't return the
+  // module table from require (as is recommended), but instead stored
+  // it into the global variable "snograw", and returned the module
+  // name instead.  For compatibility, handle both behaviors, by first
+  // calling require, and if it doesn't return a table, looking in the
+  // global variable.
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
+  lua_pushstring (L, "snograw");		 // arg 0
+  do_call (L, 1, 0);				 // call require
+  if (! lua_istable (L, -1))
+    {
+      // TOS is module name, not module, so grab the global var instead.
+      lua_pop (L, 1);		// pop module name
+      lua_getfield (L, LUA_GLOBALSINDEX, "snograw");
+    }
   lua_pushcfunction (L, lua_read_file);
   lua_setfield (L, -2, "read_file");
   lua_pop (L, 1); 		// pop snograw table
