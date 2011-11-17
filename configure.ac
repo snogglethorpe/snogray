@@ -225,16 +225,10 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_LINK_FLAG], [
 
 # Try to choose a compiler support level option.
 #
-AC_MSG_CHECKING([compiler standard support])
-AC_LANG_ASSERT(C++)
-_SAVED_CXXFLAGS="$CXXFLAGS"
-cxx_level_note=""
-
 for opt in -std=c++0x -std=c++98; do
-  CXXFLAGS="$_SAVED_CXXFLAGS $opt"
-  AC_COMPILE_IFELSE([AC_LANG_SOURCE([int x;])], [opt_ok=yes], [opt_ok=no])
+  SNOGRAY_CHECK_CXX_FLAG([CXX_STD_FLAGS], [$opt])
 
-  if test "$opt_ok" = yes && test x"$opt" = x"-std=c++0x"; then
+  if test x"$CXX_STD_FLAGS" = x"-std=c++0x"; then
     # Some versions of g++ 4.3 have broken support for c++0x, so use a simple
     # test for that, and revert to c++98 if we detect it.
     AC_COMPILE_IFELSE(
@@ -246,31 +240,32 @@ for opt in -std=c++0x -std=c++98; do
       [broken_cxx0x=no],
       [broken_cxx0x=yes])
     if test "$broken_cxx0x" = yes; then
-      opt_ok=false
+      CXX_STD_FLAGS=""
       cxx_level_note=" (c++0x support broken)"
     fi
   fi
 
-  if test "$opt_ok" = yes; then
-    break
-  fi
-  CXXFLAGS="$_SAVED_CXXFLAGS"
+  test x"$CXX_STD_FLAGS" = x || break
 done
-
+#
+# Turn the discovered option into a pretty name
+#
 cxx_level=none
-case "$opt" in
+case "$CXX_STD_FLAGS" in
   "-std="*)
-    cxx_level=`echo "$opt" | sed 's@^-std=@@'`
+    cxx_level=`echo "$CXX_STD_FLAGS" | sed 's@^-std=@@'`
     ;;
   .*)
-    cxx_level="$opt"
+    cxx_level="unknown"
     ;;
 esac
-
+#
+AC_MSG_CHECKING([compiler standard support])
 AC_MSG_RESULT([$cxx_level$cxx_level_note])
-AC_SUBST([CXX_STD_FLAGS], [$opt])
-# Note that we also leave the option in CXXFLAGS so following configure
-# tests use it.
+#
+# Put the option in CXXFLAGS so following configure tests use it.
+#
+CXXFLAGS="$CXXFLAGS $CXX_STD_FLAGS"
 
 
 # Try to be very picky, if the compiler lets us.
