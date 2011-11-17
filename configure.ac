@@ -225,7 +225,7 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_LINK_FLAG], [
 
 # Try to choose a compiler support level option.
 #
-for opt in -std=c++0x -std=c++98; do
+for opt in -std=c++11 -std=c++0x -std=c++98; do
   SNOGRAY_CHECK_CXX_FLAG([CXX_STD_FLAGS], [$opt])
 
   case "$CXX_STD_FLAGS" in
