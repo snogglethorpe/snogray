@@ -228,22 +228,36 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_LINK_FLAG], [
 for opt in -std=c++0x -std=c++98; do
   SNOGRAY_CHECK_CXX_FLAG([CXX_STD_FLAGS], [$opt])
 
-  if test x"$CXX_STD_FLAGS" = x"-std=c++0x"; then
-    # Some versions of g++ 4.3 have broken support for c++0x, so use a simple
-    # test for that, and revert to c++98 if we detect it.
-    AC_COMPILE_IFELSE(
-      [AC_LANG_SOURCE(
-	 [#include <iostream>
-	  bool file_exists () { return true; }
-	  using namespace std;
-	  bool test () { return file_exists (); }])],
-      [broken_cxx0x=no],
-      [broken_cxx0x=yes])
-    if test "$broken_cxx0x" = yes; then
-      CXX_STD_FLAGS=""
-      cxx_level_note=" (c++0x support broken)"
-    fi
-  fi
+  case "$CXX_STD_FLAGS" in
+    "-std=c++0x")
+      # Some compilers (versions of g++ 4.3, clang with a mismatched
+      # version of libstdc++) have broken support for c++0x, so try to
+      # detect problematic cases we know about, and revert to c++98 if
+      # compilation fails.
+      #
+      # This is just a mismash of code containing valid bits of C++0x
+      # code that fail to compile on various compilers.
+      #
+      AC_MSG_CHECKING([checking whether c++0x support is broken])
+      _OLD_CXXFLAGS="$CXXFLAGS"
+      CXXFLAGS="$CXXFLAGS $CXX_STD_FLAGS"
+      AC_COMPILE_IFELSE(
+	[AC_LANG_SOURCE(
+	    [#include <iostream>
+	     #include <type_traits>
+	     bool file_exists () { return true; }
+	     using namespace std;
+	     bool test () { return file_exists (); }])],
+	[broken_cxx0x=no],
+	[broken_cxx0x=yes])
+      CXXFLAGS="$_OLD_CXXFLAGS"
+      AC_MSG_RESULT([$broken_cxx0x])
+      if test "$broken_cxx0x" = yes; then
+	CXX_STD_FLAGS=""
+	cxx_level_note=" (c++0x support broken)"
+      fi
+      ;;
+  esac
 
   test x"$CXX_STD_FLAGS" = x || break
 done
