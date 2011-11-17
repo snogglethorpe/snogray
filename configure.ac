@@ -300,7 +300,7 @@ SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS],
 #
 # See if this compiler supports the "extern template class Foo<T>"
 # syntax for suppressing template instantiation of specific types.
-# This is availble in C++0x, and also as a g++ extension to C++98.
+# This is availble in C++11, and also as a g++ extension to C++98.
 #
 
 AC_ARG_ENABLE([extern-template],
@@ -705,7 +705,7 @@ if test $have_lib3ds = yes; then
 fi
 
 
-# Check for unique_ptr (the c++0x version of auto_ptr)
+# Check for unique_ptr (the c++11 version of auto_ptr)
 #
 AC_MSG_CHECKING([for std::unique_ptr])
 AC_LINK_IFELSE(
@@ -777,7 +777,7 @@ fi
 AC_MSG_CHECKING([which thread interface to use])
 if test "$have_std_thread,$have_std_mutex" = "yes,yes"; then
   AC_DEFINE([USE_STD_THREAD], [1], [Define if using c++ std thread interface])
-  thread_api_name="std::thread (c++0x)"
+  thread_api_name="std::thread (c++11)"
 elif test $have_boost_thread = yes; then
   AC_DEFINE([USE_BOOST_THREAD], [1], [Define if using boost thread library])
   LIBS="$LIBS $boost_thread_lib"
@@ -800,10 +800,10 @@ AM_CONDITIONAL([use_threads], [test "$thread_api_name" != none])
 ##
 
 
-# Check for C++0x std::random
+# Check for C++11 std::random
 #
 have_std_random=no
-AC_MSG_CHECKING([for c++0x std::random])
+AC_MSG_CHECKING([for c++11 std::random])
 AC_LINK_IFELSE(
   [AC_LANG_SOURCE(
      [#include <random>
@@ -851,8 +851,8 @@ fi
 #
 AC_MSG_CHECKING([which random number generator to use])
 if test "$have_std_random" = "yes"; then
-  AC_DEFINE([USE_STD_RANDOM], [1], [Define if using c++0x std::random])
-  random_api_name="std::random (c++0x)"
+  AC_DEFINE([USE_STD_RANDOM], [1], [Define if using c++11 std::random])
+  random_api_name="std::random (c++11)"
 elif test $have_boost_random = yes; then
   AC_DEFINE([USE_BOOST_RANDOM], [1], [Define if using boost::random])
   random_api_name="boost::random"
