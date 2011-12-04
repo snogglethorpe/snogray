@@ -166,7 +166,9 @@ int main (int argc, char *const *argv)
 	  // Write to the output image, scaling as necessary.
 	  //
 	  for (unsigned x = 0; x < src.width; x++)
-	    dst.add_sample ((x + 0.5f) * x_scale, (y + 0.5f) * y_scale, src_row[x]);
+	    dst.add_sample ((x + 0.5f) * x_scale,
+			    (y + 0.5f) * y_scale,
+			    src_row[x]);
 	}
     }
   catch (...) { throw; }
