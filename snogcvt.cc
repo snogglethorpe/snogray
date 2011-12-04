@@ -1,6 +1,6 @@
 // snogcvt.cc -- Image-type conversion utility
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -152,70 +152,82 @@ int main (int argc, char *const *argv)
   if (src.has_alpha_channel ())
     dst_params.set ("alpha-channel", true);
 
-  // Open the output image.
+  // We catch any exceptions thrown while the output file is open (and
+  // then just rethrow them), which ensures that all destructors are
+  // called, and thus that the output file's buffers are flushed even
+  // if an error occurs while processing.
   //
-  std::string dst_name = clp.get_arg ();
-  ImageOutput dst (dst_name, dst_width, dst_height, dst_params);
-
-  if (src.has_alpha_channel() && !dst.has_alpha_channel())
-    std::cerr << clp.err_pfx()
-	      << dst_name << ": warning: alpha-channel not preserved"
-	      << std::endl;
-
-  // Open the underlay image if necessary.
-  //
-  ImageInput *underlay = 0;
-  if (! underlay_image.empty ())
+  // This is necessary because the C++ standard allows an unhandled
+  // exception to call std::terminate immediately, without unwinding
+  // the stack.
+  try
     {
-      underlay = new ImageInput (underlay_image);
-
-      if (underlay->width != src.width || underlay->height != src.height)
-	clp.err (underlay_image
-		 + ": Underlay image size ("
-		 + stringify (underlay->width)
-		 + " x " + stringify (underlay->height)
-		 + ") must match source image ("
-		 + stringify (src.width) + " x " + stringify (src.height)
-		 + ")");
-    }
-
-  // The scaling we apply during image conversion.
-  //
-  float x_scale = float (dst_width) / float (src.width);
-  float y_scale = float (dst_height) / float (padded_src_height);
-
-  // Copy input image to output image, doing any processing
-  //
-  ImageRow src_row (src.width);
-  ImageRow underlay_row (src.width);
-  for (unsigned y = 0; y < src.height; y++)
-    {
-      // Read one row of the source image.
+      // Open the output image.
       //
-      src.read_row (src_row);
+      std::string dst_name = clp.get_arg ();
+      ImageOutput dst (dst_name, dst_width, dst_height, dst_params);
 
-      // If there's an underlay, we essentially take the maximum of it and
-      // the source image.  This is useful for HDR light-maps which only
-      // cover one hemisphere, if a whole-sphere low-dynamic-range image
-      // also exists:  the LDR info will used wherever the HDR image is
-      // black (and for light-maps, it doesn't really matter that much if
-      // the alignment between the two images isn't perfect).
+      if (src.has_alpha_channel() && !dst.has_alpha_channel())
+	std::cerr << clp.err_pfx()
+		  << dst_name << ": warning: alpha-channel not preserved"
+		  << std::endl;
+
+      // Open the underlay image if necessary.
       //
-      if (underlay)
+      ImageInput *underlay = 0;
+      if (! underlay_image.empty ())
 	{
-	  underlay->read_row (underlay_row);
+	  underlay = new ImageInput (underlay_image);
 
-	  for (unsigned x = 0; x < src.width; x++)
-	    src_row[x] = max (src_row[x], underlay_row[x]);
+	  if (underlay->width != src.width || underlay->height != src.height)
+	    clp.err (underlay_image
+		     + ": Underlay image size ("
+		     + stringify (underlay->width)
+		     + " x " + stringify (underlay->height)
+		     + ") must match source image ("
+		     + stringify (src.width) + " x " + stringify (src.height)
+		     + ")");
 	}
 
-      // Write to the output image, scaling as necessary.
+      // The scaling we apply during image conversion.
       //
-      for (unsigned x = 0; x < src.width; x++)
-	dst.add_sample ((x + 0.5f) * x_scale, (y + 0.5f) * y_scale, src_row[x]);
-    }
+      float x_scale = float (dst_width) / float (src.width);
+      float y_scale = float (dst_height) / float (padded_src_height);
 
-  delete underlay;
+      // Copy input image to output image, doing any processing
+      //
+      ImageRow src_row (src.width);
+      ImageRow underlay_row (src.width);
+      for (unsigned y = 0; y < src.height; y++)
+	{
+	  // Read one row of the source image.
+	  //
+	  src.read_row (src_row);
+
+	  // If there's an underlay, we essentially take the maximum of it and
+	  // the source image.  This is useful for HDR light-maps which only
+	  // cover one hemisphere, if a whole-sphere low-dynamic-range image
+	  // also exists:  the LDR info will used wherever the HDR image is
+	  // black (and for light-maps, it doesn't really matter that much if
+	  // the alignment between the two images isn't perfect).
+	  //
+	  if (underlay)
+	    {
+	      underlay->read_row (underlay_row);
+
+	      for (unsigned x = 0; x < src.width; x++)
+		src_row[x] = max (src_row[x], underlay_row[x]);
+	    }
+
+	  // Write to the output image, scaling as necessary.
+	  //
+	  for (unsigned x = 0; x < src.width; x++)
+	    dst.add_sample ((x + 0.5f) * x_scale, (y + 0.5f) * y_scale, src_row[x]);
+	}
+
+      delete underlay;
+    }
+  catch (...) { throw; }
 }
 
 // arch-tag: 9852837a-ecf5-4400-9b79-f0cca96a6736
