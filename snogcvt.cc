@@ -45,9 +45,6 @@ help (CmdLineParser &clp, ostream &os)
   os <<
   "Change the format of or transform an image file"
 n
-s "  -p, --pad-bottom=NUM_ROWS  Add NUM_ROWS black rows at the bottom of the image"
-s "                               (before doing any size conversion)"
-n
 s IMAGE_INPUT_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
@@ -69,7 +66,6 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "pad-bottom",	required_argument, 0, 'p' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
@@ -86,7 +82,6 @@ int main (int argc, char *const *argv)
   // Parameters set from the command line
   //
   unsigned dst_width = 0, dst_height = 0; // zero means copy from source image
-  unsigned pad_bottom = 0;		  // rows of padding to add to src img
   ValTable src_params, dst_params;
 
   // Parse command-line options
@@ -95,10 +90,6 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-      case 'p':
-	pad_bottom = clp.unsigned_opt_arg ();
-	break;
-
 	IMAGE_OUTPUT_OPTION_CASES (clp, dst_params);
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
@@ -116,8 +107,6 @@ int main (int argc, char *const *argv)
   //
   ImageInput src (clp.get_arg(), src_params);
 
-  unsigned padded_src_height = src.height + pad_bottom;
-
   float src_aspect_ratio = float (src.width) / float (src.height);
   unsigned src_size = max (src.width, src.height);
 
@@ -128,7 +117,7 @@ int main (int argc, char *const *argv)
   //
   if (! dst_params.contains ("filter"))
     {
-      if (dst_width == src.width || dst_height == padded_src_height)
+      if (dst_width == src.width || dst_height == src.height)
 	//
 	// If the image size is not being changed, force no filtering
 	//
@@ -163,7 +152,7 @@ int main (int argc, char *const *argv)
       // The scaling we apply during image conversion.
       //
       float x_scale = float (dst_width) / float (src.width);
-      float y_scale = float (dst_height) / float (padded_src_height);
+      float y_scale = float (dst_height) / float (src.height);
 
       // Copy input image to output image, doing any processing
       //
