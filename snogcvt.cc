@@ -48,10 +48,6 @@ n
 s "  -p, --pad-bottom=NUM_ROWS  Add NUM_ROWS black rows at the bottom of the image"
 s "                               (before doing any size conversion)"
 n
-s "      --underlay=UND_IMAGE   Use pixels from UND_IMAGE when they are brighter"
-s "                               than the corresponding pixel in SOURCE_IMAGE"
-s "                               (UND_IMAGE must be the same size as SOURCE_IMAGE)"
-n
 s IMAGE_INPUT_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
@@ -68,15 +64,12 @@ n
 #undef n
 }
 
-#define OPT_UNDERLAY	1
-
 int main (int argc, char *const *argv)
 {
   // Command-line option specs
   //
   static struct option long_options[] = {
     { "pad-bottom",	required_argument, 0, 'p' },
-    { "underlay",	required_argument, 0, OPT_UNDERLAY },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
@@ -94,7 +87,6 @@ int main (int argc, char *const *argv)
   //
   unsigned dst_width = 0, dst_height = 0; // zero means copy from source image
   unsigned pad_bottom = 0;		  // rows of padding to add to src img
-  string underlay_image;		  // image file to use as underlay
   ValTable src_params, dst_params;
 
   // Parse command-line options
@@ -105,10 +97,6 @@ int main (int argc, char *const *argv)
       {
       case 'p':
 	pad_bottom = clp.unsigned_opt_arg ();
-	break;
-
-      case OPT_UNDERLAY:
-	underlay_image = clp.opt_arg ();
 	break;
 
 	IMAGE_OUTPUT_OPTION_CASES (clp, dst_params);
@@ -172,23 +160,6 @@ int main (int argc, char *const *argv)
 		  << dst_name << ": warning: alpha-channel not preserved"
 		  << std::endl;
 
-      // Open the underlay image if necessary.
-      //
-      ImageInput *underlay = 0;
-      if (! underlay_image.empty ())
-	{
-	  underlay = new ImageInput (underlay_image);
-
-	  if (underlay->width != src.width || underlay->height != src.height)
-	    clp.err (underlay_image
-		     + ": Underlay image size ("
-		     + stringify (underlay->width)
-		     + " x " + stringify (underlay->height)
-		     + ") must match source image ("
-		     + stringify (src.width) + " x " + stringify (src.height)
-		     + ")");
-	}
-
       // The scaling we apply during image conversion.
       //
       float x_scale = float (dst_width) / float (src.width);
@@ -197,35 +168,17 @@ int main (int argc, char *const *argv)
       // Copy input image to output image, doing any processing
       //
       ImageRow src_row (src.width);
-      ImageRow underlay_row (src.width);
       for (unsigned y = 0; y < src.height; y++)
 	{
 	  // Read one row of the source image.
 	  //
 	  src.read_row (src_row);
 
-	  // If there's an underlay, we essentially take the maximum of it and
-	  // the source image.  This is useful for HDR light-maps which only
-	  // cover one hemisphere, if a whole-sphere low-dynamic-range image
-	  // also exists:  the LDR info will used wherever the HDR image is
-	  // black (and for light-maps, it doesn't really matter that much if
-	  // the alignment between the two images isn't perfect).
-	  //
-	  if (underlay)
-	    {
-	      underlay->read_row (underlay_row);
-
-	      for (unsigned x = 0; x < src.width; x++)
-		src_row[x] = max (src_row[x], underlay_row[x]);
-	    }
-
 	  // Write to the output image, scaling as necessary.
 	  //
 	  for (unsigned x = 0; x < src.width; x++)
 	    dst.add_sample ((x + 0.5f) * x_scale, (y + 0.5f) * y_scale, src_row[x]);
 	}
-
-      delete underlay;
     }
   catch (...) { throw; }
 }
