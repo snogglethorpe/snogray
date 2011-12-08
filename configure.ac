@@ -225,40 +225,62 @@ AC_DEFUN([SNOGRAY_CHECK_CXX_LINK_FLAG], [
 
 # Try to choose a compiler support level option.
 #
+broken_cxx11=no
 for opt in -std=c++11 -std=c++0x -std=c++98; do
+  # See if this is option should enable a C++11 mode.
+  cxx11=no
+  case "$opt" in "-std=c++0x"|"-std=c++11") cxx11=yes;; esac
+
+  # Don't bother checking a C++11-enabling option if we've already
+  # determined C++11 support is broken for this compiler.
+  test $cxx11+$broken_cxx11 = yes+yes && continue
+
+  # See if the option works.
   SNOGRAY_CHECK_CXX_FLAG([CXX_STD_FLAGS], [$opt])
 
-  case "$CXX_STD_FLAGS" in
-    "-std=c++0x")
-      # Some compilers (versions of g++ 4.3, clang with a mismatched
-      # version of libstdc++) have broken support for c++0x, so try to
-      # detect problematic cases we know about, and revert to c++98 if
-      # compilation fails.
-      #
-      # This is just a mismash of code containing valid bits of C++0x
-      # code that fail to compile on various compilers.
-      #
-      AC_MSG_CHECKING([checking whether c++0x support is broken])
-      _OLD_CXXFLAGS="$CXXFLAGS"
-      CXXFLAGS="$CXXFLAGS $CXX_STD_FLAGS"
-      AC_COMPILE_IFELSE(
-	[AC_LANG_SOURCE(
-	    [#include <iostream>
-	     #include <type_traits>
-	     bool file_exists () { return true; }
-	     using namespace std;
-	     bool test () { return file_exists (); }])],
-	[broken_cxx0x=no],
-	[broken_cxx0x=yes])
-      CXXFLAGS="$_OLD_CXXFLAGS"
-      AC_MSG_RESULT([$broken_cxx0x])
-      if test "$broken_cxx0x" = yes; then
-	CXX_STD_FLAGS=""
-	cxx_level_note=" (c++0x support broken)"
-      fi
-      ;;
-  esac
+  # Some compilers (versions of g++ 4.3, clang with a mismatched
+  # version of libstdc++) have broken support for c++11, so try to
+  # detect problematic cases we know about, and revert to c++98 if
+  # compilation fails.
+  #
+  if test x"$CXX_STD_FLAGS" != x && test $cxx11 = yes; then
+    # This is just a mismash of code containing valid bits of C++0x
+    # code that fail to compile on various compilers.
+    #
+    AC_MSG_CHECKING([checking whether c++11 support is broken])
+    _OLD_CXXFLAGS="$CXXFLAGS"
+    CXXFLAGS="$CXXFLAGS $CXX_STD_FLAGS"
+    AC_COMPILE_IFELSE(
+      [AC_LANG_SOURCE(
+       [#include <iostream>
+	#include <type_traits>
 
+	// When compiling with a "newish" libstdc++ which supports
+	// constexpr, make sure constexpr actually _works_ because
+	// libstdc++ depends on it in c++11 mode.  This issue arises
+	// with some clang installations which use libstdc++ from a
+	// co-installed gcc, but barf on some libstdc++ includes in
+	// c++11 mode.
+	#ifdef _GLIBCXX_USE_CONSTEXPR
+	  constexpr int const_func () { return 3; }
+	  static_assert (const_func() > 0, "constexpr barf");
+	#endif
+
+	// This test fails in c++0x mode on broken gcc 4.3 versions
+	bool file_exists () { return true; }
+	using namespace std;
+	bool test () { return file_exists (); }])],
+     [broken_cxx11=no],
+     [broken_cxx11=yes])
+   CXXFLAGS="$_OLD_CXXFLAGS"
+   AC_MSG_RESULT([$broken_cxx11])
+   if test "$broken_cxx11" = yes; then
+     CXX_STD_FLAGS=""
+     cxx_level_note=" (c++11 support broken)"
+   fi
+  fi
+
+  # Stop searching if we found a working option.
   test x"$CXX_STD_FLAGS" = x || break
 done
 #
