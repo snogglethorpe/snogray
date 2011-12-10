@@ -82,7 +82,7 @@ public:
     // output-image coordinate-system.
     //
     new_min_y -= int (sample_base_y);
-    new_min_y -= int (filter_radius ());
+    new_min_y -= int (filter_y_radius ());
     set_raw_min_y (max (min_y, new_min_y));
   }
 
@@ -95,11 +95,12 @@ public:
   //
   void set_raw_min_y (int new_min_y);
 
-  // Return the number rows or columns on either side of any pixel that are
-  // effective when a sample is added inside that pixel (because of filter
-  // convolution).
+  // Return the number of columns/rows on either side of any pixel
+  // that are effective when a sample is added inside that pixel
+  // (because of filter convolution).
   //
-  unsigned filter_radius () const { return filter_conv.filter_radius; }
+  unsigned filter_x_radius () const { return filter_conv.filter_x_radius; }
+  unsigned filter_y_radius () const { return filter_conv.filter_y_radius; }
 
   // Add a sample with value TINT at integer coordinates PX, PY.  WEIGHT
   // controls how much this sample counts relative to other samples added

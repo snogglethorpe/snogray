@@ -1,6 +1,6 @@
 // filter-conv.h -- "Filter Convolver" for convolving samples through a filter
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -37,7 +37,8 @@ public:
 
   FilterConvBase (const ValTable &params = ValTable::NONE)
     : filter (Filter::make (params)),
-      filter_radius (filter ? int (ceil (filter->width - 1.0001)) : 0),
+      filter_x_radius (filter ? int (ceil (filter->x_width - 1.0001)) : 0),
+      filter_y_radius (filter ? int (ceil (filter->y_width - 1.0001)) : 0),
       neg_clamp (-abs (params.get_float ("neg-clamp", default_neg_clamp ())))
   { }
   ~FilterConvBase () { delete filter; }
@@ -46,14 +47,16 @@ public:
   //
   const Filter *filter;
 
-  // "Radius" of FILTER.  This is an integer defining the number of
-  // adjacent pixels on all sides of a pixel which are effected by output
-  // samples within it.  It is calculated by expanding the maximum
-  // filter width to a pixel boundary, and subtracting one to eliminate
-  // the center pixel.
+  // "Radius" of FILTER, for x- and y-dimensions.  This is an integer
+  // defining the number of adjacent pixels on all sides of a pixel
+  // which are effected by output samples within it.  It is calculated
+  // by expanding the filter width in the given dimension to a pixel
+  // boundary, and subtracting one to eliminate the center pixel.
   //
-  int filter_radius;		// really unsigned, but g++ goes nuts with
-				// warnings if we actually use that type
+  // (this value is really unsigned, but g++ goes nuts with warnings
+  // if we actually use that type)
+  //
+  int filter_x_radius, filter_y_radius;
 
   // A clamp for the minimum negative value of filtered sample points.
   // See the comment in FilterConv::add_sample for more details.
@@ -117,7 +120,7 @@ public:
 	// Add the light from SAMP to all pixels supported by the
 	// output filter.
 	//
-	for (int fy = -filter_radius; fy <= filter_radius; fy++)
+	for (int fy = -filter_y_radius; fy <= filter_y_radius; fy++)
 	  {
 	    int py = y + fy; // y-coordinate of pixel within the filter's radius
 
@@ -125,7 +128,7 @@ public:
 	    // output boundaries.
 	    //
 	    if (dst.valid_y (py))
-	      for (int fx = -filter_radius; fx <= filter_radius; fx++)
+	      for (int fx = -filter_x_radius; fx <= filter_x_radius; fx++)
 		{
 		  int px = x + fx; // x-coordinate of the pixel
 

@@ -33,7 +33,7 @@ public:
 
   virtual float val (float x, float y) const
   {
-    return max (0.f, width - abs (x)) * max (0.f, width - abs (y));
+    return max (0.f, x_width - abs (x)) * max (0.f, y_width - abs (y));
   }
 };
 

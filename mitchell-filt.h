@@ -44,10 +44,10 @@ public:
 
   virtual float val (float x, float y) const
   {
-    return mitchell1 (x) * mitchell1 (y);
+    return mitchell1 (x, inv_x_width) * mitchell1 (y, inv_y_width);
   }
 
-  float mitchell1 (float x) const
+  float mitchell1 (float x, float inv_width) const
   {
     x = abs (2.f * x * inv_width);
 

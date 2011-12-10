@@ -655,9 +655,10 @@ int main (int argc, char *const *argv)
   // The pattern of pixels we will render; we add a small margin around
   // the output image to keep the edges clean.
   //
-  unsigned margin = output.filter_radius ();
-  RenderPattern pattern (limit_x - margin, limit_y - margin,
-			 limit_width + margin*2, limit_height + margin*2);
+  unsigned x_margin = output.filter_x_radius ();
+  unsigned y_margin = output.filter_y_radius ();
+  RenderPattern pattern (limit_x - x_margin, limit_y - y_margin,
+			 limit_width + x_margin*2, limit_height + y_margin*2);
 
   // Start progress indicator
   //
