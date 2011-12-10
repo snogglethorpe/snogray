@@ -1,6 +1,6 @@
 // val-table.cc -- General value lists
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -255,6 +255,49 @@ ValTable::import (const ValTable &table, const std::string &prefix)
 {
   for (const_iterator i = table.begin (); i != table.end (); ++i)
     set (prefix + i->first, i->second);
+}
+
+
+// Table entry copying
+
+// Set the entry called NAME to the value of FROM's entry of the same
+// name; if FROM doesn't contain any entry of that name, nothing is
+// done.  If NAME is a comma-separated list of names, then it is used
+// directly to lookup FROM's entry, but only the first name is used to
+// store the result into this table.
+//
+void
+ValTable::set_from (const std::string &name, const ValTable &from)
+{
+  const Val *from_entry = from.get (name);
+
+  if (from_entry)
+    {
+      std::string first_name = name;
+      std::string::size_type name_sep_pos = name.find_first_of (",");
+
+      // If FIRST_NAME contains multiple names, remove all but the
+      // last.
+      //
+      if (name_sep_pos != std::string::npos)
+	first_name.resize (name_sep_pos);
+
+      set (first_name, *from_entry);
+    }
+}
+
+// If this table doesn't contains an entry called NAME, but FROM does,
+// then add one using the value of FROM's entry; if FROM doesn't
+// contain any entry of that name, nothing is done.  If NAME is a
+// comma-separated list of names, then it is used directly to lookup
+// FROM's entry, but only the first name is used to store the result
+// into this table.
+//
+void
+ValTable::default_from (const std::string &name, const ValTable &from)
+{
+  if (! contains (name))
+    set_from (name, from);
 }
 
 
