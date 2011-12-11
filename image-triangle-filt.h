@@ -1,4 +1,4 @@
-// triangle.h -- Triangleian filter
+// triangle.h -- Triangleian filter for image output
 //
 //  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
@@ -10,16 +10,16 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_TRIANGLE_FILT_H
-#define SNOGRAY_TRIANGLE_FILT_H
+#ifndef SNOGRAY_IMAGE_TRIANGLE_FILT_H
+#define SNOGRAY_IMAGE_TRIANGLE_FILT_H
 
-#include "filter.h"
+#include "image-filter.h"
 
 
 namespace snogray {
 
 
-class TriangleFilt : public Filter
+class ImageTriangleFilt : public ImageFilter
 {
 public:
 
@@ -28,8 +28,12 @@ public:
   // support is widespread, that can be used instead.
   static float default_width () { return 2; }
 
-  TriangleFilt (float _width = default_width()) : Filter (_width) { }
-  TriangleFilt (const ValTable &params) : Filter (params, default_width()) { }
+  ImageTriangleFilt (float _width = default_width())
+    : ImageFilter (_width)
+  { }
+  ImageTriangleFilt (const ValTable &params)
+    : ImageFilter (params, default_width())
+  { }
 
   virtual float val (float x, float y) const
   {
@@ -40,4 +44,4 @@ public:
 
 }
 
-#endif // SNOGRAY_TRIANGLE_FILT_H
+#endif // SNOGRAY_IMAGE_TRIANGLE_FILT_H

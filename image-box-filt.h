@@ -1,4 +1,4 @@
-// box.h -- Boxian filter
+// image-box-filt.h -- Boxian filter for image output
 //
 //  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
@@ -10,16 +10,16 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_BOX_FILT_H
-#define SNOGRAY_BOX_FILT_H
+#ifndef SNOGRAY_IMAGE_BOX_FILT_H
+#define SNOGRAY_IMAGE_BOX_FILT_H
 
-#include "filter.h"
+#include "image-filter.h"
 
 
 namespace snogray {
 
 
-class BoxFilt : public Filter
+class ImageBoxFilt : public ImageFilter
 {
 public:
 
@@ -28,8 +28,12 @@ public:
   // support is widespread, that can be used instead.
   static float default_width () { return 0.5; }
 
-  BoxFilt (float _width = default_width()) : Filter (_width) { }
-  BoxFilt (const ValTable &params) : Filter (params, default_width()) { }
+  ImageBoxFilt (float _width = default_width())
+    : ImageFilter (_width)
+  { }
+  ImageBoxFilt (const ValTable &params)
+    : ImageFilter (params, default_width())
+  { }
 
   virtual float val (float, float) const
   {
@@ -40,7 +44,7 @@ public:
 
 }
 
-#endif /* SNOGRAY_BOX_FILT_H */
+#endif // SNOGRAY_IMAGE_BOX_FILT_H
 
 
 // arch-tag: bd67bb8b-e1c1-42db-b623-a4169b5070fc

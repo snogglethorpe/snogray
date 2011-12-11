@@ -1,6 +1,6 @@
 // image-output.h -- High-level image output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,11 +18,12 @@
 #include <deque>
 
 #include "unique-ptr.h"
-#include "filter-conv.h"
+#include "image-filter-conv.h"
 #include "image-io.h"
 
 
 namespace snogray {
+
 
 class ImageOutput
 {
@@ -107,7 +108,7 @@ public:
   // at the same coordinates.  It is assumed that TINT has already been
   // scaled by WEIGHT.
   //
-  // [This method is a callback used by Filterconv<ImageOutput>.]
+  // [This method is a callback used by ImageFilterConv<ImageOutput>.]
   //
   void add_sample (int px, int py, const Tint &tint, float weight)
   {
@@ -120,7 +121,7 @@ public:
   // The coordinates are in the output image's coordinate-system
   // (so in the range 0,0 - WIDTH,HEIGHT).
   //
-  // [These methods are callbacks used by Filterconv<ImageOutput>.]
+  // [These methods are callbacks used by ImageFilterConv<ImageOutput>.]
   //
   bool valid_x (int px) { return px >= 0 && px < int (width); }
   bool valid_y (int py) { return py >= min_y && py < int (height); }
@@ -176,7 +177,7 @@ private:
   //
   UniquePtr<ImageSink> sink;
 
-  FilterConv<ImageOutput, Tint> filter_conv;
+  ImageFilterConv<ImageOutput, Tint> filter_conv;
 
   // Currently available rows.  The row number of the first row is
   // ImageOutput::min_y.
@@ -184,8 +185,10 @@ private:
   std::deque<SampleRow *> rows;
 };
 
+
 }
 
-#endif /* SNOGRAY_IMAGE_OUTPUT_H */
+#endif // SNOGRAY_IMAGE_OUTPUT_H
+
 
 // arch-tag: 4e362922-5358-4423-80c0-2a3d3d8100fe

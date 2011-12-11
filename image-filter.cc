@@ -1,4 +1,4 @@
-// filter.cc -- Filter datatype
+// image-filter.cc -- Filters for image output
 //
 //  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
@@ -12,12 +12,12 @@
 
 #include "excepts.h"
 #include "val-table.h"
-#include "mitchell-filt.h"
-#include "gauss-filt.h"
-#include "triangle-filt.h"
-#include "box-filt.h"
+#include "image-mitchell-filt.h"
+#include "image-gauss-filt.h"
+#include "image-triangle-filt.h"
+#include "image-box-filt.h"
 
-#include "filter.h"
+#include "image-filter.h"
 
 
 using namespace snogray;
@@ -25,11 +25,13 @@ using namespace snogray;
 
 // Return a new a filter depending on the parameters in PARAMS.
 //
-Filter *
-Filter::make (const ValTable &params)
+ImageFilter *
+ImageFilter::make (const ValTable &params)
 {
   std::string filter_type = params.get_string ("filter", "mitchell");
-  ValTable all_filter_params = params.filter_by_prefix ("filter.");
+
+  ValTable all_filter_params
+    = params.filter_by_prefix ("filter.");
   ValTable filter_params
     = all_filter_params.filter_by_prefix (filter_type + ".");
 
@@ -47,15 +49,16 @@ Filter::make (const ValTable &params)
   if (filter_type == "none")
     return 0;
   else if (filter_type == "mitchell")
-    return new MitchellFilt (filter_params);
+    return new ImageMitchellFilt (filter_params);
   else if (filter_type == "gauss")
-    return new GaussFilt (filter_params);
+    return new ImageGaussFilt (filter_params);
   else if (filter_type == "triangle")
-    return new TriangleFilt (filter_params);
+    return new ImageTriangleFilt (filter_params);
   else if (filter_type == "box")
-    return new BoxFilt (filter_params);
+    return new ImageBoxFilt (filter_params);
   else
     throw std::runtime_error (filter_type + ": unknown output filter type");
 }
+
 
 // arch-tag: b777ab5a-d4d2-44af-a23b-e8012cab289c

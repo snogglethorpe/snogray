@@ -15,10 +15,6 @@
 #include "snogmath.h"
 #include "snogassert.h"
 #include "excepts.h"
-#include "filter.h"
-#include "mitchell-filt.h"
-#include "gauss-filt.h"
-#include "box-filt.h"
 
 #include "image-output.h"
 

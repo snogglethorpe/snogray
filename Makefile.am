@@ -320,14 +320,15 @@ endif
 # Snogray image I/O library, libsnogimage.a
 #
 
-libsnogimage_a_SOURCES = box-filt.h filter.cc filter.h filter-conv.h	 \
-	gauss-filt.h image.h image-byte-vec.cc image-byte-vec.h		 \
-	image-cmdline.cc image-cmdline.h tuple-adaptor.h tuple-matrix.cc \
-	tuple-matrix.h tuple-matrix.tcc image-dispatch.cc image-dtors.cc \
-	image-input.h image-io.cc image-io.h image-output.cc		 \
-	image-output.h image-pfm.cc image-pfm.h image-rgbe.cc		 \
-	image-rgbe.h image-tga.cc image-tga.h mitchell-filt.h		 \
-	triangle-filt.h
+libsnogimage_a_SOURCES = image.h image-box-filt.h image-byte-vec.cc	\
+	image-byte-vec.h image-cmdline.cc image-cmdline.h		\
+	image-dispatch.cc image-dtors.cc image-filter-conv.h		\
+	image-filter.cc image-filter.h image-gauss-filt.h		\
+	image-input.h image-io.cc image-io.h image-mitchell-filt.h	\
+	image-output.cc image-output.h image-pfm.cc image-pfm.h		\
+	image-rgbe.cc image-rgbe.h image-tga.cc image-tga.h		\
+	image-triangle-filt.h tuple-adaptor.h tuple-matrix.cc		\
+	tuple-matrix.h tuple-matrix.tcc
 
 # Library dependencies of libsnogimage.a
 #

@@ -1,4 +1,4 @@
-// filter-conv.h -- "Filter Convolver" for convolving samples through a filter
+// image-filter-conv.h -- "Filter Convolver" for convolving samples through a filter
 //
 //  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
@@ -10,22 +10,22 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_FILTER_CONV_H
-#define SNOGRAY_FILTER_CONV_H
+#ifndef SNOGRAY_IMAGE_FILTER_CONV_H
+#define SNOGRAY_IMAGE_FILTER_CONV_H
 
 #include "snogmath.h"
 #include "val-table.h"
 #include "color.h"
-#include "filter.h"
+#include "image-filter.h"
 
 
 namespace snogray {
 
 
-// Base-class for FilterConv<> (see below); holds common fields for
+// Base-class for ImageFilterConv<> (see below); holds common fields for
 // parametric subclasses.
 //
-class FilterConvBase
+class ImageFilterConvBase
 {
 public:
 
@@ -35,17 +35,17 @@ public:
   static float default_neg_clamp () { return -0.1; }
   static float max_filter_width_scale () { return 2.f; }
 
-  FilterConvBase (const ValTable &params = ValTable::NONE)
-    : filter (Filter::make (params)),
+  ImageFilterConvBase (const ValTable &params = ValTable::NONE)
+    : filter (ImageFilter::make (params)),
       filter_x_radius (filter ? int (ceil (filter->x_width - 1.0001)) : 0),
       filter_y_radius (filter ? int (ceil (filter->y_width - 1.0001)) : 0),
       neg_clamp (-abs (params.get_float ("neg-clamp", default_neg_clamp ())))
   { }
-  ~FilterConvBase () { delete filter; }
+  ~ImageFilterConvBase () { delete filter; }
 
   // Anti-aliasing filter.
   //
-  const Filter *filter;
+  const ImageFilter *filter;
 
   // "Radius" of FILTER, for x- and y-dimensions.  This is an integer
   // defining the number of adjacent pixels on all sides of a pixel
@@ -59,17 +59,17 @@ public:
   int filter_x_radius, filter_y_radius;
 
   // A clamp for the minimum negative value of filtered sample points.
-  // See the comment in FilterConv::add_sample for more details.
+  // See the comment in ImageFilterConv::add_sample for more details.
   //
   float neg_clamp;
 
 };
 
 
-// A "filter convolver": Holds a filter and some filter-related parameters;
-// when the `FilterConv<>::add_sample' method is called, will convolve the
-// sample through the filter and apply the resulting derived samples to a
-// generic destination of type Dst.
+// A "filter convolver": Holds a filter and some filter-related
+// parameters; when the `ImageFilterConv<>::add_sample' method is
+// called, will convolve the sample through the filter and apply the
+// resulting derived samples to a generic destination of type Dst.
 //
 // Dst should support the following methods:
 //
@@ -81,17 +81,17 @@ public:
 //
 //   // Return true if the given X or Y coordinate is valid.
 //   //
-//   // [These methods are callbacks used by Filterconv<ImageOutput>.]
+//   // [These methods are callbacks used by ImageFilterconv<ImageOutput>.]
 //   //
 //   bool valid_x (int px) { return px >= 0 && px < int (width); }
 //   bool valid_y (int py) { return py >= min_y && py < int (height); }
 //
 template<class Dst, typename Samp>
-class FilterConv : public FilterConvBase
+class ImageFilterConv : public ImageFilterConvBase
 {
 public:
 
-  FilterConv (const ValTable &params) : FilterConvBase (params) { }
+  ImageFilterConv (const ValTable &params) : ImageFilterConvBase (params) { }
 
   // Add a sample with value SAMP at floating point position SX, SY.
   // SAMP's contribution to adjacent pixels is determined by the
@@ -192,7 +192,7 @@ public:
 
 }
 
-#endif // SNOGRAY_FILTER_CONV_H
+#endif // SNOGRAY_IMAGE_FILTER_CONV_H
 
 
 // arch-tag: aeab9dc8-70b4-48d8-8331-0bc1a3d2d7df

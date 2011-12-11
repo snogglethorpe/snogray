@@ -1,4 +1,4 @@
-// gauss.h -- Gaussian filter
+// gauss.h -- Gaussian filter for image output
 //
 //  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
@@ -10,10 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_GAUSS_FILT_H
-#define SNOGRAY_GAUSS_FILT_H
+#ifndef SNOGRAY_IMAGE_GAUSS_FILT_H
+#define SNOGRAY_IMAGE_GAUSS_FILT_H
 
-#include "filter.h"
+#include "image-filter.h"
 
 
 namespace snogray {
@@ -21,22 +21,23 @@ namespace snogray {
 
 // 2D gauss
 //
-class GaussFilt : public Filter
+class ImageGaussFilt : public ImageFilter
 {
 public:
 
   static float default_alpha () { return 2; }
   static float default_width () { return 2; }
 
-  GaussFilt (float _alpha = default_alpha(), float _width = default_width())
-    : Filter (_width),
+  ImageGaussFilt (float _alpha = default_alpha(),
+		  float _width = default_width())
+    : ImageFilter (_width),
       alpha (_alpha),
       bias (gauss1 (default_width (), 0)),
       x_scale (default_width () / _width),
       y_scale (default_width () / _width)
   { }
-  GaussFilt (const ValTable &params)
-    : Filter (params, default_width()),
+  ImageGaussFilt (const ValTable &params)
+    : ImageFilter (params, default_width()),
       alpha (params.get_float ("alpha,a", default_alpha())),
       bias (gauss1 (default_width (), 0)),
       x_scale (default_width () / x_width),
@@ -73,7 +74,7 @@ private:
 
 }
 
-#endif // SNOGRAY_GAUSS_FILT_H
+#endif // SNOGRAY_IMAGE_GAUSS_FILT_H
 
 
 // arch-tag: 6599c368-7f8e-4636-8ff8-6eb1688f033a

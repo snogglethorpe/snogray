@@ -1,4 +1,4 @@
-// mitchell-filt.h -- Mitchell filter
+// image-mitchell-filt.h -- Mitchell filter for image output
 //
 //  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
@@ -10,10 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_MITCHELL_FILT_H
-#define SNOGRAY_MITCHELL_FILT_H
+#ifndef SNOGRAY_IMAGE_MITCHELL_FILT_H
+#define SNOGRAY_IMAGE_MITCHELL_FILT_H
 
-#include "filter.h"
+#include "image-filter.h"
 
 
 namespace snogray {
@@ -21,7 +21,7 @@ namespace snogray {
 
 // 2D mitchell filter
 //
-class MitchellFilt : public Filter
+class ImageMitchellFilt : public ImageFilter
 {
 public:
 
@@ -32,12 +32,12 @@ public:
   static float default_c () { return 1.f / 3.f; }
   static float default_width () { return 2; }
 
-  MitchellFilt (float _b = default_b(), float _c = default_c(),
-		float _width = default_width())
-    : Filter (_width), b (_b), c (_c)
+  ImageMitchellFilt (float _b = default_b(), float _c = default_c(),
+		     float _width = default_width())
+    : ImageFilter (_width), b (_b), c (_c)
   { }
-  MitchellFilt (const ValTable &params)
-    : Filter (params, default_width()),
+  ImageMitchellFilt (const ValTable &params)
+    : ImageFilter (params, default_width()),
       b (params.get_float ("b", default_b())),
       c (params.get_float ("c", default_c()))
   { }
@@ -68,7 +68,7 @@ public:
 
 }
 
-#endif /* SNOGRAY_MITCHELL_FILT_H */
+#endif // SNOGRAY_IMAGE_MITCHELL_FILT_H
 
 
 // arch-tag: 7fd2ef94-7377-449a-a24a-dfbea8c016bc
