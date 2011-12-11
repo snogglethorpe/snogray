@@ -129,6 +129,19 @@ int main (int argc, char *const *argv)
   if (src.has_alpha_channel ())
     dst_params.set ("alpha-channel", true);
 
+  // The scaling we apply during image conversion.
+  //
+  float x_scale = float (dst_width) / float (src.width);
+  float y_scale = float (dst_height) / float (src.height);
+
+  // If upscaling, make the filter width wide enough to cover the
+  // output pixels.
+  //
+  if (x_scale > 1)
+    dst_params.set ("filter.x-width-scale", x_scale);
+  if (y_scale > 1)
+    dst_params.set ("filter.y-width-scale", y_scale);
+
   // We catch any exceptions thrown while the output file is open (and
   // then just rethrow them), which ensures that all destructors are
   // called, and thus that the output file's buffers are flushed even
@@ -148,11 +161,6 @@ int main (int argc, char *const *argv)
 	std::cerr << clp.err_pfx()
 		  << dst_name << ": warning: alpha-channel not preserved"
 		  << std::endl;
-
-      // The scaling we apply during image conversion.
-      //
-      float x_scale = float (dst_width) / float (src.width);
-      float y_scale = float (dst_height) / float (src.height);
 
       // Copy input image to output image, doing any processing
       //
