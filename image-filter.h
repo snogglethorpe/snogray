@@ -30,7 +30,7 @@ public:
   //
   static ImageFilter *make (const ValTable &params);
 
-  virtual ~ImageFilter ();
+  virtual ~ImageFilter () { }
 
   virtual float val (float x, float y) const = 0;
 
