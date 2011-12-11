@@ -1,6 +1,6 @@
 // filter.cc -- Filter datatype
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,28 +28,34 @@ using namespace snogray;
 Filter *
 Filter::make (const ValTable &params)
 {
-  std::string filter_type = params.get_string ("filter");
+  std::string filter_type = params.get_string ("filter", "mitchell");
+  ValTable all_filter_params = params.filter_by_prefix ("filter.");
+  ValTable filter_params
+    = all_filter_params.filter_by_prefix (filter_type + ".");
 
-  if (filter_type.empty ())
-    return new MitchellFilt ();
+  // For "generic" parameters, which apply to every filter type,
+  // default to a parameter entry without the filter-type in the name,
+  // if no more specific entry exists for that parameter.
+  //
+  filter_params.default_from ("x-width,xw,width,w", all_filter_params);
+  filter_params.default_from ("y-width,yw,width,w", all_filter_params);
+  filter_params.default_from ("x-width-scale", all_filter_params);
+  filter_params.default_from ("y-width-scale", all_filter_params);
+
+  // Create the filter.
+  //
+  if (filter_type == "none")
+    return 0;
+  else if (filter_type == "mitchell")
+    return new MitchellFilt (filter_params);
+  else if (filter_type == "gauss")
+    return new GaussFilt (filter_params);
+  else if (filter_type == "triangle")
+    return new TriangleFilt (filter_params);
+  else if (filter_type == "box")
+    return new BoxFilt (filter_params);
   else
-    {
-      ValTable filter_params
-	= params.filter_by_prefix ("filter." + filter_type + ".");
-
-      if (filter_type == "none")
-	return 0;
-      else if (filter_type == "mitchell")
-	return new MitchellFilt (filter_params);
-      else if (filter_type == "gauss")
-	return new GaussFilt (filter_params);
-      else if (filter_type == "triangle")
-	return new TriangleFilt (filter_params);
-      else if (filter_type == "box")
-	return new BoxFilt (filter_params);
-      else
-	throw std::runtime_error (filter_type + ": unknown output filter type");
-    }
+    throw std::runtime_error (filter_type + ": unknown output filter type");
 }
 
 // arch-tag: b777ab5a-d4d2-44af-a23b-e8012cab289c
