@@ -37,7 +37,6 @@ class Subspace : public RefCounted
 public:
 
   Subspace (Surface *surf, const SpaceBuilderFactory &space_builder_factory);
-  ~Subspace ();
 
   // If the associated surface intersects RAY, change RAY's maximum bound
   // (Ray::t1) to reflect the point of intersection, and return a
@@ -104,7 +103,7 @@ private:
   // Space holding everything from SURFACE, or zero if it hasn't been
   // built yet.
   //
-  mutable const Space *space;
+  mutable UniquePtr<const Space> space;
 
   // SpaceBuilder that can be used to build SPACE, or zero if it's
   // already been built.

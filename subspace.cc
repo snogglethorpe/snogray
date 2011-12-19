@@ -24,14 +24,9 @@ using namespace snogray;
 
 Subspace::Subspace (Surface *surf,
 		    const SpaceBuilderFactory &space_builder_factory)
-  : surface (surf), space (0),
+  : surface (surf),
     space_builder (space_builder_factory.make_space_builder ())
 { }
-
-Subspace::~Subspace ()
-{
-  delete space;
-}
 
 
 // Setup our acceleration structure.
@@ -47,7 +42,7 @@ Subspace::make_space (RenderContext &context) const
 
       surface->add_to_space (*space_builder);
 
-      space = space_builder->make_space ();
+      space.reset (space_builder->make_space ());
 
       space_builder.reset ();
     }
