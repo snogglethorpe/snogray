@@ -1,6 +1,6 @@
 # Automake Makefile template for snogray
 #
-#  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ EXTRA_DIST =							\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg vector.swg val-table.swg			\
 	image.swg surface.swg material.swg light.swg tex.swg	\
-	scene.swg camera.swg color.swg util.swg			\
+	scene.swg camera.swg space.swg color.swg util.swg	\
 	update-version.sh					\
 	autogen.sh						\
 	lpeg.html						\
@@ -532,9 +532,9 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
 #
-snograw_lua_wrap.cc: vector.swg val-table.swg image.swg	\
+snograw_lua_wrap.cc: vector.swg val-table.swg image.swg		\
 	surface.swg material.swg light.swg tex.swg scene.swg	\
-	camera.swg color.swg util.swg
+	camera.swg color.swg space.swg util.swg
 
 # Compiler options for compiling SWIG-generated Lua interface.
 #
