@@ -50,7 +50,7 @@ EXTRA_DIST =							\
 	README README.building README.usage			\
 	snogray.lua						\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
-	snograw.swg						\
+	snograw.swg val-table.swg				\
 	update-version.sh					\
 	autogen.sh						\
 	lpeg.html						\
@@ -518,6 +518,11 @@ else
 endif
 
 libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
+
+# We include some other SWIG files from snograw.swg, so reflect those
+# dependencies.
+#
+snograw_lua_wrap.cc: val-table.swg
 
 # Compiler options for compiling SWIG-generated Lua interface.
 #
