@@ -292,6 +292,8 @@ namespace snogray {
   {
   public:
 
+    Scene ();
+
     void add (Surface *surface);
     void add (Light *light);
 
