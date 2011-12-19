@@ -30,11 +30,17 @@ namespace snogray {
 
     class Format;
 
+    static float default_scene_unit ();
+
     enum orient_t { ORIENT_VERT, ORIENT_HORIZ };
 
     static const Format FMT_35mm, FMT_6x6, FMT_6x7;
     static const Format FMT_APS_C, FMT_APS_H, FMT_APS_P;
     static const Format FMT_4x3, FMT_5x4, FMT_16x9;
+
+    Camera (const Format &fmt = FMT_35mm,
+	    float _scene_unit = default_scene_unit(),
+	    float focal_length = 0 /* 0==auto */);
 
     void move (const Pos &_pos);
     void move (const Vec &offs);
