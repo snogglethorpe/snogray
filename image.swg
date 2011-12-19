@@ -76,6 +76,20 @@ namespace snogray {
   %template(ImageRef) Ref<TupleMatrix<Color> >;
 
 
+  class ImageOutput
+  {
+  public:
+
+    ImageOutput (const char *filename,
+		 unsigned width, unsigned height,
+		 const snogray::ValTable &params = snogray::ValTable::NONE);
+
+    bool has_alpha_channel () const;
+
+    unsigned width, height;
+  };
+
+
 } // namespace snogray
 
 
