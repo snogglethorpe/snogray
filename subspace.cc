@@ -1,6 +1,6 @@
 // subspace.cc -- A surface encapsulated into its own subspace
 //
-//  Copyright (C) 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,12 +13,20 @@
 #include <memory>
 
 #include "space.h"
+#include "space-builder.h"
+#include "snogassert.h"
 
 #include "subspace.h"
 
 
 using namespace snogray;
 
+
+Subspace::Subspace (Surface *surf,
+		    const SpaceBuilderFactory &space_builder_factory)
+  : surface (surf), space (0),
+    space_builder (space_builder_factory.make_space_builder ())
+{ }
 
 Subspace::~Subspace ()
 {
@@ -35,11 +43,12 @@ Subspace::make_space (RenderContext &context) const
 
   if (! space)
     {
-      UniquePtr<SpaceBuilder> space_builder
-	(context.global_state.space_builder_factory->make_space_builder ());
+      ASSERT (space_builder);
 
       surface->add_to_space (*space_builder);
 
       space = space_builder->make_space ();
+
+      space_builder.reset ();
     }
 }

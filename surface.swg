@@ -60,6 +60,7 @@ namespace snogray {
   typedef TVec<coord_t> Vec;
   template<typename T> class TXform;
   typedef TXform<coord_t> Xform;
+  class SpaceBuilderFactory;
 
 
   class Surface
@@ -306,9 +307,10 @@ namespace snogray {
 
 
     // Subspace
-    static Ref<Subspace> subspace (Surface *surf)
+    static Ref<Subspace>
+    subspace (Surface *surf, const SpaceBuilderFactory &space_builder_factory)
     {
-      return new Subspace (surf);
+      return new Subspace (surf, space_builder_factory);
     }
 
 

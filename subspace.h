@@ -1,6 +1,6 @@
 // subspace.h -- A surface encapsulated into its own subspace
 //
-//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,6 +25,9 @@
 namespace snogray {
 
 
+class SpaceBuilderFactory;
+
+
 // A surface with its own unique "subspace" (acceleration structure).
 //
 // This is for use with an Instance.
@@ -33,7 +36,7 @@ class Subspace : public RefCounted
 {
 public:
 
-  Subspace (Surface *surf) : surface (surf), space (0) { }
+  Subspace (Surface *surf, const SpaceBuilderFactory &space_builder_factory);
   ~Subspace ();
 
   // If the associated surface intersects RAY, change RAY's maximum bound
@@ -98,9 +101,15 @@ private:
   //
   UniquePtr<Surface> surface;
 
-  // Space holding everything from SURFACE..
+  // Space holding everything from SURFACE, or zero if it hasn't been
+  // built yet.
   //
   mutable const Space *space;
+
+  // SpaceBuilder that can be used to build SPACE, or zero if it's
+  // already been built.
+  //
+  mutable UniquePtr<SpaceBuilder> space_builder;
 
   // A lock used to serialize initialization of the Subspace::space field.
   //

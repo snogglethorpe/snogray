@@ -1,6 +1,6 @@
 -- snogray.lua -- Lua scene interface for snogray
 --
---  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007-2011  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -957,6 +957,10 @@ function solid_cylinder (mat, arg1, ...)
    end
 end
 
+-- space-builder-factory used for building subspace spaces
+--
+local subspace_space_builder_factory = nil
+
 -- Wrap the subspace constructor to record the GC link between a
 -- subspace and the surface in it.
 --
@@ -973,7 +977,11 @@ function subspace (surf)
       end
    end
 
-   local ss = raw.subspace (surf)
+   if not subspace_space_builder_factory then
+      subspace_space_builder_factory = raw.OctreeBuilderFactory ()
+   end
+
+   local ss = raw.subspace (surf, subspace_space_builder_factory)
 
    if scene_obj_gc_protect then
       -- Record the GC link between SS and SURF.
