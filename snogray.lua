@@ -1957,5 +1957,7 @@ function tty_progress (msg)
    return raw.TtyProgress (raw.cout, msg)
 end
 
+num_cores = raw.num_cores
+
 
 -- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b

@@ -13,7 +13,23 @@
 
 %{
 #include <iostream>
+
+#include "num-cores.h"
 %}
+
+
+// SWIG-exported interfaces.
+//
+// Note that these are often simplifications of the real interfaces;
+// see "snograw.swg" for a more detailed explanation.
+//
+namespace snogray {
+
+
+  int num_cores (int default_cores = 1);
+
+
+} // namespace snogray
 
 
 // SWIG-exported interfaces to stuff in the std namespace.
