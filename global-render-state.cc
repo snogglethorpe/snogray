@@ -1,6 +1,6 @@
 // global-render-state.cc -- global information used during rendering
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,8 +31,7 @@ GlobalRenderState::GlobalRenderState (const Scene &_scene,
     bg_alpha (_params.get_float ("background-alpha", 1)),
     num_samples (_params.get_uint ("oversample", 1)),
     params (_params),
-    sample_gen (make_sample_gen (_params)),
-    space_builder_factory (make_space_builder_factory (_params))
+    sample_gen (make_sample_gen (_params))
 {
   // Set up these separately, as they receive, and may use, our state.
   //
@@ -53,18 +52,6 @@ SampleGen *
 GlobalRenderState::make_sample_gen (const ValTable &)
 {
   return new Grid;
-}
-
-SpaceBuilderFactory *
-GlobalRenderState::make_space_builder_factory (const ValTable &params)
-{
-  std::string accel = params.get_string ("accel", "octree");
-  if (accel == "octree")
-    return new Octree::BuilderFactory;
-  else if (accel == "trivial" || accel == "list")
-    return new TrivSpace::BuilderFactory;
-  else
-    throw std::runtime_error ("Unknown space accelerator \"" + accel + "\"");
 }
 
 SurfaceInteg::GlobalState *

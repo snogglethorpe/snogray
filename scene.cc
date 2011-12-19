@@ -1,6 +1,6 @@
 // scene.cc -- Scene description datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,7 +11,7 @@
 //
 
 #include "space.h"
-#include "envmap.h"
+#include "space-builder.h"
 #include "snogassert.h"
 #include "render-context.h"
 #include "unique-ptr.h"

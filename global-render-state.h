@@ -13,7 +13,6 @@
 #ifndef SNOGRAY_GLOBAL_RENDER_STATE_H
 #define SNOGRAY_GLOBAL_RENDER_STATE_H
 
-#include "space-builder.h"
 #include "sample-gen.h"
 #include "surface-integ.h"
 #include "volume-integ.h"
@@ -56,11 +55,6 @@ public:
   //
   UniquePtr<SampleGen> sample_gen;
 
-  // Factory used to create SpaceBuilder objects when creating a new
-  // geometry accelerator.
-  //
-  UniquePtr<SpaceBuilderFactory> space_builder_factory;
-
   // Global state for volume integrators.
   // 
   // This should be one of the last fields, so it will be initialized
@@ -89,8 +83,6 @@ private:
   // object based on what's in PARAMS.
   //
   static SampleGen *make_sample_gen (const ValTable &params);
-  static SpaceBuilderFactory *make_space_builder_factory (
-				const ValTable &params);
   //
   // The following helper methods are called after initialization is
   // complete, so aren't static (and can't be, as they refer to this).
