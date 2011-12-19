@@ -631,7 +631,7 @@ int main (int argc, char *const *argv)
   // many as there are CPU cores.
   //
   if (num_threads == 0)
-    num_threads = num_cores (1);
+    num_threads = num_cores ();
 
   if (num_threads != 1)
     std::cout << "* using " << num_threads << " threads" << std::endl;

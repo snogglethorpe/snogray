@@ -21,7 +21,7 @@ namespace snogray {
 // If the number of available CPU cores on this system can be
 // determined, return it, otherwise return DEFAULT_CORES.
 //
-extern int num_cores (int default_cores);
+extern int num_cores (int default_cores = 1);
 
 
 }
