@@ -34,10 +34,10 @@ endif
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogimage.a libsnoglight.a		\
-	libsnogload.a libsnogload2.a libsnogmat.a libsnogrdrive.a	\
-	libsnogrender.a libsnogspace.a libsnogscene.a libsnogsurf.a	\
-	libsnogtex.a libsnogutil.a
+noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
+	libsnoglight.a libsnogload.a libsnogload2.a libsnogmat.a	\
+	libsnogrdrive.a libsnogrender.a libsnogspace.a libsnogscene.a	\
+	libsnogsurf.a libsnogtex.a libsnogutil.a
 
 if use_lua
   noinst_LIBRARIES += libsnograw.a libluaexts.a
@@ -52,7 +52,7 @@ EXTRA_DIST =							\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg vector.swg val-table.swg			\
 	image.swg surface.swg material.swg light.swg tex.swg	\
-	scene.swg camera.swg util.swg				\
+	scene.swg camera.swg color.swg util.swg			\
 	update-version.sh					\
 	autogen.sh						\
 	lpeg.html						\
@@ -367,11 +367,19 @@ endif
 
 ################################################################
 #
+# Snogray color library, libsnogcolor.a
+#
+
+libsnogcolor_a_SOURCES = color.cc color.h color-io.cc color-io.h	\
+	color-math.h tint.h tint-io.cc tint-io.h
+
+
+################################################################
+#
 # Snogray general utility library, libsnogutil.a
 #
 
-libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
-	color.h color-io.cc color-io.h color-math.h compiler.h		\
+libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h compiler.h	\
 	cond-var.h excepts.h file-funs.cc file-funs.h freelist.cc	\
 	freelist.h globals.cc globals.h grab.h interp.h llist.h		\
 	least-squares-fit.h matrix.h matrix.tcc matrix-funs.h		\
@@ -379,9 +387,9 @@ libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h color.cc	\
 	nice-io.cc nice-io.h num-cores.cc num-cores.h pool.h		\
 	radical-inverse.h random.h random-boost.h random-c0x.h		\
 	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
-	snogassert.h snogmath.h string-funs.cc string-funs.h thread.h	\
-	timeval.cc timeval.h tint.h tint-io.cc tint-io.h val-table.cc	\
-	unique-ptr.h val-table.h version.cc version.h
+	snogassert.h snogmath.h string-funs.cc string-funs.h		\
+	thread.h timeval.cc timeval.h val-table.cc unique-ptr.h		\
+	val-table.h version.cc version.h
 
 
 ################################################################
@@ -400,7 +408,7 @@ CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
 	libsnogtex.a libsnogspace.a libsnogscene.a
 LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogload2.a	\
 	$(libsnogload2_LIBS)
-IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS)
+IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS) libsnogcolor.a
 MISC_LIBS = libsnogutil.a
 
 
@@ -526,7 +534,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 #
 snograw_lua_wrap.cc: vector.swg val-table.swg image.swg	\
 	surface.swg material.swg light.swg tex.swg scene.swg	\
-	camera.swg util.swg
+	camera.swg color.swg util.swg
 
 # Compiler options for compiling SWIG-generated Lua interface.
 #

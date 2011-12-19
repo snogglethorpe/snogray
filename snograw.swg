@@ -148,6 +148,7 @@ namespace snogray {
 %include "tex.swg"
 %include "scene.swg"
 %include "camera.swg"
+%include "color.swg"
 %include "util.swg"
 
 
