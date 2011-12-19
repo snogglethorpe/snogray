@@ -52,7 +52,8 @@ EXTRA_DIST =							\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg vector.swg val-table.swg			\
 	image.swg surface.swg material.swg light.swg tex.swg	\
-	scene.swg camera.swg space.swg color.swg util.swg	\
+	scene.swg camera.swg rdrive.swg space.swg color.swg	\
+	util.swg						\
 	update-version.sh					\
 	autogen.sh						\
 	lpeg.html						\
@@ -534,7 +535,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 #
 snograw_lua_wrap.cc: vector.swg val-table.swg image.swg		\
 	surface.swg material.swg light.swg tex.swg scene.swg	\
-	camera.swg color.swg space.swg util.swg
+	camera.swg color.swg rdrive.swg space.swg util.swg
 
 # Compiler options for compiling SWIG-generated Lua interface.
 #

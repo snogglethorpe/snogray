@@ -1934,4 +1934,28 @@ add_autoload_stub (scene_loaders, "nff", "load-nff.lua", "load_nff")
 add_autoload_stub (scene_loaders, "pbrt", "load-pbrt.lua", "load_pbrt")
 
 
+----------------------------------------------------------------
+--
+-- High-level rendering functions (mainly used by the top-level driver)
+
+scene = raw.Scene
+camera = raw.Camera
+
+global_render_state = raw.GlobalRenderState
+
+render_mgr = raw.RenderMgr
+render_pattern = raw.RenderPattern
+render_stats = raw.RenderStats
+
+octree_builder_factory = raw.OctreeBuilderFactory
+
+image_output = raw.ImageOutput
+
+-- For TTY the progress reporter, we just assume std::cout
+--
+function tty_progress (msg)
+   return raw.TtyProgress (raw.cout, msg)
+end
+
+
 -- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b

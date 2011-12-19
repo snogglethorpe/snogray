@@ -92,6 +92,8 @@ SWIG_TYPEMAP_NUM_VECTOR(unsigned)
 namespace snogray {
 
 
+  // Our intrusive reference-counting smart-pointer class.
+  //
   template<class T>
   class Ref
   {
@@ -148,6 +150,7 @@ namespace snogray {
 %include "tex.swg"
 %include "scene.swg"
 %include "camera.swg"
+%include "rdrive.swg"
 %include "space.swg"
 %include "color.swg"
 %include "util.swg"
