@@ -50,7 +50,7 @@ public:
 
   // A table of named parameters that can affect rendering.
   //
-  const ValTable &params;
+  const ValTable params;
 
   // Sample generator.
   //
