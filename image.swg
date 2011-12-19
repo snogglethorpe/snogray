@@ -1,0 +1,109 @@
+# image.swg -- SWIG interfaces for snogray image-handling
+#
+#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#
+# This source code is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3, or (at
+# your option) any later version.  See the file COPYING for more details.
+#
+# Written by Miles Bader <miles@gnu.org>
+#
+
+
+%{
+#include "tuple-matrix.h"
+#include "image.h"
+#include "image-output.h"
+%}
+
+
+// SWIG-exported interfaces.
+//
+// Note that these are often simplifications of the real interfaces;
+// see "snograw.swg" for a more detailed explanation.
+//
+namespace snogray {
+
+
+  // fwd decls
+  class Color;
+
+
+  template<class T>
+  class TupleMatrix
+  {
+  public:
+
+    void load (const char *filename, const ValTable &params = ValTable::NONE);
+    void save (const char *filename, const ValTable &params = ValTable::NONE)
+      const;
+
+    T operator() (unsigned x, unsigned y);
+
+    const unsigned tuple_len;
+    const unsigned width, height;
+  };
+  %extend TupleMatrix<Color>
+  {
+    const char* __str__()
+    {
+      snprintf (static_rep_buf, sizeof static_rep_buf,
+		"image<%d, %d>", $self->width, $self->height);
+      return static_rep_buf;
+    }
+
+    void set (unsigned x, unsigned y, const Color &val)
+    {
+      (*$self)(x,y) = val;
+    }
+  }
+  %extend TupleMatrix<float>
+  {
+    const char* __str__()
+    {
+      snprintf (static_rep_buf, sizeof static_rep_buf,
+		"mono_image<%d, %d>", $self->width, $self->height);
+      return static_rep_buf;
+    }
+
+    void set (unsigned x, unsigned y, float val)
+    {
+      (*$self)(x,y) = val;
+    }
+  }
+  %template(Image) TupleMatrix<Color>;
+  %template(ImageRef) Ref<TupleMatrix<Color> >;
+
+
+} // namespace snogray
+
+
+// The following are object-creation wrappers, which we use in place of
+// swig-generated constructors for any classes that we want to manage via
+// reference-counting.  This is because swig will do its own memory
+// management for object which it constructs, and we want to avoid that.
+//
+// These wrapper functions simply create the object using new and return a
+// reference to it; swig happily uses the reference instead, with almost
+// exactly the same functionality as the underlying object pointer.
+//
+%inline %{
+  namespace snogray {
+
+
+    // Image
+    typedef TupleMatrix<Color> Image;
+    static Ref<Image> image (unsigned _width, unsigned _height)
+    {
+      return new Image (_width, _height);
+    }
+    static Ref<Image> image (const char *filename,
+			     const ValTable &params = ValTable::NONE)
+    {
+      return new Image (filename, params);
+    }
+
+
+  }
+%}
