@@ -254,7 +254,10 @@ void
 ValTable::import (const ValTable &table, const std::string &prefix)
 {
   for (const_iterator i = table.begin (); i != table.end (); ++i)
-    set (prefix + i->first, i->second);
+    if (prefix.empty ())
+      set (i->first, i->second);
+    else
+      set (prefix + i->first, i->second);
 }
 
 
