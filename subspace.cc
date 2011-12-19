@@ -32,7 +32,7 @@ Subspace::Subspace (Surface *surf,
 // Setup our acceleration structure.
 //
 void
-Subspace::make_space (RenderContext &context) const
+Subspace::make_space () const
 {
   LockGuard guard (make_space_lock);
 

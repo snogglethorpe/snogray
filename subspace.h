@@ -45,7 +45,7 @@ public:
   //
   const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const
   {
-    ensure_space (context);
+    ensure_space ();
     return space->intersect (ray, context);
   }
 
@@ -53,7 +53,7 @@ public:
   //
   bool intersects (const Ray &ray, RenderContext &context) const
   {
-    ensure_space (context);
+    ensure_space ();
     return space->intersects (ray, context);
   }
 
@@ -74,7 +74,7 @@ public:
 			 RenderContext &context)
     const
   {
-    ensure_space (context);
+    ensure_space ();
     return space->occludes (ray, medium, total_transmittance, context);
   }
 
@@ -86,15 +86,11 @@ private:
 
   // Make sure our acceleration structure is set up.
   //
-  void ensure_space (RenderContext &context) const
-  {
-    if (! space)
-      make_space (context);
-  }
+  void ensure_space () const { if (! space) make_space (); }
 
   // Setup our acceleration structure.
   //
-  void make_space (RenderContext &context) const;
+  void make_space () const;
 
   // The top-level surface in this subspace.
   //
