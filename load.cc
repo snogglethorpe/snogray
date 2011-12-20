@@ -17,10 +17,6 @@
 #include "excepts.h"
 #include "string-funs.h"
 
-#if HAVE_LIB3DS
-# include "load-3ds.h"
-#endif
-
 #include "load-lua.h"
 
 #include "load.h"
@@ -45,12 +41,6 @@ snogray::load_file (const std::string &filename, const std::string &_fmt,
   // Default to using the filename extension to determine the file format.
   //
   std::string fmt = _fmt.empty() ? filename_ext (filename) : _fmt;
-
-#ifdef HAVE_LIB3DS
-  if (fmt == "3ds")
-    load_3ds_file (filename, scene, camera, params);
-  else
-#endif
 
   if (load_lua_file (filename, fmt, scene, camera, params))
       { /* loaded */ }
