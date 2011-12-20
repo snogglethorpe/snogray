@@ -1,6 +1,6 @@
 // load-ply.cc -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -150,7 +150,8 @@ face_cb (p_ply_argument arg)
 // Load mesh from a .ply format mesh file into MESH.
 //
 void
-snogray::load_ply_file (const std::string &filename, Mesh &mesh)
+snogray::load_ply_file (const std::string &filename, Mesh &mesh,
+			const ValTable &)
 {
   // State used by all our call back functions.
   //

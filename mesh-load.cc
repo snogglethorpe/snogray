@@ -44,7 +44,7 @@ Mesh::load (const string &file_name)
       string ext = filename_ext (file_name);
 
       if (ext == "ply")
-	load_ply_file (file_name, *this);
+	load_ply_file (file_name, *this, ValTable::NONE);
  
       else if (ext == "msh" || ext == "mesh")
 	load_msh_file (file_name, *this);
