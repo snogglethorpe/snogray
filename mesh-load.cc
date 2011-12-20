@@ -47,7 +47,7 @@ Mesh::load (const string &file_name)
 	load_ply_file (file_name, *this, ValTable::NONE);
  
       else if (ext == "msh" || ext == "mesh")
-	load_msh_file (file_name, *this);
+	load_msh_file (file_name, *this, ValTable::NONE);
 
 #ifdef HAVE_LIB3DS
       else if (ext == "3ds")

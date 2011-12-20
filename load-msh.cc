@@ -1,6 +1,6 @@
 // load-msh.cc -- Load a .msh format mesh file
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,7 +28,8 @@ using namespace snogray;
 // Load mesh from a .msh format mesh file into MESH.
 //
 void
-snogray::load_msh_file (const std::string &filename, Mesh &mesh)
+snogray::load_msh_file (const std::string &filename, Mesh &mesh,
+			const ValTable &)
 {
   std::ifstream stream (filename.c_str());
   if (! stream)
