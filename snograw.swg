@@ -48,6 +48,8 @@
 
 
 %{
+#include "config.h"
+
 #include <sstream>
 #include <cstring>
 
@@ -157,9 +159,9 @@ namespace snogray {
 %include "util.swg"
 
 
-# If we're using LuaJIT, use a LuaJIT-specific hook to propagate C++
-# exceptions within calls from Lua as Lua errors.
-#
+// If we're using LuaJIT, use a LuaJIT-specific hook to propagate C++
+// exceptions within calls from Lua as Lua errors.
+//
 %{
 #if HAVE_LUAJIT
 #include <exception>
