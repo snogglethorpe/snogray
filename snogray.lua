@@ -1874,7 +1874,11 @@ local mesh_loaders = {}
 function load_mesh (filename, fmt, ...)
    local loader = mesh_loaders[fmt]
    if loader then
-      return loader (filename, ...)
+      local ok = loader (filename, ...)
+      if ok == nil then
+	 ok = true		-- void function?
+      end
+      return ok
    else
       return false
    end
