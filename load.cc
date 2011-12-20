@@ -20,9 +20,8 @@
 #if HAVE_LIB3DS
 # include "load-3ds.h"
 #endif
-#if USE_LUA
-# include "load-lua.h"
-#endif
+
+#include "load-lua.h"
 
 #include "load.h"
 
@@ -53,12 +52,9 @@ snogray::load_file (const std::string &filename, const std::string &_fmt,
   else
 #endif
 
-#ifdef USE_LUA
   if (load_lua_file (filename, fmt, scene, camera, params))
       { /* loaded */ }
   else
-#endif
-
     throw (std::runtime_error ("Unknown scene file format \"" + fmt + "\""));
 }
 

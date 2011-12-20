@@ -37,11 +37,8 @@ endif
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 	libsnoglight.a libsnogload.a libsnogload2.a libsnogmat.a	\
 	libsnogrdrive.a libsnogrender.a libsnogspace.a libsnogscene.a	\
-	libsnogsurf.a libsnogtex.a libsnogutil.a
-
-if use_lua
-  noinst_LIBRARIES += libsnograw.a libluaexts.a
-endif
+	libsnogsurf.a libsnogtex.a libsnogutil.a libsnograw.a		\
+	libluaexts.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -277,19 +274,14 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 #
 
 libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
-	scene-def.h load.cc load.h
+	scene-def.h load.cc load.h load-lua.cc load-lua.h lua-funs.cc	\
+	lua-funs.h
 
 # Library dependencies of libsnogload.a
 #
-libsnogload_LIBS =
-
-if use_lua
-  libsnogload_a_SOURCES += load-lua.cc load-lua.h lua-funs.cc	\
-	lua-funs.h
-  libsnogload_LIBS += libsnograw.a libluaexts.a $(liblua_LIBS)
+libsnogload_LIBS = libsnograw.a libluaexts.a $(liblua_LIBS)
 
 load-lua.o : swigluarun.h
-endif
 
 
 ################################################################

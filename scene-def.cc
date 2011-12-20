@@ -1,6 +1,6 @@
 // scene-def.h -- Scene definition object
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,9 +20,7 @@
 #include "string-funs.h"
 #include "cmdlineparser.h"
 #include "load.h"
-#if USE_LUA
-# include "load-lua.h"
-#endif
+#include "load-lua.h"
 
 #include "scene-def.h"
 
@@ -108,9 +106,7 @@ SceneDef::load (Scene &scene, Camera &camera)
 
   // Cleanup Lua loader state if necessary.
   //
-#if USE_LUA
   cleanup_load_lua_state ();
-#endif
 }
 
 

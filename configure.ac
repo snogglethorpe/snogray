@@ -557,8 +557,6 @@ if test $have_liblua = no; then
   AC_LANG_POP(C)
 fi
 if test $have_liblua = yes; then
-  AC_DEFINE([HAVE_LIBLUA], [1], [Define if liblua is installed])
-
   # Now see if there's a luajit library.  If there is, link against it
   # instead of the standard Lua library; the header files, are still
   # those from the normal Lua installation, and luajit is basically a
@@ -572,7 +570,10 @@ if test $have_liblua = yes; then
     AC_SUBST([liblua_LIBS], ["-l$luajit_lib_name"])
   fi
 fi
-AM_CONDITIONAL([have_liblua], [test $have_liblua = yes])
+if test "$have_liblua" = no; then
+  AC_MSG_ERROR([A Lua library is required, and was not found; aborting...])
+fi
+
 
 # Check for PNG image library
 #
@@ -911,54 +912,32 @@ AM_CONDITIONAL([have_swig], [test $have_swig = yes])
 have_snograw_lua_wrap=$have_swig
 test -r "snograw_lua_wrap.cc" && test -r "swigluarun.h" && have_snograw_lua_wrap=yes
 
-# Whether we can use Lua.
-#
-AC_MSG_CHECKING([whether to use Lua])
-use_lua=no
-use_lua_pretty=no
 if test $have_snograw_lua_wrap = no; then
-  use_lua_pretty='no (swig not installed)'
-elif test "$have_liblua" = no; then
-  use_lua_pretty='no (no Lua library)'
-else
-  use_lua=yes
-
-  if test "$have_swig" = yes; then
-    use_lua_pretty=yes
-  else
-    use_lua_pretty='yes (using pre-generated interface)'
-  fi
-
-  AC_DEFINE([USE_LUA], [1], [Define if lua scene definition is enabled])
+  AC_MSG_ERROR([either SWIG or a pre-generated snograw_lua_wrap.cc file is required, and neither was found; aborting...])
 fi
-AC_MSG_RESULT([$use_lua_pretty])
-AM_CONDITIONAL([use_lua], [test $use_lua = yes])
-
 
 # Whether we can use the swig "disown" feature to transfer object
 # ownership from Lua to C++.  This is only implemented for Lua starting
 # with swig version 1.3.35.
 #
-if test $use_lua = yes; then
-  if test $have_swig = yes; then
-    AC_MSG_CHECKING([whether swig supports "disown" feature])
+if test $have_swig = yes; then
+  AC_MSG_CHECKING([whether swig supports "disown" feature])
 
-    cat > conftest.swg <<EOF
+  cat > conftest.swg <<EOF
 %module test;
 %apply SWIGTYPE* DISOWN {X *}
 EOF
-    if $SWIG 2>/dev/null -Werror -o /dev/null -c++ -lua conftest.swg; then
-      have_swig_disown=yes
-    else
-      have_swig_disown=no
-    fi
-    rm -f conftest.swg
+  if $SWIG 2>/dev/null -Werror -o /dev/null -c++ -lua conftest.swg; then
+    have_swig_disown=yes
+  else
+    have_swig_disown=no
+  fi
+  rm -f conftest.swg
 
-    AC_MSG_RESULT([$have_swig_disown])
+  AC_MSG_RESULT([$have_swig_disown])
 
-    if test "$have_swig_disown" = yes; then
-      AC_DEFINE([HAVE_SWIG_DISOWN], [1], [Define if swig supports "disown" feature for Lua])
-    fi
+  if test "$have_swig_disown" = yes; then
+    AC_DEFINE([HAVE_SWIG_DISOWN], [1], [Define if swig supports "disown" feature for Lua])
   fi
 fi
 

@@ -22,9 +22,8 @@
 #ifdef HAVE_LIB3DS
 # include "load-3ds.h"
 #endif
-#if USE_LUA
-# include "load-lua.h"
-#endif
+
+#include "load-lua.h"
 
 #include "mesh.h"
 
@@ -54,11 +53,8 @@ Mesh::load (const string &file_name)
 	load_3ds_file (file_name, *this, ValTable::NONE);
 #endif
 
-#ifdef USE_LUA
       else if (load_lua_file (file_name, ext, *this))
 	{ /* loaded */ }
-#endif
-
       else
 	throw (runtime_error ("Unknown mesh file format: " + ext));
     }
