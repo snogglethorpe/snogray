@@ -153,6 +153,7 @@ namespace snogray {
 %include "rdrive.swg"
 %include "space.swg"
 %include "color.swg"
+%include "load.swg"
 %include "util.swg"
 
 
