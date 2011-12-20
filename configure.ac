@@ -518,20 +518,31 @@ AC_DEFUN([SNOGRAY_CHECK_SUBDIR_HEADER], [
 # First see if we're using our own builtin copy of Lua
 #
 have_liblua=no
+have_luajit=no
 if test x"$lua_src" != xnone; then
   have_liblua=yes
   AC_SUBST([liblua_CFLAGS], ['-I$(LUA_SRC)'])
   AC_SUBST([liblua_LIBS], [liblua.a])
 fi
 #
-# Next, try using pkg-config (as present on e.g. debian).
+# Next, try luajit using pkg-config.
+#
+if test $have_liblua = no; then
+  PKG_CHECK_MODULES([luajit], [luajit], [have_luajit=yes], [:])
+  have_liblua=$have_luajit
+  liblua_CFLAGS=$luajit_CFLAGS
+  liblua_LIBS=$luajit_LIBS
+fi
+#
+# Next, try Lua using pkg-config (as present on e.g. debian).
 #
 if test $have_liblua = no; then
   PKG_CHECK_MODULES([liblua], [lua5.1], [have_liblua=yes], [:])
 fi
 #
-# If we couldn't find it using pkg-config, try without (the default lua
-# distribution doesn't support pkg-config).
+# If we couldn't find anything using pkg-config, try searching
+# manually for a Lua installation (the default lua distribution
+# doesn't support pkg-config).
 #
 if test $have_liblua = no; then
   AC_LANG_PUSH(C)
@@ -556,23 +567,13 @@ if test $have_liblua = no; then
   fi
   AC_LANG_POP(C)
 fi
-if test $have_liblua = yes; then
-  # Now see if there's a luajit library.  If there is, link against it
-  # instead of the standard Lua library; the header files, are still
-  # those from the normal Lua installation, and luajit is basically a
-  # drop-in replacement for standard Lua, so we dont need to do much
-  # else.
-  #
-  have_libluajit=no
-  luajit_lib_name="luajit-5.1"
-  AC_CHECK_LIB([$luajit_lib_name], [lua_close], [have_libluajit=yes], [:], [-lm])
-  if test $have_libluajit = yes; then
-    AC_SUBST([liblua_LIBS], ["-l$luajit_lib_name"])
-  fi
-fi
 if test "$have_liblua" = no; then
   AC_MSG_ERROR([A Lua library is required, and was not found; aborting...])
 fi
+if test $have_luajit = yes; then
+  AC_DEFINE([HAVE_LUAJIT], [1], [Define if using LuaJIT])
+fi
+AM_CONDITIONAL([have_luajit], [test $have_luajit = yes])
 
 
 # Check for PNG image library
