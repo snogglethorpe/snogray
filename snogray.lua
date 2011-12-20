@@ -1885,6 +1885,12 @@ add_autoload_stub (mesh_loaders, "obj", "load-obj.lua", "load_obj")
 add_autoload_stub (mesh_loaders, "ug", "load-ug.lua", "load_ug")
 add_autoload_stub (mesh_loaders, "stl", "load-stl.lua", "load_stl")
 
+-- formats with C loaders
+--
+mesh_loaders.ply = raw.load_ply_file
+mesh_loaders.msh = raw.load_msh_file
+mesh_loaders["3ds"] = raw.load_3ds_file
+
 
 ----------------------------------------------------------------
 --
@@ -1932,6 +1938,10 @@ scene_loaders.luo = scene_loaders.lua
 
 add_autoload_stub (scene_loaders, "nff", "load-nff.lua", "load_nff")
 add_autoload_stub (scene_loaders, "pbrt", "load-pbrt.lua", "load_pbrt")
+
+-- formats with C loaders
+--
+scene_loaders["3ds"] = raw.load_3ds_file
 
 
 ----------------------------------------------------------------
