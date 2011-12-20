@@ -1,6 +1,6 @@
 // load.cc -- Snogray scene (etc) loader
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -49,7 +49,7 @@ snogray::load_file (const std::string &filename, const std::string &_fmt,
 
 #ifdef HAVE_LIB3DS
   if (fmt == "3ds")
-    load_3ds_file (filename, scene, camera);
+    load_3ds_file (filename, scene, camera, params);
   else
 #endif
 

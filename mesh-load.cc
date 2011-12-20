@@ -1,6 +1,6 @@
 // mesh-load.cc -- Mesh loading
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ Mesh::load (const string &file_name)
 
 #ifdef HAVE_LIB3DS
       else if (ext == "3ds")
-	load_3ds_file (file_name, *this);
+	load_3ds_file (file_name, *this, ValTable::NONE);
 #endif
 
 #ifdef USE_LUA

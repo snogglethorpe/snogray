@@ -1,6 +1,6 @@
 // load-3ds.cc -- Load 3ds scene file
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -656,7 +656,8 @@ TdsLoader::load (const string &filename)
 // scene, including lights and the first camera position.
 //
 void
-snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
+snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera,
+			const ValTable &)
 {
   TdsLoader l (&scene);
 
@@ -689,7 +690,7 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera)
 // Load meshes (and any materials they use) from a 3ds scene file inot MESH.
 //
 void
-snogray::load_3ds_file (const string &filename, Mesh &mesh)
+snogray::load_3ds_file (const string &filename, Mesh &mesh, const ValTable &)
 {
   TdsLoader l (&mesh);
 
