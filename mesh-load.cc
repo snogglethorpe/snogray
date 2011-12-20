@@ -17,12 +17,6 @@
 #include "excepts.h"
 #include "string-funs.h"
 
-#include "load-ply.h"
-#include "load-msh.h"
-#ifdef HAVE_LIB3DS
-# include "load-3ds.h"
-#endif
-
 #include "load-lua.h"
 
 #include "mesh.h"
@@ -42,18 +36,7 @@ Mesh::load (const string &file_name)
     {
       string ext = filename_ext (file_name);
 
-      if (ext == "ply")
-	load_ply_file (file_name, *this, ValTable::NONE);
- 
-      else if (ext == "msh" || ext == "mesh")
-	load_msh_file (file_name, *this, ValTable::NONE);
-
-#ifdef HAVE_LIB3DS
-      else if (ext == "3ds")
-	load_3ds_file (file_name, *this, ValTable::NONE);
-#endif
-
-      else if (load_lua_file (file_name, ext, *this))
+      if (load_lua_file (file_name, ext, *this))
 	{ /* loaded */ }
       else
 	throw (runtime_error ("Unknown mesh file format: " + ext));
