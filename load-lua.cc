@@ -240,14 +240,15 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   //
   swig_type_info *mesh_swig_type = SWIG_TypeQuery (L, "snogray::Mesh *");
 
-  // Call "snogray.load_mesh (filename, mesh, camera)" with our
-  // mesh and camera pointers.
+  // Call "snogray.load_mesh (filename, mesh, camera)" with
+  // our mesh and camera pointers.
   //
   lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
   lua_getfield (L, -1, "load_mesh");			// function
   lua_pushstring (L, filename.c_str ());		// arg 0
   lua_pushstring (L, fmt.c_str ());			// arg 1
   SWIG_NewPointerObj (L, &mesh, mesh_swig_type, 0);	// arg 2
+  lua_newtable (L);					// arg 3
 
   do_call (L, 4, 1);					// do the call
   loaded = lua_toboolean (L, -1);			// get result
