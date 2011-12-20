@@ -120,7 +120,7 @@ setup_lua ()
   //
   lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
   lua_pushstring (L, "snograw");		 // arg 0
-  do_call (L, 1, 0);				 // call require
+  do_call (L, 1, 1);				 // call require
   if (! lua_istable (L, -1))
     {
       // TOS is module name, not module, so grab the global var instead.
