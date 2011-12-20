@@ -48,17 +48,6 @@ public:
     : Primitive (mat), axis (Vec (0, 0, 1)), left_handed (true)
   { }
 
-  // All-in-one constructor for loading a mesh from FILE_NAME.
-  //
-  Mesh (const Ref<const Material> &mat,
-	const std::string &file_name, bool smooth = true)
-    : Primitive (mat), axis (Vec (0, 0, 1)), left_handed (true)
-  {
-    load (file_name);
-    if (smooth)
-      compute_vertex_normals ();
-  }
-
 
   // Add a triangle to the mesh.
   //

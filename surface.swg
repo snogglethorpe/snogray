@@ -162,8 +162,6 @@ namespace snogray {
   public:
 
     Mesh (const Ref<Material> &mat);
-    Mesh (const Ref<Material> &mat, const char *file_name,
-	  bool smooth = true);
 
     typedef unsigned vert_index_t;
 
