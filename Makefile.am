@@ -304,7 +304,7 @@ endif
 # Snogray Lua support library, libsnoglua.a
 #
 
-libsnoglua_a_SOURCES = lua-funs.cc lua-funs.h
+libsnoglua_a_SOURCES = lua-funs.cc lua-funs.h lua-setup.cc lua-setup.h
 
 # Library dependencies of libsnoglua.a
 #
