@@ -30,7 +30,7 @@ class ValTable;
 // exception is thrown.  Loads all parts of the scene, including lights and
 // the first camera position.
 //
-extern bool load_lua_file (const std::string &filename, const std::string &fmt,
+extern bool load_lua_file (const std::string &filename,
 			   Scene &scene, Camera &camera, ValTable &params);
 
 

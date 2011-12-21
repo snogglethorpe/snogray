@@ -1797,32 +1797,36 @@ local scene_loaders = {}
 
 -- Load a scene from FILENAME into SCENE and CAMERA.
 --
--- Return true for a successful load, false if FILENAME is not
--- recognized as loadable, or an error string if an error occured during
--- loading.
---
-function load_scene (filename, fmt, scene, camera, params, ...)
-   local loader = scene_loaders[fmt]
+function load_scene (filename, scene, camera, params)
+   params = params or {}
 
-   if loader then
+   local fmt = params.format or filename_ext (filename)
 
-      -- For old versions of SWIG, we need to gc-protect objects
-      -- handed to the scene.
-      --
-      if scene_obj_gc_protect and not has_index_wrappers (scene) then
-	 local wrap = index_wrappers (scene)
+   if fmt then
+      local loader = scene_loaders[fmt]
 
-	 function wrap:add (thing)
-	    gc_ref (self, thing)
-	    return nowrap_meth_call (self, "add", thing)
+      if loader then
+
+	 -- For old versions of SWIG, we need to gc-protect objects
+	 -- handed to the scene.
+	 --
+	 if scene_obj_gc_protect and not has_index_wrappers (scene) then
+	    local wrap = index_wrappers (scene)
+
+	    function wrap:add (thing)
+	       gc_ref (self, thing)
+	       return nowrap_meth_call (self, "add", thing)
+	    end
 	 end
-      end
 
-      -- Call the loader.
-      --
-      return loader (filename, scene, camera, params, ...)
+	 -- Call the loader.
+	 --
+	 loader (filename, scene, camera, params)
+      else
+	 error ("unknown scene format \""..fmt.."\"", 0)
+      end
    else
-      return false
+      error ("cannot determine scene format for \""..filename.."\"", 0)
    end
 end
 
@@ -1914,8 +1918,6 @@ function scene_loaders.lua (filename, scene, camera, params)
    -- Finally, evaluate the loaded file!
    --
    contents ()
-
-   return true
 end
 
 -- Other types of Lua file.

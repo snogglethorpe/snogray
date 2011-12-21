@@ -75,9 +75,8 @@ public:
   //
   struct Spec
   {
-    Spec (const std::string &_uname, const std::string &_name,
-	  const std::string &_fmt)
-      : user_name (_uname), name (_name), scene_fmt (_fmt)
+    Spec (const std::string &_uname, const std::string &_name)
+      : user_name (_uname), name (_name)
     { }
 
     // The scene name specified by the user; zero-length if none.
@@ -87,10 +86,6 @@ public:
     // The scene name possibly with the prefix removed.
     //
     std::string name;
-
-    // The format of the scene; empty means "try to guess"
-    //
-    std::string scene_fmt;
   };
 
   // Returns a Spec for standard input.

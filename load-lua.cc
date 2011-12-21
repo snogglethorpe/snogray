@@ -171,7 +171,7 @@ snogray::cleanup_load_lua_state ()
 // the first camera position.
 //
 bool
-snogray::load_lua_file (const string &filename, const std::string &fmt,
+snogray::load_lua_file (const string &filename,
 			Scene &scene, Camera &camera, ValTable &params)
 {
   bool loaded = false;
@@ -195,12 +195,11 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
   lua_getfield (L, -1, "load_scene");			// function
   lua_pushstring (L, filename.c_str ());		// arg 0: filename
-  lua_pushstring (L, fmt.c_str ());			// arg 1: format
-  SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 2: scene
-  SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 3: camera
-  lua_pushvalue (L, -7);				// arg 4: params
+  SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 1: scene
+  SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 2: camera
+  lua_pushvalue (L, -6);				// arg 3: params
 
-  do_call (L, 5, 1);					// do the call
+  do_call (L, 4, 1);					// do the call
   loaded = lua_toboolean (L, -1);			// get result
 
   // Pop the result and the "snogray" table off the stack

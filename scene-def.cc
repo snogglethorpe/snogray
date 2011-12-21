@@ -19,7 +19,6 @@
 #include "image-io.h"
 #include "string-funs.h"
 #include "cmdlineparser.h"
-#include "load.h"
 #include "load-lua.h"
 
 #include "scene-def.h"
@@ -47,9 +46,8 @@ SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
     {
       string user_name = clp.get_arg ();
       string name = user_name;
-      string fmt = params.get_string ("format");
 
-      specs.push_back (Spec (user_name, name, fmt));
+      specs.push_back (Spec (user_name, name));
 
       num--;
     }
@@ -97,7 +95,7 @@ SceneDef::load (Scene &scene, Camera &camera)
        spec != specs.end(); spec++)
     try
       {
-	load_file (spec->name, spec->scene_fmt, scene, camera, params);
+	load_lua_file (spec->name, scene, camera, params);
       }
     catch (runtime_error &err)
       {
