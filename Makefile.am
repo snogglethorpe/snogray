@@ -35,7 +35,7 @@ endif
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
-	libsnoglight.a libsnogload.a libsnogload2.a libsnogmat.a	\
+	libsnoglight.a libsnogload.a libsnogloaders.a libsnogmat.a	\
 	libsnogrdrive.a libsnogrender.a libsnogspace.a libsnogscene.a	\
 	libsnogsurf.a libsnogtex.a libsnogutil.a libsnograw.a		\
 	libluaexts.a
@@ -300,20 +300,19 @@ libluaexts_a_SHORTNAME = le
 
 ################################################################
 #
-# Snogray scene-loading library #2 (we need two because of link-order
-# issues), libsnogload2.a
+# Snogray format-specific loader library
 #
 
-libsnogload2_a_SOURCES = load-msh.cc load-msh.h load-ply.cc	\
+libsnogloaders_a_SOURCES = load-msh.cc load-msh.h load-ply.cc	\
 	load-ply.h rply.c rply.h
 
-# Library dependencies of libsnogload2.a
+# Library dependencies of libsnogloaders.a
 #
-libsnogload2_LIBS =
+libsnogloaders_LIBS =
 
 if have_lib3ds
-  libsnogload2_a_SOURCES += load-3ds.cc load-3ds.h
-  libsnogload2_LIBS += $(LIB3DS_LIBS)
+  libsnogloaders_a_SOURCES += load-3ds.cc load-3ds.h
+  libsnogloaders_LIBS += $(LIB3DS_LIBS)
 endif
 
 
@@ -398,8 +397,8 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
 	libsnogtex.a libsnogspace.a libsnogscene.a
-LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogload2.a	\
-	$(libsnogload2_LIBS)
+LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogloaders.a	\
+	$(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS) libsnogcolor.a
 MISC_LIBS = libsnogutil.a
 
