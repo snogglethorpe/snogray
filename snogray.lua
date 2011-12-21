@@ -1803,6 +1803,7 @@ function load_scene (filename, scene, camera, params)
    local fmt = params.format or filename_ext (filename)
 
    if fmt then
+      fmt = string.lower (fmt)
       local loader = scene_loaders[fmt]
 
       if loader then
@@ -1855,6 +1856,7 @@ function load_mesh (filename, mesh, params)
 
    local fmt = params.format or filename_ext (filename)
    if fmt then
+      fmt = string.lower (fmt)
       local loader = mesh_loaders[fmt]
       if loader then
 	 loader (filename, mesh, params)
