@@ -1,6 +1,6 @@
 // load-lua.h -- Load lua scene file
 //
-//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,20 +33,15 @@ class ValTable;
 extern bool load_lua_file (const std::string &filename, const std::string &fmt,
 			   Scene &scene, Camera &camera, ValTable &params);
 
-// If FILENAME is a format that has a Lua mesh loader, load the file
-// named FILENAME into MESH using Lua.  If FILENAME has no loader, or
-// an error occurs during loading, an exception is thrown.
-//
-extern void load_lua_file (const std::string &filename, Mesh &mesh);
-
 
 // Cleanup and free all global Lua state.
 //
 extern void cleanup_load_lua_state ();
 
+
 }
 
+#endif // SNOGRAY_LOAD_LUA_H
 
-#endif /* SNOGRAY_LOAD_LUA_H */
 
 // arch-tag: 3952dbec-b73a-40ac-92a9-38382f1e720e

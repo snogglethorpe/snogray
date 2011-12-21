@@ -1,6 +1,6 @@
 // load-lua.cc -- Load lua scene file
 //
-//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -217,40 +217,6 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   lua_gc (L, LUA_GCCOLLECT, 0);
 
   return loaded;
-}
-
-
-// Lua mesh loading
-
-// If FILENAME is a format that has a Lua mesh loader, load the file
-// named FILENAME into MESH using Lua.  If FILENAME has no loader, or
-// an error occurs during loading, an exception is thrown.
-//
-void
-snogray::load_lua_file (const string &filename, Mesh &mesh)
-{
-  if (! L)
-    setup_lua ();
-
-  // Swig types for the stuff we're gonna pass into lua.
-  //
-  swig_type_info *mesh_swig_type = SWIG_TypeQuery (L, "snogray::Mesh *");
-
-  // Call "snogray.load_mesh (filename, mesh, camera)" with
-  // our mesh and camera pointers.
-  //
-  lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
-  lua_getfield (L, -1, "load_mesh");			// function
-  lua_pushstring (L, filename.c_str ());		// arg 0
-  SWIG_NewPointerObj (L, &mesh, mesh_swig_type, 0);	// arg 1
-  lua_newtable (L);					// arg 2
-
-  do_call (L, 3, 0);					// do the call
-
-  // Run the garbage collector to free up any data left around from the
-  // user's calculations.
-  //
-  lua_gc (L, LUA_GCCOLLECT, 0);
 }
 
 
