@@ -15,6 +15,7 @@
 
 #include "swigluarun.h"
 #include "lua-funs.h"
+#include "lua-setup.h"
 
 extern "C"
 {
@@ -54,82 +55,6 @@ do_call (lua_State *L, int nargs, int nres)
       string err_str = lua_tostring (L, -1);
       throw file_error (err_str);
     }
-}
-
-
-// Module "pre-loading"
-
-extern "C" int luaopen_lpeg (lua_State *L);
-extern "C" int luaopen_snograw (lua_State *L);
-
-struct preload_module
-{
-  const char *name;
-  lua_CFunction loader;
-};
-
-// A list of modules which are statically linked into our executable and
-// should be preloaded (which allows Lua's require mechanism to find
-// them).
-//
-static preload_module preloaded_modules[] = {
-  { "snograw", luaopen_snograw },
-  { "lpeg", luaopen_lpeg },
-  { 0, 0 }
-};
-
-
-// Lua initialization
-
-// Setup Lua environment, and initialze the global variable L.
-//
-static void
-setup_lua ()
-{
-  // Do one-time setup of lua environment.
-
-  L = lua_open();
-
-  luaL_openlibs (L);		// load standard libraries
-
-  // register preloaded modules
-  //
-  lua_getfield (L, LUA_GLOBALSINDEX, "package");
-  lua_getfield (L, -1, "preload");
-  for (preload_module *pm = preloaded_modules; pm->name; pm++)
-    {
-      lua_pushcfunction (L, pm->loader);
-      lua_setfield (L, -2, pm->name);
-    }
-  lua_pop (L, 1);		// pop package.preload table
-
-  // require ("snogray")
-  //
-  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-  lua_pushstring (L, "snogray");		 // arg 0
-  do_call (L, 1, 0);
-
-  // Add extra functions into snograw table.
-  //
-  // Until recently, Swig-generated Lua modules didn't return the
-  // module table from require (as is recommended), but instead stored
-  // it into the global variable "snograw", and returned the module
-  // name instead.  For compatibility, handle both behaviors, by first
-  // calling require, and if it doesn't return a table, looking in the
-  // global variable.
-  //
-  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-  lua_pushstring (L, "snograw");		 // arg 0
-  do_call (L, 1, 1);				 // call require
-  if (! lua_istable (L, -1))
-    {
-      // TOS is module name, not module, so grab the global var instead.
-      lua_pop (L, 1);		// pop module name
-      lua_getfield (L, LUA_GLOBALSINDEX, "snograw");
-    }
-  lua_pushcfunction (L, lua_read_file);
-  lua_setfield (L, -2, "read_file");
-  lua_pop (L, 1); 		// pop snograw table
 }
 
 
@@ -177,7 +102,7 @@ snogray::load_lua_file (const string &filename,
   bool loaded = false;
 
   if (! L)
-    setup_lua ();
+    L = new_snogray_lua_state ();
 
   // Swig types for the stuff we're gonna pass into lua.
   //
