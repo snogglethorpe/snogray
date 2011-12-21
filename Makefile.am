@@ -36,9 +36,9 @@ endif
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 	libsnoglight.a libsnogload.a libsnogloaders.a libsnoglua.a	\
-	libsnogmat.a libsnogrender.a libsnogspace.a libsnogscene.a	\
-	libsnogsurf.a libsnogtex.a libsnogutil.a libsnograw.a		\
-	libluaexts.a
+	libsnogmat.a libsnograw.a libsnogrdrive.a libsnogrender.a	\
+	libsnogscene.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
+	libsnogutil.a libluaexts.a
 
 
 # Various files to include in distribution not covered by automatic rules
