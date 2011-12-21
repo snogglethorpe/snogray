@@ -1,6 +1,6 @@
 // snogray.cc -- Main driver for snogray ray tracer
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,10 +18,6 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
-
-#ifdef HAVE_FENV_H
-#include <fenv.h>
-#endif
 
 #include "cmdlineparser.h"
 #include "rusage.h"
@@ -61,41 +57,6 @@ using namespace std;
 // The maximum number of "backup" files we make when recovering a partial image.
 //
 #define RECOVER_BACKUP_LIMIT 100
-
-
-// Floating-point exceptions
-
-// Try to enable those floating-point exceptions which don't interfere
-// with normal calculations.  This is to help debugging (the program
-// will die if an exception is hit).
-//
-static void
-enable_fp_exceptions ()
-{
-#if defined(USE_FP_EXCEPTIONS) && defined(HAVE_FEENABLEEXCEPT)
-
-  fexcept_t fexcepts = 0;
-
-  //
-  // We don't enable exceptions for underflow or overflow, because these can
-  // occur in normal usage, especially using single-precision floating point
-  // (although even then, overflow is pretty rare), it's somewhat annoying to
-  // explicitly guard against them, and typically the best thing to do is
-  // just let them become zero or infinity.
-  //
-
-#ifdef FE_DIVBYZERO
-  fexcepts |= FE_DIVBYZERO;
-#endif
-#ifdef FE_INVALID
-  fexcepts |= FE_INVALID;
-#endif
-
-  if (fexcepts)
-    feenableexcept (fexcepts);
-
-#endif // USE_FP_EXCEPTIONS && HAVE_FEENABLEEXCEPT
-}
 
 
 // LimitSpec datatype
@@ -482,15 +443,6 @@ int main (int argc, char *const *argv)
     interpret_camera_cmds (camera_cmds, camera, scene);
 
   Rusage scene_end_ru;		// stop timing scene definition
-
-
-  // Enable floating-point exceptions if possible, which can help debugging.
-  // Note that we do this _after_ reading the scene which helps avoid
-  // problems with libraries that are not expecting floating-point exceptions
-  // to be enabled (code must be compiled with -ftrapping-math to inform the
-  // compiler that floating-point operations may trap).
-  //
-  enable_fp_exceptions ();
 
 
   // Get the final image size.

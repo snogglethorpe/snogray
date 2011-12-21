@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #include "render-thread.h"
 #include "render-queue.h"
 #endif
+#include "float-excepts-guard.h"
 
 #include "render-mgr.h"
 
@@ -54,6 +55,11 @@ RenderMgr::render (unsigned num_threads,
   prog.set_start (pattern.position (pattern.begin ()));
   prog.set_size (pattern.position (pattern.end ())
 		 - pattern.position (pattern.begin ()));
+
+  // Turn on floating-point exceptions during rendering if possible,
+  // to detect errors.
+  //
+  FloatExceptsGuard fe_guard (FE_DIVBYZERO|FE_INVALID);
 
   // Render!
   //
