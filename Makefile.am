@@ -35,8 +35,8 @@ endif
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
-	libsnoglight.a libsnogload.a libsnogloaders.a libsnogmat.a	\
-	libsnogrdrive.a libsnogrender.a libsnogspace.a libsnogscene.a	\
+	libsnoglight.a libsnogload.a libsnogloaders.a libsnoglua.a	\
+	libsnogmat.a libsnogrender.a libsnogspace.a libsnogscene.a	\
 	libsnogsurf.a libsnogtex.a libsnogutil.a libsnograw.a		\
 	libluaexts.a
 
@@ -274,28 +274,11 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 #
 
 libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
-	scene-def.h load.cc load.h load-lua.cc load-lua.h lua-funs.cc	\
-	lua-funs.h
+	scene-def.h load.cc load.h load-lua.cc load-lua.h
 
 # Library dependencies of libsnogload.a
 #
-libsnogload_LIBS = libsnograw.a libluaexts.a $(liblua_LIBS)
-
-load-lua.o : swigluarun.h
-
-
-################################################################
-#
-# Library of statically-linked lua extensions.  These could also be
-# dynamically loaded, but that needs more infrastructure work.
-#
-
-libluaexts_a_SOURCES = lpeg.c
-
-libluaexts_a_CFLAGS = $(AM_CFLAGS) -DNDEBUG
-
-# Make automake suck slightly less
-libluaexts_a_SHORTNAME = le
+libsnogload_LIBS = 
 
 
 ################################################################
@@ -314,6 +297,34 @@ if have_lib3ds
   libsnogloaders_a_SOURCES += load-3ds.cc load-3ds.h
   libsnogloaders_LIBS += $(LIB3DS_LIBS)
 endif
+
+
+################################################################
+#
+# Snogray Lua support library, libsnoglua.a
+#
+
+libsnoglua_a_SOURCES = lua-funs.cc lua-funs.h
+
+# Library dependencies of libsnoglua.a
+#
+libsnoglua_LIBS = libsnograw.a libluaexts.a $(liblua_LIBS)
+
+load-lua.o : swigluarun.h
+
+
+################################################################
+#
+# Library of statically-linked lua extension modules.  These could
+# also be dynamically loaded, but that needs more infrastructure work.
+#
+
+libluaexts_a_SOURCES = lpeg.c
+
+libluaexts_a_CFLAGS = $(AM_CFLAGS) -DNDEBUG
+
+# Make automake suck slightly less
+libluaexts_a_SHORTNAME = le
 
 
 ################################################################
@@ -397,8 +408,11 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
 	libsnogtex.a libsnogspace.a libsnogscene.a
-LOAD_LIBS = libsnogload.a $(libsnogload_LIBS) libsnogloaders.a	\
-	$(libsnogloaders_LIBS)
+LOAD_LIBS = libsnogload.a $(libsnogload_LIBS)	\
+	libsnoglua.a $(libsnoglua_LIBS)	\
+	libsnogloaders.a $(libsnogloaders_LIBS)
+LOAD2_LIBS = libsnoglua.a $(libsnoglua_LIBS)	\
+	libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS) libsnogcolor.a
 MISC_LIBS = libsnogutil.a
 
@@ -476,7 +490,7 @@ endif
 
 ###############################################################
 #
-# "Raw" swig interface to snogray.
+# "Raw" SWIG interface to snogray, libsnograw.a
 #
 
 # If the swig interface generator is available, we can update the C++
