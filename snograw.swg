@@ -48,12 +48,8 @@
 
 
 %{
-#include "config.h"
-
 #include <sstream>
 #include <cstring>
-
-#include "color.h"
 
   static char static_rep_buf[255];
 
@@ -157,44 +153,6 @@ namespace snogray {
 %include "color.swg"
 %include "load.swg"
 %include "util.swg"
-
-
-// If we're using LuaJIT, use a LuaJIT-specific hook to propagate C++
-// exceptions within calls from Lua as Lua errors.
-//
-%{
-#if HAVE_LUAJIT
-#include <exception>
-
-  extern "C" {
-    #include "luajit.h"
-  }
-
-  // Catch C++ exceptions and convert them to Lua error messages.
-  static int wrap_exceptions(lua_State *L, lua_CFunction f)
-  {
-    try {
-      return f(L);  // Call wrapped function and return result.
-    } catch (const char *s) {  // Catch and convert exceptions.
-      lua_pushstring(L, s);
-    } catch (std::exception& e) {
-      lua_pushstring(L, e.what());
-    } catch (...) {
-      lua_pushliteral(L, "C++ exception");
-    }
-    return lua_error(L);  // Rethrow as a Lua error.
-  }
-#endif
-%}
-
-%init %{
-#if HAVE_LUAJIT
-  // Define wrapper function and enable it.
-  lua_pushlightuserdata(L, (void *)wrap_exceptions);
-  luaJIT_setmode(L, -1, LUAJIT_MODE_WRAPCFUNC|LUAJIT_MODE_ON);
-  lua_pop(L, 1);
-#endif
-%}
 
 
 # arch-tag: ced00636-fe46-45bd-b738-1949800e26f1

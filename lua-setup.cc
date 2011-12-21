@@ -10,6 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "config.h"
+
 #include <stdexcept>
 
 extern "C"
@@ -17,6 +19,9 @@ extern "C"
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
+#if HAVE_LUAJIT
+# include "luajit.h"
+#endif
 }
 
 #include "lua-funs.h"
@@ -48,6 +53,42 @@ static preload_module preloaded_modules[] = {
   { "lpeg", luaopen_lpeg },
   { 0, 0 }
 };
+
+
+// LuaJIT error-propagation
+
+#if HAVE_LUAJIT
+
+// This is a LuaJIT-specific wrapper function, which catches C++
+// exceptions (inside calls to C++ from Lua) and propagates them as
+// Lua errors.
+//
+static int
+luajit_exception_wrapper (lua_State *L, lua_CFunction fun)
+{
+  const char *err_msg;
+
+  try
+    {
+      // Call FUN; if it successfully returns, so do we.
+      //
+      return fun (L);
+    }
+  //
+  // Otherwise, catch various sorts of exceptions, and set ERR_MSG to
+  // point to an appropriate message (if possible).
+  //
+  catch (const char *str)	{ err_msg = str; }
+  catch (std::exception &exc)	{ err_msg = exc.what (); }
+  catch (...)			{ err_msg = "C++ exception"; }
+
+  // Call lua_error to propagate the error with ERR_MSG.
+  //
+  lua_pushstring (L, err_msg);
+  return lua_error (L);
+}
+
+#endif // HAVE_LUAJIT
 
 
 // Lua error-handling
@@ -82,6 +123,15 @@ snogray::new_snogray_lua_state ()
   // exiting.
   //
   lua_atpanic (L, snogray_lua_panic);
+
+  // If we're using LuaJIT, use its "C call wrapper" feature to help
+  // propagate exceptions in C++ code called from Lua as Lua errors.
+  //
+#if HAVE_LUAJIT
+  lua_pushlightuserdata (L, (void *)luajit_exception_wrapper);
+  luaJIT_setmode (L, -1, LUAJIT_MODE_WRAPCFUNC|LUAJIT_MODE_ON);
+  lua_pop (L, 1);
+#endif
 
   // Load standard Lua libraries.
   //
