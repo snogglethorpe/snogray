@@ -135,10 +135,6 @@ public:
   void add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
 		      vert_index_t base_vert);
 
-  // For loading mesh from any file-type (automatically determined)
-  //
-  void load (const std::string &file_name);
-
   // Add this (or some other) surfaces to the space being built by
   // SPACE_BUILDER.
   //

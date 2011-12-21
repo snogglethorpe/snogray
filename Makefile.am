@@ -304,9 +304,8 @@ libluaexts_a_SHORTNAME = le
 # issues), libsnogload2.a
 #
 
-libsnogload2_a_SOURCES = mesh-load.cc
-libsnogload2_a_SOURCES += load-msh.cc load-msh.h
-libsnogload2_a_SOURCES += load-ply.cc load-ply.h rply.c rply.h
+libsnogload2_a_SOURCES = load-msh.cc load-msh.h load-ply.cc	\
+	load-ply.h rply.c rply.h
 
 # Library dependencies of libsnogload2.a
 #

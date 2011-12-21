@@ -193,8 +193,6 @@ namespace snogray {
 		  bool with_normals = false);
     void reserve_normals ();
 
-    void load (const char *file_name);
-
     void compute_vertex_normals (float max_angle = 45 * PIf / 180);
 
     Pos vertex (vert_index_t index) const;
