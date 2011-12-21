@@ -42,22 +42,6 @@ using namespace std;
 lua_State *L = 0;
 
 
-
-// Does a Lua "pcall" and if an error is returned, throws a C++ exception.
-// Otherwise, the pcall results are left on the stack.
-//
-static void
-do_call (lua_State *L, int nargs, int nres)
-{
-  int err = lua_pcall (L, nargs, nres, 0);
-  if (err)
-    {
-      string err_str = lua_tostring (L, -1);
-      throw file_error (err_str);
-    }
-}
-
-
 // Lua cleanup
 
 // Cleanup and free all global Lua state.
@@ -124,7 +108,7 @@ snogray::load_lua_file (const string &filename,
   SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 2: camera
   lua_pushvalue (L, -6);				// arg 3: params
 
-  do_call (L, 4, 1);					// do the call
+  lua_call (L, 4, 1);					// do the call
   loaded = lua_toboolean (L, -1);			// get result
 
   // Pop the result and the "snogray" table off the stack
