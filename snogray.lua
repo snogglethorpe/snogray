@@ -1822,7 +1822,11 @@ function load_scene (filename, scene, camera, params)
 
 	 -- Call the loader.
 	 --
-	 loader (filename, scene, camera, params)
+	 local ok, err_msg = pcall (loader, filename, scene, camera, params)
+	 if not ok then
+	    -- propagate the error, prefixing the message with FILENAME
+	    error (filename..": "..err_msg, 0)
+	 end
       else
 	 error ("unknown scene format \""..fmt.."\"", 0)
       end

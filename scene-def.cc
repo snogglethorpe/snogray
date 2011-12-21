@@ -93,14 +93,7 @@ SceneDef::load (Scene &scene, Camera &camera)
   //
   for (vector<Spec>::iterator spec = specs.begin();
        spec != specs.end(); spec++)
-    try
-      {
-	load_lua_file (spec->name, scene, camera, params);
-      }
-    catch (runtime_error &err)
-      {
-	throw runtime_error (spec->user_name + ": " + err.what ());
-      }
+    load_lua_file (spec->name, scene, camera, params);
 
   // Cleanup Lua loader state if necessary.
   //
