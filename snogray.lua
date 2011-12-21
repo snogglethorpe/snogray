@@ -791,27 +791,6 @@ end
 
 ----------------------------------------------------------------
 --
--- scene object
---
--- We don't use the raw scene object directly because we need to
--- gc-protect objects handed to the scene.
-
-local function init_scene (raw_scene)
-   scene = raw_scene		-- this is exported
-
-   if scene_obj_gc_protect and not has_index_wrappers (scene) then
-      local wrap = index_wrappers (scene)
-
-      function wrap:add (thing)
-	 gc_ref (self, thing)
-	 return nowrap_meth_call (self, "add", thing)
-      end
-   end
-end
-
-
-----------------------------------------------------------------
---
 -- meshes
 
 mesh = raw.Mesh
@@ -1816,32 +1795,28 @@ end
 local scene_loaders = {}
 
 
--- Load a scene from FILENAME into RSCENE and RCAMERA (the "raw" scene
--- and camera objects).
+-- Load a scene from FILENAME into SCENE and CAMERA.
 --
 -- Return true for a successful load, false if FILENAME is not
 -- recognized as loadable, or an error string if an error occured during
 -- loading.
 --
--- Note that this only handles formats loaded using Lua, not those
--- handled by the C++ core.  To load any supported format, use the
--- scene "load" method.
---
-function load_scene (filename, fmt, rscene, rcamera, rparams, ...)
+function load_scene (filename, fmt, scene, camera, params, ...)
    local loader = scene_loaders[fmt]
 
    if loader then
-      -- Set up the scene object for the loader code to use.
-      --
-      init_scene (rscene)
 
-      -- Let users use the raw camera directly.
+      -- For old versions of SWIG, we need to gc-protect objects
+      -- handed to the scene.
       --
-      camera = rcamera
+      if scene_obj_gc_protect and not has_index_wrappers (scene) then
+	 local wrap = index_wrappers (scene)
 
-      -- and params table
-      --
-      params = rparams
+	 function wrap:add (thing)
+	    gc_ref (self, thing)
+	    return nowrap_meth_call (self, "add", thing)
+	 end
+      end
 
       -- Call the loader.
       --
@@ -1903,10 +1878,9 @@ mesh_loaders["3ds"] = raw.load_3ds_file
 --
 -- Lua scene description loader
 
--- Load Lua scene description from FILENAME into RSCENE and RCAMERA.
--- Return true if the scene was loaded successfully, or an error string.
+-- Load Lua scene description from FILENAME into SCENE and CAMERA.
 --
-function scene_loaders.lua (filename, rscene, rcamera)
+function scene_loaders.lua (filename, scene, camera, params)
 
    -- Load the user's file!  This just constructs a function from the
    -- loaded file, but doesn't actually evaluate it.
@@ -1925,6 +1899,12 @@ function scene_loaders.lua (filename, rscene, rcamera)
    local environ = {}
    setmetatable (environ, inherit_snogray_metatable)
    setfenv (contents, environ)
+
+   -- Add references to the scene, camera, and parameters.
+   --
+   environ.scene = scene
+   environ.camera = camera
+   environ.params = params
 
    -- Remember filename being loaded, so we can find other files in
    -- the same location.
