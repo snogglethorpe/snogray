@@ -33,13 +33,11 @@ class ValTable;
 extern bool load_lua_file (const std::string &filename, const std::string &fmt,
 			   Scene &scene, Camera &camera, ValTable &params);
 
-// If FILENAME is a format that has a Lua mesh loader, load the file named
-// FILENAME into MESH using Lua, and return true; if FILENAME is
-// unrecogized, return false.  If an error occurs during loading, an
-// exception is thrown.
+// If FILENAME is a format that has a Lua mesh loader, load the file
+// named FILENAME into MESH using Lua.  If FILENAME has no loader, or
+// an error occurs during loading, an exception is thrown.
 //
-extern bool load_lua_file (const std::string &filename, const std::string &fmt,
-			   Mesh &mesh);
+extern void load_lua_file (const std::string &filename, Mesh &mesh);
 
 
 // Cleanup and free all global Lua state.

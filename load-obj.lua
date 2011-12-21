@@ -1,6 +1,6 @@
 -- load-obj.lua -- Load a .obj format mesh
 --
---  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007-2008, 2011  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -83,6 +83,4 @@ function load_obj (filename, mesh, mat_map)
       = V_CMD + VN_CMD + F_CMD + MTLLIB_CMD + USEMTL_CMD + COMMENT + OPT_WS
 
    lu.parse_file (filename, CMD * lu.NL)
-
-   return true
 end

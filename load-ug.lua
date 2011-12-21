@@ -1,6 +1,6 @@
 -- load-ug.lua -- Load a .ug ("Berkeley UniGrafix") format mesh
 --
---  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2011  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -97,6 +97,4 @@ function load_ug (filename, mesh, mat_dict)
    local LINE = CMD + HWS
 
    lu.parse_file (filename, LINE * lu.NL)
-
-   return true
 end

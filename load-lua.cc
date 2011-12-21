@@ -222,17 +222,13 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
 
 // Lua mesh loading
 
-// If FILENAME is a format that has a Lua mesh loader, load the file named
-// FILENAME into MESH using Lua, and return true; if FILENAME is
-// unrecogized, return false.  If an error occurs during loading, an
-// exception is thrown.
+// If FILENAME is a format that has a Lua mesh loader, load the file
+// named FILENAME into MESH using Lua.  If FILENAME has no loader, or
+// an error occurs during loading, an exception is thrown.
 //
-bool
-snogray::load_lua_file (const string &filename, const std::string &fmt,
-			Mesh &mesh)
+void
+snogray::load_lua_file (const string &filename, Mesh &mesh)
 {
-  bool loaded = false;
-
   if (! L)
     setup_lua ();
 
@@ -246,19 +242,15 @@ snogray::load_lua_file (const string &filename, const std::string &fmt,
   lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
   lua_getfield (L, -1, "load_mesh");			// function
   lua_pushstring (L, filename.c_str ());		// arg 0
-  lua_pushstring (L, fmt.c_str ());			// arg 1
-  SWIG_NewPointerObj (L, &mesh, mesh_swig_type, 0);	// arg 2
-  lua_newtable (L);					// arg 3
+  SWIG_NewPointerObj (L, &mesh, mesh_swig_type, 0);	// arg 1
+  lua_newtable (L);					// arg 2
 
-  do_call (L, 4, 1);					// do the call
-  loaded = lua_toboolean (L, -1);			// get result
+  do_call (L, 3, 0);					// do the call
 
   // Run the garbage collector to free up any data left around from the
   // user's calculations.
   //
   lua_gc (L, LUA_GCCOLLECT, 0);
-
-  return loaded;
 }
 
 

@@ -14,9 +14,6 @@
 
 #include "config.h"
 
-#include "excepts.h"
-#include "string-funs.h"
-
 #include "load-lua.h"
 
 #include "mesh.h"
@@ -31,20 +28,7 @@ void
 Mesh::load (const string &file_name)
 {
   std::cout << "* loading mesh: " << file_name << std::endl;
-
-  try
-    {
-      string ext = filename_ext (file_name);
-
-      if (load_lua_file (file_name, ext, *this))
-	{ /* loaded */ }
-      else
-	throw (runtime_error ("Unknown mesh file format: " + ext));
-    }
-  catch (runtime_error &err)
-    {
-      throw runtime_error (file_name + ": " + err.what ());
-    }
+  load_lua_file (file_name, *this);
 }
 
 

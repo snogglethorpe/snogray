@@ -1,6 +1,6 @@
 -- load-stl.lua -- Load a .stl (stereolithography) format mesh
 --
---  Copyright (C) 2007, 2008  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007-2008, 2011  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -74,6 +74,4 @@ function load_stl (filename, mesh, mat_dict)
          * P"end" * HWS * P"solid" * OPT_WS)
 
    lu.parse_file (filename, SOLID)
-
-   return true
 end

@@ -1871,16 +1871,19 @@ local mesh_loaders = {}
 -- handled by the C++ core.  To load any supported format, use the
 -- mesh "load" method.
 --
-function load_mesh (filename, fmt, ...)
-   local loader = mesh_loaders[fmt]
-   if loader then
-      local ok = loader (filename, ...)
-      if ok == nil then
-	 ok = true		-- void function?
+function load_mesh (filename, mesh, params)
+   params = params or {}
+
+   local fmt = params.format or filename_ext (filename)
+   if fmt then
+      local loader = mesh_loaders[fmt]
+      if loader then
+	 loader (filename, mesh, params)
+      else
+	 error ("unknown mesh format \""..fmt.."\"", 0)
       end
-      return ok
    else
-      return false
+      error ("cannot determine mesh format for \""..filename.."\"", 0)
    end
 end
 
