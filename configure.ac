@@ -373,6 +373,32 @@ if test $have_extern_template = yes; then
 fi
 
 
+# See if it's valid to cast a function pointer to void* using
+# reinterpret_cast.  This is traditionally not allowed, but it seems
+# to be OK in C++11, so some compilers may support it.
+#
+AC_MSG_CHECKING([whether reinterpret_cast<void*> on a function pointer works])
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE(
+     [extern void (*fun_ptr)();
+      void *test () { return reinterpret_cast<void*> (fun_ptr); }])],
+  [[# Not an error, but let's try to see if it's a warning...
+    reinterp_cast_fun_ptr_to_data_ptr_ok=yes
+    if test -s conftest.err; then
+      if grep '[Ww]arning' conftest.err >/dev/null || \
+	grep '[Cc]ast' conftest.err >/dev/null
+      then
+	reinterp_cast_fun_ptr_to_data_ptr_ok=no
+      fi
+    fi]],
+  [reinterp_cast_fun_ptr_to_data_ptr_ok=no])
+AC_MSG_RESULT([$reinterp_cast_fun_ptr_to_data_ptr_ok])
+if test "$reinterp_cast_fun_ptr_to_data_ptr_ok" = yes; then
+  AC_DEFINE([REINTERP_CAST_FUN_PTR_TO_DATA_PTR_OK], [1],
+  	    [Define if reinterpret_cast<void*> works on function pointers])
+fi
+
+
 ##
 ## --------------------------------
 ## Standard library/environment tests
