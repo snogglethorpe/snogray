@@ -312,6 +312,12 @@ CXXFLAGS="$CXXFLAGS $CXX_STD_FLAGS"
 #
 SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS],
   [-Wall -Wextra -Winit-self -pedantic-errors -Wno-long-long])
+#
+# Again, update CXXFLAGS so following configure tests use our
+# warning/error settings -- some tests may fail with them which don't
+# otherwise.
+#
+CXXFLAGS="$CXXFLAGS $CXX_CHECK_FLAGS"
 
 
 ##
@@ -337,27 +343,19 @@ if test "$enable_extern_template" = yes; then
   #
   # See if the compiler supports "extern template".
   #
-  # There are two subtleties:
-  # (1) We test with $CXX_STD_FLAGS and $CXX_CHECK_FLAGS added to the
-  #     compiler flags (which is what will be used later for actual
-  #     program compilation), as "extern template" may not be
-  #     supported when they are used.
-  # (2) If it doesn't seem to work at first, we try again, this time
-  #     prefixing "extern template" with "__extension__"; this tells
-  #     g++ to allow the feature even in strict compatibility mode.
+  # If it doesn't seem to work at first, we try again, this time
+  # prefixing "extern template" with "__extension__"; this tells g++
+  # to allow the feature even in strict compatibility mode.
   #
   for extension_kw in '' '__extension__'; do
     msg_suffix=""
     test x$extension_kw = x__extension__ && msg_suffix=" with $extension_kw"
     AC_MSG_CHECKING([whether C++ compiler supports "extern template"$msg_suffix])
-    _OLD_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXX_STD_FLAGS $CXX_CHECK_FLAGS $CXXFLAGS"
     AC_COMPILE_IFELSE(
       [AC_LANG_SOURCE([template<class T> class Foo { void bar () {} };
 	 $extension_kw extern template class Foo<int>;])],
       [have_extern_template=yes],
       [have_extern_template=no])
-    CXXFLAGS="$_OLD_CXXFLAGS"
     AC_MSG_RESULT([$have_extern_template])
     if test $have_extern_template = yes; then
       extern_template_extension_kw="$extension_kw"
