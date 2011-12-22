@@ -25,6 +25,7 @@ extern "C"
 }
 
 #include "lua-funs.h"
+#include "funptr-cast.h"
 
 #include "lua-setup.h"
 
@@ -128,7 +129,8 @@ snogray::new_snogray_lua_state ()
   // propagate exceptions in C++ code called from Lua as Lua errors.
   //
 #if HAVE_LUAJIT
-  lua_pushlightuserdata (L, (void *)luajit_exception_wrapper);
+  lua_pushlightuserdata (
+    L, cast_fun_ptr_to_void_ptr (luajit_exception_wrapper));
   luaJIT_setmode (L, -1, LUAJIT_MODE_WRAPCFUNC|LUAJIT_MODE_ON);
   lua_pop (L, 1);
 #endif
