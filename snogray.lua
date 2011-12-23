@@ -1824,8 +1824,14 @@ function load_scene (filename, scene, camera, params)
 	 --
 	 local ok, err_msg = pcall (loader, filename, scene, camera, params)
 	 if not ok then
-	    -- propagate the error, prefixing the message with FILENAME
-	    error (filename..": "..err_msg, 0)
+	    -- Prefix ERR_MSG with "FILENAME: ", unless it already
+	    -- seems to contain such a prefix (parsing code, for
+	    -- instance often adds the filename and line-number etc).
+	    if string.sub (err_msg, 1, #filename + 1) ~= filename..":" then
+	       err_msg = filename..": "..err_msg
+	    end
+	    -- propagate the error
+	    error (err_msg, 0)
 	 end
       else
 	 error ("unknown scene format \""..fmt.."\"", 0)
