@@ -470,7 +470,7 @@ if build_lua
 if build_lua_in_src_dir
 
 liblua.a:
-	(cd $(LUA_SRC); $(MAKE) $(AM_MAKEFLAGS) CC='$(CC)' RANLIB='$(RANLIB)' MYCFLAGS='$(EXTRA_COMPILE_FLAGS)' liblua.a)
+	(cd $(LUA_SRC); $(MAKE) $(AM_MAKEFLAGS) CC='$(CC)' RANLIB='$(RANLIB)' CFLAGS='$(AM_CFLAGS) $(CFLAGS)' liblua.a)
 	cp -p $(LUA_SRC)/liblua.a .
 	$(RANLIB) $@
 clean-local:
@@ -481,7 +481,7 @@ mostlyclean-local:
 else !build_lua_in_src_dir
 
 liblua.a:
-	$(MAKE) -f $(LUA_SRC)/Makefile $(AM_MAKEFLAGS) CC='$(CC)' RANLIB='$(RANLIB)' MYCFLAGS='$(EXTRA_COMPILE_FLAGS)' VPATH=$(LUA_SRC) liblua.a
+	$(MAKE) -f $(LUA_SRC)/Makefile $(AM_MAKEFLAGS) CC='$(CC)' RANLIB='$(RANLIB)' CFLAGS='$(AM_CFLAGS) $(CFLAGS)' VPATH=$(LUA_SRC) liblua.a
 
 endif
 
