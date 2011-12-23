@@ -58,14 +58,46 @@ fi
 
 
 # --with-lua-src=DIR option
+#
+# The rules for choosing which Lua library to use are:
+#
+#   (1) If the user specifies --with-lua-src=DIR, then a Lua library
+#       will be built from the source in DIR and used (and no system
+#       Lua library will be checked for).
+#
+#   (2) If the user specifies --with-lua-src, then a Lua library will
+#       be built from the source in $top_srcdir/lua and used (and no
+#       system Lua library will be checked for).
+#
+#   (3) If --with-lua-src isn't specified, and a system LuaJIT or Lua
+#       library is found, then the system library is used.  A LuaJIT
+#       library is preferred to a Lua library.
+#
+#   (4) If --with-lua-src isn't specified and no system LuaJIT or Lua
+#       library is found, then a Lua library is built from source code
+#       $top_srcdir/lua and used.
+#
+# In any case where it attempts to build from Lua source code, it is a
+# fatal error if no source code is found in the selected location.
+#
 
-lua_src_specified=no
+lua_dist=default
 AC_ARG_WITH([lua-src],
     AS_HELP_STRING([--with-lua-src], [Specify Lua source directory]),
-    [lua_src_specified=yes], [with_lua_src=$srcdir/lua])
+    [lua_dist=$withval])
+
+if test x"$lua_dist" = xdefault; then
+  lua_dist=yes
+  build_lua_from_src=maybe
+else
+  build_lua_from_src=yes
+fi
+if test x"$lua_dist" = xyes; then
+  lua_dist=$srcdir/lua
+fi
 
 AC_MSG_CHECKING([for Lua source directory])
-lua_dist=`echo "$with_lua_src" | sed 's@^./@@'`
+lua_dist=`echo "$lua_dist" | sed -e 's@^./@@' -e 's@/*$@@'`
 lua_src=none
 for dir in "$lua_dist" "$lua_dist/src"; do
     if test -r "$dir/lapi.c"; then
@@ -74,6 +106,10 @@ for dir in "$lua_dist" "$lua_dist/src"; do
     fi
 done
 AC_MSG_RESULT([$lua_src])
+
+if test x"$lua_src" = xnone && test $build_lua_from_src = yes; then
+  AC_MSG_ERROR([no Lua source found in directory "$lua_dist"; aborting...])
+fi
 
 build_lua_in_src_dir=no
 if test "$lua_src" != none; then
@@ -544,9 +580,9 @@ AC_DEFUN([SNOGRAY_CHECK_SUBDIR_HEADER], [
 have_liblua=no
 have_luajit=no
 if test x"$lua_src" != xnone; then
+  # set "have_liblua" here to skip the tests for a system Lua library;
+  # liblua_CFLAGS and liblua_LIBS will be set below
   have_liblua=yes
-  AC_SUBST([liblua_CFLAGS], ['-I$(LUA_SRC)'])
-  AC_SUBST([liblua_LIBS], [liblua.a])
 fi
 #
 # Next, try luajit using pkg-config.
@@ -590,6 +626,10 @@ if test $have_liblua = no; then
     done
   fi
   AC_LANG_POP(C)
+fi
+if test $have_liblua = no || test $build_lua_from_src = yes; then
+  AC_SUBST([liblua_CFLAGS], ['-I$(LUA_SRC)'])
+  AC_SUBST([liblua_LIBS], [liblua.a])
 fi
 if test "$have_liblua" = no; then
   AC_MSG_ERROR([A Lua library is required, and was not found; aborting...])
