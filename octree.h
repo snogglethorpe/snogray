@@ -16,6 +16,8 @@
 #include <list>
 
 #include "pos.h"
+#include "unique-ptr.h"
+
 #include "space.h"
 #include "space-builder.h"
 
@@ -136,12 +138,12 @@ public:
   //
   virtual const Space *make_space ()
   {
-    return octree;
+    return octree.release ();
   }
 
 private:
 
-  Octree *octree;
+  UniquePtr<Octree> octree;
 };
 
 // Subclass of SpaceBuilderFactory for making octree builders.
