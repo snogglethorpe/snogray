@@ -67,7 +67,7 @@ static preload_module preloaded_modules[] = {
 static int
 luajit_exception_wrapper (lua_State *L, lua_CFunction fun)
 {
-  const char *err_msg;
+  const char *err_msg = 0;
 
   try
     {
@@ -76,16 +76,38 @@ luajit_exception_wrapper (lua_State *L, lua_CFunction fun)
       return fun (L);
     }
   //
-  // Otherwise, catch various sorts of exceptions, and set ERR_MSG to
-  // point to an appropriate message (if possible).
+  // Catch various sorts of exceptions from FUN.
   //
-  catch (const char *str)	{ err_msg = str; }
-  catch (std::exception &exc)	{ err_msg = exc.what (); }
-  catch (...)			{ err_msg = "C++ exception"; }
+  // For things that were obviously thrown in C++, we try to get an
+  // error message.
+  //
+  // Otherwise, the exception may have come from a recursive call into
+  // Lua.  Unfortunately, Lua throws an opaque type for errors when
+  // compiled in C++, which we can't explicitly check for, but if it
+  // did, the error argument will be on the top of the Lua stack in L.
+  //
+  // So for unknown exceptions, if the Lua stack isn't empty, we just
+  // leave it alone, and hope it's the right thing.  If the stack is
+  // empty, then the exception clearly didn't come from Lua, and we
+  // just use a generic error message.
+  //
+  catch (const char *str)
+    { err_msg = str; }
+  catch (std::exception &exc)
+    { err_msg = exc.what (); }
+  catch (...)
+    {
+      if (lua_gettop (L) == 0)
+	err_msg = "C++ exception"; // not from inferior Lua
+    }
 
-  // Call lua_error to propagate the error with ERR_MSG.
+  // Call lua_error to propagate the error with ERR_MSG.  If ERR_MSG
+  // is zero, then we do nothing, meaning the existing top-of-stack in
+  // L is used as the error value.
   //
-  lua_pushstring (L, err_msg);
+  if (err_msg)
+    lua_pushstring (L, err_msg);
+
   return lua_error (L);
 }
 
