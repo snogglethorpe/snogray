@@ -15,8 +15,8 @@
 
 #include "ref.h"
 #include "space.h"
+#include "space-builder.h"
 #include "surface.h"
-#include "material.h"
 #include "unique-ptr.h"
 #include "ray.h"
 #include "mutex.h"
