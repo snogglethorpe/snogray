@@ -24,6 +24,7 @@ class Progress
 public:
 
   Progress () { }
+  virtual ~Progress () { }
 
   // Set the start position of the progress range; positions before
   // this are not counted as progress.  This is normally called before
