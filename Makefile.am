@@ -117,11 +117,12 @@ AM_CFLAGS_SIZE = $(OPT_SIZE) $(DEBUG) $(EXTRA_COMPILE_FLAGS)
 AM_CXXFLAGS_SIZE = $(OPT_SIZE) $(DEBUG) $(CXX_STD_FLAGS) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
 
 # These options are required for correctness, and _must_ come _after_
-# any optimization options (gcc isn't very bright about parsing options:
-# later options always override earlier ones, even if the earlier one
-# was more specific).  Since automake always passes CXXFLAGS last, and even 
+# any optimization options (gcc isn't very bright about parsing
+# options:  later options always override earlier ones, even if the
+# earlier one was more specific).
 #
-CXXFLAGS += $(CXX_EXTRA_REQ_FLAGS)
+AM_CFLAGS += $(CXX_EXTRA_REQ_FLAGS)
+AM_CXXFLAGS += $(CXX_EXTRA_REQ_FLAGS)
 
 # Add compiler flags (nominally "cflags", but in practice always
 # preprocessor options) needed by libraries we use.
@@ -550,7 +551,7 @@ snograw_lua_wrap.cc: vector.swg val-table.swg image.swg surface.swg	\
 # (3) Don't use pedantic checking options (the quality of the
 #     generated code is not something we can easily control)
 #
-libsnograw_a_CXXFLAGS = $(OPT_SIZE) $(DEBUG) $(CXX_STD_FLAGS) -fno-strict-aliasing $(EXTRA_COMPILE_FLAGS)
+libsnograw_a_CXXFLAGS = $(OPT_SIZE) $(DEBUG) $(CXX_STD_FLAGS) -fno-strict-aliasing $(CXX_EXTRA_REQ_FLAGS) $(EXTRA_COMPILE_FLAGS)
 
 # Make automake suck slightly less
 libsnograw_a_SHORTNAME = sl
