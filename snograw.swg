@@ -90,33 +90,26 @@ SWIG_TYPEMAP_NUM_VECTOR(unsigned)
 namespace snogray {
 
 
-  // Our intrusive reference-counting smart-pointer class.
+  // Ref is our intrusive reference-counting smart-pointer class.
+  //
+  // We expose only enough of it to SWIG so that it knows it's a
+  // pointer.  SWIG will then export operations on Ref<T> mirroring
+  // those on T.
   //
   template<class T>
   class Ref
   {
   public:
 
-    Ref ();
-    Ref (T *_obj);
-    Ref (const Ref &ref);
-
-    ~Ref ();
-
     T &operator* ();
     T *operator-> ();
-
-    bool null () const;
-
-    %rename(set) operator= (T *new_obj);
-    template<class T2> Ref &operator= (T2 *new_obj);
-
-    %rename(set) operator= (const Ref &ref);
-    Ref &operator= (const Ref &ref);
   };
 
 
-  // Lots of places use ValTable::NONE, so tell SWIG about it
+  // Lots of places use ValTable::NONE, so tell SWIG about it.
+  // But we don't want to actually export ValTable itself, instead
+  // doing conversion between Lua tables and ValTables for those
+  // interfaces which require/return a ValTable
   //
   %ignore ValTable;
   class ValTable
