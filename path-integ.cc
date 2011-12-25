@@ -375,14 +375,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       // because their contribution is accounted for by the preceding
       // direct-lighting term).
       //
-      // We "don't count" Bsdf::TRANSLUCENT for this purpose (even
-      // though they're nominally "specular"), because they actually
-      // _are_ accounted for in the direct-lighting term.
-      //
-      after_specular_sample
-	= ((bsdf_samp.flags & Bsdf::SPECULAR)
-	   && !((bsdf_samp.flags & Bsdf::TRANSLUCENT)
-		&& path_len > 0));
+      after_specular_sample = (bsdf_samp.flags & Bsdf::SPECULAR);
 
       // If we just followed a refractive (transmissive) sample, we need
       // to update our stack of Media entries:  entering a refractive
