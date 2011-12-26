@@ -1,6 +1,6 @@
 // stencil.cc -- Masking material for partial transparency/translucency
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,6 +14,7 @@
 #include "media.h"
 #include "fresnel.h"
 #include "bsdf.h"
+#include "compiler.h"
 
 #include "stencil.h"
 
@@ -62,10 +63,16 @@ public:
     else if (! thru_ok)
       return underlying_bsdf->sample (param, flags);
     else if (! undl_ok || param.u > opacity_intens)
-      return Sample ((1 - opacity) /  isec.cos_n (isec.v),
-		     undl_ok ? 1 - opacity_intens : 1,
-		     -isec.v,
-		     SPECULAR|TRANSMISSIVE|TRANSLUCENT);
+      {
+	float cos_n = isec.cos_n (isec.v);
+	if (unlikely (cos_n == 0))
+	  return Sample ();
+	else
+	  return Sample ((1 - opacity) / cos_n,
+			 undl_ok ? 1 - opacity_intens : 1,
+			 -isec.v,
+			 SPECULAR|TRANSMISSIVE|TRANSLUCENT);
+      }
     else
       {
 	UV scaled_param (param.u * inv_opacity_intens, param.v);
