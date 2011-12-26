@@ -45,6 +45,11 @@ help (CmdLineParser &clp, ostream &os)
   os <<
   "Change the format of or transform an image file"
 n
+s "  -p, --preclamp             Clamp input to output range before filtering"
+s "                                (this can yield better anti-aliasing when"
+s "                                 downsampling from an HDR input image to"
+s "                                 a smaller LDR output image)"
+n
 s IMAGE_INPUT_OPTIONS_HELP
 n
 s IMAGE_OUTPUT_OPTIONS_HELP
@@ -66,13 +71,14 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
+    { "preclamp", no_argument, 0, 'p' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "p:"
+    "p"
     IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -82,6 +88,7 @@ int main (int argc, char *const *argv)
   // Parameters set from the command line
   //
   unsigned dst_width = 0, dst_height = 0; // zero means copy from source image
+  bool preclamp = false;    // clamp input to output range before filtering
   ValTable src_params, dst_params;
 
   // Parse command-line options
@@ -90,6 +97,10 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
+      case 'p':
+	preclamp = true;
+	break;
+
 	IMAGE_OUTPUT_OPTION_CASES (clp, dst_params);
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
@@ -157,6 +168,12 @@ int main (int argc, char *const *argv)
       std::string dst_name = clp.get_arg ();
       ImageOutput dst (dst_name, dst_width, dst_height, dst_params);
 
+      // If we're doing pre-clamping, calculate the actual value to clamp to.
+      //
+      float max_sample_intens = dst.max_intens ();
+      if (max_sample_intens == 0)
+	preclamp = false;	// output has no clamping
+
       if (src.has_alpha_channel() && !dst.has_alpha_channel())
 	std::cerr << clp.err_pfx()
 		  << dst_name << ": warning: alpha-channel not preserved"
@@ -174,9 +191,16 @@ int main (int argc, char *const *argv)
 	  // Write to the output image, scaling as necessary.
 	  //
 	  for (unsigned x = 0; x < src.width; x++)
-	    dst.add_sample ((x + 0.5f) * x_scale,
-			    (y + 0.5f) * y_scale,
-			    src_row[x]);
+	    {
+	      Tint sample = src_row[x];
+
+	      if (preclamp)
+		sample  = sample.clamp (max_sample_intens);
+
+	      dst.add_sample ((x + 0.5f) * x_scale,
+			      (y + 0.5f) * y_scale,
+			      sample);
+	    }
 	}
     }
   catch (...) { throw; }
