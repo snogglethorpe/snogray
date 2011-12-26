@@ -1,6 +1,6 @@
 // image-io.cc -- Low-level image input and output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -84,12 +84,6 @@ void
 ImageSink::flush ()
 {
   // do nothing
-}
-
-float
-ImageSink::max_intens () const
-{
-  return 0;			// no (meaningful) maximum, i.e. floating-point
 }
 
 ImageSource::~ImageSource () { }

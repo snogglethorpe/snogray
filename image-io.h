@@ -1,6 +1,6 @@
 // image-io.h -- Low-level image input and output
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -118,6 +118,11 @@ public:
   // Return true if we have an alpha (opacity) channel.
   //
   virtual bool has_alpha_channel () const { return false; }  // by default, no
+
+  // Return the maximum sample value.  A value of zero means that
+  // there's no real maximum.
+  //
+  virtual float max_intens () const { return 0; }
 
   // Return the row-order of this image file.
   // (The default is top-to-bottom order, and subclasses should
@@ -238,8 +243,6 @@ public:
   // image, as that can make the resulting compression worse).
   //
   virtual void flush ();
-
-  virtual float max_intens () const;
 
   void open_err (const char *msg = "", bool use_errno = false)
     __attribute__ ((noreturn));

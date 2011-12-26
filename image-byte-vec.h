@@ -1,6 +1,6 @@
 // image-byte-vec.h -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -141,10 +141,14 @@ public:
     return pixel_format_has_alpha_channel (pixel_format);
   }
 
+  // Return the maximum sample value.  A value of zero means that
+  // there's no real maximum.
+  //
+  virtual float max_intens () const { return 1; }
+
   // We define these, and our superclass calls them.
   //
   virtual void write_row (const ImageRow &row);
-  virtual float max_intens () const;
 
   // Subclasses should define this (instead of the generic write_row),
   // and we will call it.
@@ -245,6 +249,11 @@ public:
   {
     return pixel_format_has_alpha_channel (pixel_format);
   }
+
+  // Return the maximum sample value.  A value of zero means that
+  // there's no real maximum.
+  //
+  virtual float max_intens () const { return 1; }
 
   // We define this, and our superclass calls it.
   //

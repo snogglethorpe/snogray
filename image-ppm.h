@@ -1,6 +1,6 @@
 // image-ppm.h -- PPM format image handling
 //
-//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -101,6 +101,8 @@ public:
   ~PpmImageSource ();
 
   virtual void read_row (ImageRow &row);
+
+  virtual float max_intens () const { return 1; }
 
   // Pixval to floating-point conversion
   Color::component_t pixval_to_color_component (pixval pv)

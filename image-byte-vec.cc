@@ -1,6 +1,6 @@
 // image-byte-vec.cc -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -179,12 +179,6 @@ ByteVecImageSink::write_row (const ImageRow &row)
     }
 
   write_row (output_row);
-}
-
-float
-ByteVecImageSink::max_intens () const
-{
-  return 1;
 }
 
 
