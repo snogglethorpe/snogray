@@ -72,6 +72,32 @@ public:
   //
   bool has_alpha_channel () const { return sink->has_alpha_channel (); }
 
+  // Return the maximum input sample value (above which samples will be
+  // clamped).  A value of zero means that there's no real maximum.
+  //
+  float max_intens () const
+  {
+    // Start with the sink's maximum sample value.
+    //
+    float max_samp = sink->max_intens ();
+
+    if (max_samp != 0)
+      {
+	// If we have non-default scaling or power parameters, we need
+	// to invert those operations to determine the actual maximum
+	// input value:  We want to return a value which will equal
+	// the sink's maximum value after our scaling/power
+	// adjustments have been applied.
+	//
+	if (intensity_power != 1)
+	  max_samp = pow (max_samp, 1 / intensity_power);
+	if (intensity_scale != 1)
+	  max_samp = max_samp / intensity_scale;
+      }
+
+    return max_samp;
+  }
+
   // Flush any buffered rows until the current minimum (buffered) row is
   // ImageOutput::min_y.  NEW_MIN_Y is in the sample coordinate-system,
   // not the output coordinate-system.
