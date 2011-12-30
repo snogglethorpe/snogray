@@ -16,6 +16,10 @@
 bin_PROGRAMS = snogray snogcvt snogdiff sampleimg
 noinst_PROGRAMS =
 
+if build_snogbloom
+  bin_PROGRAMS += snogbloom
+endif
+
 
 # Targets we don't want for whatever reason.  Automake bitches if we
 # simply remove them from the above target variables, so we
@@ -436,6 +440,11 @@ snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogdiff_SOURCES = snogdiff.cc
 snogdiff_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
+
+if build_snogbloom
+  snogbloom_SOURCES = snogbloom.cc glare.cc glare.h
+  snogbloom_LDADD = $(IMAGE_LIBS) $(MISC_LIBS) $(libfftw3_LIBS)
+endif
 
 hemint_SOURCES = hemint.cc
 hemint_LDADD = libsnogutil.a

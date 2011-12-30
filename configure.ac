@@ -640,6 +640,35 @@ fi
 AM_CONDITIONAL([have_luajit], [test $have_luajit = yes])
 
 
+# Check for FFTW3 optimized FFT library; we actually check for
+# "fftw3f", which is the single-precision variant.
+#
+fftw3_precision=f
+have_libfftw3=no
+PKG_CHECK_MODULES([libfftw3], [fftw3$fftw3_precision], [have_libfftw3=yes], [:])
+
+# Look for the FFTW3 threading library too.  The FFTW3 pkg-config info
+# file doesn't know about the threading library, so just look for it
+# the old-fashioned way...
+#
+use_fftw3_threads=no
+if test $have_libfftw3 = yes; then
+  AC_CHECK_LIB([fftw3${fftw3_precision}_threads],
+	       [fftw${fftw3_precision}_init_threads],
+	       [use_fftw3_threads=yes], [:], [$libfftw3_LIBS])
+  if test $use_fftw3_threads = yes; then
+    # prepend the threading library to the other FFTW3 libraries
+    libfftw3_LIBS="-lfftw3${fftw3_precision}_threads $libfftw3_LIBS"
+    AC_DEFINE([USE_FFTW3_THREADS], [1], [Define if FFTW3 multi-threading should be used])
+  fi
+fi
+
+# The "snogbloom" program depends on FFTW3, so only build it when that's
+# available.
+#
+AM_CONDITIONAL([build_snogbloom], [test $have_libfftw3 = yes])
+
+
 # Check for PNG image library
 #
 have_libpng=no
