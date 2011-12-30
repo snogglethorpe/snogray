@@ -138,19 +138,6 @@ snogray::add_glare (Image &image, float diag_field_of_view,
   //
   float pixel_offset_to_angle = diag_field_of_view / image_diagonal;
 
-  // Bloom filter radius as a proportion of the image diagonal.
-  //
-  // This doesn't actually effect the filter, but rather is a hard
-  // limit used to limit the filter size, avoiding calculating the
-  // overhead of calculating the filter for the entire image (which
-  // can be very time-consuming at large image sizes).
-  //
-  float radius = 0.2;
-
-  // Bloom filter radius in absolute pixels.
-  //
-  unsigned pixel_radius = radius * image_diagonal;
-
   // Because the FFT operator wraps around, we need to add a margin to
   // one vertical and one horizontal edge of the original image, which
   // is big enough to absorb any wrap-around bleeding.  The margin is
@@ -184,25 +171,26 @@ snogray::add_glare (Image &image, float diag_field_of_view,
     = fftwf_plan_dft_2d (tot_h, tot_w, filter, filter,
 			 FFTW_FORWARD, FFTW_ESTIMATE);
 
-  // Fill in the filter matrix.  We will calculate their FFT in-place
-  // in the same array.
+  // Fill in the filter matrix.  We will calculate the FFT in-place in
+  // the same array.
   //
   float filter_sum = 0;
-  unsigned filt_lim_w = min (w, pixel_radius);
-  unsigned filt_lim_h = min (h, pixel_radius);
   for (unsigned y = 0; y < tot_h; y++)
     {
       for (unsigned x = 0; x < tot_w; x++)
 	{
-	  // x/y offsets of this pixel from the filter center.
-	  //
-	  float base_x_offs = min (x, tot_w - x);
-	  float base_y_offs = min (y, tot_h - y);
-
 	  double pixel_sum = 0;
 
-	  if (base_x_offs < filt_lim_w && base_y_offs < filt_lim_h)
+	  if (x >= y)
 	    {
+	      // x/y offsets of this pixel from the filter center.
+	      //
+	      float base_x_offs = min (x, tot_w - x);
+	      float base_y_offs = min (y, tot_h - y);
+
+	      // Angle, in radians, of the center of this pixel from
+	      // the center of the filter.
+	      //
 	      float pix_angle
 		= (sqrt (base_x_offs * base_x_offs + base_y_offs * base_y_offs)
 		   * pixel_offset_to_angle);
@@ -249,6 +237,13 @@ snogray::add_glare (Image &image, float diag_field_of_view,
 		}
 
 	      pixel_sum *= inv_num_samples;
+	    }
+	  else
+	    {
+	      // As our PSF is symmetric, we can just re-use a
+	      // previously calculated value with x and y swapped.
+
+	      pixel_sum = filter[y + x * tot_w][0];
 	    }
 
 	  filter[x + y * tot_w][0] = pixel_sum;
