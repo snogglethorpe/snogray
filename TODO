@@ -1,8 +1,245 @@
 Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
+* TODO Rewrite driver layer in Lua
+
+  It really just makes sense...
+
+  I had this odd idea that it should be able to work without any Lua
+  installed, but that's just silly -- it cripples the input of scene
+  files, and Lua's so small and portable it's fine just to include a
+  Lua source distribution to avoid adding an external dependency.
+
+  An interesting question, though, is:  should I (1) restructure
+  everything as a pure module which can be loaded by an external Lua,
+  or (2) just keep a thin driver and compile in Lua.
+
+  (1) might be a bit more elegant, but maybe requires more
+  install-time magic, so that Lua can find the module, etc.  Also, (2)
+  would avoid any efficiency hit from PIC compilation (required for
+  shared objects on linux), and maybe other shared-object-specific
+  goo; not sure if this is really a big deal on common archs or not...
+
+* TODO Make image I/O classes dynamically loadable
+
+  Dynamic loading in general might not be worth the trouble, but
+  image I/O classes tend to be a little annoying, dragging in lots of
+  libraries (not used by anything else), bloating the resulting
+  executable if they're static, etc.
+
+  So having a way to build them as dynamic objects, and then have a
+  simple system for mapping file extensions / patterns to library
+  names might be nice...  still a bit of work...
+
+  Actually the best route is probably to just arrange that Lua is able
+  to be involved when creating image-output objects, and then use
+  Lua's dynamic-loading machinery, which we get for free.  This should
+  be fairly natural as we're already moving to Lua for most of the
+  loading and driver phases.  
+
+* TODO Add color handling framework
+
+  Snogray's current handling of color is trivial -- R,G,B are just
+  uninterpreted values, which are read/written without modification
+  from/to image textures, result images, user color specs, etc.
+
+  The current representation is mostly fine for rendering purpose,
+  treating the color components as samples in an SPD (spectral power
+  distribution), as most rendering operations act independently on
+  spectral samples, but color I/O should really pay attention to the
+  color representation of the input/output format, as different image
+  formats are not all the same in this respect (they're _similar_
+  enough that things "mostly look OK" without interpretation, but for
+  instance textures loaded from TGA files in snogray look subtly wrong
+  when the result is written to a jpeg file).
+
+  It'd be nice to have a nicely general framework that allows, for
+  instance, the user to specify colors as arbitrary spectral
+  distributions, blackbody temperatures, etc, and then approximate
+  these with an appropriate SPD.
+
+  This isn't all that hard, but there are lots of details to handle.
+
+  Most existing color-management libraries are not actually very
+  useful as they typically seem to represent the problem as only one
+  of _conversion_ between fixed endpoints, whereas we'd like something
+  that allows arbitrary endpoint specifications, and calculates the
+  necessary conversion matrices.
+
+  * Idea: The basic representation of a color space can be the number
+  of components in that space, and a pair of matrices for converting a
+  vector of components to/from an SPD of some fixed resolution (the
+  intermediate SPD resolution can be fairly high, because operations
+  using them are fairly rare).  A color-space conversion matrix
+  between color-spaces A and B can then be calculated by multiplying
+  A.TO_SPD and B.FROM_SPD.
+
+* TODO Add "fake hdr" utility
+
+  Basically converts a LDR (low-dynamic-range) image into a "fake"
+  HDR image by artificially boosting clamped highlights.  With some
+  tweaking this often makes LDR environment maps useful for lighting
+  (whereas they're normally not so useful because "highlights" in a
+  LDR image are typically severely clamped compared to the original
+  scene).
+
+  Basic algorithm:
+
+      for_each (pixel)
+        if (brightness (pixel) > THRESHOLD)
+	  pixel *= BOOST;
+
+  where THRESHOLD and BOOST are user-tweakable parameters.  THRESHOLD
+  = 0.98 and BOOST = 5 have proved reasonable for me in the past.
+
+* TODO Multi-thread photon-shooting
+
+  The photon-shooting phase of photon-mapping is often not so long
+  compared to rendering, but can be annoying for low-quality test
+  renders.  Multi-threading this phase probably isn't very hard, as
+  each photon is independent, and most of our infrastructure is
+  already thread safe.
+
+  Actually the main annoyance is just making progress-reporting
+  thread-safe... and the temptation is to just rewrite the whole
+  progress-reporting infrastructure...
+
+* TODO Make photon-mapping more usable
+
+  photon-mapping currently isn't very easy to use -- there are often
+  severe artifacts, and tuning the parameters to get rid of them often
+  isn't obvious (or even possible).
+
+  photon-mapping as a general technique is clearly pretty decent as
+  there are lots of renderers using it for GI, so we need to figure
+  out what's wrong, and how to improve it.  Is it a real bug, or just
+  a lack of parameter tuning?
+
+  PBRTv2 claims to have an improved photon-mapping implementation over
+  v1, so look at what changed and see if those changes are useful.
+
+  Also "importon" mapping would be a useful addition, and probably
+  not all that hard.  Importon mapping an initial forward-tracing pass
+  that shoots "importons" from the camera to the lights, and records
+  where and in what direction the lights were hit; this info is then
+  used to shoot more photons in important directions.
+
+* TODO Fix lighting inconsistency of photon-mapping with environment maps
+
+  When using with environment-map lighting, photon-mapping yields
+  obviously different lighting than path tracing (for simple object
+  lights, none is evident).  Photon-mapping always yields somewhat
+  brighter results in areas mainly lit by indirect lighting.  
+
+* TODO Make output-sample iteration order more configurable
+
+  Currently things are hardwired to just always render pixels in
+  scanline order.
+
+  For using techniques like metropolis light transport however, we may
+  want to use other orders (MLT renders in "priority order",
+  spending more time in areas of the image that are found to be more
+  important).
+
+  Right now the scan order comes from the "RenderPattern" class, but
+  changing the order is not as simple as just creating alternate
+  versions of that class and allowing them to be selected -- other
+  parts of the system implicitly assume that the output will be done
+  in scanline order.  For instance, the snapshot/recovery code.
+
+  The snapshot/recovery code right now restores an interrupted render
+  by reading in all scanlines from a partial image, and continuing
+  from that point; the number of scanlines in the partial image is
+  used to determine the point from which rendering should continue.
+  However for non-scanline orders, snapshots will basically need to be
+  dumped as entire images, with some sort of metadata indicating how
+  to continue rendering.  This can probably be done simply by using a
+  separate "xxx.jpeg.snogray-snapshot" text file holding the
+  metadata (this is also sort of nice because the presence of such a
+  file clearly indicates an unfinished render).
+
+* TODO Add some sort of search-path for finding scenes/images/textures/etc
+
+  Nuance: Scene files loading other assets should see a search path
+  which adds their own path to the global path in some manner, to
+  allow somewhat self-contained scene directories.
+
+* TODO Add some hack to reduce "speckling"
+
+  One of the most annoying rendering artifacts is "speckles" --
+  rare but very noticeable bright pixels in the middle of otherwise
+  average areas.  Note that this is distinct from general rendering
+  noise, which is generally well behaved, relatively unobjectionable
+  (it looks a bit like film grain), and can be reasonably controlled
+  by increased sampling.  These bright speckles on the other hand, are
+  reduced by increasing sampling, but because they're so obvious, are
+  still annoying even at quite high sample rate.
+
+  I think such speckles are not a bug, but just an artifact of
+  unbiased monte-carlo methods -- they show up mainly when using
+  global illumination, and seem to represent very rare but valid
+  lighting paths (remember, unlikely paths have their value greatly
+  boosted by their very unlikeliness, due to dividing by PDF values).
+  However they're still very ugly.
+
+  To remove these, it seems reasonable to simply try and squash any
+  single samples that are dramatically greater than their immediate
+  neighborhood; this obviously makes the result biased, but I think
+  will result in a much more attractive result without any _obvious_
+  change.
+
+  [ok, the following doesn't work: the resulting bias is actually
+  quite obvious:  My idea:  calculate the average sample value for a
+  pixel, and clamp all samples for the pixel to some multiple (10x,
+  20x?, something based on the number of samples?) of that average.
+  Then any pixel with a reasonable number of very bright samples will
+  still be obvious bright, because those bright samples will make the
+  average pretty high, and even single bright samples will remain
+  bright, but not enough to completely overwhelm the pixel brightness
+  by themselves.]
+
+* TODO Fix "double-checked locking" in Subspace
+
+  The Subspace class uses "double-checked locking"[1] to lazily
+  initialize its acceleration structures.  This is not guaranteed to
+  be safe on modern multi-processor systems, although it falls into
+  the "kinda sorta works in practice, usually" category (the [very
+  rare] failure mode is reasonably benign as well -- conflicting
+  threads will create multiple redundant acceleration structures, and
+  leak all but the last one).
+
+  To make it truly safe without using a mutex in the "already
+  initialized" case, one needs memory barriers to ensure that changes
+  properly propagate to other cores/processors; in traditional C++
+  this wasn't possible to do portably, but it can be done using
+  C++11's atomic features.  Unfortunately few compilers actually seem
+  to implement those features yet (gcc is getting there recently)...
+
+  [1] http://en.wikipedia.org/wiki/Double-checked_locking 
+
+* TODO Add scene loader using "assimp" library
+
+  This library can load tons of formats, and it's interface seems
+  reasonable enough (generic scene descriptions are inevitably
+  annoying, but this seems dealable).
+
+  It's huge though, so maybe add this as a dynamically loadable module
+  via Lua.
+
+  One annoying thing ... it seems to use Blender definitions for
+  materials, which are ... weird (e.g., Blender's Cook-Torrance model
+  doesn't seem to actually resemble Cook-Torrance at all).
+
 * TODO Efficient Global Illumination
 
   * TODO Metropolis Light Transport
+
+    (which does "genetic" selection of paths to trace)
+
+    PBRTv2 has an implemention.
+
+    Also, check out the (partial?) code in "Advanced Global
+    Illumination 2nd ed" (Philip Dutre, Philippe Bekaert, Kavita
+    Bala).
 
   * TODO Instant radiosity
 
@@ -206,11 +443,48 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
    [We don't really use cube-maps anymore, so maybe better just remove them?]
 
+
 
 ----------------------------------------------------------------
 
 Completed items:
 
+
+* DONE [2011-12-30] Finish bloom-filter (aka “veiling luminance”) app
+
+  Not so hard using FFTW3 for FFT, but some annoying details and lots
+  of tweaking to look good...
+
+  Use PSF from "Physically-Based Glare Effects for Digital Images"
+  (Spencer/Shirley/Zimmerman/Greenberg 1995, aka SSZG95).
+
+  bloom-20110527-0.patch
+
+* DONE [2011-12-11] Make snogcvt work for upscaling too
+
+  Doesn't work properly now because the inner loop always loops over
+  incoming pixels and adds output samples, which leaves gaps when
+  upscaling.
+
+  The basic idea is that folr upscaling, we need to loop over the
+  output grid instead of the input grid (which will end up using input
+  pixels multiple times).
+
+  Implementing this should be faily easy: Use floating-point input
+  image coordinates, and when an image dimension is bigger in the
+  output, make the increment for that dimension's coordinate
+  input_size / output_size instead of 1. A nested loop inside the
+  current "fetch next input row" should increment the y-coordinate and
+  re-use the current row until it is 1 greater than the current row's
+  base coordinate. The inner-most loop can work similarly for pixels,
+  but that's even easier because we can just address them directly
+  using the floor of the x-coordinate.
+
+* DONE [2011-12-05] Rip out weird specialized functionality from snogcvt
+
+  E.g., "--underlay" ... I'm not even sure this is really very useful
+  at all, but at the least, it should be in some small standalone app,
+  not in snogcvt.
 
 * DONE Add scene loaders:
 
