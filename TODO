@@ -1,8 +1,8 @@
 Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
-* TODO Metropolis Light Transport
-
 * TODO Efficient Global Illumination
+
+  * TODO Metropolis Light Transport
 
   * TODO Instant radiosity
 
@@ -179,13 +179,6 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
   vertex splitting at seams (treating seam vertices as singular),
   because otherwise the normals at seams will be slightly incorrect.
 
-* TODO Clean up environment-map region-splitting code.
-
-  Instead of weird iterative searching for the best split point for
-  splitting regions, just add a LightMap method to return a split
-  point (the current code ends up more or less just splitting as
-  evenly as possible taking mapping distortion into account).
-
 * TODO Implement system for generating (and preserving, in snogcvt) image meta-data
 
   Simple EXIF support is added by exif-20061030-1.patch, but probably
@@ -306,6 +299,13 @@ Completed items:
 
   For more details on how this is stored into surfaces, see "TODO
   Reorganize the Surface abstraction".
+
+* DONE Clean up environment-map region-splitting code.
+
+  Instead of weird iterative searching for the best split point for
+  splitting regions, just add a LightMap method to return a split
+  point (the current code ends up more or less just splitting as
+  evenly as possible taking mapping distortion into account).
 
 * DONE Efficient Global Illumination
 
