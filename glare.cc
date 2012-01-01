@@ -1,6 +1,6 @@
 // glare.cc -- Add glare effects ("bloom") to an image
 //
-//  Copyright (C) 2007, 2008, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -171,29 +171,44 @@ snogray::add_glare (Image &image, float diag_field_of_view,
     = fftwf_plan_dft_2d (tot_h, tot_w, filter, filter,
 			 FFTW_FORWARD, FFTW_ESTIMATE);
 
-  // Fill in the filter matrix.  We will calculate the FFT in-place in
-  // the same array.
+  // The sum of all filter values, for later scaling.
   //
   float filter_sum = 0;
-  for (unsigned y = 0; y < tot_h; y++)
+
+  // Calculate in the top half of the real part of the filter matrix
+  // (the bottom half is just a mirror copy, and the imaginary part
+  // is all zero; both will be filled in below).
+  //
+  for (unsigned y = 0; y < (tot_h + 1) / 2; y++)
     {
-      for (unsigned x = 0; x < tot_w; x++)
+      // Calculate the first half (of the real part) of this row.
+      // The second half is just a mirror copy, and will be filled in
+      // below.
+      //
+      for (unsigned x = 0; x < (tot_w + 1) / 2; x++)
 	{
 	  double pixel_sum = 0;
 
-	  if (x >= y)
+	  // We can take advantage of the x-y symmetry of our PSF by
+	  // only actually calculating the portion above the image
+	  // diagonal, and mirroring it about the digonal (swapping x
+	  // and y) to fill in portion below the diagonal.
+	  //
+	  // However in the case where the image is taller than it is
+	  // wide, the portion that's below the upper-left square part
+	  // of the image has no corresponding area to mirror from, so
+	  // we have to calculate it explicitly.
+	  //
+	  if (x >= y || y >= (tot_w + 1) / 2)
 	    {
-	      // x/y offsets of this pixel from the filter center.
-	      //
-	      float base_x_offs = min (x, tot_w - x);
-	      float base_y_offs = min (y, tot_h - y);
+	      // We're above the diagonal, or below the square portion
+	      // of the image, so we actually have to calculate the
+	      // filter value.
 
 	      // Angle, in radians, of the center of this pixel from
 	      // the center of the filter.
 	      //
-	      float pix_angle
-		= (sqrt (base_x_offs * base_x_offs + base_y_offs * base_y_offs)
-		   * pixel_offset_to_angle);
+	      float pix_angle = sqrt (x * x + y * y) * pixel_offset_to_angle;
 
 	      // Number of samples to take for this pixel.
 	      //
@@ -223,8 +238,8 @@ snogray::add_glare (Image &image, float diag_field_of_view,
 
 		  // x/y offsets of this sample from the filter centre.
 		  //
-		  float x_offs = base_x_offs + samp_x_offs - 0.5f;
-		  float y_offs = base_y_offs + samp_y_offs - 0.5f;
+		  float x_offs = x + samp_x_offs;
+		  float y_offs = y + samp_y_offs;
 
 		  // Angular deviation from the image center in radians.
 		  //
@@ -240,18 +255,47 @@ snogray::add_glare (Image &image, float diag_field_of_view,
 	    }
 	  else
 	    {
-	      // As our PSF is symmetric, we can just re-use a
-	      // previously calculated value with x and y swapped.
+	      // We're below the diagonal (and in the initial square
+	      // portion of the image, if the image is taller than it
+	      // is wide).  Take advantage of x-y symmetry by copying
+	      // the previously calculated value with x and y swapped.
 
 	      pixel_sum = filter[y + x * tot_w][0];
 	    }
 
 	  filter[x + y * tot_w][0] = pixel_sum;
-	  filter[x + y * tot_w][1] = 0;
 
-	  filter_sum += pixel_sum; 
+	  filter_sum += pixel_sum;
+	}
+
+      // As the matrix should be symmetrical, fill in the right half
+      // of the row as a mirror copy of the left half.
+      //
+      for (unsigned x = (tot_w + 1) / 2; x < tot_w; x++)
+	{
+	  float val = filter[(tot_w - x - 1) + y * tot_w][0];
+	  filter[x + y * tot_w][0] = val;
+	  filter_sum += val;
 	}
     }
+
+  // Fill in the bottom half (of the real part) of the filter matrix
+  // as a mirror copy of the top half.
+  //
+  for (unsigned y = (tot_h + 1) / 2; y < tot_h; y++)
+    for (unsigned x = 0; x < tot_w; x++)
+      {
+	float val = filter[x + (tot_h - y - 1) * tot_w][0];
+	filter[x + y * tot_w][0] = val;
+	filter_sum += val;
+      }
+
+  // Fill in the imaginary portion of the filter matrix, which is
+  // initially all zero.
+  //
+  for (unsigned y = 0; y < tot_h; y++)
+    for (unsigned x = 0; x < tot_w; x++)
+      filter[x + y * tot_w][1] = 0;
 
   // Normalize the filter.
   //
@@ -259,7 +303,8 @@ snogray::add_glare (Image &image, float diag_field_of_view,
   for (unsigned k = 0; k < size; k++)
     filter[k][0] *= filter_scale;
 
-  // Do the filter FFT.
+  // Do the filter FFT.  We calculate the FFT in-place in the same
+  // array.
   //
   fftwf_execute (filter_fft_plan);
   
