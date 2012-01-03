@@ -1,6 +1,6 @@
 // snogcvt.cc -- Image-type conversion utility
 //
-//  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 
 #include "cmdlineparser.h"
 #include "image-input.h"
-#include "image-output.h"
+#include "image-sampled-output.h"
 #include "image-cmdline.h"
 #include "string-funs.h"
 #include "unique-ptr.h"
@@ -166,7 +166,7 @@ int main (int argc, char *const *argv)
       // Open the output image.
       //
       std::string dst_name = clp.get_arg ();
-      ImageOutput dst (dst_name, dst_width, dst_height, dst_params);
+      ImageSampledOutput dst (dst_name, dst_width, dst_height, dst_params);
 
       // If we're doing pre-clamping, calculate the actual value to clamp to.
       //

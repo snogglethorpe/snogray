@@ -1,6 +1,6 @@
 // image-filter-conv.h -- "Filter Convolver" for convolving samples through a filter
 //
-//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -80,8 +80,6 @@ public:
 //   void add_sample (int px, int py, const Samp &samp, float weight);
 //
 //   // Return true if the given X or Y coordinate is valid.
-//   //
-//   // [These methods are callbacks used by ImageFilterconv<ImageOutput>.]
 //   //
 //   bool valid_x (int px) { return px >= 0 && px < int (width); }
 //   bool valid_y (int py) { return py >= min_y && py < int (height); }

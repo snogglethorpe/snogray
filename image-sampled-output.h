@@ -1,6 +1,6 @@
-// image-output.h -- High-level image output
+// image-sampled-output.h -- High-level image output
 //
-//  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_IMAGE_OUTPUT_H
-#define SNOGRAY_IMAGE_OUTPUT_H
+#ifndef SNOGRAY_IMAGE_SAMPLED_OUTPUT_H
+#define SNOGRAY_IMAGE_SAMPLED_OUTPUT_H
 
 #include <string>
 #include <vector>
@@ -25,7 +25,7 @@
 namespace snogray {
 
 
-class ImageOutput
+class ImageSampledOutput
 {
 public:
 
@@ -45,13 +45,14 @@ public:
     std::vector<float> weights;
   };
 
-  // Create an ImageOutput object for writing to FILENAME, with a size
-  // of WIDTH, HEIGHT.  PARAMS holds any additional optional parameters.
+  // Create an ImageSampledOutput object for writing to FILENAME, with
+  // a size of WIDTH, HEIGHT.  PARAMS holds any additional optional
+  // parameters.
   //
-  ImageOutput (const std::string &filename,
-	       unsigned width, unsigned height,
-	       const ValTable &params = ValTable::NONE);
-  ~ImageOutput ();
+  ImageSampledOutput (const std::string &filename,
+		      unsigned width, unsigned height,
+		      const ValTable &params = ValTable::NONE);
+  ~ImageSampledOutput ();
 
   // Add a sample with value TINT at floating point position SX, SY.
   // TINT's contribution to adjacent pixels is determined by the
@@ -98,9 +99,9 @@ public:
     return max_samp;
   }
 
-  // Flush any buffered rows until the current minimum (buffered) row is
-  // ImageOutput::min_y.  NEW_MIN_Y is in the sample coordinate-system,
-  // not the output coordinate-system.
+  // Flush any buffered rows until the current minimum (buffered) row
+  // is ImageSampledOutput::min_y.  NEW_MIN_Y is in the sample
+  // coordinate-system, not the output coordinate-system.
   //
   void set_min_sample_y (int new_min_y)
   {
@@ -113,8 +114,8 @@ public:
     set_raw_min_y (max (min_y, new_min_y));
   }
 
-  // Flush any buffered rows until the current minimum (buffered) row is
-  // ImageOutput::min_y.  Unlike ImageOutput::set_min_sample_y, this
+  // Flush any buffered rows until the current minimum (buffered) row
+  // is ImageSampledOutput::min_y.  Unlike set_min_sample_y, this
   // directly operates on the buffer, in the coordinate-system of the
   // output image, and does not add any adjustment for the filter
   // support or for any offset between the sample and output-image
@@ -134,7 +135,7 @@ public:
   // at the same coordinates.  It is assumed that TINT has already been
   // scaled by WEIGHT.
   //
-  // [This method is a callback used by ImageFilterConv<ImageOutput>.]
+  // [This method is a callback used by ImageFilterConv<ImageSampledOutput>.]
   //
   void add_sample (int px, int py, const Tint &tint, float weight)
   {
@@ -147,15 +148,15 @@ public:
   // The coordinates are in the output image's coordinate-system
   // (so in the range 0,0 - WIDTH,HEIGHT).
   //
-  // [These methods are callbacks used by ImageFilterConv<ImageOutput>.]
+  // [These methods are callbacks used by ImageFilterConv<ImageSampledOutput>.]
   //
   bool valid_x (int px) { return px >= 0 && px < int (width); }
   bool valid_y (int py) { return py >= min_y && py < int (height); }
 
   // Returns a row at absolute position Y.  Rows cannot be addressed
-  // completely randomly, as only rows above ImageOutput::min_y are
-  // buffered in memory; if a row less than ImageOutput::min_y is
-  // specified, an error is signaled.
+  // completely randomly, as only rows above ImageSampledOutput::min_y
+  // are buffered in memory; if a row less than ImageSampledOutput::min_y
+  // is specified, an error is signaled.
   //
   SampleRow &row (int y)
   {
@@ -194,8 +195,8 @@ private:
   //
   float sample_base_x, sample_base_y;
 
-  // Internal version of the ImageOutput::row() method which handles
-  // rows not in ImageOutput::rows.
+  // Internal version of the ImageSampledOutput::row() method which
+  // handles rows not in ImageSampledOutput::rows.
   //
   SampleRow &_row (int y);
 
@@ -203,10 +204,10 @@ private:
   //
   UniquePtr<ImageSink> sink;
 
-  ImageFilterConv<ImageOutput, Tint> filter_conv;
+  ImageFilterConv<ImageSampledOutput, Tint> filter_conv;
 
   // Currently available rows.  The row number of the first row is
-  // ImageOutput::min_y.
+  // ImageSampledOutput::min_y.
   //
   std::deque<SampleRow *> rows;
 };
@@ -214,7 +215,7 @@ private:
 
 }
 
-#endif // SNOGRAY_IMAGE_OUTPUT_H
+#endif // SNOGRAY_IMAGE_SAMPLED_OUTPUT_H
 
 
 // arch-tag: 4e362922-5358-4423-80c0-2a3d3d8100fe

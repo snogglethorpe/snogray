@@ -1,6 +1,6 @@
 // image-cmdline.h -- Support for command-line parsing of image parameters
 //
-//  Copyright (C) 2005, 2006, 2007, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2009-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,6 +35,14 @@
 
 // Image output options
 
+// Note that the macros named "IMAGE_OUTPUT_CVTONLY_..." are for
+// options that really only make sense for snogcvt and similar
+// utilities.  In particular the notion of "preclamping" doesn't work
+// in the case of rendering output, where samples from rendering have
+// no real spatial coherence (it would work better if there were an
+// intermediate accumulation stage before final image output).
+
+
 #define IMAGE_OUTPUT_OPTIONS_HELP "\
   -s, --size=WIDTHxHEIGHT    Set image size to WIDTH x HEIGHT pixels/lines\n\
   -s, --size=SIZE            Set largest image dimension to SIZE,\n\
@@ -59,14 +67,22 @@
                                  \"quality\" -- image compression quality (0-100)\n\
                                  \"filter\"  -- output filter\n\
                                  \"exposure\"-- output exposure"
+#define IMAGE_OUTPUT_CVTONLY_OPTIONS_HELP "\
+  -p, --preclamp             Clamp input to output range before filtering\n\
+                                (this can yield better anti-aliasing when\n\
+                                 downsampling from an HDR input image to\n\
+                                 a smaller LDR output image)"
 
 #define IMAGE_OUTPUT_SHORT_OPTIONS "s:e:F:O:"
+#define IMAGE_OUTPUT_CVTONLY_SHORT_OPTIONS "p"
 
 #define IMAGE_OUTPUT_LONG_OPTIONS			\
   { "size",		required_argument, 0, 's' },	\
   { "filter",		required_argument, 0, 'F' },	\
   { "exposure",		required_argument, 0, 'e' },	\
   { "output-options",	required_argument, 0, 'O' }
+#define IMAGE_OUTPUT_CVTONLY_LONG_OPTIONS		\
+  { "preclamp",		no_argument,	   0, 'p' }	\
 
 #define IMAGE_OUTPUT_OPTION_CASES(clp, params)				\
   case 'F':								\
@@ -80,6 +96,10 @@
     break;								\
   case 'O':								\
     clp.parse_opt_arg (params);						\
+    break;
+#define IMAGE_OUTPUT_CVTONLY_OPTION_CASES(clp, params)			\
+  case 'p':								\
+    params.set ("preclamp", true);					\
     break;
 
 

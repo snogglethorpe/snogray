@@ -1,6 +1,6 @@
 // render-mgr.h -- Outer rendering driver
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
 #define SNOGRAY_RENDER_MGR_H
 
 #include "config.h"
-#include "image-output.h"
 #include "render-pattern.h"
+#include "image-sampled-output.h"
 
 
 namespace snogray {
@@ -45,7 +45,8 @@ public:
   // STATS will be updated with rendering statistics.
   //
   void render (unsigned num_threads,
-	       RenderPattern &pattern, ImageOutput &output,
+	       RenderPattern &pattern,
+	       ImageSampledOutput &output,
 	       Progress &prog, RenderStats &stats);
 
 private:
@@ -55,7 +56,8 @@ private:
   // RenderPattern::position on an iterator iterating through PATTERN.
   // STATS will be updated with rendering statistics.
   //
-  void render_single_threaded (RenderPattern &pattern, ImageOutput &output,
+  void render_single_threaded (RenderPattern &pattern,
+			       ImageSampledOutput &output,
 			       Progress &prog, RenderStats &stats);
 
 #if USE_THREADS
@@ -65,7 +67,8 @@ private:
   // STATS will be updated with rendering statistics.
   //
   void render_multi_threaded (unsigned num_threads,
-			      RenderPattern &pattern, ImageOutput &output,
+			      RenderPattern &pattern,
+			      ImageSampledOutput &output,
 			      Progress &prog, RenderStats &stats);
 #endif // USE_THREADS
 
@@ -77,7 +80,7 @@ private:
 
   // Output results from PACKET to OUTPUT.
   //
-  void output_packet (RenderPacket &packet, ImageOutput &output);
+  void output_packet (RenderPacket &packet, ImageSampledOutput &output);
 
   const GlobalRenderState &global_state;
 

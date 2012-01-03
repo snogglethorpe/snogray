@@ -1,6 +1,6 @@
 # Automake Makefile template for snogray
 #
-#  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -341,11 +341,11 @@ libsnogimage_a_SOURCES = image.h image-box-filt.h image-byte-vec.cc	\
 	image-byte-vec.h image-cmdline.cc image-cmdline.h		\
 	image-dispatch.cc image-filter-conv.h image-filter.cc		\
 	image-filter.h image-gauss-filt.h image-input.h image-io.cc	\
-	image-io.h image-mitchell-filt.h image-output.cc		\
-	image-output.h image-pfm.cc image-pfm.h image-rgbe.cc		\
-	image-rgbe.h image-tga.cc image-tga.h image-triangle-filt.h	\
-	tuple-adaptor.h tuple-matrix.cc tuple-matrix.h			\
-	tuple-matrix.tcc
+	image-io.h image-mitchell-filt.h image-sampled-output.cc	\
+	image-sampled-output.h image-pfm.cc image-pfm.h			\
+	image-rgbe.cc image-rgbe.h image-tga.cc image-tga.h		\
+	image-triangle-filt.h tuple-adaptor.h tuple-matrix.cc		\
+	tuple-matrix.h tuple-matrix.tcc
 
 # Library dependencies of libsnogimage.a
 #

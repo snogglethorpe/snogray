@@ -1,6 +1,6 @@
 # image.swg -- SWIG interfaces for snogray image-handling
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 %{
 #include "tuple-matrix.h"
 #include "image.h"
-#include "image-output.h"
+#include "image-sampled-output.h"
 %}
 
 
@@ -76,13 +76,13 @@ namespace snogray {
   %template(ImageRef) Ref<TupleMatrix<Color> >;
 
 
-  class ImageOutput
+  class ImageSampledOutput
   {
   public:
 
-    ImageOutput (const char *filename,
-		 unsigned width, unsigned height,
-		 const snogray::ValTable &params = snogray::ValTable::NONE);
+    ImageSampledOutput (const char *filename,
+	   		unsigned width, unsigned height,
+			const snogray::ValTable &params = snogray::ValTable::NONE);
 
     bool has_alpha_channel () const;
 

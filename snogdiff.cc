@@ -1,6 +1,6 @@
 // snogdiff.cc -- Image-comparison utility
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 #include "snogmath.h"
 #include "cmdlineparser.h"
 #include "image-input.h"
-#include "image-output.h"
+#include "image-sampled-output.h"
 #include "image-cmdline.h"
 
 using namespace snogray;
@@ -116,7 +116,7 @@ int main (int argc, char *const *argv)
 
   // Open the output image using the resulting adjust size.
   //
-  ImageOutput dst (clp.get_arg (), width, height, dst_params);
+  ImageSampledOutput dst (clp.get_arg (), width, height, dst_params);
 
   // These are temp rows we use during reading
   //

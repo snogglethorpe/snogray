@@ -1,6 +1,6 @@
 // tuple-matrix.h -- Generic matrix storage type
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ namespace snogray {
 
 
 class ImageInput;
-class ImageOutput;
+class ImageSampledOutput;
 
 // Use OpenEXR "half" datatype for default matrix storage element if possible.
 //
@@ -116,7 +116,8 @@ public:
   // Save the tuple matrix to the output OUT.  PARAMS contains various
   // tuple-format-specific parameters that might be needed.
   //
-  void save (ImageOutput &out, const ValTable &params = ValTable::NONE) const;
+  void save (ImageSampledOutput &out, const ValTable &params = ValTable::NONE)
+    const;
 
   // Number of elements in each tuple tuple; should be greater than 0.
   //

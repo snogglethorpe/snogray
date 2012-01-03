@@ -1,6 +1,6 @@
 // tuple-matrix.tcc -- Generic matrix storage type
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 #include "excepts.h"
 
 #include "image-input.h"
-#include "image-output.h"
+#include "image-sampled-output.h"
 
 #include "tuple-matrix.h"
 
@@ -175,13 +175,13 @@ void
 TupleMatrixData<DT>::save (const std::string &filename, const ValTable &params)
   const
 {
-  ImageOutput out (filename, width, height, params);
+  ImageSampledOutput out (filename, width, height, params);
   save (out, params);
 }
 
 template<typename DT>
 void
-TupleMatrixData<DT>::save (ImageOutput &out, const ValTable &) const
+TupleMatrixData<DT>::save (ImageSampledOutput &out, const ValTable &) const
 {
   for (unsigned y = 0; y < height; y++)
     {

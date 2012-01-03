@@ -1,6 +1,6 @@
 # rdrive.swg -- SWIG interfaces for "rdrive", the "rendering driver" library
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 namespace snogray {
 
 
-  class ImageOutput;
+  class ImageSampledOutput;
 
 
   class GlobalRenderState
@@ -51,7 +51,8 @@ namespace snogray {
 	       unsigned _width, unsigned _height);
 
     void render (unsigned num_threads,
-		 snogray::RenderPattern &pattern, snogray::ImageOutput &output,
+		 snogray::RenderPattern &pattern,
+		 snogray::ImageSampledOutput &output,
 		 snogray::Progress &prog, snogray::RenderStats &stats);
   };
 

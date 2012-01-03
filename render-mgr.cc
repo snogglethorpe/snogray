@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -47,7 +47,8 @@ RenderMgr::RenderMgr (const GlobalRenderState &_global_state,
 //
 void
 RenderMgr::render (unsigned num_threads,
-		   RenderPattern &pattern, ImageOutput &output,
+		   RenderPattern &pattern,
+		   ImageSampledOutput &output,
 		   Progress &prog, RenderStats &stats)
 {
   // Tell the progress indicator the bounds we will be using.
@@ -80,7 +81,8 @@ RenderMgr::render (unsigned num_threads,
 // STATS will be updated with rendering statistics.
 //
 void
-RenderMgr::render_single_threaded (RenderPattern &pattern, ImageOutput &output,
+RenderMgr::render_single_threaded (RenderPattern &pattern,
+				   ImageSampledOutput &output,
 				   Progress &prog, RenderStats &stats)
 {
   Renderer renderer (global_state, camera, width, height);
@@ -121,7 +123,8 @@ RenderMgr::render_single_threaded (RenderPattern &pattern, ImageOutput &output,
 //
 void
 RenderMgr::render_multi_threaded (unsigned num_threads,
-				  RenderPattern &pattern, ImageOutput &output,
+				  RenderPattern &pattern,
+				  ImageSampledOutput &output,
 				  Progress &prog, RenderStats &stats)
 {
   RenderPattern::iterator pat_it = pattern.begin ();
@@ -254,7 +257,7 @@ RenderMgr::fill_packet (RenderPattern::iterator &pat_it,
 // Output results from PACKET to OUTPUT.
 //
 void
-RenderMgr::output_packet (RenderPacket &packet, ImageOutput &output)
+RenderMgr::output_packet (RenderPacket &packet, ImageSampledOutput &output)
 {
   for (std::vector<RenderPacket::Result>::iterator ri = packet.results.begin ();
        ri != packet.results.end (); ++ri)

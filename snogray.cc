@@ -1,6 +1,6 @@
 // snogray.cc -- Main driver for snogray ray tracer
 //
-//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -32,7 +32,6 @@
 #include "light.h"
 #include "render-mgr.h"
 #include "recover.h"
-#include "image-output.h"
 #include "image-input.h"
 #include "image-cmdline.h"
 #include "render-cmdline.h"
@@ -526,7 +525,8 @@ int main (int argc, char *const *argv)
   // with IMAGE_SINK_PARAMS or a problem creating the output image, so
   // we create the image before printing any normal output.
   //
-  ImageOutput output (file_name, limit_width, limit_height, output_params);
+  ImageSampledOutput output (file_name, limit_width, limit_height,
+			     output_params);
 
   if (output_params.get_bool ("alpha-channel,alpha")
       && !output.has_alpha_channel())

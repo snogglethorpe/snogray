@@ -1,6 +1,6 @@
 // recover.cc -- Recovery of partial output images
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ using namespace snogray;
 // SRC is closed and deleted after recovering it.
 //
 unsigned
-snogray::recover_image (ImageInput *src, ImageOutput &dst)
+snogray::recover_image (ImageInput *src, ImageSampledOutput &dst)
 {
   // Since we're copying previous final output values to DST, we need to
   // make sure that DST doesn't try to scale them.  To do this, just set

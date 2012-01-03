@@ -1,6 +1,6 @@
 // recover.h -- Recovery of partial output images
 //
-//  Copyright (C) 2005, 2006, 2007, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
 #include <string>
 
 #include "image-input.h"
-#include "image-output.h"
+#include "image-sampled-output.h"
 
 
 namespace snogray {
@@ -35,7 +35,7 @@ namespace snogray {
 //
 // SRC is closed and deleted after recovering it.
 //
-extern unsigned recover_image (ImageInput *src, ImageOutput &dst);
+extern unsigned recover_image (ImageInput *src, ImageSampledOutput &dst);
 
 
 }
