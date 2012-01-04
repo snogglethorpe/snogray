@@ -338,11 +338,12 @@ libluaexts_a_SHORTNAME = le
 #
 
 libsnogimage_a_SOURCES = image.h image-box-filt.h image-byte-vec.cc	\
-	image-byte-vec.h image-cmdline.cc image-cmdline.h		\
-	image-dispatch.cc image-filter-conv.h image-filter.cc		\
-	image-filter.h image-gauss-filt.h image-input.h image-io.cc	\
-	image-io.h image-mitchell-filt.h image-sampled-output.cc	\
-	image-sampled-output.h image-pfm.cc image-pfm.h			\
+	image-byte-vec.h image-input-cmdline.h image-dispatch.cc	\
+	image-filter-conv.h image-filter.cc image-filter.h		\
+	image-gauss-filt.h image-input.h image-io.cc image-io.h		\
+	image-mitchell-filt.h image-sampled-output.cc			\
+	image-sampled-output.h image-sampled-output-cmdline.cc		\
+	image-sampled-output-cmdline.h image-pfm.cc image-pfm.h		\
 	image-rgbe.cc image-rgbe.h image-tga.cc image-tga.h		\
 	image-triangle-filt.h tuple-adaptor.h tuple-matrix.cc		\
 	tuple-matrix.h tuple-matrix.tcc

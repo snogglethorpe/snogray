@@ -33,7 +33,7 @@
 #include "render-mgr.h"
 #include "recover.h"
 #include "image-input.h"
-#include "image-cmdline.h"
+#include "image-sampled-output-cmdline.h"
 #include "render-cmdline.h"
 #include "scene-def.h"
 #include "camera-cmds.h"
@@ -233,7 +233,7 @@ s SCENE_DEF_OPTIONS_HELP
 n
 s " Output image options:"
 n
-s IMAGE_OUTPUT_OPTIONS_HELP
+s IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP
 n
 s "  -L, --limit=X,Y+W,H        Limit output to area X,Y - X+W,Y+H"
 s "  -L, --limit=X1,Y1-X2,Y2    Limit output to area X1,Y1 - X2,Y2"
@@ -279,7 +279,7 @@ int main (int argc, char *const *argv)
 #endif
 
     RENDER_LONG_OPTIONS,
-    IMAGE_OUTPUT_LONG_OPTIONS,
+    IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
 
     { 0, 0, 0, 0 }
@@ -292,8 +292,7 @@ int main (int argc, char *const *argv)
 #endif
     SCENE_DEF_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
-    IMAGE_OUTPUT_SHORT_OPTIONS
-    IMAGE_INPUT_SHORT_OPTIONS
+    IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
@@ -362,7 +361,7 @@ int main (int argc, char *const *argv)
 
 	// Image options
 	//
-	IMAGE_OUTPUT_OPTION_CASES (clp, output_params);
+	IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, output_params);
 
 	// Generic options
 	//

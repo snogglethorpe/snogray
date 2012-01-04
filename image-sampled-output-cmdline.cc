@@ -1,6 +1,7 @@
-// image-cmdline.cc -- Support for command-line parsing of image parameters
+// image-sampled-output-cmdline.cc -- Support for command-line parsing
+//	of output image parameters
 //
-//  Copyright (C) 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,7 +19,7 @@
 #include "val-table.h"
 #include "cmdlineparser.h"
 
-#include "image-cmdline.h"
+#include "image-sampled-output-cmdline.h"
 
 
 using namespace snogray;

@@ -1,6 +1,6 @@
 // snogsamp.cc -- Dump a "sample map"
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 #include "scene-def.h"
 #include "sample-map.h"
 #include "cmdlineparser.h"
-#include "image-cmdline.h"
+#include "image-sampled-output-cmdline.h"
 #include "render-cmdline.h"
 #include "render-params.h"
 #include "envmap-light.h"
@@ -165,7 +165,7 @@ s "  -N, --no-normalize         Don't normalize sample values"
 n
 s SCENE_DEF_OPTIONS_HELP
 n
-s IMAGE_OUTPUT_OPTIONS_HELP
+s IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -197,7 +197,7 @@ int main (int argc, char *const *argv)
     { "lights",		no_argument,	   0, OPT_LIGHTS },
     { "color",		required_argument, 0, 'C' },
     { "radius",		required_argument, 0, 'r' },
-    IMAGE_OUTPUT_LONG_OPTIONS,
+    IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,
     RENDER_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
@@ -206,7 +206,7 @@ int main (int argc, char *const *argv)
   char short_options[] =
     "s:m:Nr:iC:x::"
     SCENE_DEF_SHORT_OPTIONS
-    IMAGE_OUTPUT_SHORT_OPTIONS
+    IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
@@ -274,7 +274,7 @@ int main (int argc, char *const *argv)
 	break;
 
 	SCENE_DEF_OPTION_CASES (clp, scene_def);
-	IMAGE_OUTPUT_OPTION_CASES (clp, image_params);
+	IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, image_params);
 	RENDER_OPTION_CASES (clp, render_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }

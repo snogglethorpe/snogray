@@ -16,7 +16,8 @@
 #include "cmdlineparser.h"
 #include "image-input.h"
 #include "image-sampled-output.h"
-#include "image-cmdline.h"
+#include "image-input-cmdline.h"
+#include "image-sampled-output-cmdline.h"
 #include "string-funs.h"
 #include "unique-ptr.h"
 
@@ -52,7 +53,7 @@ s "                                 a smaller LDR output image)"
 n
 s IMAGE_INPUT_OPTIONS_HELP
 n
-s IMAGE_OUTPUT_OPTIONS_HELP
+s IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -73,14 +74,14 @@ int main (int argc, char *const *argv)
   static struct option long_options[] = {
     { "preclamp", no_argument, 0, 'p' },
     IMAGE_INPUT_LONG_OPTIONS,
-    IMAGE_OUTPUT_LONG_OPTIONS,
+    IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
     "p"
-    IMAGE_OUTPUT_SHORT_OPTIONS
     IMAGE_INPUT_SHORT_OPTIONS
+    IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
@@ -101,8 +102,8 @@ int main (int argc, char *const *argv)
 	preclamp = true;
 	break;
 
-	IMAGE_OUTPUT_OPTION_CASES (clp, dst_params);
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
+	IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, dst_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
