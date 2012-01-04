@@ -28,7 +28,7 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << "[OPTION...] SRC_IMAGE_1 [SRC_IMAGE_2 [OUTPUT_IMAGE]]"
+     << " [OPTION...] SRC_IMAGE_1 [SRC_IMAGE_2 [OUTPUT_IMAGE]]"
      << endl;
 }
 
