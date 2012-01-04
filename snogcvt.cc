@@ -15,9 +15,9 @@
 
 #include "cmdlineparser.h"
 #include "image-input.h"
-#include "image-sampled-output.h"
+#include "image-scaled-output.h"
 #include "image-input-cmdline.h"
-#include "image-sampled-output-cmdline.h"
+#include "image-scaled-output-cmdline.h"
 #include "string-funs.h"
 #include "unique-ptr.h"
 
@@ -46,14 +46,9 @@ help (CmdLineParser &clp, ostream &os)
   os <<
   "Change the format of or transform an image file"
 n
-s "  -p, --preclamp             Clamp input to output range before filtering"
-s "                                (this can yield better anti-aliasing when"
-s "                                 downsampling from an HDR input image to"
-s "                                 a smaller LDR output image)"
-n
 s IMAGE_INPUT_OPTIONS_HELP
 n
-s IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP
+s IMAGE_SCALED_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -72,24 +67,20 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "preclamp", no_argument, 0, 'p' },
     IMAGE_INPUT_LONG_OPTIONS,
-    IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,
+    IMAGE_SCALED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "p"
     IMAGE_INPUT_SHORT_OPTIONS
-    IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
+    IMAGE_SCALED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
 
   // Parameters set from the command line
   //
-  unsigned dst_width = 0, dst_height = 0; // zero means copy from source image
-  bool preclamp = false;    // clamp input to output range before filtering
   ValTable src_params, dst_params;
 
   // Parse command-line options
@@ -98,12 +89,8 @@ int main (int argc, char *const *argv)
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
-      case 'p':
-	preclamp = true;
-	break;
-
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
-	IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, dst_params);
+	IMAGE_SCALED_OUTPUT_OPTION_CASES (clp, dst_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -119,40 +106,10 @@ int main (int argc, char *const *argv)
   //
   ImageInput src (clp.get_arg(), src_params);
 
-  float src_aspect_ratio = float (src.width) / float (src.height);
-  unsigned src_size = max (src.width, src.height);
-
-  get_image_size (dst_params, src_aspect_ratio, src_size,
-		  dst_width, dst_height);
-
-  // If the user didn't specify a filter, maybe pick a default
-  //
-  if (! dst_params.contains ("filter"))
-    {
-      if (dst_width == src.width || dst_height == src.height)
-	//
-	// If the image size is not being changed, force no filtering
-	//
-	dst_params.set ("filter", "none");
-    }
-
   // If the input has an alpha-channel, try to preserve it.
   //
   if (src.has_alpha_channel ())
     dst_params.set ("alpha-channel", true);
-
-  // The scaling we apply during image conversion.
-  //
-  float x_scale = float (dst_width) / float (src.width);
-  float y_scale = float (dst_height) / float (src.height);
-
-  // If upscaling, make the filter width wide enough to cover the
-  // output pixels.
-  //
-  if (x_scale > 1)
-    dst_params.set ("filter.x-width-scale", x_scale);
-  if (y_scale > 1)
-    dst_params.set ("filter.y-width-scale", y_scale);
 
   // We catch any exceptions thrown while the output file is open (and
   // then just rethrow them), which ensures that all destructors are
@@ -167,13 +124,7 @@ int main (int argc, char *const *argv)
       // Open the output image.
       //
       std::string dst_name = clp.get_arg ();
-      ImageSampledOutput dst (dst_name, dst_width, dst_height, dst_params);
-
-      // If we're doing pre-clamping, calculate the actual value to clamp to.
-      //
-      float max_sample_intens = dst.max_intens ();
-      if (max_sample_intens == 0)
-	preclamp = false;	// output has no clamping
+      ImageScaledOutput dst (dst_name, src.width, src.height, dst_params);
 
       if (src.has_alpha_channel() && !dst.has_alpha_channel())
 	std::cerr << clp.err_pfx()
@@ -185,26 +136,9 @@ int main (int argc, char *const *argv)
       ImageRow src_row (src.width);
       for (unsigned y = 0; y < src.height; y++)
 	{
-	  // Read one row of the source image.
-	  //
 	  src.read_row (src_row);
-
-	  // Write to the output image, scaling as necessary.
-	  //
-	  for (unsigned x = 0; x < src.width; x++)
-	    {
-	      Tint sample = src_row[x];
-
-	      if (preclamp)
-		sample  = sample.clamp (max_sample_intens);
-
-	      dst.add_sample ((x + 0.5f) * x_scale,
-			      (y + 0.5f) * y_scale,
-			      sample);
-	    }
+	  dst.write_row (src_row);
 	}
     }
   catch (...) { throw; }
 }
-
-// arch-tag: 9852837a-ecf5-4400-9b79-f0cca96a6736
