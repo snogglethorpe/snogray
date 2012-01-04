@@ -344,10 +344,10 @@ libsnogimage_a_SOURCES = image.h image-box-filt.h image-byte-vec.cc	\
 	image-mitchell-filt.h image-sampled-output.cc			\
 	image-sampled-output.h image-sampled-output-cmdline.cc		\
 	image-sampled-output-cmdline.h image-scaled-output.cc		\
-	image-scaled-output.h image-pfm.cc image-pfm.h image-rgbe.cc	\
-	image-rgbe.h image-tga.cc image-tga.h image-triangle-filt.h	\
-	tuple-adaptor.h tuple-matrix.cc tuple-matrix.h			\
-	tuple-matrix.tcc
+	image-scaled-output.h image-scaled-output-cmdline.h		\
+	image-pfm.cc image-pfm.h image-rgbe.cc image-rgbe.h		\
+	image-tga.cc image-tga.h image-triangle-filt.h tuple-adaptor.h	\
+	tuple-matrix.cc tuple-matrix.h tuple-matrix.tcc
 
 # Library dependencies of libsnogimage.a
 #
