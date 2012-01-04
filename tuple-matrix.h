@@ -32,7 +32,7 @@ namespace snogray {
 
 
 class ImageInput;
-class ImageSampledOutput;
+class ImageScaledOutput;
 
 // Use OpenEXR "half" datatype for default matrix storage element if possible.
 //
@@ -116,7 +116,7 @@ public:
   // Save the tuple matrix to the output OUT.  PARAMS contains various
   // tuple-format-specific parameters that might be needed.
   //
-  void save (ImageSampledOutput &out, const ValTable &params = ValTable::NONE)
+  void save (ImageScaledOutput &out, const ValTable &params = ValTable::NONE)
     const;
 
   // Number of elements in each tuple tuple; should be greater than 0.

@@ -20,7 +20,7 @@
 #include "excepts.h"
 
 #include "image-input.h"
-#include "image-sampled-output.h"
+#include "image-scaled-output.h"
 
 #include "tuple-matrix.h"
 
@@ -175,20 +175,20 @@ void
 TupleMatrixData<DT>::save (const std::string &filename, const ValTable &params)
   const
 {
-  ImageSampledOutput out (filename, width, height, params);
+  ImageScaledOutput out (filename, width, height, params);
   save (out, params);
 }
 
 template<typename DT>
 void
-TupleMatrixData<DT>::save (ImageSampledOutput &out, const ValTable &) const
+TupleMatrixData<DT>::save (ImageScaledOutput &out, const ValTable &) const
 {
+  ImageRow row (width);
   for (unsigned y = 0; y < height; y++)
     {
-      ImageRow &row = out[y].pixels;
-
       for (unsigned x = 0; x < width; x++)
 	row[x] = pixel (x, y);
+      out.write_row (row);
     }
 }
 
