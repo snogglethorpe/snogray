@@ -122,9 +122,7 @@ int main (int argc, char *const *argv)
   if (clp.num_remaining_args() > 2)
     {
       usage (clp, cerr);
-      cerr << "Try `" << clp.prog_name() << " --help' for more information"
-	   << endl;
-      exit (10);
+      clp.try_help_err ();
     }
 
   // Load the input image.

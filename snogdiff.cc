@@ -97,9 +97,7 @@ int main (int argc, char *const *argv)
   if (clp.num_remaining_args() < 1 || clp.num_remaining_args() > 3)
     {
       usage (clp, cerr);
-      cerr << "Try `" << clp.prog_name() << " --help' for more information"
-	   << endl;
-      exit (10);
+      clp.try_help_err ();
     }
 
   // Open the input images

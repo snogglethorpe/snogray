@@ -1,6 +1,6 @@
 // cmdlineparser.h -- Command-line parser
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -81,6 +81,10 @@ public:
   void err (const std::string &phrase) const __attribute__ ((noreturn));
   std::string err_pfx () const;
   std::string opt_err_pfx () const;
+
+  // Print a "Try prog --help for more help" message and exit
+  //
+  void try_help_err () const __attribute__ ((noreturn));
 
   const char *get_arg ();
   int num_remaining_args () const;
