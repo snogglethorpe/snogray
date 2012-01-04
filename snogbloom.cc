@@ -16,7 +16,7 @@
 #include "cmdlineparser.h"
 #include "image.h"
 #include "image-input-cmdline.h"
-#include "image-sampled-output-cmdline.h"
+#include "image-scaled-output-cmdline.h"
 #include "glare.h"
 
 
@@ -51,7 +51,7 @@ s "      --threshold=INTENS     Add glare for intensities above INTENS (default 
 n
 s IMAGE_INPUT_OPTIONS_HELP
 n
-s IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP
+s IMAGE_SCALED_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -79,14 +79,14 @@ int main (int argc, char *const *argv)
     { "glare-only", no_argument, 0, 'g' },
     { "threshold", required_argument, 0, OPT_THRESHOLD },
     IMAGE_INPUT_LONG_OPTIONS,
-    IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,
+    IMAGE_SCALED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
     "f:g"
     IMAGE_INPUT_SHORT_OPTIONS
-    IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
+    IMAGE_SCALED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
@@ -115,7 +115,7 @@ int main (int argc, char *const *argv)
 	break;
 
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
-	IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, dst_params);
+	IMAGE_SCALED_OUTPUT_OPTION_CASES (clp, dst_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
