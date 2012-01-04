@@ -16,8 +16,8 @@
 #include "cmdlineparser.h"
 #include "image-input.h"
 #include "image-input-cmdline.h"
-#include "image-sampled-output.h"
-#include "image-sampled-output-cmdline.h"
+#include "image-scaled-output.h"
+#include "image-scaled-output-cmdline.h"
 
 using namespace snogray;
 using namespace std;
@@ -47,7 +47,7 @@ help (CmdLineParser &clp, ostream &os)
 n
 s IMAGE_INPUT_OPTIONS_HELP
 n
-s IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP
+s IMAGE_SCALED_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
@@ -68,13 +68,13 @@ int main (int argc, char *const *argv)
   //
   static struct option long_options[] = {
     IMAGE_INPUT_LONG_OPTIONS,
-    IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,
+    IMAGE_SCALED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
     IMAGE_INPUT_SHORT_OPTIONS
-    IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
+    IMAGE_SCALED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
@@ -90,7 +90,7 @@ int main (int argc, char *const *argv)
     switch (opt)
       {
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
-	IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, dst_params);
+	IMAGE_SCALED_OUTPUT_OPTION_CASES (clp, dst_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
@@ -113,13 +113,13 @@ int main (int argc, char *const *argv)
   if (src2.width != width || src2.height != height)
     clp.err ("Input images must be the same size");
 
-  // Open the output image using the resulting adjust size.
+  // The output image.
   //
-  ImageSampledOutput dst (clp.get_arg (), width, height, dst_params);
+  ImageScaledOutput dst (clp.get_arg (), width, height, dst_params);
 
-  // These are temp rows we use during reading
+  // These are temporary image rows used during processing.
   //
-  ImageRow row1 (width), row2 (width);
+  ImageRow row1 (width), row2 (width), dst_row (width);
 
   // Copy input image to output image, doing any processing
   //
@@ -129,18 +129,11 @@ int main (int argc, char *const *argv)
       src2.read_row (row2);
 
       for (unsigned x = 0; x < width; x++)
-	{
-	  Color p = row1[x].alpha_scaled_color() - row2[x].alpha_scaled_color();
+	dst_row[x]
+	  = abs (row1[x].alpha_scaled_color()
+		 - row2[x].alpha_scaled_color());
 
-	  // We care about the absolute value of the difference
-	  // (negative values aren't useful), so invert any negative
-	  // components.
-	  //
-	  Color::component_t r = abs (p.r()), g = abs (p.g()), b = abs (p.b());
-	  p.set_rgb (r, g, b);
-
-	  dst.add_sample (x + 0.5f, y + 0.5f, p);
-	}
+      dst.write_row (dst_row);
     }
 }
 
