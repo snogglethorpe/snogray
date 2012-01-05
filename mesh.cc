@@ -1,6 +1,6 @@
 // mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -784,7 +784,16 @@ Mesh::add_to_space (SpaceBuilder &space_builder) const
 	      << std::endl;
 
   for (unsigned i = 0; i < triangles.size(); i++)
-    triangles[i].add_to_space (space_builder);
+    {
+      const Triangle &tri = triangles[i];
+
+      // Degenerate triangles (those with a zero-length normal) can
+      // cause a crash during rendering, so only add non-degenerate
+      // triangles.
+      //
+      if (tri.raw_normal_unscaled().length_squared() > 0)
+	tri.add_to_space (space_builder);
+    }
 }
 
 // Recalculate this mesh's bounding box.
