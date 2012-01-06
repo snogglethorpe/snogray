@@ -20,24 +20,31 @@
 // The following macros can be used in defining output option parsers
 // for use with the ImageScaledOutput class.
 
-#define IMAGE_SCALED_OUTPUT_OPTIONS_HELP "\
-  -p, --preclamp             Clamp input to output range before filtering\n\
-                               (this can yield better anti-aliasing when\n\
-                                downsampling from an HDR input image to\n\
-                                a smaller LDR output image)\n"		\
-  IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP
+#define IMAGE_SCALED_OUTPUT_OPTIONS_HELP				\
+  IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP "\
+\n\n\
+      --preclamp             Clamp input to output range before filtering\n\
+      --no-preclamp          Do not use preclamping\n\
+			       (preclamping is used by default for\n\
+				low-dynamic-range image output formats)"
 
 #define IMAGE_SCALED_OUTPUT_SHORT_OPTIONS	\
-  "p"						\
   IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
 
-#define IMAGE_SCALED_OUTPUT_LONG_OPTIONS	\
-  { "preclamp", no_argument, 0, 'p' },		\
-  IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS
+#define IMAGE_SCALED_OUTPUT_OPT_PRECLAMP (('p'<<24)+('r'<<16)+('c'<<8)+'l')
+#define IMAGE_SCALED_OUTPUT_OPT_NO_PRECLAMP (('P'<<24)+('R'<<16)+('C'<<8)+'L')
+
+#define IMAGE_SCALED_OUTPUT_LONG_OPTIONS				\
+  IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,					\
+  { "preclamp", no_argument, 0, IMAGE_SCALED_OUTPUT_OPT_PRECLAMP },	\
+  { "no-preclamp", no_argument, 0, IMAGE_SCALED_OUTPUT_OPT_NO_PRECLAMP }
 
 #define IMAGE_SCALED_OUTPUT_OPTION_CASES(clp, params)	\
-  case 'p':						\
+  case IMAGE_SCALED_OUTPUT_OPT_PRECLAMP:		\
     params.set ("preclamp", true);			\
+    break;						\
+  case IMAGE_SCALED_OUTPUT_OPT_NO_PRECLAMP:		\
+    params.set ("preclamp", false);			\
     break;						\
   IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, params);
 
