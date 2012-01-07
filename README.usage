@@ -79,22 +79,22 @@ COMMAND-LINE OPTIONS
         ["x" is a literal character x, WIDTH and HEIGHT should be
         replaced by numbers; e.g.: --size=640x480 ]
 
-    -a NUM
-    --oversample=NUM
+    -n NUM
+    --samples=NUM
 
         Use NUM samples for each output pixel (the default is 1).
 
         Using more samples makes the output image less noisy, but
         increases run-time.
 
-    -n NUM
+    -D NUM
     --direct-samples=NUM
 
-        Use NUM light samples for direct lighting.  Using more samples
-        can sometimes reduce noise in situations where direct lighting
-        is important (but often it's better to increase the number of
-        samples per pixel using -a/--oversample).  The default depends
-        on the surface-integrator used.
+        Use NUM samples for direct lighting.  Using more samples can
+        sometimes reduce noise in situations where direct lighting is
+        important (but often it's better to increase the number of
+        samples per pixel using -n/--samples).  The default depends on
+        the surface-integrator used.
 
     -S INTEG
     --surface-integ=INTEG
@@ -129,7 +129,7 @@ COMMAND-LINE OPTIONS
                  However, it is very slow and usually gives noisy
                  results.  The amount of noise may be reduced by
                  increasing the number of samples used (with the
-                 -a/--oversample command-line option), but it takes a
+                 -n/--samples command-line option), but it takes a
                  _lot_ of samples to achieve a noise-free image.
 
                  [The number of samples required varies depending on

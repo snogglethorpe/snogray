@@ -15,8 +15,8 @@
 
 
 #define RENDER_OPTIONS_HELP "\
-  -a, --oversample=NUM       Use NUM samples for each output pixel\n\
-  -n, --direct-samples=NUM   Use NUM light samples for direct lighting\n\
+  -n, --samples=NUM          Use NUM samples for each output pixel\n\
+  -D, --direct-samples=NUM   Use NUM samples for direct lighting\n\
 \n\
   -S, --surface-integ=INTEG  Use surface-integrator INTEG (default \"direct\")\n\
                                Options include:\n\
@@ -40,12 +40,11 @@
                                FILL is the intensity of the scene between wires\n"
 #endif
 
-#define RENDER_SHORT_OPTIONS "a:n:S:R:" // "w::"
+#define RENDER_SHORT_OPTIONS "n:D:S:R:" // "w::"
 
 #define RENDER_LONG_OPTIONS						\
-  { "oversample",	required_argument, 0, 'a' },			\
-  { "anti-alias",	required_argument, 0, 'a' },			\
   { "samples",		required_argument, 0, 'n' },			\
+  { "direct-samples",	required_argument, 0, 'D' },			\
   { "surface-integ",	required_argument, 0, 'S' },			\
   { "sint",		required_argument, 0, 'S' },			\
   { "background-alpha", required_argument, 0, 'A' },			\
@@ -54,7 +53,7 @@
   { "wire-frame",	optional_argument, 0, 'w' }*/
 
 #define RENDER_OPTION_CASES(clp, params)				\
-  case 'a':								\
+  case 'n':								\
     params.set ("samples", clp.unsigned_opt_arg ());			\
     break;								\
   case 'S':								\
@@ -69,7 +68,7 @@
     if (clp.opt_arg ())							\
       params.wire_frame_params.parse (clp);				\
       break;*/								\
-  case 'n':								\
+  case 'D':								\
     params.set ("direct-samples", clp.unsigned_opt_arg ());		\
     break;								\
   case 'A':								\
