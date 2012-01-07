@@ -1,6 +1,6 @@
 // path-integ.cc -- Path-tracing surface integrator
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -64,7 +64,7 @@ PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
     max_path_len (params.get_uint ("max-len", 25)),
     direct_illum (
       params.get_uint ("direct-samples,dir-samples,dir-samps",
-		       rstate.params.get_uint ("light-samples", 1))),
+		       rstate.params.get_uint ("direct-samples", 1))),
     photon_eval (
       params.get_uint ("render-photons", 50),
       params.get_float ("photon-radius,radius", 5),

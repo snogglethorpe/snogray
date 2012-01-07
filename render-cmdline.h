@@ -70,7 +70,7 @@
       params.wire_frame_params.parse (clp);				\
       break;*/								\
   case 'n':								\
-    params.set ("light-samples", clp.unsigned_opt_arg ());		\
+    params.set ("direct-samples", clp.unsigned_opt_arg ());		\
     break;								\
   case 'A':								\
     params.set ("background-alpha", clp.float_opt_arg ());		\

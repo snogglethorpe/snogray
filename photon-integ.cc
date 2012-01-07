@@ -1,6 +1,6 @@
 // photon-integ.cc -- Photon-mapping surface integrator
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
       params.get_float ("marker-radius", 0)),
     direct_illum (
       params.get_uint ("direct-samples,dir-samples,dir-samps",
-		       rstate.params.get_uint ("light-samples", 16))),
+		       rstate.params.get_uint ("direct-samples", 16))),
     use_direct_illum (params.get_bool ("direct-illum,dir-illum", true)),
     num_fgather_samples (
       params.get_uint ("final-gather-samples,fg-samples,fg-samps",
