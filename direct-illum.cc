@@ -1,6 +1,6 @@
 // direct-illum.cc -- Direct-lighting calculations
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,8 +25,8 @@ using namespace snogray;
 
 // Constructor that allows explicitly setting the number of samples.
 //
-DirectIllum::GlobalState::GlobalState (unsigned _num_light_samples)
-  : num_light_samples (_num_light_samples)
+DirectIllum::GlobalState::GlobalState (unsigned _num_samples)
+  : num_samples (_num_samples)
 {
 }
 
@@ -55,13 +55,13 @@ DirectIllum::finish_init (SampleSet &samples, RenderContext &context,
 			  const GlobalState &global_state)
 {
   unsigned num_lights = context.scene.num_lights ();
-  unsigned num_lsamples = global_state.num_light_samples;
+  unsigned num_samples = global_state.num_samples;
 
   for (unsigned i = 0; i < num_lights; i++)
     {
-      light_samp_channels.push_back (samples.add_channel<UV> (num_lsamples));
-      bsdf_samp_channels.push_back (samples.add_channel<UV> (num_lsamples));
-      bsdf_layer_channels.push_back (samples.add_channel<float> (num_lsamples));
+      light_samp_channels.push_back (samples.add_channel<UV> (num_samples));
+      bsdf_samp_channels.push_back (samples.add_channel<UV> (num_samples));
+      bsdf_layer_channels.push_back (samples.add_channel<float> (num_samples));
     }  
 }
 

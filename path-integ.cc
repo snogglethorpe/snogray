@@ -212,7 +212,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       bool include_emitters
 	= (path_len == 0
 	   || after_specular_sample
-	   || global.direct_illum.num_light_samples == 0);
+	   || global.direct_illum.num_samples == 0);
 
       // If we didn't hit anything, terminate the path.
       //
@@ -269,7 +269,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       // Include direct lighting (if enabled).  Note that this
       // explicitly omits specular samples.
       //
-      if (global.direct_illum.num_light_samples != 0)
+      if (global.direct_illum.num_samples != 0)
 	{
 	  unsigned dir_flags = non_photon_flags & ~Bsdf::SPECULAR;
 

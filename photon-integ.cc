@@ -147,8 +147,8 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 
   std::cout << "* photon-integ: ";
   if (use_direct_illum)
-    std::cout << direct_illum.num_light_samples << " direct sample"
-	      << (direct_illum.num_light_samples == 1 ? "" : "s");
+    std::cout << direct_illum.num_samples << " direct sample"
+	      << (direct_illum.num_samples == 1 ? "" : "s");
   else
     std::cout << "no direct illum";
   std::cout << ", ";
