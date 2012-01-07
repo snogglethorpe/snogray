@@ -1,6 +1,6 @@
 -- load-pbrt.lua -- Load a PBRT scene file
 --
---  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -1218,20 +1218,20 @@ function samplers.adaptive (state, params)
    local maxsamp = get_single_param (state, params, "integer maxsamples", 32)
    params["string method"] = nil -- ignore
    local nsamp = math.floor ((minsamp + maxsamp) / 2)
-   nsamp = state.params["render.oversample"] or nsamp -- prefer user's
+   nsamp = state.params["render.samples"] or nsamp -- prefer user's
    parse_warn ("sampler \"adaptive\" not implemented; using default with "
 	       ..tostring(nsamp).." samples")
-   state:set_param ("render.oversample", nsamp)
+   state:set_param ("render.samples", nsamp)
 end
 
 local function unimp_typical_sampler (name, state, params)
    local nsamp = get_single_param (state, params, "integer pixelsamples", 4)
    if nsamp ~= 1 then
-      nsamp = state.params["render.oversample"] or nsamp -- prefer user's
+      nsamp = state.params["render.samples"] or nsamp -- prefer user's
       parse_warn ("sampler \""..name.."\" not implemented; using default with "
 		  ..tostring(nsamp).." samples")
    end
-   state:set_param ("render.oversample", nsamp)
+   state:set_param ("render.samples", nsamp)
 end
 
 function samplers.bestcandidate (...)
@@ -1252,24 +1252,24 @@ function samplers.stratified (state, params)
    local xsamp = get_single_param (state, params, "integer xsamples", 2)
    local ysamp = get_single_param (state, params, "integer ysamples", 2)
    params["bool jitter"] = nil -- ignore
-   if not state.params["render.oversample"] then
+   if not state.params["render.samples"] then
       local nsamp = xsamp * ysamp
       if xsamp ~= ysamp then
 	 parse_warn ("using \"stratified\" sampler with "
 		     ..tostring(nsamp).." samples")
       end
-      state:set_param ("render.oversample", nsamp)
+      state:set_param ("render.samples", nsamp)
    end
 end
 
 function samplers.random (name, state, params)
    local nsamp = get_single_param (state, params, "integer nsamples", 4)
    if nsamp ~= 1 then
-      nsamp = state.params["render.oversample"] or nsamp -- prefer user's
+      nsamp = state.params["render.samples"] or nsamp -- prefer user's
       parse_warn ("sampler \""..name.."\" not implemented; using default with "
 		  ..tostring(nsamp).." samples")
    end
-   state:set_param ("render.oversample", nsamp)
+   state:set_param ("render.samples", nsamp)
 end
 
 

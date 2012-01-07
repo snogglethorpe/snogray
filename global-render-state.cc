@@ -1,6 +1,6 @@
 // global-render-state.cc -- global information used during rendering
 //
-//  Copyright (C) 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ GlobalRenderState::GlobalRenderState (const Scene &_scene,
 				      const ValTable &_params)
   : scene (_scene),
     bg_alpha (_params.get_float ("background-alpha", 1)),
-    num_samples (_params.get_uint ("oversample", 1)),
+    num_samples (_params.get_uint ("samples", 1)),
     params (_params),
     sample_gen (make_sample_gen (_params))
 {

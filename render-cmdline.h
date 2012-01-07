@@ -1,6 +1,6 @@
 // render-cmdline.h -- Command-line options for rendering parameters
 //
-//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@
 
 #define RENDER_OPTION_CASES(clp, params)				\
   case 'a':								\
-    params.set ("oversample", clp.unsigned_opt_arg ());			\
+    params.set ("samples", clp.unsigned_opt_arg ());			\
     break;								\
   case 'S':								\
     clp.store_opt_arg_with_sub_options ("surface-integ",		\
