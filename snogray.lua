@@ -13,6 +13,7 @@
 
 module ("snogray", package.seeall)
 
+
 local raw = require "snograw"
 
 -- Until recently, Swig-generated Lua modules didn't return the module
@@ -25,6 +26,12 @@ local raw = require "snograw"
 if type (raw) ~= 'table' then
    raw = snograw
 end
+
+
+-- A metatable for inheriting from the snogray environment
+--
+local inherit_snogray_metatable = { __index = _M }
+
 
 ----------------------------------------------------------------
 --
@@ -1611,6 +1618,7 @@ function eval_include (loaded, fenv, loaded_filename, err_msg)
    end
 end
 
+
 -- Load FILENAME evaluated the current environment.  FILENAME is
 -- searched for using the path in the "include_path" variable; while it
 -- is being evaluating, the directory FILENAME was actually loaded from
@@ -1625,41 +1633,14 @@ function include (filename)
 end
 
 
--- Map of filenames to the environment in which they were loaded.
---
-local use_envs = {}
-
--- A metatable for inheriting from the snogray environment
---
-local inherit_snogray_metatable = { __index = snogray }
-
--- A table containing entries for symbol names we _don't_ want inherited
--- because of a call to use().
---
-local dont_inherit_syms = {}
-dont_inherit_syms["_used_files"] = true
-dont_inherit_syms["_used_symbols"] = true
-
--- Load FILENAME in a dedicated environment, and arrange for its
--- functions and constants to be inherited by the caller's environment.
--- FILENAME is only loaded if it hasn't already been loaded (if it has,
--- then the previously loaded file is re-used).
---
--- "Inheritance" is done by copying, so that it only works properly for
--- functions and constants.
---
--- The variable "_used_files" in the caller's environment is used to
--- record which use() environments have previously been added to its
--- inheritance set.  It maps loaded filenames to the environment in
--- which they were loaded.  The variable "_used_symbols" in the caller's
--- environment is where symbols to be inherited are copied; the caller's
--- environment then inherits from this.
+-- Load FILENAME into the current environment.  This is like
+-- "include", but multiple attempts to load the same file are
+-- suppressed (the variable "_used_files" in the current environment
+-- is used to record which use file have already been loaded).
 --
 function use (filename)
    local loaded, loaded_filename, err_msg = load_include (filename)
-
    local callers_env = getfenv (2)
-   local used_files = callers_env._used_files
 
    if not used_files then
       used_files = {}
@@ -1667,63 +1648,11 @@ function use (filename)
    end
 
    if not used_files[loaded_filename] then
-      local use_env = use_envs[loaded_filename]
+      used_files[loaded_filename] = true
 
-      -- If this file hasn't been loaded already, load it into a new
-      -- environment.
-      --
-      if not use_env then
-	 use_env = {}
-	 use_envs[loaded_filename] = use_env
-
-	 -- Make sure the loaded file inherits the snogray interface.
-	 --
-	 setmetatable (use_env, inherit_snogray_metatable)
-
-	 eval_include (loaded, use_env, loaded_filename, err_msg)
-      end
-
-      -- Arrange for the symbols defined in USE_ENV to be inherited
-      -- by the caller.  Because we need "multiple inheritance" (more
-      -- than one call to use()), instead of directly using Lua
-      -- inheritance, we instead copy the symbols defined by each
-      -- use'd file into a table, and then use Lua inheritance to
-      -- inherit from it.
-      --
-      -- [Note that we can't copy the symbols directly into the caller's
-      -- environment because we don't want them to be seen by anybody
-      -- that calls use() on our caller.]
-      --
-      local used_syms = callers_env._used_symbols
-      if not used_syms then
-	 used_syms = {}
-	 callers_env._used_symbols = used_syms
-
-	 -- Replace the caller's metatable with our own metatable
-	 -- that inherits from USED_SYMS; thus USED_SYMS needs to
-	 -- inherit in turn from the global snogray environment.
-	 --
-	 setmetatable (used_syms, inherit_snogray_metatable)
-	 setmetatable (callers_env, {__index = used_syms}) 
-      end
-
-      -- Copy all symbols defined by the loaded file (in USE_ENV) into
-      -- the caller's "inheritance set" (USED_SYMS), where they can be
-      -- seen by the caller.  We avoid copying any symbols listed in
-      -- dont_inherit_syms.
-      --
-      for k, v in pairs (use_env) do
-	 if not dont_inherit_syms[k] then
-	    used_syms[k] = v
-	 end
-      end
-
-      -- Remember that the caller has loaded this file.
-      --
-      used_files[loaded_filename] = use_env
+      eval_include (loaded, callers_env, loaded_filename, err_msg)
+      return loaded_filename
    end
-
-   return loaded_filename
 end
 
 
