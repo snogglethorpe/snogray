@@ -1,3 +1,38 @@
+(v0.4-148-ga42fa5d)
+
+    + New utility program "snogbloom", adds "veiling glare" to an HDR
+      input image.  Normally this is used when converting to a LDR
+      output format (snogbloom itself can do the conversion), and can
+      make LDR images with very bright areas look much more realistic.
+
+    + snogcvt now supports good-quality upscaling.
+
+    + snogcvt, snogdiff, and snogbloom now use "output preclamping"
+      when converting to a LDR image format, which can improve the
+      anti-aliasing of very bright areas of an HDR input image.  This
+      feature may be disabled using the new "--no-preclamp" option.
+
+      [The snogray program itself does _not_ use preclamping, and thus
+      anti-aliasing of very bright areas may be sub-optimal.  See the
+      "ANTI-ALIASING OF BRIGHT AREAS" section in the "README.issues"
+      file for methods to deal with this.]
+
+    + snogray -a/--oversample option renamed to "-n" / "--samples".
+
+    + snogray -n/--direct-samples option renamed to "-D" / "--direct-samples".
+
+    + snogcvt --underlay and -p/--pad options removed
+      (they were not very useful).
+
+    + Implement writing of TGA (aka Targa) image files.
+
+    + Lua is now required (and more functionality will be moved into
+      Lua in the future).  [A Lua implementation should be included
+      with the distribution, so this dependency isn't a problem.]
+
+    + Many bug fixes and code improvements.
+
+
 v0.4
 
     + Implement material-based surface transparency/translucency.
