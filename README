@@ -1,9 +1,9 @@
 Snogray renderer
 
    Snogray is a program for rendering 3d scenes, using monte-carlo
-   ray-tracing. It is "physically based", meaning that it tries to
-   calculate light transport in a physically plausible way when that is
-   practical. For instance, all light-falloff is inherently 1 / r2
+   ray-tracing.  It is "physically based", meaning that it tries to
+   calculate light transport in a physically plausible way when that
+   is practical.  For instance, all light-falloff is inherently 1 / r2
    (unlike some older ray-tracers) and reflection/refraction are
    calculated using Fresnel's formulas).
 
@@ -19,36 +19,50 @@ Snogray development goals:
    Snogray's goals include:
 
    1. A "rich" scene description language which is easy and practical
-      for humans (and especially programmers) to write, in the style of
-      POVray. This is in contrast to many other modern renderers that
-      use human-unfriendly scene description formats, and essentially
-      require scenes to be created using a separate GUI modelling
-      program. To do this, snogray uses the Lua language as its main
-      scene description language. Lua is elegant and very friendly (for
-      both beginners and experts).
+      for humans (and especially programmers) to write, in the style
+      of POVray.  This is in contrast to many other modern renderers
+      that use human-unfriendly scene description formats, and
+      essentially require scenes to be created using a separate GUI
+      modelling program.
+
+      To do this, snogray uses the Lua* language as its main scene
+      description language.  Lua is elegant, efficient, and very
+      friendly (for both beginners and experts).
 
    2. A wide variety of input and output formats, so the user can use
-      input files directly without converting them. In addition to Lua,
-      one may use 3DS and NFF scene files, PLY and other mesh formats,
-      and many image formats (including HDR formats such as OpenEXR and
-      RGBE/.hdr/.pic).
+      input files directly without converting them.  In addition to
+      scenes defined in Lua, one may directly load PBRT*, 3DS, and NFF
+      scene files, PLY* and other mesh formats, and many image formats
+      (including HDR formats such as OpenEXR* and RGBE/.hdr/.pic).
 
-   3. Modern rendering features. Currently snogray supports such
-      features as object instancing, area-lights, image-based lighting,
-      depth-of-field, and both image-based and procedural texturing
-      (including bump-mapping). It is planned to add many other
-      features, most importantly global illumination methods such as
-      photon-mapping and instant-radiosity (currently the only supported
-      mechanism for indirect illumination is fairly naïve recursive
-      tracing, which is of course very slow, although usable for some
-      scenes).
+   3. Modern rendering features.  Currently snogray supports such
+      features as object instancing, area-lights, global-illumination,
+      image-based lighting, depth-of-field, and both image-based and
+      procedural texturing (including bump-mapping and
+      opacity-mapping).
+
+      Currently the only supported mechanisms for global illumination
+      are path-tracing and photon-mapping (however the photon-mapping
+      implementation is still not very robust or easy to use).  It is
+      planned to add many other features, most importantly better
+      global illumination methods such as improved photon-mapping,
+      instant-radiosity, and metropolis light-transport.
+
+
+   * Links:
+
+      Lua:     http://www.lua.org
+      PBRT:    http://pbrt.org
+      OpenEXR: http://www.openexr.org
+      PLY:     http://en.wikipedia.org/wiki/PLY_%28file_format%29
 
 
 Current status
 
-   Snogray currently works reasonably well, but is still very rough. In
-   particular, it has no real notion of being "installed" — it expects
-   to find any files it needs to load relative to the current directory.
+   Snogray currently works reasonably well, but is still very rough.
+   In particular, it has no real notion of being "installed" — it
+   expects to find any files it needs to load relative to the current
+   directory.
 
 
 Authors
