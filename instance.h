@@ -1,6 +1,6 @@
 // instance.h -- Transformed virtual instance of a surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #define SNOGRAY_INSTANCE_H
 
 #include "xform.h"
-#include "subspace.h"
+#include "model.h"
 
 #include "local-surface.h"
 
@@ -26,8 +26,8 @@ class Instance : public LocalSurface
 {
 public:
 
-  Instance (const Ref<Subspace> &_subspace, const Xform &local_to_world_xform)
-    : LocalSurface (local_to_world_xform), subspace (_subspace)
+  Instance (const Ref<Model> &_model, const Xform &local_to_world_xform)
+    : LocalSurface (local_to_world_xform), model (_model)
   { }
 
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
@@ -66,10 +66,10 @@ private:
   {
     IsecInfo (const Ray &ray,
 	      const Instance &_instance,
-	      const Surface::IsecInfo *_subspace_isec_info)
+	      const Surface::IsecInfo *_model_isec_info)
       : Surface::IsecInfo (ray),
 	instance (_instance),
-	subspace_isec_info (_subspace_isec_info)
+	model_isec_info (_model_isec_info)
     { }
 
     virtual Intersect make_intersect (const Media &media,
@@ -81,18 +81,16 @@ private:
 
     const Instance &instance;
 
-    const Surface::IsecInfo *subspace_isec_info;
+    const Surface::IsecInfo *model_isec_info;
   };
 
-  // Subspace that we're transforming.
+  // Model that we're transforming.
   //
-  Ref<Subspace> subspace;
+  Ref<Model> model;
 };
 
 
 }
 
 
-#endif /* SNOGRAY_INSTANCE_H */
-
-// arch-tag: 553e4e51-689d-4637-8a93-a9ee9db7d8ad
+#endif // SNOGRAY_INSTANCE_H

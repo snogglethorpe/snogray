@@ -1,6 +1,6 @@
-// subspace.h -- A surface encapsulated into its own subspace
+// model.h -- A surface encapsulated into its own model
 //
-//  Copyright (C) 2007-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_SUBSPACE_H
-#define SNOGRAY_SUBSPACE_H
+#ifndef SNOGRAY_MODEL_H
+#define SNOGRAY_MODEL_H
 
 #include "ref.h"
 #include "space.h"
@@ -28,15 +28,15 @@ namespace snogray {
 class SpaceBuilderFactory;
 
 
-// A surface with its own unique "subspace" (acceleration structure).
+// A "model" surface, which can be replicated multiple times using
+// Instances (a model cannot be rendered directly, only via an
+// Instance).
 //
-// This is for use with an Instance.
-//
-class Subspace : public RefCounted
+class Model : public RefCounted
 {
 public:
 
-  Subspace (Surface *surf, const SpaceBuilderFactory &space_builder_factory);
+  Model (Surface *surf, const SpaceBuilderFactory &space_builder_factory);
 
   // If the associated surface intersects RAY, change RAY's maximum bound
   // (Ray::t1) to reflect the point of intersection, and return a
@@ -49,7 +49,7 @@ public:
     return space->intersect (ray, context);
   }
 
-  // Return true if something in this subspace intersects RAY.
+  // Return true if something in this model intersects RAY.
   //
   bool intersects (const Ray &ray, RenderContext &context) const
   {
@@ -57,10 +57,10 @@ public:
     return space->intersects (ray, context);
   }
 
-  // Return true if some surface in this subspace completely occludes
+  // Return true if some surface in this model completely occludes
   // RAY.  If no surface completely occludes RAY, then return false,
   // and multiply TOTAL_TRANSMITTANCE by the transmittance of any
-  // surfaces in this subspace which partially occlude RAY, evaluated
+  // surfaces in this model which partially occlude RAY, evaluated
   // in medium MEDIUM.
   //
   // Note that this method does not try to handle non-trivial forms of
@@ -92,7 +92,7 @@ private:
   //
   void make_space () const;
 
-  // The top-level surface in this subspace.
+  // The top-level surface in this model.
   //
   UniquePtr<Surface> surface;
 
@@ -106,10 +106,10 @@ private:
   //
   mutable UniquePtr<SpaceBuilder> space_builder;
 
-  // A lock used to serialize initialization of the Subspace::space field.
+  // A lock used to serialize initialization of the Model::space field.
   //
-  // Only used by Subspace::make_space (which is only called if
-  // Subspace::space is zero).
+  // Only used by Model::make_space (which is only called if
+  // Model::space is zero).
   //
   mutable Mutex make_space_lock;
 };
@@ -117,5 +117,4 @@ private:
 
 }
 
-
-#endif /* SNOGRAY_SUBSPACE_H */
+#endif // SNOGRAY_MODEL_H

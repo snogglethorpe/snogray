@@ -1671,7 +1671,7 @@ function load_pbrt_in_state (state, scene, camera)
       check_section ('world')
       local tos = pop (state.obj_stack)
       if tos then
-	 state.objects[state.object_name] = subspace (state.object)
+	 state.objects[state.object_name] = model (state.object)
 	 state.object_name = tos[1]
 	 state.object = tos[2]
 	 attrib_end_cmd ()

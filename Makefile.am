@@ -267,11 +267,10 @@ libsnogmat_a_SOURCES = cook-torrance.cc cook-torrance.h cos-dist.h	\
 
 libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 	instance.cc instance.h local-primitive.h local-surface.h	\
-	mesh.cc mesh.h sphere.cc sphere.h sphere2.cc sphere2.h		\
-	subspace.cc subspace.h tessel.cc tessel.h tessel-param.cc	\
-	tessel-param.h tessel-sinc.cc tessel-sinc.h tessel-sphere.cc	\
-	tessel-sphere.h tessel-torus.cc tessel-torus.h tripar.cc	\
-	tripar.h
+	mesh.cc mesh.h model.cc model.h sphere.cc sphere.h sphere2.cc	\
+	sphere2.h tessel.cc tessel.h tessel-param.cc tessel-param.h	\
+	tessel-sinc.cc tessel-sinc.h tessel-sphere.cc tessel-sphere.h	\
+	tessel-torus.cc tessel-torus.h tripar.cc tripar.h
 
 
 ################################################################

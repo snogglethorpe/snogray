@@ -1,6 +1,6 @@
 -- snogray.lua -- Lua scene interface for snogray
 --
---  Copyright (C) 2007-2011  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -943,14 +943,14 @@ function solid_cylinder (mat, arg1, ...)
    end
 end
 
--- space-builder-factory used for building subspace spaces
+-- space-builder-factory used for building model spaces
 --
-local subspace_space_builder_factory = nil
+local model_space_builder_factory = nil
 
--- Wrap the subspace constructor to record the GC link between a
--- subspace and the surface in it.
+-- Wrap the model constructor to record the GC link between a
+-- model and the surface in it.
 --
-function subspace (surf)
+function model (surf)
 
    -- If SURF is actually a table, make a surface-group to hold its
    -- members, and wrap that instead.
@@ -963,29 +963,29 @@ function subspace (surf)
       end
    end
 
-   if not subspace_space_builder_factory then
-      subspace_space_builder_factory = raw.OctreeBuilderFactory ()
+   if not model_space_builder_factory then
+      model_space_builder_factory = raw.OctreeBuilderFactory ()
    end
 
-   local ss = raw.subspace (surf, subspace_space_builder_factory)
+   local mod = raw.model (surf, model_space_builder_factory)
 
    if scene_obj_gc_protect then
-      -- Record the GC link between SS and SURF.
+      -- Record the GC link between MOD and SURF.
       --
-      gc_ref (ss, surf)
+      gc_ref (mod, surf)
    end
 
-   return ss
+   return mod
 end
 
 -- If we need to protect against scene-object gcing, wrap the instance
 -- constructor to record the GC link between an instance and its
--- subspace.
+-- model.
 --
 if scene_obj_gc_protect then
-   function instance (subspace, xform)
-      local inst = raw.Instance (subspace, xform)
-      gc_ref (inst, subspace)
+   function instance (model, xform)
+      local inst = raw.Instance (model, xform)
+      gc_ref (inst, model)
       return inst
    end
 else

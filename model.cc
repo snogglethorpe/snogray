@@ -1,6 +1,6 @@
-// subspace.cc -- A surface encapsulated into its own subspace
+// model.cc -- A surface encapsulated into its own model
 //
-//  Copyright (C) 2007, 2009-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,13 +16,13 @@
 #include "space-builder.h"
 #include "snogassert.h"
 
-#include "subspace.h"
+#include "model.h"
 
 
 using namespace snogray;
 
 
-Subspace::Subspace (Surface *surf,
+Model::Model (Surface *surf,
 		    const SpaceBuilderFactory &space_builder_factory)
   : surface (surf),
     space_builder (space_builder_factory.make_space_builder ())
@@ -32,7 +32,7 @@ Subspace::Subspace (Surface *surf,
 // Setup our acceleration structure.
 //
 void
-Subspace::make_space () const
+Model::make_space () const
 {
   LockGuard guard (make_space_lock);
 

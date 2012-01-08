@@ -1,6 +1,6 @@
-// instance.cc -- Transformed object subspace
+// instance.cc -- Transformed object model
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
 
 #include "intersect.h"
 #include "space.h"
-#include "subspace.h"
+#include "model.h"
 #include "excepts.h"
 
 #include "instance.h"
@@ -29,17 +29,17 @@ using namespace snogray;
 Surface::IsecInfo *
 Instance::intersect (Ray &ray, RenderContext &context) const
 {
-  // Transform the ray for searching our subspace.
+  // Transform the ray for searching our model.
   //
   Ray xformed_ray = world_to_local (ray);
 
-  const Surface::IsecInfo *subspace_isec_info
-    = subspace->intersect (xformed_ray, context);
+  const Surface::IsecInfo *model_isec_info
+    = model->intersect (xformed_ray, context);
 
-  if (subspace_isec_info)
+  if (model_isec_info)
     {
       ray.t1 = xformed_ray.t1;
-      return new (context) IsecInfo (ray, *this, subspace_isec_info);
+      return new (context) IsecInfo (ray, *this, model_isec_info);
     }
   else
     return 0;
@@ -51,9 +51,9 @@ Intersect
 Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   const
 {
-  // First make an intersection in our subspace.
+  // First make an intersection in our model.
   //
-  Intersect isec = subspace_isec_info->make_intersect (media, context);
+  Intersect isec = model_isec_info->make_intersect (media, context);
 
   // Now transform parts of it to be in the global space.
   //
@@ -90,10 +90,10 @@ Instance::IsecInfo::normal () const
 bool
 Instance::intersects (const Ray &ray, RenderContext &context) const
 {
-  // Transform the ray for searching our subspace.
+  // Transform the ray for searching our model.
   //
   Ray xformed_ray = world_to_local (ray);
-  return subspace->intersects (xformed_ray, context);
+  return model->intersects (xformed_ray, context);
 }
 
 // Return true if this surface completely occludes RAY.  If it does
@@ -112,10 +112,10 @@ Instance::occludes (const Ray &ray, const Medium &medium,
 		    RenderContext &context)
   const
 {
-  // Transform the ray for searching our subspace.
+  // Transform the ray for searching our model.
   //
   Ray xformed_ray = world_to_local (ray);
-  return subspace->occludes (xformed_ray, medium, total_transmittance, context);
+  return model->occludes (xformed_ray, medium, total_transmittance, context);
 }
 
 // Return a bounding box for this surface.
@@ -123,8 +123,5 @@ Instance::occludes (const Ray &ray, const Medium &medium,
 BBox
 Instance::bbox () const
 {
-  return local_to_world (subspace->bbox ());
+  return local_to_world (model->bbox ());
 }
-
-
-// arch-tag: 8b4091cf-bd1e-4355-a880-3919f8e5b1d0

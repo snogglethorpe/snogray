@@ -1,6 +1,6 @@
 # surface.swg -- SWIG interfaces for snogray surfaces
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 #include "sphere2.h"
 #include "cylinder.h"
 #include "instance.h"
-#include "subspace.h"
+#include "model.h"
 #include "surface-group.h"
 #include "tessel-sphere.h"
 #include "tessel-sinc.h"
@@ -132,20 +132,20 @@ namespace snogray {
 	     const Pos &center, const Vec &radius1, const Vec &radius2);
   };
 
-  %ignore Subspace;
-  class Subspace
+  %ignore Model;
+  class Model
   {
   public:
 
     virtual BBox bbox () const;
   };
-  %template(SubspaceRef) Ref<Subspace>;
+  %template(ModelRef) Ref<Model>;
 
   class Instance : public LocalSurface
   {
   public:
 
-    Instance (const Ref<Subspace> &subspace, const Xform &local_to_world_xform);
+    Instance (const Ref<Model> &model, const Xform &local_to_world_xform);
   };
 
   class SurfaceGroup : public Surface
@@ -302,11 +302,11 @@ namespace snogray {
   namespace snogray {
 
 
-    // Subspace
-    static Ref<Subspace>
-    subspace (Surface *surf, const SpaceBuilderFactory &space_builder_factory)
+    // Model
+    static Ref<Model>
+    model (Surface *surf, const SpaceBuilderFactory &space_builder_factory)
     {
-      return new Subspace (surf, space_builder_factory);
+      return new Model (surf, space_builder_factory);
     }
 
 
