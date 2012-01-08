@@ -48,7 +48,7 @@ noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =							\
-	README README.building README.usage			\
+	README README.building README.usage README.issues	\
 	snogray.lua						\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg vector.swg val-table.swg			\

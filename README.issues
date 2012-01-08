@@ -1,0 +1,62 @@
+Discussion of various snogray usage issues
+
+
+ANTI-ALIASING OF VERY BRIGHT AREAS
+
+   When rendering to a LDR (low-dynamic-range, e.g., JPEG or PNG)
+   image format, anti-aliasing of the edges of _very_ bright areas
+   (much brighter than "white", e.g. light-sources directly visible in
+   the scene) may not be very good -- it will appear "stair-stepped",
+   even if the anti-aliasing in most of the scene is very good.
+
+   This is because the anti-aliasing is done while still in "HDR
+   space", and when converted to a LDR representation, the
+   intermediate values resulting from anti-aliasing are often clamped
+   to the same value as the brighter areas they are adjacent to.
+
+   The snogcvt, snogbloom, and snogdiff utilities handle this by using
+   "preclamping", which clamps bright areas _before_ doing
+   anti-aliasing.  However for implementation reasons, snogray does
+   not use this method.
+
+   To fix this, there are several approaches:
+
+     1. Render to a higher-resolution HDR output file, and then use
+        snogcvt to downscale the output file and convert to a LDR
+        format; because snogcvt uses preclamping, this will yield good
+        results.  The number of samples used during rendering should
+        be adjusted to offset the increase in resolution, and so keep
+        rendering time roughly the same (since increasing resolution
+        by a factor of N increases the number of pixels by N x N, the
+        number of samples should be decreased by roughly the same
+        amount, probably rounding up to the next square).  Increasing
+        the resolution by a factor of three often works well.
+
+	For instance, if the goal is to render to a 1024 x 768 JPEG-
+	format file using 25 samples per pixel, then:  first render to
+	a 3072 x 2304 EXR-format intermediate file, using 4 samples
+	per pixel (roughly 25 / (3*3), rounded up to the next square):
+
+	   snogray -s3072x2034 -n4 ... intermediate.exr
+
+	... and then convert to the final image, reducing the size:
+
+	   snogcvt -s1024 intermediate.exr final.jpg
+
+     2. Render to an HDR image format (e.g., ".exr"), and use
+	"snogbloom" to add glare after rendering and covert to a LDR
+	format.  Glare usually makes the edges of very bright areas
+	much softer and almost always suffices to hide any aliasing
+	problems (and glare in general usually makes images look more
+	realistic).
+
+	Using the same example as (1), first render to the final
+	resolution, using the desired number of samples, to an
+	EXR-format intermediate file:
+      
+	   snogray -s1024x768 -n25 ... intermediate.exr
+
+	... and then use snogbloom to add glare and convert to the
+	final image (but not changing the size):
+
+	   snogbloom intermediate.exr final-with-glare.jpg
