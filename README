@@ -13,6 +13,9 @@ Snogray renderer
 
    * For discussion of some snogray usage issues, see the file "README.issues"
 
+   * For information on other utility programs included with snogray,
+     see the file "README.utils"
+
 
 Snogray development goals:
 

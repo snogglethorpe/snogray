@@ -1,0 +1,198 @@
+Snogray utilities
+
+This file documents the various utility programs included with
+snogray.
+
+
+snogcvt
+
+   snogcvt is a simple image-conversion program.  It can convert
+   between different image formats, do image downscaling and
+   upscaling, adjust exposure/contrast, etc.
+
+   Basic usage:
+
+      snogcvt [OPTION...] INPUT_IMAGE_FILE OUTPUT_IMAGE_FILE
+
+	 Copy the contents of INPUT_IMAGE_FILE to OUTPUT_IMAGE_FILE,
+	 incorporating any modifications resulting from command-line
+	 options.
+
+   Options:
+
+      [See "COMMON COMMAND-LINE IMAGE OPTIONS" below for options.]
+
+
+snogbloom
+
+   snogbloom adds "veiling glare" to an HDR input image.  Normally
+   this is used when converting to a LDR output format (snogbloom
+   itself can do the conversion), and can make LDR images with very
+   bright areas look much more realistic.
+
+   Basic usage:
+
+      snogbloom [OPTION...] INPUT_IMAGE_FILE OUTPUT_IMAGE_FILE
+
+	 Copy the contents of INPUT_IMAGE_FILE to OUTPUT_IMAGE_FILE
+	 along with added glare (and any other modifications resulting
+	 from command-line options).
+
+   Options:
+
+    -f DEG
+    --field-of-view=DEG
+
+       Set the image field-of-view (of the image diagonal) to be DEG
+       degrees.  As the intensity of the glare effect is dependent on
+       angular deviation, snogbloom needs to know the angular size of
+       the input image.  The default is 46.8 degrees, corresponding
+       to a "typical" angle-of-view.
+       
+    -g
+    --glare-only
+
+       Normally snogbloom outputs an image which is the sum of the
+       input image and added glare.  The -g/--glare-only option causes
+       it to output only the glare.
+
+    --threshold=INTENS
+
+       snogbloom only adds glare for image intensities above a certain
+       threshold, which maybe be set with the --threshold=INTENS
+       option.  By default this is 1, meaning that "normal"
+       intensities (those which are perfectly representable in
+       low-dynamic-range image formats) do not result in glare.
+
+    [See "COMMON COMMAND-LINE IMAGE OPTIONS" below for more options.]
+
+
+snogdiff
+
+   snogdiff computes the difference between two input images, which is
+   useful for analyzing subtle changes.
+
+   Basic usage:
+
+      snogdiff [OPTION...] IMAGE_FILE_1 IMAGE_FILE_2 DIFF_IMAGE_FILE
+
+	 Compute the difference between IMAGE_FILE_1 and IMAGE_FILE_2
+	 and output it to DIFF_IMAGE_FILE.  Any image modifications
+	 resulting from command-line options are performed on the
+	 resulting "difference image" (for instance, a "-e+5" option
+	 may be used to intensify the output image, making small
+	 differences easier to see).
+
+   Options:
+
+      [See "COMMON COMMAND-LINE IMAGE OPTIONS" below for options.]
+
+
+sampleimg
+
+   sampleimg produces a "sampled" version of an input image.
+
+   Basic usage:
+
+      sampleimg [OPTION...] INPUT_IMAGE_FILE OUTPUT_IMAGE_FILE
+
+	 Sample the image in INPUT_IMAGE_FILE, and output a new image
+	 OUTPUT_IMAGE_FILE visualizing the resulting sample
+	 distribution.
+
+   Options:
+
+      -m METH
+      --method=METH
+
+         Use sampling method METH, which may be one of:
+
+	    radical-inverse, radical -- A "radical inverse"
+	       quasi-random sequence
+
+	    random, rand -- A sequence of uniform pseudo-random
+	       numbers
+
+	    stratified, strat -- A stratified sequence of
+	       pseudo-random numbers
+
+	 The default is "radical-inverse".
+
+      -n NUM
+      --samples=NUM
+
+         Use NUM samples.  The default is 1000000.
+
+      -v VAL
+      --value=VAL
+
+         Give each sample an intensity of VAL in the output image.
+	 A smaller intensity with more samples yields a more "subtle"
+	 result.  The default is 0.1, which works well the default
+	 number of samples.
+
+
+COMMON COMMAND-LINE IMAGE OPTIONS
+
+   Almost all image-manipulation programs included in the snogray
+   distribution support a common set of command-line options.  These
+   are described below.
+
+    -s WIDTHxHEIGHT
+    --size=WIDTHxHEIGHT
+    -s WIDTH
+    --size=WIDTH
+
+        Set the output -image size to WIDTH by HEIGHT pixels.
+
+        If the "xHEIGHT" portion of the value is omitted, then WIDTH
+        is divided by the default aspect ratio to get the height.
+
+        ["x" is a literal character x, WIDTH and HEIGHT should be
+        replaced by numbers; e.g.: --size=640x480 ]
+
+    -e EXPOSURE
+    --exposure=EXPOSURE
+
+        Modify the brightness/contrast of the output image.
+
+        EXPOSURE can have one of the following forms:
+
+           +STOPS Make the output image 2^STOPS times brighter -STOPS
+           Make the output image 2^STOPS times dimmer *SCALE Make the
+           output image SCALE times brighter /SCALE Make the output
+           image SCALE times dimmer
+
+           ^POWER Raise each output pixel to the POWER power; this
+                     modifies the contrast of the output.  Use a
+                     positive value of POWER for higher contrast, and
+                     a negative value of POWER for lower contrast.
+           
+        Brightness and contrast modifications may be combined, e.g.,
+        "+4^2" first multiplies each output pixel by 2^4 (16), and
+        then raises the result to the 2nd power.  Note that when used
+        together, there's a great deal of interaction between these
+        settings, so it may be necessary to adjust one to compensate
+        for the effect of the other (e.g.,
+
+        Increase or decrease exposure by STOPS f-stops
+
+    -F FILTER[/PARAM=VAL...]  -filter=FILTER[/PARAM=VAL...]
+
+        Set the filter used for the output image to FILTER, and
+        optionally change some filter parameters.
+
+        Possible values of FILTER include "mitchell", "gauss", and
+        "box" (default "mitchell").
+
+        The set of filter parameters vary depending on the filter, but
+        some include:
+
+           "width" -- the width of the filter, used by most filters
+           "a", "b" -- parameters for the "mitchell" filter "alpha" --
+           parameter for the "gauss" filter
+
+    --no-preclamp
+
+        Do not use "image preclamping" when writing to a
+        low-dynamic-range output file.
