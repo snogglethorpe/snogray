@@ -23,8 +23,8 @@ BASIC USAGE
    OUTPUT_IMAGE_FILE is the image file snogray will write the output
    image to.  The output image format will be automatically chosen
    based on the file extension of OUTPUT_IMAGE_FILE -- e.g., an
-   extension of ".exr" will result in an OpenEXR file, ".jpg" in a
-   jpeg fils ".png" for PNG, etc.
+   extension of ".exr" will result in an OpenEXR file, ".jpg" a JPEG
+   file, ".png" a PNG file, etc.
 
 
 COMMAND-LINE OPTIONS
