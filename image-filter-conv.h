@@ -37,8 +37,8 @@ public:
 
   ImageFilterConvBase (const ValTable &params = ValTable::NONE)
     : filter (ImageFilter::make (params)),
-      filter_x_radius (filter ? int (ceil (filter->x_width - 1.0001)) : 0),
-      filter_y_radius (filter ? int (ceil (filter->y_width - 1.0001)) : 0),
+      filter_x_radius (filter ? int (ceil (filter->x_width - 1.0001f)) : 0),
+      filter_y_radius (filter ? int (ceil (filter->y_width - 1.0001f)) : 0),
       neg_clamp (-abs (params.get_float ("neg-clamp", default_neg_clamp ())))
   { }
   ~ImageFilterConvBase () { delete filter; }
@@ -141,7 +141,7 @@ public:
 		    {
 		      // Weight of the filter at this point
 		      //
-		      float w = filter->val (sx - (px + 0.5), sy - (py + 0.5));
+		      float w = filter->val (sx - (px + 0.5f), sy - (py + 0.5f));
 
 		      // The sample weighted by the filter.
 		      //

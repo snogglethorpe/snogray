@@ -84,7 +84,7 @@ f1 (float theta)
   //   f1 (theta) = 20.91 / (theta_deg + 0.02)^3
   //
   theta = theta * 180 / PIf; // convert to degrees
-  float theta_plus = theta + 0.02;
+  float theta_plus = theta + 0.02f;
   return 20.91f / (theta_plus * theta_plus * theta_plus);
 }
 
@@ -96,7 +96,7 @@ f2 (float theta)
   //   f1 (theta) = 72.37 / (theta_deg + 0.02)^2
   //
   theta = theta * 180 / PIf; // convert to degrees
-  float theta_plus = theta + 0.02;
+  float theta_plus = theta + 0.02f;
   return 72.37f / (theta_plus * theta_plus);
 }
 
@@ -187,7 +187,7 @@ snogray::add_glare (Image &image, float diag_field_of_view,
       //
       for (unsigned x = 0; x < (tot_w + 1) / 2; x++)
 	{
-	  double pixel_sum = 0;
+	  float pixel_sum = 0;
 
 	  // We can take advantage of the x-y symmetry of our PSF by
 	  // only actually calculating the portion above the image
@@ -208,7 +208,8 @@ snogray::add_glare (Image &image, float diag_field_of_view,
 	      // Angle, in radians, of the center of this pixel from
 	      // the center of the filter.
 	      //
-	      float pix_angle = sqrt (x * x + y * y) * pixel_offset_to_angle;
+	      float pix_angle
+		= sqrt (float (x * x + y * y)) * pixel_offset_to_angle;
 
 	      // Number of samples to take for this pixel.
 	      //

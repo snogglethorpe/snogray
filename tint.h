@@ -1,6 +1,6 @@
 // tint.h -- Tint is color + alpha channel
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -83,11 +83,11 @@ public:
   // Multiplication by a scalar.
   //
   Tint operator* (float scale) const	{ return mul (scale); }
-  Tint operator* (double scale) const	{ return mul (scale); }
+  Tint operator* (double scale) const	{ return mul (component_t (scale)); }
   Tint operator* (int scale) const	{ return mul (scale); }
   //Tint operator* (unsigned scale) const { return mul (scale); }
   Tint &operator*= (float scale)	{ return mul_assn (scale); }
-  Tint &operator*= (double scale)	{ return mul_assn (scale); }
+  Tint &operator*= (double scale)	{ return mul_assn (component_t(scale));}
   Tint &operator*= (int scale)		{ return mul_assn (scale); }
   Tint &operator*= (unsigned scale)	{ return mul_assn (scale); }
 

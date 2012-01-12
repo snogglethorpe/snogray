@@ -1,6 +1,6 @@
 // grid.cc -- sample generator using a simple jittered grid
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ Grid::gen_uv_samples (Random &random,
   //
   double sqrt_num = sqrt (double (num));
   double up = ceil (sqrt_num);
-  double down = floor (sqrt_num + 0.5f);
+  double down = floor (sqrt_num + 0.5);
 
   unsigned u_steps = unsigned (up);
   unsigned v_steps = unsigned (down);
@@ -75,7 +75,7 @@ Grid::adjust_uv_sample_count (unsigned num) const
   //
   double sqrt_num = sqrt (double (num));
   double up = ceil (sqrt_num);
-  double down = floor (sqrt_num + 0.5f);
+  double down = floor (sqrt_num + 0.5);
   return unsigned (up * down);
 }
 

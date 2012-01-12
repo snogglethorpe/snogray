@@ -1,6 +1,6 @@
 // color.h -- Color datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -117,7 +117,7 @@ public:
   void operator*= (double scale)
   {
     for (unsigned c = 0; c < NUM_COMPONENTS; c++)
-      _components[c] *= scale;
+      _components[c] *= component_t (scale);
   }
   void operator*= (int scale)
   {
@@ -316,14 +316,14 @@ inline Color operator* (const Color &col, double scale)
 {
   Color rval;
   for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
-    rval[c] = col[c] * scale;
+    rval[c] = col[c] * Color::component_t (scale);
   return rval;
 }
 inline Color operator* (double scale, const Color &col)
 {
   Color rval;
   for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
-    rval[c] = col[c] * scale;
+    rval[c] = col[c] * Color::component_t (scale);
   return rval;
 }
 inline Color operator* (const Color &col, int scale)

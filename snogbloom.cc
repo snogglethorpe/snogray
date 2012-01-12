@@ -90,7 +90,7 @@ int main (int argc, char *const *argv)
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
   //
   CmdLineParser clp (argc, argv, short_options, long_options);
-  float diag_field_of_view = 46.8 * PIf / 180;
+  float diag_field_of_view = 46.8f * PIf / 180;
   bool glare_only = false;
   float threshold = 1;
 

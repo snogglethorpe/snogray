@@ -108,7 +108,7 @@ LimitSpec::parse (const char *&str)
 	  frac_val /= 100;
 	}
 
-      if (frac_val < 0 || frac_val > 1.0)
+      if (frac_val < 0 || frac_val > 1)
 	return false;
     }
   else

@@ -1,6 +1,6 @@
 // image-ppm.cc -- PPM/PGM/PBM format image handling
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,7 +31,8 @@ PpmImageSink::PpmImageSink (const std::string &filename,
 {
   float gamma = params.get_float ("gamma", IMAGE_PPM_GAMMA);
 
-  if (gamma < IMAGE_PPM_GAMMA - 0.01 || gamma > IMAGE_PPM_GAMMA + 0.01)
+  if (gamma < float (IMAGE_PPM_GAMMA) - 0.01f
+      || gamma > float (IMAGE_PPM_GAMMA) + 0.01f)
     open_err ("PPM format uses a fixed gamma of " _IMAGE_PPM_GAMMA_STRING);
 
   // Open output file

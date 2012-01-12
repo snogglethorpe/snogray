@@ -1,6 +1,6 @@
 // load-ply.cc -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ struct RplyState
 
   Mesh::vert_index_t base_vert_index;
 
-  double vals[3];
+  coord_t vals[3];
 
   Mesh::vert_index_t last_vert_index;
 

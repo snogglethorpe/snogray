@@ -1,6 +1,6 @@
 // spheremap.h -- Texture wrapped around a sphere
 //
-//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -108,7 +108,7 @@ struct DebevecMapping
   static Vec map (const UV &uv)
   {
     dist_t u = uv.u * 2 - 1, v = uv.v * 2 - 1;
-    dist_t theta = atan2 (v, u), phi = PI * sqrt (u * u + v * v);
+    dist_t theta = atan2 (v, u), phi = dist_t (PI) * sqrt (u * u + v * v);
     dist_t sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }
@@ -135,7 +135,7 @@ struct MirrorBallMapping
   static Vec map (const UV &uv)
   {
     dist_t u = uv.u * 2 - 1, v = uv.v * 2 - 1;
-    dist_t theta = atan2 (v, u), phi = PI * sqrt (u * u + v * v);
+    dist_t theta = atan2 (v, u), phi = dist_t (PI) * sqrt (u * u + v * v);
     dist_t sin_phi = sin (phi);
     return Vec (sin_phi * sin (theta), cos (phi), sin_phi * cos (theta));
   }

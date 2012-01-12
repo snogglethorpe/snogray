@@ -1,6 +1,6 @@
 // coords.h -- Definitions related to describing 3D coords
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,11 +19,6 @@
 
 
 namespace snogray {
-
-// This value should be comfortably smaller than the smallest possible
-// surface.
-//
-#define Eps	(1e-15)
 
 // single-precision coordinates for use where space is critical
 //
@@ -44,6 +39,11 @@ typedef dcoord_t ddist_t;
   typedef dcoord_t coord_t;
   typedef ddist_t dist_t;
 #endif  
+
+// This value should be comfortably smaller than the smallest possible
+// surface.
+//
+#define Eps	coord_t (1e-15)
 
 // We'll probably never hit these limits, so just use the smaller float
 // values for both scoord_t and dcoord_t.

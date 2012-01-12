@@ -1,6 +1,6 @@
 // hist-2d-dist.h -- Sampling distribution based on a 2d histogram
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ public:
     for (unsigned row = 0; row < height; row++)
       {
 	for (unsigned col = 0; col < width; col++)
-	  bin_sum += hist.bins[row_offs + col];
+	  bin_sum += double (hist.bins[row_offs + col]);
 	row_offs += width;
       }
 
@@ -84,7 +84,7 @@ public:
     for (unsigned row = 0; row < height; row++)
       {
 	for (unsigned col = 0; col < width; col++)
-	  normalized_sum += hist.bins[row_offs + col] * inv_bin_sum;
+	  normalized_sum += double (hist.bins[row_offs + col]) * inv_bin_sum;
 	whole_row_cumulative_sums[row] = normalized_sum;
 	row_offs += width;
       }
@@ -98,13 +98,14 @@ public:
       {
 	double row_sum = 0;
 	for (unsigned col = 0; col < width; col++)
-	  row_sum += hist.bins[row_offs + col];
+	  row_sum += double (hist.bins[row_offs + col]);
 
 	double inv_row_sum = (row_sum == 0) ? 0 : 1 / row_sum;
 	double normalized_row_sum = 0;
 	for (unsigned col = 0; col < width; col++)
 	  {
-	    normalized_row_sum += hist.bins[row_offs + col] * inv_row_sum;
+	    normalized_row_sum
+	      += double (hist.bins[row_offs + col]) * inv_row_sum;
 	    individual_row_cumulative_sums[row_offs + col] = normalized_row_sum;
 	  }
 	row_offs += width;

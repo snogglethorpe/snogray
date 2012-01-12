@@ -1,6 +1,6 @@
 // envmap-light.cc -- Lighting from an environment map
 //
-//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -42,8 +42,8 @@ EnvmapLight::envmap_histogram (const Ref<Envmap> &envmap)
 
   Hist2d hist (w, h);
 
-  double row_lat_inc = PIf / h;
-  double row_lat = -PIf/2 + row_lat_inc/2;
+  double row_lat_inc = PI / h;
+  double row_lat = -PI/2 + row_lat_inc/2;
 
   for (unsigned row = 0; row < hist.height; row++)
     {
@@ -52,7 +52,7 @@ EnvmapLight::envmap_histogram (const Ref<Envmap> &envmap)
       for (unsigned col = 0; col < hist.width; col++)
 	{
 	  Color color = (*lmap) (col, row);
-	  double intens = color.intensity() * row_scale;
+	  double intens = double (color.intensity()) * row_scale;
 	  hist.add (col, row, intens);
 	}
 

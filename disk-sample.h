@@ -1,6 +1,6 @@
 // disk-sample.h -- Disk sample distribution
 //
-//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ disk_sample (dist_t radius, const UV &param, dist_t &dx, dist_t &dy)
 	  if (u > v)
 	    {
 	      r = u;
-	      theta = (v > 0.0) ? v / r : 8 + v / r;
+	      theta = (v > 0) ? v / r : 8 + v / r;
 	    }
 	  else
 	    {

@@ -1,6 +1,6 @@
 // arith-tex.tcc -- arithmetic on textured values
 //
-//  Copyright (C) 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,6 +15,7 @@
 
 #include "config.h"
 
+#include "snogmath.h"
 #include "color.h"
 #include "color-math.h"
 
@@ -60,11 +61,11 @@ ArithTex<T>::eval (const TexCoords &tex_coords) const
     case MIRROR:
       return abs (val1 - val2);
     case SIN:
-      return sin (val1 * 2 * PI / val2);
+      return sin (val1 * T (2 * PI) / val2);
     case COS:
-      return cos (val1 * 2 * PI / val2);
+      return cos (val1 * T (2 * PI) / val2);
     case TAN:
-      return tan (val1 * 2 * PI / val2);
+      return tan (val1 * T (2 * PI) / val2);
     case ATAN2:
       return atan2 (val1, val2);
     default:

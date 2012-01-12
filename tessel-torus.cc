@@ -1,6 +1,6 @@
 // tessel-torus.cc -- Torus tessellation
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -27,8 +27,8 @@ TorusTesselFun::TorusTesselFun (dist_t _r2, const Xform &_xform)
   //
   if (r1 == r2)
     {
-      r1 -= 0.0001;
-      r2 += 0.0001;
+      r1 -= dist_t (0.0001);
+      r2 += dist_t (0.0001);
     }
 }
 

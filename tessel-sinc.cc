@@ -1,6 +1,6 @@
 // tessel-sinc.cc -- sinc (sin x / x) tessellation
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ SincTesselFun::midpoint (Tessel &tessel,
   return add_vertex (tessel, u, v);
 }
 
-#define SINC_X_COMP (5.5 * PI)
+#define SINC_X_COMP param_t (5.5 * PI)
 
 // Return the surface position corresponding to the parameters U, V.
 //
@@ -85,7 +85,7 @@ SincTesselFun::surface_pos (param_t u, param_t v) const
 {
   param_t theta = u * 2 * PIf;
   param_t t = v * SINC_X_COMP;
-  dist_t sinc = t < Eps ? 1.0 : sin (t) / t;
+  dist_t sinc = t < Eps ? 1 : sin (t) / t;
   return Pos (-cos (theta) * v, sin (theta) * v, sinc);
 }
 

@@ -1,6 +1,6 @@
 // tripar-isec.h -- Triangle/parallelogram intersection  -*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -72,7 +72,7 @@ tripar_intersects (const TPos<T> &corner,
   if (det > -Eps && det < Eps)
     return false;
 
-  T inv_det = 1.0 / det;
+  T inv_det = T (1.0) / det;
 
   // Calculate distance from the corner to ray origin.
   //
@@ -81,7 +81,7 @@ tripar_intersects (const TPos<T> &corner,
   // Calculate U parameter and test bounds.
   //
   u = dot (tvec, pvec) * inv_det;
-  if (u < 0.0 || u > 1.0)
+  if (u < 0 || u > 1)
     return false;
 
   // Prepare to test V parameter.
@@ -100,12 +100,12 @@ tripar_intersects (const TPos<T> &corner,
   //
   if (parallelogram)
     {
-      if (v < 0.0 || v > 1.0)
+      if (v < 0 || v > 1)
 	return false;
     }
   else
     {
-      if (v < 0.0 || u + v > 1.0)
+      if (v < 0 || u + v > 1)
 	return false;
     }
 

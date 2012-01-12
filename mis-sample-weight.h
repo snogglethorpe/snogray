@@ -1,6 +1,6 @@
 // mis-sample-weight.h -- Weighting function for multiple-importance-sampling
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -58,9 +58,9 @@ mis_sample_weight (float pdf, float num_samples,
   // Handle near-degenerate cases that cause problems because of
   // floating-point overflow.
   //
-  if (term > 1e10)
+  if (term > 1e10f)
     return 1;
-  else if (other_term > 1e10)
+  else if (other_term > 1e10f)
     return 0;
 
   // Raise the terms to a power of 2.

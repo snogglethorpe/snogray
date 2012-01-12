@@ -1,6 +1,6 @@
 // image-rgbe.h -- Radiance RGBE / .hdr (aka .pic) format image handling
 //
-//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,10 +35,10 @@ struct RgbeColor
     Color::component_t _r = col.r(), _g = col.g(), _b = col.b();
     Color::component_t max_comp = max (_r, max (_g, _b));
 
-    if (max_comp > 1e-32)
+    if (max_comp > 1e-32f)
       {
 	int iexp;
-	float adj = frexp (max_comp, &iexp) * 255.9999 / max_comp;
+	float adj = frexp (max_comp, &iexp) * 255.9999f / max_comp;
 
 	r = byte (adj * max (_r, 0.f));
 	g = byte (adj * max (_g, 0.f));
@@ -54,7 +54,9 @@ struct RgbeColor
     else
       {
 	float scale = ldexp (1.0, int (exp) - (exp_offs + 8));
-	return Color (scale * (r + 0.5), scale * (g + 0.5), scale * (b + 0.5));
+	return Color (scale * (r + 0.5f),
+		      scale * (g + 0.5f),
+		      scale * (b + 0.5f));
       }
   }
 

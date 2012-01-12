@@ -1,6 +1,6 @@
 // tty-progress.h -- Progress indicator for terminals
 //
-//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -119,9 +119,9 @@ TtyProgress::update (int pos)
 	  // Estimate which pos we will have reached after the desired
 	  // update interval, and make that our next update pos.
 	  //
-	  update_pos = pos + int (cur_lps * update_interval);
+	  update_pos = pos + int (cur_lps * float (update_interval));
 
-	  int update_limit = int (pos + (end_pos - start_pos) * 0.02);
+	  int update_limit = int (pos + (end_pos - start_pos) * 0.02f);
 
 	  // Always wait until the next line, but never too long.
 	  //

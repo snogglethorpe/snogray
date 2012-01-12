@@ -1,6 +1,6 @@
 // matrix4.tcc -- 4 x 4 matrices
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -249,7 +249,7 @@ Matrix4<T>::is_identity () const
       {
 	T goal = (row == col) ? T(1) : T(0);
 	T delta = abs (el (col, row) - goal);
-	if (delta > 0.000001)
+	if (delta > T (0.000001))
 	  return false;
       }
   return true;

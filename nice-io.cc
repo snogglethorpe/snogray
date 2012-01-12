@@ -1,6 +1,6 @@
 // nice-io.cc -- Helper functions for user-friendly I/O
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 void
 snogray::output_nicely (std::ostream &os, float num)
 {
-  if (abs (num) < 1.e-7)
+  if (abs (num) < 1.e-7f)
     os << "0";
   else
     {

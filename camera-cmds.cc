@@ -1,6 +1,6 @@
 // camera-cmds.cc -- Parsing of camera command strings
 //
-//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2009-2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -186,7 +186,7 @@ read_fraction (istream &stream, const char *desc)
 {
   float val = read_float (stream, desc);
   if (eat (stream, "%"))
-    val *= 0.01;		// percentage
+    val *= 0.01f;		// percentage
   if (val < 0 || val > 1)
     throw runtime_error (string ("Invalid ") + desc);
   return val;

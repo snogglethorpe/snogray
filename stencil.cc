@@ -1,6 +1,6 @@
 // stencil.cc -- Masking material for partial transparency/translucency
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,9 +40,9 @@ public:
     // efficient.  Doing it here allows other code to not worry about
     // such details.
     //
-    if (opacity_intens < 0.001)
+    if (opacity_intens < 0.001f)
       opacity_intens = inv_opacity_intens = 0;
-    else if (opacity_intens > 0.999)
+    else if (opacity_intens > 0.999f)
       opacity_intens = inv_opacity_intens = 1;
   }
 

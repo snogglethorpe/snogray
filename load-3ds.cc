@@ -1,6 +1,6 @@
 // load-3ds.cc -- Load 3ds scene file
 //
-//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -365,7 +365,7 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 {
   Vec up (0, 0, 1);
 
-  up.transform (Xform::z_rotation (c->roll * PI / 180));
+  up.transform (Xform::z_rotation (c->roll * coord_t (PI / 180)));
 
   Xform dir_xform = xform.inverse().transpose();
 
@@ -377,7 +377,7 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 //   cout << "   xform targ: " << xform (pos (c->target))  << endl;
 //   cout << "   xform up:   " << dir_xform (up)  << endl;
 
-  camera.set_vert_fov (c->fov * PI / 180);
+  camera.set_vert_fov (c->fov * coord_t (PI / 180));
   camera.move (xform (pos (c->position)));
   camera.point (xform (pos (c->target)), dir_xform (up));
 }
@@ -615,7 +615,7 @@ TdsLoader::convert (const Xform &xform)
     {
       dist_t radius = 50;
       dist_t sc_rad = radius / 10000;
-      dist_t area_scale = 1 / (4 * PI * sc_rad * sc_rad);
+      dist_t area_scale = 1 / (dist_t (4 * PI) * sc_rad * sc_rad);
 
       for (Lib3dsLight *l = file->lights; l; l = l->next)
 #ifdef HAVE_LIB3DS_OBJ_FLAGS
