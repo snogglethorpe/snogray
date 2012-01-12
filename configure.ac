@@ -347,7 +347,7 @@ CXXFLAGS="$CXXFLAGS $CXX_STD_FLAGS"
 # we also inhibit warnings about "long long", as we use that too much.
 #
 SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS],
-  [-Wall -Wextra -Winit-self -pedantic-errors -Wno-long-long])
+  [-Wall -Wextra -Winit-self -Wdouble-promotion -pedantic-errors -Wno-long-long])
 #
 # Again, update CXXFLAGS so following configure tests use our
 # warning/error settings -- some tests may fail with them which don't
