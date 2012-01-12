@@ -1,6 +1,6 @@
 // snogmath.h -- Math operations
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,6 +12,8 @@
 
 #ifndef SNOGRAY_SNOGMATH_H
 #define SNOGRAY_SNOGMATH_H
+
+#include "config.h"
 
 #include <cmath>
 #include <algorithm>  		// for min and max
@@ -96,7 +98,26 @@ using std::sqrt;
 using std::tan;
 using std::tanh;
 
-using ::trunc;			// not defined in <cmath>?!
+
+// std::trunc is available in C++11, but not C++98
+//
+#if HAVE_STD_TRUNC
+
+using std::trunc;		// use the standard version
+
+#else // !HAVE_STD_TRUNC
+
+// If we don't have std::trunc, define some templatey thing using the
+// C function ("trunc" for double, "truncf" for float).
+//
+template<typename T>
+inline T trunc (T val);
+template<>
+inline float trunc (float val) { return ::truncf (val); }
+template<>
+inline double trunc (double val) { return ::trunc (val); }
+
+#endif // HAVE_STD_TRUNC
 
 
 }

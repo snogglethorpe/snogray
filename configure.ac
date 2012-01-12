@@ -446,6 +446,20 @@ AC_CHECK_HEADERS([stdint.h unistd.h fcntl.h sys/mman.h sys/stat.h])
 AC_TYPE_INTPTR_T
 
 
+# Check for std::trunc in <cmath>, which is available in C++11, but
+# not in C++98.
+#
+have_std_trunc=no
+AC_MSG_CHECKING([for std::trunc in <cmath>])
+AC_TRY_COMPILE([#include <cmath>],
+	       [float x = std::trunc (1.5987f);],
+	       [have_std_trunc=yes], [:])
+AC_MSG_RESULT([$have_std_trunc])
+if test $have_std_trunc = yes; then
+  AC_DEFINE([HAVE_STD_TRUNC], [1], [Define if std::trunc is defined in <cmath>])
+fi
+
+
 # Allow point exceptions to be enabled (which can make debugging much easier).
 
 AC_ARG_ENABLE([fp-exceptions],
