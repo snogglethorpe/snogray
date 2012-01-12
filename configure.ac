@@ -280,7 +280,8 @@ for opt in -std=c++11 -std=c++0x -std=c++98; do
   # compilation fails.
   #
   if test x"$CXX_STD_FLAGS" != x && test $cxx11 = yes; then
-    # This is just a mismash of code containing valid bits of C++0x
+    #
+    # This is just a mismash of code containing valid bits of C++11
     # code that fail to compile on various compilers.
     #
     AC_MSG_CHECKING([checking whether c++11 support is broken])
@@ -290,6 +291,7 @@ for opt in -std=c++11 -std=c++0x -std=c++98; do
       [AC_LANG_SOURCE(
        [#include <iostream>
 	#include <type_traits>
+	#include <algorithms>
 
 	// When compiling with a "newish" libstdc++ which supports
 	// constexpr, make sure constexpr actually _works_ because
