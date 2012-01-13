@@ -291,7 +291,7 @@ for opt in -std=c++11 -std=c++0x -std=c++98; do
       [AC_LANG_SOURCE(
        [#include <iostream>
 	#include <type_traits>
-	#include <algorithms>
+	#include <algorithm>
 
 	// When compiling with a "newish" libstdc++ which supports
 	// constexpr, make sure constexpr actually _works_ because
