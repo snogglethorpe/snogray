@@ -292,6 +292,9 @@ for opt in -std=c++11 -std=c++0x -std=c++98; do
        [#include <iostream>
 	#include <type_traits>
 	#include <algorithm>
+	#include <utility>
+
+	std::pair<int, int> ip;
 
 	// When compiling with a "newish" libstdc++ which supports
 	// constexpr, make sure constexpr actually _works_ because
