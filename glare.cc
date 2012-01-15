@@ -179,13 +179,13 @@ snogray::add_glare (Image &image, float diag_field_of_view,
   // (the bottom half is just a mirror copy, and the imaginary part
   // is all zero; both will be filled in below).
   //
-  for (unsigned y = 0; y < (tot_h + 1) / 2; y++)
+  for (unsigned y = 0; y < (tot_h / 2) + 1; y++)
     {
       // Calculate the first half (of the real part) of this row.
       // The second half is just a mirror copy, and will be filled in
       // below.
       //
-      for (unsigned x = 0; x < (tot_w + 1) / 2; x++)
+      for (unsigned x = 0; x < (tot_w / 2) + 1; x++)
 	{
 	  float pixel_sum = 0;
 
@@ -239,8 +239,8 @@ snogray::add_glare (Image &image, float diag_field_of_view,
 
 		  // x/y offsets of this sample from the filter centre.
 		  //
-		  float x_offs = x + samp_x_offs;
-		  float y_offs = y + samp_y_offs;
+		  float x_offs = x + samp_x_offs - 0.5f;
+		  float y_offs = y + samp_y_offs - 0.5f;
 
 		  // Angular deviation from the image center in radians.
 		  //
@@ -272,9 +272,9 @@ snogray::add_glare (Image &image, float diag_field_of_view,
       // As the matrix should be symmetrical, fill in the right half
       // of the row as a mirror copy of the left half.
       //
-      for (unsigned x = (tot_w + 1) / 2; x < tot_w; x++)
+      for (unsigned x = (tot_w / 2) + 1; x < tot_w; x++)
 	{
-	  float val = filter[(tot_w - x - 1) + y * tot_w][0];
+	  float val = filter[(tot_w - x) + y * tot_w][0];
 	  filter[x + y * tot_w][0] = val;
 	  filter_sum += val;
 	}
@@ -283,10 +283,10 @@ snogray::add_glare (Image &image, float diag_field_of_view,
   // Fill in the bottom half (of the real part) of the filter matrix
   // as a mirror copy of the top half.
   //
-  for (unsigned y = (tot_h + 1) / 2; y < tot_h; y++)
+  for (unsigned y = (tot_h / 2) + 1; y < tot_h; y++)
     for (unsigned x = 0; x < tot_w; x++)
       {
-	float val = filter[x + (tot_h - y - 1) * tot_w][0];
+	float val = filter[x + (tot_h - y) * tot_w][0];
 	filter[x + y * tot_w][0] = val;
 	filter_sum += val;
       }
