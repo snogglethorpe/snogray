@@ -388,8 +388,15 @@ snogray::add_glare (Image &image, float diag_field_of_view,
 	  {
 	    float val = data[x + y * tot_w][0] * data_scale;
 
+	    // Our glare PSF includes the source image, but to improve
+	    // the result, we normally we only calculate glare on
+	    // parts of the image in excess of THRESHOLD.  So unless
+	    // we're in "glare only" mode, add anything we _didn't_
+	    // use as input to the glare calculation to the glare
+	    // result, to get the final result.
+	    //
 	    if (! glare_only)
-	      val += image.tuple (x, y)[cc];
+	      val += min (image.tuple (x, y)[cc], threshold);
 
 	    image.tuple (x, y)[cc] = val;
 	  }
