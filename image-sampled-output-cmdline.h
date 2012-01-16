@@ -34,6 +34,11 @@
                                \"mitchell\", \"gauss\", or \"box\"\n\
                                (default \"mitchell\")\n\
 \n\
+      --no-dither            Do not add dithering noise to LDR output formats\n\
+                               (dithering is used by default for low-dynamic-\n\
+                                range output formats, where it helps prevent\n\
+                                banding of very shallow gradients)\n\
+\n\
   -O, --output-options=OPTS  Set output-image options; OPTS has the format\n\
                                OPT1=VAL1; current options include:\n\
                                  \"format\"  -- output file type\n\
@@ -44,13 +49,18 @@
 
 #define IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS "s:e:F:O:"
 
-#define IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS			\
-  { "size",		required_argument, 0, 's' },	\
-  { "filter",		required_argument, 0, 'F' },	\
-  { "exposure",		required_argument, 0, 'e' },	\
+#define IMAGE_SAMPLED_OUTPUT_OPT_DITHER (('d'<<24)+('t'<<16)+('h'<<8)+'r')
+#define IMAGE_SAMPLED_OUTPUT_OPT_NO_DITHER (('D'<<24)+('T'<<16)+('H'<<8)+'R')
+
+#define IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS				\
+  { "size",		required_argument, 0, 's' },			\
+  { "filter",		required_argument, 0, 'F' },			\
+  { "exposure",		required_argument, 0, 'e' },			\
+  { "dither",		no_argument,	   0, IMAGE_SAMPLED_OUTPUT_OPT_DITHER }, \
+  { "no-dither",	no_argument,	   0, IMAGE_SAMPLED_OUTPUT_OPT_NO_DITHER }, \
   { "output-options",	required_argument, 0, 'O' }
 
-#define IMAGE_SAMPLED_OUTPUT_OPTION_CASES(clp, params)				\
+#define IMAGE_SAMPLED_OUTPUT_OPTION_CASES(clp, params)			\
   case 'F':								\
     clp.store_opt_arg_with_sub_options ("filter", params, ".", "/,");	\
     break;								\
@@ -59,6 +69,12 @@
     break;								\
   case 'e':								\
     parse_image_exposure_option (clp, params);				\
+    break;								\
+  case IMAGE_SAMPLED_OUTPUT_OPT_DITHER:					\
+    params.set ("dither", true);					\
+    break;								\
+  case IMAGE_SAMPLED_OUTPUT_OPT_NO_DITHER:				\
+    params.set ("dither", false);					\
     break;								\
   case 'O':								\
     clp.parse_opt_arg (params);						\

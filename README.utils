@@ -196,3 +196,11 @@ COMMON COMMAND-LINE IMAGE OPTIONS
 
         Do not use "image preclamping" when writing to a
         low-dynamic-range output file.
+
+    --no-dither
+
+        Do not add "dithering" noise to low-dynamic-range image output
+        formats.  Dithering helps prevent banding of very shallow
+        gradients when the image source has a higher precision than
+        the output format, and should otherwise have no effect.  It is
+        added by default.

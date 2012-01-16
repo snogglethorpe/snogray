@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "snogmath.h"
+#include "random.h"
 #include "image-io.h"
 
 
@@ -160,7 +161,7 @@ protected:
   // Floating-point to integer and range conversion for color
   // components.
   //
-  unsigned color_component_to_int (Color::component_t com) const;
+  unsigned color_component_to_int (Color::component_t com);
 
   // Floating-point to integer and range conversion for alpha
   // component (which isn't gamma corrected).
@@ -182,7 +183,6 @@ protected:
 
   void put_color_component (ByteVec::iterator &byte_ptr,
 			    Color::component_t com)
-    const
   {
     put_int_component (byte_ptr, color_component_to_int (com));
   }
@@ -224,6 +224,16 @@ private:
   // A single row of bytes we use as temporary storage during output
   //
   ByteVec output_row;
+
+  // True if we should dither the output to reduce banding when the
+  // source of this image has a higher precision than the target image
+  // format.
+  //
+  bool dither;
+
+  // Random number generator for adding dither.
+  //
+  Random dither_noise;
 };
 
 

@@ -129,7 +129,8 @@ ByteVecImageSink::ByteVecImageSink (const std::string &filename,
     component_scale (Color::component_t ((1 << (bytes_per_component * 8)) - 1)),
     max_component ((1 << (bytes_per_component * 8)) - 1),
     gamma_correction (1 / target_gamma),
-    output_row (width * num_channels * bytes_per_component)
+    output_row (width * num_channels * bytes_per_component),
+    dither (params.get_bool ("dither", true))
 {
 }
 
@@ -185,7 +186,7 @@ ByteVecImageSink::write_row (const ImageRow &row)
   // components.
   //
 unsigned
-ByteVecImageSink::color_component_to_int (Color::component_t com) const
+ByteVecImageSink::color_component_to_int (Color::component_t com)
 {
   com = max (com, 0.f);
 
@@ -198,11 +199,20 @@ ByteVecImageSink::color_component_to_int (Color::component_t com) const
   //
   com *= component_scale;
 
-  // Bias the result so that we can exactly reproduce an input from a
-  // source with the same precision, even given some accumulated
-  // error.
+  // Add dither, which should help avoid banding of very gradual
+  // gradients when the image source has greater precision than
+  // the image output format.
   //
-  com += 0.5f;
+  // If the source has the same or less precision, this should
+  // basically have no effect, but to avoid problems due to
+  // accumulated error, we slightly reduce the magnitude of the noise
+  // (it's nominally in the range of 0-1) to ensure this.
+  //
+  // If we're not dithering, then bias the result so that we can
+  // exactly reproduce an input from a source with the same precision,
+  // even given some accumulated error.
+  //
+  com += dither ? (dither_noise () * 0.999f) : 0.5f;
 
   // Clamp to the final range.
   //
