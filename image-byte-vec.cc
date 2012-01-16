@@ -228,8 +228,7 @@ ByteVecImageSink::color_component_to_int (component_t com)
 
   // Gamma-correct.
   //
-  if (gamma_correction != 0)
-    com = pow (com, gamma_correction);
+  com = pow (com, gamma_correction);
 
   // Scale to the final range.
   //
