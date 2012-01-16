@@ -23,8 +23,7 @@
 #define IMAGE_SCALED_OUTPUT_OPTIONS_HELP				\
   IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP "\
 \n\n\
-      --preclamp             Clamp input to output range before filtering\n\
-      --no-preclamp          Do not use preclamping\n\
+      --no-preclamp          Do not clamp to output range before filtering\n\
 			       (preclamping is used by default for\n\
 				low-dynamic-range image output formats)"
 
