@@ -56,8 +56,6 @@ public:
   // support is widespread, that can be used instead.
   static float default_target_gamma () { return 2.2; }
 
-  ByteVecImageIo (PixelFormat pxfmt, unsigned _bytes_per_component,
-	     float _target_gamma);
   ByteVecImageIo (const ValTable &params);
 
   // Set the pixel format.  BYTES_PER_COMPONENT is optional and

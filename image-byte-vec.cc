@@ -109,17 +109,6 @@ ByteVecImageIo::ByteVecImageIo (const ValTable &params)
   set_pixel_format (pxfmt, comp_bytes, comp_bits);
 }
 
-
-ByteVecImageIo::ByteVecImageIo (PixelFormat pxfmt, unsigned _bytes_per_component,
-		      float _target_gamma)
-  //
-  // pixel-format related fields are set in the body below.
-  //
-  : target_gamma (_target_gamma)
-{
-  set_pixel_format (pxfmt, _bytes_per_component);
-}
-
 
 // ByteVecImageIo::set_pixel_format
 
