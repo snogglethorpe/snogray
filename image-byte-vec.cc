@@ -21,9 +21,9 @@
 using namespace snogray;
 
 
-// ByteVecIo constructor
+// ByteVecImageIo constructor
 
-ByteVecIo::ByteVecIo (const ValTable &params)
+ByteVecImageIo::ByteVecImageIo (const ValTable &params)
   //
   // pixel-format related fields are set in the body below.
   //
@@ -110,7 +110,7 @@ ByteVecIo::ByteVecIo (const ValTable &params)
 }
 
 
-ByteVecIo::ByteVecIo (PixelFormat pxfmt, unsigned _bytes_per_component,
+ByteVecImageIo::ByteVecImageIo (PixelFormat pxfmt, unsigned _bytes_per_component,
 		      float _target_gamma)
   //
   // pixel-format related fields are set in the body below.
@@ -121,16 +121,16 @@ ByteVecIo::ByteVecIo (PixelFormat pxfmt, unsigned _bytes_per_component,
 }
 
 
-// ByteVecIo::set_pixel_format
+// ByteVecImageIo::set_pixel_format
 
 // Set the pixel format.  BYTES_PER_COMPONENT is optional and
 // defaults to 1; BITS_PER_COMPONENT should be less than or equal to
 // 8*BYTES_PER_COMPONENT, and defaults to 8*BYTES_PER_COMPONENT.
 //
 void
-ByteVecIo::set_pixel_format (PixelFormat pxfmt,
-			     unsigned _bytes_per_component,
-			     unsigned _bits_per_component)
+ByteVecImageIo::set_pixel_format (PixelFormat pxfmt,
+				  unsigned _bytes_per_component,
+				  unsigned _bits_per_component)
 {
   pixel_format = pxfmt;
 
@@ -172,7 +172,7 @@ ByteVecIo::set_pixel_format (PixelFormat pxfmt,
 ByteVecImageSink::ByteVecImageSink (const std::string &filename,
 				    unsigned width, unsigned height,
 				    const ValTable &params)
-  : ImageSink (filename, width, height, params), ByteVecIo (params),
+  : ImageSink (filename, width, height, params), ByteVecImageIo (params),
     component_scale (component_t ((1 << bits_per_component) - 1)),
     max_component ((1 << bits_per_component) - 1),
     gamma_correction (1 / target_gamma),
@@ -275,7 +275,7 @@ ByteVecImageSink::color_component_to_int (component_t com)
 
 ByteVecImageSource::ByteVecImageSource (const std::string &filename,
 					const ValTable &params)
-  : ImageSource (filename, params), ByteVecIo (params),
+  : ImageSource (filename, params), ByteVecImageIo (params),
     component_scale (1 / component_t ((1 << bits_per_component) - 1)),
     input_row (0)
 { }

@@ -23,9 +23,9 @@
 namespace snogray {
 
 
-// Common data and types for byte-vec I/O.
+// Common data and types for byte-vec image I/O.
 //
-class ByteVecIo
+class ByteVecImageIo
 {
 public:
 
@@ -56,9 +56,9 @@ public:
   // support is widespread, that can be used instead.
   static float default_target_gamma () { return 2.2; }
 
-  ByteVecIo (PixelFormat pxfmt, unsigned _bytes_per_component,
+  ByteVecImageIo (PixelFormat pxfmt, unsigned _bytes_per_component,
 	     float _target_gamma);
-  ByteVecIo (const ValTable &params);
+  ByteVecImageIo (const ValTable &params);
 
   // Set the pixel format.  BYTES_PER_COMPONENT is optional and
   // defaults to 1; BITS_PER_COMPONENT should be less than or equal to
@@ -139,7 +139,7 @@ public:
 
 // Output
 
-class ByteVecImageSink : public ImageSink, public ByteVecIo
+class ByteVecImageSink : public ImageSink, public ByteVecImageIo
 {
 public:
 
@@ -249,7 +249,7 @@ private:
 
 // Input
 
-class ByteVecImageSource : public ImageSource, public ByteVecIo
+class ByteVecImageSource : public ImageSource, public ByteVecImageIo
 {
 public:
  
