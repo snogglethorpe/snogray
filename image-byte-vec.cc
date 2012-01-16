@@ -126,7 +126,7 @@ ByteVecImageSink::ByteVecImageSink (const std::string &filename,
 				    unsigned width, unsigned height,
 				    const ValTable &params)
   : ImageSink (filename, width, height, params), ByteVecIo (params),
-    component_scale (1 << (bytes_per_component * 8)),
+    component_scale (Color::component_t ((1 << (bytes_per_component * 8)) - 1)),
     max_component ((1 << (bytes_per_component * 8)) - 1),
     gamma_correction (1 / target_gamma),
     output_row (width * num_channels * bytes_per_component)
@@ -197,6 +197,12 @@ ByteVecImageSink::color_component_to_int (Color::component_t com) const
   // Scale to the final range.
   //
   com *= component_scale;
+
+  // Bias the result so that we can exactly reproduce an input from a
+  // source with the same precision, even given some accumulated
+  // error.
+  //
+  com += 0.5f;
 
   // Clamp to the final range.
   //
