@@ -29,6 +29,10 @@ class ByteVecIo
 {
 public:
 
+  // A single color component.
+  //
+  typedef Color::component_t component_t;
+
   // Supported pixel formats.
   //
   enum PixelFormat
@@ -169,7 +173,7 @@ protected:
   // Floating-point to integer and range conversion for color
   // components.
   //
-  unsigned color_component_to_int (Color::component_t com);
+  unsigned color_component_to_int (component_t com);
 
   // Floating-point to integer and range conversion for alpha
   // component (which isn't gamma corrected).
@@ -189,13 +193,11 @@ protected:
     *byte_ptr++ = com & 0xFF;
   }
 
-  void put_color_component (ByteVec::iterator &byte_ptr,
-			    Color::component_t com)
+  void put_color_component (ByteVec::iterator &byte_ptr, component_t com)
   {
     put_int_component (byte_ptr, color_component_to_int (com));
   }
-  void put_alpha_component (ByteVec::iterator &byte_ptr,
-			    Color::component_t com)
+  void put_alpha_component (ByteVec::iterator &byte_ptr, component_t com)
     const
   {
     put_int_component (byte_ptr, alpha_component_to_int (com));
@@ -207,11 +209,11 @@ protected:
   // This is just 2^bit_depth (note that this isn't the reciprocal of
   // the scale factor used during input).
   //
-  Color::component_t component_scale;
+  component_t component_scale;
 
   // Maximum component value.
   //
-  Color::component_t max_component;
+  component_t max_component;
 
   // GAMMA_CORRECTION is the gamma-correction factor _we_ use to
   // "correct" for the final target's gamma.  The final target
@@ -286,13 +288,13 @@ protected:
 		  unsigned bytes_per_component = 1,
 		  unsigned bits_per_component = 0 /* 0: use default */);
 
-  Color::component_t int_to_color_component (unsigned int_cc) const
+  component_t int_to_color_component (unsigned int_cc) const
   {
-    Color::component_t com = int_cc * component_scale;
+    component_t com = int_cc * component_scale;
     com = pow (com, target_gamma); // undo gamma correction
     return com;
   }
-  Color::component_t int_to_alpha_component (unsigned int_alpha) const
+  component_t int_to_alpha_component (unsigned int_alpha) const
   {
     return int_alpha * component_scale; // alpha doesn't use gamma correction
   }
@@ -310,13 +312,11 @@ protected:
       return *byte_ptr++;
   }
 
-  Color::component_t
-  get_color_component (ByteVec::const_iterator &byte_ptr) const
+  component_t get_color_component (ByteVec::const_iterator &byte_ptr) const
   {
     return int_to_color_component (get_int_component (byte_ptr));
   }
-  Color::component_t
-  get_alpha_component (ByteVec::const_iterator &byte_ptr) const
+  component_t get_alpha_component (ByteVec::const_iterator &byte_ptr) const
   {
     return int_to_alpha_component (get_int_component (byte_ptr));
   }
@@ -330,7 +330,7 @@ private:
   // range, this is 1 / (2^bit_depth - 1).  Note that this isn't the
   // reciprocal of the scale factor used during output.
   //
-  Color::component_t component_scale;
+  component_t component_scale;
 
   // A single row of bytes we use as temporary storage during input
   //

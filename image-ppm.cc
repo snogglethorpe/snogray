@@ -140,9 +140,9 @@ PpmImageSource::read_row (ImageRow &row)
 
   for (unsigned x = 0; x < width; x++)
     {
-      Color::component_t r = int_to_color_component (PPM_GETR (input_row[x]));
-      Color::component_t g = int_to_color_component (PPM_GETG (input_row[x]));
-      Color::component_t b = int_to_color_component (PPM_GETB (input_row[x]));
+      component_t r = int_to_color_component (PPM_GETR (input_row[x]));
+      component_t g = int_to_color_component (PPM_GETG (input_row[x]));
+      component_t b = int_to_color_component (PPM_GETB (input_row[x]));
 
       row[x].set_rgb (r, g, b);
     }

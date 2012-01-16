@@ -173,7 +173,7 @@ ByteVecImageSink::ByteVecImageSink (const std::string &filename,
 				    unsigned width, unsigned height,
 				    const ValTable &params)
   : ImageSink (filename, width, height, params), ByteVecIo (params),
-    component_scale (Color::component_t ((1 << bits_per_component) - 1)),
+    component_scale (component_t ((1 << bits_per_component) - 1)),
     max_component ((1 << bits_per_component) - 1),
     gamma_correction (1 / target_gamma),
     output_row (width * num_channels * bytes_per_component),
@@ -233,7 +233,7 @@ ByteVecImageSink::write_row (const ImageRow &row)
   // components.
   //
 unsigned
-ByteVecImageSink::color_component_to_int (Color::component_t com)
+ByteVecImageSink::color_component_to_int (component_t com)
 {
   com = max (com, 0.f);
 
@@ -276,7 +276,7 @@ ByteVecImageSink::color_component_to_int (Color::component_t com)
 ByteVecImageSource::ByteVecImageSource (const std::string &filename,
 					const ValTable &params)
   : ImageSource (filename, params), ByteVecIo (params),
-    component_scale (1 / Color::component_t ((1 << bits_per_component) - 1)),
+    component_scale (1 / component_t ((1 << bits_per_component) - 1)),
     input_row (0)
 { }
 
@@ -290,7 +290,7 @@ ByteVecImageSource::set_specs (unsigned _width, unsigned _height,
 
   set_pixel_format (pxfmt, _bytes_per_component, _bits_per_component);
 
-  component_scale = 1 / Color::component_t ((1 << bits_per_component) - 1);
+  component_scale = 1 / component_t ((1 << bits_per_component) - 1);
 
   if (width)
     input_row.resize (width * num_channels * bytes_per_component);
@@ -309,7 +309,7 @@ ByteVecImageSource::read_row (ImageRow &row)
 
   for (unsigned x = 0; x < width; x++)
     {
-      Color::component_t r, g, b, a;
+      component_t r, g, b, a;
 
       r = get_color_component (p);
 
