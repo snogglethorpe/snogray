@@ -40,40 +40,73 @@ ByteVecIo::ByteVecIo (const ValTable &params)
   bool alpha_channel = params.get_bool ("alpha-channel,alpha", false);
 
   std::string orig_pxfmt_name = pxfmt_name;
-  size_t pxfmt_name_len = pxfmt_name.length ();
+
+  pxfmt_name = downcase (pxfmt_name);
 
   // Stuff we figure out.
   //
   PixelFormat pxfmt;		// the pixel format
-  unsigned comp_len = 1;	// length of each pixel format in bytes
 
-  if (pxfmt_name_len > 2 && pxfmt_name.substr (pxfmt_name_len - 2) == "16")
+  // First handle basic type of pixel: rgb or greyscale
+  //
+  if (pxfmt_name.substr (0, 3) == "rgb")
     {
-      comp_len = 2;
-      pxfmt_name.erase (pxfmt_name_len - 2);
-      pxfmt_name_len -= 2;
+      pxfmt = PIXEL_FORMAT_RGB;
+      pxfmt_name.erase (0, 3);
+    }
+  else if (pxfmt_name.substr (0, 1) == "g")
+    {
+      pxfmt = PIXEL_FORMAT_GREY;
+      pxfmt_name.erase (0, 1);
+    }
+  else if (pxfmt_name.substr (0, 4) == "grey"
+	   || pxfmt_name.substr (0, 4) == "gray")
+    {
+      pxfmt = PIXEL_FORMAT_GREY;
+      pxfmt_name.erase (0, 4);
+    }
+  else
+    {
+    bad_pixel_format:
+      throw std::runtime_error ("unknown pixel format: " + orig_pxfmt_name);
     }
 
-  if (pxfmt_name_len > 1 && tolower (pxfmt_name[pxfmt_name_len - 1]) == 'a')
+  // Now handle an optional alpha channel
+  //
+  if (pxfmt_name.substr (0, 1) == "a")
     {
       alpha_channel = true;
-      pxfmt_name.erase (pxfmt_name_len - 1);
-      pxfmt_name_len -= 1;
+      pxfmt_name.erase (0, 1);
+    }
+  else if (pxfmt_name.substr (0, 5) == "alpha")
+    {
+      alpha_channel = true;
+      pxfmt_name.erase (0, 5);
     }
 
-  if (pxfmt_name == "g")
-    pxfmt = PIXEL_FORMAT_GREY;
-  else if (pxfmt_name == "rgb")
-    pxfmt = PIXEL_FORMAT_RGB;
-  else
-    throw std::runtime_error ("unknown pixel format: " + orig_pxfmt_name);
+  // Now an optional component-length (in bits), which applies to all
+  // components and the alpha channel (and is rounded up to a multiple
+  // of eight get the number of bytes per component used in
+  // byte-vectors).
+  //
+  unsigned comp_bits = 8, comp_bytes = 1;
+
+  if (! pxfmt_name.empty ())
+    {
+      char *end_ptr;
+      comp_bits = strtoul (pxfmt_name.c_str (), &end_ptr, 10);
+      if (*end_ptr != '\0' || comp_bits < 1 || comp_bits > 16)
+	goto bad_pixel_format;
+
+      comp_bytes = comp_bits * 8;
+    }
 
   if (alpha_channel)
     pxfmt = pixel_format_add_alpha_channel (pxfmt);
 
   // Finally, set the pixel format.
   //
-  set_pixel_format (pxfmt, comp_len);
+  set_pixel_format (pxfmt, comp_bytes, comp_bits);
 }
 
 
@@ -90,10 +123,14 @@ ByteVecIo::ByteVecIo (PixelFormat pxfmt, unsigned _bytes_per_component,
 
 // ByteVecIo::set_pixel_format
 
-// Set the pixel format.
+// Set the pixel format.  BYTES_PER_COMPONENT is optional and
+// defaults to 1; BITS_PER_COMPONENT should be less than or equal to
+// 8*BYTES_PER_COMPONENT, and defaults to 8*BYTES_PER_COMPONENT.
 //
 void
-ByteVecIo::set_pixel_format (PixelFormat pxfmt, unsigned _bytes_per_component)
+ByteVecIo::set_pixel_format (PixelFormat pxfmt,
+			     unsigned _bytes_per_component,
+			     unsigned _bits_per_component)
 {
   pixel_format = pxfmt;
 
@@ -114,9 +151,19 @@ ByteVecIo::set_pixel_format (PixelFormat pxfmt, unsigned _bytes_per_component)
       pixel_format_name += "a";
     }
 
+  // Default _BITS_PER_COMPONENT to 8 * _BYTES_PER_COMPONENT.
+  //
+  if (_bits_per_component == 0)
+    _bits_per_component = 8 * _bytes_per_component;
+
   bytes_per_component = _bytes_per_component;
-  if (bytes_per_component == 2)
-    pixel_format_name += "16";
+  bits_per_component = _bits_per_component;
+
+  // 8 bits per component is the default, so include anything else in
+  // the name.
+  //
+  if (bits_per_component != 8)
+    pixel_format_name += stringify (bits_per_component);
 }
 
 
@@ -126,8 +173,8 @@ ByteVecImageSink::ByteVecImageSink (const std::string &filename,
 				    unsigned width, unsigned height,
 				    const ValTable &params)
   : ImageSink (filename, width, height, params), ByteVecIo (params),
-    component_scale (Color::component_t ((1 << (bytes_per_component * 8)) - 1)),
-    max_component ((1 << (bytes_per_component * 8)) - 1),
+    component_scale (Color::component_t ((1 << bits_per_component) - 1)),
+    max_component ((1 << bits_per_component) - 1),
     gamma_correction (1 / target_gamma),
     output_row (width * num_channels * bytes_per_component),
     dither (params.get_bool ("dither", true))
@@ -229,25 +276,19 @@ ByteVecImageSink::color_component_to_int (Color::component_t com)
 ByteVecImageSource::ByteVecImageSource (const std::string &filename,
 					const ValTable &params)
   : ImageSource (filename, params), ByteVecIo (params),
-    component_scale (
-      1 / Color::component_t ((1 << (bytes_per_component * 8)) - 1)),
+    component_scale (1 / Color::component_t ((1 << bits_per_component) - 1)),
     input_row (0)
 { }
 
 void
 ByteVecImageSource::set_specs (unsigned _width, unsigned _height,
 			       PixelFormat pxfmt, unsigned _bytes_per_component,
-			       unsigned bits_per_component)
+			       unsigned _bits_per_component)
 {
   width = _width;
   height = _height;
 
-  set_pixel_format (pxfmt, _bytes_per_component);
-
-  // BITS_PER_COMPONENT== 0 means "use default" (8 * BYTES_PER_COMPONENT).
-  //
-  if (bits_per_component == 0)
-    bits_per_component = 8 * bytes_per_component;
+  set_pixel_format (pxfmt, _bytes_per_component, _bits_per_component);
 
   component_scale = 1 / Color::component_t ((1 << bits_per_component) - 1);
 

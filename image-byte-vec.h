@@ -56,9 +56,13 @@ public:
 	     float _target_gamma);
   ByteVecIo (const ValTable &params);
 
-  // Set the pixel format.
+  // Set the pixel format.  BYTES_PER_COMPONENT is optional and
+  // defaults to 1; BITS_PER_COMPONENT should be less than or equal to
+  // 8*BYTES_PER_COMPONENT, and defaults to 8*BYTES_PER_COMPONENT.
   //
-  void set_pixel_format (PixelFormat pxfmt, unsigned _bytes_per_component);
+  void set_pixel_format (PixelFormat pxfmt,
+			 unsigned _bytes_per_component = 1,
+			 unsigned _bits_per_component = 0);
 
   // Set the target gamma correction factor that should be used when
   // converting image bytes into internal linear values.
@@ -98,6 +102,10 @@ public:
   // Bytes per pixel-component (1 or 2)
   //
   unsigned bytes_per_component;
+
+  // Bits per pixel-component (1-16).
+  //
+  unsigned bits_per_component;
 
   // TARGET_GAMMA is the gamma factor the final _target_ (e.g. a
   // display) would file would use when displaying an image being read:
