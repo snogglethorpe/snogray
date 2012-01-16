@@ -98,7 +98,7 @@ ByteVecImageIo::ByteVecImageIo (const ValTable &params)
       if (*end_ptr != '\0' || comp_bits < 1 || comp_bits > 16)
 	goto bad_pixel_format;
 
-      comp_bytes = comp_bits * 8;
+      comp_bytes = (comp_bits + 7) / 8;
     }
 
   if (alpha_channel)
