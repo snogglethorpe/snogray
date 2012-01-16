@@ -54,16 +54,16 @@ ByteVecImageIo::ByteVecImageIo (const ValTable &params)
       pxfmt = PIXEL_FORMAT_RGB;
       pxfmt_name.erase (0, 3);
     }
-  else if (pxfmt_name.substr (0, 1) == "g")
-    {
-      pxfmt = PIXEL_FORMAT_GREY;
-      pxfmt_name.erase (0, 1);
-    }
   else if (pxfmt_name.substr (0, 4) == "grey"
 	   || pxfmt_name.substr (0, 4) == "gray")
     {
       pxfmt = PIXEL_FORMAT_GREY;
       pxfmt_name.erase (0, 4);
+    }
+  else if (pxfmt_name.substr (0, 1) == "g")
+    {
+      pxfmt = PIXEL_FORMAT_GREY;
+      pxfmt_name.erase (0, 1);
     }
   else
     {
