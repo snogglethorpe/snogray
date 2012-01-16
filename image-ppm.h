@@ -1,6 +1,6 @@
 // image-ppm.h -- PPM format image handling
 //
-//  Copyright (C) 2005-2007, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,7 +20,9 @@ extern "C" {
 #undef abs
 }
 
-#include "image-io.h"
+#include <stdexcept>
+
+#include "image-byte-vec.h"
 
 
 // PPM has fixed gamma correction:  each sample is "...  proportional to
@@ -37,10 +39,11 @@ extern "C" {
 
 namespace snogray {
 
+
 
 // Output
 
-class PpmImageSink : public ImageSink
+class PpmImageSink : public ByteVecImageSink
 {
 public:
 
@@ -48,9 +51,21 @@ public:
 		const ValTable &params = ValTable::NONE);
   ~PpmImageSink ();
 
+  // Note that we override the ImageSink::read_row(ImageRow&), instead
+  // of ByteVecImageSink::read_row(const ByteVec&) as is normal for
+  // subclasses of ByteVecImageSink.  This because PPM has its own
+  // abstraction for writing into an image row; however we still use
+  // other facilities of ByteVecImageSink, such as float-to-integer
+  // component conversion, etc.
+  //
   virtual void write_row (const ImageRow &row);
 
-  virtual float max_intens () const { return 1; }
+  // This should never be called.
+  //
+  virtual void write_row (const ByteVec &)
+  {
+    throw std::runtime_error ("PpmImageSink::write_row(const ByteVec &)");
+  }
 
   // Write previously written rows to disk, if possible.  This may flush
   // I/O buffers etc., but will not in any way change the output (so for
@@ -58,22 +73,6 @@ public:
   // image, as that can make the resulting compression worse).
   //
   virtual void flush () { fflush (stream); }
-
-  // Floating-point to pixval conversion
-  pixval color_component_to_pixval (Color::component_t com)
-  {
-    if (com < 0)
-      return 0;
-
-    // Do gamma correction
-    //
-    com = pow (com, Color::component_t (1 / IMAGE_PPM_GAMMA));
-
-    if (com >= 1)
-      return max_pixval;
-    else
-      return pixval (max_pixval * com);
-  }
 
 private:
 
@@ -83,16 +82,14 @@ private:
   //
   pixel *output_row;
 
-  // PPM params (currently these have fixed values)
-  //
   pixval max_pixval;
-  bool force_plain;
 };
+
 
 
 // Input
 
-class PpmImageSource : public ImageSource
+class PpmImageSource : public ByteVecImageSource
 {  
 public:
 
@@ -100,20 +97,20 @@ public:
 		  const ValTable &params = ValTable::NONE);
   ~PpmImageSource ();
 
+  // Note that we override the ImageSource::read_row(ImageRow&),
+  // instead of ByteVecImageSource::read_row(ByteVec&) as is normal
+  // for subclasses of ByteVecImageSource.  This because PPM has its
+  // own abstraction for reading from an image row; however we still
+  // use other facilities of ByteVecImageSource, such as int-to-float
+  // component conversion, etc.
+  //
   virtual void read_row (ImageRow &row);
 
-  virtual float max_intens () const { return 1; }
-
-  // Pixval to floating-point conversion
-  Color::component_t pixval_to_color_component (pixval pv)
+  // This should never be called.
+  //
+  virtual void read_row (ByteVec &)
   {
-    Color::component_t com = Color::component_t (pv) / max_pixval;
-
-    // Undo gamma correction.
-    //
-    com = pow (com, Color::component_t (IMAGE_PPM_GAMMA));
-
-    return com;
+    throw std::runtime_error ("PpmImageSink::read_row(ByteVec &)");
   }
 
 private:
@@ -130,8 +127,7 @@ private:
   int format;
 };
 
+
 }
 
-#endif /* SNOGRAY_IMAGE_PPM_H */
-
-// arch-tag: 0b6f409a-0140-4dd4-933a-2e8c16541952
+#endif // SNOGRAY_IMAGE_PPM_H
