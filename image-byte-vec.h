@@ -1,6 +1,6 @@
 // image-byte-vec.h -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -160,15 +160,7 @@ protected:
   // Floating-point to integer and range conversion for color
   // components.
   //
-  unsigned color_component_to_int (Color::component_t com) const
-  {
-    com = max (com, 0.f);
-
-    if (gamma_correction != 0)
-      com = pow (com, gamma_correction);
-
-    return unsigned (min (com * component_scale, max_component));
-  }
+  unsigned color_component_to_int (Color::component_t com) const;
 
   // Floating-point to integer and range conversion for alpha
   // component (which isn't gamma corrected).

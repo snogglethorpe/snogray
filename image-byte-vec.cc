@@ -1,6 +1,6 @@
 // image-byte-vec.cc -- Common code for image formats based on vectors of bytes
 //
-//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -179,6 +179,32 @@ ByteVecImageSink::write_row (const ImageRow &row)
     }
 
   write_row (output_row);
+}
+
+  // Floating-point to integer and range conversion for color
+  // components.
+  //
+unsigned
+ByteVecImageSink::color_component_to_int (Color::component_t com) const
+{
+  com = max (com, 0.f);
+
+  // Gamma-correct.
+  //
+  if (gamma_correction != 0)
+    com = pow (com, gamma_correction);
+
+  // Scale to the final range.
+  //
+  com *= component_scale;
+
+  // Clamp to the final range.
+  //
+  com = min (com, max_component);
+
+  // ... and finally, convert to an integer.
+  //
+  return unsigned (com);
 }
 
 
