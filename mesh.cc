@@ -199,7 +199,7 @@ Mesh::add_vertices (const std::vector<scoord_t> &new_verts)
   for (unsigned v = base_vert; v < base_vert + num_new_verts; v++)
     {
       vertices[v]
-	= Pos (new_verts[nvi], new_verts[nvi + 1], new_verts[nvi + 2]);
+	= MPos (new_verts[nvi], new_verts[nvi + 1], new_verts[nvi + 2]);
       nvi += 3;
     }
 
@@ -260,7 +260,7 @@ Mesh::add_normals (const std::vector<sdist_t> &new_normals,
   for (unsigned ni = base_vert; ni < base_vert + num_new_normals; ni++)
     {
       vertex_normals[ni]
-	= Vec (new_normals[nni], new_normals[nni + 1], new_normals[nni + 2]);
+	= MVec (new_normals[nni], new_normals[nni + 1], new_normals[nni + 2]);
       nni += 3;
     }
 }
