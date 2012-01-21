@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording scene-ray intersection result
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -60,12 +60,12 @@ public:
   //
   // If VEC is a null vector, containing all zeroes, then return 0.
   //
-  dist_t cos_n (const Vec &vec) const
+  float cos_n (const Vec &vec) const
   {
     // As VEC is normalized, cos(theta) is (N dot VEC), and as VEC is in
     // the normal frame, where N = (0,0,1), (N dot VEC) is just VEC.z.
     //
-    return vec.z;
+    return float (vec.z);
   }
 
   // Return the cosine of the angle between the geometric surface normal
@@ -78,11 +78,11 @@ public:
   //
   // If VEC is a null vector, containing all zeroes, then return 0.
   //
-  dist_t cos_geom_n (const Vec &vec) const
+  float cos_geom_n (const Vec &vec) const
   {
     // As VEC is normalized, cos(theta) is (GEOM_N dot VEC).
     //
-    return dot (vec, geom_n);
+    return cos_angle (vec, geom_n);
   }
 
   // Return the cosine of the angle between the viewing direction and
@@ -91,9 +91,9 @@ public:
   //
   // If VEC is a null vector, containing all zeroes, then return 0.
   //
-  dist_t cos_v (const Vec &vec) const
+  float cos_v (const Vec &vec) const
   {
-    return min (dot (v, vec), dist_t (1)); // use min to clamp precision errors
+    return min (cos_angle (v, vec), 1.f); // use min to clamp precision errors
   }
 
   // Return a mempool for intersection-related allocations.
