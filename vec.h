@@ -1,6 +1,6 @@
 // vec.h -- Vector datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -185,6 +185,8 @@ public:
 };
 
 
+// Return the dot-product of VEC1 and VEC2.
+//
 template<typename T>
 static inline T
 dot (const TVec<T> &vec1, const TVec<T> &vec2)
@@ -192,6 +194,8 @@ dot (const TVec<T> &vec1, const TVec<T> &vec2)
   return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
 }
 
+// Return the cross-product of VEC1 and VEC2.
+//
 template<typename T>
 static inline TVec<T>
 cross (const TVec<T> &vec1, const TVec<T> &vec2)
@@ -212,6 +216,25 @@ template<typename T>
 static inline TVec<T> abs (const TVec<T> &vec)
 {
   return TVec<T> (abs (vec.x), abs (vec.y), abs (vec.z));
+}
+
+
+// If VEC1 and VEC2 are unit vectors, return the cosine of the angle
+// between them; for non-unit vectors, this is multiplied by the
+// length of both vectors.  [So really this is just another name for
+// the dot-product of the vectors.]
+//
+// If either is a null vector (with zero length), the result is also a
+// null vector.
+//
+// Note that the result is a single-precision float, regardless of the
+// precision of the input vectors.
+//
+template<typename T>
+static inline float
+cos_angle (const TVec<T> &vec1, const TVec<T> &vec2)
+{
+  return float (dot (vec1, vec2));
 }
 
 
