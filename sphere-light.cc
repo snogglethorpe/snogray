@@ -1,6 +1,6 @@
 // sphere-light.cc -- Spherical light
 //
-//  Copyright (C) 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,11 +40,11 @@ SphereLight::SphereLight (const Pos &_pos, float _radius,
 float
 SphereLight::solid_angle (const Vec &light_center_vec) const
 {
-  float dist = light_center_vec.length ();
+  dist_t dist = light_center_vec.length ();
   if (dist < radius)
     return 4 * PIf;
   else
-    return 2 * PIf * (1 - cos (asin (radius / dist)));
+    return 2 * PIf * float (1 - cos (asin (radius / dist)));
 }
 
 
@@ -78,15 +78,15 @@ SphereLight::sample (const Intersect &isec, const UV &param) const
       // paper "Lightcuts: a scalable approach to illumination", by Bruce
       // Walters, et al.
       //
-      float r_sqrt_rand1 = radius * sqrt (param.u);
+      dist_t r_sqrt_rand1 = radius * dist_t (sqrt (param.u));
       float rand2_ang = param.v * 2 * PIf;
-      float x = r_sqrt_rand1 * cos (rand2_ang);
-      float y = r_sqrt_rand1 * sin (rand2_ang);
+      dist_t x = r_sqrt_rand1 * dist_t (cos (rand2_ang));
+      dist_t y = r_sqrt_rand1 * dist_t (sin (rand2_ang));
       // Note -- the abs here is just to avoid negative numbers caused by
       // floating-point imprecision.
-      float z
+      dist_t z
 	= (sqrt (abs (radius * radius - x * x - y * y))
-	   * sin (PIf * (isec.context.random() - 0.5f)));
+	   * dist_t (sin (PIf * (isec.context.random() - 0.5f))));
 
       // A vector from the intersection origin to the point (X, Y, Z)
       // within the sphere, in the intersection's normal frame of
@@ -124,7 +124,7 @@ SphereLight::sample (const UV &param, const UV &dir_param) const
   //
   Vec s_pos_vec = sphere_sample (param);
   Pos s_pos = pos + s_pos_vec * radius;
-  float pos_pdf = 1 / (radius*radius * 4 * PIf);   // 1 / area
+  float pos_pdf = 1 / (radius*radius * dist_t (4 * PI));   // 1 / area
 
   // Sample direction from that position, using a cosine-weighted
   // distribution.
@@ -172,7 +172,7 @@ SphereLight::eval (const Intersect &isec, const Vec &dir) const
   //
   if (light_center_vec.z >= -radius)
     {
-      float dist;
+      dist_t dist;
       if (sphere_intersects (Pos (0,0,0), radius,
 			     Pos (-light_center_vec), dir,
 			     dist))
