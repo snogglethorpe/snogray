@@ -1,6 +1,6 @@
 // frame.h -- Frame of reference
 //
-//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -117,6 +117,13 @@ public:
     x.transform (xform);
     y.transform (xform);
     z.transform (xform);
+  }
+
+  // Return true if this frame reverses handedness.
+  //
+  bool reverses_handedness () const
+  {
+    return dot (cross (x, y), z) < 0;
   }
 
   // The "position" of the frame; used when converting positions.
