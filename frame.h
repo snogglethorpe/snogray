@@ -35,7 +35,7 @@ public:
 
   Frame (const Pos &org, const Vec &_x, const Vec &_y, const Vec &_z)
     : origin (org), x (_x), y (_y), z (_z)
-    { }
+  { }
   
   // An "identity" frame.
   //
@@ -49,7 +49,7 @@ public:
   //
   Frame (const Vec &_x, const Vec &_y, const Vec &_z)
     : origin (0,0,0), x (_x), y (_y), z (_z)
-    { }
+  { }
 
   // A frame corresponding to the transformation matrix FRAME_TO_WORLD.
   //
@@ -68,7 +68,7 @@ public:
   Frame (const Vec &_z)
     : origin (0,0,0),
       x (_z.perpendicular ().unit ()),
-      y (cross (x, _z).unit ()),
+      y (cross (_z, x).unit ()),
       z (_z)
     { }
 
@@ -79,7 +79,7 @@ public:
   Frame (const Pos &org, const Vec &_z)
     : origin (org),
       x (_z.perpendicular ().unit ()),
-      y (cross (x, _z).unit ()),
+      y (cross (_z, x).unit ()),
       z (_z)
     { }
 
