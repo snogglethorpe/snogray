@@ -120,6 +120,26 @@ inline double trunc (double val) { return ::trunc (val); }
 #endif // HAVE_STD_TRUNC
 
 
+// std::copysign is available in C++11, but not C++98
+//
+#if HAVE_STD_COPYSIGN
+
+using std::copysign;		// use the standard version
+
+#else // !HAVE_STD_COPYSIGN
+
+// If we don't have std::copysign, define one (a little slower probably).
+//
+template<typename T>
+inline T copysign (T val, T sign)
+{
+  val = abs (val);
+  return (sign < 0) ? -val : val;
+}
+
+#endif // HAVE_STD_COPYSIGN
+
+
 }
 
 #endif // SNOGRAY_SNOGMATH_H

@@ -465,6 +465,20 @@ if test $have_std_trunc = yes; then
 fi
 
 
+# Check for std::copysign in <cmath>, which is available in C++11, but
+# not in C++98.
+#
+have_std_copysign=no
+AC_MSG_CHECKING([for std::copysign in <cmath>])
+AC_TRY_COMPILE([#include <cmath>],
+	       [float x = std::copysign (5.f, -1.f);],
+	       [have_std_copysign=yes], [:])
+AC_MSG_RESULT([$have_std_copysign])
+if test $have_std_copysign = yes; then
+  AC_DEFINE([HAVE_STD_COPYSIGN], [1], [Define if std::copysign is defined in <cmath>])
+fi
+
+
 # Allow point exceptions to be enabled (which can make debugging much easier).
 
 AC_ARG_ENABLE([fp-exceptions],
