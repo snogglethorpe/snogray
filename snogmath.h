@@ -52,11 +52,11 @@ inline unsigned max (unsigned x, unsigned y) { return x > y ? x : y; }
 
 // Clamp VAL to remain between MINV and MAXV (inclusive).
 //
-template<typename T>
-inline T clamp (T val, T minv, T maxv)
+template<typename T, typename T2>
+inline T clamp (T val, T2 minv, T2 maxv)
 {
-  val = likely (val < maxv) ? val : maxv;
-  return likely (val > minv) ? val : minv;
+  val = likely (val < T (maxv)) ? val : T (maxv);
+  return likely (val > T (minv)) ? val : T (minv);
 }
 
 
