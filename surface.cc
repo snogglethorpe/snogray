@@ -1,6 +1,6 @@
 // surface.cc -- Physical surface
 //
-//  Copyright (C) 2005-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ Surface::Sampler::AngularSample::AngularSample (const AreaSample &area_sample,
       // As the normal rotates away from DIR, the samples get
       // scrunched up, so the PDF goes up.
       //
-      float pdf_cos_adj = dot (-normal, dir);
+      float pdf_cos_adj = cos_angle (-normal, dir);
 
       // If PDF_COS_ADJ is negative then the light points away from
       // ISEC, and so can have no effect.

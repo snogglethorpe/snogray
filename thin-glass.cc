@@ -1,6 +1,6 @@
 // thin-glass.cc -- ThinGlass (thin, transmissive, reflective) material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -129,7 +129,7 @@ ThinGlass::transmittance (const Surface::IsecInfo &isec_info,
   
   // Calculate fresnel surface reflection at the ray angle
   //
-  float cos_xmit_angle = dot (norm, -isec_info.ray.dir);
+  float cos_xmit_angle = cos_angle (norm, -isec_info.ray.dir);
   float refl = Fresnel (medium.ior, ior).reflectance (cos_xmit_angle);
 
   // Transmitted light (some light is lost due to fresnel reflection

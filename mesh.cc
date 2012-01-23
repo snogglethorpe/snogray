@@ -690,9 +690,9 @@ VertNormGroups::add_face (const Mesh::MVec &face_normal,
   // because it's the first normal added to it, or because the angle
   // between FACE_NORMAL and the group's normal is sufficiently small.
   //
-  dist_t dot_fg;
+  float cos_fg;
   if (group.num_faces == 0
-      || (dot_fg = dot (face_normal, group.normal) >= min_cos))
+      || (cos_fg = cos_angle (face_normal, group.normal) >= min_cos))
     //
     // It fits, add FACE_NORMAL to GROUP, and return VERTEX.
     {
@@ -701,7 +701,7 @@ VertNormGroups::add_face (const Mesh::MVec &face_normal,
       group.normal = group.normal_sum.unit ();
       return vertex;
     }
-  else if (dot_fg < 0)
+  else if (cos_fg < 0)
     {
       throw runtime_error ("Face orientation mismatch while smoothing mesh");
     }

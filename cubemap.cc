@@ -1,6 +1,6 @@
 // cubemap.cc -- Texture wrapped around a cube
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -51,8 +51,8 @@ Cubemap::map (const Vec &dir) const
   // Calculate u and v -- basically the non-axis components of DIR
   // divided by the axis component.
   //
-  float u = dot (dir, face.u_dir) / axis_val;
-  float v = dot (dir, face.v_dir) / axis_val;
+  float u = cos_angle (dir, face.u_dir) / float (axis_val);
+  float v = cos_angle (dir, face.v_dir) / float (axis_val);
 
   // Translate [-1, 1] params into [0, 1] for texture lookup
   //

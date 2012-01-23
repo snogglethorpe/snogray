@@ -1,6 +1,6 @@
 // point-light.cc -- Point light
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -38,8 +38,9 @@ PointLight::sample (const Intersect &isec, const UV &) const
 
       // Cosine of the angle between the light-ray and the light axis.
       //
-      float cos_dir = dot ((isec.normal_frame.origin - frame.origin) * inv_dist,
-			   frame.z);
+      float cos_dir
+	= cos_angle ((isec.normal_frame.origin - frame.origin) * inv_dist,
+		     frame.z);
 
       // If this is a spherical point-light (angle == 2*PI,
       // cos_half_angle == -1), then all directions are visible;

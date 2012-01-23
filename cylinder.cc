@@ -1,6 +1,6 @@
 // cylinder.cc -- Cylindrical surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -252,7 +252,7 @@ Cylinder::Sampler::sample_from_viewpoint (const Pos &viewpoint, const UV &param)
   // If the normal points away from VIEWPOINT, mirror the sample about
   // the cylinder's axis so that it doesn't.
   //
-  if (dot (area_sample.normal, area_sample.pos - viewpoint) > 0)
+  if (cos_angle (area_sample.normal, area_sample.pos - viewpoint) > 0)
     {
       Pos opos = cylinder.world_to_local (area_sample.pos);
       opos.x = -opos.x;

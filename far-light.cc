@@ -1,6 +1,6 @@
 // far-light.cc -- Light at infinite distance
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -80,7 +80,7 @@ FarLight::eval (const Intersect &isec, const Vec &dir) const
       Vec light_normal_dir = isec.normal_frame.to (frame.z);
       float pdf = cone_sample_pdf (cos_half_angle);
 
-      if (dot (dir, light_normal_dir) >= cos_half_angle)
+      if (cos_angle (dir, light_normal_dir) >= cos_half_angle)
 	return Value (intensity, pdf, 0);
     }
 
@@ -98,7 +98,7 @@ FarLight::eval_environ (const Vec &dir) const
     {
       // Cosine of the angle between DIR and the direction of this light.
       //
-      float cos_light_dir = dot (dir, frame.z);
+      float cos_light_dir = cos_angle (dir, frame.z);
 
       // If COS_LIGHT_DIR is greater than COS_HALF_ANGLE, then DIR must be
       // within ANGLE/2 of the light direction, so return the light's
