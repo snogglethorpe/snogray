@@ -1,6 +1,6 @@
 // sample-map.cc -- Visual representation of sample distribution
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,6 +15,7 @@
 #include "camera.h"
 #include "media.h"
 #include "illum-mgr.h"
+#include "spherical-coords.h"
 #include "render-context.h"
 
 #include "sample-map.h"
@@ -92,8 +93,8 @@ SampleMap::draw (Image &map, unsigned radius, Color color)
     for (IllumSampleVec::const_iterator s = samples.begin ();
 	 s != samples.end (); s++)
       {  
-	unsigned x = unsigned (w * (s->dir.y_axis_longitude() + PI) / (PI * 2));
-	unsigned y = unsigned (h * (-s->dir.y_axis_latitude() + PI/2) / PI);
+	unsigned x = unsigned (w * (y_axis_longitude (s->dir) + PI) / (PI * 2));
+	unsigned y = unsigned (h * (-y_axis_latitude (s->dir) + PI/2) / PI);
 
 	Color col = use_sample_color ? s->light_val : color;
 

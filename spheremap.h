@@ -59,7 +59,7 @@ struct MercatorMapping
 {
   static UV map (const Vec &dir) const
   {
-    return UV (clamp01 ((dir.y_axis_longitude () + PIf) * INV_PIf / 2),
+    return UV (clamp01 ((y_axis_longitude (dir) + PIf) * INV_PIf / 2),
 	       clamp01 ((dir.y + 1) / 2);
   }
 
