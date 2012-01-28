@@ -1,6 +1,6 @@
 // sphere2.cc -- Alternative sphere surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
 
   return Intersect (ray, media, context, *sphere.material,
 		    Frame (point, s, t, norm),
-		    sphere.tex_coords (Pos (onorm)), dTds, dTdt);
+		    sphere.tex_coords (onorm), dTds, dTdt);
 }
 
 // Return the texture-coordinates of this intersection.
@@ -85,7 +85,7 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
 TexCoords
 Sphere2::IsecInfo::tex_coords () const
 {
-  return TexCoords (ray.end(), sphere.tex_coords (Pos (onorm)));
+  return TexCoords (ray.end(), sphere.tex_coords (onorm));
 }
 
 // Return the normal of this intersection (in the world frame).

@@ -1,6 +1,6 @@
 // sphere2.h -- Alternative sphere surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #ifndef SNOGRAY_SPHERE2_H
 #define SNOGRAY_SPHERE2_H
 
+#include "spherical-coords.h"
 
 #include "local-primitive.h"
 
@@ -123,10 +124,9 @@ private:
   // Return the texture coordinates for object-space position OPOS on
   // the sphere.
   //
-  UV tex_coords (const Pos &opos) const
+  UV tex_coords (const Vec &opos) const
   {
-    return UV (atan2 (opos.y, opos.x) * INV_PIf * 0.5f + 0.5f,
-	       asin (clamp (opos.z, -1.f, 1.f)) * INV_PIf + 0.5f);
+    return z_axis_latlong (opos);
   }
 
 };
