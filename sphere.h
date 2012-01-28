@@ -1,6 +1,6 @@
 // sphere.h -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,6 +12,8 @@
 
 #ifndef SNOGRAY_SPHERE_H
 #define SNOGRAY_SPHERE_H
+
+#include "spherical-coords.h"
 
 #include "primitive.h"
 
@@ -127,8 +129,7 @@ private:
   //
   UV tex_coords (const Vec &opos) const
   {
-    return UV (atan2 (opos.y, opos.x) * INV_PIf * 0.5f + 0.5f,
-	       asin (clamp (opos.z / radius, -1.f, 1.f)) * INV_PIf + 0.5f);
+    return z_axis_latlong (opos);
   }
 
   dist_t radius;
