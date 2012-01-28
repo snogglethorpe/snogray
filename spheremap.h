@@ -36,19 +36,11 @@ struct LatLongMapping
 {
   static UV map (const Vec &dir)
   {
-    return y_axis_latlong (dir);
+    return z_axis_latlong (dir);
   }
   static Vec map (const UV &uv)
   {
-    return y_axis_latlong_to_vec (uv);
-  }
-
-  // Returns the area on the sphere corresponding to a one-unit area at
-  // location UV in the texture.
-  //
-  static float sphere_area (UV uv)
-  {
-    return cos (uv.v * PIf - PIf/2);
+    return z_axis_latlong_to_vec (uv);
   }
 };
 
@@ -59,7 +51,7 @@ struct MercatorMapping
 {
   static UV map (const Vec &dir) const
   {
-    return UV (clamp01 ((y_axis_longitude (dir) + PIf) * INV_PIf / 2),
+    return UV (clamp01 ((z_axis_longitude (dir) + PIf) * INV_PIf / 2),
 	       clamp01 ((dir.y + 1) / 2);
   }
 

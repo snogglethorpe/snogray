@@ -1155,10 +1155,12 @@ function lights.infinite (state, params)
       end
    end
 
-   -- envmap_light (currently!) uses a "y major" coordinate system,
-   -- whereas PBRT scenes expect a z-major system, so translate.
+   -- PBRT uses right-handed coordinates, as do most environment-map
+   -- images, whereas we use left-handed coordinates, so adjust the
+   -- coordinate system of the light to do the appropriate
+   -- transformation.
    --
-   local xf = state.xform (rot_z (-math.pi/2) (xform_y_to_z))
+   local xf = state.xform (xform_flip_x)
 
    return envmap_light (envmap, frame (xf))
 end

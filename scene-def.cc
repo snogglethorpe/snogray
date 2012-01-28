@@ -84,7 +84,20 @@ SceneDef::load (Scene &scene, Camera &camera)
 	  Ref<Envmap> envmap
 	    = load_envmap (bg_spec, (fmt == "envmap") ? "" : fmt);
 
-	  bg_light = new EnvmapLight (envmap);
+	  // We use left-handed coordinates by default, and most
+	  // scenes have a verticle Y axis; most environment maps are
+	  // right-handed, and the environment-mapping code assumes a
+	  // verticle Z-axis.  So make a frame which maps accordingly.
+	  //
+	  // The exact mapping is chosen to preserve compatibility
+	  // with old scenes.
+	  //
+	  // [This mapping should be a user option to adjust for
+	  // different environment maps. XXX]
+	  //
+	  Frame envmap_mapping_frame (Vec(0,0,1), Vec(-1,0,0), Vec(0,1,0));
+
+	  bg_light = new EnvmapLight (envmap, envmap_mapping_frame);
 	}
 
       scene.add (bg_light);
