@@ -598,7 +598,7 @@ function glass (params)
       _absorb = params.absorb or params.absorption or params[2] or _absorb
    elseif type (params) == "table" and (params.n or params.k) then
       _ior = params
-   else
+   elseif params then
       _absorb = params
    end
 
@@ -626,7 +626,7 @@ function thin_glass (params)
    then
       _ior = params.ior or params[1] or _ior
       _color = params.color or params.col or params[2] or _color
-   else
+   elseif params then
       _color = params
    end
 
