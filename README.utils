@@ -40,15 +40,24 @@ snogbloom
 
    Options:
 
-    -f DEG
-    --field-of-view=DEG
+    -f ANGLE
+    --field-of-view=ANGLE
 
-       Set the image field-of-view (of the image diagonal) to be DEG
+       Set the image field-of-view (of the image diagonal) to be ANGLE
        degrees.  As the intensity of the glare effect is dependent on
        angular deviation, snogbloom needs to know the angular size of
-       the input image.  The default is 46.8 degrees, corresponding
-       to a "typical" angle-of-view.
+       the input image.  The default is 46.8 degrees, corresponding to
+       a "typical" angle-of-view.
        
+    -l ANGLE
+    --limit-angle=ANGLE
+
+       Limit the glare effect to a cone with an angular radius of
+       ANGLE degrees, smoothly fading towards the edge using a
+       Gaussian filter.  This is useful if extremely bright areas
+       result in too much glare, washing out large portions of the
+       image.  Typically useful angles are from 5-10 degrees.
+
     -g
     --glare-only
 
