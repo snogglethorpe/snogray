@@ -18,6 +18,7 @@
 #include "image-input-cmdline.h"
 #include "image-scaled-output-cmdline.h"
 #include "glare.h"
+#include "photopic-glare-psf.h"
 
 
 using namespace snogray;
@@ -131,7 +132,8 @@ int main (int argc, char *const *argv)
 
   // Apply the bloom filter.
   //
-  add_glare (image, diag_field_of_view, threshold, glare_only);
+  add_glare (PhotopicGlarePsf (), image,
+	     diag_field_of_view, threshold, glare_only);
 
   // Save it to the output file.
   //

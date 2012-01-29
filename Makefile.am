@@ -445,7 +445,8 @@ snogdiff_SOURCES = snogdiff.cc
 snogdiff_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 
 if build_snogbloom
-  snogbloom_SOURCES = snogbloom.cc glare.cc glare.h
+  snogbloom_SOURCES = snogbloom.cc glare.cc glare.h glare-psf.h	\
+	photopic-glare-psf.cc photopic-glare-psf.h
   snogbloom_LDADD = $(IMAGE_LIBS) $(MISC_LIBS) $(libfftw3_LIBS)
 endif
 

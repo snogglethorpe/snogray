@@ -56,70 +56,22 @@ wacky_bloom_filter (double theta)
 }
 #endif
 
-
-// Glare point-spread-function (PSF) based on the human visual system
-// in non-dark-adapted ("photopic") state.
-//
-// From [SSZG95]:
-// Spencer, G., Shirley, P., Zimmerman, K., Greenberg, D.P.
-// "Physically based glare effect for digital images"
-// Proceedings of SIGGRAPH, pp. 325–334. ACM, New York (1995)
-
-static float
-f0 (float theta)
-{
-  // The original formula is:
-  //
-  //   f0 (theta) = 2.61 * 10^6 * exp (-(theta_deg / 0.02) ^ 2)
-  //
-  theta = theta * 180 / PIf; // convert to degrees
-  return 2.61e6f * exp (-2500 * theta * theta);
-}
-
-static float
-f1 (float theta)
-{
-  // The original formula is:
-  //
-  //   f1 (theta) = 20.91 / (theta_deg + 0.02)^3
-  //
-  theta = theta * 180 / PIf; // convert to degrees
-  float theta_plus = theta + 0.02f;
-  return 20.91f / (theta_plus * theta_plus * theta_plus);
-}
-
-static float
-f2 (float theta)
-{
-  // The original formula is:
-  //
-  //   f1 (theta) = 72.37 / (theta_deg + 0.02)^2
-  //
-  theta = theta * 180 / PIf; // convert to degrees
-  float theta_plus = theta + 0.02f;
-  return 72.37f / (theta_plus * theta_plus);
-}
-
-static float
-photopic_psf (float theta)
-{
-  return 0.384f * f0 (theta) + 0.478f * f1 (theta) + 0.138f * f2 (theta);
-}
 
 
 
-// Add glare effects to IMAGE.  DIAG_FIELD_OF_VIEW is the
-// field-of-view, in radians, of the diagonal of IMAGE.  THRESHOLD is
-// the maximum image intensity that can be represented by the target
-// image format or system; glare will only be added for image values
-// above that intensity level, on the assumption that any "glare" from
-// lower intensities will be occur naturally during viewing.  If
-// GLARE_ONLY is true, then IMAGE will be _replaced_ by the glare
-// effect; if it is false, then the glare effect is added to IMAGE.
+// Add glare from the point-spread-function GLARE_PSF to IMAGE.
+// DIAG_FIELD_OF_VIEW is the field-of-view, in radians, of the
+// diagonal of IMAGE.  THRESHOLD is the maximum image intensity that
+// can be represented by the target image format or system; glare will
+// only be added for image values above that intensity level, on the
+// assumption that any "glare" from lower intensities will be occur
+// naturally during viewing.  If GLARE_ONLY is true, then IMAGE will
+// be _replaced_ by the glare effect; if it is false, then the glare
+// effect is added to IMAGE.
 //
 void
-snogray::add_glare (Image &image, float diag_field_of_view,
-		    float threshold, bool glare_only)
+snogray::add_glare (const GlarePsf &glare_psf, Image &image,
+		    float diag_field_of_view, float threshold, bool glare_only)
 {
   // Size of base image.
   //
@@ -247,7 +199,7 @@ snogray::add_glare (Image &image, float diag_field_of_view,
 		  float theta = (sqrt (x_offs*x_offs + y_offs*y_offs)
 				 * pixel_offset_to_angle);
 
-		  float val = photopic_psf (theta);
+		  float val = glare_psf (theta);
 
 		  pixel_sum += val;
 		}
