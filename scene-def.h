@@ -26,8 +26,7 @@
   -I, --scene-options=OPTS   Set scene options; OPTS has the format\n\
                                OPT1=VAL1[,...]; current options include:\n\
                                  \"format\"    -- scene file type\n\
-                                 \"background\"-- scene background\n\
-                                 \"gamma\"     -- implied scene gamma correction"
+                                 \"background\"-- scene background"
                                
 //
 #define SCENE_DEF_SHORT_OPTIONS		"b:A:l:I:c:"
