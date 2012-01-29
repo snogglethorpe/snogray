@@ -18,7 +18,7 @@
 #include "image.h"
 #include "image-input-cmdline.h"
 #include "image-scaled-output-cmdline.h"
-#include "glare.h"
+#include "add-glare.h"
 #include "photopic-glare-psf.h"
 
 

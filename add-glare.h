@@ -1,4 +1,4 @@
-// glare.h -- Add glare effects ("bloom") to an image
+// add-glare.h -- Add glare effects ("bloom") to an image
 //
 //  Copyright (C) 2007, 2011, 2012  Miles Bader <miles@gnu.org>
 //

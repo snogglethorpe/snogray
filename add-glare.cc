@@ -1,4 +1,4 @@
-// glare.cc -- Add glare effects ("bloom") to an image
+// add-glare.cc -- Add glare effects ("bloom") to an image
 //
 //  Copyright (C) 2007, 2008, 2011, 2012  Miles Bader <miles@gnu.org>
 //
@@ -15,7 +15,7 @@
 #include "num-cores.h"
 #include "radical-inverse.h"
 
-#include "glare.h"
+#include "add-glare.h"
 
 using namespace snogray;
 
