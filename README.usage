@@ -149,6 +149,25 @@ COMMAND-LINE OPTIONS
         this reason it is best if it is an HDR (high-dynamic range)
         image, e.g., with an .exr or .hdr extension.
 
+    -B [AXIS][HANDEDNESS][ROTATION]
+    --background-orientation=[AXIS][HANDEDNESS][ROTATION]
+
+        Use a non-default orientation for a background
+        environment-map.
+
+	AXIS is the vertical scene axis to which the environment-map's
+        vertical axis should be mapped to; it may be "x", "y", or "z"
+        (default "y").
+
+	HANDEDNESS is "handedness" of the environment map image, and
+	defines which direction the environment-map is mapped around
+	the scene; it may be "r" (for "right") or "l" (for "left").
+	(default "r"; if the environment-map looks "backwards", then
+	try using "l" instead).
+
+	ROTATION is an amount to rotate the environment map, around
+	the vertical axis, in degrees.
+
     -e EXPOSURE
     --exposure=EXPOSURE
 
