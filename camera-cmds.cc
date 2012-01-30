@@ -279,7 +279,10 @@ snogray::interpret_camera_cmds (const string &cmds, Camera &camera,
 	      camera.set_f_stop (f_stop);
 	    }
 	  else if (cmd == 'f')	// set f-stop
-	    camera.set_f_stop (read_float (stream, "f-stop"));
+	    {
+	      eat (stream, "/:"); // allow "f/4" or "f:4" notation
+	      camera.set_f_stop (read_float (stream, "f-stop"));
+	    }
 	  else if (cmd == 'd')	// set focus distance
 	    {
 	      char mod = eat (stream, "+-");
