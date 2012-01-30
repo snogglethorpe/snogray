@@ -119,7 +119,7 @@ help (CmdLineParser &clp, ostream &os)
 
   os << "Add glare effects (\"bloom\") to an image"
 n
-s "  -f, --field-of-view=DEG    Image field-of-view in degrees (default 46.8)"
+s "  -f, --diag-fov=ANGLE       Diagonal field-of-view in degrees (default 46.8)"
 s "  -l, --limit-angle=ANGLE    Limit glare function to ANGLE degrees"
 s "  -g, --glare-only           Output only the computed glare"
 s "      --threshold=INTENS     Add glare for intensities above INTENS (default 1)"
@@ -153,7 +153,7 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
-    { "field-of-view", required_argument, 0, 'f' },
+    { "diag-fov", required_argument, 0, 'f' },
     { "limit-angle", required_argument, 0, 'l' },
     { "glare-only", no_argument, 0, 'g' },
     { "threshold", required_argument, 0, OPT_THRESHOLD },
