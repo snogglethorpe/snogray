@@ -118,11 +118,15 @@ SceneDef::load (Scene &scene, Camera &camera)
 		handedness = *tail++;
 	      if (*tail)
 		{
-		  // Read rotation amount; note that we _add_ to the
-		  // default, which is non-zero.
+		  // Read rotation amount; note that we _subtract_
+		  // from the default (which is non-zero), as it seems
+		  // more natural for a positive user angle argument
+		  // to cause a counter-clockwise rotation (when
+		  // viewed from the axis top, it would be a positive
+		  // angle).
 
 		  char *end;
-		  rotation += strtof (tail, &end);
+		  rotation -= strtof (tail, &end);
 		  if (end == tail)
 		    throw bad_format ("Invalid background-orientation \""
 				      + bg_orient + "\"");
