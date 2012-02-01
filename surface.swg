@@ -106,7 +106,7 @@ namespace snogray {
 
     Cylinder (const Ref<Material> &mat, const Xform &obj_to_world_xform);
     Cylinder (const Ref<Material> &mat, const Pos &base, const Vec &axis,
-	      float radius);
+	      dist_t radius);
   };
 
   class Sphere2 : public LocalPrimitive
@@ -219,23 +219,23 @@ namespace snogray {
     // position/vertex arguments (as creating a Pos/Vec object is much 
     // more expensive in scripting languages than in C++).
     //
-    vert_index_t add_vertex (float x, float y, float z)
+    vert_index_t add_vertex (coord_t x, coord_t y, coord_t z)
     {
       return $self->add_vertex (snogray::Pos (x, y, z));
     }
-    vert_index_t add_vertex (float x, float y, float z,
+    vert_index_t add_vertex (coord_t x, coord_t y, coord_t z,
 			     VertexGroup &vg)
     {
       return $self->add_vertex (snogray::Pos (x, y, z), vg);
     }
-    vert_index_t add_vertex (float x, float y, float z,
-			     float nx, float ny, float nz)
+    vert_index_t add_vertex (coord_t x, coord_t y, coord_t z,
+			     dist_t nx, dist_t ny, dist_t nz)
     {
       return $self->add_vertex (snogray::Pos (x, y, z),
 				snogray::Vec (nx, ny, nz));
     }
-    vert_index_t add_vertex (float x, float y, float z,
-			     float nx, float ny, float nz,
+    vert_index_t add_vertex (coord_t x, coord_t y, coord_t z,
+			     dist_t nx, dist_t ny, dist_t nz,
 			     VertexNormalGroup &vng)
     {
       return $self->add_vertex (snogray::Pos (x, y, z),
@@ -244,7 +244,7 @@ namespace snogray {
     }
 
     vert_index_t add_normal (vert_index_t vert_index,
-			     float nx, float ny, float nz)
+			     dist_t nx, dist_t ny, dist_t nz)
     {
       return $self->add_normal (vert_index, snogray::Vec (nx, ny, nz));
     }
