@@ -1,6 +1,6 @@
 // interp.h -- Interpolation functions
 //
-//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@ namespace snogray {
 template<typename T1, typename T2>
 T2 linterp (T1 frac, T2 val1, T2 val2)
 {
-  return val1 + frac * (val2 - val1);
+  return val1 + T2 (frac) * (val2 - val1);
 }
 
 // "s curve" function, for interpolation.
@@ -30,7 +30,7 @@ T2 linterp (T1 frac, T2 val1, T2 val2)
 template<typename T>
 T s (T d)
 {
-  float d3 = d*d*d, d4 = d3*d, d5 = d4*d;
+  T d3 = d*d*d, d4 = d3*d, d5 = d4*d;
   return 6*d5 - 15*d4 + 10*d3;
 }
 
