@@ -1,6 +1,6 @@
 // cook-torrance.cc -- Cook-Torrance material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -150,7 +150,7 @@ public:
 	flags |= gloss_layer;
       }
 
-    if (isec.cos_n (l) > Eps && isec.cos_geom_n (l) > Eps)
+    if (isec.cos_n (l) > Epsf && isec.cos_geom_n (l) > Epsf)
       {
 	float pdf;
 	Color f = val (l, h, desired, desired_diff_weight, pdf);
