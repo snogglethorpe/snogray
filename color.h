@@ -38,7 +38,7 @@ public:
 
   // Type of one color component.
   //
-  typedef float component_t;
+  typedef intens_t component_t;
 
   // Number of color components stored.
   //
