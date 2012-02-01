@@ -286,7 +286,7 @@ snogray::interpret_camera_cmds (const string &cmds, Camera &camera,
 	  else if (cmd == 'd')	// set focus distance
 	    {
 	      char mod = eat (stream, "+-");
-	      float dist = read_float (stream, "focus distance");
+	      dist_t dist = read_float (stream, "focus distance");
 	      if (mod)
 		{
 		  if (mod == '-')

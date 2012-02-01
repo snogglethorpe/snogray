@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2009, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -138,9 +138,9 @@ Camera::eye_ray (const UV &film_loc, const UV &focus_param) const
       // ray won't be perturbed at all, meaning that everything at a
       // distance of 1 will be in focus, as expected.]
       //
-      float targ_perturb_adj = -1 / focus_distance ();
-      float targ_perturb_x = src_perturb_x * targ_perturb_adj;
-      float targ_perturb_y = src_perturb_y * targ_perturb_adj;
+      dist_t targ_perturb_adj = -1 / focus_distance ();
+      dist_t targ_perturb_x = src_perturb_x * targ_perturb_adj;
+      dist_t targ_perturb_y = src_perturb_y * targ_perturb_adj;
 
       // Perturb the camera position.
       //

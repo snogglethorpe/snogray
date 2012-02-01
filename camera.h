@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ public:
       : film_width (width), film_height (height)
     { }
 
-    float film_diagonal () const
+    dist_t film_diagonal () const
     {
       return sqrt (film_height * film_height + film_width * film_width);
     }
@@ -59,7 +59,7 @@ public:
 
     // Size of film
     //
-    float film_width, film_height;
+    dist_t film_width, film_height;
   };
 
   enum orient_t { ORIENT_VERT, ORIENT_HORIZ };
@@ -184,7 +184,7 @@ public:
 
   // Return the distance to the focus plane, in scene units.
   //
-  float focus_distance () const
+  dist_t focus_distance () const
   {
     return (focus == 0) ? target_dist : focus;
   }
@@ -192,11 +192,11 @@ public:
 
   // Return / set the focal length in camera units (nominally mm).
   //
-  float focal_length () const
+  dist_t focal_length () const
   {
     return format.film_width / 2 / tan_half_fov_x;
   }
-  void set_focal_length (float focal_len)
+  void set_focal_length (dist_t focal_len)
   {
     tan_half_fov_x = format.film_width / 2 / focal_len;
     tan_half_fov_y = format.film_height / 2 / focal_len;
@@ -206,24 +206,24 @@ public:
   // length that has the same diagonal field-of-view in FOC_LEN_FMT as the
   // camera's focal length does in its current format.
   //
-  float focal_length (const Format &foc_len_fmt) const
+  dist_t focal_length (const Format &foc_len_fmt) const
   {
     float diag_fov = format.diagonal_fov (focal_length ());
-    float tan_half_diag_fov = tan (diag_fov / 2);
+    dist_t tan_half_diag_fov = tan (diag_fov / 2);
     return foc_len_fmt.film_diagonal() / 2 / tan_half_diag_fov;
   }
   // Set the actual focal length to something that has the same diagonal
   // field of view that FOCAL_LEN does in FOC_LEN_FMT.
   //
-  void set_focal_length (float focal_len, const Format &foc_len_fmt)
+  void set_focal_length (dist_t focal_len, const Format &foc_len_fmt)
   {
     set_diagonal_fov (foc_len_fmt.diagonal_fov (focal_len));
   }
 
   void zoom (float magnification)
   {
-    tan_half_fov_x /= magnification;
-    tan_half_fov_y /= magnification;
+    tan_half_fov_x /= dist_t (magnification);
+    tan_half_fov_y /= dist_t (magnification);
   }
 
   void set_horiz_fov (float fov)
@@ -239,7 +239,7 @@ public:
   void set_diagonal_fov (float fov)
   {
     float tan_half_fov = tan (fov / 2);
-    float diag_angle = atan2 (format.film_width, format.film_height);
+    float diag_angle = float (atan2 (format.film_width, format.film_height));
     tan_half_fov_x = sin (diag_angle) * tan_half_fov;
     tan_half_fov_y = cos (diag_angle) * tan_half_fov;
   }
@@ -247,15 +247,15 @@ public:
 
   float aspect_ratio () const
   {
-    return format.film_width / format.film_height;
+    return float (format.film_width / format.film_height);
   }
   void set_aspect_ratio (float aspect_ratio)
   {
-    float old_focal_len = focal_length ();
+    dist_t old_focal_len = focal_length ();
     Format old_format = format;
 
-    float old_diagonal = format.film_diagonal ();
-    float new_diag_angle = atan (aspect_ratio);
+    dist_t old_diagonal = format.film_diagonal ();
+    dist_t new_diag_angle = atan (aspect_ratio);
 
     format.film_width = old_diagonal * sin (new_diag_angle);
     format.film_height = old_diagonal * cos (new_diag_angle);
@@ -266,7 +266,7 @@ public:
 
   void set_format (const Format &fmt)
   {
-    float old_focal_len = focal_length ();
+    dist_t old_focal_len = focal_length ();
     Format old_format = format;
 
     format = fmt;
@@ -292,14 +292,14 @@ public:
   //
   float f_stop () const
   {
-    return aperture ? focal_length () / aperture : 0;
+    return float (aperture ? focal_length () / aperture : 0);
   }
   void set_f_stop (float f_stop)
   {
     if (f_stop == 0)
       aperture = 0;
     else
-      aperture = focal_length () / f_stop;
+      aperture = focal_length () / dist_t (f_stop);
   }
 
 
@@ -342,18 +342,18 @@ public:
   // Lens aperture.  This only affects depth-of-field, not exposure like in
   // a real camera.  Zero means perfect focus.
   //
-  float aperture;
+  dist_t aperture;
 
   // The distance to the focus plane, from POS.  If zero, TARGET_DIST is used.
   //
-  float focus;
+  dist_t focus;
 
   // The length of one "scene unit", in "camera units" (the same units we
   // use for focal-length, aperture etc, nominally mm).
   //
-  float scene_unit;
+  dist_t scene_unit;
 
-  float tan_half_fov_x, tan_half_fov_y;
+  dist_t tan_half_fov_x, tan_half_fov_y;
 
 private:
 
