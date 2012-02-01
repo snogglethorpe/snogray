@@ -30,15 +30,17 @@ typedef scoord_t sdist_t;
 typedef double dcoord_t;
 typedef dcoord_t ddist_t;
 
-// Normal coordinates
+// Normal coordinates, used in most calculations
 //
 #if USE_FLOAT_COORDS
   typedef scoord_t coord_t;
-  typedef sdist_t dist_t;
 #else
   typedef dcoord_t coord_t;
-  typedef ddist_t dist_t;
 #endif  
+
+// Just define dist_t to be the same as coord_t.
+//
+typedef coord_t dist_t;
 
 // This value should be comfortably smaller than the smallest possible
 // surface.
