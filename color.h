@@ -20,6 +20,11 @@
 namespace snogray {
 
 
+// Light intensity.
+//
+typedef float intens_t;
+
+
 // A color.
 //
 // Abstract color type.  This is mostly an opaque type, and as many
