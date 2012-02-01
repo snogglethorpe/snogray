@@ -44,6 +44,7 @@ typedef dcoord_t ddist_t;
 // surface.
 //
 #define Eps	coord_t (1e-15)
+#define Epsf	float (1e-15)
 
 // We'll probably never hit these limits, so just use the smaller float
 // values for both scoord_t and dcoord_t.
