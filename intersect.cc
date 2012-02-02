@@ -1,6 +1,6 @@
 // intersect.cc -- Datatype for recording surface-ray intersection results
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,21 +35,21 @@ bump_map (Frame &normal_frame, const Ref<const Tex<float> > &tex,
       
   // Non-perturbed bump-map value.
   //
-  float origin_depth = tex->eval (tex_coords);
+  dist_t origin_depth = tex->eval (tex_coords);
 
   // Evaluate bump-map in s direction.
   //
   Pos ds_pos = tex_coords.pos + normal_frame.x * ds;
   UV ds_uv = tex_coords.uv + dTds * ds;
   TexCoords ds_tex_coords (ds_pos, ds_uv);
-  float ds_delta = tex->eval (ds_tex_coords) - origin_depth;
+  dist_t ds_delta = dist_t (tex->eval (ds_tex_coords)) - origin_depth;
 
   // Evaluate bump-map in t direction.
   //
   Pos dt_pos = tex_coords.pos + normal_frame.y * dt;
   UV dt_uv = tex_coords.uv + dTdt * dt;
   TexCoords dt_tex_coords (dt_pos, dt_uv);
-  float dt_delta = tex->eval (dt_tex_coords) - origin_depth;
+  dist_t dt_delta = dist_t (tex->eval (dt_tex_coords)) - origin_depth;
 
   if (ds_delta != 0 || dt_delta != 0)
     {
