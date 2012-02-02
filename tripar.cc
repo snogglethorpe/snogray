@@ -1,6 +1,6 @@
 // tripar.cc -- Triangle/parallelogram surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,7 +26,8 @@ using namespace snogray;
 const Surface::IsecInfo *
 Tripar::intersect (Ray &ray, RenderContext &context) const
 {
-  dist_t t, u, v;
+  dist_t t;
+  float u, v;
   if (intersects (ray, t, u, v))
     {
       ray.t1 = t;
@@ -89,7 +90,8 @@ Tripar::IsecInfo::normal () const
 bool
 Tripar::intersects (const Ray &ray, RenderContext &) const
 {
-  dist_t t, u, v;
+  dist_t t;
+  float u, v;
   return intersects (ray, t, u, v);
 }
 
@@ -108,7 +110,8 @@ Tripar::occludes (const Ray &ray, const Medium &medium,
 		  Color &total_transmittance, RenderContext &)
   const
 {
-  dist_t t, u, v;
+  dist_t t;
+  float u, v;
   if (intersects (ray, t, u, v))
     {
       // avoid calculating texture coords if possible

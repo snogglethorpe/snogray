@@ -1,6 +1,6 @@
 // tripar.h -- Triangle/parallelogram surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -99,7 +99,7 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Tripar &_tripar, dist_t _u, dist_t _v)
+    IsecInfo (const Ray &ray, const Tripar &_tripar, float _u, float _v)
       : Surface::IsecInfo (ray), tripar (_tripar), u (_u), v (_v)
     { }
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
@@ -107,13 +107,13 @@ private:
     virtual TexCoords tex_coords () const;
     virtual Vec normal () const;
     const Tripar &tripar;
-    dist_t u, v;
+    float u, v;
   };
 
   // Return true if this surface intersects RAY; if true is returned,
   // the intersection parameters are return in T, U, and V.
   //
-  bool intersects (const Ray &ray, dist_t &t, dist_t &u, dist_t &v) const
+  bool intersects (const Ray &ray, dist_t &t, float &u, float &v) const
   {
     return tripar_intersects (v0, e1, e2, parallelogram, ray, t, u, v);
   }
@@ -123,7 +123,7 @@ private:
   // parameters are return in T, U, and V.
   //
   bool intersects (const Pos &ray_origin, const Vec &ray_dir,
-		   dist_t &t, dist_t &u, dist_t &v)
+		   dist_t &t, float &u, float &v)
     const
   {
     return tripar_intersects (v0, e1, e2, parallelogram, ray_origin, ray_dir,
