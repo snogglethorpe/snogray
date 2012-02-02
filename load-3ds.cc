@@ -365,7 +365,7 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 {
   Vec up (0, 0, 1);
 
-  up.transform (Xform::z_rotation (c->roll * coord_t (PI / 180)));
+  up.transform (Xform::z_rotation (float (c->roll) * (PIf / 180)));
 
   Xform dir_xform = xform.inverse().transpose();
 
@@ -377,7 +377,7 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 //   cout << "   xform targ: " << xform (pos (c->target))  << endl;
 //   cout << "   xform up:   " << dir_xform (up)  << endl;
 
-  camera.set_vert_fov (c->fov * coord_t (PI / 180));
+  camera.set_vert_fov (float (c->fov) * (PIf / 180));
   camera.move (xform (pos (c->position)));
   camera.point (xform (pos (c->target)), dir_xform (up));
 }
