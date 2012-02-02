@@ -141,7 +141,7 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
   // The sample's PDF is the intensity PDF adjusted to reflect disk
   // sampling for the position.
   //
-  pdf /= (PIf * scene_radius * scene_radius);
+  pdf /= float (scene_radius * scene_radius) * PIf;
 
   // Return the sample; we invert the DIR we calculated above, as it
   // points _towards_ the sample point, and the return value should
