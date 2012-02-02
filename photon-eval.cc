@@ -74,8 +74,8 @@ PhotonEval::Lo (const Intersect &isec, const PhotonMap &photon_map,
   // Pre-compute values used for GAUSS_FILT in the loop.
   //
   float gauss_alpha = 1.818f, gauss_beta = 1.953f;
-  float inv_gauss_denom = 1 / (1 - exp (-gauss_beta));
-  float gauss_exp_scale = -gauss_beta * 0.5f / max_dist_sq;
+  dist_t inv_gauss_denom = 1 / (1 - exp (-gauss_beta));
+  dist_t gauss_exp_scale = -dist_t (gauss_beta) / (2 * max_dist_sq);
 
   Color radiance = 0;
 
@@ -96,9 +96,9 @@ PhotonEval::Lo (const Intersect &isec, const PhotonMap &photon_map,
 	  //
 	  float gauss_filt
 	    = (gauss_alpha
-	       * (1 - ((1 - exp (gauss_exp_scale
-				 * (ph.pos - pos).length_squared()))
-		       * inv_gauss_denom)));
+	       * float (1 - ((1 - exp (gauss_exp_scale
+				       * (ph.pos - pos).length_squared()))
+			     * inv_gauss_denom)));
 
 	  radiance += bsdf_val.val * ph.power * gauss_filt;
 	}
@@ -109,7 +109,7 @@ PhotonEval::Lo (const Intersect &isec, const PhotonMap &photon_map,
     }
 
   radiance *= scale;
-  radiance /= max_dist_sq * PIf;
+  radiance /= float (max_dist_sq) * PIf;
 
   // Add photon position marker for debugging.
   //
