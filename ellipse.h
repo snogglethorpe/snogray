@@ -1,6 +1,6 @@
 // ellipse.h -- Ellipse surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -88,7 +88,8 @@ public:
 
     Sampler (const Ellipse &_ellipse)
       : ellipse (_ellipse),
-	pdf (4 * INV_PIf / cross (ellipse.edge2, ellipse.edge1).length ())
+	pdf (4 * INV_PIf
+	     / float (cross (ellipse.edge2, ellipse.edge1).length ()))
     { }
 
     // Return a sample of this surface.
@@ -144,9 +145,9 @@ private:
 	// the ellipse center in the plane of the ellipse, each scaled
 	// according to the length of the corresponding radius / 2.
 	//
-	dist_t x = u - 0.5f, y = v - 0.5f;
+	dist_t x = u - dist_t (0.5), y = v - dist_t (0.5);
 
-	return x*x + y*y <= 0.25f; // 0.25 == 0.5^2
+	return x*x + y*y <= dist_t (0.25); // 0.25 == 0.5^2
       }
 
     return false;
@@ -167,9 +168,9 @@ private:
 	// the ellipse center in the plane of the ellipse, each scaled
 	// according to the length of the corresponding radius / 2.
 	//
-	dist_t x = u - 0.5f, y = v - 0.5f;
+	dist_t x = u - dist_t (0.5), y = v - dist_t (0.5);
 
-	return x*x + y*y <= 0.25f; // 0.25 == 0.5^2
+	return x*x + y*y <= dist_t (0.25); // 0.25 == 0.5^2
       }
 
     return false;

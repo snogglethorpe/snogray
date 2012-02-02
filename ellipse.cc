@@ -1,6 +1,6 @@
 // ellipse.cc -- Ellipse surface
 //
-//  Copyright (C) 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -75,8 +75,8 @@ struct Ellipse::IsecInfo::IsecDetails
     // 2d texture coordinates.
     //
     Vec ocent = norm_frame.to (center);
-    tex_coords = UV (-ocent.x * inv_rad1_len * 0.5f + 0.5f,
-		     -ocent.y * inv_rad2_len * 0.5f + 0.5f);
+    tex_coords = UV (float (-ocent.x * inv_rad1_len) * 0.5f + 0.5f,
+		     float (-ocent.y * inv_rad2_len) * 0.5f + 0.5f);
     //
     // TEX_COORDS will not be "correct" in case where edge1 and edge2 are
     // skewed (not perpendicular); it's not really hard to calculate it
@@ -85,8 +85,8 @@ struct Ellipse::IsecInfo::IsecDetails
     // Calculate partial derivatives of texture coordinates dTds and dTdt,
     // where T is the texture coordinates (for bump mapping).
     //
-    dTds = UV (0.5f * inv_rad1_len, 0);
-    dTdt = UV (0, 0.5f * inv_rad2_len);
+    dTds = UV (0.5f * float (inv_rad1_len), 0);
+    dTdt = UV (0, 0.5f * float (inv_rad2_len));
   }
 
   // Normal frame.
@@ -206,10 +206,10 @@ Ellipse::make_sampler () const
 Surface::Sampler::AreaSample
 Ellipse::Sampler::sample (const UV &param) const
 {
-  float dx, dy;
-  disk_sample (.5f, param, dx, dy);
-  dx += .5f;
-  dy += .5f;
+  dist_t dx, dy;
+  disk_sample (dist_t (0.5), param, dx, dy);
+  dx += dist_t (0.5);
+  dy += dist_t (0.5);
   Pos pos = ellipse.corner + ellipse.edge1 * dx + ellipse.edge2 * dy;
 
   return AreaSample (pos, ellipse.normal, pdf);
@@ -226,7 +226,7 @@ Ellipse::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
   const
 {
   dist_t t;
-  float u, v;
+  dist_t u, v;
   if (ellipse.intersects (viewpoint, dir, t, u, v))
     {
       Pos pos = viewpoint + t * dir;
