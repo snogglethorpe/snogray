@@ -1,3 +1,15 @@
+# Autoconf configuration for snogray
+#
+#  Copyright (C) 2006-2012  Miles Bader <miles@gnu.org>
+#
+# This source code is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3, or (at
+# your option) any later version.  See the file COPYING for more details.
+#
+# Written by Miles Bader <miles@gnu.org>
+#
+
 AC_INIT([snogray], [0.4], [Miles Bader <miles@gnu.org>])
 
 AM_INIT_AUTOMAKE([foreign])
@@ -31,23 +43,24 @@ AM_SILENT_RULES([yes])
 AM_CONDITIONAL([never], [false])
 
 
-# Enable/disable single-precision floating-point coordinates
+# Enable/disable double-precision floating-point coordinates
 #
-# Using single-precision coordinates is much faster, but can present
-# problems with precision errors (typically, though, this can be worked
-# around at runtime by increasing the value of the "min-trace" rendering
+# single-precision (the default) saves memory, and on some hardware is
+# simply faster than double-precision, but can result in precision
+# errors for some scenes (typically, though, this can be worked around
+# at runtime by increasing the value of the "min-trace" rendering
 # parameter).
 #
-AC_ARG_ENABLE([float-coords],
-    AS_HELP_STRING([--disable-float-coords],
+AC_ARG_ENABLE([double-coords],
+    AS_HELP_STRING([--enable-double-coords],
 		   [Use double-precision coordinates]),
-    [enable_float_coords="$enableval"],
-    [enable_float_coords=yes])
-AC_MSG_CHECKING([whether to use single-precision coordinates])
-AC_MSG_RESULT([$enable_float_coords])
-if test "$enable_float_coords" = yes; then
-  AC_DEFINE([USE_FLOAT_COORDS], [1],
-  	    [Define if using single-precision coordinates])
+    [enable_double_coords="$enableval"],
+    [enable_double_coords=no])
+AC_MSG_CHECKING([whether to use double-precision coordinates])
+AC_MSG_RESULT([$enable_double_coords])
+if test "$enable_double_coords" = yes; then
+  AC_DEFINE([USE_DOUBLE_COORDS], [1],
+  	    [Define if using double-precision coordinates])
 fi
 
 

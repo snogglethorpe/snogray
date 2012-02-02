@@ -32,10 +32,10 @@ typedef dcoord_t ddist_t;
 
 // Normal coordinates, used in most calculations
 //
-#if USE_FLOAT_COORDS
-  typedef scoord_t coord_t;
-#else
+#if USE_DOUBLE_COORDS
   typedef dcoord_t coord_t;
+#else
+  typedef scoord_t coord_t;
 #endif  
 
 // Just define dist_t to be the same as coord_t.
