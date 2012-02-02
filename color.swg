@@ -1,6 +1,6 @@
 # color.swg -- SWIG interfaces for color handling
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -36,10 +36,10 @@ namespace snogray {
 
     Color operator- () const;
 
-    float intensity ();
+    intens_t intensity ();
 
-    Color clamp (float max_intens) const;
-    Color clamp (float min_intens, float max_intens) const;
+    Color clamp (intens_t max_intens) const;
+    Color clamp (intens_t min_intens, intens_t max_intens) const;
 
     %rename(__pow) pow (float exp) const;
     Color pow (float exp) const;

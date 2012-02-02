@@ -1,6 +1,6 @@
 // norm-glow.h -- Material whose color indicates surface normal
 //
-//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -21,9 +21,7 @@ class NormGlow : public Material
 {
 public:
 
-  NormGlow (Color::component_t _intens)
-    : Material (EMITS_LIGHT), intens (_intens)
-  { }
+  NormGlow (intens_t _intens) : Material (EMITS_LIGHT), intens (_intens) { }
 
   // Return emitted radiance from this light, at the point described by ISEC.
   //
@@ -31,7 +29,7 @@ public:
 
 private:
 
-  Color::component_t intens;
+  intens_t intens;
 };
 
 }

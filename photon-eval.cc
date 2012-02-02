@@ -1,6 +1,6 @@
 // photon-eval.cc -- Photon-map evaluation (lighting, etc)
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -171,10 +171,10 @@ PhotonEval::photon_dist (const Intersect &isec, const PhotonMap &photon_map)
 
       Color ph_pow = (*i)->power;
       Color filt_ph_pow = ph_pow * bsdf_val.val;
-      float filt_ph_intens = filt_ph_pow.intensity();
+      intens_t filt_ph_intens = filt_ph_pow.intensity();
 #else
       Color ph_pow = (*i)->power;
-      float filt_ph_intens = ph_pow.intensity();
+      intens_t filt_ph_intens = ph_pow.intensity();
 #endif
 
       photon_dir_hist.add (dir, filt_ph_intens);

@@ -157,7 +157,7 @@ public:
   void operator/= (int denom)      { *this *= 1 / component_t (denom); }
   void operator/= (unsigned denom) { *this *= 1 / component_t (denom); }
 
-  component_t intensity () const
+  intens_t intensity () const
   {
     component_t sum = _components[0];
     for (unsigned c = 1; c < NUM_COMPONENTS; c++)
@@ -165,7 +165,7 @@ public:
     return sum / NUM_COMPONENTS;
   }
 
-  Color clamp (float max_intens) const
+  Color clamp (intens_t max_intens) const
   {
     Color rval;
     for (unsigned c = 0; c < NUM_COMPONENTS; c++)

@@ -76,11 +76,11 @@ public:
   // Return the maximum input sample value (above which samples will be
   // clamped).  A value of zero means that there's no real maximum.
   //
-  float max_intens () const
+  intens_t max_intens () const
   {
     // Start with the sink's maximum sample value.
     //
-    float max_samp = sink->max_intens ();
+    intens_t max_samp = sink->max_intens ();
 
     if (max_samp != 0)
       {

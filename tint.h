@@ -110,7 +110,7 @@ public:
     return *this;
   }
 
-  Tint clamp (float max_intens) const
+  Tint clamp (intens_t max_intens) const
   {
     Tint rval;
     rval.color = color.clamp (max_intens);

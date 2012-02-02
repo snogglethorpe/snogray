@@ -110,7 +110,7 @@ int main (int argc, char *argv[])
     for (unsigned col = 0; col < w; col++)
       {
 	Color color = inp_image (col, row);
-	float intens = color.intensity();;
+	intens_t intens = color.intensity();;
 	hist.add (col, row, intens);
       }
 

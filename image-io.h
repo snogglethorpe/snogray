@@ -1,6 +1,6 @@
 // image-io.h -- Low-level image input and output
 //
-//  Copyright (C) 2005-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -122,7 +122,7 @@ public:
   // Return the maximum sample value.  A value of zero means that
   // there's no real maximum.
   //
-  virtual float max_intens () const { return 0; }
+  virtual intens_t max_intens () const { return 0; }
 
   // Return the row-order of this image file.
   // (The default is top-to-bottom order, and subclasses should

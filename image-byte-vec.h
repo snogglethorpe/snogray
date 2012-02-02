@@ -155,7 +155,7 @@ public:
   // Return the maximum sample value.  A value of zero means that
   // there's no real maximum.
   //
-  virtual float max_intens () const { return 1; }
+  virtual intens_t max_intens () const { return 1; }
 
   // We define these, and our superclass calls them.
   //
@@ -263,7 +263,7 @@ public:
   // Return the maximum sample value.  A value of zero means that
   // there's no real maximum.
   //
-  virtual float max_intens () const { return 1; }
+  virtual intens_t max_intens () const { return 1; }
 
   // We define this, and our superclass calls it.
   //
