@@ -1,6 +1,6 @@
 // sphere.cc -- Sphere surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -61,7 +61,7 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   // 1 divided by the radius/circumference of the sphere.
   //
   dist_t inv_radius = 1 / sphere.radius;
-  dist_t inv_circum = inv_radius * INV_PIf * 0.5f;
+  dist_t inv_circum = inv_radius * dist_t (INV_PI / 2);
 
   // Intersection point in object space.
   //
@@ -72,7 +72,7 @@ Sphere::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
   //
   dist_t z_radius = sqrt (opoint.x*opoint.x + opoint.y*opoint.y);
   dist_t inv_z_radius = z_radius ? 1 / z_radius : 0;
-  dist_t inv_z_circum = inv_z_radius * INV_PIf * 0.5f;
+  dist_t inv_z_circum = inv_z_radius * dist_t (INV_PI / 2);
 
   // Calculate partial derivatives of texture coordinates dTds and dTdt,
   // where T is the texture coordinates (for bump mapping).
@@ -183,7 +183,7 @@ Sphere::Sampler::sample (const UV &param) const
 
   Vec norm = sphere_sample (param);
   Pos pos = center + norm * radius;
-  float pdf = 1 / (radius*radius * 4 * PIf);    // 1 / area
+  float pdf = 1 / (float (radius*radius) * 4 * PIf); // 1 / area
 
   return AreaSample (pos, norm, pdf);
 }
@@ -204,7 +204,8 @@ Sphere::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
       Pos pos = viewpoint + t * dir;
       Vec vec = pos - sphere.frame.origin;
       Vec norm = vec.unit ();
-      float area_pdf = 1 / (sphere.radius*sphere.radius * 4 * PIf); // 1 / area
+      float area_pdf =		// 1 / area
+	1 / (float (sphere.radius * sphere.radius) * 4 * PIf);
       return AngularSample (AreaSample (pos, norm, area_pdf), viewpoint);
     }
   return AngularSample ();
