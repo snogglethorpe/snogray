@@ -1,6 +1,6 @@
 // tessel-sphere.cc -- Sphere tessellation
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -89,8 +89,8 @@ SphereTesselFun::midpoint (Tessel &tessel,
 Pos
 SphereTesselFun::surface_pos (param_t u, param_t v) const
 {
-  coord_t theta = u * 2 * PIf;
-  coord_t phi = (v - 0.5f) * PIf;
+  coord_t theta = u * coord_t (2 * PI);
+  coord_t phi = (v - coord_t (0.5)) * coord_t (PI);
   coord_t cos_phi = cos (phi);
   return Pos (-cos (theta) * cos_phi, sin (theta) * cos_phi, sin (phi));
 }

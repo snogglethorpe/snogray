@@ -1,6 +1,6 @@
 // tessel-param.h -- Parametric tessellation functions
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2011-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -47,9 +47,9 @@ protected:
   //
   param_t wrapped_midpoint (param_t p1, param_t p2) const
   {
-    param_t mid = (p1 + p2) * 0.5f;
-    if (abs (p1 - p2) > 0.5f)
-      mid += 0.5f;
+    param_t mid = (p1 + p2) * param_t (0.5);
+    if (abs (p1 - p2) > param_t (0.5))
+      mid += param_t (0.5);
     if (mid >= 1)
       mid -= 1;
     return mid;

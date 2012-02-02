@@ -93,8 +93,8 @@ TorusTesselFun::midpoint (Tessel &tessel,
 Pos
 TorusTesselFun::surface_pos (param_t u, param_t v) const
 {
-  dist_t theta = u * 2 * PIf;
-  dist_t phi = v * 2 * PIf;
+  dist_t theta = u * dist_t (2 * PI);
+  dist_t phi = v * dist_t (2 * PI);
 
   dist_t x_offs = r2 * cos (phi) + r1;
   dist_t y_offs = r2 * sin (phi);
@@ -110,8 +110,8 @@ TorusTesselFun::surface_pos (param_t u, param_t v) const
 Vec
 TorusTesselFun::vertex_normal (const Vertex &vertex) const
 {
-  dist_t theta = vertex.u * 2 * PIf;
-  dist_t phi = vertex.v * 2 * PIf;
+  dist_t theta = vertex.u * dist_t (2 * PI);
+  dist_t phi = vertex.v * dist_t (2 * PI);
   dist_t x_norm = cos (phi);
   dist_t y_norm = sin (phi);
   return Vec (-cos (theta) * x_norm, sin (theta) * x_norm, y_norm);
@@ -122,7 +122,7 @@ TorusTesselFun::vertex_normal (const Vertex &vertex) const
 
 Mesh *
 snogray::tessel_torus (const Ref<const Material> &mat,
-		       const Xform &xform, float r2_frac, dist_t max_err)
+		       const Xform &xform, dist_t r2_frac, dist_t max_err)
 {
   Mesh *mesh = new Mesh (mat);
   TorusTesselFun fun (r2_frac, xform);

@@ -83,7 +83,7 @@ SincTesselFun::midpoint (Tessel &tessel,
 Pos
 SincTesselFun::surface_pos (param_t u, param_t v) const
 {
-  param_t theta = u * 2 * PIf;
+  param_t theta = u * param_t (2 * PI);
   param_t t = v * SINC_X_COMP;
   dist_t sinc = t < Eps ? 1 : sin (t) / t;
   return Pos (-cos (theta) * v, sin (theta) * v, sinc);
@@ -97,7 +97,7 @@ SincTesselFun::surface_pos (param_t u, param_t v) const
 Vec
 SincTesselFun::vertex_normal (const Vertex &vertex) const
 {
-  param_t theta = vertex.u * 2 * PIf;
+  param_t theta = vertex.u * param_t (2 * PI);
   param_t t = vertex.v * SINC_X_COMP;
   dist_t deriv = t < Eps ? 0 : (cos (t) / t - sin (t) / (t * t));
   dist_t norm_x = -deriv;
