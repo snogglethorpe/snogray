@@ -60,7 +60,7 @@ FarLight::sample (const UV &param, const UV &dir_param) const
   // Adjust pdf to include disk sampling.
   //
   float pdf = cos_half_angle == 1 ? 1 : cone_sample_pdf (cos_half_angle);
-  float s_pdf = pdf / (PIf * scene_radius * scene_radius);
+  float s_pdf = pdf / (float (scene_radius * scene_radius) * PIf);
 
   return FreeSample (intensity, s_pdf, s_pos, -s_dir);
 }
