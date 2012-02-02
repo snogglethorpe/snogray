@@ -63,10 +63,10 @@ disk_sample (dist_t radius, const UV &param, dist_t &dx, dist_t &dy)
 	    }
 	}
 
-      theta *= PIf / 2.f;
+      theta *= PIf / 2;
 
-      dx = radius * r * cos (theta);
-      dy = radius * r * sin (theta);
+      dx = radius * dist_t (r * cos (theta));
+      dy = radius * dist_t (r * sin (theta));
     }
 }
 
