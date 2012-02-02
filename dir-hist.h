@@ -1,6 +1,6 @@
 // dir-hist.h -- Directional histogram
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -65,8 +65,8 @@ public:
   //
   static UV dir_to_pos (const Vec &dir)
   {
-    return UV (clamp01 (atan2 (dir.y, dir.x) * INV_PIf * 0.5f + 0.5f),
-	       clamp01 ((1 - dir.z) / 2));
+    return UV (clamp01 (float (atan2 (dir.y, dir.x)) * (INV_PIf / 2) + 0.5f),
+	       clamp01 (float (1 - dir.z) / 2));
   }
 
   // Return the direction corresponding to the position POS in the
