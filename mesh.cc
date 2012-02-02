@@ -501,14 +501,14 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
 
   // Calculate du/ds, du/dt, dv/ds, and dv/dt.
   //
-  float du_den = e1.x * (e2.y + e2.z) - e2.x * (e1.y + e1.z);
-  float inv_du_den = du_den == 0 ? 0 : 1 / du_den;
-  float duds = (e2.y + e2.z) * inv_du_den;
-  float dudt = -e2.x * inv_du_den;
-  float dv_den = e2.x * (e1.y + e1.z) - e1.x * (e2.y + e2.z);
-  float inv_dv_den = dv_den == 0 ? 0 : 1 / dv_den;
-  float dvds = (e1.y + e1.z) * inv_dv_den;
-  float dvdt = -e1.x * inv_dv_den;
+  dist_t du_den = e1.x * (e2.y + e2.z) - e2.x * (e1.y + e1.z);
+  dist_t inv_du_den = du_den == 0 ? 0 : 1 / du_den;
+  dist_t duds = (e2.y + e2.z) * inv_du_den;
+  dist_t dudt = -e2.x * inv_du_den;
+  dist_t dv_den = e2.x * (e1.y + e1.z) - e1.x * (e2.y + e2.z);
+  dist_t inv_dv_den = dv_den == 0 ? 0 : 1 / dv_den;
+  dist_t dvds = (e1.y + e1.z) * inv_dv_den;
+  dist_t dvdt = -e1.x * inv_dv_den;
 
   // Calculate texture coordinate partial derivatives, in normal space.
   //
