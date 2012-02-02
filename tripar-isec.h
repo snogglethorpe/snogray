@@ -53,13 +53,13 @@ namespace snogray {
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 tripar_intersects (const TPos<T> &corner,
 		   const TVec<T> &edge1, const TVec<T> &edge2,
 		   bool parallelogram,
 		   const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-		   T min_t, T &t, T &u, T &v)
+		   T min_t, T &t, P &u, P &v)
 {
   // Begin calculating the determinant (also used to calculate U parameter).
   //
@@ -80,7 +80,7 @@ tripar_intersects (const TPos<T> &corner,
 
   // Calculate U parameter and test bounds.
   //
-  u = dot (tvec, pvec) * inv_det;
+  u = P (dot (tvec, pvec) * inv_det);
   if (u < 0 || u > 1)
     return false;
 
@@ -90,7 +90,7 @@ tripar_intersects (const TPos<T> &corner,
 
   // Calculate V parameter.
   //
-  v = dot (ray_dir, qvec) * inv_det;
+  v = P (dot (ray_dir, qvec) * inv_det);
 
   // Test V parameter bounds.
   //
@@ -130,13 +130,13 @@ tripar_intersects (const TPos<T> &corner,
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 tripar_intersects (const TPos<T> &corner,
 		   const TVec<T> &edge1, const TVec<T> &edge2,
 		   bool parallelogram,
 		   const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-		   T &t, T &u, T &v)
+		   T &t, P &u, P &v)
 {
   return tripar_intersects (corner, edge1, edge2, parallelogram,
 			    ray_origin, ray_dir, T(0), t, u, v);
@@ -155,13 +155,13 @@ tripar_intersects (const TPos<T> &corner,
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 tripar_intersects (const TPos<T> &corner,
 		   const TVec<T> &edge1, const TVec<T> &edge2,
 		   bool parallelogram,
 		   const TRay<T> &ray,
-		   T &t, T &u, T &v)
+		   T &t, P &u, P &v)
 {
   return
     (tripar_intersects (corner, edge1, edge2, parallelogram,
@@ -186,12 +186,12 @@ tripar_intersects (const TPos<T> &corner,
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 triangle_intersects (const TPos<T> &corner,
 		     const TVec<T> &edge1, const TVec<T> &edge2,
 		     const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-		     T min_t, T &t, T &u, T &v)
+		     T min_t, T &t, P &u, P &v)
 {
   return tripar_intersects (corner, edge1, edge2, false,
 			    ray_origin, ray_dir, min_t, t, u, v);
@@ -209,12 +209,12 @@ triangle_intersects (const TPos<T> &corner,
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 triangle_intersects (const TPos<T> &corner,
 		     const TVec<T> &edge1, const TVec<T> &edge2,
 		     const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-		     T &t, T &u, T &v)
+		     T &t, P &u, P &v)
 {
   return tripar_intersects (corner, edge1, edge2, false,
 			    ray_origin, ray_dir, t, u, v);
@@ -232,12 +232,12 @@ triangle_intersects (const TPos<T> &corner,
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 triangle_intersects (const TPos<T> &corner,
 		     const TVec<T> &edge1, const TVec<T> &edge2,
 		     const TRay<T> &ray,
-		     T &t, T &u, T &v)
+		     T &t, P &u, P &v)
 {
   return tripar_intersects (corner, edge1, edge2, false, ray, t, u, v);
 }
@@ -259,12 +259,12 @@ triangle_intersects (const TPos<T> &corner,
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 parallelogram_intersects (const TPos<T> &corner,
 			  const TVec<T> &edge1, const TVec<T> &edge2,
 			  const TPos<T> &ray_origin, const TVec<T> &ray_dir,
-			  T min_t, T &t, T &u, T &v)
+			  T min_t, T &t, P &u, P &v)
 {
   return tripar_intersects (corner, edge1, edge2, true,
 			    ray_origin, ray_dir, min_t, t, u, v);
@@ -306,12 +306,12 @@ parallelogram_intersects (const TPos<T> &corner,
 // The baycentric coordinates of the intersection point are returned
 // in the out-parameters U and V.
 //
-template<typename T>
+template<typename T, typename P>
 inline bool
 parallelogram_intersects (const TPos<T> &corner,
 			  const TVec<T> &edge1, const TVec<T> &edge2,
 			  const TRay<T> &ray,
-			  T &t, T &u, T &v)
+			  T &t, P &u, P &v)
 {
   return tripar_intersects (corner, edge1, edge2, true, ray, t, u, v);
 }
