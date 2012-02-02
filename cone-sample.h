@@ -1,6 +1,6 @@
 // cone-sample.h -- Sample a cone
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -37,15 +37,15 @@ cone_sample (float cos_half_angle, const UV &param)
   // Then project the chosen slice onto a unit sphere.  Z is the
   // z-coordinate of the slice, and R is its radius.
   //
-  float z = cos_half_angle + param.u * (1 - cos_half_angle);
-  float r = sqrt (abs (1 - z * z));
+  dist_t z = cos_half_angle + param.u * (1 - cos_half_angle);
+  dist_t r = sqrt (abs (1 - z * z));
 
   // Now choose a point around the edge of the radius R disk; X and Y
   // will be the x/y-coordinates of that point.
   //
   float phi = param.v * 2 * PIf;
-  float x = r * cos (phi);
-  float y = r * sin (phi);
+  dist_t x = r * dist_t (cos (phi));
+  dist_t y = r * dist_t (sin (phi));
 
   // Our final vector points from the origin to the chosen point on
   // the edge of the disk.
@@ -62,7 +62,7 @@ cone_sample_inverse (float cos_half_angle, const Vec &dir)
   float v = phi * INV_PIf * 0.5f;
   if (v < 0)
     v += 1;
-  float u = (dir.z - cos_half_angle) / (1 - cos_half_angle);
+  float u = (float (dir.z) - cos_half_angle) / (1 - cos_half_angle);
   return UV (clamp01 (u), clamp01 (v));
 }
 
