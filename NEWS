@@ -1,6 +1,10 @@
-(v0.4-148-ga42fa5d)
+(v0.4-226-g8e7c946)
 
-    + New utility program "snogbloom", adds "veiling glare" to an HDR
+    + A new file "README.utils" documents the various utility programs.
+
+    + A new file "README.issues" discusses various usage issues.
+
+    + A new utility program "snogbloom" adds "veiling glare" to an HDR
       input image.  Normally this is used when converting to a LDR
       output format (snogbloom itself can do the conversion), and can
       make LDR images with very bright areas look much more realistic.
@@ -17,18 +21,32 @@
       "ANTI-ALIASING OF BRIGHT AREAS" section in the "README.issues"
       file for methods to deal with this.]
 
-    + snogray -a/--oversample option renamed to "-n" / "--samples".
+    + The snogray -a/--oversample option renamed to "-n" / "--samples".
 
-    + snogray -n/--direct-samples option renamed to "-D" / "--direct-samples".
+    + The snogray -n/--direct-samples option renamed to
+      "-D" / "--direct-samples".
 
-    + snogcvt --underlay and -p/--pad options removed
-      (they were not very useful).
+    + A new snogray option, "-B" / "--background-orientation", allows
+      some control over the environment map specified by a
+      -b/--background option.  Most usefully, when -B is given an
+      angle in degress, the environment will be rotated by that amount
+      around the vertical axis.
 
-    + Implement writing of TGA (aka Targa) image files.
+    + The snogcvt --underlay and -p/--pad options were removed (they
+      were not very useful).
+
+    + Writing of TGA (aka Targa) image files is now supported.
 
     + Lua is now required (and more functionality will be moved into
       Lua in the future).  [A Lua implementation should be included
       with the distribution, so this dependency isn't a problem.]
+
+    + The configure option "--enable-double-coords" (which used to be
+      called "--disable-float-coords") now works properly.  When this
+      option is given to configure, snogray will use double-precision
+      floating-point for coordinates.  This usually isn't necessary,
+      but can make a difference in some (rather extreme) cases where
+      scene files fail to render properly.
 
     + Many bug fixes and code improvements.
 
