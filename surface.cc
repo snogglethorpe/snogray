@@ -77,7 +77,7 @@ Surface::Sampler::AngularSample::AngularSample (const AreaSample &area_sample,
 	  // Area to solid-angle conversion, dw/dA, where w is a solid
 	  // angle in the hemisphere visible from the origin of VIEW_VEC.
 	  //
-	  float dw_dA = pdf_cos_adj * inv_dist * inv_dist;
+	  float dw_dA = pdf_cos_adj * float (inv_dist * inv_dist);
 	  pdf = area_sample.pdf / dw_dA;
 	}
     }
