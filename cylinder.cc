@@ -294,10 +294,10 @@ Cylinder::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
       // sample.
 
       Pos pos = oviewpoint + t * odir;
-      float u = atan2 (pos.y, pos.x) * INV_PIf * 0.5f;
+      float u = float (atan2 (pos.y, pos.x)) * INV_PIf * 0.5f;
       if (u < 0)
 	u += 1;
-      float v = pos.z * 0.5f + 0.5f;
+      float v = float (pos.z) * 0.5f + 0.5f;
       UV param (clamp01 (u), clamp01 (v));
 
       return sample_from_viewpoint (viewpoint, param);
