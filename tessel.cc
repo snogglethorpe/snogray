@@ -1,6 +1,6 @@
 // tessel.cc -- Surface tessellation
 //
-//  Copyright (C) 2005, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -108,7 +108,7 @@ Tessel::add_to_mesh (Mesh *mesh)
 
   for (LinkedList<Vertex>::iterator vi = vertices.begin();
        vi != vertices.end(); vi++)
-    mesh_verts.push_back (vi->pos);
+    mesh_verts.push_back (Mesh::MPos (vi->pos));
 
   Mesh::vert_index_t base_vert = mesh->add_vertices (mesh_verts);
 
