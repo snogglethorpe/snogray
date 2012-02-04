@@ -10,7 +10,7 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
-AC_INIT([snogray], [0.4], [Miles Bader <miles@gnu.org>])
+AC_INIT([snogray], [0.5], [Miles Bader <miles@gnu.org>])
 
 AM_INIT_AUTOMAKE([foreign])
 
