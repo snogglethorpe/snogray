@@ -58,7 +58,7 @@ SurfaceInteg::GlobalState *
 GlobalRenderState::make_surface_integ_global_state (const ValTable &params)
 {
   std::string sint = params.get_string ("surface-integ.type", "direct");
-  ValTable sint_params = params.filter_by_prefix ("surface-integ.");
+  ValTable sint_params = params.readonly_subtable ("surface-integ");
 
   if (sint == "direct")
     return new DirectInteg::GlobalState (*this, sint_params);

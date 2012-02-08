@@ -107,9 +107,18 @@ public:
 
   ValTable () { }
 
-  // Return the value called NAME, or zero if there is none.  NAME may also
-  // be a comma-separated list of names, in which case the value of the first
-  // name which has one is returned (zero is returned if none does).
+  // Return the value called NAME, or zero if there is none.
+  //
+  // If NAME contains "." characters the "."-separated parts are used
+  // to lookup a sequence of subtables nested inside this table, with
+  // the last part being the name of the entry in the most deeply
+  // nested subtable.  An error may be signalled a subtable reference
+  // corresponds to a non-table value.
+  //
+  // NAME may also be a ","-separated list of names, in which case the
+  // value of the first name which has one is returned (zero is
+  // returned if none does).  If NAME contains both "." and ","
+  // characters, the "," characters bind more tightly.
   //
   Val *get (const std::string &name);
   const Val *get (const std::string &name) const
@@ -120,6 +129,12 @@ public:
   // Set the entry called NAME to VAL (overwriting any old value),
   // and return a reference to the "in table" copy of VAL (which, if
   // modified, will actually change the table entry).
+  //
+  // If NAME contains "." characters the "."-separated parts are used
+  // to lookup a sequence of subtables nested inside this table, with
+  // the last part being the name of the entry in the most deeply
+  // nested subtable.  An error may be signalled a subtable reference
+  // corresponds to a non-table value.
   //
   Val &set (const std::string &name, const Val &val);
 

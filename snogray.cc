@@ -305,8 +305,9 @@ int main (int argc, char *const *argv)
   bool recover = false;
   TtyProgress::Verbosity verbosity = TtyProgress::CHATTY;
   bool progress_set = false;
-  ValTable output_params, render_params;
   SceneDef scene_def;
+  ValTable &output_params = scene_def.params.writable_subtable ("output");
+  ValTable &render_params = scene_def.params.writable_subtable ("render");
   std::string camera_cmds;	// User commands for the camera
 
 
@@ -413,22 +414,9 @@ int main (int argc, char *const *argv)
   if (width && height)
     camera.set_aspect_ratio (float (width) / float (height));
 
-  // Read in the scene/camera definitions.  We copy our parameter
-  // tables into SCENE_DEF's parameter table with appropriate
-  // prefixes, so that they're available for scene-loaders to
-  // examine/change.
+  // Read in the scene/camera definitions.
   //
-  scene_def.params.import (render_params, "render.");
-  scene_def.params.import (output_params, "output.");
   CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
-
-  // Now rewrite our parameter tables appropriately-prefixed
-  // parameters from SCENE_DEF.  As we earlier stored them, that means
-  // they'll be the same unless the scene-loader changed something.
-  //
-  render_params = scene_def.params.filter_by_prefix ("render.");
-  output_params = scene_def.params.filter_by_prefix ("output.");
-
 
   // Do post-load scene setup (nothing can be added to scene after this).
   //

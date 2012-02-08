@@ -36,7 +36,7 @@ ImageSampledOutput::ImageSampledOutput (const std::string &filename,
     sample_base_x (params.get_float ("sample-base-x", 0)),
     sample_base_y (params.get_float ("sample-base-y", 0)),
     sink (ImageSink::open (filename, _width, _height, params)),
-    filter_conv (params.filter_by_prefix ("filter."))
+    filter_conv (params.readonly_subtable ("filter"))
 {
 }
 

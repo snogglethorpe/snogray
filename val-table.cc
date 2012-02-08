@@ -256,16 +256,39 @@ Val::as_table ()
   return *_table_ptr;
 }
 
-// Return the value called NAME, or zero if there is none.  NAME may also
-// be a comma-separated list of names, in which case the value of the first
-// name which has one is returned (zero is returned if none does).
+
+// Basic get and set
+
+// Return the value called NAME, or zero if there is none.
+//
+// If NAME contains "." characters the "."-separated parts are used
+// to lookup a sequence of subtables nested inside this table, with
+// the last part being the name of the entry in the most deeply
+// nested subtable.  An error may be signalled a subtable reference
+// corresponds to a non-table value.
+//
+// NAME may also be a ","-separated list of names, in which case the
+// value of the first name which has one is returned (zero is
+// returned if none does).  If NAME contains both "." and ","
+// characters, the "," characters bind more tightly.
 //
 Val *
 ValTable::get (const std::string &name)
 {
-  unsigned name_start = 0;
-
   std::string::size_type sep;
+
+  // Try subtables.
+  //
+  sep = name.find_first_of (".");
+  if (sep != std::string::npos)
+    {
+      Val *subt_val = get (name.substr (0, sep));
+      return subt_val ? subt_val->as_table().get (name.substr (sep + 1)) : 0;
+    }
+
+  // Try "alternate names"
+  //
+  unsigned name_start = 0;
   while ((sep = name.find_first_of (",", name_start)) != std::string::npos)
     {
       iterator i = find (name.substr (name_start, sep - name_start));
@@ -285,15 +308,30 @@ ValTable::get (const std::string &name)
 // and return a reference to the "in table" copy of VAL (which, if
 // modified, will actually change the table entry).
 //
+// If NAME contains "." characters the "."-separated parts are used
+// to lookup a sequence of subtables nested inside this table, with
+// the last part being the name of the entry in the most deeply
+// nested subtable.  An error may be signalled a subtable reference
+// corresponds to a non-table value.
+//
 Val &
 ValTable::set (const std::string &name, const Val &val)
 {
-  iterator i = find (name);
-  if (i == end ())
-    i = insert (value_type (name, val)).first;
+  std::string::size_type sep = name.find_first_of (".");
+  if (sep != std::string::npos)
+    {
+      ValTable &subt = writable_subtable (name.substr (0, sep));
+      return subt.set (name.substr (sep + 1), val);
+    }
   else
-    i->second = val;
-  return i->second;
+    {
+      iterator i = find (name);
+      if (i == end ())
+	i = insert (value_type (name, val)).first;
+      else
+	i->second = val;
+      return i->second;
+    }
 }
 
 
