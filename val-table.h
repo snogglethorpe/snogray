@@ -216,33 +216,6 @@ public:
   {
     set (name, std::string (val));
   }
-
-  // Returns a copy of this table containing only entries whose name begins
-  // with PREFIX, with PREFIX removed from the entry names in the copy.
-  //
-  ValTable filter_by_prefix (const std::string &prefix) const;
-
-  // Import all entries from TABLE into this table.  If PREFIX is given,
-  // then it is prepended to each key.
-  //
-  void import (const ValTable &table, const std::string &prefix = "");
-
-  // Set the entry called NAME to the value of FROM's entry of the
-  // same name; if FROM doesn't contain any entry of that name,
-  // nothing is done.  If NAME is a comma-separated list of names,
-  // then it is used directly to lookup FROM's entry, but only the
-  // first name is used to store the result into this table.
-  //
-  void set_from (const std::string &name, const ValTable &from);
-
-  // If this table doesn't contains an entry called NAME, but FROM
-  // does, then add one using the value of FROM's entry; if FROM
-  // doesn't contain any entry of that name, nothing is done.  If NAME
-  // is a comma-separated list of names, then it is used directly to
-  // lookup FROM's entry, but only the first name is used to store the
-  // result into this table.
-  //
-  void default_from (const std::string &name, const ValTable &from);
 };
 
 
