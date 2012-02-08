@@ -42,6 +42,8 @@ Val::as_string () const
 	case FLOAT: s << _float_val; break;
 	case BOOL: s << _bool_val; break;
 	case STRING:; // make gcc happy
+	default:
+	  invalid ("string");
 	}
 
       return s.str ();
@@ -76,7 +78,7 @@ Val::as_int () const
 	char *end;
 	int val = strtol (_string_val.c_str(), &end, 0);
 	if (end && *end)
-	  invalid ("integer");
+	  break; // invalid
 	return val;
       }
     case INT:
@@ -91,8 +93,11 @@ Val::as_int () const
       return int (_float_val);
     case BOOL:
       return _bool_val;
+    default:
+      break; // invalid
     }
-  return 0;	    // gcc can't seem to detect that this is unreachable?!
+  invalid ("integer");
+  return 0; // gcc can't seem to detect that this is unreachable?!
 }
 
 unsigned
@@ -105,7 +110,7 @@ Val::as_uint () const
 	char *end;
 	unsigned val = strtoul (_string_val.c_str(), &end, 0);
 	if (end && *end)
-	  invalid ("unsigned integer");
+	  break; // invalid
 	return val;
       }
     case INT:
@@ -120,7 +125,10 @@ Val::as_uint () const
       return unsigned (_float_val);
     case BOOL:
       return _bool_val;
+    default:
+      break; // invalid
     }
+  invalid ("integer");
   return 0;	    // gcc can't seem to detect that this is unreachable?!
 }
 
@@ -134,7 +142,7 @@ Val::as_float () const
 	char *end;
 	float val = strtof (_string_val.c_str(), &end);
 	if (end && *end)
-	  invalid ("float");
+	  break; // invalid
 	return val;
       }
     case INT:
@@ -143,9 +151,10 @@ Val::as_float () const
       return float (_uint_val);
     case FLOAT:
       return _float_val;
-    case BOOL:
-      invalid ("float");
+    default:
+      break; // invalid
     }
+  invalid ("float");
   return 0;	    // gcc can't seem to detect that this is unreachable?!
 }
 
@@ -171,16 +180,16 @@ Val::as_bool () const
 	       || _string_val == "true" || _string_val == "TRUE"
 	       || _string_val == "on" || _string_val == "on")
 	return true;
-      break;
+      break; // invalid
     case INT:
     case UINT:
       if (! (_uint_val & ~1))
 	return _uint_val;
       break;
-    case FLOAT:
-      break;
     case BOOL:
       return _bool_val;
+    default:
+      break; // invalid
     }
   invalid ("bool");
   return 0;	    // gcc can't seem to detect that this is unreachable?!
