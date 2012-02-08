@@ -26,6 +26,22 @@ const ValTable ValTable::NONE;
 
 
 
+void
+Val::type_err (const char *msg) const
+{
+  throw bad_format (msg);
+}
+
+void
+Val::invalid (const char *type_name) const
+{
+  std::string msg = "invalid ";
+  msg += type_name;
+  type_err (msg.c_str ());
+}
+
+
+
 std::string
 Val::as_string () const
 {
@@ -49,24 +65,6 @@ Val::as_string () const
       return s.str ();
     }
 }
-
-
-
-void
-Val::type_err (const char *msg) const
-{
-  throw bad_format (msg);
-}
-
-void
-Val::invalid (const char *type_name) const
-{
-  std::string msg = "invalid ";
-  msg += type_name;
-  type_err (msg.c_str ());
-}
-
-
 
 int
 Val::as_int () const
