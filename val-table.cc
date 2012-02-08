@@ -297,6 +297,27 @@ ValTable::set (const std::string &name, const Val &val)
 }
 
 
+// Subtables
+
+// Return the subtable of this table called NAME, adding a new empty
+// subtable with that name if none currently exists.  If there's
+// already a value called NAME, but it's not a table, an error is
+// signalled.
+//
+// Note that (unlike other types of values) subtables are returned
+// by reference, so the return value is only valid as long as the
+// parent table exists.
+//
+ValTable &
+ValTable::writable_subtable (const std::string &name)
+{
+  Val *v = get (name);
+  if (! v)
+    v = &set (name, Val (NONE));
+  return v->as_table ();
+}
+
+
 // Table subsetting with prefixed keys.
 
 // Returns a copy of this table containing only entries whose name begins

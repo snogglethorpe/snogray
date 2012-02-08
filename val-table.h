@@ -161,6 +161,32 @@ public:
     return v ? v->as_bool () : default_val;
   }
 
+  // Return the subtable of this table called NAME as a readonly
+  // table, or a readonly empty table if there's no value called NAME.
+  // If there's already a value called NAME, but it's not a table, an
+  // error is signalled.
+  //
+  // Note that (unlike other types of values) subtables are returned
+  // by reference, so the return value is only valid as long as the
+  // parent table exists.
+  //
+  const ValTable &readonly_subtable (const std::string &name) const
+  {
+    const Val *v = get (name);
+    return v ? v->as_table () : NONE;
+  }
+
+  // Return the subtable of this table called NAME, adding a new empty
+  // subtable with that name if none currently exists.  If there's
+  // already a value called NAME, but it's not a table, an error is
+  // signalled.
+  //
+  // Note that (unlike other types of values) subtables are returned
+  // by reference, so the return value is only valid as long as the
+  // parent table exists.
+  //
+  ValTable &writable_subtable (const std::string &name);
+
   template<typename T>
   void set (const std::string &name, T val)
   {
