@@ -26,6 +26,51 @@ const ValTable ValTable::NONE;
 
 
 
+Val::Val (const ValTable &val)
+  : type (TABLE), _table_ptr (new ValTable (val))
+{ }
+
+// assignment operator
+Val &
+Val::operator= (const Val &val)
+{
+  if (&val != this)
+    {
+      delete_data ();
+      init_from (val);
+    }
+  return *this;
+}
+
+// Free any external data storage used by the current type.  The state of
+// any data fields following this is "undefined but safe to overwrite."
+//
+void
+Val::delete_data ()
+{
+  if (type == TABLE)
+    delete _table_ptr;
+}
+
+// Set value from VAL, overwriting current values as garbage.
+//
+void
+Val::init_from (const Val &val)
+{
+  type = val.type;
+  switch (type)
+    {
+    case STRING: _string_val = val._string_val; break;
+    case INT:	 _int_val    = val._int_val;    break;
+    case UINT:	 _uint_val   = val._uint_val;   break;
+    case FLOAT:  _float_val  = val._float_val;  break;
+    case BOOL:	 _bool_val   = val._bool_val;   break;
+    case TABLE:  _table_ptr  = new ValTable (*val._table_ptr); break;
+    }
+}
+
+
+
 void
 Val::type_err (const char *msg) const
 {
@@ -194,6 +239,22 @@ Val::as_bool () const
 }
 
 
+
+const ValTable &
+Val::as_table () const
+{
+  if (type != TABLE)
+    invalid ("table");
+  return *_table_ptr;
+}
+
+ValTable &
+Val::as_table ()
+{
+  if (type != TABLE)
+    invalid ("table");
+  return *_table_ptr;
+}
 
 // Return the value called NAME, or zero if there is none.  NAME may also
 // be a comma-separated list of names, in which case the value of the first

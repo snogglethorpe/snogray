@@ -20,19 +20,29 @@
 namespace snogray {
 
 
+class ValTable; // fwd decl
+
+
 // An entry in a ValTable.
 //
 class Val
 {
 public:
 
-  enum Type { STRING, INT, UINT, FLOAT, BOOL };
+  enum Type { STRING, INT, UINT, FLOAT, BOOL, TABLE };
 
   Val (std::string val) : type (STRING), _string_val (val) { }
   Val (int val) : type (INT), _int_val (val) { }
   Val (unsigned val) : type (UINT), _uint_val (val) { }
   Val (float val) : type (FLOAT), _float_val (val) { }
   Val (bool val) : type (BOOL), _bool_val (val) { }
+  Val (const ValTable &val);
+
+  // copy constructor and assignment
+  Val (const Val &val) { init_from (val); }
+  Val &operator= (const Val &val);
+
+  ~Val () { delete_data (); }
 
   std::string as_string () const;
   int as_int () const;
@@ -40,11 +50,14 @@ public:
   float as_float () const;
   bool as_bool () const;
 
-  void set (std::string val) { type = STRING; _string_val = val; }
-  void set (int val) { type = INT; _int_val = val; }
-  void set (unsigned val) { type = UINT; _uint_val = val; }
-  void set (float val) { type = FLOAT; _float_val = val; }
-  void set (bool val) { type = BOOL; _bool_val = val; }
+  const ValTable &as_table () const;
+  ValTable &as_table ();
+
+  void set (std::string val) { set_type (STRING); _string_val = val; }
+  void set (int val) { set_type (INT); _int_val = val; }
+  void set (unsigned val) { set_type (UINT); _uint_val = val; }
+  void set (float val) { set_type (FLOAT); _float_val = val; }
+  void set (bool val) { set_type (BOOL); _bool_val = val; }
 
   Type type;
 
@@ -53,12 +66,32 @@ private:
   void type_err (const char *msg) const;
   void invalid (const char *type_name) const;
 
+  // Set the type to NEW_TYPE, and possibly free any external storage used
+  // by the previous type.  The state of any data fields following this is
+  // "undefined but safe to overwrite."
+  //
+  void set_type (Type new_type)
+  {
+    delete_data ();
+    type = new_type;
+  }
+
+  // Free any external data storage used by the current type.  The state of
+  // any data fields following this is "undefined but safe to overwrite."
+  //
+  void delete_data ();
+
+  // Set value from VAL, overwriting current values as garbage.
+  //
+  void init_from (const Val &val);
+
   std::string _string_val;
   union {
     int _int_val;
     unsigned _uint_val;
     float _float_val;
     bool _bool_val;
+    ValTable *_table_ptr;
   };
 };
 
