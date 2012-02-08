@@ -39,8 +39,8 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
   : RecursiveInteg::GlobalState (rstate),
     caustic_scale (0), direct_scale (0), indirect_scale (0),
     photon_eval (
-      params.get_uint ("num", 50),
-      params.get_float ("radius", 0.1),
+      params.get_uint ("use-photons", 50),
+      params.get_float ("photon-radius", 0.1),
       params.get_float ("marker-radius", 0)),
     direct_illum (
       params.get_uint ("direct-samples,dir-samples,dir-samps",
@@ -58,9 +58,9 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 		       ",fg-bsdf-samples,fg-bsdf-samps",
 		       UNSPEC_UINT))
 {
-  unsigned num_caustic = params.get_uint ("caustic", 50000);
-  unsigned num_direct = params.get_uint ("direct,dir", 500000);
-  unsigned num_indirect = params.get_uint ("indirect,indir", 500000);
+  unsigned num_caustic = params.get_uint ("caustic-photons", 50000);
+  unsigned num_direct = params.get_uint ("direct-photons,dir", 500000);
+  unsigned num_indirect = params.get_uint ("indirect-photons,indir", 500000);
 
   // A convenient boolean toggle for final gathering.
   //
