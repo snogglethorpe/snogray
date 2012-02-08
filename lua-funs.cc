@@ -1,6 +1,6 @@
 // lua-funs.cc -- Functions for use with Lua
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -77,6 +77,19 @@ snogray::lua_load_from_val_table (lua_State *L, const ValTable &val_table)
 	case Val::BOOL:
 	  lua_pushboolean (L, val.as_bool ());
 	  break;
+	case Val::TABLE:
+	  // Try to re-use an existing subtable, but if some
+	  // non-table is stored in this entry, just overwrite it with
+	  // a new empty table.
+	  //
+	  lua_getfield (L, -1, key.c_str ());
+	  if (! lua_istable (L, -1))
+	    {
+	      lua_pop (L, 1);
+	      lua_newtable (L);
+	    }
+	  lua_load_from_val_table (L, val.as_table ());
+	  break;
 	}
 
       lua_setfield (L, -2, key.c_str ());
@@ -129,6 +142,16 @@ snogray::lua_store_into_val_table (lua_State *L, ValTable &val_table)
 		val_table.set (key, num_as_uint);
 	      else
 		val_table.set (key, static_cast<float> (num));
+	    }
+	  else if (lua_istable (L, -1))
+	    {
+	      // If the existing entry called KEY isn't a table, just
+	      // delete it.
+	      //
+	      Val *subt_val = val_table.get (key);
+	      if (subt_val && subt_val->type != Val::TABLE)
+		val_table.erase (key);
+	      lua_store_into_val_table (L, val_table.writable_subtable (key));
 	    }
 	  // Otherwise, it's a type we can't handle, so ignore it.
 	}
