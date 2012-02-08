@@ -58,7 +58,7 @@
     break;								\
   case 'S':								\
     clp.store_opt_arg_with_sub_options ("surface-integ",		\
-					params, ".", ",/");		\
+					params, "type", ",/");		\
     break;								\
   case 'R':								\
     clp.parse_opt_arg (params);						\

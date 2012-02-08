@@ -225,31 +225,30 @@ CmdLineParser::parse (const std::string &str, const std::string &multiple_seps,
 // First, split the current option-argument into a "main value"
 // MAIN_VAL, and "optional values", at any character in
 // FIRST_OPTION_SEPS (removing any surrounding whitespace).  Then,
-// store MAIN_VAL into PARAMS with the key NAME.  The optional
-// values will be further split apart using MULTIPLE_OPTION_SEPS, as
-// if with CmdLineParser::parse_opt_arg, and each OPT_NAME=OPT_VAL
-// pair will be stored as well, into entries with names computed as
-// NAME + OPTION_NAME_PREFIX_SEP + MAIN_VAL + OPTION_NAME_PREFIX_SEP
-// + OPT_NAME.
+// store MAIN_VAL into PARAMS with the key (NAME + "." + MAIN_SUBKEY).
+// The optional values will be further split apart using
+// MULTIPLE_OPTION_SEPS, as if with CmdLineParser::parse_opt_arg, and
+// each OPT_NAME=OPT_VAL pair will be stored as well, into entries
+// with keys (NAME + "." OPT_NAME).
 //
 // If MULTIPLE_OPTION_SEPS is "" (the default), FIRST_OPTION_SEPS
 // will be used for splitting further options instead.
 //
 // For example: if the current option argument is
-// "oink/bar=zoo,zing=3", NAME is "plugh", OPTION_NAME_PREFIX_SEP is
-// ".", FIRST_OPTION_SEPS is "/", and MULTIPLE_OPTION_SEPS is ",/",
-// then MAIN_VAL will be "oink", and the following entries will be
-// stored into TABLE:
+// "oink/bar=zoo,zing=3", NAME is "plugh", MAIN_SUBKEY is "type",
+// FIRST_OPTION_SEPS is "/", and MULTIPLE_OPTION_SEPS is ",/", then
+// MAIN_VAL will be "oink", and the following entries will be stored
+// into TABLE:
 //
-//   "plugh"           => "oink"
-//   "plugh.oink.bar"  => "zoo"
-//   "plugh.oink.zing" => 3
+//   "plugh.type" => "oink"
+//   "plugh.bar"  => "zoo"
+//   "plugh.zing" => 3
 //
 void
 CmdLineParser::store_opt_arg_with_sub_options (
 		 const std::string &name,
 		 ValTable &table,
-		 const std::string &option_name_prefix_sep,
+		 const std::string &main_subkey,
 		 const std::string &first_option_seps,
 		 const std::string &multiple_option_seps)
 {
@@ -260,20 +259,21 @@ CmdLineParser::store_opt_arg_with_sub_options (
   if (sep2 == "")
     sep2 = first_option_seps;
 
+  ValTable &sub_table = table.writable_subtable (name);
+
+  std::string main_val = val;
+
   if (val_end < val.length ())
     {
       unsigned options_start
 	= val.find_first_not_of (first_option_seps + " \t", val_end + 1);
-      std::string main_val = val.substr (0, val_end);
 
-      std::string name_pfx
-	= name + option_name_prefix_sep + main_val + option_name_prefix_sep;
-      parse (val.substr (options_start), sep2, table, name_pfx);
+      parse (val.substr (options_start), sep2, sub_table);
 
-      table.set (name, main_val);
+      main_val = val.substr (0, val_end);
     }
-  else
-    table.set (name, val);
+
+  sub_table.set (main_subkey, main_val);
 }
 
 // Return a string containing the program name and version.

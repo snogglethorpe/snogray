@@ -62,7 +62,7 @@
 
 #define IMAGE_SAMPLED_OUTPUT_OPTION_CASES(clp, params)			\
   case 'F':								\
-    clp.store_opt_arg_with_sub_options ("filter", params, ".", "/,");	\
+    clp.store_opt_arg_with_sub_options ("filter", params, "type", "/,");\
     break;								\
   case 's':								\
     parse_image_size_option (clp, params);				\

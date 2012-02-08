@@ -1289,9 +1289,9 @@ end
 
 function surface_integrators.path (state, params)
    local maxdepth = get_single_param (state, params, "integer maxdepth", 5)
-   state:set_param ("render.surface-integ", "path")
-   state:set_param ("render.surface-integ.path.min-path-len", 3) -- PBRT value
-   state:set_param ("render.surface-integ.path.max-path-len", maxdepth)
+   state:set_param ("render.surface-integ.type", "path")
+   state:set_param ("render.surface-integ.min-path-len", 3) -- PBRT value
+   state:set_param ("render.surface-integ.max-path-len", maxdepth)
 end
 
 function surface_integrators.photonmap (state, params)
@@ -1314,14 +1314,14 @@ function surface_integrators.photonmap (state, params)
    local gatherangle		-- v2 only
       = get_single_param (state, params, "float gatherangle", 10)
 
-   state:set_param ("render.surface-integ", "photon")
-   state:set_param ("render.surface-integ.photon.use-photons", nused)
-   state:set_param ("render.surface-integ.photon.photon-radius", maxdist)
-   state:set_param ("render.surface-integ.photon.caustic-photons", ncaustic)
-   state:set_param ("render.surface-integ.photon.indirect-photons,indir", nindirect)
-   state:set_param ("render.surface-integ.photon.final-gather,fg", fgather)
-   state:set_param ("render.surface-integ.photon.direct-illum,dir-illum", dirwithphot)
-   state:set_param ("render.surface-integ.photon.final-gather-samples,fg-samples,fg-samps",
+   state:set_param ("render.surface-integ.type", "photon")
+   state:set_param ("render.surface-integ.use-photons", nused)
+   state:set_param ("render.surface-integ.photon-radius", maxdist)
+   state:set_param ("render.surface-integ.caustic-photons", ncaustic)
+   state:set_param ("render.surface-integ.indirect-photons,indir", nindirect)
+   state:set_param ("render.surface-integ.final-gather,fg", fgather)
+   state:set_param ("render.surface-integ.direct-illum,dir-illum", dirwithphot)
+   state:set_param ("render.surface-integ.final-gather-samples,fg-samples,fg-samps",
 		    fgathersamps)
 end
 

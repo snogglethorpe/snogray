@@ -57,10 +57,8 @@ GlobalRenderState::make_sample_gen (const ValTable &)
 SurfaceInteg::GlobalState *
 GlobalRenderState::make_surface_integ_global_state (const ValTable &params)
 {
-  std::string sint = params.get_string ("surface-integ", "direct");
-
-  ValTable sint_params
-    = params.filter_by_prefix ("surface-integ." + sint + ".");
+  std::string sint = params.get_string ("surface-integ.type", "direct");
+  ValTable sint_params = params.filter_by_prefix ("surface-integ.");
 
   if (sint == "direct")
     return new DirectInteg::GlobalState (*this, sint_params);
