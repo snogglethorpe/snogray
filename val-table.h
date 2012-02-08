@@ -84,9 +84,11 @@ public:
     return const_cast<ValTable *> (this)->get (name);
   }
 
-  // Set the entry called NAME to VAL (overwriting any old value).
+  // Set the entry called NAME to VAL (overwriting any old value),
+  // and return a reference to the "in table" copy of VAL (which, if
+  // modified, will actually change the table entry).
   //
-  void set (const std::string &name, const Val &val);
+  Val &set (const std::string &name, const Val &val);
 
   // Return true if there's value called NAME.
   //

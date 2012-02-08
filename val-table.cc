@@ -220,16 +220,19 @@ ValTable::get (const std::string &name)
   return i == end () ? 0 : &i->second;
 }
 
-// Set the entry called NAME to VAL (overwriting any old value).
+// Set the entry called NAME to VAL (overwriting any old value),
+// and return a reference to the "in table" copy of VAL (which, if
+// modified, will actually change the table entry).
 //
-void
+Val &
 ValTable::set (const std::string &name, const Val &val)
 {
   iterator i = find (name);
   if (i == end ())
-    insert (value_type (name, val));
+    i = insert (value_type (name, val)).first;
   else
     i->second = val;
+  return i->second;
 }
 
 
