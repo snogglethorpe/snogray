@@ -22,7 +22,7 @@
 using namespace snogray;
 
 
-ValTable ValTable::NONE;
+const ValTable ValTable::NONE;
 
 
 

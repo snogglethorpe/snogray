@@ -1,6 +1,6 @@
 // val_table.h -- Tables of named values
 //
-//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ class ValTable : public std::map<const std::string, Val>
 {
 public:
 
-  static ValTable NONE;
+  static const ValTable NONE;
 
   ValTable () { }
 
