@@ -235,7 +235,10 @@ libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
 # Snogray command-line-interface library, libsnogcli.a
 #
 
-libsnogcli_a_SOURCES = recover.cc recover.h
+libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
+	image-input-cmdline.h image-sampled-output-cmdline.cc		\
+	image-sampled-output-cmdline.h image-scaled-output-cmdline.h	\
+	version.cc version.h
 
 
 ################################################################
@@ -338,16 +341,14 @@ libluaexts_a_SHORTNAME = le
 #
 
 libsnogimage_a_SOURCES = image.h image-box-filt.h image-byte-vec.cc	\
-	image-byte-vec.h image-input-cmdline.h image-dispatch.cc	\
-	image-filter-conv.h image-filter.cc image-filter.h		\
-	image-gauss-filt.h image-input.h image-io.cc image-io.h		\
-	image-mitchell-filt.h image-sampled-output.cc			\
-	image-sampled-output.h image-sampled-output-cmdline.cc		\
-	image-sampled-output-cmdline.h image-scaled-output.cc		\
-	image-scaled-output.h image-scaled-output-cmdline.h		\
-	image-pfm.cc image-pfm.h image-rgbe.cc image-rgbe.h		\
-	image-tga.cc image-tga.h image-triangle-filt.h tuple-adaptor.h	\
-	tuple-matrix.cc tuple-matrix.h tuple-matrix.tcc
+	image-byte-vec.h image-dispatch.cc image-filter-conv.h		\
+	image-filter.cc image-filter.h image-gauss-filt.h image-input.h	\
+	image-io.cc image-io.h image-mitchell-filt.h			\
+	image-sampled-output.cc image-sampled-output.h			\
+	image-scaled-output.cc image-scaled-output.h image-pfm.cc	\
+	image-pfm.h image-rgbe.cc image-rgbe.h image-tga.cc image-tga.h	\
+	image-triangle-filt.h tuple-adaptor.h tuple-matrix.cc		\
+	tuple-matrix.h tuple-matrix.tcc
 
 # Library dependencies of libsnogimage.a
 #
@@ -388,18 +389,16 @@ libsnogcolor_a_SOURCES = color.cc color.h color-io.cc color-io.h	\
 # Snogray general utility library, libsnogutil.a
 #
 
-libsnogutil_a_SOURCES = cmdlineparser.cc cmdlineparser.h compiler.h	\
-	cond-var.h excepts.h file-funs.cc file-funs.h			\
-	float-excepts-guard.h freelist.cc freelist.h funptr-cast.h	\
-	globals.cc globals.h grab.h interp.h llist.h			\
+libsnogutil_a_SOURCES = compiler.h cond-var.h excepts.h file-funs.cc	\
+        file-funs.h float-excepts-guard.h freelist.cc freelist.h	\
+        funptr-cast.h globals.cc globals.h grab.h interp.h llist.h	\
 	least-squares-fit.h matrix.h matrix.tcc matrix-funs.h		\
 	matrix-funs.tcc matrix-io.h mempool.cc mempool.h mutex.h	\
 	nice-io.cc nice-io.h num-cores.cc num-cores.h pool.h		\
 	radical-inverse.h random.h random-boost.h random-c0x.h		\
 	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
 	snogassert.h snogmath.h string-funs.cc string-funs.h thread.h	\
-	timeval.cc timeval.h val-table.cc unique-ptr.h val-table.h	\
-	version.cc version.h
+	timeval.cc timeval.h val-table.cc unique-ptr.h val-table.h
 
 
 ################################################################
@@ -419,10 +418,8 @@ CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
 LOAD_LIBS = libsnogload.a $(libsnogload_LIBS)	\
 	libsnoglua.a $(libsnoglua_LIBS)	\
 	libsnogloaders.a $(libsnogloaders_LIBS)
-LOAD2_LIBS = libsnoglua.a $(libsnoglua_LIBS)	\
-	libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS) libsnogcolor.a
-MISC_LIBS = libsnogutil.a
+MISC_LIBS = libsnogcli.a libsnogutil.a
 
 
 ###############################################################
@@ -430,13 +427,12 @@ MISC_LIBS = libsnogutil.a
 # Programs
 #
 
-snogray_SOURCES = snogray.cc
-snogray_LDADD = libsnogcli.a libsnogrdrive.a $(LOAD_LIBS) $(CORE_LIBS)	\
-	$(IMAGE_LIBS) $(MISC_LIBS)
+snogray_SOURCES = snogray.cc recover.cc recover.h
+snogray_LDADD = libsnogrdrive.a $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS)	\
+	$(MISC_LIBS)
 
 snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
-snogsamp_LDADD = libsnogcli.a $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS)	\
-	$(MISC_LIBS)
+snogsamp_LDADD = $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogcvt_SOURCES = snogcvt.cc
 snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
