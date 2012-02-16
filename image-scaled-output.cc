@@ -137,7 +137,7 @@ ImageScaledOutput::calc_sampled_output_params (unsigned src_width,
       // filter has been explicitly specified.
 
       if (! dst_params.contains ("filter"))
-	dst_params.set ("filter", "none");
+	dst_params.set ("filter.type", "none");
     }
   else
     {
