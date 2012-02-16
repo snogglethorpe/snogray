@@ -13,7 +13,7 @@
 
 # Targets
 #
-bin_PROGRAMS = snogray snogcvt snogdiff sampleimg
+bin_PROGRAMS = snogray snogcvt snoghilite snogdiff sampleimg
 noinst_PROGRAMS =
 
 if build_snogbloom
@@ -440,6 +440,9 @@ snogsamp_LDADD = libsnogcli.a $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS)	\
 
 snogcvt_SOURCES = snogcvt.cc
 snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
+
+snoghilite_SOURCES = snoghilite.cc
+snoghilite_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogdiff_SOURCES = snogdiff.cc
 snogdiff_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)

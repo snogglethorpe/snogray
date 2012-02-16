@@ -76,6 +76,40 @@ snogbloom
     [See "COMMON COMMAND-LINE IMAGE OPTIONS" below for more options.]
 
 
+snoghilite
+
+   The input image is copied to the output image, with all highlights
+   scaled by a constant factor.  A "highlight" is any area of the
+   image whose intensity exceeds a given threshold.
+
+   This is particularly useful for turning a low-dynamic-range
+   environment-map into a HDR (high-dynamic-range) environment-map
+   usable (although obviously not accurate) for scene lighting.
+
+   Basic usage:
+
+      snoghilite [OPTION...] INPUT_IMAGE_FILE OUTPUT_IMAGE_FILE
+
+	 Copy the contents of INPUT_IMAGE_FILE to OUTPUT_IMAGE_FILE,
+	 scaling highlight areas.  Generally it's a good idea to use a
+	 HDR (high-dynamic-range) image format for OUTPUT_IMAGE_FILE.
+
+   Options:
+
+      -t INTENS
+      --highlight-threshold=INTENS
+
+         Use INTENS as the threshold for identifying image highlights.
+	 (default 0.95)
+
+      -m SCALE
+      --highlight-scale=SCALE
+
+         Scale image highlights by a factor of SCALE (default 5)
+
+      [See "COMMON COMMAND-LINE IMAGE OPTIONS" below for more options.]
+
+
 snogdiff
 
    snogdiff computes the difference between two input images, which is
