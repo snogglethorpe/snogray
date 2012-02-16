@@ -63,7 +63,7 @@ public:
       long_opt_index (-1), short_opt (0)
   { }
 
-  const char *prog_name () const { return argv[0]; }
+  std::string prog_name () const;
 
   int get_opt ();
 

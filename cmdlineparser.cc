@@ -23,6 +23,20 @@ using namespace snogray;
 using namespace std;
 
 
+// misc
+
+std::string
+CmdLineParser::prog_name () const
+{
+  const char *basename = strrchr (argv[0], '/');
+  if (basename)
+    basename++;
+  else
+    basename = argv[0];
+  return basename;
+}
+
+
 // General error handling
 
 string
