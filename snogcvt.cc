@@ -30,7 +30,7 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] [SOURCE_IMAGE [OUTPUT_IMAGE]]" << endl;
+     << " [OPTION...] INPUT_IMAGE_FILE OUTPUT_IMAGE_FILE" << endl;
 }
 
 static void
@@ -51,10 +51,6 @@ n
 s IMAGE_SCALED_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
-n
-s "If no filenames are given, standard input or output is used.  Input/output"
-s "image formats are guessed using the corresponding filenames when possible"
-s "(using the file's extension)."
 n
     ;
 
@@ -94,7 +90,7 @@ int main (int argc, char *const *argv)
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
-  if (clp.num_remaining_args() > 2)
+  if (clp.num_remaining_args() != 2)
     {
       usage (clp, cerr);
       clp.try_help_err ();
