@@ -1284,7 +1284,7 @@ surface_integrators = {}
 function surface_integrators.directlighting (state, params)
    -- ignore parameters: "integer maxdepth"
    params["integer maxdepth"] = nil -- ignore
-   state:set_param ("render.surface-integ", "direct")
+   state:set_param ("render.surface-integ.type", "direct")
 end
 
 function surface_integrators.path (state, params)
