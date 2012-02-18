@@ -15,7 +15,7 @@ BASIC USAGE
 
    Basic usage of snogray is very simple (on the command-line):
 
-     ./snogray [OPTION...] SCENE_FILE OUTPUT_IMAGE_FILE
+     ./snogray [OPTION...] SCENE_FILE [OUTPUT_IMAGE_FILE]
 
    SCENE_FILE is the scene to render, usually written in Lua (but
    also, 3ds etc files should work).
@@ -25,6 +25,12 @@ BASIC USAGE
    based on the file extension of OUTPUT_IMAGE_FILE -- e.g., an
    extension of ".exr" will result in an OpenEXR file, ".jpg" a JPEG
    file, ".png" a PNG file, etc.
+
+   A scene-file may specify a default output file, in which case it
+   isn't necessary to provide the output file argument; however a
+   command-line output file always overrides what the scene-file
+   specifies.  If a scene-file doesn't specify any output file, then
+   the output file argument is required.
 
 
 COMMAND-LINE OPTIONS

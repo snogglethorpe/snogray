@@ -35,9 +35,10 @@
 #include "image-input.h"
 #include "image-sampled-output-cmdline.h"
 #include "render-cmdline.h"
-#include "scene-def.h"
+#include "scene-cmdline.h"
 #include "camera-cmds.h"
 #include "render-stats.h"
+#include "load-lua.h"
 #include "octree.h"
 #include "pos-io.h"
 #include "vec-io.h"
@@ -188,7 +189,7 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] SCENE_FILE... OUTPUT_IMAGE_FILE" << endl;
+     << " [OPTION...] SCENE_FILE [OUTPUT_IMAGE_FILE]" << endl;
 }
 
 static void
@@ -229,7 +230,7 @@ s "                               v           Set camera orientation to vertic"
 n
 s " Scene options:"
 n
-s SCENE_DEF_OPTIONS_HELP
+s SCENE_OPTIONS_HELP
 n
 s " Output image options:"
 n
@@ -290,7 +291,7 @@ int main (int argc, char *const *argv)
 #if USE_THREADS
     "j:"
 #endif
-    SCENE_DEF_SHORT_OPTIONS
+    SCENE_SHORT_OPTIONS
     RENDER_SHORT_OPTIONS
     IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -305,9 +306,10 @@ int main (int argc, char *const *argv)
   bool recover = false;
   TtyProgress::Verbosity verbosity = TtyProgress::CHATTY;
   bool progress_set = false;
-  SceneDef scene_def;
-  ValTable &output_params = scene_def.params.writable_subtable ("output");
-  ValTable &render_params = scene_def.params.writable_subtable ("render");
+  ValTable params;
+  ValTable &scene_params = params.writable_subtable ("scene");
+  ValTable &output_params = params.writable_subtable ("output");
+  ValTable &render_params = params.writable_subtable ("render");
   std::string camera_cmds;	// User commands for the camera
 
 
@@ -358,7 +360,7 @@ int main (int argc, char *const *argv)
 
 	// Scene options
 	//
-	SCENE_DEF_OPTION_CASES (clp, scene_def);
+	SCENE_OPTION_CASES (clp, scene_params);
 
 	// Image options
 	//
@@ -369,20 +371,23 @@ int main (int argc, char *const *argv)
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
-  if (clp.num_remaining_args() < 2)
+  // There should be one scene file, and optionally one output file
+  //
+  if (clp.num_remaining_args() < 1 || clp.num_remaining_args() > 2)
     {
       usage (clp, cerr);
       exit (1);
     }
 
-  // Parse scene filename
+  // Scene file name
   //
-  CMDLINEPARSER_CATCH
-    (clp, scene_def.parse (clp, clp.num_remaining_args() - 1));
+  std::string scene_file = clp.get_arg ();
 
-  // Output filename
+  // Output filename; this is optional, as the scene file can actually
+  // specify an output filename itself.
   //
-  output_params.set ("filename", clp.get_arg ());
+  if (clp.num_remaining_args () == 1)
+    output_params.set ("filename", clp.get_arg ());
 
 
   // Start of "overall elapsed" time
@@ -414,9 +419,13 @@ int main (int argc, char *const *argv)
   if (width && height)
     camera.set_aspect_ratio (float (width) / float (height));
 
+  // Handle command-line scene parameters.
+  //
+  process_scene_params (scene_params, scene);
+
   // Read in the scene/camera definitions.
   //
-  CMDLINEPARSER_CATCH (clp, scene_def.load (scene, camera));
+  load_lua_file (scene_file, scene, camera, params);
 
   // Do post-load scene setup (nothing can be added to scene after this).
   //
@@ -446,6 +455,11 @@ int main (int argc, char *const *argv)
   //
   std::string file_name = output_params.get_string ("filename");
 
+  // An output file must be specified either on the command-line, or
+  // by the scene file.
+  //
+  if (file_name.empty ())
+    clp.err ("no output file specified");
 
   // Set our drawing limits based on the scene size
   //

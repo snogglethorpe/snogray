@@ -1,4 +1,4 @@
-// scene-def.h -- Scene definition object
+// scene-cmdline.h -- Command-line options for scene parameters
 //
 //  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
@@ -10,15 +10,13 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_SCENE_DEF_H
-#define SNOGRAY_SCENE_DEF_H
-
-#include <iosfwd>
-#include <iomanip>
+#ifndef SNOGRAY_SCENE_CMDLINE_H
+#define SNOGRAY_SCENE_CMDLINE_H
 
 #include "val-table.h"
 
-#define SCENE_DEF_OPTIONS_HELP "\
+
+#define SCENE_OPTIONS_HELP "\
   -b, --background=BG        Use BG as a background and light-source;\n\
                                BG may be a color or the name of an\n\
                                environment-map image file\n\
@@ -36,83 +34,32 @@
                                  \"format\"    -- scene file type\n\
                                  \"background\"-- scene background"
                                
-//
-#define SCENE_DEF_SHORT_OPTIONS		"b:B:I:"
-//
-#define SCENE_DEF_LONG_OPTIONS						\
+#define SCENE_SHORT_OPTIONS		"b:B:I:"
+
+#define SCENE_LONG_OPTIONS						\
     { "background",     required_argument, 0, 'b' },			\
     { "background-orientation",     required_argument, 0, 'B' },	\
     { "scene-options", 	required_argument, 0, 'I' },
 
-#define SCENE_DEF_OPTION_CASES(clp, scene_def)				\
+#define SCENE_OPTION_CASES(clp, scene_params)				\
   case 'b':								\
-    scene_def.params.set ("scene.background", clp.opt_arg ());		\
+    scene_params.set ("background", clp.opt_arg ());			\
     break;								\
   case 'B':								\
-    scene_def.params.set ("scene.background-orientation", clp.opt_arg ()); \
+    scene_params.set ("background-orientation", clp.opt_arg ());	\
     break;								\
   case 'I':								\
-    clp.parse_opt_arg (scene_def.params);				\
+    clp.parse_opt_arg (scene_params);					\
     break;
+
 
 namespace snogray {
 
-class CmdLineParser;
-class Scene;
-class Camera;
-
-class SceneDef
-{
-public:
-
-  SceneDef () { }
-
-  // Parse any scene-definition arguments necessary from CLP.
-  // At most MAX_SPECS scene specifications will be consumed from CLP.
-  // The exact aguments required may vary depending on previous options.
-  //
-  void parse (CmdLineParser &clp, unsigned max_specs = 1);
-
-  // Load the scene into SCENE and CAMERA.
-  //
-  void load (Scene &scene, Camera &camera);
-
-  // Returns a string containing the parsed scene specs.
-  //
-  std::string specs_rep () const;
-
-  // A single scene specification to load
-  //
-  struct Spec
-  {
-    Spec (const std::string &_uname, const std::string &_name)
-      : user_name (_uname), name (_name)
-    { }
-
-    // The scene name specified by the user; zero-length if none.
-    //
-    std::string user_name;
-
-    // The scene name possibly with the prefix removed.
-    //
-    std::string name;
-  };
-
-  // Returns a Spec for standard input.
-  //
-  Spec cin_spec ();
-
-  // General scene parameters.
-  //
-  ValTable params;
-
-  // A list of scene specs to load.
-  //
-  std::vector<Spec> specs;
-};
+// Handle any scene parameters specified in PARAMS, into SCENE.
+//
+extern void process_scene_params (const ValTable &params, Scene &scene);
 
 }
 
-#endif /* SNOGRAY_SCENE_DEF_H */
 
-// arch-tag: 4628d634-58c1-4054-b89d-2b88618e6a9f
+#endif // SNOGRAY_SCENE_CMDLINE_H

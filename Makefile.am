@@ -235,10 +235,10 @@ libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
 # Snogray command-line-interface library, libsnogcli.a
 #
 
-libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
+libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h			\
 	image-input-cmdline.h image-sampled-output-cmdline.cc		\
 	image-sampled-output-cmdline.h image-scaled-output-cmdline.h	\
-	version.cc version.h
+	scene-cmdline.cc scene-cmdline.h version.cc version.h
 
 
 ################################################################
@@ -281,8 +281,7 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 # Snogray scene-loading library, libsnogload.a
 #
 
-libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h scene-def.cc	\
-	scene-def.h load-lua.cc load-lua.h
+libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h load-lua.cc load-lua.h
 
 # Library dependencies of libsnogload.a
 #

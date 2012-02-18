@@ -1,4 +1,4 @@
-// scene-def.h -- Scene definition object
+// scene-cmdline.h -- Command-line options for scene parameters
 //
 //  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
 //
@@ -22,56 +22,24 @@
 #include "glow.h"
 #include "image-io.h"
 #include "string-funs.h"
-#include "cmdlineparser.h"
-#include "load-lua.h"
 
-#include "scene-def.h"
+#include "scene-cmdline.h"
 
 
 using namespace snogray;
-using namespace std;
 
-
-// Command-line parsing
 
-// Parse any scene-definition arguments necessary from CLP.
-// At most MAX_SPECS scene specifications will be consumed from CLP.
-// The exact aguments required may vary depending on previous options.
+// Handle any scene parameters specified in PARAMS, into SCENE.
 //
 void
-SceneDef::parse (CmdLineParser &clp, unsigned max_specs)
+snogray::process_scene_params (const ValTable &params, Scene &scene)
 {
-  unsigned num = clp.num_remaining_args();
-
-  if (num > max_specs)
-    num = max_specs;
-
-  while (num > 0)
-    {
-      string user_name = clp.get_arg ();
-      string name = user_name;
-
-      specs.push_back (Spec (user_name, name));
-
-      num--;
-    }
-}
-
-
-// Scene loading
-
-// Load a scene using arguments from CLP, into SCENE and CAMERA
-//
-void
-SceneDef::load (Scene &scene, Camera &camera)
-{
-  // Set background (this is done before reading in the scene, so the scene
-  // defining code can adjust for the presence of an environment map).
+  // Set scene background.
   //
-  string bg_spec = params.get_string ("scene.background");
+  std::string bg_spec = params.get_string ("background");
   if (! bg_spec.empty ())
     {
-      string fmt = strip_prefix (bg_spec, ":");
+      std::string fmt = strip_prefix (bg_spec, ":");
 
       Light *bg_light;
       if (fmt == "grey" || fmt == "g")
@@ -106,7 +74,7 @@ SceneDef::load (Scene &scene, Camera &camera)
 	  // If the user specified some non-default options for the
 	  // environment-map orientation, parse them.
 	  //
-	  string bg_orient = params.get_string ("scene.background-orientation");
+	  std::string bg_orient = params.get_string ("background-orientation");
 	  if (! bg_orient.empty ())
 	    {
 	      bg_orient = downcase (bg_orient);
@@ -161,38 +129,5 @@ SceneDef::load (Scene &scene, Camera &camera)
 	}
 
       scene.add (bg_light);
-    }	  
-
-  // Read in scene file
-  //
-  for (vector<Spec>::iterator spec = specs.begin();
-       spec != specs.end(); spec++)
-    load_lua_file (spec->name, scene, camera, params);
-
-  // Cleanup Lua loader state if necessary.
-  //
-  cleanup_load_lua_state ();
-}
-
-
-
-// Returns a string containing the parsed scene specs.
-//
-string
-SceneDef::specs_rep () const
-{
-  string rep;
-
-  for (vector<Spec>::const_iterator spec = specs.begin();
-       spec != specs.end(); spec++)
-    {
-      if (spec != specs.begin ())
-	rep += " ";
-      rep += spec->user_name;
     }
-
-  return rep;
 }
-
-
-// arch-tag: b48e19f8-8e7b-46bf-9812-03eeb57fef7e
