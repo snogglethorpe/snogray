@@ -1343,8 +1343,8 @@ local function set_pixel_filter (state, params, name, default_width)
       parse_warn ("pixel-filters must have identical xwidth and ywidth; using "
 		  ..tostring(width))
    end
-   state:set_param ("output.filter", name)
-   state:set_param ("output.filter."..name..".width", width)
+   state:set_param ("output.filter.type", name)
+   state:set_param ("output.filter.width", width)
 end
 
 function pixel_filters.box (state, params)
@@ -1359,14 +1359,14 @@ function pixel_filters.mitchell (state, params)
    local b = get_single_param (state, params, "float B", 1/3)
    local c = get_single_param (state, params, "float C", 1/3)
    set_pixel_filter (state, params, "mitchell", 2)
-   state:set_param ("output.filter.mitchell.b", b)
-   state:set_param ("output.filter.mitchell.c", c)
+   state:set_param ("output.filter.b", b)
+   state:set_param ("output.filter.c", c)
 end
 
 function pixel_filters.gaussian (state, params)
    local alpha = get_single_param (state, params, "float alpha", 2)
    set_pixel_filter (state, params, "gauss", 2)
-   state:set_param ("output.filter.gauss.alpha", alpha)
+   state:set_param ("output.filter.alpha", alpha)
 end
 
 
