@@ -1606,7 +1606,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
       state.pending_options.width = w
       state.pending_options.height = h
-      if filename then
+      if filename and not state.params.output.filename then
 	 state:set_param ("output.filename", filename)
       end
    end
