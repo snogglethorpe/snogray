@@ -28,7 +28,7 @@ using namespace snogray;
 GlobalRenderState::GlobalRenderState (const Scene &_scene,
 				      const ValTable &_params)
   : scene (_scene),
-    bg_alpha (_params.get_float ("background-alpha", 1)),
+    bg_alpha (_params.get_float ("background_alpha", 1)),
     num_samples (_params.get_uint ("samples", 1)),
     params (_params),
     sample_gen (make_sample_gen (_params))
@@ -57,8 +57,8 @@ GlobalRenderState::make_sample_gen (const ValTable &)
 SurfaceInteg::GlobalState *
 GlobalRenderState::make_surface_integ_global_state (const ValTable &params)
 {
-  std::string sint = params.get_string ("surface-integ.type", "direct");
-  ValTable sint_params = params.readonly_subtable ("surface-integ");
+  std::string sint = params.get_string ("surface_integ.type", "direct");
+  ValTable sint_params = params.readonly_subtable ("surface_integ");
 
   if (sint == "direct")
     return new DirectInteg::GlobalState (*this, sint_params);

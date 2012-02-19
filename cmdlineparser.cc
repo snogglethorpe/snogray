@@ -174,11 +174,25 @@ CmdLineParser::float_opt_arg (float default_val) const
 
 // Parsing and ValTable storage
 
-// Parse the named-value specification STR using "NAME=VALUE"
-// syntax, and store VALUE in TABLE under the name NAME.  The syntax
-// "NAME:VALUE" is also accepted.  The type of the new value is
-// always a string (which can be converted to another type when the
-// value is subsequently requested).
+// Return a copy of STR with all dashes ("-") replaced by underscores
+// ("-").
+//
+static std::string
+dashes_to_underscores (const std::string &str)
+{
+  std::string::size_type pos;
+  std::string copy = str;
+  while ((pos = str.find_first_of ("-", pos)) != std::string::npos)
+    copy[pos] = '_';
+  return copy;
+}
+
+// Parse the named-value specification STR using "NAME=VALUE" syntax,
+// and store VALUE in TABLE under the name NAME, with any dashes ("-")
+// in NAME replaced with underscores ("_").  The syntax "NAME:VALUE"
+// is also accepted.  The type of the new value is always a string
+// (which can be converted to another type when the value is
+// subsequently requested).
 //
 void
 CmdLineParser::parse (const std::string &str, ValTable &table)
@@ -187,22 +201,24 @@ CmdLineParser::parse (const std::string &str, ValTable &table)
   std::string::size_type p_assn = str.find_first_of ("=:");
 
   if (p_assn < inp_len)
-    table.set (str.substr (0, p_assn), str.substr (p_assn + 1));
+    table.set (dashes_to_underscores (str.substr (0, p_assn)),
+	       str.substr (p_assn + 1));
   else if (str[0] == '!')
-    table.set (str.substr (1), false);
+    table.set (dashes_to_underscores (str.substr (1)), false);
   else if (begins_with (str, "no-"))
-    table.set (str.substr (3), false);
+    table.set (dashes_to_underscores (str.substr (3)), false);
   else
-    table.set (str, true);
+    table.set (dashes_to_underscores (str), true);
 }
 
 // First split STR option into parts separated by any character in
-// MULTIPLE_SEPS, removing any whitespace surrounding a separator,
-// and then parse each part using "NAME=VALUE" syntax, and store the
-// resulting entries into TABLE.  The syntax "NAME:VALUE" is also
-// accepted.  The type of the new value is always a string (which
-// can be converted to another type when the value is subsequently
-// requested).  NAME_PREFIX is prepended to names before storing.
+// MULTIPLE_SEPS, removing any whitespace surrounding a separator, and
+// then parse each part using "NAME=VALUE" syntax, and store the
+// resulting entries into TABLE, with any dashes ("-") in NAME
+// replaced with underscores ("_").  The syntax "NAME:VALUE" is also
+// accepted.  The type of the new value is always a string (which can
+// be converted to another type when the value is subsequently
+// requested).
 //
 void
 CmdLineParser::parse (const std::string &str, const std::string &multiple_seps,

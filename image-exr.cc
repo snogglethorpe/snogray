@@ -1,6 +1,6 @@
 // image-exr.cc -- EXR format image handling
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@ ExrImageSink::ExrImageSink (const std::string &filename,
 			    const ValTable &params)
   : ImageSink (filename, width, height, params),
     outf (filename.c_str(), width, height,
-	  (params.get_bool ("alpha-channel,alpha")
+	  (params.get_bool ("alpha_channel,alpha")
 	   ? Imf::WRITE_RGBA
 	   : Imf::WRITE_RGB)),
     row_buf (width), cur_y (0)

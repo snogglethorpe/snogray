@@ -508,15 +508,15 @@ int main (int argc, char *const *argv)
   // Set the base-coordinates of the "output sample space" to LIMIT_X, LIMIT_Y.
   //
   if (limit_x != 0)
-    output_params.set ("sample-base-x", limit_x);
+    output_params.set ("sample_base_x", limit_x);
   if (limit_y != 0)
-    output_params.set ("sample-base-y", limit_y);
+    output_params.set ("sample_base_y", limit_y);
 
   // If the scene has a non-default background alpha set, then make sure
   // there's an alpha-channel in the output image.
   //
-  if (render_params.get_float ("background-alpha", 1) != 1)
-    output_params.set ("alpha-channel", true);
+  if (render_params.get_float ("background_alpha", 1) != 1)
+    output_params.set ("alpha_channel", true);
 
   // Create output image.  The size of what we output is the same as the
   // limit (which defaults to, but is not the same as the nominal output
@@ -529,7 +529,7 @@ int main (int argc, char *const *argv)
   ImageSampledOutput output (file_name, limit_width, limit_height,
 			     output_params);
 
-  if (output_params.get_bool ("alpha-channel,alpha")
+  if (output_params.get_bool ("alpha_channel,alpha")
       && !output.has_alpha_channel())
     {
       std::cerr << clp.err_pfx() << file_name

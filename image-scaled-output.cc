@@ -152,9 +152,9 @@ ImageScaledOutput::calc_sampled_output_params (unsigned src_width,
       // output pixels.
       //
       if (x_scale > 1)
-	dst_params.set ("filter.x-width-scale", x_scale);
+	dst_params.set ("filter.x_width_scale", x_scale);
       if (y_scale > 1)
-	dst_params.set ("filter.y-width-scale", y_scale);
+	dst_params.set ("filter.y_width_scale", y_scale);
     }
 
   return dst_params;

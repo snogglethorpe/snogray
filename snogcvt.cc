@@ -103,7 +103,7 @@ int main (int argc, char *const *argv)
   // If the input has an alpha-channel, try to preserve it.
   //
   if (src.has_alpha_channel ())
-    dst_params.set ("alpha-channel", true);
+    dst_params.set ("alpha_channel", true);
 
   // We catch any exceptions thrown while the output file is open (and
   // then just rethrow them), which ensures that all destructors are

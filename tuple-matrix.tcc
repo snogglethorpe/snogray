@@ -139,7 +139,7 @@ void
 TupleMatrixData<DT>::load (ImageInput &src, const ValTable &params)
 {
   unsigned border = params.get_uint ("border", 0);
-  bool reverse_rows = params.get_bool ("reverse-rows", false);
+  bool reverse_rows = params.get_bool ("reverse_rows", false);
 
   const_cast<unsigned &> (width) = src.width + border * 2;
   const_cast<unsigned &> (height) = src.height + border * 2;

@@ -39,32 +39,32 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
   : RecursiveInteg::GlobalState (rstate),
     caustic_scale (0), direct_scale (0), indirect_scale (0),
     photon_eval (
-      params.get_uint ("use-photons", 50),
-      params.get_float ("photon-radius", 0.1),
-      params.get_float ("marker-radius", 0)),
+      params.get_uint ("use_photons", 50),
+      params.get_float ("photon_radius", 0.1),
+      params.get_float ("marker_radius", 0)),
     direct_illum (
-      params.get_uint ("direct-samples,dir-samples,dir-samps",
-		       rstate.params.get_uint ("direct-samples", 16))),
-    use_direct_illum (params.get_bool ("direct-illum,dir-illum", true)),
+      params.get_uint ("direct_samples,dir_samples,dir_samps",
+		       rstate.params.get_uint ("direct_samples", 16))),
+    use_direct_illum (params.get_bool ("direct_illum,dir_illum", true)),
     num_fgather_samples (
-      params.get_uint ("final-gather-samples,fg-samples,fg-samps",
+      params.get_uint ("final_gather_samples,fg_samples,fg_samps",
 		       UNSPEC_UINT)),
     num_fgather_photon_samples (
-      params.get_uint ("final-gather-photon-samples"
-		       ",fg-photon-samples,fg-photon-samps",
+      params.get_uint ("final_gather_photon_samples"
+		       ",fg_photon_samples,fg_photon_samps",
 		       UNSPEC_UINT)),
     num_fgather_bsdf_samples (
-      params.get_uint ("final-gather-bsdf-samples"
-		       ",fg-bsdf-samples,fg-bsdf-samps",
+      params.get_uint ("final_gather_bsdf_samples"
+		       ",fg_bsdf_samples,fg_bsdf_samps",
 		       UNSPEC_UINT))
 {
-  unsigned num_caustic = params.get_uint ("caustic-photons", 50000);
-  unsigned num_direct = params.get_uint ("direct-photons,dir", 500000);
-  unsigned num_indirect = params.get_uint ("indirect-photons,indir", 500000);
+  unsigned num_caustic = params.get_uint ("caustic_photons", 50000);
+  unsigned num_direct = params.get_uint ("direct_photons,dir", 500000);
+  unsigned num_indirect = params.get_uint ("indirect_photons,indir", 500000);
 
   // A convenient boolean toggle for final gathering.
   //
-  if (params.get_bool ("final-gather,fg", true))
+  if (params.get_bool ("final_gather,fg", true))
     {
       // Allocate various types of final-gather samples for MIS.
       // We only support a few combinations of user parameters:

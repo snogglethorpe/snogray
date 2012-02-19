@@ -74,7 +74,7 @@ snogray::process_scene_params (const ValTable &params, Scene &scene)
 	  // If the user specified some non-default options for the
 	  // environment-map orientation, parse them.
 	  //
-	  std::string bg_orient = params.get_string ("background-orientation");
+	  std::string bg_orient = params.get_string ("background_orientation");
 	  if (! bg_orient.empty ())
 	    {
 	      bg_orient = downcase (bg_orient);
@@ -96,7 +96,7 @@ snogray::process_scene_params (const ValTable &params, Scene &scene)
 		  char *end;
 		  rotation -= strtof (tail, &end);
 		  if (end == tail)
-		    throw bad_format ("Invalid background-orientation \""
+		    throw bad_format ("Invalid background_orientation \""
 				      + bg_orient + "\"");
 		}
 	    }

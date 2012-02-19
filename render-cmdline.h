@@ -57,7 +57,7 @@
     params.set ("samples", clp.unsigned_opt_arg ());			\
     break;								\
   case 'S':								\
-    clp.store_opt_arg_with_sub_options ("surface-integ",		\
+    clp.store_opt_arg_with_sub_options ("surface_integ",		\
 					params, "type", ",/");		\
     break;								\
   case 'R':								\
@@ -69,10 +69,10 @@
       params.wire_frame_params.parse (clp);				\
       break;*/								\
   case 'D':								\
-    params.set ("direct-samples", clp.unsigned_opt_arg ());		\
+    params.set ("direct_samples", clp.unsigned_opt_arg ());		\
     break;								\
   case 'A':								\
-    params.set ("background-alpha", clp.float_opt_arg ());		\
+    params.set ("background_alpha", clp.float_opt_arg ());		\
     break;
 
 #endif /* SNOGRAY_RENDER_CMDLINE_H */

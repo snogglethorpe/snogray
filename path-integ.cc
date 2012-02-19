@@ -60,22 +60,22 @@ public:
 PathInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 				     const ValTable &params)
   : SurfaceInteg::GlobalState (rstate),
-    min_path_len (params.get_uint ("min-path-len", 3)),
-    max_path_len (params.get_uint ("max-path-len", 25)),
+    min_path_len (params.get_uint ("min_path_len", 3)),
+    max_path_len (params.get_uint ("max_path_len", 25)),
     direct_illum (
-      params.get_uint ("direct-samples,dir-samples,dir-samps",
-		       rstate.params.get_uint ("direct-samples", 1))),
+      params.get_uint ("direct_samples,dir_samples,dir_samps",
+		       rstate.params.get_uint ("direct_samples", 1))),
     photon_eval (
-      params.get_uint ("render-photons", 50),
-      params.get_float ("photon-radius,radius", 5),
-      params.get_float ("marker-radius", 0))
+      params.get_uint ("render_photons", 50),
+      params.get_float ("photon_radius,radius", 5),
+      params.get_float ("marker_radius", 0))
 {
   // Shoot photons if the user has enabled "photon-diffuse" mode.
   //
   // [It's disabled by default, because there are some annoying
   // photon artifacts like edge-leakage etc.]
   //
-  if (params.get_bool ("photon-diffuse", false))
+  if (params.get_bool ("photon_diffuse", false))
     {
       // Generate a photon-map to guide rendering.
       //

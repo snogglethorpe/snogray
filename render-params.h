@@ -39,7 +39,7 @@ public:
     : min_trace (default_min_trace())
   { }
   RenderParams (const ValTable &params)
-    : min_trace (params.get_float ("min-trace", default_min_trace()))
+    : min_trace (params.get_float ("min_trace", default_min_trace()))
   { }
 
   // Minimum length of a traced ray; any objects closer than this to the

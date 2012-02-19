@@ -30,14 +30,14 @@ ByteVecImageIo::ByteVecImageIo (const ValTable &params)
   : target_gamma (params.get_float ("gamma", default_target_gamma()))
 {
   // We figure out pixel-format from these two user parameters.
-  // "pixel-format", aka "pxfmt", is the main parameter, and
+  // "pixel_format", aka "pxfmt", is the main parameter, and
   // "alpha_channel" (aka "alpha") can be used to inpendentaly add an
-  // alpha-channel (if the format specified by the "pixel-format"
-  // parameter already has an alpha channel, then the "alpha-channel"
+  // alpha-channel (if the format specified by the "pixel_format"
+  // parameter already has an alpha channel, then the "alpha_channel"
   // is silently ignored).
   //
-  std::string pxfmt_name = params.get_string ("pixel-format,pxfmt", "rgb");
-  bool alpha_channel = params.get_bool ("alpha-channel,alpha", false);
+  std::string pxfmt_name = params.get_string ("pixel_format,pxfmt", "rgb");
+  bool alpha_channel = params.get_bool ("alpha_channel,alpha", false);
 
   std::string orig_pxfmt_name = pxfmt_name;
 

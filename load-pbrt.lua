@@ -796,7 +796,7 @@ function textures.imagemap (state, params, type)
 
    -- Parameters we use for loading the texture image.
    --
-   local tex_image_params = { ["reverse-rows"] = reverse_rows }
+   local tex_image_params = { ["reverse_rows"] = reverse_rows }
 
    -- Load the image texture.
    --
@@ -1284,14 +1284,14 @@ surface_integrators = {}
 function surface_integrators.directlighting (state, params)
    -- ignore parameters: "integer maxdepth"
    params["integer maxdepth"] = nil -- ignore
-   state:set_param ("render.surface-integ.type", "direct")
+   state:set_param ("render.surface_integ.type", "direct")
 end
 
 function surface_integrators.path (state, params)
    local maxdepth = get_single_param (state, params, "integer maxdepth", 5)
-   state:set_param ("render.surface-integ.type", "path")
-   state:set_param ("render.surface-integ.min-path-len", 3) -- PBRT value
-   state:set_param ("render.surface-integ.max-path-len", maxdepth)
+   state:set_param ("render.surface_integ.type", "path")
+   state:set_param ("render.surface_integ.min_path_len", 3) -- PBRT value
+   state:set_param ("render.surface_integ.max_path_len", maxdepth)
 end
 
 function surface_integrators.photonmap (state, params)
@@ -1314,14 +1314,14 @@ function surface_integrators.photonmap (state, params)
    local gatherangle		-- v2 only
       = get_single_param (state, params, "float gatherangle", 10)
 
-   state:set_param ("render.surface-integ.type", "photon")
-   state:set_param ("render.surface-integ.use-photons", nused)
-   state:set_param ("render.surface-integ.photon-radius", maxdist)
-   state:set_param ("render.surface-integ.caustic-photons", ncaustic)
-   state:set_param ("render.surface-integ.indirect-photons,indir", nindirect)
-   state:set_param ("render.surface-integ.final-gather,fg", fgather)
-   state:set_param ("render.surface-integ.direct-illum,dir-illum", dirwithphot)
-   state:set_param ("render.surface-integ.final-gather-samples,fg-samples,fg-samps",
+   state:set_param ("render.surface_integ.type", "photon")
+   state:set_param ("render.surface_integ.use_photons", nused)
+   state:set_param ("render.surface_integ.photon_radius", maxdist)
+   state:set_param ("render.surface_integ.caustic_photons", ncaustic)
+   state:set_param ("render.surface_integ.indirect_photons,indir", nindirect)
+   state:set_param ("render.surface_integ.final_gather,fg", fgather)
+   state:set_param ("render.surface_integ.direct_illum,dir_illum", dirwithphot)
+   state:set_param ("render.surface_integ.final_gather_samples,fg_samples,fg_samps",
 		    fgathersamps)
 end
 
@@ -1730,7 +1730,7 @@ function load_pbrt_in_state (state, scene, camera)
       -- scene files with unsupported surface-integrators, of which
       -- there are many...).
       local err_label  -- string => error if unknown; false/nil => no errors
-	 = not state.params["render.surface-integ"] and "surface-integrator"
+	 = not state.params["render.surface_integ"] and "surface-integrator"
       handle_subcommand (kind, params, surface_integrators, err_label)
    end
    local function texture_cmd (name, type, kind, params)
@@ -1933,7 +1933,7 @@ function load_pbrt (filename, scene, camera, params)
 
       filename = filename,
       base_dir = filename_dir (filename),
-      file_search_path = {filename_dir (filename), params["search-path"]}
+      file_search_path = {filename_dir (filename), params["search_path"]}
    }
    return load_pbrt_in_state (init_state, scene, camera)
 end

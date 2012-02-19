@@ -290,9 +290,9 @@ int main (int argc, char *const *argv)
   if (!use_light_samples && !use_bsdf_samples)
     use_light_samples = use_bsdf_samples = true;
   if (! use_light_samples)
-    render_params.set ("direct-samples", 0);
+    render_params.set ("direct_samples", 0);
   if (! use_bsdf_samples)
-    render_params.set ("bsdf-samples", 0);
+    render_params.set ("bsdf_samples", 0);
 
   // Define the scene.
 

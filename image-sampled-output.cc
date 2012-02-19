@@ -33,8 +33,8 @@ ImageSampledOutput::ImageSampledOutput (const std::string &filename,
     intensity_scale (params.get_float ("exposure", 1)),
     intensity_power (params.get_float ("contrast", 1)),
     min_y (0),
-    sample_base_x (params.get_float ("sample-base-x", 0)),
-    sample_base_y (params.get_float ("sample-base-y", 0)),
+    sample_base_x (params.get_float ("sample_base_x", 0)),
+    sample_base_y (params.get_float ("sample_base_y", 0)),
     sink (ImageSink::open (filename, _width, _height, params)),
     filter_conv (params.readonly_subtable ("filter"))
 {

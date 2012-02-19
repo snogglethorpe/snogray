@@ -145,18 +145,20 @@ public:
 
 private:
 
-  // Parse the named-value specification STR using "NAME=VALUE" syntax, and
-  // store VALUE in TABLE under the name NAME.  The syntax "NAME:VALUE" is
-  // also accepted.  The type of the new value is always a string (which
-  // can be converted to another type when the value is subsequently
-  // requested).
+  // Parse the named-value specification STR using "NAME=VALUE" syntax,
+  // and store VALUE in TABLE under the name NAME, with any dashes ("-")
+  // in NAME replaced with underscores ("_").  The syntax "NAME:VALUE"
+  // is also accepted.  The type of the new value is always a string
+  // (which can be converted to another type when the value is
+  // subsequently requested).
   //
   void parse (const std::string &str, ValTable &table);
 
   // First split STR option into parts separated by any character in
   // MULTIPLE_SEPS, removing any whitespace surrounding a separator, and
   // then parse each part using "NAME=VALUE" syntax, and store the
-  // resulting entries into TABLE.  The syntax "NAME:VALUE" is also
+  // resulting entries into TABLE, with any dashes ("-") in NAME
+  // replaced with underscores ("_").  The syntax "NAME:VALUE" is also
   // accepted.  The type of the new value is always a string (which can
   // be converted to another type when the value is subsequently
   // requested).

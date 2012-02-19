@@ -1,6 +1,6 @@
 // image-filter.h -- Filters for image output
 //
-//  Copyright (C) 2006, 2007, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -51,10 +51,10 @@ protected:
   { }
 
   ImageFilter (const ValTable &params, float def_width)
-    : x_width (params.get_float ("x-width,xw,width,w", def_width)
-	       * params.get_float ("x-width-scale", 1)),
-      y_width (params.get_float ("y-width,yw,width,w", def_width)
-	       * params.get_float ("y-width-scale", 1)),
+    : x_width (params.get_float ("x_width,xw,width,w", def_width)
+	       * params.get_float ("x_width_scale", 1)),
+      y_width (params.get_float ("y_width,yw,width,w", def_width)
+	       * params.get_float ("y_width_scale", 1)),
       inv_x_width (1 / x_width), inv_y_width (1 / y_width)
   { }
 };

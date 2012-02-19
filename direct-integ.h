@@ -1,6 +1,6 @@
 // direct-integ.h -- Direct-lighting-only surface integrator
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -69,8 +69,8 @@ public:
 
   GlobalState (const GlobalRenderState &rstate, const ValTable &params)
     : SurfaceInteg::GlobalState (rstate),
-      direct_illum (params.get_uint ("light-samples,samples,samps",
-				     rstate.params.get_uint ("light-samples",
+      direct_illum (params.get_uint ("light_samples,samples,samps",
+				     rstate.params.get_uint ("light_samples",
 							     16)))
   { }
 

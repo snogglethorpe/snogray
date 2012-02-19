@@ -39,7 +39,7 @@ public:
     : filter (ImageFilter::make (params)),
       filter_x_radius (filter ? int (ceil (filter->x_width - 1.0001f)) : 0),
       filter_y_radius (filter ? int (ceil (filter->y_width - 1.0001f)) : 0),
-      neg_clamp (-abs (params.get_float ("neg-clamp", default_neg_clamp ())))
+      neg_clamp (-abs (params.get_float ("neg_clamp", default_neg_clamp ())))
   { }
   ~ImageFilterConvBase () { delete filter; }
 
