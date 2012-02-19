@@ -1,4 +1,4 @@
-// recover.h -- Recovery of partial output images
+// recover-image.h -- Recovery of partial output images
 //
 //  Copyright (C) 2005-2007, 2011, 2012  Miles Bader <miles@gnu.org>
 //

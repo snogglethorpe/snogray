@@ -31,7 +31,7 @@
 #include "camera.h"
 #include "light.h"
 #include "render-mgr.h"
-#include "recover.h"
+#include "recover-image.h"
 #include "image-input.h"
 #include "image-sampled-output-cmdline.h"
 #include "render-cmdline.h"

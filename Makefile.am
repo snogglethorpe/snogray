@@ -426,7 +426,7 @@ MISC_LIBS = libsnogcli.a libsnogutil.a
 # Programs
 #
 
-snogray_SOURCES = snogray.cc recover.cc recover.h
+snogray_SOURCES = snogray.cc recover-image.cc recover-image.h
 snogray_LDADD = libsnogrdrive.a $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS)	\
 	$(MISC_LIBS)
 

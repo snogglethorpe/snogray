@@ -12,7 +12,7 @@
 
 #include "excepts.h"
 
-#include "recover.h"
+#include "recover-image.h"
 
 
 using namespace snogray;
