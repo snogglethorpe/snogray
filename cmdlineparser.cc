@@ -1,6 +1,6 @@
 // cmdlineparser.cc -- Command-line parser
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -178,24 +178,22 @@ CmdLineParser::float_opt_arg (float default_val) const
 // syntax, and store VALUE in TABLE under the name NAME.  The syntax
 // "NAME:VALUE" is also accepted.  The type of the new value is
 // always a string (which can be converted to another type when the
-// value is subsequently requested).  NAME_PREFIX is prepended to
-// names before storing.
+// value is subsequently requested).
 //
 void
-CmdLineParser::parse (const std::string &str, ValTable &table,
-		      const std::string &name_prefix)
+CmdLineParser::parse (const std::string &str, ValTable &table)
 {
   std::string::size_type inp_len = str.length ();
   std::string::size_type p_assn = str.find_first_of ("=:");
 
   if (p_assn < inp_len)
-    table.set (name_prefix + str.substr (0, p_assn), str.substr (p_assn + 1));
+    table.set (str.substr (0, p_assn), str.substr (p_assn + 1));
   else if (str[0] == '!')
-    table.set (name_prefix + str.substr (1), false);
+    table.set (str.substr (1), false);
   else if (begins_with (str, "no-"))
-    table.set (name_prefix + str.substr (3), false);
+    table.set (str.substr (3), false);
   else
-    table.set (name_prefix + str, true);
+    table.set (str, true);
 }
 
 // First split STR option into parts separated by any character in
@@ -208,20 +206,20 @@ CmdLineParser::parse (const std::string &str, ValTable &table,
 //
 void
 CmdLineParser::parse (const std::string &str, const std::string &multiple_seps,
-		      ValTable &table, const std::string &name_prefix)
+		      ValTable &table)
 {
   std::string::size_type p_end = str.find_first_of (multiple_seps);
 
   if (p_end == std::string::npos)
     {
-      parse (str, table, name_prefix);
+      parse (str, table);
     }
   else
     {
       std::string::size_type p_start = 0;
       do
 	{
-	  parse (str.substr (p_start, p_end - p_start), table, name_prefix);
+	  parse (str.substr (p_start, p_end - p_start), table);
 
 	  p_start = str.find_first_not_of (multiple_seps, p_end);
 	  p_end = str.find_first_of (multiple_seps, p_start);
@@ -229,7 +227,7 @@ CmdLineParser::parse (const std::string &str, const std::string &multiple_seps,
       while (p_end != std::string::npos);
 
       if (p_start != std::string::npos)
-	parse (str.substr (p_start), table, name_prefix);
+	parse (str.substr (p_start), table);
     }
 }
 

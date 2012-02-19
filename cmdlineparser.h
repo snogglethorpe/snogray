@@ -1,6 +1,6 @@
 // cmdlineparser.h -- Command-line parser
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -149,10 +149,9 @@ private:
   // store VALUE in TABLE under the name NAME.  The syntax "NAME:VALUE" is
   // also accepted.  The type of the new value is always a string (which
   // can be converted to another type when the value is subsequently
-  // requested).  NAME_PREFIX is prepended to names before storing.
+  // requested).
   //
-  void parse (const std::string &str, ValTable &table,
-	      const std::string &name_prefix = "");
+  void parse (const std::string &str, ValTable &table);
 
   // First split STR option into parts separated by any character in
   // MULTIPLE_SEPS, removing any whitespace surrounding a separator, and
@@ -160,10 +159,10 @@ private:
   // resulting entries into TABLE.  The syntax "NAME:VALUE" is also
   // accepted.  The type of the new value is always a string (which can
   // be converted to another type when the value is subsequently
-  // requested).  NAME_PREFIX is prepended to names before storing.
+  // requested).
   //
   void parse (const std::string &str, const std::string &multiple_seps,
-	      ValTable &table, const std::string &name_prefix = "");
+	      ValTable &table);
 
   int argc;
   char *const *argv;
