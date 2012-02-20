@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "image-input.h"
+#include "val-table.h"
 #include "image-sampled-output.h"
 
 
@@ -28,14 +28,18 @@ namespace snogray {
 //
 #define RECOVER_DISCARD_ROWS 4
 
-// Initialize the output by reading as many image rows as possible from
-// SRC and copying them to DST; if a read-error is encountered, a small
-// number of the last rows read are discarded, to guard against garbaged
-// final lines.  The number of rows recovered is returned.
+// Initialize the output by opening the image file
+// PARTIAL_IMAGE_FILENAME, using OUTPUT_FILENAME and OUTPUT_PARAMS to
+// determine its format (because the PARTIAL_IMAGE_FILENAME may not be
+// a normal image filename), and copying as many image rows as
+// possible to DST; if a read-error is encountered, a small number of
+// the last rows read are discarded, to guard against garbaged final
+// lines.  The number of rows recovered is returned.
 //
-// SRC is closed and deleted after recovering it.
-//
-extern unsigned recover_image (ImageInput *src, ImageSampledOutput &dst);
+extern unsigned recover_image (const std::string &partial_image_filename,
+			       const std::string &output_filename,
+			       const ValTable &output_params,
+			       ImageSampledOutput &dst);
 
 
 }

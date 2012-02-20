@@ -472,27 +472,26 @@ int main (int argc, char *const *argv)
 
   // If possible, try to recover a previously aborted render.
   //
-  ImageInput *recover_input = 0;
+  std::string recover_backup;
   if (file_exists (file_name))
     {
       if (recover)
-	//
-	// Recover a previous aborted render
-	try
-	  {
-	    recover_input = new ImageInput (file_name);
+	{
+	  // Recover a previous aborted render
+	  try
+	    {
+	      recover_backup
+		= rename_to_backup_file (file_name, RECOVER_BACKUP_LIMIT);
 
-	    string recover_backup
-	      = rename_to_backup_file (file_name, RECOVER_BACKUP_LIMIT);
-
-	    if (! quiet)
-	      cout << "* recover: " << file_name
-		   << ": Backup in " << recover_backup << endl;
-	  }
-	catch (runtime_error &err)
-	  {
-	    clp.err (err.what ());
-	  }
+	      if (! quiet)
+		cout << "* recover: " << file_name
+		     << ": Backup in " << recover_backup << endl;
+	    }
+	  catch (runtime_error &err)
+	    {
+	      clp.err (err.what ());
+	    }
+	}
       else
 	{
 	  cerr << clp.err_pfx() << file_name << ": Output file already exists"
@@ -538,10 +537,10 @@ int main (int argc, char *const *argv)
       return 1;
     }
 
-  if (recover_input)
+  if (! recover_backup.empty ())
     {
-      unsigned num_rows_recovered = recover_image (recover_input, output);
-      recover_input = 0;
+      unsigned num_rows_recovered
+	= recover_image (recover_backup, file_name, output_params, output);
 
       if (! quiet)
 	cout << "* recover: " << file_name
