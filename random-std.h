@@ -1,6 +1,6 @@
-// random-c0x.h -- Random number classes using C++0x std::random
+// random-std.h -- Random number classes using C++11 std::random
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as

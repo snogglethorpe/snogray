@@ -1,6 +1,6 @@
 // random.h -- Random number classes
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 // file to define the classes "RNG" and "FloatRNGAdaptor<>"
 //
 #if USE_STD_RANDOM
-#include "random-c0x.h"
+#include "random-std.h"
 #elif USE_STD_TR1_RANDOM
 #include "random-tr1.h"
 #elif USE_BOOST_RANDOM

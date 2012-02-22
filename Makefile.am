@@ -394,7 +394,7 @@ libsnogutil_a_SOURCES = compiler.h cond-var.h excepts.h file-funs.cc	\
 	least-squares-fit.h matrix.h matrix.tcc matrix-funs.h		\
 	matrix-funs.tcc matrix-io.h mempool.cc mempool.h mutex.h	\
 	nice-io.cc nice-io.h num-cores.cc num-cores.h pool.h		\
-	radical-inverse.h random.h random-boost.h random-c0x.h		\
+	radical-inverse.h random.h random-boost.h random-std.h		\
 	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
 	snogassert.h snogmath.h string-funs.cc string-funs.h thread.h	\
 	timeval.cc timeval.h val-table.cc unique-ptr.h val-table.h
