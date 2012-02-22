@@ -1,6 +1,6 @@
 // cond-var.h -- condition_variable wrapper
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -21,42 +21,11 @@
 #ifndef SNOGRAY_COND_VAR_H
 #define SNOGRAY_COND_VAR_H
 
-#include "config.h"
-
-#if USE_STD_THREAD
-#include <condition_variable>
-#elif USE_BOOST_THREAD
-#include <boost/thread/condition_variable.hpp>
-#endif
-
+#include "threading.h"
 #include "mutex.h"
 
 
 namespace snogray {
-
-
-#if USE_STD_THREAD
-
-typedef std::condition_variable RealCondVar;
-
-#elif USE_BOOST_THREAD
-
-typedef boost::condition_variable RealCondVar;
-
-#else // !USE_STD_THREAD && !USE_BOOST_THREAD
-
-// A nop condition_variable class.
-//
-class RealCondVar
-{
-public:
-
-  void notify_one() { }
-  void notify_all() { }
-  template <typename L> void wait (L &) { }
-};
-
-#endif // !USE_STD_THREAD && !USE_BOOST_THREAD
 
 
 // CondVar is a thin wrapper that just inherits a selected set of

@@ -1,6 +1,6 @@
 // thread.h -- thread wrapper
 //
-//  Copyright (C) 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -21,27 +21,10 @@
 #ifndef SNOGRAY_THREAD_H
 #define SNOGRAY_THREAD_H
 
-#include "config.h"
-
-#if USE_STD_THREAD
-#include <thread>
-#elif USE_BOOST_THREAD
-#include <boost/thread/thread.hpp>
-#endif
+#include "threading.h"
 
 
 namespace snogray {
-
-
-#if USE_STD_THREAD
-
-typedef std::thread RealThread;
-
-#elif USE_BOOST_THREAD
-
-typedef boost::thread RealThread;
-
-#endif // !USE_STD_THREAD && !USE_BOOST_THREAD
 
 
 // Thread is a thin wrapper that just inherits a selected set of

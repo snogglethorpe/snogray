@@ -1,6 +1,6 @@
 // mutex.h -- mutex wrapper
 //
-//  Copyright (C) 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2009-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -21,53 +21,10 @@
 #ifndef SNOGRAY_MUTEX_H
 #define SNOGRAY_MUTEX_H
 
-#include "config.h"
-
-#if USE_STD_THREAD
-#include <mutex>
-#elif USE_BOOST_THREAD
-#include <boost/thread/mutex.hpp>
-#endif
+#include "threading.h"
 
 
 namespace snogray {
-
-
-#if USE_STD_THREAD
-
-typedef std::mutex RealMutex;
-typedef std::unique_lock<std::mutex> RealUniqueLock;
-
-#elif USE_BOOST_THREAD
-
-typedef boost::mutex RealMutex;
-typedef boost::unique_lock<boost::mutex> RealUniqueLock;
-
-#else // !USE_STD_THREAD && !USE_BOOST_THREAD
-
-//
-// Empty definitions of RealMutex and RealUniqueLock classes, for use
-// when multi-threading is not availble.
-//
-
-class RealMutex
-{
-public:
-
-  void lock () { }
-  void unlock () { }
-};
-
-class RealUniqueLock
-{
-public:
-
-  RealUniqueLock () { }
-  explicit RealUniqueLock (RealMutex &) { }
-  template<typename A> RealUniqueLock (RealMutex &, const A &) { }
-};
-
-#endif // !USE_STD_THREAD && !USE_BOOST_THREAD
 
 
 // Mutex is a thin wrapper that just inherits a selected set of
