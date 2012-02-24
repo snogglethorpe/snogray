@@ -1,6 +1,6 @@
 // load-lua.cc -- Load lua scene file
 //
-//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -98,10 +98,15 @@ snogray::load_lua_file (const string &filename,
   lua_newtable (L);
   lua_load_from_val_table (L, params);
 
+  // require ("snogray") => snogray module table
+  //
+  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
+  lua_pushstring (L, "snogray");		 // arg 0
+  lua_call (L, 1, 1);
+
   // Call "snogray.load_scene (filename, scene, camera, camera)" with
   // our scene and camera pointers, and a Lua copy of PARAMS.
   //
-  lua_getfield (L, LUA_GLOBALSINDEX, "snogray");
   lua_getfield (L, -1, "load_scene");			// function
   lua_pushstring (L, filename.c_str ());		// arg 0: filename
   SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 1: scene

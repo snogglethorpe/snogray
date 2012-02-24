@@ -1,6 +1,6 @@
 // lua-setup.cc -- Create a new snogray-specific lua state
 //
-//  Copyright (C) 2006-2008, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -171,12 +171,6 @@ snogray::new_snogray_lua_state ()
       lua_setfield (L, -2, pm->name);
     }
   lua_pop (L, 1);		// pop package.preload table
-
-  // require ("snogray")
-  //
-  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-  lua_pushstring (L, "snogray");		 // arg 0
-  lua_call (L, 1, 0);
 
   // Add extra functions into snograw table.
   //
