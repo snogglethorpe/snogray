@@ -61,10 +61,11 @@ pkglualoader_DATA = load-nff.lua load-obj.lua load-pbrt.lua	\
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
-	libsnoglight.a libsnogload.a libsnogloaders.a libsnoglua.a	\
-	libsnogmat.a libsnograw.a libsnogrdrive.a libsnogrender.a	\
-	libsnogscene.a libsnogscenecli.a libsnogspace.a			\
-	libsnogsurf.a libsnogtex.a libsnogutil.a libluaexts.a
+	libsnogimagecli.a libsnoglight.a libsnogload.a			\
+	libsnogloaders.a libsnoglua.a libsnogmat.a libsnograw.a		\
+	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
+	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
+	libsnogutil.a libluaexts.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -269,9 +270,7 @@ libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
 # Snogray command-line-interface library, libsnogcli.a
 #
 
-libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h			\
-	image-input-cmdline.h image-sampled-output-cmdline.cc		\
-	image-sampled-output-cmdline.h image-scaled-output-cmdline.h	\
+libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
 	tty-progress.cc tty-progress.h version.cc version.h
 
 
@@ -418,6 +417,16 @@ endif
 
 ################################################################
 #
+# Snogray image command-line handling library, libsnogimagecli.a
+#
+
+libsnogimagecli_a_SOURCES = image-input-cmdline.h			\
+	image-sampled-output-cmdline.cc image-sampled-output-cmdline.h	\
+	image-scaled-output-cmdline.h
+
+
+################################################################
+#
 # Snogray color library, libsnogcolor.a
 #
 
@@ -479,7 +488,8 @@ CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
 LOAD_LIBS = libsnogload.a $(libsnogload_LIBS)	\
 	libsnoglua.a $(libsnoglua_LIBS)	\
 	libsnogloaders.a $(libsnogloaders_LIBS)
-IMAGE_LIBS = libsnogimage.a $(libsnogimage_LIBS) libsnogcolor.a
+IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
+	libsnogcolor.a
 MISC_LIBS = libsnogcli.a libsnogutil.a
 
 
