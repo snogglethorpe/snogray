@@ -62,10 +62,7 @@ Snogray development goals:
 
 Current status
 
-   Snogray currently works reasonably well, but is still very rough.
-   In particular, it has no real notion of being "installed" — it
-   expects to find any files it needs to load relative to the current
-   directory.
+   Snogray currently works reasonably well, but is still a bit rough.
 
 
 Authors

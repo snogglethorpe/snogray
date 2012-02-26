@@ -1,10 +1,5 @@
 Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
-* TODO Make snogray installable!
-
-  The main issue is just having some sort of search path so that it
-  can find any resources it needs.
-
 * TODO Rewrite driver layer in Lua
 
   It really just makes sense...
@@ -454,6 +449,11 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 Completed items:
 
+
+* DONE [2012-02-26] Make snogray installable!
+
+  The main issue is just having some sort of search path so that it
+  can find any resources it needs.
 
 * DONE [2011-12-30] Finish bloom-filter (aka “veiling luminance”) app
 
