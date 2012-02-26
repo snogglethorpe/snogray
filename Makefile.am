@@ -63,8 +63,8 @@ pkglualoader_DATA = load-nff.lua load-obj.lua load-pbrt.lua	\
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 	libsnoglight.a libsnogload.a libsnogloaders.a libsnoglua.a	\
 	libsnogmat.a libsnograw.a libsnogrdrive.a libsnogrender.a	\
-	libsnogscene.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
-	libsnogutil.a libluaexts.a
+	libsnogscene.a libsnogscenecli.a libsnogspace.a			\
+	libsnogsurf.a libsnogtex.a libsnogutil.a libluaexts.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -272,8 +272,7 @@ libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
 libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h			\
 	image-input-cmdline.h image-sampled-output-cmdline.cc		\
 	image-sampled-output-cmdline.h image-scaled-output-cmdline.h	\
-	scene-cmdline.cc scene-cmdline.h tty-progress.cc		\
-	tty-progress.h version.cc version.h
+	tty-progress.cc tty-progress.h version.cc version.h
 
 
 ################################################################
@@ -321,6 +320,14 @@ libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h load-lua.cc load-lua.h
 # Library dependencies of libsnogload.a
 #
 libsnogload_LIBS = 
+
+
+################################################################
+#
+# Snogray scene command-line handling library, libsnogscenecli.a
+#
+
+libsnogscenecli_a_SOURCES =  scene-cmdline.cc scene-cmdline.h
 
 
 ################################################################
@@ -482,8 +489,8 @@ MISC_LIBS = libsnogcli.a libsnogutil.a
 #
 
 snogray_SOURCES = snogray.cc recover-image.cc recover-image.h
-snogray_LDADD = libsnogrdrive.a $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS)	\
-	$(MISC_LIBS)
+snogray_LDADD = libsnogscenecli.a libsnogrdrive.a $(LOAD_LIBS)	\
+	$(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
 snogsamp_LDADD = $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
