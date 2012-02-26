@@ -116,7 +116,7 @@ int main (int argc, char *const *argv)
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
-  if (clp.num_remaining_args() > 2)
+  if (clp.num_remaining_args() != 2)
     {
       usage (clp, cerr);
       clp.try_help_err ();
