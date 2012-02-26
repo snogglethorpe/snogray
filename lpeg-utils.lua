@@ -10,7 +10,7 @@
 -- Written by Miles Bader <miles@gnu.org>
 --
 
-module ("lpeg-utils", package.seeall)
+module ("snogray.lpeg-utils", package.seeall)
 
 local lpeg = require "lpeg"
 local snogray = require "snogray.snogray" -- for read_file

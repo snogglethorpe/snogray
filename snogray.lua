@@ -11,7 +11,7 @@
 --
 
 
-module ("snogray", package.seeall)
+module ("snogray.snogray", package.seeall)
 
 
 local raw = require "snogray.snograw"
