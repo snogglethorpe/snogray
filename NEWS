@@ -1,3 +1,27 @@
+v0.5.1
+
+    + Snogray can now be properly installed!  Files referenced in
+      scenes are still interpreted relative to the current directory
+      (which should eventually change), but snogray can find its own
+      support files in the installed location.
+
+    + A new utility program "snoghilite" copies an input image to an
+      output image, with all highlights scaled by a constant factor.
+      A "highlight" is any area of the image whose intensity exceeds a
+      given threshold.
+
+      This is particularly useful for turning a low-dynamic-range
+      environment-map into a HDR (high-dynamic-range) environment-map
+      usable (although obviously not accurate) for scene lighting.
+
+    + Snogray command-line syntax is slightly different:
+      - Only one scene-file may be specified.
+      - The output file is now optional, if the scene-file specifies
+	an output file itself.
+
+    + Various bug fixes and code improvements.
+
+
 v0.5
 
     + A new file "README.utils" documents the various utility programs.
