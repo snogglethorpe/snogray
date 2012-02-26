@@ -215,7 +215,7 @@ libsnogrender_a_SOURCES = dir-hist.h dir-hist-dist.h direct-illum.cc	\
 
 libsnogrdrive_a_SOURCES = progress.h render-cmdline.h render-mgr.cc	\
 	render-mgr.h render-packet.h render-pattern.h renderer.cc	\
-	renderer.h tty-progress.cc tty-progress.h wire-frame.h
+	renderer.h wire-frame.h
 
 if use_threads
 libsnogrdrive_a_SOURCES += render-queue.cc render-queue.h	\
