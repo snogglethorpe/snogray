@@ -14,7 +14,7 @@
 module ("snogray", package.seeall)
 
 
-local raw = require "snograw"
+local raw = require "snogray.snograw"
 
 -- Until recently, Swig-generated Lua modules didn't return the module
 -- table from require (as is recommended), but instead stored it into

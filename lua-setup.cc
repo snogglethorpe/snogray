@@ -51,7 +51,7 @@ struct preload_module
 // them).
 //
 static preload_module preloaded_modules[] = {
-  { "snograw", luaopen_snograw },
+  { "snogray.snograw", luaopen_snograw },
   { "lpeg", luaopen_lpeg },
   { 0, 0 }
 };
@@ -222,7 +222,7 @@ snogray::new_snogray_lua_state ()
   // global variable.
   //
   lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-  lua_pushstring (L, "snograw");		 // arg 0
+  lua_pushstring (L, "snogray.snograw");	 // arg 0
   lua_call (L, 1, 1);				 // call require
   if (! lua_istable (L, -1))
     {

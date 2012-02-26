@@ -31,7 +31,7 @@
 
 
 local lpeg = require 'lpeg'
-local lu = require 'lpeg-utils'
+local lu = require 'snogray.lpeg-utils'
 
 
 -- local abbreviations for lpeg primitives

@@ -1,6 +1,6 @@
 -- lpeg-utils.lua -- Useful functions for parsing with LPeg
 --
---  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2010, 2012  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 module ("lpeg-utils", package.seeall)
 
 local lpeg = require "lpeg"
-local snogray = require "snogray" -- for read_file
+local snogray = require "snogray.snogray" -- for read_file
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
