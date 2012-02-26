@@ -36,6 +36,19 @@ noinst_PROGRAMS += hemint
 endif
 
 
+# Snogray Lua install directories underneath $(pkgdatadir)
+#
+pkgluadir = $(pkgdatadir)/lua
+pkgluasnograydir = $(pkgluadir)/snogray
+pkglualoaderdir = $(pkgluadir)/snogray/loader
+
+# Install snogray Lua files.
+#
+pkgluasnogray_DATA = lpeg-utils.lua module-setup.lua snogray.lua
+pkglualoader_DATA = load-nff.lua load-obj.lua load-pbrt.lua	\
+	load-stl.lua load-ug.lua
+
+
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
@@ -48,10 +61,9 @@ noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =							\
+	$(pkgluasnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage	\
 	README.utils						\
-	snogray.lua module-setup.lua				\
-	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg vector.swg val-table.swg			\
 	image.swg surface.swg material.swg light.swg tex.swg	\
 	scene.swg camera.swg rdrive.swg space.swg color.swg	\
@@ -62,6 +74,14 @@ EXTRA_DIST =							\
 	stats.txt spd.txt
 
 noinst_SCRIPTS = update-version.sh
+
+
+# Try to clean up the extra subdirectories of $(datadir) we use when
+# uninstalling.
+#
+uninstall-hook:
+	-rmdir $(pkglualoaderdir) $(pkgluasnograydir) $(pkgluadir) $(pkgdatadir)
+
 
 # Allow specifying a Lua distribution to be included.  If we're already
 # building using a local copy of Lua, it is distributed by default.
