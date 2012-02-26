@@ -50,7 +50,7 @@ noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 EXTRA_DIST =							\
 	README README.building README.issues README.usage	\
 	README.utils						\
-	snogray.lua						\
+	snogray.lua module-setup.lua				\
 	load-obj.lua load-ug.lua load-stl.lua load-nff.lua	\
 	snograw.swg vector.swg val-table.swg			\
 	image.swg surface.swg material.swg light.swg tex.swg	\

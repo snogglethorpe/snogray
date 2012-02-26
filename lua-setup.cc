@@ -26,6 +26,7 @@ extern "C"
 
 #include "lua-funs.h"
 #include "funptr-cast.h"
+#include "snogpaths.h"
 
 #include "lua-setup.h"
 
@@ -128,6 +129,45 @@ snogray_lua_panic (lua_State *L)
 }
 
 
+// setup_module_loader
+
+// Some Lua code to set the module system to load snogray packages.
+//
+// It expects two arguments:  (1) the directory where we can find
+// installed Lua files, and (2) the name of the file to load to do the
+// module system setup.
+//
+// As this code this has to be executed _before_ we load any modules,
+// we keep it as a C string instead of storing it in a file.
+//
+const char lua_module_setup_code[] = "\
+local snogray_installed_lua_root, module_setup_file = ... \
+local mod_setup = loadfile (module_setup_file) \
+if mod_setup then \
+  mod_setup (nil) \
+else \
+  mod_setup = loadfile (snogray_installed_lua_root \
+                        ..'/snogray/'..module_setup_file) \
+  if mod_setup then  \
+    mod_setup (snogray_installed_lua_root) \
+  else \
+    error (module_setup_file..' not found', 0) \
+  end \
+end \
+";
+
+// Tweak the module system in Lua state L to properly load our modules.
+//
+static void
+setup_lua_module_loader (lua_State *L)
+{
+  luaL_loadstring (L, lua_module_setup_code);
+  lua_pushstring (L, (installed_pkgdatadir () + "/lua").c_str());
+  lua_pushstring (L, "module-setup.lua"); // Lua file with module setup code
+  lua_call (L, 2, 0);
+}
+
+
 // Lua initialization
 
 // Return a new Lua state setup with our special environment.
@@ -193,6 +233,10 @@ snogray::new_snogray_lua_state ()
   lua_pushcfunction (L, snogray::lua_read_file);
   lua_setfield (L, -2, "read_file");
   lua_pop (L, 1); 		// pop snograw table
+
+  // Setup the module system to load more stuff.
+  //
+  setup_lua_module_loader (L);
 
   return L;
 }
