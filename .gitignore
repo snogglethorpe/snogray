@@ -19,6 +19,7 @@ teapot.msh
 # Ignore generated sources
 #
 version.cc
+snogpaths-data.h
 snograw_lua_wrap.cc
 swigluarun.h
 
