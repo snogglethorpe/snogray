@@ -10,7 +10,9 @@
 -- Written by Miles Bader <miles@gnu.org>
 --
 
-module ("snogray.lpeg-utils", package.seeall)
+-- module
+--
+local lpeg_utils = {}
 
 local lpeg = require "lpeg"
 local snogray = require "snogray.snogray" -- for read_file
@@ -26,24 +28,24 @@ local FMANT =  PM * ((P"." * DIGS) + (DIGS * (P"." * OPT_DIGS)^-1))
 local FEXP = P"e" * PM * DIGS
 
 -- whole numbers
-INT = (PM * DIGS) / tonumber
-FLOAT = (FMANT * FEXP^-1) / tonumber
+lpeg_utils.INT = (PM * DIGS) / tonumber
+lpeg_utils.FLOAT = (FMANT * FEXP^-1) / tonumber
 
 -- whitespace
-OPT_WS = S" \t\r\n\f"^0	-- optional whitespace
-REQ_WS = S" \t\r\n\f"^1 -- required whitespace
-OPT_HORIZ_WS = S" \t"^0	-- optional non-newline whitespace
-REQ_HORIZ_WS = S" \t"^1 -- required non-newline whitespace
-NL = S"\r"^-1 * S"\n"	-- newline char
+lpeg_utils.OPT_WS = S" \t\r\n\f"^0 -- optional whitespace
+lpeg_utils.REQ_WS = S" \t\r\n\f"^1 -- required whitespace
+lpeg_utils.OPT_HORIZ_WS = S" \t"^0 -- optional non-newline whitespace
+lpeg_utils.REQ_HORIZ_WS = S" \t"^1 -- required non-newline whitespace
+lpeg_utils.NL = S"\r"^-1 * S"\n"   -- newline char
 
 -- line
-LINE = (1 - NL)^0
-LINE_NL = LINE * NL
-LINE_CONTENTS = C (LINE)
+lpeg_utils.LINE = (1 - lpeg_utils.NL)^0
+lpeg_utils.LINE_NL = lpeg_utils.LINE * lpeg_utils.NL
+lpeg_utils.LINE_CONTENTS = C (lpeg_utils.LINE)
 
 -- whitespace followed by numbers (useful shortcuts)
-WS_FLOAT = OPT_WS * FLOAT
-WS_INT = OPT_WS * INT
+lpeg_utils.WS_FLOAT = lpeg_utils.OPT_WS * lpeg_utils.FLOAT
+lpeg_utils.WS_INT = lpeg_utils.OPT_WS * lpeg_utils.INT
 
 
 -- Global state during parsing.
@@ -53,7 +55,7 @@ local parse_state
 
 -- Set the error position used if a parse error occurs.
 --
-function set_err_pos (pos)
+function lpeg_utils.set_err_pos (pos)
    parse_state.err_pos = pos
 end
 
@@ -65,7 +67,7 @@ end
 
 -- This special lpeg pattern updates the current error position
 --
-ERR_POS = P(update_err_pos)
+lpeg_utils.ERR_POS = P(update_err_pos)
 
 
 local function cur_line ()
@@ -104,7 +106,7 @@ end
 -- error location.  Should be called from within a parser invocation
 -- using parse_file.
 --
-function parse_err (msg)
+function lpeg_utils.parse_err (msg)
    -- We know that this function should be called from within a call
    -- to parse_file, so wrap the error message in a table to make it
    -- clear where it comes from.  parse_file will in turn catch our
@@ -117,7 +119,7 @@ end
 -- location.  Should be called from within a parser invocation using
 -- parse_file.
 --
-function parse_warn (msg)
+function lpeg_utils.parse_warn (msg)
    print (make_err_string ("warning: "..msg))
 end
 
@@ -126,7 +128,7 @@ end
 -- side-effect).  Repetition of PATTERN must cover the entire file,
 -- otherwise an error is signaled.
 --
-function parse_file (filename, pattern)
+function lpeg_utils.parse_file (filename, pattern)
    local text, err = snogray.read_file (filename)
    if not text then
       error (err, 0)
@@ -190,3 +192,7 @@ function parse_file (filename, pattern)
    --
    parse_state = old_parse_state
 end
+
+-- return module
+--
+return lpeg_utils
