@@ -131,37 +131,37 @@ snogray_lua_panic (lua_State *L)
 
 // setup_module_loader
 
-// Some Lua code to set the module system to load snogray packages.
-//
-// It expects two arguments:  (1) the directory where we can find
-// installed Lua files, and (2) the name of the file to load to do the
-// module system setup.
-//
-// As this code this has to be executed _before_ we load any modules,
-// we keep it as a C string instead of storing it in a file.
-//
-const char lua_module_setup_code[] = "\
-local snogray_installed_lua_root, module_setup_file = ... \
-local mod_setup = loadfile (module_setup_file) \
-if mod_setup then \
-  mod_setup (nil) \
-else \
-  mod_setup = loadfile (snogray_installed_lua_root \
-                        ..'/snogray/'..module_setup_file) \
-  if mod_setup then  \
-    mod_setup (snogray_installed_lua_root) \
-  else \
-    error (module_setup_file..' not found', 0) \
-  end \
-end \
-";
-
 // Tweak the module system in Lua state L to properly load our modules.
 //
 static void
 setup_lua_module_loader (lua_State *L)
 {
-  luaL_loadstring (L, lua_module_setup_code);
+  // A small Lua script to set up the module system for loading
+  // snogray packages.
+  //
+  // It expects two arguments:  (1) the directory where we can find
+  // installed Lua files, and (2) the name of the file to load to do the
+  // module system setup.
+  //
+  // As this code this has to be executed _before_ we load any modules,
+  // we keep it as a C string instead of storing it in a file.
+  //
+  static const char lua_module_setup_script[] = "\
+    local snogray_installed_lua_root, module_setup_file = ... \
+    local mod_setup = loadfile (module_setup_file) \
+    if mod_setup then \
+      mod_setup (nil) \
+    else \
+      mod_setup = loadfile (snogray_installed_lua_root \
+			    ..'/snogray/'..module_setup_file) \
+      if mod_setup then  \
+	mod_setup (snogray_installed_lua_root) \
+      else \
+	error (module_setup_file..' not found', 0) \
+      end \
+    end";
+
+  luaL_loadstring (L, lua_module_setup_script);
   lua_pushstring (L, (installed_pkgdatadir () + "/lua").c_str());
   lua_pushstring (L, "module-setup.lua"); // Lua file with module setup code
   lua_call (L, 2, 0);
