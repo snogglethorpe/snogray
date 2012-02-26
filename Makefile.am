@@ -272,7 +272,8 @@ libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
 libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h			\
 	image-input-cmdline.h image-sampled-output-cmdline.cc		\
 	image-sampled-output-cmdline.h image-scaled-output-cmdline.h	\
-	scene-cmdline.cc scene-cmdline.h version.cc version.h
+	scene-cmdline.cc scene-cmdline.h tty-progress.cc		\
+	tty-progress.h version.cc version.h
 
 
 ################################################################
@@ -428,10 +429,10 @@ libsnogutil_a_SOURCES = compiler.h cond-var.h excepts.h file-funs.cc	\
 	least-squares-fit.h matrix.h matrix.tcc matrix-funs.h		\
 	matrix-funs.tcc matrix-io.h mempool.cc mempool.h mutex.h	\
 	nice-io.cc nice-io.h num-cores.cc num-cores.h pool.h		\
-	radical-inverse.h random.h random-boost.h random-std.h		\
-	random-rand.h random-tr1.h ref.h rusage.h snogassert.cc		\
-	snogassert.h snogmath.h snogpaths.cc snogpaths.h		\
-	string-funs.cc string-funs.h thread.h threading.h		\
+	progress.h radical-inverse.h random.h random-boost.h		\
+	random-std.h random-rand.h random-tr1.h ref.h rusage.h		\
+	snogassert.cc snogassert.h snogmath.h snogpaths.cc		\
+	snogpaths.h string-funs.cc string-funs.h thread.h threading.h	\
 	threading-boost.h threading-std.h timeval.cc timeval.h		\
 	val-table.cc unique-ptr.h val-table.h
 
