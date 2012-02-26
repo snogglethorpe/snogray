@@ -16,12 +16,6 @@
 --
 local installed_lua_root = ...
 
--- remove the current directory from the module search path; it will be
--- re-added later if necessary.
---
-package.path = string.gsub (package.path, ';[.]/[?][.]lua(;?)', '%1')
-package.path = string.gsub (package.path, '^[.]/[?][.]lua;', '')
-
 if installed_lua_root then
    --
    -- We're operating in "installed mode".  Push the installation Lua
@@ -30,20 +24,17 @@ if installed_lua_root then
    package.path = installed_lua_root.."/?.lua;"..package.path
 else
    --
-   -- We're operating in "uninstalled mode".  Push the current
-   -- directory onto the front of the module search path, and add a
-   -- package searcher that strips "snogray." off the front of module
-   -- requests.
+   -- We're operating in "uninstalled mode".  Add a package searcher
+   -- that just tries to load anything prefixed with "snogray." from
+   -- the current directory.
    --
-   package.path = "./?.lua;"..package.path
-
-   -- Add a package searcher that strips "snogray." off the front of
-   -- module requests.
-   --
-   local function load_uninstalled_snogray_package (package)
-      local snogray_package = string.match (package, '^snogray[.](.*)$')
-      if snogray_package then
-	 return function () return require (snogray_package) end
+   local function load_uninstalled_snogray_package (pkg, ...)
+      local snogray_pkg = string.match (pkg, "^snogray[.](.*)$")
+      if snogray_pkg then
+	 return function ()
+		   return (loadfile (snogray_pkg..".lua") ()
+		           or package.loaded[snogray_pkg])
+		end
       else
 	 return nil
       end
