@@ -71,7 +71,7 @@ end
 --
 local snogray_environ = {}
 snogray_environ.lua_root_dir = lua_root_dir
-snogray_environ.lua_snoray_dir = lua_snogray_dir
+snogray_environ.lua_snogray_dir = lua_snogray_dir
 snogray_environ.lua_loader_dir = lua_loader_dir
 
 package.loaded['snogray.environ'] = snogray_environ
