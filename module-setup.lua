@@ -18,20 +18,23 @@ local installed_lua_root = ...
 
 -- Various directories
 --
-local lua_root_dir, lua_snogray_dir, lua_environ_dir
+local lua_dir, lua_module_dir, lua_loader_dir
 
 if installed_lua_root then
    --
-   -- We're operating in "installed mode".  Push the installation Lua
-   -- directory onto the front of the module search path.
+   -- We're operating in "installed mode".  
    --
-   package.path = installed_lua_root.."/?.lua;"..package.path
 
    -- Various directories in their proper locations.
    --
-   lua_root_dir = installed_lua_root
-   lua_snogray_dir = lua_root_dir.."/snogray"
-   lua_loader_dir = lua_root_dir.."/snogray/loader"
+   lua_dir = installed_lua_root
+   lua_module_dir = lua_dir.."/module"
+   lua_loader_dir = lua_dir.."/loader"
+
+   -- Push the installation Lua directory onto the front of the module
+   -- search path.
+   --
+   package.path = lua_module_dir.."/?.lua;"..package.path
 else
    --
    -- We're operating in "uninstalled mode".  Add a package searcher
@@ -51,8 +54,8 @@ else
 
    -- Everything in current directory.
    --
-   lua_root_dir = "."
-   lua_snogray_dir = "."
+   lua_dir = "."
+   lua_module_dir = "."
    lua_loader_dir = "."
 end
 
@@ -60,18 +63,17 @@ end
 --
 -- Currently this contains the following definitions:
 --
---   lua_root_dir --	The root of the tree where snogray Lua files are
+--   lua_dir		The root of the tree where snogray Lua files are
 --			stored.
 --
---   lua_snogray_dir -- The directory where snogray Lua modules (whose
---			module name has a "snogray." prefix) are stored.
+--   lua_module_dir	The directory where snogray Lua modules are stored.
 --
---   lua_loader_dir --  The directory where snogray Lua scene/mesh
+--   lua_loader_dir	The directory where snogray Lua scene/mesh
 --			loaders are stored.
 --
 local snogray_environ = {}
-snogray_environ.lua_root_dir = lua_root_dir
-snogray_environ.lua_snogray_dir = lua_snogray_dir
+snogray_environ.lua_dir = lua_dir
+snogray_environ.lua_module_dir = lua_module_dir
 snogray_environ.lua_loader_dir = lua_loader_dir
 
 package.loaded['snogray.environ'] = snogray_environ

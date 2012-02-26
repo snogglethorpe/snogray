@@ -153,7 +153,7 @@ setup_lua_module_loader (lua_State *L)
       mod_setup (nil) \
     else \
       mod_setup = loadfile (snogray_installed_lua_root \
-			    ..'/snogray/'..module_setup_file) \
+                            ..'/'..module_setup_file) \
       if mod_setup then  \
 	mod_setup (snogray_installed_lua_root) \
       else \

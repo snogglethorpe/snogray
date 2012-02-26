@@ -36,15 +36,24 @@ noinst_PROGRAMS += hemint
 endif
 
 
-# Snogray Lua install directories underneath $(pkgdatadir)
+# Lua files loaded directly by the driver.
 #
 pkgluadir = $(pkgdatadir)/lua
-pkgluasnograydir = $(pkgluadir)/snogray
-pkglualoaderdir = $(pkgluadir)/snogray/loader
+pkglua_DATA = module-setup.lua
 
-# Install snogray Lua files.
+# Lua modules (loaded via the Lua 'require' function).
 #
-pkgluasnogray_DATA = lpeg-utils.lua module-setup.lua snogray.lua
+pkgluamoduledir = $(pkgluadir)/module
+
+# Lua modules (loaded via the Lua 'require' function) whose module
+# names have a "snogray." prefix.
+#
+pkgluamodulesnograydir = $(pkgluamoduledir)/snogray
+pkgluamodulesnogray_DATA = lpeg-utils.lua snogray.lua
+
+# Lua loaders for various scene/mesh formats.
+#
+pkglualoaderdir = $(pkgluadir)/loader
 pkglualoader_DATA = load-nff.lua load-obj.lua load-pbrt.lua	\
 	load-stl.lua load-ug.lua
 
@@ -61,7 +70,8 @@ noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =							\
-	$(pkgluasnogray_DATA) $(pkglualoader_DATA)		\
+	$(pkglua_DATA)						\
+	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)	\
 	README README.building README.issues README.usage	\
 	README.utils						\
 	snograw.swg vector.swg val-table.swg			\
@@ -80,7 +90,11 @@ noinst_SCRIPTS = update-version.sh
 # uninstalling.
 #
 uninstall-hook:
-	-rmdir $(pkglualoaderdir) $(pkgluasnograydir) $(pkgluadir) $(pkgdatadir)
+	-rmdir $(pkglualoaderdir)
+	-rmdir $(pkgluamodulesnograydir)
+	-rmdir $(pkgluamoduledir)
+	-rmdir $(pkgluadir)
+	-rmdir $(pkgdatadir)
 
 
 # Allow specifying a Lua distribution to be included.  If we're already
