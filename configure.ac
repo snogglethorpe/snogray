@@ -64,6 +64,16 @@ if test "$enable_double_coords" = yes; then
 fi
 
 
+# Enable/disable link-time optimization.  For now, this defaults to
+# disabled, as LTO can be flaky with semi-recent releases of gcc.
+#
+AC_ARG_ENABLE([lto],
+    AS_HELP_STRING([--enable-lto],
+		   [Enable link-time optimization]),
+    [lto="yes"],
+    [lto="no"])
+
+
 ##
 ## --------------------------------
 ## Optional addons
@@ -1121,6 +1131,17 @@ if test "$GXX" = yes; then
   #
   AC_SUBST([CXX_OPT_FLAGS], ["-O3 -fomit-frame-pointer"])
   AC_SUBST([CXX_OPT_SIZE_FLAGS], ["-Os"])
+
+  # If link-time optimization is enabled, try the gcc option for that.
+  #
+  # Note that we intentionally only add "-flto" to the default
+  # optimization flags (CXX_OPT_FLAGS), _not_ the size-optimization
+  # floats (CXX_OPT_SIZE_FLAGS).
+  #
+  if test "$lto" = yes; then
+    SNOGRAY_CHECK_CXX_FLAGS([CXX_LTO_FLAGS], [-flto])
+    CXX_OPT_FLAGS="$CXX_OPT_FLAGS $CXX_LTO_FLAGS"
+  fi
 
   # g++ flags for architecture-independent floating-point optimization.
   #
