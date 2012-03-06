@@ -69,7 +69,7 @@ int main (int argc, char *argv[])
 	usage (prog_name);
       }
 
-  enum { RADICAL, RANDOM, STRATIFIED } method;
+  enum { RADICAL, RANDOM, STRATIFIED, GRID } method;
 
   if (strcmp (meth_name, "radical-inverse") == 0
       || strcmp (meth_name, "radical") == 0
@@ -89,6 +89,11 @@ int main (int argc, char *argv[])
     {
       method = STRATIFIED;
       meth_name = "stratified";
+    }
+  else if (strcmp (meth_name, "grid") == 0)
+    {
+      method = GRID;
+      meth_name = "grid";
     }
   else
     {
@@ -120,12 +125,46 @@ int main (int argc, char *argv[])
   double inv_pdf_sum = 0;
   unsigned zero_count = 0, nan_count = 0;
 
-  Grid grid;
-  SampleSet sample_set (num_samples, grid, rng);
+  Grid strat;
+  SampleSet sample_set (num_samples, strat, rng);
   SampleSet::Channel<UV> chan = sample_set.add_channel<UV> ();
+  std::vector<UV> grid;
 
   if (method == STRATIFIED)
     sample_set.generate ();
+  else if (method == GRID)
+    {
+      double sqrt_num = sqrt (double (num_samples));
+      double up = ceil (sqrt_num);
+      double down = floor (sqrt_num + 0.5);
+
+      num_samples = unsigned (up * down);
+
+      unsigned u_steps = unsigned (up);
+      unsigned v_steps = unsigned (down);
+
+      float u_step = 1 / up;
+      float v_step = 1 / down;
+
+      float v_offs = 0;
+
+      grid.resize (num_samples);
+
+      std::vector<UV>::iterator samp = grid.begin ();
+      for (unsigned i = 0; i < v_steps; i++)
+	{
+	  float u_offs = 0;
+
+	  for (unsigned j = 0; j < u_steps; j++)
+	    {
+	      *samp++ = UV (clamp01 (u_offs + 0.5f * u_step),
+			    clamp01 (v_offs + 0.5f * v_step));
+	      u_offs += u_step;
+	    }
+
+	  v_offs += v_step;
+	}
+    }
 
   Image out_image (w,h);
 
@@ -136,6 +175,8 @@ int main (int argc, char *argv[])
 	param = UV (radical_inverse (i+1,2), radical_inverse(i+1,3));
       else if (method == STRATIFIED)
 	param = sample_set.get (chan, i);
+      else if (method == GRID)
+	param = grid[i];
       else
 	param = UV (rng(), rng()); // RANDOM
 	
