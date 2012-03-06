@@ -64,14 +64,14 @@ if test "$enable_double_coords" = yes; then
 fi
 
 
-# Enable/disable link-time optimization.  For now, this defaults to
-# disabled, as LTO can be flaky with semi-recent releases of gcc.
+# Enable/disable link-time optimization.  We default to "yes", and test
+# whether it actually works later in this file.
 #
 AC_ARG_ENABLE([lto],
     AS_HELP_STRING([--enable-lto],
 		   [Enable link-time optimization]),
-    [lto="yes"],
-    [lto="no"])
+    [lto="$enableval"],
+    [lto="yes"])
 
 
 ##
@@ -1139,8 +1139,30 @@ if test "$GXX" = yes; then
   # floats (CXX_OPT_SIZE_FLAGS).
   #
   if test "$lto" = yes; then
+    # See if the compiler even accepts the option
+    #
     SNOGRAY_CHECK_CXX_FLAGS([CXX_LTO_FLAGS], [-flto])
-    CXX_OPT_FLAGS="$CXX_OPT_FLAGS $CXX_LTO_FLAGS"
+
+    # If the compiler was OK with it, try a test compile to see if it
+    # actually seems to work; we need to test all the way through
+    # linking, because, e.g. with clang, the compiler succeeds, but the
+    # linker can't handle what it outputs.
+    #
+    if test x"$CXX_LTO_FLAGS" != x; then
+      _OLD_CXXFLAGS="$CXXFLAGS"
+      CXXFLAGS="$CXX_LTO_FLAGS $CXXFLAGS"
+      AC_MSG_CHECKING([whether compiler "$CXX_LTO_FLAGS" option is broken])
+      AC_LINK_IFELSE(
+	[AC_LANG_SOURCE([int main () { return 0; }])],
+	[cxx_lto_broken=no],
+        [cxx_lto_broken=yes])
+      AC_MSG_RESULT([$cxx_lto_broken])
+      CXXFLAGS="$_OLD_CXXFLAGS"
+
+      if test $cxx_lto_broken = no; then
+	CXX_OPT_FLAGS="$CXX_OPT_FLAGS $CXX_LTO_FLAGS"
+      fi
+    fi
   fi
 
   # g++ flags for architecture-independent floating-point optimization.
