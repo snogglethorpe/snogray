@@ -58,7 +58,7 @@ error_cb (p_ply ply, const char *str)
   // the msg and rely on the rest of the code to fail gracefully.
 
   void *pdata;
-  if (ply_get_user_data (ply, &pdata, 0))
+  if (ply_get_ply_user_data (ply, &pdata, 0))
     {
       RplyState *s = (RplyState *)pdata;
       s->err_str = str;

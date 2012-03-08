@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------
  * RPly library, read/write PLY files
- * Diego Nehab, Princeton University
- * http://www.cs.princeton.edu/~diego/professional/rply
+ * Diego Nehab, IMPA
+ * http://www.impa.br/~diego/software/rply
  *
  * This library is distributed under the MIT License. See notice
  * at the end of this file.
@@ -21,8 +21,8 @@
 /* ----------------------------------------------------------------------
  * Make sure we get our integer types right
  * ---------------------------------------------------------------------- */
-#ifdef _MSC_VER
-/* We are in 2006, and some compilers still fail to define C99 types! */
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
+/* C99 stdint.h only supported in MSVC++ 10.0 and up */
 typedef __int8 t_ply_int8;
 typedef __int16 t_ply_int16;
 typedef __int32 t_ply_int32;
@@ -93,7 +93,7 @@ static const char *const ply_type_list[] = {
  * value: value of property
  * pdata/idata: user data defined with ply_set_cb
  *
- * Returns handle to ply file if succesful, NULL otherwise.
+ * Returns handle to PLY file if succesful, NULL otherwise.
  * ---------------------------------------------------------------------- */
 typedef struct t_ply_argument_ {
     p_ply_element element;
@@ -225,6 +225,7 @@ static t_ply_odriver ply_odriver_binary_reverse;
 
 static int ply_read_word(p_ply ply);
 static int ply_check_word(p_ply ply);
+static void ply_finish_word(p_ply ply, size_t size);
 static int ply_read_line(p_ply ply);
 static int ply_check_line(p_ply ply);
 static int ply_read_chunk(p_ply ply, void *anybuffer, size_t size);
@@ -320,12 +321,6 @@ static int BREFILL(p_ply ply) {
     return 1;
 }
 
-/* ----------------------------------------------------------------------
- * Exported functions
- * ---------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------
- * Read support functions
- * ---------------------------------------------------------------------- */
 /* We don't care about end-of-line, generally, because we
  * separate words by any white-space character.
  * Unfortunately, in binary mode, right after 'end_header', 
@@ -344,12 +339,19 @@ static int ply_read_header_magic(p_ply ply) {
         ply->error_cb(ply, "Wrong magic number. Expected 'ply'");
         return 0;
     }
-    /* figure out if we have to skip the extra character */
+    /* figure out if we have to skip the extra character
+     * after header when we reach the binary part of file */
     ply->rn = magic[3] == '\r' && magic[4] == '\n';
     BSKIP(ply, 3);
     return 1;
 }
 
+/* ----------------------------------------------------------------------
+ * Exported functions
+ * ---------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------
+ * Read support functions
+ * ---------------------------------------------------------------------- */
 p_ply ply_open(const char *name, p_ply_error_cb error_cb, 
         long idata, void *pdata) {
     FILE *fp = NULL; 
@@ -679,14 +681,6 @@ int ply_close(p_ply ply) {
     return 1;
 }
 
-int ply_get_user_data(p_ply ply, void **pdata, long *idata)
-{
-  if (pdata)
-    *pdata = ply->pdata;
-  if (idata)
-    *idata = ply->idata;
-}
-
 /* ----------------------------------------------------------------------
  * Query support functions
  * ---------------------------------------------------------------------- */
@@ -778,6 +772,14 @@ double ply_get_argument_value(p_ply_argument argument) {
     assert(argument);
     if (!argument) return 0.0;
     return argument->value;
+}
+
+int ply_get_ply_user_data(p_ply ply, void **pdata, long *idata) {
+    assert(ply);
+    if (!ply) return 0;
+    if (pdata) *pdata = ply->pdata;
+    if (idata) *idata = ply->idata;
+    return 1;
 }
 
 /* ----------------------------------------------------------------------
@@ -907,8 +909,12 @@ static p_ply_property ply_find_property(p_ply_element element,
 }
 
 static int ply_check_word(p_ply ply) {
-    if (strlen(BLINE(ply)) >= WORDSIZE) {
+    size_t size = strlen(BWORD(ply));
+    if (size >= WORDSIZE) {
         ply_ferror(ply, "Word too long");
+        return 0;
+    } else if (size == 0) {
+        ply_ferror(ply, "Unexpected end of file");
         return 0;
     }
     return 1;
@@ -933,16 +939,16 @@ static int ply_read_word(p_ply ply) {
     t = strcspn(BFIRST(ply), " \n\r\t");
     /* if we didn't reach the end of the buffer, we are done */
     if (t < BSIZE(ply)) {
-        ply->buffer_token = ply->buffer_first;
-        BSKIP(ply, t);
-        *BFIRST(ply) = '\0';
-        BSKIP(ply, 1);
+        ply_finish_word(ply, t);
         return ply_check_word(ply);
     }
     /* otherwise, try to refill buffer */
     if (!BREFILL(ply)) {
-        ply_ferror(ply, "Unexpected end of file");
-        return 0;
+        /* if we reached the end of file, try to do with what we have */
+        ply_finish_word(ply, t);
+        return ply_check_word(ply);
+        /* ply_ferror(ply, "Unexpected end of file"); */
+        /* return 0; */
     }
     /* keep looking from where we left */
     t += strcspn(BFIRST(ply) + t, " \n\r\t");
@@ -952,11 +958,15 @@ static int ply_read_word(p_ply ply) {
         return 0;
     }
     /* we are done */
+    ply_finish_word(ply, t);
+    return ply_check_word(ply);
+}
+
+static void ply_finish_word(p_ply ply, size_t size) {
     ply->buffer_token = ply->buffer_first;
-    BSKIP(ply, t);
+    BSKIP(ply, size);
     *BFIRST(ply) = '\0';
     BSKIP(ply, 1);
-    return ply_check_word(ply);
 }
 
 static int ply_check_line(p_ply ply) {
@@ -1101,7 +1111,7 @@ static void ply_property_init(p_ply_property property) {
 }
 
 static p_ply ply_alloc(void) {
-    p_ply ply = (p_ply) malloc(sizeof(t_ply));
+    p_ply ply = (p_ply) calloc(1, sizeof(t_ply));
     if (!ply) return NULL;
     ply_init(ply);
     return ply;
@@ -1550,7 +1560,7 @@ static t_ply_odriver ply_odriver_binary_reverse = {
 };
 
 /* ----------------------------------------------------------------------
- * Copyright (C) 2003 Diego Nehab.  All rights reserved.
+ * Copyright (C) 2003-2011 Diego Nehab.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -1571,6 +1581,3 @@ static t_ply_odriver ply_odriver_binary_reverse = {
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * ---------------------------------------------------------------------- */
-
-/* arch-tag: 5a615a16-402f-4108-868e-65b9c463eb5b
-   (do not change this comment) */
