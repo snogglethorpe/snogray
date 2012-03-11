@@ -81,7 +81,7 @@ local function cur_line ()
    while count_pos < pos do
       line_num = line_num + 1
       bol_pos = count_pos
-      count_pos = LINE_NL:match (text, count_pos)
+      count_pos = lpeg_utils.LINE_NL:match (text, count_pos)
    end
    if count_pos > pos then
       line_num = line_num - 1
