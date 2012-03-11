@@ -52,6 +52,12 @@ Tessel::Tessel (const Function &_fun, const MaxErrCalc &_max_err_calc)
     vi->index = index++;
 }
 
+Tessel::~Tessel ()
+{
+  while (cells)
+    delete cells.pop ();
+}
+
 
 // Tessel::Function methods
 
