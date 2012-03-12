@@ -1,6 +1,6 @@
 // image-jpeg.h -- JPEG format image handling
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,6 +15,12 @@
 
 #include <cstdio>
 #include <csetjmp>
+
+// Note: this include should be _before_ the include of <jpeglib.h>,
+// to avoid the problems with redefinition of HAVE_STDLIB_H mentioned
+// below.
+//
+#include "image-byte-vec.h"
 
 // Some versions of the libjpeg header files define "HAVE_STDLIB_H" (which
 // they probably shouldn't, but...), which results in the compiler
@@ -32,7 +38,6 @@
 #endif
 
 
-#include "image-byte-vec.h"
 
 namespace snogray {
 
