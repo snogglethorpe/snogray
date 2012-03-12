@@ -1,6 +1,6 @@
 # surface.swg -- SWIG interfaces for snogray surfaces
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,7 +14,9 @@
 %{
 #include "load-ply.h"
 #include "load-msh.h"
-#include "load-3ds.h"
+#if HAVE_LIB3DS
+# include "load-3ds.h"
+#endif
 %}
 
 
@@ -27,10 +29,11 @@ namespace snogray {
   void load_msh_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);
 
+#if HAVE_LIB3DS
   void load_3ds_file (const char *filename, Scene &scene, Camera &camera,
 		      const ValTable &params);
   void load_3ds_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);
-
+#endif
 
 }
