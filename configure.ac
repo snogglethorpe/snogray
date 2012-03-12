@@ -769,7 +769,7 @@ AM_CONDITIONAL([have_libnetpbm], [test $have_libnetpbm = yes])
 # defined.
 #
 have_lib3ds=no
-m4_define_default([AM_PATH_LIB3DS], [])
+m4_define_default([AM_PATH_LIB3DS], [:])
 if test $cross_compiling = no; then
   AM_PATH_LIB3DS([1.2.0], [have_lib3ds=yes])
 fi
