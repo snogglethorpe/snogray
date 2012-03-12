@@ -1109,7 +1109,7 @@ function lights.infinite (state, params)
    -- If the user specified an environment map on the command-line,
    -- suppress those in the scene file.
    --
-   if state.params["scene.background"] then
+   if state:get_param ("scene.background") then
       parse_warn "infinite light ignored because of user-specified environment-map"
       return nil
    end
@@ -1220,7 +1220,7 @@ function samplers.adaptive (state, params)
    local maxsamp = get_single_param (state, params, "integer maxsamples", 32)
    params["string method"] = nil -- ignore
    local nsamp = math.floor ((minsamp + maxsamp) / 2)
-   nsamp = state.params["render.samples"] or nsamp -- prefer user's
+   nsamp = state:get_param ("render.samples") or nsamp -- prefer user's
    parse_warn ("sampler \"adaptive\" not implemented; using default with "
 	       ..tostring(nsamp).." samples")
    state:set_param ("render.samples", nsamp)
@@ -1229,7 +1229,7 @@ end
 local function unimp_typical_sampler (name, state, params)
    local nsamp = get_single_param (state, params, "integer pixelsamples", 4)
    if nsamp ~= 1 then
-      nsamp = state.params["render.samples"] or nsamp -- prefer user's
+      nsamp = state:get_param ("render.samples") or nsamp -- prefer user's
       parse_warn ("sampler \""..name.."\" not implemented; using default with "
 		  ..tostring(nsamp).." samples")
    end
@@ -1254,7 +1254,7 @@ function samplers.stratified (state, params)
    local xsamp = get_single_param (state, params, "integer xsamples", 2)
    local ysamp = get_single_param (state, params, "integer ysamples", 2)
    params["bool jitter"] = nil -- ignore
-   if not state.params["render.samples"] then
+   if not state:get_param ("render.samples") then
       local nsamp = xsamp * ysamp
       if xsamp ~= ysamp then
 	 parse_warn ("using \"stratified\" sampler with "
@@ -1267,7 +1267,7 @@ end
 function samplers.random (name, state, params)
    local nsamp = get_single_param (state, params, "integer nsamples", 4)
    if nsamp ~= 1 then
-      nsamp = state.params["render.samples"] or nsamp -- prefer user's
+      nsamp = state:get_param ("render.samples") or nsamp -- prefer user's
       parse_warn ("sampler \""..name.."\" not implemented; using default with "
 		  ..tostring(nsamp).." samples")
    end
@@ -1441,12 +1441,12 @@ function load_pbrt_in_state (state, scene, camera)
    -- beginning of the "world" section).
    --
    local function process_pending_options ()
-      local params, pending_opts = state.params, state.pending_options
+      local pending_opts = state.pending_options
       local intended_width = pending_opts.width or default_width
       local intended_height = pending_opts.height or default_height
-      local width = params["output.width"] or intended_width
-      local height = params["output.height"] or intended_height
-      local size = params["output.size"]
+      local width = state:get_param ("output.width") or intended_width
+      local height = state:get_param ("output.height") or intended_height
+      local size = state:get_param ("output.size")
       local aspect_ratio = width / height
 
       -- There's a (user-specified) "output.size" parameter only if he
@@ -1463,8 +1463,8 @@ function load_pbrt_in_state (state, scene, camera)
 	    width, height = math.floor (size * aspect_ratio), size
 	 end
       end
-      params["output.width"] = width
-      params["output.height"] = height
+      state:set_param ("output.width", width)
+      state:set_param ("output.height", height)
 
       -- Update the camera aspect ratio to match the final image size.
       -- This must be done before setting the FOV -- otherwise later
@@ -1492,7 +1492,7 @@ function load_pbrt_in_state (state, scene, camera)
       -- If the user hasn't specified an output filter, do so here to
       -- match PBRT defaults.
       --
-      if not state.params["output.filter"] then
+      if not state:get_param ("output.filter") then
 	 pixel_filters.box (state, {})
       end
 
@@ -1606,7 +1606,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
       state.pending_options.width = w
       state.pending_options.height = h
-      if filename and not state.params.output.filename then
+      if filename and not state:get_param ("output.filename") then
 	 state:set_param ("output.filename", filename)
       end
    end
@@ -1730,7 +1730,8 @@ function load_pbrt_in_state (state, scene, camera)
       -- scene files with unsupported surface-integrators, of which
       -- there are many...).
       local err_label  -- string => error if unknown; false/nil => no errors
-	 = not state.params["render.surface_integ"] and "surface-integrator"
+	 = (not state:get_param ("render.surface_integ.type")
+	    and "surface-integrator")
       handle_subcommand (kind, params, surface_integrators, err_label)
    end
    local function texture_cmd (name, type, kind, params)
@@ -1856,15 +1857,58 @@ function load_pbrt_in_state (state, scene, camera)
 end
 
 function load_pbrt (filename, scene, camera, params)
+
+   -- Return a parameter table and an entry name in that table,
+   -- starting from the root-table TABLE, for a parameter called NAME.
+   --
+   -- In NAME, "." characters are used to specify sub-tables.  For
+   -- example, "a.b.c" refers to a final entry "c" in a subtable "b"
+   -- of a subtable "a" in the root table; in this case, the final
+   -- return value would be: root_table.a.b, "c".
+   --
+   -- The last component of NAME (which always refers to an entry, not
+   -- a subtable) may additionally have "alternative names" separated
+   -- by "," characters; if any of those names exist in the final
+   -- table, then that is the name that is returned, otherwise the
+   -- final name is returned.
+   --
+   -- If a sub-table doesn't exist, it is created when CREATE is true,
+   -- otherwise nil is returned immediately.
+   --
+   local function get_param_table (table, name, create)
+      local name_pos = 1
+      local subtab_name, next_pos = smatch (name, "^([^.,]*)[.]()")
+      while subtab_name do
+	 if not table[subtab_name] then
+	    if not create then
+	       return nil
+	    end
+	    table[subtab_name] = {}
+	 end
+	 table = table[subtab_name]
+	 name_pos = next_pos
+	 subtab_name, next_pos = smatch (name, "^([^.,]*)[.]()", name_pos)
+      end
+      if name_pos > 1 then
+	 name = string.sub (name, name_pos)
+      end
+
+      for part in string.gmatch (name, "[^,]+") do
+	 name = part
+	 if table[name] ~= nil then break end
+      end
+
+      return table, name
+   end
+
    local init_state = {
       scene = scene,
       camera = camera,
       params = params,
 
-      -- Stores VAL into PARAMS using the name NAME (see below for its
-      -- format), but only if there's no existing entry (allowing any
-      -- settings the user specified on the command-line to take
-      -- precedence).
+      -- Sets the parameter called NAME to the value VAL, but only if
+      -- there's no existing entry (allowing any settings the user
+      -- specified on the command-line to take precedence).
       --
       -- NAME is basically the name of the parameter, but has a
       -- special format: if the final period-separated component of
@@ -1888,19 +1932,31 @@ function load_pbrt (filename, scene, camera, params)
       set_param
 	 = function (self, name, val)
 	      if val ~= nil then
-		 local prefix = smatch (name, "^(.*[.])[^.]+,[^.]+$")
-		 if prefix then
-		    local last = smatch (name, "[^.]*$")
-		    name = nil
-		    for part in string.gmatch (last, "[^,]+") do
-		       name = prefix..part
-		       if self.params[name] ~= nil then break end
-		    end
-		 end
-		 if params[name] == nil then
-		    self.params[name] = val
+		 local tab, name = get_param_table (self.params, name, true)
+		 if tab[name] == nil then
+		    tab[name] = val
 		 end
 	      end
+	   end,
+
+      -- Returns the value of the parameter called NAME.
+      --
+      -- NAME is basically the name of the parameter, but has a
+      -- special format: if the final period-separated component of
+      -- the NAME contains "," characters, then that final component
+      -- is split at the "," characters, and each re-attached to the
+      -- previous components to form multiple names.
+      --
+      -- For instance:  "x.y.a,b,c" => "x.y.a", "x.y.b", "x.y.c".
+      --
+      -- Then, _all_ of them are checked to see if they exist in
+      -- PARAMS, and only if _none_ do, then VAL is stored into PARAMS
+      -- using the last name ("x.y.c" in the example above).
+      --
+      get_param
+	 = function (self, name)
+	      local tab, name = get_param_table (self.params, name)
+	      return tab and tab[name]
 	   end,
 
       section = 'options',	-- which input section we're in
