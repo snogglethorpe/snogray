@@ -78,7 +78,7 @@ COMMAND-LINE OPTIONS
     -s WIDTH
     --size=WIDTH
 
-        Set the output -image size to WIDTH by HEIGHT pixels.
+        Set the output image size to WIDTH by HEIGHT pixels.
 
         If the "xHEIGHT" portion of the value is omitted, then WIDTH
         is divided by the default aspect ratio to get the height.
