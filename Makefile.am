@@ -92,11 +92,11 @@ noinst_SCRIPTS = update-version.sh
 # uninstalling.
 #
 uninstall-hook:
-	-rmdir $(pkglualoaderdir)
-	-rmdir $(pkgluamodulesnograydir)
-	-rmdir $(pkgluamoduledir)
-	-rmdir $(pkgluadir)
-	-rmdir $(pkgdatadir)
+	-rmdir $(DESTDIR)$(pkglualoaderdir)
+	-rmdir $(DESTDIR)$(pkgluamodulesnograydir)
+	-rmdir $(DESTDIR)$(pkgluamoduledir)
+	-rmdir $(DESTDIR)$(pkgluadir)
+	-rmdir $(DESTDIR)$(pkgdatadir)
 
 
 # Allow specifying a Lua distribution to be included.  If we're already
