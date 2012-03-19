@@ -454,7 +454,7 @@ libsnogutil_a_SOURCES = compiler.h cond-var.h excepts.h file-funs.cc	\
 	val-table.cc unique-ptr.h val-table.h
 
 
-snogpaths.cc: snogpaths-data.h
+snogpaths.o: snogpaths-data.h
 
 # automagically-computed paths
 #
