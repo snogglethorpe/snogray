@@ -32,7 +32,7 @@
 
 local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
-
+local filename = require 'snogray.filename'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -72,7 +72,8 @@ local function find_file (name, state)
    -- For compatibility, we try both (first the latter, then the
    -- former).
 
-   local cur_rel_name = filename_in_dir (name, filename_dir (state.filename))
+   local cur_rel_name
+      = filename.in_directory (name, filename.directory (state.filename))
 
    local try = io.open (cur_rel_name, "r")
    if (try) then
@@ -81,7 +82,7 @@ local function find_file (name, state)
    end
 
    for i,dir in ipairs (state.file_search_path) do
-      local dir_rel_name = filename_in_dir (name, dir)
+      local dir_rel_name = filename.in_directory (name, dir)
       try = io.open (dir_rel_name, "r")
       if try then
 	 try:close ()
@@ -762,7 +763,7 @@ end
 function textures.imagemap (state, params, type)
    -- unsupported params: "string wrap" (non-default)
    -- ignored params: "float maxanisotropy", "bool trilinear", "float gamma"
-   local filename = get_single_param (state, params, "string filename")
+   local img_file = get_single_param (state, params, "string filename")
    local wrap = get_single_param (state, params, "string wrap", false)
    local scale = get_texture_param (state, params, "float/color scale", false)
 
@@ -773,7 +774,7 @@ function textures.imagemap (state, params, type)
       parse_warn ("non-repeating texture-wrap mode \""..wrap.."\" ignored")
    end
 
-   filename = find_file (filename, state)
+   img_file = find_file (img_file, state)
 
    -- If true, reverse the order of rows from our normal order.
    -- Snogray normally maps the _bottom_ of image textures at texture-
@@ -789,7 +790,7 @@ function textures.imagemap (state, params, type)
    -- Emulate this bug here by toggling our normal row-reversing
    -- behavior for TGA files.
    --
-   local ext = filename_ext (filename)
+   local ext = filename.extension (img_file)
    if ext == "tga" or ext == "TGA" then
       reverse_rows = not reverse_rows
    end
@@ -802,9 +803,9 @@ function textures.imagemap (state, params, type)
    --
    local tex
    if type == 'float' then
-      tex = mono_image_tex (filename, tex_image_params)
+      tex = mono_image_tex (img_file, tex_image_params)
    else
-      tex = image_tex (filename, tex_image_params)
+      tex = image_tex (img_file, tex_image_params)
    end
 
    tex = apply_texture_2d_mapping (tex, state, params)
@@ -1856,7 +1857,7 @@ function load_pbrt_in_state (state, scene, camera)
    return true
 end
 
-function load_pbrt (filename, scene, camera, params)
+function load_pbrt (scene_file, scene, camera, params)
 
    -- Return a parameter table and an entry name in that table,
    -- starting from the root-table TABLE, for a parameter called NAME.
@@ -1987,9 +1988,10 @@ function load_pbrt (filename, scene, camera, params)
 
       spectrums = {},		-- named spectrum cache
 
-      filename = filename,
-      base_dir = filename_dir (filename),
-      file_search_path = {filename_dir (filename), params["search_path"]}
+      filename = scene_file,
+      base_dir = filename.directory (scene_file),
+      file_search_path = { filename.directory (scene_file),
+			   params["search_path"] }
    }
    return load_pbrt_in_state (init_state, scene, camera)
 end

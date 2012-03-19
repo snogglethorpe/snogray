@@ -14,6 +14,7 @@
 module ("snogray.snogray", package.seeall)
 
 
+local filen = require "snogray.filename"
 local raw = require "snogray.snograw"
 
 -- Until recently, Swig-generated Lua modules didn't return the module
@@ -1526,46 +1527,6 @@ end
 
 ----------------------------------------------------------------
 --
--- Filename manipulation
-
--- Return the directory portion of FILENAME, or nil if it has none
---
-function filename_dir (filename)
-   return string.match (filename, "^(.*)/[^/]*$")
-end
-
--- Return the extension (last part following a period) of FILENAME, or
--- nil if it has none.
---
-function filename_ext (filename)
-   return string.match (filename, "[.]([^./]*)$")
-end
-
--- If FILENAME is relative, return it appended to DIR, otherwise just
--- return FILENAME.  If DIR is nil, then just return FILENAME.
---
-function filename_in_dir (filename, dir)
-   if dir and not string.match (filename, "^/") then
-      filename = dir.."/"..filename
-   end
-   return filename
-end
-
--- If FILENAME has DIR as a prefix, followed by a directory separator,
--- then return the portion of FILENAME following the directory
--- separator; otherwise, just return FILENAME.
--- 
-function filename_rel (filename, dir)
-   if string.sub (filename, 1, #dir + 1) == dir.."/" then
-      return string.sub (filename, #dir + 2)
-   else
-      return filename
-   end
-end
-
-
-----------------------------------------------------------------
---
 -- File handling
 
 include_path = { "." }
@@ -1573,7 +1534,7 @@ include_path = { "." }
 function load_include (filename)
    local loaded, loaded_filename, err_msg
 
-   if not filename_ext (filename) then
+   if not filen.extension (filename) then
       filename = filename .. ".lua"
    end
 
@@ -1583,7 +1544,7 @@ function load_include (filename)
    else
       -- First try the same directory as cur_filename.
       --
-      local cur_dir = filename_dir (cur_filename)
+      local cur_dir = filen.directory (cur_filename)
       if cur_dir then
 	 loaded_filename = cur_dir .. "/" .. filename
 	 loaded, err_msg = loadfile (loaded_filename)
@@ -1730,7 +1691,7 @@ local scene_loaders = {}
 function load_scene (filename, scene, camera, params)
    params = params or {}
 
-   local fmt = params.format or filename_ext (filename)
+   local fmt = params.format or filen.extension (filename)
 
    if fmt then
       fmt = string.lower (fmt)
@@ -1794,7 +1755,7 @@ local mesh_loaders = {}
 function load_mesh (filename, mesh, params)
    params = params or {}
 
-   local fmt = params.format or filename_ext (filename)
+   local fmt = params.format or filen.extension (filename)
    if fmt then
       fmt = string.lower (fmt)
       local loader = mesh_loaders[fmt]
