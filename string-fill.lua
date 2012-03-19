@@ -198,13 +198,19 @@ local function string_fill (str, cols, params)
 			end
 			no_split = ""
 		     else
-			next = str_match (str, "^\n[ \t]*()", sep_pos)
+			next = str_match (str, "^\n[ \t]*\n+()", sep_pos)
 			if next then
-			   no_split = " "
+			   newline (false)
+			   newline (false)
 			else
-			   error ('unknown string-filling escape "'
-				  ..string.sub(str,sep_pos,sep_pos + 2)
-			       ..'"')
+			   next = str_match (str, "^\n[ \t]*()", sep_pos)
+			   if next then
+			      no_split = " "
+			   else
+			      error ('unknown string-filling escape "'
+				     ..string.sub(str,sep_pos,sep_pos + 2)
+				  ..'"')
+			   end
 			end
 		     end
 		  end
