@@ -44,7 +44,13 @@ else
    local function load_uninstalled_snogray_package (pkg, ...)
       local snogray_pkg = string.match (pkg, "^snogray[.](.*)$")
       if snogray_pkg then
-	 return function () return loadfile (snogray_pkg..".lua") () end
+	 return function ()
+		   local thunk, err = loadfile (snogray_pkg..".lua")
+		   if not thunk then
+		      error (err, 0)
+		   end
+		   return thunk ()
+		end
       else
 	 return nil
       end
