@@ -1843,23 +1843,7 @@ scene_loaders["3ds"] = raw.load_3ds_file
 scene = raw.Scene
 camera = raw.Camera
 
-global_render_state = raw.GlobalRenderState
-
-render_mgr = raw.RenderMgr
-render_pattern = raw.RenderPattern
-render_stats = raw.RenderStats
-
 octree_builder_factory = raw.OctreeBuilderFactory
-
-image_output = raw.ImageOutput
-
--- For TTY the progress reporter, we just assume std::cout
---
-function tty_progress (msg)
-   return raw.TtyProgress (raw.cout, msg)
-end
-
-num_cores = raw.num_cores
 
 
 -- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b
