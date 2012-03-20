@@ -1644,27 +1644,6 @@ function snogray.use (filename)
 end
 
 
--- Return a string containing the entire contents of the file
--- FILENAME.  If an error occurs, return nil and an error description.
---
--- This is basically equivalent to io.open(filename,"r"):read"*a"
--- (plus closing the file) but much more efficient and less likely to
--- thrash the system to death when reading huge files.
---
-function snogray.read_file (filename)
-   local contents = raw.read_file (filename)
-   if not contents then
-      local stream, err = io.open (filename, "r")
-      if not stream then
-	 return nil, err
-      end
-      contents = stream:read ("*a")
-      stream:close ()
-   end
-   return contents
-end
-
-
 ----------------------------------------------------------------
 --
 -- Autoloading

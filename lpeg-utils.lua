@@ -15,7 +15,7 @@
 local lpeg_utils = {}
 
 local lpeg = require "lpeg"
-local snogray = require "snogray.snogray" -- for read_file
+local file = require "snogray.file"
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -129,7 +129,7 @@ end
 -- otherwise an error is signaled.
 --
 function lpeg_utils.parse_file (filename, pattern)
-   local text, err = snogray.read_file (filename)
+   local text, err = file.read (filename)
    if not text then
       error (err, 0)
    end
