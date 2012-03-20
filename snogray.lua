@@ -10,9 +10,14 @@
 -- Written by Miles Bader <miles@gnu.org>
 --
 
+-- module
+--
+local snogray = {}
 
-module ("snogray.snogray", package.seeall)
 
+----------------------------------------------------------------
+-- Imports
+--
 
 local filen = require "snogray.filename"
 local raw = require "snogray.snograw"
@@ -29,9 +34,15 @@ if type (raw) ~= 'table' then
 end
 
 
+-- Users typically have the snogray module as their default global
+-- environment, so it needs to also export standard globals too.
+--
+setmetatable (snogray, { __index = _G })
+
+
 -- A metatable for inheriting from the snogray environment
 --
-local inherit_snogray_metatable = { __index = _M }
+local inherit_snogray_metatable = { __index = snogray }
 
 
 ----------------------------------------------------------------
@@ -215,19 +226,21 @@ end
 --
 -- Vector/position/bounding-box manipulation
 
-pos = raw.Pos
-vec = raw.Vec
-bbox = raw.BBox
-ray = raw.Ray
-uv = raw.UV
+local pos, vec = raw.Pos, raw.Vec
+
+snogray.pos = pos
+snogray.vec = vec
+snogray.bbox = raw.BBox
+snogray.ray = raw.Ray
+snogray.uv = raw.UV
 
 -- Handy scene origin position.
 --
-origin = pos (0, 0, 0)
+snogray.origin = pos (0, 0, 0)
 
-midpoint = raw.midpoint
-dot = raw.dot
-cross = raw.cross
+snogray.midpoint = raw.midpoint
+snogray.dot = raw.dot
+snogray.cross = raw.cross
 
 
 ----------------------------------------------------------------
@@ -236,20 +249,17 @@ cross = raw.cross
 
 local colors = {}
 
-function define_color (name, val)
-   colors[name] = color (val)
-end
-
-function is_color (val)
+local function is_color (val)
    return nice_type (val) == 'Color'
 end
+snogray.is_color = is_color
 
 local color_keys = set{
    'r', 'red', 'g', 'green', 'b', 'blue', 'grey', 'gray',
    'i', 'intens', 'intensity', 'bright', 'brightness'
 }
 
-function is_color_spec (obj)
+local function is_color_spec (obj)
    local ot = type (obj)
    if ot == 'number' or is_color (obj) or (ot == 'string' and colors[obj]) then
       return true
@@ -276,8 +286,9 @@ function is_color_spec (obj)
 
    return true
 end
+snogray.is_color_spec = is_color_spec
 
-function color (val, ...)
+local function color (val, ...)
    if is_color (val) then
       return val
    else
@@ -341,17 +352,23 @@ function color (val, ...)
       end
    end
 end
+snogray.color = color
 
-function grey (level)
+function snogray.grey (level)
    return raw.Color (level)
 end
-gray = grey
+snogray.gray = snogray.grey
 
-white = grey (1)
-black = grey (0)
+snogray.white = snogray.grey (1)
+snogray.black = snogray.grey (0)
 
-define_color ("white",	white)
-define_color ("black",	black)
+local function define_color (name, val)
+   colors[name] = color (val)
+end
+snogray.define_color = define_color
+
+define_color ("white",	snogray.white)
+define_color ("black",	snogray.black)
 define_color ("red",	{red=1})
 define_color ("green",	{green=1})
 define_color ("blue",	{blue=1})
@@ -364,13 +381,15 @@ define_color ("yellow",	{red=1, green=1})
 --
 -- Basic texture support
 
-function is_float_tex (val)
+local function is_float_tex (val)
    return nice_type (val) == 'Tex<float>'
 end
+snogray.is_float_tex = is_float_tex
 
-function is_color_tex (val)
+local function is_color_tex (val)
    return nice_type (val) == 'Tex<Color>'
 end
+snogray.is_color_tex = is_color_tex
 
 -- Return VAL, which should either be a color or a color texture, boxed
 -- into a TexVal<Color> container.
@@ -441,15 +460,17 @@ end
 --
 -- materials
 
-function is_material (val)
+local function is_material (val)
    return nice_type (val) == 'Material'
 end
+snogray.is_material = is_material
 
-function is_ior (val)
+local function is_ior (val)
    return nice_type (val) == "Ior"
 end
+snogray.is_ior = is_ior
 
-function is_ior_spec (obj)
+local function is_ior_spec (obj)
    local ot = type (obj)
    if is_ior (obj) or ot == 'number' then
       return true
@@ -466,10 +487,11 @@ function is_ior_spec (obj)
       return false
    end
 end
+snogray.is_ior_spec = is_ior_spec
 
 -- Index of Refraction:  { n = REAL_IOR, k = IMAG_IOR }
 --
-function ior (n, k)
+local function ior (n, k)
    if (type (n) == "number" or  is_ior (n)) and not k then
       return n
    elseif n and k then
@@ -479,6 +501,7 @@ function ior (n, k)
       return raw.Ior (params.n or params[1], params.k or params[2])
    end
 end
+snogray.ior = ior
 
 -- Do common material post-processing to the material MAT, using
 -- parameters from the table PARAMS, and return MAT.  If PARAMS is not a
@@ -499,7 +522,7 @@ local function postproc_material (mat, params)
       local opacity = params.opacity or params.alpha
       -- a simple 1 or color(1) means "fully opaque", so can be ignored
       if opacity and opacity ~= 1 and opacity ~= color(1) then
-	 mat = stencil (opacity, mat)
+	 mat = snogray.stencil (opacity, mat)
       end
    end
 
@@ -508,7 +531,7 @@ end
 
 -- Lambertian material:  { diffuse|color = 
 --
-function lambert (params)
+function snogray.lambert (params)
    local diff
    if is_color_spec (params) or is_color_tex (params) then
       diff = params
@@ -519,7 +542,7 @@ function lambert (params)
    return postproc_material (raw.lambert (diff), params)
 end
 
-function cook_torrance (params)
+function snogray.cook_torrance (params)
    local diff, spec, m, i
 
    if is_color_spec (params) or is_color_tex (params) then
@@ -552,7 +575,7 @@ local default_mirror_ior = ior (0.25, 3)
 --   {REFLECTANCE, ior=IOR, color=COLOR}
 -- etc
 --
-function mirror (params)
+function snogray.mirror (params)
    local _ior = default_mirror_ior
    local _reflect = white
    local _col = black
@@ -586,7 +609,7 @@ end
 --   {ABSORPTION, ior=IOR}
 -- etc
 --
-function glass (params)
+function snogray.glass (params)
    local _ior = 1.5
    local _absorb = black
 
@@ -616,7 +639,7 @@ end
 --   {COLOR, ior=IOR}
 -- etc
 --
-function thin_glass (params)
+function snogray.thin_glass (params)
    local _ior = 1.5
    local _color = white
 
@@ -636,7 +659,7 @@ function thin_glass (params)
    return postproc_material (raw.thin_glass (_color, _ior), params)
 end
 
-function glow (col, underlying)
+function snogray.glow (col, underlying)
    col = color_tex_val (col)
    if underlying then
       return raw.glow (col, underlying)
@@ -645,11 +668,11 @@ function glow (col, underlying)
    end
 end   
 
-function norm_glow (intens)
+function snogray.norm_glow (intens)
    return raw.norm_glow (intens or 1)
 end   
 
-function stencil (opacity, underlying)
+function snogray.stencil (opacity, underlying)
    opacity = color_tex_val (opacity)
    return raw.stencil (opacity, underlying)
 end
@@ -658,11 +681,11 @@ end
 --
 -- material dicts
 
-function is_material_dict (val)
+function snogray.is_material_dict (val)
    return nice_type (val) == 'MaterialDict'
 end
 
-function material_dict (init)
+function snogray.material_dict (init)
    local mdict = raw.MaterialDict ()
 
    if init then
@@ -689,7 +712,7 @@ end
 
 -- Make a transform.
 --
-function xform (...)
+local function xform (...)
    --
    -- SWIG has bugs in handling overloads in conjunction with
    -- table-to-array conversion (it correctly generates code to do the
@@ -705,62 +728,66 @@ function xform (...)
       return raw.Xform (...)
    end
 end
+snogray.xform = xform
 
-identity_xform = raw.Xform_identity
+snogray.identity_xform = raw.Xform_identity
 
-function is_xform (val)
+local function is_xform (val)
    return nice_type (val) == 'Xform'
 end
+snogray.is_xform = is_xform
 
--- Various transform constructors.
+-- Various transform constructors.  We make local versions of a few
+-- commonly used ones.
 --
-scale = raw.Xform_scaling
-translate = raw.Xform_translation
-rotate = raw.Xform_rotation
-rotate_x = raw.Xform_x_rotation
-rotate_y = raw.Xform_y_rotation
-rotate_z = raw.Xform_z_rotation
-basis_xform = raw.Xform_basis
+local scale, translate = raw.Xform_scaling, raw.Xform_translation
+snogray.scale = scale
+snogray.translate = translate
+snogray.rotate = raw.Xform_rotation
+snogray.rotate_x = raw.Xform_x_rotation
+snogray.rotate_y = raw.Xform_y_rotation
+snogray.rotate_z = raw.Xform_z_rotation
+snogray.basis_xform = raw.Xform_basis
 
 -- ... and some abbreviations for them (a bit silly, but composed
 -- transforms can get rather long...).
 --
-trans = translate
-rot = rotate
-rot_x = rotate_x
-rot_y = rotate_y
-rot_z = rotate_z
+snogray.trans = snogray.translate
+snogray.rot = snogray.rotate
+snogray.rot_x = snogray.rotate_x
+snogray.rot_y = snogray.rotate_y
+snogray.rot_z = snogray.rotate_z
 
 -- Transform which converts the z-axis to the y-axis; this is useful
 -- because many scene files are set up that way.
 --
-xform_z_to_y = rotate_x (-math.pi / 2)
-xform_y_to_z = xform_z_to_y:inverse ()
+snogray.xform_z_to_y = snogray.rotate_x (-math.pi / 2)
+snogray.xform_y_to_z = snogray.xform_z_to_y:inverse ()
 
 -- Transform which converts the x-axis to the y-axis.
 --
-xform_x_to_y = rotate_z (-math.pi / 2)
-xform_y_to_x = xform_x_to_y:inverse ()
+snogray.xform_x_to_y = snogray.rotate_z (-math.pi / 2)
+snogray.xform_y_to_x = snogray.xform_x_to_y:inverse ()
 
 
 -- Transform which inverts the z-axis (as many models use a different
 -- convention for the z-axis).
 --
-xform_flip_x = scale (-1, 1, 1)
-xform_flip_y = scale (1, -1, 1)
-xform_flip_z = scale (1, 1, -1)
+snogray.xform_flip_x = scale (-1, 1, 1)
+snogray.xform_flip_y = scale (1, -1, 1)
+snogray.xform_flip_z = scale (1, 1, -1)
 
 
-xform_identity = scale (1)
+snogray.xform_identity = scale (1)
 
 
 ----------------------------------------------------------------
 --
 -- Tessellation
 
-tessel_sphere = raw.tessel_sphere
-tessel_sinc = raw.tessel_sinc
-tessel_torus = raw.tessel_torus
+snogray.tessel_sphere = raw.tessel_sphere
+snogray.tessel_sinc = raw.tessel_sinc
+snogray.tessel_torus = raw.tessel_torus
 
 
 ----------------------------------------------------------------
@@ -787,7 +814,7 @@ setmetatable (gc_refs, { __mode = 'k' })
 -- This is for adding references that the normal gc mechanism cannot
 -- deduce by itself, e.g. in userdata objects.
 --
-function gc_ref (from, to)
+function snogray.gc_ref (from, to)
    local refs = gc_refs[from]
    if refs then
       refs[#refs + 1] = to
@@ -801,19 +828,19 @@ end
 --
 -- meshes
 
-mesh = raw.Mesh
+snogray.mesh = raw.Mesh
 
-mesh_vertex_group = raw.mesh_vertex_group
-mesh_vertex_normal_group = raw.mesh_vertex_normal_group
+snogray.mesh_vertex_group = raw.mesh_vertex_group
+snogray.mesh_vertex_normal_group = raw.mesh_vertex_normal_group
 
 -- Return a transform which will warp SURF to be in a 2x2x2 box centered
 -- at the origin.  Only a single scale factor is used for all
 -- dimensions, so that a transformed object isn't distorted, merely
 -- resized/translated.
 --
-function normalize_xform (surf)
+function snogray.normalize_xform (surf)
    local bbox = surf:bbox ()
-   local center = midpoint (bbox.max, bbox.min)
+   local center = snogray.midpoint (bbox.max, bbox.min)
    local max_size = bbox:max_size ()
 
    return scale (2 / max_size) (translate (-center.x, -center.y, -center.z))
@@ -825,9 +852,9 @@ end
 -- used for all dimensions, so that a transformed object isn't
 -- distorted, merely resized/translated.
 --
-function y_base_normalize_xform (surf)
+function snogray.y_base_normalize_xform (surf)
    local bbox = surf:bbox ()
-   local center = midpoint (bbox.max, bbox.min)
+   local center = snogray.midpoint (bbox.max, bbox.min)
    local size = bbox.max - bbox.min
    local max_size = bbox:max_size ()
 
@@ -837,8 +864,8 @@ end
 -- Resize a mesh to fit in a 1x1x1 box, centered at the origin (but with
 -- the bottom at y=0).  Returns MESH.
 --
-function normalize (mesh, xf)
-   local norm = y_base_normalize_xform (mesh)
+function snogray.normalize (mesh, xf)
+   local norm = snogray.y_base_normalize_xform (mesh)
    if xf then norm = xf (norm) end
    mesh:transform (norm)
    return mesh
@@ -849,54 +876,54 @@ end
 --
 -- Misc surface types
 
-frame = raw.Frame
+snogray.frame = raw.Frame
 
-sphere = raw.Sphere
-sphere2 = raw.Sphere2
+snogray.sphere = raw.Sphere
+snogray.sphere2 = raw.Sphere2
 
-tripar = raw.Tripar
+snogray.tripar = raw.Tripar
 
-function triangle (mat, v0, e1, e2)
-   return tripar (mat, v0, e1, e2, false)
+function snogray.triangle (mat, v0, e1, e2)
+   return snogray.tripar (mat, v0, e1, e2, false)
 end
 
-function parallelogram (mat, v0, e1, e2)
-   return tripar (mat, v0, e1, e2, true)
+function snogray.parallelogram (mat, v0, e1, e2)
+   return snogray.tripar (mat, v0, e1, e2, true)
 end
 
 -- Alias for common usage
 --
-rectangle = parallelogram
+snogray.rectangle = snogray.parallelogram
 
-function parallelepiped (mat, corner, up, right, fwd)
-   return surface_group {
-      parallelogram (mat, corner, right, up);
-      parallelogram (mat, corner, up, fwd);
-      parallelogram (mat, corner, fwd, right);
+function snogray.parallelepiped (mat, corner, up, right, fwd)
+   return snogray.surface_group {
+      snogray.parallelogram (mat, corner, right, up);
+      snogray.parallelogram (mat, corner, up, fwd);
+      snogray.parallelogram (mat, corner, fwd, right);
 
-      parallelogram (mat, corner + up, right, fwd);
-      parallelogram (mat, corner + right, fwd, up);
-      parallelogram (mat, corner + fwd, up, right);
+      snogray.parallelogram (mat, corner + up, right, fwd);
+      snogray.parallelogram (mat, corner + right, fwd, up);
+      snogray.parallelogram (mat, corner + fwd, up, right);
    }
 end
 
 -- Alias for common usage
 --
-cube = parallelepiped
+snogray.cube = snogray.parallelepiped
 
 -- Return an elliptical surface.
 --
 -- args: MAT, XFORM
 --   or: MAT, BASE, AXIS, RADIUS
 --
-ellipse = raw.Ellipse
+snogray.ellipse = raw.Ellipse
 
 -- Return a cylindrical surface (with no ends).
 --
 -- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
 --   or: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
 --
-cylinder = raw.Cylinder
+snogray.cylinder = raw.Cylinder
 
 -- solid_cylinder is just like cylinder, but has endcaps as well.
 --
@@ -906,7 +933,7 @@ cylinder = raw.Cylinder
 -- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
 --   or: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
 --
-function solid_cylinder (mat, arg1, ...)
+function snogray.solid_cylinder (mat, arg1, ...)
 
    -- There are two argument conventions for cylinders, which we handle
    -- separately.
@@ -920,10 +947,10 @@ function solid_cylinder (mat, arg1, ...)
       local r1 = xform (vec (1, 0, 0))
       local r2 = xform (vec (0, 1, 0))
 
-      return surface_group {
-	 cylinder (mat, xform);
-	 ellipse (emat1 or mat, base, r1, r2);
-	 ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
+      return snogray.surface_group {
+	 snogray.cylinder (mat, xform);
+	 snogray.ellipse (emat1 or mat, base, r1, r2);
+	 snogray.ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
       }
    else	      -- args: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
       local base = arg1
@@ -936,10 +963,10 @@ function solid_cylinder (mat, arg1, ...)
       local r1 = r1u * radius
       local r2 = cross (r1u, au) * radius
 
-      return surface_group {
-	 cylinder (mat, base, axis, radius);
-	 ellipse (emat1 or mat, base, r1, r2);
-	 ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
+      return snogray.surface_group {
+	 snogray.cylinder (mat, base, axis, radius);
+	 snogray.ellipse (emat1 or mat, base, r1, r2);
+	 snogray.ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
       }
    end
 end
@@ -951,7 +978,7 @@ local model_space_builder_factory = nil
 -- Wrap the model constructor to record the GC link between a
 -- model and the surface in it.
 --
-function model (surf)
+function snogray.model (surf)
 
    -- If SURF is actually a table, make a surface-group to hold its
    -- members, and wrap that instead.
@@ -960,7 +987,7 @@ function model (surf)
       if #surf == 1 then
 	 surf = surf[1]
       else
-	 surf = surface_group (surf)
+	 surf = snogray.surface_group (surf)
       end
    end
 
@@ -973,7 +1000,7 @@ function model (surf)
    if scene_obj_gc_protect then
       -- Record the GC link between MOD and SURF.
       --
-      gc_ref (mod, surf)
+      snogray.gc_ref (mod, surf)
    end
 
    return mod
@@ -984,20 +1011,20 @@ end
 -- model.
 --
 if scene_obj_gc_protect then
-   function instance (model, xform)
+   function snogray.instance (model, xform)
       local inst = raw.Instance (model, xform)
       gc_ref (inst, model)
       return inst
    end
 else
-   instance = raw.Instance	-- just use raw constructor
+   snogray.instance = raw.Instance	-- just use raw constructor
 end
 
 
 -- Wrap the surface_group constructor to add some method wrappers to it,
 -- and support adding a table of surfaces as well.
 --
-function surface_group (surfs)
+function snogray.surface_group (surfs)
    local group = raw.SurfaceGroup ()
 
    -- Initialize wrapper functions if necessary
@@ -1016,7 +1043,7 @@ function surface_group (surfs)
 	    end
 	 else
 	    if scene_obj_gc_protect then
-	       gc_ref (self, surf)
+	       snogray.gc_ref (self, surf)
 	    end
 	    nowrap_meth_call (self, "add", surf)
 	 end
@@ -1035,25 +1062,25 @@ end
 --
 -- Lights
 
-function point_light (pos, intens, ...)
+function snogray.point_light (pos, intens, ...)
    return raw.PointLight (pos, color (intens), ...)
 end
 
-function sphere_light (pos, radius, intens)
+function snogray.sphere_light (pos, radius, intens)
    return raw.SphereLight (pos, radius, color (intens))
 end
 
-function triangle_light (corner, side1, side2, intens)
+function snogray.triangle_light (corner, side1, side2, intens)
    return raw.TriparLight (corner, side1, side2, false, color (intens))
 end
 
-function far_light (dir, angle, intens)
+function snogray.far_light (dir, angle, intens)
    return raw.FarLight (dir:unit(), angle, color (intens))
 end
 
-function envmap_light (image_or_filename, ...)
+function snogray.envmap_light (image_or_filename, ...)
    if type (image_or_filename) == 'string' then
-      image_or_filename = image (image_or_filename)
+      image_or_filename = snogray.image (image_or_filename)
    end
    return raw.EnvmapLight (raw.envmap (image_or_filename), ...)
 end
@@ -1062,9 +1089,9 @@ end
 --
 -- Images
 
-image = raw.image
+snogray.image = raw.image
 
-envmap = raw.envmap
+snogray.envmap = raw.envmap
 
 ----------------------------------------------------------------
 --
@@ -1072,36 +1099,36 @@ envmap = raw.envmap
 
 -- Image textures (read from a file)
 --
-image_tex = raw.image_tex
-mono_image_tex = raw.mono_image_tex
+snogray.image_tex = raw.image_tex
+snogray.mono_image_tex = raw.mono_image_tex
 
 -- Return a "grey_tex" texture object using the floating-point texture
 -- VAL as a source.  This can be used to convert a floating-point
 -- texture into a color texture.
 --
-function grey_tex (val) return raw.grey_tex (float_tex_val (val)) end
+function snogray.grey_tex (val) return raw.grey_tex (float_tex_val (val)) end
 
 -- Return a "intens_tex" texture object using the color texture VAL as a
 -- source.  This can be used to convert a color-point texture into a
 -- floating-point texture.
 --
-function intens_tex (val) return raw.intens_tex (color_tex_val (val)) end
+function snogray.intens_tex (val) return raw.intens_tex (color_tex_val (val)) end
 
 -- Return a "check" texture, which evaluates to either TEX1 or TEX2 in a
 -- check pattern.
 --
-function check_tex (tex1, tex2)
+function snogray.check_tex (tex1, tex2)
    return raw.check_tex (tex_vals (tex1, tex2))
 end
-function check3d_tex (tex1, tex2)
+function snogray.check3d_tex (tex1, tex2)
    return raw.check3d_tex (tex_vals (tex1, tex2))
 end
 
-function perturb_pos_tex (src, x, y, z)
+function snogray.perturb_pos_tex (src, x, y, z)
    return raw.perturb_pos_tex (tex_val (src), float_tex_val (x),
 			       float_tex_val (y), float_tex_val (z))
 end
-function perturb_uv_tex (src, u, v)
+function snogray.perturb_uv_tex (src, u, v)
    return raw.perturb_uv_tex (tex_val (src),
 			      float_tex_val (u), float_tex_val (v))
 end
@@ -1109,17 +1136,17 @@ end
 -- Return an interpolation texture, which interpolates between two
 -- textures according to the value of its control parameter.
 --
-function linterp_tex (control, val1, val2)
+function snogray.linterp_tex (control, val1, val2)
    return raw.linterp_tex (float_tex_val (control), tex_vals (val1, val2))
 end
-function sinterp_tex (control, val1, val2)
+function snogray.sinterp_tex (control, val1, val2)
    return raw.sinterp_tex (float_tex_val (control), tex_vals (val1, val2))
 end
 
 -- Return a texture which rescales VAL from the range [IN_MIN, IN_MAX]
 -- to the range [OUT_MIN, OUT_MAX].  The default output range is [0,1].
 --
-function rescale_tex (val, in_min, in_max, out_min, out_max)
+function snogray.rescale_tex (val, in_min, in_max, out_min, out_max)
    val = tex_val (val)
    out_min = out_min or 0
    out_max = out_max or 1
@@ -1132,9 +1159,9 @@ function rescale_tex (val, in_min, in_max, out_min, out_max)
    return raw.rescale_tex (val, in_min, in_max, out_min, out_max)
 end
 
-plane_map_tex = raw.plane_map_tex
-cylinder_map_tex = raw.cylinder_map_tex
-lat_long_map_tex = raw.lat_long_map_tex
+snogray.plane_map_tex = raw.plane_map_tex
+snogray.cylinder_map_tex = raw.cylinder_map_tex
+snogray.lat_long_map_tex = raw.lat_long_map_tex
 
 -- A cache of "singleton" texture sources, whose instances have no
 -- state, and really only one shared instance is needed.
@@ -1151,22 +1178,22 @@ local function singleton_tex_fun (name, create)
 	  end
 end
 
-perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
-perlin_abs_tex
+snogray.perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
+snogray.perlin_abs_tex
    = singleton_tex_fun ('perlin_abs',
-			function() return abs_tex (perlin_tex ()) end)
+			function() return snogray.abs_tex (snogray.perlin_tex ()) end)
 
-x_tex = singleton_tex_fun ('x', function () return raw.coord_tex(0) end)
-y_tex = singleton_tex_fun ('y', function () return raw.coord_tex(1) end)
-z_tex = singleton_tex_fun ('z', function () return raw.coord_tex(2) end)
-u_tex = singleton_tex_fun ('u', function () return raw.coord_tex(3) end)
-v_tex = singleton_tex_fun ('v', function () return raw.coord_tex(4) end)
+snogray.x_tex = singleton_tex_fun ('x', function () return raw.coord_tex(0) end)
+snogray.y_tex = singleton_tex_fun ('y', function () return raw.coord_tex(1) end)
+snogray.z_tex = singleton_tex_fun ('z', function () return raw.coord_tex(2) end)
+snogray.u_tex = singleton_tex_fun ('u', function () return raw.coord_tex(3) end)
+snogray.v_tex = singleton_tex_fun ('v', function () return raw.coord_tex(4) end)
 
-worley_tex = raw.worley_tex
+snogray.worley_tex = raw.worley_tex
 
 local worley_id_kinds = { SCALE = 0, MOD = 1, scale = 0, mod = 1 }
 
-function worley_id_tex (kind, min, max)
+function snogray.worley_id_tex (kind, min, max)
    if kind then
       if worley_id_kinds[kind] then
 	 kind = worley_id_kinds[kind]
@@ -1199,15 +1226,15 @@ end
 -- giving them to TEX), so for instance, to make TEX get "smaller", you
 -- would use a value of XFORM which scales by an amount greater than 1.
 --
-function xform_tex (xform, tex)
+function snogray.xform_tex (xform, tex)
    return raw.xform_tex (xform, tex_val (tex))
 end
 
 -- Convenience functions for various sorts of texture transformations.
 --
-function scale_tex (amount, tex) return xform_tex (scale (amount), tex) end
-function rotate_tex (amount, tex) return xform_tex (rotate (amount), tex) end
-rot_tex = rotate_tex
+function snogray.scale_tex (amount, tex) return snogray.xform_tex (snogray.scale (amount), tex) end
+function snogray.rotate_tex (amount, tex) return snogray.xform_tex (snogray.rotate (amount), tex) end
+snogray.rot_tex = snogray.rotate_tex
 
 
 ----------------------------------------------------------------
@@ -1230,7 +1257,7 @@ local arith_tex_ops = {
 -- mixture of both results in the floating-point texture being converted
 -- to color before applying the operation).
 --
-function arith_tex (op, arg1, arg2)
+function snogray.arith_tex (op, arg1, arg2)
    op = arith_tex_ops[op]
    return raw.arith_tex (op, tex_vals (arg1, arg2))
 end
@@ -1240,52 +1267,52 @@ end
 -- operator for textures, which we want to work for texture-xform
 -- operations too.
 --
-function mul_tex (tex1, tex2_or_xform)
+function snogray.mul_tex (tex1, tex2_or_xform)
    if is_xform (tex2_or_xform) then
-      return xform_tex (tex2_or_xform, tex1)
+      return snogray.xform_tex (tex2_or_xform, tex1)
    else
-      return arith_tex ('MUL', tex1, tex2_or_xform)
+      return snogray.arith_tex ('MUL', tex1, tex2_or_xform)
    end
 end
 
 -- Convenient aliases for the various other arith_tex operations.
 --
-function add_tex (...) return arith_tex ('ADD', ...) end
-function sub_tex (...) return arith_tex ('SUB', ...) end
-function div_tex (...) return arith_tex ('DIV', ...) end
-function mod_tex (...) return arith_tex ('MOD', ...) end
-function pow_tex (...) return arith_tex ('POW', ...) end
-function floor_tex (x, y) return arith_tex ('FLOOR', x, y or 1) end
-function ceil_tex (x, y) return arith_tex ('CEIL', x, y or 1) end
-function trunc_tex (x, y) return arith_tex ('TRUNC', x, y or 1) end
-function min_tex (...) return arith_tex ('MIN', ...) end
-function max_tex (...) return arith_tex ('MAX', ...) end
-function avg_tex (...) return arith_tex ('AVG', ...) end
-function mirror_tex (...) return arith_tex ('MIRROR', ...) end
-function abs_tex (tex) return arith_tex ('MIRROR', tex, 0) end
-function neg_tex (tex) return arith_tex ('SUB', 0, tex) end
-function sin_tex (x, y) return arith_tex ('SIN', x, y or 2*math.pi) end
-function cos_tex (x, y) return arith_tex ('COS', x, y or 2*math.pi) end
-function tan_tex (x, y) return arith_tex ('TAN', x, y or 2*math.pi) end
-function atan2_tex (...) return arith_tex ('ATAN2', ...) end
+function snogray.add_tex (...) return snogray.arith_tex ('ADD', ...) end
+function snogray.sub_tex (...) return snogray.arith_tex ('SUB', ...) end
+function snogray.div_tex (...) return snogray.arith_tex ('DIV', ...) end
+function snogray.mod_tex (...) return snogray.arith_tex ('MOD', ...) end
+function snogray.pow_tex (...) return snogray.arith_tex ('POW', ...) end
+function snogray.floor_tex (x, y) return snogray.arith_tex ('FLOOR', x, y or 1) end
+function snogray.ceil_tex (x, y) return snogray.arith_tex ('CEIL', x, y or 1) end
+function snogray.trunc_tex (x, y) return snogray.arith_tex ('TRUNC', x, y or 1) end
+function snogray.min_tex (...) return snogray.arith_tex ('MIN', ...) end
+function snogray.max_tex (...) return snogray.arith_tex ('MAX', ...) end
+function snogray.avg_tex (...) return snogray.arith_tex ('AVG', ...) end
+function snogray.mirror_tex (...) return snogray.arith_tex ('MIRROR', ...) end
+function snogray.abs_tex (tex) return snogray.arith_tex ('MIRROR', tex, 0) end
+function snogray.neg_tex (tex) return snogray.arith_tex ('SUB', 0, tex) end
+function snogray.sin_tex (x, y) return snogray.arith_tex ('SIN', x, y or 2*math.pi) end
+function snogray.cos_tex (x, y) return snogray.arith_tex ('COS', x, y or 2*math.pi) end
+function snogray.tan_tex (x, y) return snogray.arith_tex ('TAN', x, y or 2*math.pi) end
+function snogray.atan2_tex (...) return snogray.arith_tex ('ATAN2', ...) end
 
 -- Install operator overloads for the texture metatable MT.
 --
 local function setup_tex_metatable (mt)
-   mt.__add = add_tex
-   mt.__sub = sub_tex
-   mt.__mul = mul_tex
-   mt.__div = div_tex
-   mt.__unm = neg_tex
-   mt.__pow = pow_tex
-   mt.__mod = mod_tex
+   mt.__add = snogray.add_tex
+   mt.__sub = snogray.sub_tex
+   mt.__mul = snogray.mul_tex
+   mt.__div = snogray.div_tex
+   mt.__unm = snogray.neg_tex
+   mt.__pow = snogray.pow_tex
+   mt.__mod = snogray.mod_tex
 end
 
 -- There's a metatable for each underlying texture datatype, currently
 -- Color and float.  We install the same overload functions for both.
 --
-setup_tex_metatable (getmetatable (intens_tex (0))) -- float
-setup_tex_metatable (getmetatable (grey_tex (0))) -- Color
+setup_tex_metatable (getmetatable (snogray.intens_tex (0))) -- float
+setup_tex_metatable (getmetatable (snogray.grey_tex (0))) -- Color
 
 
 ----------------------------------------------------------------
@@ -1304,7 +1331,7 @@ local cmp_tex_ops = { EQ = 0, NE = 1, LT = 2, LE = 3, GT = 4, GE = 5 }
 -- floating-point texture being converted to color before applying the
 -- operation).
 --
-function cmp_tex (op, cval1, cval2, rval1, rval2)
+function snogray.cmp_tex (op, cval1, cval2, rval1, rval2)
    op = cmp_tex_ops[op]
    return raw.cmp_tex (op, float_tex_val (cval1), float_tex_val (cval2),
    		       tex_vals (rval1, rval2))
@@ -1312,12 +1339,12 @@ end
 
 -- Convenient aliases for the various cmp_tex operations.
 --
-function eq_tex (...) return cmp_tex ('EQ', ...) end
-function ne_tex (...) return cmp_tex ('NE', ...) end
-function lt_tex (...) return cmp_tex ('LT', ...) end
-function le_tex (...) return cmp_tex ('LE', ...) end
-function gt_tex (...) return cmp_tex ('GT', ...) end
-function ge_tex (...) return cmp_tex ('GE', ...) end
+function snogray.eq_tex (...) return snogray.cmp_tex ('EQ', ...) end
+function snogray.ne_tex (...) return snogray.cmp_tex ('NE', ...) end
+function snogray.lt_tex (...) return snogray.cmp_tex ('LT', ...) end
+function snogray.le_tex (...) return snogray.cmp_tex ('LE', ...) end
+function snogray.gt_tex (...) return snogray.cmp_tex ('GT', ...) end
+function snogray.ge_tex (...) return snogray.cmp_tex ('GE', ...) end
 
 
 ----------------------------------------------------------------
@@ -1351,7 +1378,7 @@ function ge_tex (...) return cmp_tex ('GE', ...) end
 -- have roughly the same magnitude as SOURCE_TEX.  Any non-constant F_i
 -- values are ignored for the purposes of auto-scaling.
 --
-function fourier_series_tex (source_tex, params)
+function snogray.fourier_series_tex (source_tex, params)
    local sum = nil
    local const_factor_sum = 0
 
@@ -1420,16 +1447,16 @@ end
 -- Call fourier_series_tex using perlin noise as the input texture.
 -- See description of fourier_series_tex for an explanation of PARAMS.
 --
-function perlin_series_tex (params)
-   return fourier_series_tex (perlin_tex(), params)
+function snogray.perlin_series_tex (params)
+   return snogray.fourier_series_tex (snogray.perlin_tex(), params)
 end
 
 -- Call fourier_series_tex using the absolute value of perlin noise as
 -- the input texture.  See description of fourier_series_tex for an
 -- explanation of PARAMS.
 --
-function perlin_abs_series_tex (params)
-   return fourier_series_tex (perlin_abs_tex(), params)
+function snogray.perlin_abs_series_tex (params)
+   return snogray.fourier_series_tex (snogray.perlin_abs_tex(), params)
 end
 
 
@@ -1450,7 +1477,7 @@ end
 -- Otherwise, LO and HI will be the indices of the two entries closest
 -- to it (the two lowest entries in the table, or the two highest).
 --
-function binary_search (table, val, sub_key)
+function snogray.binary_search (table, val, sub_key)
    local lo, hi = 1, #table
 
    while lo < hi - 1 do
@@ -1477,7 +1504,7 @@ end
 -- TABLE should be a sequential array of entries like {VAL1, VAL2, ...},
 -- and be sorted by the values of VAL1.
 --
-function linear_interp_lookup (table, val)
+function snogray.linear_interp_lookup (table, val)
 
    -- If there's only one entry in the table, just return it.
    --
@@ -1497,7 +1524,7 @@ function linear_interp_lookup (table, val)
 
    -- Use binary search to locate the nearest entries to VAL.
    --
-   local lo, hi = binary_search (table, val, 1)
+   local lo, hi = snogray.binary_search (table, val, 1)
    lo = table[lo]
    hi = table[hi]
 
@@ -1529,9 +1556,9 @@ end
 --
 -- File handling
 
-include_path = { "." }
+snogray.include_path = { "." }
 
-function load_include (filename)
+function snogray.load_include (filename)
    local loaded, loaded_filename, err_msg
 
    if not filen.extension (filename) then
@@ -1565,7 +1592,7 @@ function load_include (filename)
    return loaded, loaded_filename, err_msg
 end
 
-function eval_include (loaded, fenv, loaded_filename, err_msg)
+function snogray.eval_include (loaded, fenv, loaded_filename, err_msg)
    if loaded then
       local old_cur_filename = cur_filename
       cur_filename = loaded_filename
@@ -1586,8 +1613,8 @@ end
 -- is prepended to "include_path", so that any recursive includes may
 -- come from the same directory.
 --
-function include (filename)
-   local loaded, loaded_filename, err_msg = load_include (filename)
+function snogray.include (filename)
+   local loaded, loaded_filename, err_msg = snogray.load_include (filename)
    local callers_env = getfenv (2)
    eval_include (loaded, callers_env, loaded_filename, err_msg)
    return loaded_filename
@@ -1599,8 +1626,8 @@ end
 -- suppressed (the variable "_used_files" in the current environment
 -- is used to record which use file have already been loaded).
 --
-function use (filename)
-   local loaded, loaded_filename, err_msg = load_include (filename)
+function snogray.use (filename)
+   local loaded, loaded_filename, err_msg = snogray.load_include (filename)
    local callers_env = getfenv (2)
 
    if not used_files then
@@ -1611,7 +1638,7 @@ function use (filename)
    if not used_files[loaded_filename] then
       used_files[loaded_filename] = true
 
-      eval_include (loaded, callers_env, loaded_filename, err_msg)
+      snogray.eval_include (loaded, callers_env, loaded_filename, err_msg)
       return loaded_filename
    end
 end
@@ -1624,7 +1651,7 @@ end
 -- (plus closing the file) but much more efficient and less likely to
 -- thrash the system to death when reading huge files.
 --
-function read_file (filename)
+function snogray.read_file (filename)
    local contents = raw.read_file (filename)
    if not contents then
       local stream, err = io.open (filename, "r")
@@ -1688,7 +1715,7 @@ local scene_loaders = {}
 
 -- Load a scene from FILENAME into SCENE and CAMERA.
 --
-function load_scene (filename, scene, camera, params)
+function snogray.load_scene (filename, scene, camera, params)
    params = params or {}
 
    local fmt = params.format or filen.extension (filename)
@@ -1752,7 +1779,7 @@ local mesh_loaders = {}
 -- handled by the C++ core.  To load any supported format, use the
 -- mesh "load" method.
 --
-function load_mesh (filename, mesh, params)
+function snogray.load_mesh (filename, mesh, params)
    params = params or {}
 
    local fmt = params.format or filen.extension (filename)
@@ -1840,10 +1867,15 @@ scene_loaders["3ds"] = raw.load_3ds_file
 --
 -- High-level rendering functions (mainly used by the top-level driver)
 
-scene = raw.Scene
-camera = raw.Camera
+snogray.scene = raw.Scene
+snogray.camera = raw.Camera
 
-octree_builder_factory = raw.OctreeBuilderFactory
+snogray.octree_builder_factory = raw.OctreeBuilderFactory
 
 
--- arch-tag: e5dc4da4-c3f0-45e7-a4a1-a20cb4db6d6b
+----------------------------------------------------------------
+
+-- return module
+--
+return snogray
+
