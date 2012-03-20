@@ -1,3 +1,12 @@
+v0.5.2
+
+    + Snogray will now be automatically compiled using link-time
+      optimization, if the compiler seems to support the (gcc-style)
+      "-flto" option.
+
+    + Various minor bug fixes and tweaks.
+
+
 v0.5.1
 
     + Snogray can now be properly installed!  Files referenced in
