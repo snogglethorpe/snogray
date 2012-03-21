@@ -19,7 +19,6 @@ local snogray = {}
 -- Imports
 --
 
-local filen = require "snogray.filename"
 local raw = require "snogray.snograw"
 
 -- Until recently, Swig-generated Lua modules didn't return the module
@@ -1543,100 +1542,6 @@ function snogray.linear_interp_lookup (table, val)
       end
 
       return interp
-   end
-end
-
-
-----------------------------------------------------------------
---
--- File handling
-
-snogray.include_path = { "." }
-
-function snogray.load_include (filename, env)
-   local loaded, loaded_filename, err_msg
-
-   if not filen.extension (filename) then
-      filename = filename .. ".lua"
-   end
-
-   if string.sub (filename, 1, 1) == "/" then
-      loaded_filename = filename
-      loaded, err_msg = loadfile (filename)
-   else
-      -- First try the same directory as cur_filename.
-      --
-      local cur_dir = filen.directory (env.cur_filename)
-      if cur_dir then
-	 loaded_filename = cur_dir .. "/" .. filename
-	 loaded, err_msg = loadfile (loaded_filename)
-      end
-
-      -- If we didn't find anything, try searching along include_path.
-      --
-      if not loaded then
-	 local path_pos = 1
-	 while not loaded and path_pos <= #include_path do
-	    loaded_filename = include_path[path_pos] .. "/" .. filename
-	    loaded, err_msg = loadfile (loaded_filename)
-	    path_pos = path_pos + 1
-	 end
-      end
-   end
-
-   return loaded, loaded_filename, err_msg
-end
-
-function snogray.eval_include (loaded, env, loaded_filename, err_msg)
-   if loaded then
-      local old_cur_filename = env.cur_filename
-      env.cur_filename = loaded_filename
-
-      setfenv (loaded, env)
-      loaded ()
-
-      env.cur_filename = old_cur_filename
-   else
-      error (err_msg)
-   end
-end
-
-
--- Load FILENAME evaluated the current environment.  FILENAME is
--- searched for using the path in the "include_path" variable; while it
--- is being evaluating, the directory FILENAME was actually loaded from
--- is prepended to "include_path", so that any recursive includes may
--- come from the same directory.
---
-function snogray.include (filename)
-   local callers_env = getfenv (2)
-   local loaded, loaded_filename, err_msg
-      = snogray.load_include (filename, callers_env)
-   eval_include (loaded, callers_env, loaded_filename, err_msg)
-   return loaded_filename
-end
-
-
--- Load FILENAME into the current environment.  This is like
--- "include", but multiple attempts to load the same file are
--- suppressed (the variable "_used_files" in the current environment
--- is used to record which use file have already been loaded).
---
-function snogray.use (filename)
-   local callers_env = getfenv (2)
-   local loaded, loaded_filename, err_msg
-      = snogray.load_include (filename, callers_env)
-
-   if not used_files then
-      used_files = {}
-      callers_env._used_files = used_files
-   end
-
-   if not used_files[loaded_filename] then
-      used_files[loaded_filename] = true
-
-      snogray.eval_include (loaded, callers_env, loaded_filename, err_msg)
-      return loaded_filename
    end
 end
 
