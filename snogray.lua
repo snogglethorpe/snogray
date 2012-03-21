@@ -20,17 +20,6 @@ local snogray = {}
 local swig = require 'snogray.swig'
 local raw = require "snogray.snograw"
 
--- Until recently, Swig-generated Lua modules didn't return the module
--- table from require (as is recommended), but instead stored it into
--- the global variable "snograw", and returned the module name
--- instead.  For compatibility, handle both behaviors, by first
--- calling require, and if it doesn't return a table, looking in the
--- global variable.
---
-if type (raw) ~= 'table' then
-   raw = snograw
-end
-
 
 -- Users typically have the snogray module as their default global
 -- environment, so it needs to also export standard globals too.
