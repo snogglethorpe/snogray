@@ -49,14 +49,15 @@ pkgluamoduledir = $(pkgluadir)/module
 # names have a "snogray." prefix.
 #
 pkgluamodulesnograydir = $(pkgluamoduledir)/snogray
-pkgluamodulesnogray_DATA = file.lua filename.lua lpeg-utils.lua	\
-	snogray.lua string-fill.lua string.lua table.lua
+pkgluamodulesnogray_DATA = file.lua filename.lua load.lua	\
+	lpeg-utils.lua snogray.lua string-fill.lua string.lua	\
+	table.lua
 
 # Lua loaders for various scene/mesh formats.
 #
 pkglualoaderdir = $(pkgluadir)/loader
-pkglualoader_DATA = load-nff.lua load-obj.lua load-pbrt.lua	\
-	load-stl.lua load-ug.lua
+pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
+	load-pbrt.lua load-stl.lua load-ug.lua
 
 
 # Internal libraries; not installed

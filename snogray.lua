@@ -40,11 +40,6 @@ end
 setmetatable (snogray, { __index = _G })
 
 
--- A metatable for inheriting from the snogray environment
---
-local inherit_snogray_metatable = { __index = snogray }
-
-
 ----------------------------------------------------------------
 --
 -- A facility for adding hooks into the swig metatable for an object
@@ -1558,7 +1553,7 @@ end
 
 snogray.include_path = { "." }
 
-function snogray.load_include (filename)
+function snogray.load_include (filename, env)
    local loaded, loaded_filename, err_msg
 
    if not filen.extension (filename) then
@@ -1571,7 +1566,7 @@ function snogray.load_include (filename)
    else
       -- First try the same directory as cur_filename.
       --
-      local cur_dir = filen.directory (cur_filename)
+      local cur_dir = filen.directory (env.cur_filename)
       if cur_dir then
 	 loaded_filename = cur_dir .. "/" .. filename
 	 loaded, err_msg = loadfile (loaded_filename)
@@ -1592,15 +1587,15 @@ function snogray.load_include (filename)
    return loaded, loaded_filename, err_msg
 end
 
-function snogray.eval_include (loaded, fenv, loaded_filename, err_msg)
+function snogray.eval_include (loaded, env, loaded_filename, err_msg)
    if loaded then
-      local old_cur_filename = cur_filename
-      cur_filename = loaded_filename
+      local old_cur_filename = env.cur_filename
+      env.cur_filename = loaded_filename
 
-      setfenv (loaded, fenv)
+      setfenv (loaded, env)
       loaded ()
 
-      cur_filename = old_cur_filename
+      env.cur_filename = old_cur_filename
    else
       error (err_msg)
    end
@@ -1614,8 +1609,9 @@ end
 -- come from the same directory.
 --
 function snogray.include (filename)
-   local loaded, loaded_filename, err_msg = snogray.load_include (filename)
    local callers_env = getfenv (2)
+   local loaded, loaded_filename, err_msg
+      = snogray.load_include (filename, callers_env)
    eval_include (loaded, callers_env, loaded_filename, err_msg)
    return loaded_filename
 end
@@ -1627,8 +1623,9 @@ end
 -- is used to record which use file have already been loaded).
 --
 function snogray.use (filename)
-   local loaded, loaded_filename, err_msg = snogray.load_include (filename)
    local callers_env = getfenv (2)
+   local loaded, loaded_filename, err_msg
+      = snogray.load_include (filename, callers_env)
 
    if not used_files then
       used_files = {}
@@ -1642,204 +1639,6 @@ function snogray.use (filename)
       return loaded_filename
    end
 end
-
-
-----------------------------------------------------------------
---
--- Autoloading
-
--- Add a stub for file-extension EXT to LOADER_TABLE that will load
--- LOADER_FILE and call the function named LOADER_NAME (which
--- LOADER_FILE must define); the stub will also install that function
--- into LOADER_TABLE so that it can be called directly for subsequent
--- files of the same type.
---
-local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
-   local loader_dir = require ('snogray.environ').lua_loader_dir
-   loader_table[ext]
-      = function (...)
-	   print ("* autoloading: "..loader_file)
-
-	   local contents, err = loadfile (loader_dir.."/"..loader_file)
-
-	   if contents then
-	      local environ = {}
-	      setmetatable (environ, inherit_snogray_metatable)
-	      setfenv (contents, environ)
-
-	      contents ()	-- Finish loading
-
-	      local loader = environ[loader_name]
-	      if loader then
-		 loader_table[ext] = loader
-		 return loader (...)
-	      else
-		 error ("loading "..loader_file.." didn't define "..loader_name)
-	      end
-	   else
-	      error (err, 0)
-	   end
-	end
-end
-
-
-----------------------------------------------------------------
---
--- Scene loading
-
--- Table of scene loaders for various file extensions.
---
-local scene_loaders = {}
-
-
--- Load a scene from FILENAME into SCENE and CAMERA.
---
-function snogray.load_scene (filename, scene, camera, params)
-   params = params or {}
-
-   local fmt = params.format or filen.extension (filename)
-
-   if fmt then
-      fmt = string.lower (fmt)
-      local loader = scene_loaders[fmt]
-
-      if loader then
-
-	 -- For old versions of SWIG, we need to gc-protect objects
-	 -- handed to the scene.
-	 --
-	 if scene_obj_gc_protect and not has_index_wrappers (scene) then
-	    local wrap = index_wrappers (scene)
-
-	    function wrap:add (thing)
-	       gc_ref (self, thing)
-	       return nowrap_meth_call (self, "add", thing)
-	    end
-	 end
-
-	 -- Call the loader.
-	 --
-	 local ok, err_msg = pcall (loader, filename, scene, camera, params)
-	 if not ok then
-	    -- Prefix ERR_MSG with "FILENAME: ", unless it already
-	    -- seems to contain such a prefix (parsing code, for
-	    -- instance often adds the filename and line-number etc).
-	    if string.sub (err_msg, 1, #filename + 1) ~= filename..":" then
-	       err_msg = filename..": "..err_msg
-	    end
-	    -- propagate the error
-	    error (err_msg, 0)
-	 end
-      else
-	 error ("unknown scene format \""..fmt.."\"", 0)
-      end
-   else
-      error ("cannot determine scene format for \""..filename.."\"", 0)
-   end
-end
-
-
-----------------------------------------------------------------
---
--- Mesh loading
-
--- Table of mesh loaders for various file extensions.
---
-local mesh_loaders = {}
-
-
--- Load a mesh from FILENAME into MESH.
---
--- Return true for a successful load, false if FILENAME is not
--- recognized as loadable, or an error string if an error occured during
--- loading.
---
--- Note that this only handles formats loaded using Lua, not those
--- handled by the C++ core.  To load any supported format, use the
--- mesh "load" method.
---
-function snogray.load_mesh (filename, mesh, params)
-   params = params or {}
-
-   local fmt = params.format or filen.extension (filename)
-   if fmt then
-      fmt = string.lower (fmt)
-      local loader = mesh_loaders[fmt]
-      if loader then
-	 loader (filename, mesh, params)
-      else
-	 error ("unknown mesh format \""..fmt.."\"", 0)
-      end
-   else
-      error ("cannot determine mesh format for \""..filename.."\"", 0)
-   end
-end
-
-
-add_autoload_stub (mesh_loaders, "obj", "load-obj.lua", "load_obj")
-add_autoload_stub (mesh_loaders, "ug", "load-ug.lua", "load_ug")
-add_autoload_stub (mesh_loaders, "stl", "load-stl.lua", "load_stl")
-
--- formats with C loaders
---
-mesh_loaders.ply = raw.load_ply_file
-mesh_loaders.msh = raw.load_msh_file
-mesh_loaders["3ds"] = raw.load_3ds_file
-
-
-----------------------------------------------------------------
---
--- Lua scene description loader
-
--- Load Lua scene description from FILENAME into SCENE and CAMERA.
---
-function scene_loaders.lua (filename, scene, camera, params)
-
-   -- Load the user's file!  This just constructs a function from the
-   -- loaded file, but doesn't actually evaluate it.
-   --
-   local contents, err = loadfile (filename)
-
-   if not contents then
-      error (err, 0)		-- propagate the loading error
-   end
-
-   -- Make a new environment to evaluate the file contents in; it will
-   -- inherit from "snogray" for convenience.  There are no global
-   -- pointers to this table so it and its contents will be garbage
-   -- collected after loading.
-   --
-   local environ = {}
-   setmetatable (environ, inherit_snogray_metatable)
-   setfenv (contents, environ)
-
-   -- Add references to the scene, camera, and parameters.
-   --
-   environ.scene = scene
-   environ.camera = camera
-   environ.params = params
-
-   -- Remember filename being loaded, so we can find other files in
-   -- the same location.
-   --
-   cur_filename = filename
-
-   -- Finally, evaluate the loaded file!
-   --
-   contents ()
-end
-
--- Other types of Lua file.
---
-scene_loaders.luac = scene_loaders.lua
-scene_loaders.luo = scene_loaders.lua
-
-add_autoload_stub (scene_loaders, "nff", "load-nff.lua", "load_nff")
-add_autoload_stub (scene_loaders, "pbrt", "load-pbrt.lua", "load_pbrt")
-
--- formats with C loaders
---
-scene_loaders["3ds"] = raw.load_3ds_file
 
 
 ----------------------------------------------------------------

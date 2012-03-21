@@ -98,16 +98,16 @@ snogray::load_lua_file (const string &filename,
   lua_newtable (L);
   lua_load_from_val_table (L, params);
 
-  // require ("snogray") => snogray module table
+  // require ("snogray.load") => load module table
   //
   lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-  lua_pushstring (L, "snogray.snogray");	 // arg 0
+  lua_pushstring (L, "snogray.load");		 // arg 0
   lua_call (L, 1, 1);
 
-  // Call "snogray.load_scene (filename, scene, camera, camera)" with
+  // Call "load.scene (filename, scene, camera, camera)" with
   // our scene and camera pointers, and a Lua copy of PARAMS.
   //
-  lua_getfield (L, -1, "load_scene");			// function
+  lua_getfield (L, -1, "scene");			// function
   lua_pushstring (L, filename.c_str ());		// arg 0: filename
   SWIG_NewPointerObj (L, &scene, scene_swig_type, 0);   // arg 1: scene
   SWIG_NewPointerObj (L, &camera, camera_swig_type, 0); // arg 2: camera
