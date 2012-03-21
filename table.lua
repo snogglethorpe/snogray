@@ -34,6 +34,18 @@ function table.shallow_copy (table)
 end
 
 
+-- Return a table containing every value in KEYS as a key, with value
+-- true.
+--
+function table.set (keys)
+   local s = {}
+   for i,v in ipairs (keys) do
+      s[v] = true
+   end
+   return s
+end
+
+
 -- return the module
 --
 return table

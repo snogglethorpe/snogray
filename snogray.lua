@@ -18,6 +18,7 @@ local snogray = {}
 -- Imports
 --
 local swig = require 'snogray.swig'
+local table = require 'snogray.table'
 local raw = require "snogray.snograw"
 
 
@@ -25,19 +26,6 @@ local raw = require "snogray.snograw"
 -- environment, so it needs to also export standard globals too.
 --
 setmetatable (snogray, { __index = _G })
-
-
-----------------------------------------------------------------
-
--- Return a table containing every key in KEYS as a key, with value true.
---
-local function set (keys)
-   local s = {}
-   for i,v in ipairs (keys) do
-      s[v] = true
-   end
-   return s
-end
 
 
 ----------------------------------------------------------------
@@ -72,7 +60,7 @@ local function is_color (val)
 end
 snogray.is_color = is_color
 
-local color_keys = set{
+local color_keys = table.set{
    'r', 'red', 'g', 'green', 'b', 'blue', 'grey', 'gray',
    'i', 'intens', 'intensity', 'bright', 'brightness'
 }
