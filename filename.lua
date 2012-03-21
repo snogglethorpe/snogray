@@ -14,11 +14,8 @@
 --
 local filename = {}
 
-----------------------------------------------------------------
---
--- Filename manipulation
-
 local match, substr = string.match, string.sub
+
 
 -- Return the directory portion of FILENAME, or nil if it has none
 --
@@ -54,6 +51,7 @@ function filename.relative (filename, dir)
       return filename
    end
 end
+
 
 -- return the module
 --

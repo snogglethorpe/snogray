@@ -40,8 +40,8 @@ setmetatable (snogray, { __index = _G })
 
 
 ----------------------------------------------------------------
---
 -- A facility for adding hooks into the swig metatable for an object
+--
 
 -- Return a table attached to OBJ (a userdata object or table), which is
 -- used as to satisfy __index queries on OBJ.  If such a table already
@@ -92,8 +92,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- Swig type handling
+--
 
 -- Type name stripping for old-style mangled swig type names.
 --
@@ -217,8 +217,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- Vector/position/bounding-box manipulation
+--
 
 local pos, vec = raw.Pos, raw.Vec
 
@@ -238,8 +238,8 @@ snogray.cross = raw.cross
 
 
 ----------------------------------------------------------------
---
 -- colors
+--
 
 local colors = {}
 
@@ -372,8 +372,8 @@ define_color ("yellow",	{red=1, green=1})
 
 
 ----------------------------------------------------------------
---
 -- Basic texture support
+--
 
 local function is_float_tex (val)
    return nice_type (val) == 'Tex<float>'
@@ -451,8 +451,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- materials
+--
 
 local function is_material (val)
    return nice_type (val) == 'Material'
@@ -672,8 +672,8 @@ function snogray.stencil (opacity, underlying)
 end
 
 ----------------------------------------------------------------
---
 -- material dicts
+--
 
 function snogray.is_material_dict (val)
    return nice_type (val) == 'MaterialDict'
@@ -701,8 +701,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- transforms
+--
 
 -- Make a transform.
 --
@@ -776,8 +776,8 @@ snogray.xform_identity = scale (1)
 
 
 ----------------------------------------------------------------
---
 -- Tessellation
+--
 
 snogray.tessel_sphere = raw.tessel_sphere
 snogray.tessel_sinc = raw.tessel_sinc
@@ -785,7 +785,6 @@ snogray.tessel_torus = raw.tessel_torus
 
 
 ----------------------------------------------------------------
---
 -- GC protection
 --
 -- Swig's handling of garbage collection trips us up in various cases:
@@ -819,8 +818,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- meshes
+--
 
 snogray.mesh = raw.Mesh
 
@@ -867,8 +866,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- Misc surface types
+--
 
 snogray.frame = raw.Frame
 
@@ -1053,8 +1052,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- Lights
+--
 
 function snogray.point_light (pos, intens, ...)
    return raw.PointLight (pos, color (intens), ...)
@@ -1080,16 +1079,16 @@ function snogray.envmap_light (image_or_filename, ...)
 end
 
 ----------------------------------------------------------------
---
 -- Images
+--
 
 snogray.image = raw.image
 
 snogray.envmap = raw.envmap
 
 ----------------------------------------------------------------
---
 -- Miscellaneous texture sources and operators
+--
 
 -- Image textures (read from a file)
 --
@@ -1211,8 +1210,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- Texture transformations
+--
 
 -- Return a texture which transforms TEX by the transform XFORM.
 --
@@ -1232,8 +1231,8 @@ snogray.rot_tex = snogray.rotate_tex
 
 
 ----------------------------------------------------------------
---
 -- Texture arithmetic
+--
 
 -- Encoding for arith_tex operations.
 --
@@ -1310,8 +1309,8 @@ setup_tex_metatable (getmetatable (snogray.grey_tex (0))) -- Color
 
 
 ----------------------------------------------------------------
---
 -- Texture comparison
+--
 
 -- Encoding for cmp_tex operations.
 --
@@ -1342,8 +1341,8 @@ function snogray.ge_tex (...) return snogray.cmp_tex ('GE', ...) end
 
 
 ----------------------------------------------------------------
---
 -- Perlin fourier-series textures
+--
 
 -- Return a fourier-series summation of SOURCE_TEX, according to PARAMS:
 --
@@ -1547,8 +1546,8 @@ end
 
 
 ----------------------------------------------------------------
---
 -- High-level rendering functions (mainly used by the top-level driver)
+--
 
 snogray.scene = raw.Scene
 snogray.camera = raw.Camera
