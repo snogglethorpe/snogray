@@ -100,8 +100,8 @@ snogray::load_lua_file (const string &filename,
 
   // require ("snogray.load") => load module table
   //
-  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-  lua_pushstring (L, "snogray.load");		 // arg 0
+  lua_getglobal (L, "require");	      // function
+  lua_pushstring (L, "snogray.load"); // arg 0
   lua_call (L, 1, 1);
 
   // Call "load.scene (filename, scene, camera, camera)" with

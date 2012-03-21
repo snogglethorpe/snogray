@@ -231,7 +231,7 @@ snogray::new_snogray_lua_state ()
 
   // register preloaded modules
   //
-  lua_getfield (L, LUA_GLOBALSINDEX, "package");
+  lua_getglobal (L, "package");
   lua_getfield (L, -1, "preload");
   for (preload_module *pm = preloaded_modules; pm->name; pm++)
     {
@@ -242,9 +242,9 @@ snogray::new_snogray_lua_state ()
 
   // Add extra functions into snograw table.
   //
-  lua_getfield (L, LUA_GLOBALSINDEX, "require"); // function
-  lua_pushstring (L, "snogray.snograw");	 // arg 0
-  lua_call (L, 1, 1);				 // call require
+  lua_getglobal (L, "require");		 // function
+  lua_pushstring (L, "snogray.snograw"); // arg 0
+  lua_call (L, 1, 1);			 // call require
   lua_pushcfunction (L, snogray::lua_read_file);
   lua_setfield (L, -2, "read_file");
   lua_pop (L, 1); 		// pop snograw table
