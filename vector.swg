@@ -1,6 +1,6 @@
 # vector.swg -- Lua table -> std::vector conversion
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -30,7 +30,11 @@ SWIG_read_numeric_vector (lua_State *L, int index)
 
   std::vector<T> *vec = new std::vector<T> ();
 
+#if LUA_VERSION_NUM >= 502
+  size_t len = lua_rawlen (L, index);
+#else
   size_t len = lua_objlen (L, index);
+#endif
   vec->reserve (len);
 
   for (size_t i = 0; i < len; i++)
