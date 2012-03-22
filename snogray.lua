@@ -18,8 +18,10 @@ local snogray = {}
 -- Imports
 --
 local swig = require 'snogray.swig'
-local table = require 'snogray.table'
 local raw = require "snogray.snograw"
+
+local color = require 'snogray.color'
+local is_color_spec = color.is_color_spec
 
 
 -- Users typically have the snogray module as their default global
@@ -50,137 +52,10 @@ snogray.cross = raw.cross
 
 
 ----------------------------------------------------------------
--- colors
+-- compat color support
 --
 
-local colors = {}
-
-local function is_color (val)
-   return swig.type (val) == 'Color'
-end
-snogray.is_color = is_color
-
-local color_keys = table.set{
-   'r', 'red', 'g', 'green', 'b', 'blue', 'grey', 'gray',
-   'i', 'intens', 'intensity', 'bright', 'brightness'
-}
-
-local function is_color_spec (obj)
-   local ot = type (obj)
-   if ot == 'number' or is_color (obj) or (ot == 'string' and colors[obj]) then
-      return true
-   elseif ot ~= 'table' then
-      return false
-   end
-   
-   for k,v in pairs (obj) do
-      local kt = type (k)
-      local vt = type (v)
-      local inh = false
-      if kt == 'number' then
-	 if k == 1 and is_color_spec (v) then
-	    inh = true
-	 elseif k > 1 and inh then
-	    return false
-	 elseif k > 3 or vt ~= 'number' then
-	    return false
-	 end
-      elseif not color_keys[k] or vt ~= 'number' then
-	 return false
-      end
-   end
-
-   return true
-end
-snogray.is_color_spec = is_color_spec
-
-local function color (val, ...)
-   if is_color (val) then
-      return val
-   else
-      local t = type (val)
-
-      if t == "number" then
-	 return raw.Color (val, ...)
-      elseif t == "string" then
-	 return colors[val] or error ("unknown color name: "..val, 2)
-      elseif t == "table" then
-	 local r,g,b
-
-	 if not next (val) then
-	    return snogray.white -- default to white if _nothing_ specified
-	 end
-
-	 if type (val[1]) == "number" then
-	    if #val == 1 then
-	       r, g, b = val[1], val[1], val[1]
-	    else
-	       r, g, b = val[1], val[2], val[3]
-	    end
-	 elseif val[1] then
-	    local inherit = color (val[1])
-	    r, g, b = inherit:r(), inherit:g(), inherit:b()
-	 end
-
-	 local grey = val.grey or val.gray
-	 r = val.red or val.r or grey or r or 0
-	 g = val.green or val.g or grey or g or 0
-	 b = val.blue or val.b or grey or b or 0
-
-	 local intens =
-	    val.intensity
-	    or val.intens
-	    or val.i
-	    or val.brightness
-	    or val.bright
-
-	 if intens then
-	    local max = math.max (r,g,b)
-	    if max > 0 then
-	       local scale = intens / max
-	       r = r * scale
-	       g = g * scale
-	       b = b * scale
-	    end
-	 end
-
-	 local scale = val.scale or val.s
-	 if scale then
-	    r = r * scale
-	    g = g * scale
-	    b = b * scale
-	 end
-
-	 return raw.Color (r, g, b)
-	 
-      else
-	 error ("invalid color specification: "..tostring(val), 2)
-      end
-   end
-end
-snogray.color = color
-
-function snogray.grey (level)
-   return raw.Color (level)
-end
-snogray.gray = snogray.grey
-
-snogray.white = snogray.grey (1)
-snogray.black = snogray.grey (0)
-
-local function define_color (name, val)
-   colors[name] = color (val)
-end
-snogray.define_color = define_color
-
-define_color ("white",	snogray.white)
-define_color ("black",	snogray.black)
-define_color ("red",	{red=1})
-define_color ("green",	{green=1})
-define_color ("blue",	{blue=1})
-define_color ("cyan",	{blue=1, green=1})
-define_color ("magenta",{blue=1, red=1})
-define_color ("yellow",	{red=1, green=1})
+snogray.color = color.std
 
 
 ----------------------------------------------------------------
@@ -204,7 +79,7 @@ local function color_tex_val (val)
    if is_float_tex (val) then
       val = raw.grey_tex (raw.FloatTexVal (val))
    elseif is_color_spec (val) then
-      val = color (val)
+      val = color.std (val)
    end
    return raw.ColorTexVal (val)
 end
@@ -240,7 +115,7 @@ local function tex_val (tex)
    elseif type (tex) == 'number' then
       return raw.FloatTexVal (tex)
    else
-      return raw.ColorTexVal (color (tex))
+      return raw.ColorTexVal (color.std (tex))
    end
 end
 
@@ -327,7 +202,7 @@ local function postproc_material (mat, params)
       --
       local opacity = params.opacity or params.alpha
       -- a simple 1 or color(1) means "fully opaque", so can be ignored
-      if opacity and opacity ~= 1 and opacity ~= color(1) then
+      if opacity and opacity ~= 1 and opacity ~= color.white then
 	 mat = snogray.stencil (opacity, mat)
       end
    end
@@ -353,7 +228,7 @@ function snogray.cook_torrance (params)
 
    if is_color_spec (params) or is_color_tex (params) then
       diff = params
-      spec = snogray.white
+      spec = color.white
       m = 0.1
       i = 1.5
    else
@@ -383,8 +258,8 @@ local default_mirror_ior = ior (0.25, 3)
 --
 function snogray.mirror (params)
    local _ior = default_mirror_ior
-   local _reflect = snogray.white
-   local _col = snogray.black
+   local _reflect = color.white
+   local _col = color.black
    local _under
 
    if is_color_spec (params) or is_color_tex (params) then
@@ -417,7 +292,7 @@ end
 --
 function snogray.glass (params)
    local _ior = 1.5
-   local _absorb = snogray.black
+   local _absorb = color.black
 
    if type (params) == "number" then
       _ior = params
@@ -433,7 +308,7 @@ function snogray.glass (params)
    end
 
    _ior = ior (_ior)
-   _absorb = color (_absorb)
+   _absorb = color.std (_absorb)
 
    return postproc_material (raw.glass (raw.Medium (_ior, _absorb)), params)
 end
@@ -447,7 +322,7 @@ end
 --
 function snogray.thin_glass (params)
    local _ior = 1.5
-   local _color = snogray.white
+   local _color = color.white
 
    if type (params) == "number" then
       _ior = params
@@ -460,7 +335,7 @@ function snogray.thin_glass (params)
       _color = params
    end
 
-   _color = color (_color)
+   _color = color.std (_color)
 
    return postproc_material (raw.thin_glass (_color, _ior), params)
 end
@@ -835,19 +710,19 @@ end
 --
 
 function snogray.point_light (pos, intens, ...)
-   return raw.PointLight (pos, color (intens), ...)
+   return raw.PointLight (pos, color.std (intens), ...)
 end
 
 function snogray.sphere_light (pos, radius, intens)
-   return raw.SphereLight (pos, radius, color (intens))
+   return raw.SphereLight (pos, radius, color.std (intens))
 end
 
 function snogray.triangle_light (corner, side1, side2, intens)
-   return raw.TriparLight (corner, side1, side2, false, color (intens))
+   return raw.TriparLight (corner, side1, side2, false, color.std (intens))
 end
 
 function snogray.far_light (dir, angle, intens)
-   return raw.FarLight (dir:unit(), angle, color (intens))
+   return raw.FarLight (dir:unit(), angle, color.std (intens))
 end
 
 function snogray.envmap_light (image_or_filename, ...)
@@ -923,10 +798,10 @@ function snogray.rescale_tex (val, in_min, in_max, out_min, out_max)
    out_min = out_min or 0
    out_max = out_max or 1
    if swig.type (val) == 'TexVal<Color>' then
-      in_min = color (in_min)
-      in_max = color (in_max)
-      out_min = color (out_min)
-      out_max = color (out_max)
+      in_min = color.std (in_min)
+      in_max = color.std (in_max)
+      out_min = color.std (out_min)
+      out_max = color.std (out_max)
    end
    return raw.rescale_tex (val, in_min, in_max, out_min, out_max)
 end

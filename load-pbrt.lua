@@ -33,6 +33,7 @@
 local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 local filename = require 'snogray.filename'
+local color = require 'snogray.color'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -176,7 +177,7 @@ local function validate_color_param (name, val, vtype)
    if vtype == 'string' and #val == 1 then
       return name, val
    else
-      return validate_stride_3_array_param (color, name, val, vtype)
+      return validate_stride_3_array_param (color.rgb, name, val, vtype)
    end
 end
 
@@ -298,7 +299,7 @@ local function spectrum_to_color (spectrum)
    local r = linear_interp_lookup (spectrum, 610) [2]
    local g = linear_interp_lookup (spectrum, 550) [2]
    local b = linear_interp_lookup (spectrum, 465) [2]
-   return color (r, g, b)
+   return color.rgb (r, g, b)
 end
 
 
@@ -652,7 +653,7 @@ function materials.uber (state, params)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    local opacity = get_texture_param (state, params, "float/color opacity", 1)
    -- warn about stuff that we're ignoring, but might actually be important
-   if kr and kr ~= color(0) then
+   if kr and kr ~= color.black then
       parse_warn ("\""..krn.."\" parameter ignored")
    end
    return cook_torrance {d = kd, s = ks, m = rough,
@@ -1104,7 +1105,7 @@ function lights.infinite (state, params)
    -- ignored params: "integer nsamples"
    local mapname = get_single_param (state, params, "string mapname", false)
    local scale = get_texture_param (state, params, "float/color scale", 1)
-   local L = get_color_param (state, params, "color L", color (1)) * scale
+   local L = get_color_param (state, params, "color L", color.white) * scale
 
    -- If the user specified an environment map on the command-line,
    -- suppress those in the scene file.
@@ -1126,7 +1127,7 @@ function lights.infinite (state, params)
 
       envmap = image (find_file (mapname, state))
 
-      if L ~= color (1) then
+      if L ~= color.white then
 	 -- need to scale values (ugh, pixel-by-pixel...)
 	 local w, h = envmap.width, envmap.height
 	 for j = 0, h - 1 do

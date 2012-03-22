@@ -42,6 +42,7 @@
 
 local lp = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
+local color = require 'snogray.color'
 
 local nff_medium_absorption = 10
 local nff_light_intens = 50
@@ -107,7 +108,7 @@ function load_nff (filename, scene, camera)
 	    * -math.log (math.max (0.0001, math.min (t, 1)))
 	 cur_mat = glass{ior=ior, absorb=absorb}
       else
-	 spec = color (spec)
+	 spec = color.grey (spec)
 	 if shine > 1 and shine < 10000 then
 	    local m = 1 / math.sqrt (shine)
 	    cur_mat = cook_torrance{diff=diff, spec=spec, m=m}
