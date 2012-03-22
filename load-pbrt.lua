@@ -49,9 +49,8 @@ local default_width, default_height = 640, 480
 -- utility functions
 --
 
--- we use these in various places
+-- we use this in various places
 --
-local mod = math.mod
 local smatch = string.match
 
 local function push (stack, thing)
@@ -148,7 +147,7 @@ local function validate_stride_3_array_param (ctor, name, val, vtype)
    if vtype ~= "number" then
       parse_err ("parameter \""..name.."\" values must be numeric")
    end
-   if mod (#val, 3) ~= 0 then
+   if #val % 3 ~= 0 then
       parse_err ("parameter \""..name.."\" must have a multiple of 3 values")
    end
 
@@ -199,7 +198,7 @@ local param_validators = {
 	      parse_err ("parameter \""..name.."\" values must be numeric")
 	   end
 	   for _, v in ipairs (val) do
-	      if mod (v, 1) ~= 0 then
+	      if v % 1 ~= 0 then
 		 parse_err ("parameter \""..name.."\" values must be integers")
 	      end
 	   end
@@ -894,7 +893,7 @@ function shapes.trianglemesh (state, params, mat)
 
    params["bool discarddegenerateUVs"] = nil -- ignore
 
-   if mod (#indices, 3) ~= 0 then
+   if #indices % 3 ~= 0 then
       parse_err ("number of indices ("..tostring(#indices)..")"
 		 .." not a multiple of 3")
    end
