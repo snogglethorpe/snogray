@@ -40,8 +40,6 @@ local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
    local loader_dir = require ('snogray.environ').lua_loader_dir
    loader_table[ext]
       = function (...)
-	   print ("* autoloading: "..loader_file)
-
 	   local contents, err = loadfile (loader_dir.."/"..loader_file)
 
 	   if contents then
