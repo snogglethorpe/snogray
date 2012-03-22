@@ -40,15 +40,35 @@ local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
    local loader_dir = require ('snogray.environ').lua_loader_dir
    loader_table[ext]
       = function (...)
-	   local contents, err = loadfile (loader_dir.."/"..loader_file)
+	   local environ = {}
+	   setmetatable (environ, inherit_snogray_metatable)
 
+	   -- Load the file.  We pass ENVIRON to loadfile to set the
+	   -- loaded file's environment in Lua 5.2; the extra
+	   -- arguments to loadfile are ignored in Lua 5.1 (setting
+	   -- the environment in Lua 5.1 is handled with setfenv
+	   -- below).
+	   --
+	   local contents, err
+	      = loadfile (loader_dir.."/"..loader_file, nil, environ)
+
+	   -- If loading succeeded, evaluate the loaded file and look
+	   -- for the function we wanted.
+	   --
 	   if contents then
-	      local environ = {}
-	      setmetatable (environ, inherit_snogray_metatable)
-	      setfenv (contents, environ)
+	      -- In Lua 5.1, set the loaded file's environment.
+	      --
+	      if setfenv then
+		 setfenv (contents, environ)
+	      end
 
-	      contents ()	-- Finish loading
+	      -- Evaluate the loaded file.
+	      --
+	      contents ()
 
+	      -- Get the function LOADER_NAME, which LOADER_FILE is
+	      -- supposed to define.
+	      --
 	      local loader = environ[loader_name]
 	      if loader then
 		 loader_table[ext] = loader

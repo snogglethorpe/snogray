@@ -28,16 +28,23 @@ local function load_include (scene_file, env)
       scene_file = scene_file .. ".lua"
    end
 
+   --
+   -- Note: in the calls to loadfile below, we pass ENV to set the
+   -- loaded file's environment in Lua 5.2; the extra arguments to
+   -- loadfile are ignored in Lua 5.1 (setting the environment in Lua
+   -- 5.1 is handled with setfenv in eval_include).
+   --
+
    if string.sub (scene_file, 1, 1) == "/" then
       loaded_filename = scene_file
-      loaded, err_msg = loadfile (scene_file)
+      loaded, err_msg = loadfile (scene_file, nil, env)
    else
       -- First try the same directory as cur_filename.
       --
       local cur_dir = filename.directory (env.cur_filename)
       if cur_dir then
 	 loaded_filename = cur_dir .. "/" .. scene_file
-	 loaded, err_msg = loadfile (loaded_filename)
+	 loaded, err_msg = loadfile (loaded_filename, nil, env)
       end
 
       -- If we didn't find anything, try searching along include_path.
@@ -46,7 +53,7 @@ local function load_include (scene_file, env)
 	 local path_pos = 1
 	 while not loaded and path_pos <= #include_path do
 	    loaded_filename = include_path[path_pos] .. "/" .. scene_file
-	    loaded, err_msg = loadfile (loaded_filename)
+	    loaded, err_msg = loadfile (loaded_filename, nil, env)
 	    path_pos = path_pos + 1
 	 end
       end
@@ -60,7 +67,15 @@ local function eval_include (loaded, env, loaded_filename, err_msg)
       local old_cur_filename = env.cur_filename
       env.cur_filename = loaded_filename
 
-      setfenv (loaded, env)
+      -- In Lua 5.1, set the environment of the loaded chunk (in Lua
+      -- 5.2, this is done during loading instead).
+      --
+      if setfenv then
+	 setfenv (loaded, env)
+      end
+
+      -- Evaluate the loaded chunk.
+      --
       loaded ()
 
       env.cur_filename = old_cur_filename
