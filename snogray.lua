@@ -108,7 +108,7 @@ local function color (val, ...)
 	 local r,g,b
 
 	 if not next (val) then
-	    return white      -- default to white if _nothing_ specified
+	    return snogray.white -- default to white if _nothing_ specified
 	 end
 
 	 if type (val[1]) == "number" then
@@ -353,7 +353,7 @@ function snogray.cook_torrance (params)
 
    if is_color_spec (params) or is_color_tex (params) then
       diff = params
-      spec = white
+      spec = snogray.white
       m = 0.1
       i = 1.5
    else
@@ -383,8 +383,8 @@ local default_mirror_ior = ior (0.25, 3)
 --
 function snogray.mirror (params)
    local _ior = default_mirror_ior
-   local _reflect = white
-   local _col = black
+   local _reflect = snogray.white
+   local _col = snogray.black
    local _under
 
    if is_color_spec (params) or is_color_tex (params) then
@@ -417,7 +417,7 @@ end
 --
 function snogray.glass (params)
    local _ior = 1.5
-   local _absorb = black
+   local _absorb = snogray.black
 
    if type (params) == "number" then
       _ior = params
@@ -447,7 +447,7 @@ end
 --
 function snogray.thin_glass (params)
    local _ior = 1.5
-   local _color = white
+   local _color = snogray.white
 
    if type (params) == "number" then
       _ior = params
