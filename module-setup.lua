@@ -56,7 +56,8 @@ else
       end
    end
 
-   table.insert (package.loaders, 1, load_uninstalled_snogray_package)
+   local searchers = package.loaders or package.searchers
+   table.insert (searchers, 1, load_uninstalled_snogray_package)
 
    -- Everything in current directory.
    --
