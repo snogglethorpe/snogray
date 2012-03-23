@@ -20,6 +20,7 @@ local snogray = {}
 local table = require 'snogray.table'
 local swig = require 'snogray.swig'
 local raw = require "snogray.snograw"
+local coord = require 'snogray.coord'
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
@@ -35,25 +36,21 @@ setmetatable (snogray, { __index = _G })
 
 
 ----------------------------------------------------------------
--- Vector/position/bounding-box manipulation
+-- compat coord suport
 --
 
-local pos, vec = raw.Pos, raw.Vec
+snogray.pos = coord.pos
+snogray.vec = coord.vec
+snogray.bbox = coord.bbox
+snogray.ray = coord.ray
+snogray.uv = coord.uv
+snogray.frame = coord.frame
 
-snogray.pos = pos
-snogray.vec = vec
-snogray.bbox = raw.BBox
-snogray.ray = raw.Ray
-snogray.uv = raw.UV
-snogray.frame = raw.Frame
+snogray.origin = coord.origin
 
--- Handy scene origin position.
---
-snogray.origin = pos (0, 0, 0)
-
-snogray.midpoint = raw.midpoint
-snogray.dot = raw.dot
-snogray.cross = raw.cross
+snogray.midpoint = coord.midpoint
+snogray.dot = coord.dot
+snogray.cross = coord.cross
 
 
 ----------------------------------------------------------------

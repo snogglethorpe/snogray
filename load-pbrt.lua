@@ -34,12 +34,15 @@ local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 local filename = require 'snogray.filename'
 local table = require 'snogray.table'
+local coord = require 'snogray.coord'
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
 local surface = require 'snogray.surface'
 local light = require 'snogray.light'
 local transform = require 'snogray.transform'
+
+local pos, vec = coord.pos, coord.vec
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -736,7 +739,7 @@ local function apply_texture_2d_mapping (tex, state, params)
       local v2 = get_vector_param (state, params, "vector v2", vec(0,1,0))
       local du = get_single_param (state, params, "float udelta", 0)
       local dv = get_single_param (state, params, "float vdelta", 0)
-      local up = cross (v1, v2)
+      local up = coord.cross (v1, v2)
       local pxf = transform.matrix{v1.x, up.x, v2.x, du,
 				   v1.y, up.y, v2.y, dv,
 				   v1.z, up.z, v2.z, 0,
@@ -1171,7 +1174,7 @@ function lights.infinite (state, params)
    --
    local xf = state.xform (transform.flip_x)
 
-   return light.envmap (envmap, frame (xf))
+   return light.envmap (envmap, coord.frame (xf))
 end
 
 -- projection light (not natively supported, but emulated using a clever
@@ -1638,8 +1641,8 @@ function load_pbrt_in_state (state, scene, camera)
       local targ = pos (targ_x, targ_y, targ_z)
       local user_up = vec (up_x, up_y, up_z)
       local dir = (targ - loc):unit ()
-      local left = cross (user_up:unit (), dir):unit ()
-      local up = cross (dir, left)
+      local left = coord.cross (user_up:unit (), dir):unit ()
+      local up = coord.cross (dir, left)
       local cam_to_world
 	 = transform.matrix{left.x, up.x, dir.x, loc.x,
 			    left.y, up.y, dir.y, loc.y,

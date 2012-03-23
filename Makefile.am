@@ -49,8 +49,8 @@ pkgluamoduledir = $(pkgluadir)/module
 # names have a "snogray." prefix.
 #
 pkgluamodulesnograydir = $(pkgluamoduledir)/snogray
-pkgluamodulesnogray_DATA = color.lua file.lua filename.lua light.lua	\
-	load.lua lpeg-utils.lua material.lua snogray.lua		\
+pkgluamodulesnogray_DATA = color.lua coord.lua file.lua filename.lua	\
+	light.lua load.lua lpeg-utils.lua material.lua snogray.lua	\
 	string-fill.lua string.lua surface.lua swig.lua table.lua	\
 	texture.lua transform.lua
 
