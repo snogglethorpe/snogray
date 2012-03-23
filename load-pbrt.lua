@@ -34,6 +34,7 @@ local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 local filename = require 'snogray.filename'
 local color = require 'snogray.color'
+local texture = require 'snogray.texture'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -720,9 +721,9 @@ local function apply_texture_2d_mapping (tex, state, params)
 	 tex = tex * translate (du, dv)
       end
    elseif mapping == "spherical" then
-      tex = state.xform (lat_long_map_tex (tex))
+      tex = state.xform (texture.lat_long_map (tex))
    elseif mapping == "cylindrical" then
-      tex = state.xform (cylinder_map_tex (tex))
+      tex = state.xform (texture.cylinder_map (tex))
    elseif mapping == "planar" then
       local v1 = get_vector_param (state, params, "vector v1", vec(1,0,0))
       local v2 = get_vector_param (state, params, "vector v2", vec(0,1,0))
@@ -733,7 +734,7 @@ local function apply_texture_2d_mapping (tex, state, params)
 			v1.y, up.y, v2.y, dv,
 			v1.z, up.z, v2.z, 0,
 			0,    0,    0,     1}
-      tex = pxf (plane_map_tex (tex))
+      tex = pxf (texture.plane_map (tex))
    else
       parse_err ("unknown 2d texture mapping \""..mapping.."\"")
    end
@@ -750,9 +751,9 @@ function textures.checkerboard (state, params, type)
    local tex2 = get_texture_param (state, params, "color tex2", 2)
    params["string aamode"] = nil -- ignore
    if dims == 2 then
-      return apply_texture_2d_mapping (check_tex (tex1, tex2), state, params)
+      return apply_texture_2d_mapping (texture.check (tex1, tex2), state, params)
    elseif dims == 3 then
-      return state.xform (check3d_tex (tex1, tex2))
+      return state.xform (texture.check3d (tex1, tex2))
    else
       parse_err (tostring(dims).."-dimensional checkerboard not supported")
    end
@@ -803,9 +804,9 @@ function textures.imagemap (state, params, type)
    --
    local tex
    if type == 'float' then
-      tex = mono_image_tex (img_file, tex_image_params)
+      tex = texture.mono_image (img_file, tex_image_params)
    else
-      tex = image_tex (img_file, tex_image_params)
+      tex = texture.image (img_file, tex_image_params)
    end
 
    tex = apply_texture_2d_mapping (tex, state, params)
@@ -837,7 +838,7 @@ function textures.mix (state, params, type)
    local amount = get_texture_param (state, params, "float amount", 1)
    local tex1 = get_texture_param (state, params, "color/float tex1", 1)
    local tex2 = get_texture_param (state, params, "color/float tex2", 1)
-   return linterp_tex (amount, tex1, tex2)
+   return texture.linterp (amount, tex1, tex2)
 end
 
 -- windy texture
@@ -847,7 +848,7 @@ function textures.windy (state, params, type)
       = scale (.1) (perlin_series_tex {octaves = 3, auto_scale = false})
    local wave_height
       = perlin_series_tex {octaves = 6, auto_scale = false}
-   local tex = abs_tex (wind_strength) * wave_height
+   local tex = texture.abs (wind_strength) * wave_height
    local scale = get_texture_param (state, params, "float scale", 1) * 0.5
    local xf = state.xform:inverse ()
    return xf (tex * scale)
@@ -1196,7 +1197,7 @@ function lights.projection (state, params)
    local proj_angle = math.atan (hdiag / d) * 2
 
    -- projection mask material
-   local mask_mat = stencil (1 - image_tex (img), lambert (0))
+   local mask_mat = stencil (1 - texture.image (img), lambert (0))
 
    -- return a spotlight shining through a stencil rectangle
    local xf = state.xform
