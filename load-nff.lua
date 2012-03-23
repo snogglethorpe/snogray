@@ -42,10 +42,16 @@
 
 local lp = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
+local coord = require 'snogray.coord'
 local color = require 'snogray.color'
+local material = require 'snogray.material'
+local light = require 'snogray.light'
+local transform = require 'snogray.transform'
 
 local nff_medium_absorption = 10
 local nff_light_intens = 50
+
+local pos, vec = coord.pos, coord.vec
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -68,10 +74,10 @@ function load_nff (filename, scene, camera)
    local vg = mesh_vertex_group ()
    local vng = mesh_vertex_normal_group ()
 
-   local geom_xform = xform_z_to_y
+   local geom_xform = transform.z_to_y
    local norm_xform = geom_xform:inverse():transpose()
 
-   camera:transform (scale (1,1,-1))
+   camera:transform (transform.scale (1,1,-1))
    camera:transform (geom_xform)
 
    local function check_mat ()
@@ -106,17 +112,17 @@ function load_nff (filename, scene, camera)
       if t > 0.001 then
 	 local absorb = nff_medium_absorption
 	    * -math.log (math.max (0.0001, math.min (t, 1)))
-	 cur_mat = glass{ior=ior, absorb=absorb}
+	 cur_mat = material.glass{ior=ior, absorb=absorb}
       else
 	 spec = color.grey (spec)
 	 if shine > 1 and shine < 10000 then
 	    local m = 1 / math.sqrt (shine)
-	    cur_mat = cook_torrance{diff=diff, spec=spec, m=m}
+	    cur_mat = material.cook_torrance{diff=diff, spec=spec, m=m}
 	 else
-	    cur_mat = lambert (diff)
+	    cur_mat = material.lambert (diff)
 	 end
 	 if spec:intensity() > 0.01 then
-	    cur_mat = mirror{reflect=spec, underlying=cur_mat}
+	    cur_mat = material.mirror{reflect=spec, underlying=cur_mat}
 	 end
       end
    end
@@ -136,7 +142,7 @@ function load_nff (filename, scene, camera)
 	 color = nff_light_intens
       end
 
-      scene:add (point_light (pos, color))
+      scene:add (light.point (pos, color))
    end
 
    local function add_cone (base_pos, base_radius, apex, apex_radius)
@@ -150,12 +156,12 @@ function load_nff (filename, scene, camera)
       apex_pos = geom_xform (apex_pos)
 
       scene:add (
-	 cylinder (cur_mat, base_pos, (apex_pos - base_pos), base_radius))
+	 surface.cylinder (cur_mat, base_pos, (apex_pos - base_pos), base_radius))
    end
 
    local function add_sphere (pos, radius)
       check_mat()
-      scene:add (sphere (cur_mat, geom_xform (pos), radius))
+      scene:add (surface.sphere (cur_mat, geom_xform (pos), radius))
    end
 
    -- This adds a polygon with many sides in a way that avoids generating

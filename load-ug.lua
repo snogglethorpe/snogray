@@ -13,6 +13,7 @@
 local lp = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 local color = require 'snogray.color'
+local material = require 'snogray.material'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -35,7 +36,7 @@ function load_ug (filename, mesh, mat_dict)
 
    local function add_mat (name, r, g, b)
       if not mat_dict:contains (name) then
-	 named_mats[name] = lambert (color.rgb (r,g,b))
+	 named_mats[name] = material.lambert (color.rgb (r,g,b))
 	 print ("named mat", name, color.rb (r,g,b), named_mats[name])
       end
    end

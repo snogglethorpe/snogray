@@ -12,6 +12,7 @@
 
 local lp = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
+local surface = require 'snogray.surface'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -26,7 +27,7 @@ function load_stl (filename, mesh, mat_dict)
    local mat = mat_dict:get_default ()
 
    local facet_verts = {}
-   local vg = mesh_vertex_group ()
+   local vg = surface.mesh_vertex_group ()
 
    local function add_vert (x, y, z)
       facet_verts[#facet_verts + 1] = mesh:add_vertex (x, y, z, vg)
