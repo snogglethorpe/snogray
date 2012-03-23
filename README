@@ -75,7 +75,7 @@ Authors
 
      * rply.c and rply.h:  Diego Nehab
 
-     * lpeg.c and lpeg.html:  Roberto Ierusalimschy
+     * lpeg.c, lpeg.h, and lpeg.html:  Roberto Ierusalimschy
 
      * Lua (if Lua is included in the distribution):  see http://www.lua.org
 
@@ -89,7 +89,7 @@ Licensing
 
     * rply.c and reply.h use the "MIT" license
 
-    * lpeg.c uses a "BSD-like" license
+    * lpeg.c, lpeg.h, lpeg.html use a "BSD-like" license
 
     * If the Lua sources are included with this distribution, they use a
       "BSD-like" license

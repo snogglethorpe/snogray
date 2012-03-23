@@ -370,7 +370,7 @@ load-lua.o : swigluarun.h
 # also be dynamically loaded, but that needs more infrastructure work.
 #
 
-libluaexts_a_SOURCES = lpeg.c
+libluaexts_a_SOURCES = lpeg.c lpeg.h
 
 libluaexts_a_CFLAGS = $(AM_CFLAGS) -DNDEBUG
 
