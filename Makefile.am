@@ -51,8 +51,8 @@ pkgluamoduledir = $(pkgluadir)/module
 pkgluamodulesnograydir = $(pkgluamoduledir)/snogray
 pkgluamodulesnogray_DATA = color.lua file.lua filename.lua light.lua	\
 	load.lua lpeg-utils.lua material.lua snogray.lua		\
-	string-fill.lua string.lua swig.lua table.lua texture.lua	\
-	transform.lua
+	string-fill.lua string.lua surface.lua swig.lua table.lua	\
+	texture.lua transform.lua
 
 # Lua loaders for various scene/mesh formats.
 #

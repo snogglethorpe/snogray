@@ -23,6 +23,7 @@ local raw = require "snogray.snograw"
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
+local surface = require 'snogray.surface'
 local light = require 'snogray.light'
 local transform = require 'snogray.transform'
 
@@ -44,6 +45,7 @@ snogray.vec = vec
 snogray.bbox = raw.BBox
 snogray.ray = raw.Ray
 snogray.uv = raw.UV
+snogray.frame = raw.Frame
 
 -- Handy scene origin position.
 --
@@ -186,246 +188,41 @@ snogray.xform_flip_z = transform.flip_z
 
 
 ----------------------------------------------------------------
--- Tessellation
+-- compat surface support
 --
 
-snogray.tessel_sphere = raw.tessel_sphere
-snogray.tessel_sinc = raw.tessel_sinc
-snogray.tessel_torus = raw.tessel_torus
+snogray.tessel_sphere = surface.tessel_sphere
+snogray.tessel_sinc = surface.tessel_sinc
+snogray.tessel_torus = surface.tessel_torus
 
+snogray.mesh = surface.mesh
+snogray.mesh_vertex_group = surface.mesh_vertex_group
+snogray.mesh_vertex_normal_group = surface.mesh_vertex_normal_group
 
-----------------------------------------------------------------
--- meshes
---
+snogray.normalize_xform = surface.normalize_xform
+snogray.y_base_normalize_xform = surface.y_base_normalize_xform
+snogray.normalize = surface.normalize_mesh
 
-snogray.mesh = raw.Mesh
+snogray.sphere = surface.sphere
+snogray.sphere2 = surface.sphere2
 
-snogray.mesh_vertex_group = raw.mesh_vertex_group
-snogray.mesh_vertex_normal_group = raw.mesh_vertex_normal_group
+snogray.tripar = surface.tripar
+snogray.triangle = surface.triangle
+snogray.parallelogram = surface.parallelogram
+snogray.rectangle = surface.rectangle
 
--- Return a transform which will warp SURF to be in a 2x2x2 box centered
--- at the origin.  Only a single scale factor is used for all
--- dimensions, so that a transformed object isn't distorted, merely
--- resized/translated.
---
-function snogray.normalize_xform (surf)
-   local bbox = surf:bbox ()
-   local center = snogray.midpoint (bbox.max, bbox.min)
-   local max_size = bbox:max_size ()
+snogray.parallelepiped = surface.parallelepiped
+snogray.cube = surface.cube
 
-   return transform.scale (2 / max_size) (transform.translate (-center.x, -center.y, -center.z))
-end
+snogray.ellipse = surface.ellipse
 
--- Return a transform which will warp SURF to be in a 2x2x2 box centered
--- at the origin in the x and z dimensions, but with a minimum y value
--- of zero (so it has a "zero y base").  Only a single scale factor is
--- used for all dimensions, so that a transformed object isn't
--- distorted, merely resized/translated.
---
-function snogray.y_base_normalize_xform (surf)
-   local bbox = surf:bbox ()
-   local center = snogray.midpoint (bbox.max, bbox.min)
-   local size = bbox.max - bbox.min
-   local max_size = bbox:max_size ()
+snogray.cylinder = surface.cylinder
+snogray.solid_cylinder = surface.solid_cylinder
 
-   return transform.scale (2 / max_size) (transform.translate (-center.x, size.y / 2 - center.y, -center.z))
-end
+snogray.model = surface.model
+snogray.instance = surface.instance
 
--- Resize a mesh to fit in a 1x1x1 box, centered at the origin (but with
--- the bottom at y=0).  Returns MESH.
---
-function snogray.normalize (mesh, xf)
-   local norm = snogray.y_base_normalize_xform (mesh)
-   if xf then norm = xf (norm) end
-   mesh:transform (norm)
-   return mesh
-end
-
-
-----------------------------------------------------------------
--- Misc surface types
---
-
-snogray.frame = raw.Frame
-
-snogray.sphere = raw.Sphere
-snogray.sphere2 = raw.Sphere2
-
-snogray.tripar = raw.Tripar
-
-function snogray.triangle (mat, v0, e1, e2)
-   return snogray.tripar (mat, v0, e1, e2, false)
-end
-
-function snogray.parallelogram (mat, v0, e1, e2)
-   return snogray.tripar (mat, v0, e1, e2, true)
-end
-
--- Alias for common usage
---
-snogray.rectangle = snogray.parallelogram
-
-function snogray.parallelepiped (mat, corner, up, right, fwd)
-   return snogray.surface_group {
-      snogray.parallelogram (mat, corner, right, up);
-      snogray.parallelogram (mat, corner, up, fwd);
-      snogray.parallelogram (mat, corner, fwd, right);
-
-      snogray.parallelogram (mat, corner + up, right, fwd);
-      snogray.parallelogram (mat, corner + right, fwd, up);
-      snogray.parallelogram (mat, corner + fwd, up, right);
-   }
-end
-
--- Alias for common usage
---
-snogray.cube = snogray.parallelepiped
-
--- Return an elliptical surface.
---
--- args: MAT, XFORM
---   or: MAT, BASE, AXIS, RADIUS
---
-snogray.ellipse = raw.Ellipse
-
--- Return a cylindrical surface (with no ends).
---
--- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
---   or: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
---
-snogray.cylinder = raw.Cylinder
-
--- solid_cylinder is just like cylinder, but has endcaps as well.
---
--- Optionally, specific materials can be specified for the ends by at
--- the end of the argument list.
---
--- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
---   or: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
---
-function snogray.solid_cylinder (mat, arg1, ...)
-
-   -- There are two argument conventions for cylinders, which we handle
-   -- separately.
-   --
-   if is_xform (arg1) then -- args: MAT, XFORM [, END_MAT1 [, END_MAT2]]
-      local xform = arg1
-      local emat1, emat2 = select (1, ...), select (2, ...)
-
-      local base = xform (pos (0, 0, -1))
-      local axis = xform (vec (0, 0, 2))
-      local r1 = xform (vec (1, 0, 0))
-      local r2 = xform (vec (0, 1, 0))
-
-      return snogray.surface_group {
-	 snogray.cylinder (mat, xform);
-	 snogray.ellipse (emat1 or mat, base, r1, r2);
-	 snogray.ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
-      }
-   else	      -- args: MAT, BASE, AXIS, RADIUS [, END_MAT1 [, END_MAT2]]
-      local base = arg1
-      local axis = select (1, ...)
-      local radius = select (2, ...)
-      local emat1, emat2 = select (3, ...), select (4, ...)
-
-      local au = axis:unit()
-      local r1u = au:perpendicular()
-      local r1 = r1u * radius
-      local r2 = cross (r1u, au) * radius
-
-      return snogray.surface_group {
-	 snogray.cylinder (mat, base, axis, radius);
-	 snogray.ellipse (emat1 or mat, base, r1, r2);
-	 snogray.ellipse (emat2 or emat1 or mat, base + axis, r1, r2);
-      }
-   end
-end
-
--- space-builder-factory used for building model spaces
---
-local model_space_builder_factory = nil
-
--- Wrap the model constructor to record the GC link between a
--- model and the surface in it.
---
-function snogray.model (surf)
-
-   -- If SURF is actually a table, make a surface-group to hold its
-   -- members, and wrap that instead.
-   --
-   if type (surf) == "table" then
-      if #surf == 1 then
-	 surf = surf[1]
-      else
-	 surf = snogray.surface_group (surf)
-      end
-   end
-
-   if not model_space_builder_factory then
-      model_space_builder_factory = raw.OctreeBuilderFactory ()
-   end
-
-   local mod = raw.model (surf, model_space_builder_factory)
-
-   if swig.need_obj_gc_protect then
-      -- Record the GC link between MOD and SURF.
-      --
-      swig.gc_ref (mod, surf)
-   end
-
-   return mod
-end
-
--- If we need to protect against scene-object gcing, wrap the instance
--- constructor to record the GC link between an instance and its
--- model.
---
-if swig.need_obj_gc_protect then
-   function snogray.instance (model, xform)
-      local inst = raw.Instance (model, xform)
-      swig.gc_ref (inst, model)
-      return inst
-   end
-else
-   snogray.instance = raw.Instance	-- just use raw constructor
-end
-
-
--- Wrap the surface_group constructor to add some method wrappers to it,
--- and support adding a table of surfaces as well.
---
-function snogray.surface_group (surfs)
-   local group = raw.SurfaceGroup ()
-
-   -- Initialize wrapper functions if necessary
-   --
-   if not swig.has_index_wrappers (group) then
-      local wrap = swig.index_wrappers (group)
-
-      -- Augment raw add method to (1) record the link between a group
-      -- and the surfaces in it so GC can see it, and (2) support adding
-      -- a table of surfaces all at once.
-      --
-      function wrap:add (surf)
-	 if (type (surf) == "table") then
-	    for k,v in pairs (surf) do
-	       self:add (v)
-	    end
-	 else
-	    if swig.need_obj_gc_protect then
-	       swig.gc_ref (self, surf)
-	    end
-	    swig.nowrap_meth_call (self, "add", surf)
-	 end
-      end
-   end
-
-   if surfs then
-      group:add (surfs)
-   end
-
-   return group
-end
+snogray.surface_group = surface.group
 
 
 ----------------------------------------------------------------

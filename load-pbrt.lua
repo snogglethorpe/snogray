@@ -37,6 +37,7 @@ local table = require 'snogray.table'
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
+local surface = require 'snogray.surface'
 local light = require 'snogray.light'
 local transform = require 'snogray.transform'
 
@@ -937,7 +938,7 @@ function shapes.trianglemesh (state, params, mat)
       local i2 = indices[3] * 3
       local p2 = xf (pos (points[i2+1], points[i2+2], points[i2+3]))
       if #indices == 3 then
-	 return triangle (mat, p1, p0-p1, p2-p1)
+	 return surface.triangle (mat, p1, p0-p1, p2-p1)
       else
 	 local i3 = indices[4] * 3
 	 local p3 = xf (pos (points[i3+1], points[i3+2], points[i3+3]))
@@ -945,9 +946,9 @@ function shapes.trianglemesh (state, params, mat)
 	 local p4 = xf (pos (points[i4+1], points[i4+2], points[i4+3]))
 	 local i5 = indices[6] * 3
 	 local p5 = xf (pos (points[i5+1], points[i5+2], points[i5+3]))
-	 return surface_group{
-	    triangle (mat, p1, p0-p1, p2-p1),
-	    triangle (mat, p4, p3-p4, p5-p4)
+	 return surface.group{
+	    surface.triangle (mat, p1, p0-p1, p2-p1),
+	    surface.triangle (mat, p4, p3-p4, p5-p4)
 	 }
       end
    end
@@ -971,7 +972,7 @@ function shapes.trianglemesh (state, params, mat)
    -- Make an empty mesh, initialized to "left-handed" to reflect
    -- PBRT's conventions.
    --
-   local M = mesh (mat)
+   local M = surface.mesh (mat)
    M.left_handed = false;
 
    -- Use bulk-add methods to add the vertices/normals/triangle/etc.
@@ -1030,7 +1031,7 @@ function shapes.cylinder (state, params, mat)
       parse_err "ReverseOrientation not supported for cylinder shape"
    end
 
-   return cylinder (mat, xf)
+   return surface.cylinder (mat, xf)
 end
 
 -- sphere shape
@@ -1045,7 +1046,7 @@ function shapes.sphere (state, params, mat)
    if state.reverse_normal then
       parse_err "ReverseOrientation not supported for sphere shape"
    end
-   return sphere2 (mat, xf)
+   return surface.sphere2 (mat, xf)
 end
 
 -- disk shape
@@ -1061,7 +1062,7 @@ function shapes.disk (state, params, mat)
    if state.reverse_normal then
       rad2 = -rad2
    end
-   return ellipse (mat, center, rad1, rad2)
+   return surface.ellipse (mat, center, rad1, rad2)
 end
 
 
@@ -1211,8 +1212,8 @@ function lights.projection (state, params)
    return {
       light.point (xf (pos (0,0,0)), intens * scale,
 		   proj_angle, xf (vec (0,0,1))),
-      rectangle (mask_mat, xf (pos (-hw,-hh, d)),
-		 xf (vec (hw*2,0,0)), xf (vec (0,hh*2,0)))
+      surface.rectangle (mask_mat, xf (pos (-hw,-hh, d)),
+			 xf (vec (hw*2,0,0)), xf (vec (0,hh*2,0)))
    }
 end
 
@@ -1677,13 +1678,13 @@ function load_pbrt_in_state (state, scene, camera)
       attrib_begin_cmd ()
       push (state.obj_stack, {state.object_name, state.object})
       state.object_name = name
-      state.object = surface_group ()
+      state.object = surface.group ()
    end
    local function obj_end_cmd ()
       check_section ('world')
       local tos = pop (state.obj_stack)
       if tos then
-	 state.objects[state.object_name] = model (state.object)
+	 state.objects[state.object_name] = surface.model (state.object)
 	 state.object_name = tos[1]
 	 state.object = tos[2]
 	 attrib_end_cmd ()
@@ -1695,7 +1696,7 @@ function load_pbrt_in_state (state, scene, camera)
       check_section ('world')
       local obj = state.objects[name]
       if obj then
-	 add (instance (obj, state.xform))
+	 add (surface.instance (obj, state.xform))
       else
 	 parse_err ("object \""..name.."\" does not exist")
       end
