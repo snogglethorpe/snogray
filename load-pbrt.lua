@@ -35,6 +35,7 @@ local lu = require 'snogray.lpeg-utils'
 local filename = require 'snogray.filename'
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
+local material = require 'snogray.material'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -569,15 +570,15 @@ function materials.matte (state, params)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    params["float sigma"] = nil -- ignore
    params["texture sigma"] = nil -- ignore
-   return lambert {kd, bump = bump}
+   return material.lambert {kd, bump = bump}
 end
 
--- clay (not implemented; workaround: use cook_torrance)
+-- clay (not implemented; workaround: use lambert)
 --
 function materials.clay (state, params)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    local kd = {0.383626, 0.260749, 0.274207}
-   return lambert {kd, bump = bump}
+   return material.lambert {kd, bump = bump}
 end
 
 -- "bluepaint" (not implemented; workaround: use cook_torrance)
@@ -585,7 +586,7 @@ end
 function materials.bluepaint (state, params)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    local kd = {0.3094, 0.39667, 0.70837}
-   return cook_torrance {d = kd, s = .6, m = .5, bump = bump}
+   return material.cook_torrance {d = kd, s = .6, m = .5, bump = bump}
 end
 
 -- plastic (cook-torrance)
@@ -595,7 +596,7 @@ function materials.plastic (state, params)
    local ks = get_texture_param (state, params, "color Ks", 1) * 5
    local rough = get_texture_param (state, params, "float roughness", .1)
    local bump = get_texture_param (state, params, "float bumpmap", false)
-   return cook_torrance {d = kd, s = ks, m = rough, bump = bump}
+   return material.cook_torrance {d = kd, s = ks, m = rough, bump = bump}
 end
 
 -- translucent (cook-torrance, just ignore translucency)
@@ -609,7 +610,7 @@ function materials.translucent (state, params)
    params["texture reflect"] = nil -- ignore
    params["color transmit"] = nil -- ignore
    params["texture transmit"] = nil -- ignore
-   return cook_torrance {d = kd, s = ks, m = rough, bump = bump}
+   return material.cook_torrance {d = kd, s = ks, m = rough, bump = bump}
 end
 
 -- glass
@@ -623,7 +624,7 @@ function materials.glass (state, params)
    params["texture Kr"] = nil
    params["color Kt"] = nil
    params["texture Kt"] = nil
-   return glass {ior = ior, bump = bump}
+   return material.glass {ior = ior, bump = bump}
 end
 
 -- thin_glass
@@ -632,7 +633,7 @@ function materials.thin_glass (state, params)
    local ior = get_single_param (state, params, "float index", 1.5)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    local col = get_color_param (state, params, "color Kt", false)
-   return thin_glass {ior = ior, color = col, bump = bump}
+   return material.thin_glass {ior = ior, color = col, bump = bump}
 end
 
 -- mirror
@@ -640,7 +641,7 @@ end
 function materials.mirror (state, params)
    local kr = get_texture_param (state, params, "color Kr", 1)
    local bump = get_texture_param (state, params, "float bumpmap", false)
-   return mirror {reflectance = kr, bump = bump}
+   return material.mirror {reflectance = kr, bump = bump}
 end
 
 -- uber (not implemented; workaround: use cook-torrance)
@@ -657,8 +658,8 @@ function materials.uber (state, params)
    if kr and kr ~= color.black then
       parse_warn ("\""..krn.."\" parameter ignored")
    end
-   return cook_torrance {d = kd, s = ks, m = rough,
-			 bump = bump, opacity = opacity}
+   return material.cook_torrance {d = kd, s = ks, m = rough,
+				  bump = bump, opacity = opacity}
 end
 
 -- substrate (not implement; workaround: use cook-torrance)
@@ -673,7 +674,7 @@ function materials.substrate (state, params)
    local rough = (urough + vrough) / 2  -- handles both textures and floats
    -- tweak params to try and match...
    ks = ks * 2
-   return cook_torrance {d = kd, s = ks, m = rough, bump = bump}
+   return material.cook_torrance {d = kd, s = ks, m = rough, bump = bump}
 end
 
 -- shinymetal (we use cook-torrance with an appropriate IOR)
@@ -684,7 +685,8 @@ function materials.shinymetal (state, params)
    local rough = get_texture_param (state, params, "float roughness", .1)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    --ks = ks * 2
-   return cook_torrance {d = kd, s = ks, m = rough, ior = {0.15, 3}, bump = bump}
+   return material.cook_torrance {d = kd, s = ks, m = rough,
+				  ior = {0.15, 3}, bump = bump}
 end
 
 -- metal (we use cook-torrance with an appropriate IOR)
@@ -698,7 +700,8 @@ function materials.metal (state, params)
    local lambda = 550
    eta = linear_interp_lookup (eta, lambda) [2]
    k = linear_interp_lookup (k, lambda) [2]
-   return cook_torrance {d = 0, s = 1, m = rough, ior = ior(eta,k), bump = bump}
+   return material.cook_torrance {d = 0, s = 1, m = rough,
+				  ior = ior(eta,k), bump = bump}
 end
 
 
@@ -909,7 +912,7 @@ function shapes.trianglemesh (state, params, mat)
    end
 
    if alpha then
-      mat = stencil (alpha, mat)
+      mat = material.stencil (alpha, mat)
    end
 
    local xf = state.xform
@@ -1197,7 +1200,8 @@ function lights.projection (state, params)
    local proj_angle = math.atan (hdiag / d) * 2
 
    -- projection mask material
-   local mask_mat = stencil (1 - texture.image (img), lambert (0))
+   local mask_mat
+      = material.stencil (1 - texture.image (img), material.lambert (0))
 
    -- return a spotlight shining through a stencil rectangle
    local xf = state.xform
@@ -1393,14 +1397,14 @@ function load_pbrt_in_state (state, scene, camera)
    local function check_mat ()
       if state.material then
 	 if state.area_light_intens then
-	    return glow (state.area_light_intens, state.material)
+	    return material.glow (state.area_light_intens, state.material)
 	 else
 	    return state.material
 	 end
       elseif state.area_light_intens then
-	 return glow (state.area_light_intens)
+	 return material.glow (state.area_light_intens)
       else
-	 return lambert (1)
+	 return material.lambert (1)
       end
    end
 
