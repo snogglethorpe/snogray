@@ -38,6 +38,7 @@ local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
 local light = require 'snogray.light'
+local transform = require 'snogray.transform'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -720,10 +721,10 @@ local function apply_texture_2d_mapping (tex, state, params)
       local du = get_single_param (state, params, "float udelta", 0)
       local dv = get_single_param (state, params, "float vdelta", 0)
       if su ~= 1 or sv ~= 1 then
-	 tex = tex * scale (su, sv)
+	 tex = transform.scale (su, sv) (tex)
       end
       if du ~= 0 or dv ~= 0 then
-	 tex = tex * translate (du, dv)
+	 tex = transform.translate (du, dv) (tex)
       end
    elseif mapping == "spherical" then
       tex = state.xform (texture.lat_long_map (tex))
@@ -735,10 +736,10 @@ local function apply_texture_2d_mapping (tex, state, params)
       local du = get_single_param (state, params, "float udelta", 0)
       local dv = get_single_param (state, params, "float vdelta", 0)
       local up = cross (v1, v2)
-      local pxf = xform{v1.x, up.x, v2.x, du,
-			v1.y, up.y, v2.y, dv,
-			v1.z, up.z, v2.z, 0,
-			0,    0,    0,     1}
+      local pxf = transform.matrix{v1.x, up.x, v2.x, du,
+				   v1.y, up.y, v2.y, dv,
+				   v1.z, up.z, v2.z, 0,
+				   0,    0,    0,     1}
       tex = pxf (texture.plane_map (tex))
    else
       parse_err ("unknown 2d texture mapping \""..mapping.."\"")
@@ -850,7 +851,7 @@ end
 --
 function textures.windy (state, params, type)
    local wind_strength
-      = scale (.1) (texture.perlin_series {octaves = 3, auto_scale = false})
+      = transform.scale (.1) (texture.perlin_series {octaves = 3, auto_scale = false})
    local wave_height
       = texture.perlin_series {octaves = 6, auto_scale = false}
    local tex = texture.abs (wind_strength) * wave_height
@@ -1019,10 +1020,10 @@ function shapes.cylinder (state, params, mat)
    if zmin ~= -1 or zmax ~= 1 then
       local _scale = (zmax - zmin) / 2
       local offs = zmin + _scale
-      xf = xf (translate (0, 0, offs) (scale (1, 1, _scale)))
+      xf = xf (transform.translate (0, 0, offs) (transform.scale (1, 1, _scale)))
    end
    if radius ~= 1 then
-      xf = xf (scale (radius, radius, 1))
+      xf = xf (transform.scale (radius, radius, 1))
    end
 
    if state.reverse_normal then
@@ -1039,7 +1040,7 @@ function shapes.sphere (state, params, mat)
    local radius = get_single_param (state, params, "float radius", 1)
    local xf = state.xform
    if radius ~= 1 then
-      xf = xf (scale (radius))
+      xf = xf (transform.scale (radius))
    end
    if state.reverse_normal then
       parse_err "ReverseOrientation not supported for sphere shape"
@@ -1167,7 +1168,7 @@ function lights.infinite (state, params)
    -- coordinate system of the light to do the appropriate
    -- transformation.
    --
-   local xf = state.xform (xform_flip_x)
+   local xf = state.xform (transform.flip_x)
 
    return light.envmap (envmap, frame (xf))
 end
@@ -1619,7 +1620,7 @@ function load_pbrt_in_state (state, scene, camera)
       end
    end
    local function identity_cmd ()
-      state.xform = identity_xform
+      state.xform = transform.identity
    end
    local function light_cmd (kind, params)
       check_section ('world')
@@ -1638,10 +1639,11 @@ function load_pbrt_in_state (state, scene, camera)
       local dir = (targ - loc):unit ()
       local left = cross (user_up:unit (), dir):unit ()
       local up = cross (dir, left)
-      local cam_to_world = xform{left.x, up.x, dir.x, loc.x,
-      				 left.y, up.y, dir.y, loc.y,
-      				 left.z, up.z, dir.z, loc.z,
-      				 0,       0,    0,     1}
+      local cam_to_world
+	 = transform.matrix{left.x, up.x, dir.x, loc.x,
+			    left.y, up.y, dir.y, loc.y,
+			    left.z, up.z, dir.z, loc.z,
+			    0,       0,    0,     1}
       -- local right = cross (dir, user_up:unit ()):unit ()
       -- local up = cross (right, dir)
       -- local cam_to_world = xform{right.x, up.x, dir.x, loc.x,
@@ -1713,14 +1715,14 @@ function load_pbrt_in_state (state, scene, camera)
    local function rotate_cmd (angle, axis_x, axis_y, axis_z)
       local axis = vec (axis_x, axis_y, axis_z)
       angle = angle * math.pi / 180
-      state.xform = state.xform * rotate (axis, angle)
+      state.xform = state.xform * transform.rotate (axis, angle)
    end
    local function sampler_cmd (kind, params)
       check_section ('options')
       handle_subcommand (kind, params, samplers, "sampler")
    end
    local function scale_cmd (x, y, z)
-      state.xform = state.xform * scale (x, y, z)
+      state.xform = state.xform * transform.scale (x, y, z)
    end
    local function searchpath_cmd ()
       check_section ('options')
@@ -1762,10 +1764,10 @@ function load_pbrt_in_state (state, scene, camera)
       if #matrix ~= 16 or type (matrix[1]) ~= "number" then
 	 parse_err "Transform requires a 16-element numeric array"
       end
-      state.xform =  state.xform * xform (matrix):transpose()
+      state.xform = state.xform * transform.matrix (matrix):transpose()
    end
    local function translate_cmd (x, y, z)
-      state.xform = state.xform * translate (x, y, z)
+      state.xform = state.xform * transform.translate (x, y, z)
    end
    local function volumeintegrator_cmd (...)
       check_section ('options')
@@ -1778,7 +1780,7 @@ function load_pbrt_in_state (state, scene, camera)
    local function world_begin_cmd ()
       check_section ('options')
       process_pending_options ()
-      state.xform = identity_xform
+      state.xform = transform.identity
       state.named_coord_systems["world"] = state.xform
       state.section = 'world'
    end
@@ -1969,7 +1971,7 @@ function load_pbrt (scene_file, scene, camera, params)
 
       section = 'options',	-- which input section we're in
 
-      xform = identity_xform,
+      xform = transform.identity,
 
       material = nil,
       area_light_intens = nil,

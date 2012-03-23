@@ -24,6 +24,7 @@ local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
 local light = require 'snogray.light'
+local transform = require 'snogray.transform'
 
 
 -- Users typically have the snogray module as their default global
@@ -154,78 +155,34 @@ snogray.stencil = material.stencil
 
 
 ----------------------------------------------------------------
--- transforms
+-- compat transform support
 --
 
--- Make a transform.
---
-local function xform (...)
-   --
-   -- SWIG has bugs in handling overloads in conjunction with
-   -- table-to-array conversion (it correctly generates code to do the
-   -- conversion, but the type-checking code for distinguishing the
-   -- various overload cases checks the wrong type), so we use a
-   -- separate helper function "raw_xform" if the argument is a table
-   -- [of transform matrix elements].
-   --
-   local nargs = select ('#', ...)
-   if nargs == 1 and type (select (1, ...)) == 'table' then
-      return raw.raw_xform (...)
-   else
-      return raw.Xform (...)
-   end
-end
-snogray.xform = xform
+snogray.xform = transform.matrix
+snogray.identity_xform = transform.identity
+snogray.is_xform = transform.is_transform
+snogray.scale = transform.scale
+snogray.translate = transform.translate
+snogray.rotate = transform.rotate
+snogray.rotate_x = transform.rotate_x
+snogray.rotate_y = transform.rotate_y
+snogray.rotate_z = transform.rotate_z
+snogray.basis_xform = transform.basis_xform
 
-snogray.identity_xform = raw.Xform_identity
-
-local function is_xform (val)
-   return swig.type (val) == 'Xform'
-end
-snogray.is_xform = is_xform
-
--- Various transform constructors.  We make local versions of a few
--- commonly used ones.
---
-local scale, translate = raw.Xform_scaling, raw.Xform_translation
-snogray.scale = scale
-snogray.translate = translate
-snogray.rotate = raw.Xform_rotation
-snogray.rotate_x = raw.Xform_x_rotation
-snogray.rotate_y = raw.Xform_y_rotation
-snogray.rotate_z = raw.Xform_z_rotation
-snogray.basis_xform = raw.Xform_basis
-
--- ... and some abbreviations for them (a bit silly, but composed
--- transforms can get rather long...).
---
 snogray.trans = snogray.translate
 snogray.rot = snogray.rotate
 snogray.rot_x = snogray.rotate_x
 snogray.rot_y = snogray.rotate_y
 snogray.rot_z = snogray.rotate_z
 
--- Transform which converts the z-axis to the y-axis; this is useful
--- because many scene files are set up that way.
---
-snogray.xform_z_to_y = snogray.rotate_x (-math.pi / 2)
-snogray.xform_y_to_z = snogray.xform_z_to_y:inverse ()
+snogray.xform_z_to_y = transform.z_to_y
+snogray.xform_y_to_z = transform.y_to_z
+snogray.xform_x_to_y = transform.x_to_y
+snogray.xform_y_to_x = transform.y_to_x
 
--- Transform which converts the x-axis to the y-axis.
---
-snogray.xform_x_to_y = snogray.rotate_z (-math.pi / 2)
-snogray.xform_y_to_x = snogray.xform_x_to_y:inverse ()
-
-
--- Transform which inverts the z-axis (as many models use a different
--- convention for the z-axis).
---
-snogray.xform_flip_x = scale (-1, 1, 1)
-snogray.xform_flip_y = scale (1, -1, 1)
-snogray.xform_flip_z = scale (1, 1, -1)
-
-
-snogray.xform_identity = scale (1)
+snogray.xform_flip_x = transform.flip_x
+snogray.xform_flip_y = transform.flip_y
+snogray.xform_flip_z = transform.flip_z
 
 
 ----------------------------------------------------------------
@@ -256,7 +213,7 @@ function snogray.normalize_xform (surf)
    local center = snogray.midpoint (bbox.max, bbox.min)
    local max_size = bbox:max_size ()
 
-   return scale (2 / max_size) (translate (-center.x, -center.y, -center.z))
+   return transform.scale (2 / max_size) (transform.translate (-center.x, -center.y, -center.z))
 end
 
 -- Return a transform which will warp SURF to be in a 2x2x2 box centered
@@ -271,7 +228,7 @@ function snogray.y_base_normalize_xform (surf)
    local size = bbox.max - bbox.min
    local max_size = bbox:max_size ()
 
-   return scale (2 / max_size) (translate (-center.x, size.y / 2 - center.y, -center.z))
+   return transform.scale (2 / max_size) (transform.translate (-center.x, size.y / 2 - center.y, -center.z))
 end
 
 -- Resize a mesh to fit in a 1x1x1 box, centered at the origin (but with
