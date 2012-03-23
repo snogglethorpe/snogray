@@ -23,6 +23,12 @@ local raw = require "snogray.snograw"
 local color = require 'snogray.color'
 local is_color_spec = color.is_color_spec
 
+local texture = require 'snogray.texture'
+local color_tex_val = texture.color_tex_val
+local float_tex_val = texture.float_tex_val
+local is_color_tex = texture.is_color_tex
+local is_float_tex = texture.is_float_tex
+
 
 -- Users typically have the snogray module as their default global
 -- environment, so it needs to also export standard globals too.
@@ -59,82 +65,80 @@ snogray.color = color.std
 
 
 ----------------------------------------------------------------
--- Basic texture support
+-- compat texture support
 --
 
-local function is_float_tex (val)
-   return swig.type (val) == 'Tex<float>'
-end
-snogray.is_float_tex = is_float_tex
+snogray.image_tex = texture.image
+snogray.mono_image_tex = texture.mono_image
 
-local function is_color_tex (val)
-   return swig.type (val) == 'Tex<Color>'
-end
-snogray.is_color_tex = is_color_tex
+snogray.grey_tex = texture.grey
+snogray.intens_tex = texture.intens
 
--- Return VAL, which should either be a color or a color texture, boxed
--- into a TexVal<Color> container.
---
-local function color_tex_val (val)
-   if is_float_tex (val) then
-      val = raw.grey_tex (raw.FloatTexVal (val))
-   elseif is_color_spec (val) then
-      val = color.std (val)
-   end
-   return raw.ColorTexVal (val)
-end
+snogray.check_tex = texture.check
+snogray.check3d_tex = texture.check3d
 
--- Return TEX, which should be a texture, converted into a
--- floating-point texture if it isn't one already.
---
-local function float_tex (tex)
-   if is_color_tex (tex) then
-      tex = raw.intens_tex (raw.ColorTexVal (tex))
-   end
-   return tex
-end
+snogray.perturb_pos_tex = texture.perturb_pos
+snogray.perturb_uv_tex = texture.perturb_uv
 
--- Return VAL, which should either be a number or a float texture, boxed
--- into a TexVal<float> container.
---
-local function float_tex_val (val)
-   if is_color_tex (val) then
-      val = raw.intens_tex (raw.ColorTexVal (val))
-   end
-   return raw.FloatTexVal (val)
-end
+snogray.linterp_tex = texture.linterp
+snogray.sinterp_tex = texture.sinterp
 
--- Return VAL boxed into either a TexVal<Color> or a TexVal<float>
--- container, whichever is appropriate.
---
-local function tex_val (tex)
-   if is_float_tex (tex) then
-      return raw.FloatTexVal (tex)
-   elseif is_color_tex (tex) then
-      return raw.ColorTexVal (tex)
-   elseif type (tex) == 'number' then
-      return raw.FloatTexVal (tex)
-   else
-      return raw.ColorTexVal (color.std (tex))
-   end
-end
+snogray.rescale_tex = texture.rescale
 
--- Return VAL1 and VAL2 boxed into a pair of either TexVal<Color> or
--- TexVal<float> containers, whichever are appropriate.  Both VAL1 and
--- VAL2 are examined to make the decision; a mixture of Color and float
--- values results in the floating value being automatically converted to
--- a Color value to match.
---
-local function tex_vals (val1, val2)
-   if is_color_tex (val1) or is_color_tex (val2)
-      or (type(val1) ~= 'number' and is_color_spec (val1))
-      or (type(val2) ~= 'number' and is_color_spec (val2))
-   then
-      return color_tex_val (val1), color_tex_val (val2)
-   else
-      return float_tex_val (val1), float_tex_val (val2)
-   end
-end
+snogray.plane_map_tex = texture.plane_map
+snogray.cylinder_map_tex = texture.cylinder_map
+snogray.lat_long_map_tex = texture.lat_long_map
+
+snogray.perlin_tex = texture.perlin
+snogray.perlin_abs_tex = texture.perlin_abs
+
+snogray.x_tex = texture.x
+snogray.y_tex = texture.y
+snogray.z_tex = texture.z
+snogray.u_tex = texture.u
+snogray.v_tex = texture.v
+
+snogray.worley_tex = texture.worley
+snogray.worley_id_tex = texture.worley_id
+
+snogray.xform_tex = texture.xform
+snogray.scale_tex = texture.scale
+snogray.rotate_tex = texture.rotate
+snogray.rot_tex = texture.rot
+
+snogray.arith_tex = texture.arith
+snogray.mul_tex = texture.mul
+snogray.add_tex = texture.add
+snogray.sub_tex = texture.sub
+snogray.div_tex = texture.div
+snogray.mod_tex = texture.mod
+snogray.pow_tex = texture.pow
+snogray.floor_tex = texture.floor
+snogray.ceil_tex = texture.ceil
+snogray.trunc_tex = texture.trunc
+snogray.min_tex = texture.min
+snogray.max_tex = texture.max
+snogray.avg_tex = texture.avg
+snogray.mirror_tex = texture.mirror
+snogray.abs_tex = texture.abs
+snogray.neg_tex = texture.neg
+snogray.sin_tex = texture.sin
+snogray.cos_tex = texture.cos
+snogray.tan_tex = texture.tan
+snogray.atan2_tex = texture.atan2
+
+snogray.cmp_tex = texture.cmp
+
+snogray.eq_tex = texture.eq
+snogray.ne_tex = texture.ne
+snogray.lt_tex = texture.lt
+snogray.le_tex = texture.le
+snogray.gt_tex = texture.gt
+snogray.ge_tex = texture.ge
+
+snogray.fourier_series_tex = texture.fourier_series
+snogray.perlin_series_tex = texture.perlin_series
+snogray.perlin_abs_series_tex = texture.perlin_abs_series
 
 
 ----------------------------------------------------------------
@@ -195,7 +199,12 @@ local function postproc_material (mat, params)
       local bump = params.bump_map or params.bump
       -- we ignore scalar bump maps, as they have no effect
       if bump and type (bump) ~= 'number' then
-	 mat.bump_map = float_tex (bump)
+	 if texture.is_color_tex (bump) then
+	    bump = texture.intens (bump)
+	 elseif not texture.is_float_tex (bump) then
+	    error ("Invalid bump map "..tostring(bump))
+	 end
+	 mat.bump_map = bump
       end
 
       -- opacity (alpha transparency)
@@ -739,372 +748,6 @@ end
 snogray.image = raw.image
 
 snogray.envmap = raw.envmap
-
-----------------------------------------------------------------
--- Miscellaneous texture sources and operators
---
-
--- Image textures (read from a file)
---
-snogray.image_tex = raw.image_tex
-snogray.mono_image_tex = raw.mono_image_tex
-
--- Return a "grey_tex" texture object using the floating-point texture
--- VAL as a source.  This can be used to convert a floating-point
--- texture into a color texture.
---
-function snogray.grey_tex (val) return raw.grey_tex (float_tex_val (val)) end
-
--- Return a "intens_tex" texture object using the color texture VAL as a
--- source.  This can be used to convert a color-point texture into a
--- floating-point texture.
---
-function snogray.intens_tex (val) return raw.intens_tex (color_tex_val (val)) end
-
--- Return a "check" texture, which evaluates to either TEX1 or TEX2 in a
--- check pattern.
---
-function snogray.check_tex (tex1, tex2)
-   return raw.check_tex (tex_vals (tex1, tex2))
-end
-function snogray.check3d_tex (tex1, tex2)
-   return raw.check3d_tex (tex_vals (tex1, tex2))
-end
-
-function snogray.perturb_pos_tex (src, x, y, z)
-   return raw.perturb_pos_tex (tex_val (src), float_tex_val (x),
-			       float_tex_val (y), float_tex_val (z))
-end
-function snogray.perturb_uv_tex (src, u, v)
-   return raw.perturb_uv_tex (tex_val (src),
-			      float_tex_val (u), float_tex_val (v))
-end
-
--- Return an interpolation texture, which interpolates between two
--- textures according to the value of its control parameter.
---
-function snogray.linterp_tex (control, val1, val2)
-   return raw.linterp_tex (float_tex_val (control), tex_vals (val1, val2))
-end
-function snogray.sinterp_tex (control, val1, val2)
-   return raw.sinterp_tex (float_tex_val (control), tex_vals (val1, val2))
-end
-
--- Return a texture which rescales VAL from the range [IN_MIN, IN_MAX]
--- to the range [OUT_MIN, OUT_MAX].  The default output range is [0,1].
---
-function snogray.rescale_tex (val, in_min, in_max, out_min, out_max)
-   val = tex_val (val)
-   out_min = out_min or 0
-   out_max = out_max or 1
-   if swig.type (val) == 'TexVal<Color>' then
-      in_min = color.std (in_min)
-      in_max = color.std (in_max)
-      out_min = color.std (out_min)
-      out_max = color.std (out_max)
-   end
-   return raw.rescale_tex (val, in_min, in_max, out_min, out_max)
-end
-
-snogray.plane_map_tex = raw.plane_map_tex
-snogray.cylinder_map_tex = raw.cylinder_map_tex
-snogray.lat_long_map_tex = raw.lat_long_map_tex
-
--- A cache of "singleton" texture sources, whose instances have no
--- state, and really only one shared instance is needed.
---
-local singleton_tex_cache = {}
-local function singleton_tex_fun (name, create)
-   return function ()
-	     local inst = singleton_tex_cache[name]
-	     if not inst then
-		inst = create ()
-		singleton_tex_cache[name] = inst
-	     end
-	     return inst
-	  end
-end
-
-snogray.perlin_tex = singleton_tex_fun ('perlin', raw.perlin_tex)
-snogray.perlin_abs_tex
-   = singleton_tex_fun ('perlin_abs',
-			function() return snogray.abs_tex (snogray.perlin_tex ()) end)
-
-snogray.x_tex = singleton_tex_fun ('x', function () return raw.coord_tex(0) end)
-snogray.y_tex = singleton_tex_fun ('y', function () return raw.coord_tex(1) end)
-snogray.z_tex = singleton_tex_fun ('z', function () return raw.coord_tex(2) end)
-snogray.u_tex = singleton_tex_fun ('u', function () return raw.coord_tex(3) end)
-snogray.v_tex = singleton_tex_fun ('v', function () return raw.coord_tex(4) end)
-
-snogray.worley_tex = raw.worley_tex
-
-local worley_id_kinds = { SCALE = 0, MOD = 1, scale = 0, mod = 1 }
-
-function snogray.worley_id_tex (kind, min, max)
-   if kind then
-      if worley_id_kinds[kind] then
-	 kind = worley_id_kinds[kind]
-      end
-   else
-      kind = worley_id_kinds['scale']
-   end
-
-   if min then
-      if not max then
-	 max = min
-	 min = 0
-      end
-   else
-      min = 0
-      max = 1
-   end
-
-   return raw.worley_id_tex (kind, min, max)
-end
-
-
-----------------------------------------------------------------
--- Texture transformations
---
-
--- Return a texture which transforms TEX by the transform XFORM.
---
--- Actually it's the texture coordinates which are transformed (before
--- giving them to TEX), so for instance, to make TEX get "smaller", you
--- would use a value of XFORM which scales by an amount greater than 1.
---
-function snogray.xform_tex (xform, tex)
-   return raw.xform_tex (xform, tex_val (tex))
-end
-
--- Convenience functions for various sorts of texture transformations.
---
-function snogray.scale_tex (amount, tex) return snogray.xform_tex (snogray.scale (amount), tex) end
-function snogray.rotate_tex (amount, tex) return snogray.xform_tex (snogray.rotate (amount), tex) end
-snogray.rot_tex = snogray.rotate_tex
-
-
-----------------------------------------------------------------
--- Texture arithmetic
---
-
--- Encoding for arith_tex operations.
---
-local arith_tex_ops = {
-   ADD = 0, SUB = 1, MUL = 2, DIV = 3, MOD = 4, POW = 5,
-   FLOOR = 6, CEIL = 7, TRUNC = 8, -- floor/ceil/trunc (X / Y) * Y
-   MIN = 9, MAX = 10, AVG = 11,
-   MIRROR = 12,			   -- abs (X - Y)
-   SIN = 13, COS = 14, TAN = 15,   -- sin/cos/tan (X * 2 * PI / Y)
-   ATAN2 = 16
-}
-
--- Return a texture which performs operation OP on input textures ARG1
--- and ARG2.  Both color and floating-point textures are handled (a
--- mixture of both results in the floating-point texture being converted
--- to color before applying the operation).
---
-function snogray.arith_tex (op, arg1, arg2)
-   op = arith_tex_ops[op]
-   return raw.arith_tex (op, tex_vals (arg1, arg2))
-end
-
--- Alias for the arith_tex MUL operation.  This function treats the
--- second operand specially because it is used to overload the "*"
--- operator for textures, which we want to work for texture-xform
--- operations too.
---
-function snogray.mul_tex (tex1, tex2_or_xform)
-   if is_xform (tex2_or_xform) then
-      return snogray.xform_tex (tex2_or_xform, tex1)
-   else
-      return snogray.arith_tex ('MUL', tex1, tex2_or_xform)
-   end
-end
-
--- Convenient aliases for the various other arith_tex operations.
---
-function snogray.add_tex (...) return snogray.arith_tex ('ADD', ...) end
-function snogray.sub_tex (...) return snogray.arith_tex ('SUB', ...) end
-function snogray.div_tex (...) return snogray.arith_tex ('DIV', ...) end
-function snogray.mod_tex (...) return snogray.arith_tex ('MOD', ...) end
-function snogray.pow_tex (...) return snogray.arith_tex ('POW', ...) end
-function snogray.floor_tex (x, y) return snogray.arith_tex ('FLOOR', x, y or 1) end
-function snogray.ceil_tex (x, y) return snogray.arith_tex ('CEIL', x, y or 1) end
-function snogray.trunc_tex (x, y) return snogray.arith_tex ('TRUNC', x, y or 1) end
-function snogray.min_tex (...) return snogray.arith_tex ('MIN', ...) end
-function snogray.max_tex (...) return snogray.arith_tex ('MAX', ...) end
-function snogray.avg_tex (...) return snogray.arith_tex ('AVG', ...) end
-function snogray.mirror_tex (...) return snogray.arith_tex ('MIRROR', ...) end
-function snogray.abs_tex (tex) return snogray.arith_tex ('MIRROR', tex, 0) end
-function snogray.neg_tex (tex) return snogray.arith_tex ('SUB', 0, tex) end
-function snogray.sin_tex (x, y) return snogray.arith_tex ('SIN', x, y or 2*math.pi) end
-function snogray.cos_tex (x, y) return snogray.arith_tex ('COS', x, y or 2*math.pi) end
-function snogray.tan_tex (x, y) return snogray.arith_tex ('TAN', x, y or 2*math.pi) end
-function snogray.atan2_tex (...) return snogray.arith_tex ('ATAN2', ...) end
-
--- Install operator overloads for the texture metatable MT.
---
-local function setup_tex_metatable (mt)
-   mt.__add = snogray.add_tex
-   mt.__sub = snogray.sub_tex
-   mt.__mul = snogray.mul_tex
-   mt.__div = snogray.div_tex
-   mt.__unm = snogray.neg_tex
-   mt.__pow = snogray.pow_tex
-   mt.__mod = snogray.mod_tex
-end
-
--- There's a metatable for each underlying texture datatype, currently
--- Color and float.  We install the same overload functions for both.
---
-setup_tex_metatable (getmetatable (snogray.intens_tex (0))) -- float
-setup_tex_metatable (getmetatable (snogray.grey_tex (0))) -- Color
-
-
-----------------------------------------------------------------
--- Texture comparison
---
-
--- Encoding for cmp_tex operations.
---
-local cmp_tex_ops = { EQ = 0, NE = 1, LT = 2, LE = 3, GT = 4, GE = 5 }
-
--- Return a texture which compares CVAL1 to CVAL2 using the comparison
--- operator OP, and returns the value of RVAL1 if the result is true,
--- and RVAL2 otherwise.  CVAL1 and CVAL2 are interpreted as
--- floating-point textures.  RVAL1 and RVAL2 may be either color or
--- floating-point textures (a mixture of both results in the
--- floating-point texture being converted to color before applying the
--- operation).
---
-function snogray.cmp_tex (op, cval1, cval2, rval1, rval2)
-   op = cmp_tex_ops[op]
-   return raw.cmp_tex (op, float_tex_val (cval1), float_tex_val (cval2),
-   		       tex_vals (rval1, rval2))
-end
-
--- Convenient aliases for the various cmp_tex operations.
---
-function snogray.eq_tex (...) return snogray.cmp_tex ('EQ', ...) end
-function snogray.ne_tex (...) return snogray.cmp_tex ('NE', ...) end
-function snogray.lt_tex (...) return snogray.cmp_tex ('LT', ...) end
-function snogray.le_tex (...) return snogray.cmp_tex ('LE', ...) end
-function snogray.gt_tex (...) return snogray.cmp_tex ('GT', ...) end
-function snogray.ge_tex (...) return snogray.cmp_tex ('GE', ...) end
-
-
-----------------------------------------------------------------
--- Perlin fourier-series textures
---
-
--- Return a fourier-series summation of SOURCE_TEX, according to PARAMS:
---
---   Sum[i = 1 to OCTAVES] of (SOURCE_TEX * F_i * Scale(2^(i-1)) * OMEGA^(i-1))
---
--- where OCTAVES is the maximum term index to use, F_i are perm-term user
--- multiplicative factors (defaulting to 1), "... * Scale(2^(i-1))"
--- means to scale the input coordinates to SOURCE_TEX by 2^(i-1), and
--- "... * OMEGA^(i-1)" means to multiply the resulting value of the term
--- by OMEGA^(i-1).
---
--- If PARAMS is a number, then all F_i are 1, OMEGA = 0.5, and OCTAVES =
--- PARAMS.
---
--- If PARAMS is a table, then F_i is the value at index i in PARAMS
--- (F_1 is PARAMS[], F_2 is PARAMS[2], etc), OMEGA = PARAMS.omega or
--- 0.5 if there is no "omega" in PARAMS, and OCTAVES = PARAMS.octaves,
--- or the number of array members in PRAMS if there is no "octaves"
--- entry in PARAMS.
---
--- Note that the F_i values do not need to be constants, they can also
--- be textures.
---
--- The result is automatically scaled by the inverse of the constant
--- portions of the sum, Sum[...] (F_i * OMEGA^(i-1)), so that it should
--- have roughly the same magnitude as SOURCE_TEX.  Any non-constant F_i
--- values are ignored for the purposes of auto-scaling.
---
-function snogray.fourier_series_tex (source_tex, params)
-   local sum = nil
-   local const_factor_sum = 0
-
-   local function add_term (octave, factor)
-      if factor and factor ~= 0 then
-	 local scale_factor = 1.99^octave
-	 local pow_factor = omega ^ octave
-	 local term_factor = factor * pow_factor
-
-	 local term = scale (scale_factor) (source_tex)
-	 if type (term_factor) ~= 'number' or term_factor ~= 1 then
-	    term = term * term_factor
-	 end
-
-	 local const_factor = pow_factor
-	 if type (factor) == 'number' then
-	    const_factor = const_factor * factor
-	 end
-	 const_factor_sum = const_factor_sum + const_factor
-
-	 if sum then
-	    sum = sum + term
-	 else
-	    sum = term
-	 end
-      end
-   end
-
-   local octaves
-   local cur_octave = 0
-   if type (params) == 'table' then
-      omega = params.omega or 0.5
-
-      -- Add terms corresponding to entries in PARAMS.
-      --
-      for i, factor in ipairs (params) do
-	 add_term (i-1, factor)
-      end
-
-      cur_octave = #params
-      octaves = params.octaves or octaves
-   else
-      omega = 0.5
-      octaves = params
-   end
-
-   -- Add any remaining terms, up to OCTAVES.
-   --
-   if octaves then
-      while cur_octave <= octaves do
-	 add_term (cur_octave, 1)
-	 cur_octave = cur_octave + 1
-      end
-   end
-
-   if const_factor_sum ~= 1
-      and (type (params) ~= 'table'
-	or params.auto_scale ~= false)
-   then
-      sum = sum * (1 / const_factor_sum)
-   end
-
-   return sum
-end
-
--- Call fourier_series_tex using perlin noise as the input texture.
--- See description of fourier_series_tex for an explanation of PARAMS.
---
-function snogray.perlin_series_tex (params)
-   return snogray.fourier_series_tex (snogray.perlin_tex(), params)
-end
-
--- Call fourier_series_tex using the absolute value of perlin noise as
--- the input texture.  See description of fourier_series_tex for an
--- explanation of PARAMS.
---
-function snogray.perlin_abs_series_tex (params)
-   return snogray.fourier_series_tex (snogray.perlin_abs_tex(), params)
-end
 
 
 ----------------------------------------------------------------
