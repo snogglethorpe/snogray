@@ -37,6 +37,7 @@ local table = require 'snogray.table'
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
+local light = require 'snogray.light'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -1075,7 +1076,7 @@ function lights.point (state, params)
    local intens = get_color_param (state, params, "color I", 1)
    local scale = get_color_param (state, params, "color scale", 1)
    local from = get_point_param (state, params, "point from", pos(0,0,0))
-   return point_light (state.xform (from), intens * scale)
+   return light.point (state.xform (from), intens * scale)
 end
 
 -- spotlight
@@ -1091,7 +1092,7 @@ function lights.spot (state, params)
    dangle = dangle * 2 * math.pi / 180
    from = state.xform (from)
    to = state.xform (to)
-   return point_light (from, intens * scale, angle, (to - from):unit (), dangle)
+   return light.point (from, intens * scale, angle, (to - from):unit (), dangle)
 end
 
 -- distant light
@@ -1101,7 +1102,7 @@ function lights.distant (state, params)
    local from = get_point_param (state, params, "point from", pos(0,0,0))
    local to = get_point_param (state, params, "point to", pos(0,0,1))
    local dir = state.xform ((from - to):unit ())
-   return far_light (dir, 0, intens)
+   return light.far (dir, 0, intens)
 end
 
 -- infinite light
@@ -1168,7 +1169,7 @@ function lights.infinite (state, params)
    --
    local xf = state.xform (xform_flip_x)
 
-   return envmap_light (envmap, frame (xf))
+   return light.envmap (envmap, frame (xf))
 end
 
 -- projection light (not natively supported, but emulated using a clever
@@ -1207,7 +1208,7 @@ function lights.projection (state, params)
    -- return a spotlight shining through a stencil rectangle
    local xf = state.xform
    return {
-      point_light (xf (pos (0,0,0)), intens * scale,
+      light.point (xf (pos (0,0,0)), intens * scale,
 		   proj_angle, xf (vec (0,0,1))),
       rectangle (mask_mat, xf (pos (-hw,-hh, d)),
 		 xf (vec (hw*2,0,0)), xf (vec (0,hh*2,0)))

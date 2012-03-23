@@ -23,6 +23,7 @@ local raw = require "snogray.snograw"
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
+local light = require 'snogray.light'
 
 
 -- Users typically have the snogray module as their default global
@@ -471,31 +472,15 @@ end
 
 
 ----------------------------------------------------------------
--- Lights
+-- compat light functions
 --
 
-function snogray.point_light (pos, intens, ...)
-   return raw.PointLight (pos, color.std (intens), ...)
-end
+snogray.point_light = light.point
+snogray.sphere_light = light.sphere
+snogray.triangle_light = light.triangle
+snogray.far_light = light.far
+snogray.envmap_light = light.envmap
 
-function snogray.sphere_light (pos, radius, intens)
-   return raw.SphereLight (pos, radius, color.std (intens))
-end
-
-function snogray.triangle_light (corner, side1, side2, intens)
-   return raw.TriparLight (corner, side1, side2, false, color.std (intens))
-end
-
-function snogray.far_light (dir, angle, intens)
-   return raw.FarLight (dir:unit(), angle, color.std (intens))
-end
-
-function snogray.envmap_light (image_or_filename, ...)
-   if type (image_or_filename) == 'string' then
-      image_or_filename = snogray.image (image_or_filename)
-   end
-   return raw.EnvmapLight (raw.envmap (image_or_filename), ...)
-end
 
 ----------------------------------------------------------------
 -- Images
