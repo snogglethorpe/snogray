@@ -182,7 +182,7 @@ function material.cook_torrance (diff, spec, m, _ior, params)
       spec = params.specular or params.spec or params.s
 	 or params[2]
       m = params.m or params[3]
-      i = params.ior or params[4]
+      _ior = params.ior or params[4]
    end
 
    -- defaults
