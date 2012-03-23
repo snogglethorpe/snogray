@@ -17,6 +17,7 @@ local snogray = {}
 
 -- Imports
 --
+local table = require 'snogray.table'
 local swig = require 'snogray.swig'
 local raw = require "snogray.snograw"
 local color = require 'snogray.color'
@@ -506,95 +507,10 @@ snogray.envmap = raw.envmap
 
 
 ----------------------------------------------------------------
--- array functions
+-- compat array functions
 
--- Use binary search to locate the entries in TABLE which are closest
--- to VAL.  SUB_KEY is a key for each table entry; if non-nil it is
--- used to retrieve the key from each entry for comparison (otherwise
--- the entries themselves are used).
---
--- Two indices are returned:  LO and HI; HI always equals LO+1 unless
--- there are less than two entries in TABLE (if there are no entries,
--- then LO and HI will be 1 and 0; if there is one entry then LO and
--- HI will both be 1).  If VAL exactly matches an entry, then
--- TABLE[LO] will be that entry.  If VAL lies between two entries,
--- then LO and HI will be the indices of entries on either side of it.
--- Otherwise, LO and HI will be the indices of the two entries closest
--- to it (the two lowest entries in the table, or the two highest).
---
-function snogray.binary_search (table, val, sub_key)
-   local lo, hi = 1, #table
-
-   while lo < hi - 1 do
-      local mid = math.floor ((lo + hi) / 2)
-
-      local entry = table[mid]
-      if sub_key then
-	 entry = entry[sub_key]
-      end
-
-      if entry > val then
-	 hi = mid
-      else
-	 lo = mid
-      end
-   end
-
-   return lo, hi
-end
-
--- Lookup VAL in TABLE, using linear interpolation to compute entries
--- not explicitly present.
---
--- TABLE should be a sequential array of entries like {VAL1, VAL2, ...},
--- and be sorted by the values of VAL1.
---
-function snogray.linear_interp_lookup (table, val)
-
-   -- If there's only one entry in the table, just return it.
-   --
-   if #table == 1 then
-      local entry = table[1]
-      if entry[1] == val then
-	 return entry
-      else
-	 -- Copy ENTRY so we can use the correct value for ENTRY[1]
-	 local new_entry = {val}
-	 for i = 2, #entry do
-	    new_entry[i] = entry[i]
-	 end
-	 return new_entry
-      end
-   end
-
-   -- Use binary search to locate the nearest entries to VAL.
-   --
-   local lo, hi = snogray.binary_search (table, val, 1)
-   lo = table[lo]
-   hi = table[hi]
-
-   if lo[1] == val then
-      -- found exact match
-      return lo
-   else
-      -- use interpolation
-
-      local interp = {}
-
-      local val_diff = val - lo[1]
-
-      local inv_denom = 1 / (hi[1] - lo[1])
-
-      interp[1] = val
-      
-      for i = 2, #lo do
-	 local slope = (hi[i] - lo[i]) * inv_denom
-	 interp[i] = lo[i] + val_diff * slope
-      end
-
-      return interp
-   end
-end
+snogray.binary_search = table.binary_search
+snogray.linear_interp_lookup = table.linear_interp_lookup
 
 
 ----------------------------------------------------------------

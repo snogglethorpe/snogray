@@ -33,6 +33,7 @@
 local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 local filename = require 'snogray.filename'
+local table = require 'snogray.table'
 local color = require 'snogray.color'
 local texture = require 'snogray.texture'
 local material = require 'snogray.material'
@@ -298,9 +299,9 @@ end
 --
 local function spectrum_to_color (spectrum)
    -- just lookup the values at the center of the sRGB primaries
-   local r = linear_interp_lookup (spectrum, 610) [2]
-   local g = linear_interp_lookup (spectrum, 550) [2]
-   local b = linear_interp_lookup (spectrum, 465) [2]
+   local r = table.linear_interp_lookup (spectrum, 610) [2]
+   local g = table.linear_interp_lookup (spectrum, 550) [2]
+   local b = table.linear_interp_lookup (spectrum, 465) [2]
    return color.rgb (r, g, b)
 end
 
@@ -698,8 +699,8 @@ function materials.metal (state, params)
    local bump = get_texture_param (state, params, "float bumpmap", false)
    -- just cheat and use a fixed wavelength of 550nm (green light)
    local lambda = 550
-   eta = linear_interp_lookup (eta, lambda) [2]
-   k = linear_interp_lookup (k, lambda) [2]
+   eta = table.linear_interp_lookup (eta, lambda) [2]
+   k = table.linear_interp_lookup (k, lambda) [2]
    return material.cook_torrance {d = 0, s = 1, m = rough,
 				  ior = ior(eta,k), bump = bump}
 end
