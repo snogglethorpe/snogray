@@ -377,12 +377,12 @@ end
 
 -- Convenient aliases for the various cmp_tex operations.
 --
-function texture.eq (...) return texture.cmp_tex ('EQ', ...) end
-function texture.ne (...) return texture.cmp_tex ('NE', ...) end
-function texture.lt (...) return texture.cmp_tex ('LT', ...) end
-function texture.le (...) return texture.cmp_tex ('LE', ...) end
-function texture.gt (...) return texture.cmp_tex ('GT', ...) end
-function texture.ge (...) return texture.cmp_tex ('GE', ...) end
+function texture.eq (...) return texture.cmp ('EQ', ...) end
+function texture.ne (...) return texture.cmp ('NE', ...) end
+function texture.lt (...) return texture.cmp ('LT', ...) end
+function texture.le (...) return texture.cmp ('LE', ...) end
+function texture.gt (...) return texture.cmp ('GT', ...) end
+function texture.ge (...) return texture.cmp ('GE', ...) end
 
 
 ----------------------------------------------------------------
