@@ -849,9 +849,9 @@ end
 --
 function textures.windy (state, params, type)
    local wind_strength
-      = scale (.1) (perlin_series_tex {octaves = 3, auto_scale = false})
+      = scale (.1) (texture.perlin_series {octaves = 3, auto_scale = false})
    local wave_height
-      = perlin_series_tex {octaves = 6, auto_scale = false}
+      = texture.perlin_series {octaves = 6, auto_scale = false}
    local tex = texture.abs (wind_strength) * wave_height
    local scale = get_texture_param (state, params, "float scale", 1) * 0.5
    local xf = state.xform:inverse ()
@@ -864,8 +864,8 @@ function textures.fbm (state, params, type)
    local octaves = get_single_param (state, params, "integer octaves", 8)
    local omega = get_single_param (state, params, "float roughness", .5)
    local xf = state.xform:inverse ()
-   return xf (perlin_series_tex {octaves = octaves, omega = omega,
-				 auto_scale = false})
+   return xf (texture.perlin_series
+	      {octaves = octaves, omega = omega, auto_scale = false})
 end
 
 -- wrinkled texture (basically same as fbm, but uses absolute value of
@@ -875,8 +875,8 @@ function textures.wrinkled (state, params, type)
    local octaves = get_single_param (state, params, "integer octaves", 8)
    local omega = get_single_param (state, params, "float roughness", .5)
    local xf = state.xform:inverse ()
-   return xf (perlin_abs_series_tex {octaves = octaves, omega = omega,
-				     auto_scale = false})
+   return xf (texture.perlin_abs_series
+	      {octaves = octaves, omega = omega, auto_scale = false})
 end
 
 
