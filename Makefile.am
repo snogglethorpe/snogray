@@ -36,10 +36,10 @@ noinst_PROGRAMS += hemint
 endif
 
 
-# Lua files loaded directly by the driver.
+# Lua files loaded directly.
 #
 pkgluadir = $(pkgdatadir)/lua
-pkglua_DATA = module-setup.lua
+pkglua_DATA = module-setup.lua snogray.lua
 
 # Lua modules (loaded via the Lua 'require' function).
 #
@@ -50,9 +50,11 @@ pkgluamoduledir = $(pkgluadir)/module
 #
 pkgluamodulesnograydir = $(pkgluamoduledir)/snogray
 pkgluamodulesnogray_DATA = accel.lua all-in-one.lua camera.lua		\
-	cmdlineparser.lua color.lua coord.lua file.lua filename.lua	\
-	image.lua light.lua load.lua lpeg-utils.lua material.lua	\
-	render.lua scene.lua string-fill.lua string.lua surface.lua	\
+	camera-cmdline.lua cmdlineparser.lua color.lua coord.lua	\
+	file.lua filename.lua image-sampled-output-cmdline.lua		\
+	image.lua light.lua limit-cmdline.lua load.lua lpeg-utils.lua	\
+	material.lua render-cmdline.lua render.lua scene.lua		\
+	scene-cmdline.lua string-fill.lua string.lua surface.lua	\
 	swig.lua sys.lua table.lua texture.lua transform.lua
 
 # Lua loaders for various scene/mesh formats.
@@ -64,12 +66,12 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
-	libsnogimagecli.a libsnoglight.a libsnogload.a			\
-	libsnogloaders.a libsnoglua.a libsnogmat.a libsnograw.a		\
-	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
-	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
-	libsnogutil.a libluaexts.a
+noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a	\
+	libsnogimagecli.a libsnoglight.a libsnogloaders.a	\
+	libsnoglua.a libsnogmat.a libsnograw.a libsnogrdrive.a	\
+	libsnogrender.a libsnogscene.a libsnogscenecli.a	\
+	libsnogspace.a libsnogsurf.a libsnogtex.a libsnogutil.a	\
+	libluaexts.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -315,18 +317,6 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 
 ################################################################
 #
-# Snogray scene-loading library, libsnogload.a
-#
-
-libsnogload_a_SOURCES = camera-cmds.cc camera-cmds.h load-lua.cc load-lua.h
-
-# Library dependencies of libsnogload.a
-#
-libsnogload_LIBS = 
-
-
-################################################################
-#
 # Snogray scene command-line handling library, libsnogscenecli.a
 #
 
@@ -356,7 +346,8 @@ endif
 # Snogray Lua support library, libsnoglua.a
 #
 
-libsnoglua_a_SOURCES = lua-funs.cc lua-funs.h lua-setup.cc lua-setup.h
+libsnoglua_a_SOURCES = invoke-lua-driver.cc invoke-lua-driver.h	\
+	lua-funs.cc lua-funs.h lua-setup.cc lua-setup.h
 
 # Library dependencies of libsnoglua.a
 #
@@ -489,9 +480,8 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
 	libsnogtex.a libsnogspace.a libsnogscene.a
-LOAD_LIBS = libsnogload.a $(libsnogload_LIBS)	\
-	libsnoglua.a $(libsnoglua_LIBS)	\
-	libsnogloaders.a $(libsnogloaders_LIBS)
+LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
+LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
 	libsnogcolor.a
 MISC_LIBS = libsnogcli.a libsnogutil.a
@@ -503,11 +493,11 @@ MISC_LIBS = libsnogcli.a libsnogutil.a
 #
 
 snogray_SOURCES = snogray.cc recover-image.cc recover-image.h
-snogray_LDADD = libsnogscenecli.a libsnogrdrive.a $(LOAD_LIBS)	\
-	$(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
+snogray_LDADD = $(LUA_LIBS) libsnogrdrive.a $(LOADER_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) \
+	$(MISC_LIBS)
 
 snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
-snogsamp_LDADD = $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
+snogsamp_LDADD = $(LOADER_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogcvt_SOURCES = snogcvt.cc
 snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)

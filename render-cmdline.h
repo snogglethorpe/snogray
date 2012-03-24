@@ -19,7 +19,7 @@
   -D, --direct-samples=NUM   Use NUM samples for direct lighting\n\
 \n\
   -S, --surface-integ=INTEG  Use surface-integrator INTEG (default \"direct\")\n\
-                               Options include:\n\
+                               Choices include:\n\
                                  \"direct\"     -- direct-lighting\n\
                                  \"path\"       -- path-tracing\n\
                                  \"photon\"     -- photon-mapping\n\
