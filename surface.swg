@@ -74,6 +74,10 @@ namespace snogray {
     virtual BBox bbox () const;
   };
 
+  // This is really Surface::IsecInfo, but SWIG can't handle nested types
+  class IsecInfo;
+  %{ namespace snogray { class IsecInfo : public Surface::IsecInfo {}; } %}
+
   class Primitive : public Surface
   {
   private:  // inhibit swig constructor generation

@@ -13,6 +13,7 @@
 
 %{
 #include "color.h"
+#include "color-io.h"
 %}
 
 

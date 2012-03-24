@@ -83,6 +83,11 @@ SWIG_TYPEMAP_NUM_VECTOR(unsigned)
 %include "val-table.swg"
 
 
+%{
+#include "ref.h"
+%}
+
+
 // Some common stuff that's used by all included .swg files.  None of
 // this should actually generate any interface code, it just informs
 // SWIG about things.
@@ -130,21 +135,21 @@ namespace snogray {
 
 
   typedef float intens_t;
-
-
 }
 
 
 // These includes export various subsets of snogray functionality.
 //
+%include "common.swg"
 %include "image.swg"
 %include "surface.swg"
 %include "material.swg"
 %include "light.swg"
-%include "tex.swg"
 %include "scene.swg"
+%include "tex.swg"
 %include "camera.swg"
 %include "rdrive.swg"
+%include "render.swg"
 %include "space.swg"
 %include "color.swg"
 %include "load.swg"

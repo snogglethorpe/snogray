@@ -17,7 +17,6 @@
 #include "render-mgr.h"
 #include "render-pattern.h"
 #include "render-stats.h"
-#include "global-render-state.h"
 #include "tty-progress.h"
 %}
 
@@ -31,15 +30,7 @@ namespace snogray {
 
 
   class ImageSampledOutput;
-
-
-  class GlobalRenderState
-  {
-  public:
-
-    GlobalRenderState (const snogray::Scene &_scene,
-		      const snogray::ValTable &_params);
-  };
+  class GlobalRenderState;
 
 
   class RenderMgr
@@ -62,35 +53,6 @@ namespace snogray {
   public:
 
     RenderPattern (int _left_x, int _top_y, int _width, int _height);
-  };
-
-
-  // A wrapper for RenderStats::IsecStats (SWIG can't handle nested
-  // classes).
-  //
-  struct IsecStats
-  {
-    unsigned long long surface_intersects_tests;
-    unsigned long long surface_intersects_hits;
-    unsigned long long neg_cache_hits;
-    unsigned long long neg_cache_collisions;
-    unsigned long long space_node_intersect_calls;
-  };
-  %{
-  namespace snogray {
-    struct IsecStats : public RenderStats::IsecStats { };
-  }
-  %}
-
-  struct RenderStats
-  {
-    RenderStats ();
-
-    unsigned long long scene_intersect_calls;
-    unsigned long long scene_shadow_tests;
-    unsigned long long illum_calls;
-
-    IsecStats intersect, shadow;
   };
 
 

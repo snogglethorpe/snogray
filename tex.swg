@@ -41,9 +41,6 @@
 namespace snogray {
 
 
-  class UV;
-
-
   class TexCoords
   {
   public:
@@ -62,6 +59,7 @@ namespace snogray {
   %template(FloatTex) Tex<float>;
   %template(ColorTexRef) Ref<Tex<Color> >;
   %template(FloatTexRef) Ref<Tex<float> >;
+
 
   template<typename T>
   class TexVal
@@ -95,6 +93,24 @@ namespace snogray {
 
   // Fake-out SWIG
   class Image;
+
+
+  // Try to make transforms appliable to textures too.. ugh... soooo
+  // many SWIG bugs....
+  //
+  %extend TXform<dist_t>
+  {
+    snogray::Ref<snogray::Tex<float> > operator () (const snogray::Ref<Tex<float> > &obj) const
+    {
+      return new snogray::XformTex<float> (*$self, obj);
+    }
+    snogray::Ref<snogray::Tex<Color> > operator () (const snogray::Ref<Tex<snogray::Color> > &obj) const
+    {
+      return new snogray::XformTex<snogray::Color> (*$self, obj);
+    }
+  }
+
+
 
 } // namespace snogray
 

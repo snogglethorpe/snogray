@@ -1,6 +1,6 @@
 # render.swg -- SWIG interfaces for snogray rendering types
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,8 +12,8 @@
 
 
 %{
-#include "ray.h"
-#include "ray-io.h"
+#include "global-render-state.h"
+#include "render-context.h"
 %}
 
 
@@ -25,33 +25,65 @@
 namespace snogray {
 
 
-  template<typename T>
-  class TRay
+  class GlobalRenderState
   {
   public:
 
-    TRay (TPos<T> _origin, TVec<T> _extent);
-    TRay (TPos<T> _origin, TVec<T> _dir, T _t1);
-    TRay (TPos<T> _origin, TVec<T> _dir, T _t0, T _t1);
-    TRay (TPos<T> _origin, TPos<T> _targ);
-
-    TPos<T> operator() (T t);
-    TPos<T> begin () const;
-    TPos<T> end () const;
-
-    T length () const { return t1 - t0; }
-
-    TPos<T> origin;
-    TVec<T> dir;
-
-    T t0, t1;
+    GlobalRenderState (const snogray::Scene &_scene,
+		      const snogray::ValTable &_params);
   };
-  %extend TRay<dist_t>
+
+
+  // A wrapper for RenderStats::IsecStats (SWIG can't handle nested
+  // classes).
+  //
+  struct IsecStats
   {
-    const char* __str__() { return static_rep (*$self); }
+    unsigned long long surface_intersects_tests;
+    unsigned long long surface_intersects_hits;
+    unsigned long long neg_cache_hits;
+    unsigned long long neg_cache_collisions;
+    unsigned long long space_node_intersect_calls;
+  };
+  %{
+  namespace snogray {
+    struct IsecStats : public RenderStats::IsecStats { };
   }
-  %template(Ray) TRay<dist_t>;
-  typedef TRay<dist_t> Ray;
+  %}
+
+  struct RenderStats
+  {
+    RenderStats ();
+
+    unsigned long long scene_intersect_calls;
+    unsigned long long scene_shadow_tests;
+    unsigned long long illum_calls;
+
+    IsecStats intersect, shadow;
+  };
+
+
+  class RenderContext
+  {
+  public:
+
+    RenderContext (const snogray::GlobalRenderState &global_state);
+    ~RenderContext ();
+
+    const Scene &scene;
+
+    // Medium default_medium;
+
+    RenderStats stats;
+
+    // Random random;
+
+    const snogray::GlobalRenderState &global_state;
+
+    // const RenderParams params;
+    // UniquePtr<SurfaceInteg> surface_integ;
+    // UniquePtr<VolumeInteg> volume_integ;
+  };
 
 
 } // namespace snogray

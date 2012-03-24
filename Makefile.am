@@ -74,18 +74,18 @@ noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
 
 # Various files to include in distribution not covered by automatic rules
 #
-EXTRA_DIST =							\
-	$(pkglua_DATA)						\
-	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)	\
-	README README.building README.issues README.usage	\
-	README.utils						\
-	snograw.swg vector.swg val-table.swg			\
-	image.swg surface.swg material.swg light.swg tex.swg	\
-	scene.swg camera.swg rdrive.swg space.swg color.swg	\
-	load.swg util.swg					\
-	update-version.sh					\
-	autogen.sh						\
-	lpeg.html						\
+EXTRA_DIST =								\
+	$(pkglua_DATA)							\
+	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
+	README README.building README.issues README.usage		\
+	README.utils							\
+	camera.swg color.swg common.swg image.swg light.swg load.swg	\
+	material.swg rdrive.swg render.swg scene.swg snograw.swg	\
+	space.swg surface.swg tex.swg util.swg val-table.swg		\
+	vector.swg							\
+	update-version.sh						\
+	autogen.sh							\
+	lpeg.html							\
 	stats.txt spd.txt
 
 noinst_SCRIPTS = update-version.sh
@@ -625,9 +625,11 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
 #
-snograw_lua_wrap.cc: vector.swg val-table.swg image.swg surface.swg	\
-	material.swg light.swg tex.swg scene.swg camera.swg color.swg	\
-	rdrive.swg space.swg load.swg util.swg
+snograw_lua_wrap.cc: camera.swg color.swg common.swg image.swg	\
+	light.swg load.swg material.swg rdrive.swg render.swg	\
+	scene.swg space.swg surface.swg tex.swg util.swg	\
+	val-table.swg vector.swg
+
 
 # Compiler options for compiling SWIG-generated Lua interface.
 #
