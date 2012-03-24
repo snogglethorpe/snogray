@@ -19,6 +19,7 @@ local surface = {}
 local swig = require 'snogray.swig'
 local raw = require "snogray.snograw"
 local transform = require 'snogray.transform'
+local accel = require 'snogray.accel'
 
 local pos, vec = raw.Pos, raw.Vec
 local cross = raw.cross
