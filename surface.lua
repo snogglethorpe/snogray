@@ -185,14 +185,14 @@ function surface.solid_cylinder (mat, arg1, ...)
    end
 end
 
--- space-builder-factory used for building model spaces
+-- Return a "surface model" containing SURF, which may be a single
+-- surface or a list of surfaces.  The resulting model can then be
+-- instantiated multiple times using surface.instance.
 --
-local model_space_builder_factory = nil
-
--- Wrap the model constructor to record the GC link between a
--- model and the surface in it.
+-- ACCEL_TYPE is the type of search accelerator to use with this
+-- model, and will default to something reasonable.
 --
-function surface.model (surf)
+function surface.model (surf, accel_type)
 
    -- If SURF is actually a table, make a surface-group to hold its
    -- members, and wrap that instead.
@@ -205,12 +205,7 @@ function surface.model (surf)
       end
    end
 
-   if not model_space_builder_factory then
-      local accel = require 'snogray.accel'
-      model_space_builder_factory = accel.factory ()
-   end
-
-   local mod = raw.model (surf, model_space_builder_factory)
+   local mod = raw.model (surf, accel.factory (accel_type))
 
    if swig.need_obj_gc_protect then
       -- Record the GC link between MOD and SURF.
