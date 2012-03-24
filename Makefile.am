@@ -118,11 +118,11 @@ dist-hook:
 #
 CLEANFILES = liblua.a snograw.so version.cc snogpaths-data.h
 
-# We only clean up "snograw_lua_wrap.cc" and "swigluarun.h" if it's
-# possible to regenerate them.
+# We only clean up "snograw_lua_wrap.cc" if it's possible to
+# regenerate it.
 #
 if have_swig
-CLEANFILES += snograw_lua_wrap.cc swigluarun.h
+CLEANFILES += snograw_lua_wrap.cc
 endif
 
 
@@ -352,8 +352,6 @@ libsnoglua_a_SOURCES = invoke-lua-driver.cc invoke-lua-driver.h	\
 # Library dependencies of libsnoglua.a
 #
 libsnoglua_LIBS = libsnograw.a libluaexts.a $(liblua_LIBS)
-
-load-lua.o : swigluarun.h
 
 
 ################################################################
@@ -589,8 +587,6 @@ swig_verbose_0 = @echo "  SWIG  " $@;
 #
 %_lua_wrap.cc : %.swg
 	$(swig_verbose)$(SWIG) $(SWIG_FLAGS) -o $@ -c++ -lua $<
-swigluarun.h:
-	$(swig_verbose)$(SWIG) $(SWIG_FLAGS) -lua -c++ -external-runtime $@
 
 else
 
@@ -610,7 +606,7 @@ else
 
 endif
 
-libsnograw_a_SOURCES = snograw_lua_wrap.cc swigluarun.h
+libsnograw_a_SOURCES = snograw_lua_wrap.cc
 
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
