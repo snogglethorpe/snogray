@@ -26,9 +26,9 @@ local raw = require 'snogray.snograw'
 -- Autoloading
 --
 
--- A metatable for inheriting from the snogray environment
+-- A metatable for inheriting from the global environment
 --
-local inherit_snogray_metatable = { __index = require 'snogray.snogray' }
+local inherit_global_metatable = { __index = _G }
 
 -- Add a stub for file-extension EXT to LOADER_TABLE that will load
 -- LOADER_FILE and call the function named LOADER_NAME (which
@@ -41,7 +41,7 @@ local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
    loader_table[ext]
       = function (...)
 	   local environ = {}
-	   setmetatable (environ, inherit_snogray_metatable)
+	   setmetatable (environ, inherit_global_metatable)
 
 	   -- Load the file.  We pass ENVIRON to loadfile to set the
 	   -- loaded file's environment in Lua 5.2; the extra
@@ -100,9 +100,9 @@ end
 --
 --  (3) If LOADER is a string, and LOADER_FILE is also a string, then
 --      the Lua file LOADER_FILE is loaded into a new environment
---      inheriting from the "snogray.snogray" module, and expected to
---      define a function in that environment called LOADER, which is
---      called to do the loading.
+--      inheriting from the global environment, and expected to define
+--      a function in that environment called LOADER, which is called
+--      to do the loading.
 --
 local function add_loader (loader_table, format, loader, loader_file)
    if type (loader) == 'string' then
@@ -190,9 +190,9 @@ end
 --
 --  (3) If LOADER is a string, and LOADER_FILE is also a string, then
 --      the Lua file LOADER_FILE is loaded into a new environment
---      inheriting from the "snogray.snogray" module, and expected to
---      define a function in that environment called LOADER, which is
---      called to do the loading.
+--      inheriting from the global environment, and expected to define
+--      a function in that environment called LOADER, which is called
+--      to do the loading.
 --
 function load.add_scene_loader (format, loader, loader_file)
    add_loader (scene_loaders, format, loader, loader_file)
@@ -249,9 +249,9 @@ end
 --
 --  (3) If LOADER is a string, and LOADER_FILE is also a string, then
 --      the Lua file LOADER_FILE is loaded into a new environment
---      inheriting from the "snogray.snogray" module, and expected to
---      define a function in that environment called LOADER, which is
---      called to do the loading.
+--      inheriting from the global environment, and expected to define
+--      a function in that environment called LOADER, which is called
+--      to do the loading.
 --
 function load.add_mesh_loader (format, loader, loader_file)
    add_loader (mesh_loaders, format, loader, loader_file)
