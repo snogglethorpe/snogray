@@ -234,13 +234,6 @@ snogray.envmap_light = light.envmap
 
 
 ----------------------------------------------------------------
--- compat array functions
-
-snogray.binary_search = table.binary_search
-snogray.linear_interp_lookup = table.linear_interp_lookup
-
-
-----------------------------------------------------------------
 
 -- return module
 --
