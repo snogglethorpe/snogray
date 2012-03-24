@@ -205,7 +205,8 @@ function surface.model (surf)
    end
 
    if not model_space_builder_factory then
-      model_space_builder_factory = raw.OctreeBuilderFactory ()
+      local accel = require 'snogray.accel'
+      model_space_builder_factory = accel.factory ()
    end
 
    local mod = raw.model (surf, model_space_builder_factory)
