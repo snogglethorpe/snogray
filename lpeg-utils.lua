@@ -194,6 +194,25 @@ function lpeg_utils.parse_file (filename, pattern)
    parse_state = old_parse_state
 end
 
+
+-- Returns an LPEG "or" pattern containing the LPEG pattern PAT
+-- surrounded by various types of matching bracket pairs:  <...>,
+-- [...], (...), {...}, with optional whitespace inside the brackets.
+-- If BARE is true, then PAT itself, with no brackets, is also added.
+--
+function lpeg_utils.bracketed (pat, bare)
+   local WS = lpeg_utils.OPT_WS
+   local or_pat = P"{" * WS * pat * WS * P"}"
+   or_pat = or_pat + (P"[" * WS * pat * WS * P"]")
+   or_pat = or_pat + (P"(" * WS * pat * WS * P")")
+   or_pat = or_pat + (P"<" * WS * pat * WS * P">")
+   if bare then
+      or_pat = or_pat + pat
+   end
+   return or_pat
+end
+
+
 -- return module
 --
 return lpeg_utils
