@@ -244,8 +244,6 @@ snogray.linear_interp_lookup = table.linear_interp_lookup
 -- High-level rendering functions (mainly used by the top-level driver)
 --
 
-snogray.camera = raw.Camera
-
 snogray.octree_builder_factory = raw.OctreeBuilderFactory
 
 
