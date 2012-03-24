@@ -17,6 +17,12 @@ local sys = {}
 local raw = require 'snogray.snograw'
 
 
+-- For TTY the progress reporter, we just assume std::cout
+--
+function sys.tty_progress (msg)
+   return raw.TtyProgress (raw.cout, msg)
+end
+
 sys.rusage = raw.Rusage
 
 sys.num_cores = raw.num_cores
