@@ -26,6 +26,8 @@ function transform.is_transform (val)
    return swig.type (val) == 'Xform'
 end
 
+transform.new = raw.Xform
+
 -- Return a transform given the elements of a 4x4 transform matrix in
 -- row-major order.
 --
