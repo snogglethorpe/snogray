@@ -20,6 +20,11 @@ local raw = require "snogray.snograw"
 
 
 image.new = raw.image
+image.sampled_output = raw.ImageSampledOutput
+image.scaled_output = raw.ImageScaledOutput
+image.input = raw.ImageInput
+image.recover = raw.recover_image
+image.row = raw.ImageRow
 
 
 -- return module

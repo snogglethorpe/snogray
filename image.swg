@@ -15,6 +15,7 @@
 #include "tuple-matrix.h"
 #include "image.h"
 #include "image-sampled-output.h"
+#include "recover-image.h"
 %}
 
 
@@ -86,8 +87,89 @@ namespace snogray {
 
     bool has_alpha_channel () const;
 
+    unsigned filter_x_radius () const;
+    unsigned filter_y_radius () const;
+
+    intens_t max_intens () const;
+
+    unsigned width, height;
+
+    float intensity_scale;   // intensity multiplier (1 == nop)
+    float intensity_power;   // power which intensity is raised to (1 == nop)
+  };
+
+
+  class ImageRow
+  {
+  public:
+
+    ImageRow (unsigned _width = 0);
+    void clear ();
+    void resize (unsigned w);
+
+    Tint &operator[];
+    std::size_t size ();
+
+    unsigned width;
+  };
+
+  // SWIG can't handle nested types, so define global versions of some
+  // ImageIo types.
+  //
+  %{
+    namespace snogray {
+       enum ImageRowOrder {
+         FIRST_ROW_AT_TOP = ImageIo::FIRST_ROW_AT_TOP,
+         FIRST_ROW_AT_BOTTOM = ImageIo::FIRST_ROW_AT_BOTTOM
+       };
+    }
+  %}
+  enum ImageRowOrder { FIRST_ROW_AT_TOP, FIRST_ROW_AT_BOTTOM };
+
+
+  class ImageScaledOutput
+  {
+  public:
+
+    ImageScaledOutput (const char *filename,
+		       unsigned src_width, unsigned src_height,
+		       const ValTable &params = ValTable::NONE);
+
+    void write_row (const ImageRow &row);
+
+    bool has_alpha_channel () const;
+
+    intens_t max_intens () const;
+
+    unsigned width, height;
+
+    float intensity_scale;   // intensity multiplier (1 == nop)
+    float intensity_power;   // power which intensity is raised to (1 == nop)
+  };
+
+
+  class ImageInput
+  {
+  public:
+
+    ImageInput (const char *filename, const ValTable &params = ValTable::NONE);
+
+    bool has_alpha_channel () const;
+    ImageRowOrder row_order () const;
+#if 0
+    ImageRowIndices row_indices () const;
+#endif
+
+    void read_row (ImageRow &row);
+
     unsigned width, height;
   };
+
+
+  unsigned recover_image (const char *partial_image_filename,
+			  const char *output_filename,
+			  const ValTable &output_params,
+			  ImageSampledOutput &dst);
 
 
 } // namespace snogray
