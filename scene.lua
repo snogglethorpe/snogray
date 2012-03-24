@@ -25,6 +25,8 @@ local raw = require "snogray.snograw"
 
 scene.new = raw.Scene
 
+scene.default_horizon = raw.Scene_DEFAULT_HORIZON
+
 
 -- return module
 --
