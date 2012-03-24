@@ -29,6 +29,7 @@ local FEXP = P"e" * PM * DIGS
 
 -- whole numbers
 lpeg_utils.INT = (PM * DIGS) / tonumber
+lpeg_utils.UINT = DIGS / tonumber
 lpeg_utils.FLOAT = (FMANT * FEXP^-1) / tonumber
 
 -- whitespace
