@@ -82,6 +82,7 @@ Val::invalid (const char *type_name) const
 {
   std::string msg = "invalid ";
   msg += type_name;
+  msg += " in ValTable entry";
   type_err (msg.c_str ());
 }
 
