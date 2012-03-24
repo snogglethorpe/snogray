@@ -17,6 +17,8 @@ local sys = {}
 local raw = require 'snogray.snograw'
 
 
+sys.rusage = raw.Rusage
+
 sys.num_cores = raw.num_cores
 
 
