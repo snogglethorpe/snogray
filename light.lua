@@ -18,6 +18,7 @@ local light = {}
 --
 local raw = require "snogray.snograw"
 local color = require 'snogray.color'
+local image = require 'snogray.image'
 
 
 function light.point (pos, intens, ...)
@@ -38,7 +39,7 @@ end
 
 function light.envmap (image_or_filename, ...)
    if type (image_or_filename) == 'string' then
-      image_or_filename = raw.image (image_or_filename)
+      image_or_filename = image.new (image_or_filename)
    end
    return raw.EnvmapLight (raw.envmap (image_or_filename), ...)
 end

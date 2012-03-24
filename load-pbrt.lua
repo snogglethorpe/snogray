@@ -40,6 +40,7 @@ local texture = require 'snogray.texture'
 local material = require 'snogray.material'
 local surface = require 'snogray.surface'
 local light = require 'snogray.light'
+local image = require 'snogray.image'
 local transform = require 'snogray.transform'
 
 local pos, vec = coord.pos, coord.vec
@@ -1136,7 +1137,7 @@ function lights.infinite (state, params)
    if mapname then
       -- image read from file
 
-      envmap = image (find_file (mapname, state))
+      envmap = image.new (find_file (mapname, state))
 
       if L ~= color.white then
 	 -- need to scale values (ugh, pixel-by-pixel...)
@@ -1159,7 +1160,7 @@ function lights.infinite (state, params)
       -- large, but it's safe.
       --
       local w, h = 128, 64
-      envmap = image (w, h)
+      envmap = image.new (w, h)
       for j = 0, h - 1 do
 	 for i = 0, w - 1 do
 	    envmap:set (i, j, L)
@@ -1189,7 +1190,7 @@ function lights.projection (state, params)
    fov = fov * 2 * math.pi / 180 -- convert degrees to radians
 
    -- get details of projection map
-   local img = image (find_file (mapname, state))
+   local img = image.new (find_file (mapname, state))
    local aspect_ratio = img.width / img.height
 
    -- decide how large the projection mask should be
@@ -1605,6 +1606,7 @@ function load_pbrt_in_state (state, scene, camera)
       if kind ~= "image" then
 	 parse_err "Film command only supports a type of \"image\""
       end
+
       local w = get_single_param (state, params, "integer xresolution",
 				  default_width)
       local h = get_single_param (state, params, "integer yresolution",

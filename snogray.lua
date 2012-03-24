@@ -234,15 +234,6 @@ snogray.envmap_light = light.envmap
 
 
 ----------------------------------------------------------------
--- Images
---
-
-snogray.image = raw.image
-
-snogray.envmap = raw.envmap
-
-
-----------------------------------------------------------------
 -- compat array functions
 
 snogray.binary_search = table.binary_search
