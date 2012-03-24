@@ -125,9 +125,9 @@ end
 --
 
 
--- A metatable for inheriting from the snogray environment
+-- A metatable for inheriting from the "all-in-one" environment
 -- 
-local inherit_snogray_metatable = { __index = require 'snogray.snogray' }
+local inherit_all_in_one_metatable = { __index = require 'snogray.all-in-one' }
 
 
 -- Load Lua scene description from SCENE_FILE into SCENE and CAMERA.
@@ -144,12 +144,12 @@ function load_lua (scene_file, scene, camera, params)
    end
 
    -- Make a new environment to evaluate the file contents in; it will
-   -- inherit from "snogray" for convenience.  There are no global
-   -- pointers to this table so it and its contents will be garbage
-   -- collected after loading.
+   -- inherit from the "all-in-one" scene interface for convenience.
+   -- There are no global pointers to this table so it and its
+   -- contents will be garbage collected after loading.
    --
    local environ = {}
-   setmetatable (environ, inherit_snogray_metatable)
+   setmetatable (environ, inherit_all_in_one_metatable)
    setfenv (contents, environ)
 
    -- Add references to the scene, camera, and parameters.
