@@ -1,24 +1,5 @@
 Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
-* TODO Rewrite driver layer in Lua
-
-  It really just makes sense...
-
-  I had this odd idea that it should be able to work without any Lua
-  installed, but that's just silly -- it cripples the input of scene
-  files, and Lua's so small and portable it's fine just to include a
-  Lua source distribution to avoid adding an external dependency.
-
-  An interesting question, though, is:  should I (1) restructure
-  everything as a pure module which can be loaded by an external Lua,
-  or (2) just keep a thin driver and compile in Lua.
-
-  (1) might be a bit more elegant, but maybe requires more
-  install-time magic, so that Lua can find the module, etc.  Also, (2)
-  would avoid any efficiency hit from PIC compilation (required for
-  shared objects on linux), and maybe other shared-object-specific
-  goo; not sure if this is really a big deal on common archs or not...
-
 * TODO Make image I/O classes dynamically loadable
 
   Dynamic loading in general might not be worth the trouble, but
@@ -72,24 +53,6 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
   using them are fairly rare).  A color-space conversion matrix
   between color-spaces A and B can then be calculated by multiplying
   A.TO_SPD and B.FROM_SPD.
-
-* TODO Add "fake hdr" utility
-
-  Basically converts a LDR (low-dynamic-range) image into a "fake"
-  HDR image by artificially boosting clamped highlights.  With some
-  tweaking this often makes LDR environment maps useful for lighting
-  (whereas they're normally not so useful because "highlights" in a
-  LDR image are typically severely clamped compared to the original
-  scene).
-
-  Basic algorithm:
-
-      for_each (pixel)
-        if (brightness (pixel) > THRESHOLD)
-	  pixel *= BOOST;
-
-  where THRESHOLD and BOOST are user-tweakable parameters.  THRESHOLD
-  = 0.98 and BOOST = 5 have proved reasonable for me in the past.
 
 * TODO Multi-thread photon-shooting
 
@@ -450,10 +413,47 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 Completed items:
 
 
+* DONE [2012-03-24] Rewrite driver layer in Lua
+
+  It really just makes sense...
+
+  I had this odd idea that it should be able to work without any Lua
+  installed, but that's just silly -- it cripples the input of scene
+  files, and Lua's so small and portable it's fine just to include a
+  Lua source distribution to avoid adding an external dependency.
+
+  An interesting question, though, is:  should I (1) restructure
+  everything as a pure module which can be loaded by an external Lua,
+  or (2) just keep a thin driver and compile in Lua.
+
+  (1) might be a bit more elegant, but maybe requires more
+  install-time magic, so that Lua can find the module, etc.  Also, (2)
+  would avoid any efficiency hit from PIC compilation (required for
+  shared objects on linux), and maybe other shared-object-specific
+  goo; not sure if this is really a big deal on common archs or not...
+
 * DONE [2012-02-26] Make snogray installable!
 
   The main issue is just having some sort of search path so that it
   can find any resources it needs.
+
+* DONE [2012-02-16] Add "fake hdr" utility
+
+  Basically converts a LDR (low-dynamic-range) image into a "fake"
+  HDR image by artificially boosting clamped highlights.  With some
+  tweaking this often makes LDR environment maps useful for lighting
+  (whereas they're normally not so useful because "highlights" in a
+  LDR image are typically severely clamped compared to the original
+  scene).
+
+  Basic algorithm:
+
+      for_each (pixel)
+        if (brightness (pixel) > THRESHOLD)
+	  pixel *= BOOST;
+
+  where THRESHOLD and BOOST are user-tweakable parameters.  THRESHOLD
+  = 0.98 and BOOST = 5 have proved reasonable for me in the past.
 
 * DONE [2011-12-30] Finish bloom-filter (aka “veiling luminance”) app
 
