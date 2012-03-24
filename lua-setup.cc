@@ -27,6 +27,7 @@ extern "C"
 #include "lua-funs.h"
 #include "funptr-cast.h"
 #include "snogpaths.h"
+#include "version.h"
 
 #include "lua-setup.h"
 
@@ -252,6 +253,15 @@ snogray::new_snogray_lua_state ()
   // Setup the module system to load more stuff.
   //
   setup_lua_module_loader (L);
+
+  // Add snogray version string to the "snogray.environ" module.
+  //
+  lua_getglobal (L, "require");		 // function
+  lua_pushstring (L, "snogray.environ"); // arg 0
+  lua_call (L, 1, 1);			 // call require
+  lua_pushstring (L, snogray_version);
+  lua_setfield (L, -2, "version");
+  lua_pop (L, 1);			 // pop environ table
 
   return L;
 }

@@ -78,6 +78,8 @@ end
 --   lua_loader_dir	The directory where snogray Lua scene/mesh
 --			loaders are stored.
 --
+--   version            Snogray version string (added in C code)
+--
 local snogray_environ = {}
 snogray_environ.lua_dir = lua_dir
 snogray_environ.lua_module_dir = lua_module_dir
