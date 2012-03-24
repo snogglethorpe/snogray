@@ -1611,14 +1611,35 @@ function load_pbrt_in_state (state, scene, camera)
 				  default_width)
       local h = get_single_param (state, params, "integer yresolution",
 				  default_height)
-      local crop, cropn = get_param (state, params, "float cropwindow", false)
+      local crop = get_param (state, params, "float cropwindow", false)
       local filename
 	 = get_single_param (state, params, "string filename", false)
       params["bool display"] = nil -- ignore
       check_unused_params (params)
+
       if crop then
-	 parse_warn ("\""..cropn.."\" parameter ignored")
+	 local function param (i)
+	    local param = crop[i]
+	    if type (param) == 'number' and param >= 0 and param <= 1 then
+	       return param
+	    else
+	       return nil
+	    end
+	 end
+
+	 local x, x2, y, y2 = param(1), param(2), param(3), param(4)
+
+	 if #crop ~= 4 or not x or not x2 or not y or not y2
+	    or x > x2 or y > y2 or not x then
+	    parse_err ("invalid cropwindow ["..table.concat(crop, ' ').."]")
+	 end
+
+	 if x2 == 1 then x2 = 0 end
+	 if y2 == 1 then y2 = 0 end
+
+	 state:set_param ("limit", {x = x, y = y, x2 = x2, y2 = y2})
       end
+
       state.pending_options.width = w
       state.pending_options.height = h
       if filename and not state:get_param ("output.filename") then
