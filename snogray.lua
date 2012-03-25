@@ -120,7 +120,6 @@ local output_file = args[2] -- may be null
 
 local beg_time = os.time ()
 local scene_beg_ru = sys.rusage () -- begin marker for scene loading
-local scene_beg_clock = os.clock ()
 local scene = scene.new ()	-- note, shadows variable, but oh well
 local camera = camera.new ()	-- ditto
 
@@ -153,7 +152,6 @@ if not output_file then
 end
 
 local scene_end_ru = sys.rusage () -- end marker for scene setup
-local scene_end_clock = os.clock ()
 
 
 ----------------------------------------------------------------
@@ -265,10 +263,8 @@ end
 --
 
 local setup_beg_ru = sys.rusage ()
-local setup_beg_clock = os.clock ()
 local grstate = render_cmdline.make_global_render_state (scene, render_params)
 local setup_end_ru = sys.rusage ()
-local setup_end_clock = os.clock ()
 
 
 ----------------------------------------------------------------
@@ -290,13 +286,11 @@ local render_mgr = render.manager (grstate, camera, width, height)
 local tty_prog = sys.tty_progress ("rendering...")
 
 local render_beg_ru = sys.rusage () -- begin marker for rendering
-local render_beg_clock = os.clock ()
 
 render_mgr:render (num_threads, render_pattern, image_out,
 		   tty_prog, render_stats)
 
 local render_end_ru = sys.rusage () -- end marker for rendering
-local render_end_clock = os.clock ()
 local end_time = os.time ()
 
 
@@ -408,18 +402,15 @@ if not quiet then
          + (scene_end_ru:stime() - scene_beg_ru:stime()))
    if scene_def_time > 1 then
       print("  scene def cpu:       "..elapsed_time_string (scene_def_time))
-      print("  scene def cpu(clk):  "..elapsed_time_string (scene_end_clock-scene_beg_clock))
    end
 
    local setup_time = setup_end_ru:utime() - setup_beg_ru:utime()
    if setup_time > 1 then
       print("  setup cpu:           "..elapsed_time_string (setup_time))
-      print("  setup cpu(clk):      "..elapsed_time_string (setup_end_clock-setup_beg_clock))
    end
 
    local render_time = render_end_ru:utime() - render_beg_ru:utime()
    print("  rendering cpu:       "..(elapsed_time_string (render_time) or "0"))
-   print("  rendering cpu(clk):  "..(elapsed_time_string (render_end_clock-render_beg_clock) or "0"))
 
    local real_time = os.difftime (end_time, beg_time)
    print("  total elapsed:       "..(elapsed_time_string (real_time) or "0"))
