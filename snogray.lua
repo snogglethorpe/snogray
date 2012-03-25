@@ -253,6 +253,10 @@ if not quiet then
                  ..", focus distance "..round_and_commify (camera.focus)
    end
    print ("* camera: "..cam_desc)
+
+   if num_threads ~= 1 then
+      print ("* using "..tostring(num_threads).." threads")
+   end
 end
 
 
