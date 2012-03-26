@@ -393,15 +393,21 @@ if not quiet then
 
    print "Time:"
 
-   -- Note because scene-loading often involves significant disk I/O,
-   -- we add system time as well (this usually isn't a factor for
+   -- Because scene-loading often involves significant disk I/O, we
+   -- report system time as well (this usually isn't a factor for
    -- other time periods we measure).
    --
-   local scene_def_time
-      = ((scene_end_ru:utime() - scene_beg_ru:utime())
-         + (scene_end_ru:stime() - scene_beg_ru:stime()))
-   if scene_def_time > 1 then
-      print("  scene def cpu:       "..elapsed_time_string (scene_def_time))
+   local scene_def_user_time = scene_end_ru:utime() - scene_beg_ru:utime()
+   local scene_def_sys_time = scene_end_ru:stime() - scene_beg_ru:stime()
+   local scene_def_user_time_str = elapsed_time_string (scene_def_user_time)
+   local scene_def_sys_time_str = elapsed_time_string (scene_def_sys_time)
+   if scene_def_user_time_str or scene_def_sys_time_str then
+      if scene_def_sys_time_str then
+	 scene_def_sys_time_str = "(system "..scene_def_sys_time_str..")"
+      end
+      print("  scene def cpu:       "
+	    ..string.sep_concat (scene_def_user_time_str, ' ',
+				 scene_def_sys_time_str))
    end
 
    local setup_time = setup_end_ru:utime() - setup_beg_ru:utime()
