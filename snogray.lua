@@ -435,9 +435,16 @@ if not quiet then
       rps = (sic + sst) / render_time
       erps = (num_eye_rays) / render_time
    end
-
-   print("  rays per second:     "..round_and_commify (rps, 1))
-   print("  eye-rays per second: "..round_and_commify (erps, 1))
+   local function fmt_rps_str (rps)
+      if rps < 10 then
+	 return round_and_commify (rps, 1)
+      else
+	 return commify (rps)
+      end
+   end
+   local rps_str = fmt_rps_str (rps)
+   print("  rays per second:     "..rps_str)
+   print("  eye-rays per second: "..lpad (fmt_rps_str (erps), #rps_str))
 end
 
 
