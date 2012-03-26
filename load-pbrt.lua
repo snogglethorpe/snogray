@@ -709,7 +709,7 @@ function materials.metal (state, params)
    eta = table.linear_interp_lookup (eta, lambda) [2]
    k = table.linear_interp_lookup (k, lambda) [2]
    return material.cook_torrance {d = 0, s = 1, m = rough,
-				  ior = ior(eta,k), bump = bump}
+				  ior = material.ior(eta,k), bump = bump}
 end
 
 
