@@ -273,10 +273,10 @@ local PARAM_LIST = lpeg.Cf (lpeg.Cc{} * PARAM^0, accum_param)
 
 -- Load the spectrum file FILENAME and return its contents.
 --
-local function load_spectrum (filename, state)
-   filename = find_file (filename, state)
+local function load_spectrum (spectrum_file, state)
+   spectrum_file = find_file (spectrum_file, state)
 
-   local spectrum = state.spectrums[filename]
+   local spectrum = state.spectrums[spectrum_file]
 
    if not spectrum then
       spectrum = {}
@@ -291,12 +291,12 @@ local function load_spectrum (filename, state)
       local ENTRY = (NUM * RWS * NUM * OWS) / add_entry
       local LINE = SYNC * OWS * (ENTRY + COMMENT) * lu.NL
 
-      lu.parse_file (filename, LINE)
+      lu.parse_file (spectrum_file, LINE)
 
       print ("* loaded "..tostring(#spectrum).." entries from: "
-	     ..filename_rel(filename, state.base_dir))
+	     ..filename.relative(spectrum_file, state.base_dir))
 
-      state.spectrums[filename] = spectrum
+      state.spectrums[spectrum_file] = spectrum
    end
 
    return spectrum
