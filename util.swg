@@ -35,6 +35,7 @@ namespace snogray {
     Rusage ();
     double utime ();
     double stime ();
+    long max_rss () const;
   };
 
 } // namespace snogray

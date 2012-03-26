@@ -31,6 +31,10 @@ struct Rusage : rusage
   {
     return double (ru_stime.tv_sec) + double (ru_stime.tv_usec) / 1e6;
   }
+  long max_rss () const
+  {
+    return ru_maxrss;
+  }
 };
 
 
