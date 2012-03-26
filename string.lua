@@ -26,9 +26,10 @@ setmetatable (string, {__index = std_string})
 
 
 -- Return a string version of NUM, with commas added every 3rd place
+-- Any fractional part is discarded.
 --
 function string.commify (num)
-   num = tostring (num)
+   num = tostring (math.floor (num))
    return string.gsub (string.reverse (string.gsub (string.reverse (num),
 						    "...", "%0,")),
 		       "^,", "")
