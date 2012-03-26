@@ -23,11 +23,11 @@ struct Rusage : rusage
 {
   Rusage () { getrusage (RUSAGE_SELF, static_cast<struct rusage *>(this)); }
 
-  double utime () const
+  double user_cpu_time () const
   {
     return double (ru_utime.tv_sec) + double (ru_utime.tv_usec) / 1e6;
   }
-  double stime () const
+  double sys_cpu_time () const
   {
     return double (ru_stime.tv_sec) + double (ru_stime.tv_usec) / 1e6;
   }

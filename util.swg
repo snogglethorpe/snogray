@@ -33,8 +33,8 @@ namespace snogray {
   struct Rusage
   {
     Rusage ();
-    double utime ();
-    double stime ();
+    double user_cpu_time () const;
+    double sys_cpu_time () const;
     long max_rss () const;
   };
 

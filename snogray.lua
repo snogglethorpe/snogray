@@ -397,26 +397,33 @@ if not quiet then
    -- report system time as well (this usually isn't a factor for
    -- other time periods we measure).
    --
-   local scene_def_user_time = scene_end_ru:utime() - scene_beg_ru:utime()
-   local scene_def_sys_time = scene_end_ru:stime() - scene_beg_ru:stime()
-   local scene_def_user_time_str = elapsed_time_string (scene_def_user_time)
-   local scene_def_sys_time_str = elapsed_time_string (scene_def_sys_time)
-   if scene_def_user_time_str or scene_def_sys_time_str then
-      if scene_def_sys_time_str then
-	 scene_def_sys_time_str = "(system "..scene_def_sys_time_str..")"
+   local scene_def_user_cpu_time
+      = scene_end_ru:user_cpu_time() - scene_beg_ru:user_cpu_time()
+   local scene_def_user_cpu_time_str
+      = elapsed_time_string (scene_def_user_cpu_time)
+   local scene_def_sys_cpu_time
+      = scene_end_ru:sys_cpu_time() - scene_beg_ru:sys_cpu_time()
+   local scene_def_sys_cpu_time_str
+      = elapsed_time_string (scene_def_sys_cpu_time)
+   if scene_def_user_cpu_time_str or scene_def_sys_cpu_time_str then
+      if scene_def_sys_cpu_time_str then
+	 scene_def_sys_cpu_time_str
+	    = "(system "..scene_def_sys_cpu_time_str..")"
       end
       print("  scene def cpu:       "
-	    ..string.sep_concat (scene_def_user_time_str, ' ',
-				 scene_def_sys_time_str))
+	    ..string.sep_concat (scene_def_user_cpu_time_str, ' ',
+				 scene_def_sys_cpu_time_str))
    end
 
-   local setup_time = setup_end_ru:utime() - setup_beg_ru:utime()
+   local setup_time
+      = setup_end_ru:user_cpu_time() - setup_beg_ru:user_cpu_time()
    local setup_time_str = elapsed_time_string (setup_time)
    if setup_time_str then
       print("  setup cpu:           "..setup_time_str)
    end
 
-   local render_time = render_end_ru:utime() - render_beg_ru:utime()
+   local render_time
+      = render_end_ru:user_cpu_time() - render_beg_ru:user_cpu_time()
    print("  rendering cpu:       "..(elapsed_time_string (render_time) or "0"))
 
    local real_time = os.difftime (end_time, beg_time)
