@@ -40,6 +40,7 @@ end
 -- on whether NUM has the value 1 or not.
 --
 function string.commify_with_units (num, unit_name, units_name)
+   units_name = units_name or unit_name
    if num == 1 then
       return "1"..unit_name
    else
