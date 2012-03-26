@@ -405,8 +405,9 @@ if not quiet then
    end
 
    local setup_time = setup_end_ru:utime() - setup_beg_ru:utime()
-   if setup_time > 1 then
-      print("  setup cpu:           "..elapsed_time_string (setup_time))
+   local setup_time_str = elapsed_time_string (setup_time)
+   if setup_time_str then
+      print("  setup cpu:           "..setup_time_str)
    end
 
    local render_time = render_end_ru:utime() - render_beg_ru:utime()
