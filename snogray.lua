@@ -384,6 +384,27 @@ if not quiet then
       end
    end
 
+   -- Print the amount of CPU time used between BEG_RU and END_RU,
+   -- prefix with LABEL.
+   --
+   local function print_cpu_time (label, beg_ru, end_ru)
+      -- Because scene-loading often involves significant disk I/O, we
+      -- report system time as well (this usually isn't a factor for
+      -- other time periods we measure).
+      --
+      local user_cpu_time = end_ru:user_cpu_time() - beg_ru:user_cpu_time()
+      local user_cpu_time_str = elapsed_time_string (user_cpu_time)
+      local sys_cpu_time = end_ru:sys_cpu_time() - beg_ru:sys_cpu_time()
+      local sys_cpu_time_str = elapsed_time_string (sys_cpu_time)
+
+      if user_cpu_time_str or sys_cpu_time_str then
+	 if sys_cpu_time_str then
+	    sys_cpu_time_str = "(system "..sys_cpu_time_str..")"
+	 end
+	 print(label..string.sep_concat (user_cpu_time_str, ' ', sys_cpu_time_str))
+      end
+   end
+
    print_render_stats (render_stats)
 
    --
@@ -393,38 +414,9 @@ if not quiet then
 
    print "Time:"
 
-   -- Because scene-loading often involves significant disk I/O, we
-   -- report system time as well (this usually isn't a factor for
-   -- other time periods we measure).
-   --
-   local scene_def_user_cpu_time
-      = scene_end_ru:user_cpu_time() - scene_beg_ru:user_cpu_time()
-   local scene_def_user_cpu_time_str
-      = elapsed_time_string (scene_def_user_cpu_time)
-   local scene_def_sys_cpu_time
-      = scene_end_ru:sys_cpu_time() - scene_beg_ru:sys_cpu_time()
-   local scene_def_sys_cpu_time_str
-      = elapsed_time_string (scene_def_sys_cpu_time)
-   if scene_def_user_cpu_time_str or scene_def_sys_cpu_time_str then
-      if scene_def_sys_cpu_time_str then
-	 scene_def_sys_cpu_time_str
-	    = "(system "..scene_def_sys_cpu_time_str..")"
-      end
-      print("  scene def cpu:       "
-	    ..string.sep_concat (scene_def_user_cpu_time_str, ' ',
-				 scene_def_sys_cpu_time_str))
-   end
-
-   local setup_time
-      = setup_end_ru:user_cpu_time() - setup_beg_ru:user_cpu_time()
-   local setup_time_str = elapsed_time_string (setup_time)
-   if setup_time_str then
-      print("  setup cpu:           "..setup_time_str)
-   end
-
-   local render_time
-      = render_end_ru:user_cpu_time() - render_beg_ru:user_cpu_time()
-   print("  rendering cpu:       "..(elapsed_time_string (render_time) or "0"))
+   print_cpu_time ("  scene def cpu:       ", setup_beg_ru, setup_end_ru)
+   print_cpu_time ("  setup cpu:           ", setup_beg_ru, setup_end_ru)
+   print_cpu_time ("  rendering cpu:       ", render_beg_ru, render_end_ru)
 
    local real_time = os.difftime (end_time, beg_time)
    print("  total elapsed:       "..(elapsed_time_string (real_time) or "0"))
@@ -437,6 +429,8 @@ if not quiet then
    local num_eye_rays = limit_width * limit_height
 
    local rps, eps = 0, 0
+   local render_time
+      = render_end_ru:user_cpu_time() - render_beg_ru:user_cpu_time()
    if render_time ~= 0 then
       rps = (sic + sst) / render_time
       erps = (num_eye_rays) / render_time
