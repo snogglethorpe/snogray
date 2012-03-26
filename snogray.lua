@@ -312,7 +312,7 @@ if not quiet then
    end
 
    local function elapsed_time_string (sec)
-      sec = math.floor (sec)
+      sec = math.floor (sec * 10 + 0.5) / 10
 
       local min = math.floor (sec / 60)
       sec = sec - min * 60
