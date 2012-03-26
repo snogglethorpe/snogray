@@ -32,6 +32,7 @@
 
 local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
+local file = require 'snogray.file'
 local filename = require 'snogray.filename'
 local table = require 'snogray.table'
 local coord = require 'snogray.coord'
@@ -85,17 +86,13 @@ local function find_file (name, state)
    local cur_rel_name
       = filename.in_directory (name, filename.directory (state.filename))
 
-   local try = io.open (cur_rel_name, "r")
-   if (try) then
-      try:close()
+   if file.exists (cur_rel_name) then
       return cur_rel_name
    end
 
    for i,dir in ipairs (state.file_search_path) do
       local dir_rel_name = filename.in_directory (name, dir)
-      try = io.open (dir_rel_name, "r")
-      if try then
-	 try:close ()
+      if file.exists (dir_rel_name) then
 	 return dir_rel_name
       end
    end
