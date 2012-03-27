@@ -19,20 +19,8 @@ local texture = {}
 local swig = require 'snogray.swig'
 local color = require 'snogray.color'
 local raw = require 'snogray.snograw'
-
-
-----------------------------------------------------------------
------------------------------- HACK ----------------------------
--- Until we have a separate snogray.xform module, duplicate these
--- functions from the snogray.snogray module here (we can't require
--- the snogray.snogray module without a require loop, because it
--- requires this module).
-local function is_xform (val)
-   return swig.type (val) == 'Xform'
-end
-local scale = raw.Xform_scaling
----------------------------- END HACK --------------------------
-----------------------------------------------------------------
+local load = require 'snogray.load'
+local transform = require 'snogray.transform'
 
 
 ----------------------------------------------------------------
@@ -306,7 +294,7 @@ end
 -- operations too.
 --
 function texture.mul (tex1, tex2_or_xform)
-   if is_xform (tex2_or_xform) then
+   if transform.is_transform (tex2_or_xform) then
       return texture.xform (tex2_or_xform, tex1)
    else
       return texture.arith ('MUL', tex1, tex2_or_xform)
@@ -427,7 +415,7 @@ function texture.fourier_series (source_tex, params)
 	 local pow_factor = omega ^ octave
 	 local term_factor = factor * pow_factor
 
-	 local term = scale (scale_factor) (source_tex)
+	 local term = transform.scale (scale_factor) (source_tex)
 	 if type (term_factor) ~= 'number' or term_factor ~= 1 then
 	    term = term * term_factor
 	 end
