@@ -17,38 +17,38 @@ local filename = {}
 local match, substr = string.match, string.sub
 
 
--- Return the directory portion of FILENAME, or nil if it has none
+-- Return the directory portion of NAME, or nil if it has none
 --
-function filename.directory (filename)
-   return match (filename, "^(.*)/[^/]*$")
+function filename.directory (name)
+   return match (name, "^(.*)/[^/]*$")
 end
 
--- Return the extension (last part following a period) of FILENAME, or
+-- Return the extension (last part following a period) of NAME, or
 -- nil if it has none.
 --
-function filename.extension (filename)
-   return match (filename, "[.]([^./]*)$")
+function filename.extension (name)
+   return match (name, "[.]([^./]*)$")
 end
 
--- If FILENAME is relative, return it appended to DIR, otherwise just
--- return FILENAME.  If DIR is nil, then just return FILENAME.
+-- If NAME is relative, return it appended to DIR, otherwise just
+-- return NAME.  If DIR is nil, then just return NAME.
 --
-function filename.in_directory (filename, dir)
-   if dir and not match (filename, "^/") then
-      filename = dir.."/"..filename
+function filename.in_directory (name, dir)
+   if dir and not match (name, "^/") then
+      name = dir.."/"..name
    end
-   return filename
+   return name
 end
 
--- If FILENAME has DIR as a prefix, followed by a directory separator,
--- then return the portion of FILENAME following the directory
--- separator; otherwise, just return FILENAME.
+-- If NAME has DIR as a prefix, followed by a directory separator,
+-- then return the portion of NAME following the directory separator;
+-- otherwise, just return NAME.
 -- 
-function filename.relative (filename, dir)
-   if substr (filename, 1, #dir + 1) == dir.."/" then
-      return substr (filename, #dir + 2)
+function filename.relative (name, dir)
+   if substr (name, 1, #dir + 1) == dir.."/" then
+      return substr (name, #dir + 2)
    else
-      return filename
+      return name
    end
 end
 
