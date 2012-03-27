@@ -17,6 +17,18 @@ local filename = {}
 local match, substr = string.match, string.sub
 
 
+-- Return true if NAME is an absolute filename.
+--
+function filename.is_absolute (name)
+   return match (name, "^/")
+end
+
+-- Return true if NAME is a relative filename.
+--
+function filename.is_relative (name)
+   return not match (name, "^/")
+end
+
 -- Return the directory portion of NAME, or nil if it has none
 --
 function filename.directory (name)
@@ -34,7 +46,7 @@ end
 -- return NAME.  If DIR is nil, then just return NAME.
 --
 function filename.in_directory (name, dir)
-   if dir and not match (name, "^/") then
+   if dir and filename.is_relative (name) then
       name = dir.."/"..name
    end
    return name
