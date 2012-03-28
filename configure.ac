@@ -170,8 +170,6 @@ if test "$lua_src" != none; then
   AC_MSG_RESULT([$build_lua_in_src_dir])
 fi
 
-AM_CONDITIONAL([build_lua], [test x"$lua_src" != xnone])
-
 AM_CONDITIONAL([build_lua_in_src_dir], [test $build_lua_in_src_dir = yes])
 
 ##
@@ -635,7 +633,7 @@ AC_DEFUN([SNOGRAY_CHECK_SUBDIR_HEADER], [
 #
 have_liblua=no
 have_luajit=no
-if test x"$lua_src" != xnone; then
+if test $build_lua_from_src = yes; then
   # set "have_liblua" here to skip the tests for a system Lua library;
   # liblua_CFLAGS and liblua_LIBS will be set below
   have_liblua=yes
@@ -684,16 +682,26 @@ if test $have_liblua = no; then
   AC_LANG_POP(C)
 fi
 if test $have_liblua = no || test $build_lua_from_src = yes; then
-  AC_SUBST([liblua_CFLAGS], ['-I$(LUA_SRC)'])
-  AC_SUBST([liblua_LIBS], [liblua.a])
+  if test x"$lua_src" != xnone; then
+    AC_SUBST([liblua_CFLAGS], ['-I$(LUA_SRC)'])
+    AC_SUBST([liblua_LIBS], [liblua.a])
+    build_lua_from_src=yes
+    have_liblua=yes
+  fi
+else
+  build_lua_from_src=no
 fi
 if test "$have_liblua" = no; then
-  AC_MSG_ERROR([A Lua library is required, and was not found; aborting...])
+  AC_MSG_ERROR([A Lua library is required, and none was found; aborting...])
 fi
 if test $have_luajit = yes; then
   AC_DEFINE([HAVE_LUAJIT], [1], [Define if using LuaJIT])
 fi
 AM_CONDITIONAL([have_luajit], [test $have_luajit = yes])
+
+AC_MSG_CHECKING([whether to build Lua from source])
+AC_MSG_RESULT([$build_lua_from_src])
+AM_CONDITIONAL([build_lua], [test $build_lua_from_src = yes])
 
 
 # Check for FFTW3 optimized FFT library; we actually check for
