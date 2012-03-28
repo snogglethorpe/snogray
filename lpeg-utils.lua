@@ -148,7 +148,7 @@ function lpeg_utils.parse_file (filename, pattern)
 	 parse_state.err_pos = pos
 	 local new_pos = pattern:match (text, pos)
 	 if not new_pos or new_pos == pos then
-	    parse_err ()
+	    lpeg_utils.parse_err ()
 	 end
 	 pos = new_pos
       end
