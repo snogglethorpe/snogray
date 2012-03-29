@@ -1887,6 +1887,8 @@ local function load_pbrt_in_state (state, scene, camera)
 
    lu.parse_file (state.filename, COMMAND + WS)
 
+   collectgarbage ()
+
    return true
 end
 

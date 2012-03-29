@@ -168,6 +168,8 @@ function load.scene (scene_file, scene, camera, params)
 	    -- propagate the error
 	    error (err_msg, 0)
 	 end
+
+	 collectgarbage ()
       else
 	 error ("unknown scene format \""..fmt.."\"", 0)
       end
