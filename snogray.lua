@@ -428,7 +428,7 @@ if not quiet then
    local sst = render_stats.scene_shadow_tests
    local num_eye_rays = limit_width * limit_height
 
-   local rps, eps = 0, 0
+   local rps, erps = 0, 0
    local render_time
       = render_end_ru:user_cpu_time() - render_beg_ru:user_cpu_time()
    if render_time ~= 0 then
