@@ -408,6 +408,7 @@ function texture.ge (...) return texture.cmp ('GE', ...) end
 function texture.fourier_series (source_tex, params)
    local sum = nil
    local const_factor_sum = 0
+   local omega = 0.5
 
    local function add_term (octave, factor)
       if factor and factor ~= 0 then
@@ -437,7 +438,7 @@ function texture.fourier_series (source_tex, params)
    local octaves
    local cur_octave = 0
    if type (params) == 'table' then
-      omega = params.omega or 0.5
+      omega = params.omega or omega
 
       -- Add terms corresponding to entries in PARAMS.
       --
@@ -448,7 +449,6 @@ function texture.fourier_series (source_tex, params)
       cur_octave = #params
       octaves = params.octaves or octaves
    else
-      omega = 0.5
       octaves = params
    end
 
