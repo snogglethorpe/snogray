@@ -133,16 +133,6 @@ local inherit_all_in_one_metatable = { __index = require 'snogray.all-in-one' }
 -- Load Lua scene description from SCENE_FILE into SCENE and CAMERA.
 --
 function load_lua (scene_file, scene, camera, params)
-
-   -- Load the user's file!  This just constructs a function from the
-   -- loaded file, but doesn't actually evaluate it.
-   --
-   local contents, err = loadfile (scene_file)
-
-   if not contents then
-      error (err, 0)		-- propagate the loading error
-   end
-
    -- Make a new environment to evaluate the file contents in; it will
    -- inherit from the "all-in-one" scene interface for convenience.
    -- There are no global pointers to this table so it and its
@@ -150,7 +140,27 @@ function load_lua (scene_file, scene, camera, params)
    --
    local environ = {}
    setmetatable (environ, inherit_all_in_one_metatable)
-   setfenv (contents, environ)
+
+   -- Load the user's file!  This just constructs a function from the
+   -- loaded file, but doesn't actually evaluate it.  We pass ENVIRON
+   -- to set the loaded file's environment in Lua 5.2; the extra
+   -- arguments to loadfile are ignored in Lua 5.1 (setting the
+   -- environment in Lua 5.1 is handled with setfenv below)
+   --
+   local contents, err = loadfile (scene_file, nil, environ)
+
+   -- If there was a loading error, propagate it.
+   --
+   if not contents then
+      error (err, 0)
+   end
+
+   -- In Lua 5.1, set the environment of the loaded chunk (in Lua 5.2,
+   -- this is done during loading instead).
+   --
+   if setfenv then
+      setfenv (contents, environ)
+   end
 
    -- Add references to the scene, camera, and parameters.
    --
