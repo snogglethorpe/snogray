@@ -414,7 +414,7 @@ if not quiet then
 
    print "Time:"
 
-   print_cpu_time ("  scene def cpu:       ", setup_beg_ru, setup_end_ru)
+   print_cpu_time ("  scene def cpu:       ", scene_beg_ru, scene_end_ru)
    print_cpu_time ("  setup cpu:           ", setup_beg_ru, setup_end_ru)
    print_cpu_time ("  rendering cpu:       ", render_beg_ru, render_end_ru)
 
