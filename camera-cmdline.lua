@@ -200,7 +200,7 @@ end
 --
 
 function camera_cmdline.option_parser (camera_params)
-   function add_cmds (cmds)
+   local function add_cmds (cmds)
       if camera_params.commands then
 	 camera_params.commands = camera_params.commands..","..cmds
       else
