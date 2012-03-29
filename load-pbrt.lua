@@ -1223,7 +1223,7 @@ end
 -- samplers
 --
 
-samplers = {}
+local samplers = {}
 
 function samplers.adaptive (state, params)
    -- ignored parameters: "string method"
@@ -1290,7 +1290,7 @@ end
 -- surface-integrators
 --
 
-surface_integrators = {}
+local surface_integrators = {}
 
 function surface_integrators.directlighting (state, params)
    -- ignore parameters: "integer maxdepth"
@@ -1341,7 +1341,7 @@ end
 -- pixel-filters
 --
 
-pixel_filters = {}
+local pixel_filters = {}
 
 local function set_pixel_filter (state, params, name, default_width)
    -- All filters have "xwidth" and "ywidth" params, though we insist
@@ -1385,7 +1385,7 @@ end
 -- main command
 --
 
-function load_pbrt_in_state (state, scene, camera)
+local function load_pbrt_in_state (state, scene, camera)
 
    local function add (surface)
       if state.object then
