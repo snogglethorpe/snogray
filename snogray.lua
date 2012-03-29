@@ -422,7 +422,7 @@ if not quiet then
    print("  total elapsed:       "..(elapsed_time_string (real_time) or "0"))
 
    local maxrss = sys.rusage():max_rss ()
-   print("  max working set:     "..commify_with_units (maxrss/1024, "MB"))
+   print("  max working set:     "..commify_with_units (maxrss/1024, " MB"))
 
    local sic = render_stats.scene_intersect_calls
    local sst = render_stats.scene_shadow_tests
