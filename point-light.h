@@ -1,6 +1,6 @@
 // point-light.h -- Point light
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ public:
   // A simple point-light that radiates in all directions from POS.
   //
   PointLight (const Pos &pos, const Color &col)
-    : frame (pos), color (col), cos_half_angle (-1)
+    : frame (pos), color (col), cos_half_angle (-1), cos_half_core_angle (-1)
   { }
 
   // A point-light that radiates from POS in a cone with an apex angle
