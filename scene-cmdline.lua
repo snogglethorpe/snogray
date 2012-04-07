@@ -20,6 +20,7 @@ local clp = require 'snogray.cmdlineparser'
 local coord = require 'snogray.coord'
 local light = require 'snogray.light'
 local transform = require 'snogray.transform'
+local color = require 'snogray.color'
 
 
 -- Command-line parser
