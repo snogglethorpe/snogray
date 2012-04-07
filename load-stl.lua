@@ -10,7 +10,7 @@
 -- Written by Miles Bader <miles@gnu.org>
 --
 
-local lp = require 'lpeg'
+local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 local surface = require 'snogray.surface'
 
