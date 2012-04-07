@@ -47,7 +47,7 @@ function load_stl (filename, mesh, mat_dict)
       local prev = fv[3]
       for i = 4, #fv do
 	 local vn = fv[i]
-	 mesh:add_triangle (v1, prev, vn, mat)
+	 mesh:add_triangle (fv[1], prev, vn, mat)
 	 prev = vn
       end
 
