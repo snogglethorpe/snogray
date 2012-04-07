@@ -40,7 +40,7 @@
 --      brightness of any background color, which may be undesirable.
 --  
 
-local lp = require 'lpeg'
+local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 local coord = require 'snogray.coord'
 local color = require 'snogray.color'
