@@ -234,7 +234,7 @@ function material.mirror (reflect, _ior, under, params)
    end
 
    -- defaults
-   reflect = filter or color.white
+   reflect = reflect or color.white
    _ior = _ior or default_mirror_ior
    under = under or color.black
 
@@ -293,7 +293,7 @@ function material.thin_glass (_ior, col, params)
    if not is_ior_spec (_ior) then
       -- handle single table argument case (other args should be nil)
       params = _ior
-      _ior = params.ior or parms[1]
+      _ior = params.ior or params[1]
       col = params.color or params.col or params[2]
    end
 
