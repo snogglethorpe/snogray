@@ -11,17 +11,17 @@
 --
 
 local lpeg = require 'lpeg'
-local lu = require 'snogray.lpeg-utils'
+local lpeg_utils = require 'snogray.lpeg-utils'
 local surface = require 'snogray.surface'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 
-local HWS = lu.OPT_HORIZ_WS
-local OPT_WS = lu.OPT_WS
+local HWS = lpeg_utils.OPT_HORIZ_WS
+local OPT_WS = lpeg_utils.OPT_WS
 
 -- whitespace followed by float
-local WS_FLOAT = HWS * lu.FLOAT
+local WS_FLOAT = HWS * lpeg_utils.FLOAT
 
 function load_stl (filename, mesh, mat_dict)
    local mat = mat_dict:get_default ()
@@ -37,7 +37,7 @@ function load_stl (filename, mesh, mat_dict)
       local fv = facet_verts
 
       if #fv < 3 then
-	 lu.parse_err ("not enough vertices in facet")
+	 lpeg_utils.parse_err ("not enough vertices in facet")
       end
 
       mesh:add_triangle (fv[1], fv[2], fv[3], mat)
@@ -54,7 +54,7 @@ function load_stl (filename, mesh, mat_dict)
       facet_verts = {}
    end
 
-   local SYNC = OPT_WS * lu.ERR_POS
+   local SYNC = OPT_WS * lpeg_utils.ERR_POS
    local COORDS = WS_FLOAT * WS_FLOAT * WS_FLOAT
    local VERTEX = P"vertex" * (COORDS / add_vert)
    local NORMAL = P"normal" * COORDS
@@ -74,5 +74,5 @@ function load_stl (filename, mesh, mat_dict)
 	 * (SYNC * SOLID_EL)^0 * OPT_WS
          * P"end" * HWS * P"solid" * OPT_WS)
 
-   lu.parse_file (filename, SOLID)
+   lpeg_utils.parse_file (filename, SOLID)
 end
