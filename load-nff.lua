@@ -41,7 +41,7 @@
 --  
 
 local lpeg = require 'lpeg'
-local lu = require 'snogray.lpeg-utils'
+local lpeg_utils = require 'snogray.lpeg-utils'
 local coord = require 'snogray.coord'
 local color = require 'snogray.color'
 local material = require 'snogray.material'
@@ -57,16 +57,16 @@ local pos, vec = coord.pos, coord.vec
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 
-local HWS = lu.OPT_HORIZ_WS
-local WS_NL = HWS * lu.NL
-local WS_INT = HWS * lu.INT
-local WS_FLOAT = HWS * lu.FLOAT
+local HWS = lpeg_utils.OPT_HORIZ_WS
+local WS_NL = HWS * lpeg_utils.NL
+local WS_INT = HWS * lpeg_utils.INT
+local WS_FLOAT = HWS * lpeg_utils.FLOAT
 local WS_POS = (WS_FLOAT * WS_FLOAT * WS_FLOAT) / pos
 local WS_VEC = (WS_FLOAT * WS_FLOAT * WS_FLOAT) / vec
 local WS_COLOR = (WS_FLOAT * WS_FLOAT * WS_FLOAT) / color
 
 -- this matches a newline, and also updates the error location
-local WS_NL_SYNC = WS_NL * lu.ERR_POS
+local WS_NL_SYNC = WS_NL * lpeg_utils.ERR_POS
 
 function load_nff (filename, scene, camera)
    local cur_mat = nil
@@ -83,7 +83,7 @@ function load_nff (filename, scene, camera)
 
    local function check_mat ()
       if not cur_mat then
-	 lu.parse_err "no current material"
+	 lpeg_utils.parse_err "no current material"
       end
    end
    local function check_mesh ()
@@ -150,14 +150,14 @@ function load_nff (filename, scene, camera)
       check_mat()
 
       if apex_radius ~= base_radius then
-	 lu.parse_err "non-cylinder cone not supported"
+	 lpeg_utils.parse_err "non-cylinder cone not supported"
       end
 
       base_pos = geom_xform (base_pos)
       apex_pos = geom_xform (apex_pos)
 
-      scene:add (
-	 surface.cylinder (cur_mat, base_pos, (apex_pos - base_pos), base_radius))
+      scene:add (surface.cylinder (cur_mat, base_pos,
+				   (apex_pos - base_pos), base_radius))
    end
 
    local function add_sphere (pos, radius)
@@ -204,7 +204,7 @@ function load_nff (filename, scene, camera)
       check_mesh()
 
       if num_verts ~= 3 + select('#', ...) then
-	 lu.parse_err "incorrect number of vertices in polygon"
+	 lpeg_utils.parse_err "incorrect number of vertices in polygon"
       end
 
       if num_verts > 5 then
@@ -233,7 +233,7 @@ function load_nff (filename, scene, camera)
       check_mesh()
 
       if num_verts * 2 ~= 6 + select('#', ...) then
-	 lu.parse_err "incorrect number of vertices in polygon"
+	 lpeg_utils.parse_err "incorrect number of vertices in polygon"
       end
 
       v1 = cur_mesh:add_vertex (geom_xform (v1), norm_xform (n1), vng)
@@ -286,7 +286,7 @@ function load_nff (filename, scene, camera)
    local CMD
       = (V_CMD + B_CMD + L_CMD + F_CMD + FM_CMD + C_CMD + S_CMD + CMD + PP_CMD)
 
-   lu.parse_file (filename, CMD * WS_NL)
+   lpeg_utils.parse_file (filename, CMD * WS_NL)
 
    if cur_mesh then
       scene:add (cur_mesh)
