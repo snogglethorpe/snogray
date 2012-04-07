@@ -47,6 +47,7 @@ local color = require 'snogray.color'
 local material = require 'snogray.material'
 local light = require 'snogray.light'
 local transform = require 'snogray.transform'
+local surface = require 'snogray.surface'
 
 local nff_medium_absorption = 10
 local nff_light_intens = 50
@@ -71,8 +72,8 @@ function load_nff (filename, scene, camera)
    local cur_mat = nil
    local cur_mesh = nil
 
-   local vg = mesh_vertex_group ()
-   local vng = mesh_vertex_normal_group ()
+   local vg = surface.mesh_vertex_group ()
+   local vng = surface.mesh_vertex_normal_group ()
 
    local geom_xform = transform.z_to_y
    local norm_xform = geom_xform:inverse():transpose()
@@ -88,7 +89,7 @@ function load_nff (filename, scene, camera)
    local function check_mesh ()
       check_mat ()
       if not cur_mesh then
-	 cur_mesh = mesh (cur_mat)
+	 cur_mesh = surface.mesh (cur_mat)
 	 cur_mesh.left_handed = false  -- NFF format uses right-handed meshes
       end
    end
