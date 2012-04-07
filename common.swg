@@ -25,6 +25,17 @@
 %}
 
 
+%exception {
+  try {
+    $action
+  }
+  catch (std::exception &e) {
+    lua_pushstring (L, e.what ());
+    lua_error (L);
+  }
+}
+
+
 // SWIG-exported interfaces.
 //
 // Note that these are often simplifications of the real interfaces;
