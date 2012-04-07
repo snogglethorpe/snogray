@@ -69,6 +69,10 @@ snogray::invoke_lua_driver (const std::string &driver_name, const char **argv)
     local driver, err = loadfile (environ.lua_dir..'/'..driver_name) \
     if driver then driver (args) else error (err, 0) end";
 
+  // If we encounter an error, the error message gets stored here.
+  //
+  std::string err_msg;
+
   // Use our little script to invoke the driver.
   //
   try
@@ -92,11 +96,22 @@ snogray::invoke_lua_driver (const std::string &driver_name, const char **argv)
 
       // Run the script.
       //
-      lua_call (L, 2, 0);
+      int err = lua_pcall (L, 2, 0, 0);
+      if (err == LUA_ERRRUN)
+	err_msg = lua_tostring (L, -1);
+      else if (err == LUA_ERRMEM)
+	err_msg = "Lua memory allocation error";
+      else if (err == LUA_ERRERR)
+	err_msg = "Lua error handler error";
     }
   catch (std::exception &exc)
     {
-      std::cerr << prog << ": " << exc.what () << std::endl;
+      err_msg = exc.what ();
+    }
+
+  if (! err_msg.empty ())
+    {
+      std::cerr << prog << ": " << err_msg << std::endl;
       exit (4);
     }
 
