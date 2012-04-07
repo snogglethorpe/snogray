@@ -201,7 +201,7 @@ output_params.height = limit_height
 --
 local image_out = img_out_cmdline.make_output (output_file, output_params)
 
-if output_params.alpha_channel and not output.has_alpha_channel () then
+if output_params.alpha_channel and not image_out:has_alpha_channel () then
    error (output_file..": alpha-channel not supported", 0)
 end
 
