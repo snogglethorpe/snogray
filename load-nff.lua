@@ -146,7 +146,7 @@ function load_nff (filename, scene, camera)
       scene:add (light.point (pos, color))
    end
 
-   local function add_cone (base_pos, base_radius, apex, apex_radius)
+   local function add_cone (base_pos, base_radius, apex_pos, apex_radius)
       check_mat()
 
       if apex_radius ~= base_radius then
