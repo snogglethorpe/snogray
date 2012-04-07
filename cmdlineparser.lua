@@ -538,7 +538,7 @@ parser_metatable.__call = cmdlineparser_meths.parse_options
 -- + "NAME" -- a true boolean parameter called NAME.
 --
 function cmdlineparser.parse_params (string, table, params_separator_pat)
-   function parse_one_param (string)
+   local function parse_one_param (string)
       local name, val = str_match (string, "^([^=:]+)%s*[=:]%s*(.*)$")
       if name then
 	 table[str_gsub (name, "-", "_")] = val
