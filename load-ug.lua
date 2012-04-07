@@ -11,7 +11,7 @@
 --
 
 local lpeg = require 'lpeg'
-local lu = require 'snogray.lpeg-utils'
+local lpeg_utils = require 'snogray.lpeg-utils'
 local color = require 'snogray.color'
 local material = require 'snogray.material'
 
@@ -21,10 +21,10 @@ local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 -- ug-file comment
 local WS_COMMENT = P"{" * (1 - P"}")^0 * P"}"
 
-local HWS = lu.OPT_HORIZ_WS * ((WS_COMMENT * lu.OPT_HORIZ_WS)^0)
+local HWS = lpeg_utils.OPT_HORIZ_WS * ((WS_COMMENT * lpeg_utils.OPT_HORIZ_WS)^0)
 
 -- whitespace followed by float
-local WS_FLOAT = HWS * lu.FLOAT
+local WS_FLOAT = HWS * lpeg_utils.FLOAT
 
 -- whitespace followed by name
 local WS_NAME = HWS * C(R("AZ","az", "__") * R("AZ","az", "09", "__")^0)
@@ -48,7 +48,7 @@ function load_ug (filename, mesh, mat_dict)
    local function map_vert (name)
       local vert = named_verts[name]
       if not vert then
-	 lu.parse_err ("Unknown vertex name \"" .. name .. "\"")
+	 lpeg_utils.parse_err ("Unknown vertex name \"" .. name .. "\"")
       end
       return vert
    end
@@ -60,7 +60,7 @@ function load_ug (filename, mesh, mat_dict)
 	    mat = named_mats[name]
 	 end
 	 if not mat then
-	    lu.parse_err ("Unknown material name \"" .. name .. "\"")
+	    lpeg_utils.parse_err ("Unknown material name \"" .. name .. "\"")
 	 end
 	 return mat
       else
@@ -98,5 +98,5 @@ function load_ug (filename, mesh, mat_dict)
    local CMD = (V_CMD + F_CMD + C_CMD) * P";" * HWS
    local LINE = CMD + HWS
 
-   lu.parse_file (filename, LINE * lu.NL)
+   lpeg_utils.parse_file (filename, LINE * lpeg_utils.NL)
 end
