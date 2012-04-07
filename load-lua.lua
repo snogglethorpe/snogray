@@ -106,13 +106,12 @@ end
 local function use_file (scene_file, env)
    local loaded, loaded_filename, err_msg = load_include (scene_file, env)
 
-   if not used_files then
-      used_files = {}
-      env._used_files = used_files
+   if not env._used_files then
+      env._used_files = {}
    end
 
-   if not used_files[loaded_filename] then
-      used_files[loaded_filename] = true
+   if not env._used_files[loaded_filename] then
+      env._used_files[loaded_filename] = true
 
       eval_include (loaded, env, loaded_filename, err_msg)
       return loaded_filename
