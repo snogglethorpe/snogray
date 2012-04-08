@@ -90,6 +90,10 @@ function img_output_cmdline.option_parser (params, default_aspect_ratio)
       end
    end
 
+   local function set_filter (arg)
+      cmdlineparser.store_with_sub_params (arg, "filter", params, "type")
+   end
+
    return cmdlineparser {
       { "-s/--size=WIDTHxHEIGHT", set_size,
         doc = [[Set output image size to WIDTH by HEIGHT pixels]] },
