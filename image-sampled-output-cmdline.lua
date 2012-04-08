@@ -42,6 +42,55 @@ function img_output_cmdline.option_parser (params, default_aspect_ratio)
       end
    end
 
+   local function set_exposure (arg)
+      local err = false
+
+      -- First look for an exposure; it can either an explicit
+      -- multiplicative factor, prefixed by "*" or "/", or an
+      -- adjustment in "stops", prefixed by "+" or "-" (+N is
+      -- equivalent to *(2^N)).  A number with no prefix is treated as
+      -- if it were preceded by "*".
+      --
+      local exposure_op, exposure_val, tail
+	 = string.match (arg, "^([-+*/]?)([0-9.]+)()")
+
+      if exposure_val then
+	 exposure_val = tonumber (exposure_val)
+	 if exposure_val then
+	    if exposure_op == '+' then
+	       exposure_val = 2 ^ exposure_val
+	    elseif exposure_op == '-' then
+	       exposure_val = 2 ^ -exposure_val
+	    elseif exposure_op == '/' then
+	       exposure_val = 1 / exposure_val
+	    end
+	    params.exposure = exposure_val
+	 else
+	    err = true
+	 end
+      else
+	 tail = 1
+      end
+
+      -- Now look for a contrast adjustment, which should be prefixed by "^".
+      --
+      local contrast_val, ntail = string.match (arg, "%^([0-9.]+)()", tail)
+      if contrast_val then
+	 contrast_val = tonumber (contrast_val)
+	 if contrast_val then
+	    params.contrast = contrast_val
+	 else
+	    err = true
+	 end
+	 tail = ntail
+      end
+
+      if err or tail ~= #arg + 1 then
+	 cmdlineparser.error ("invalid exposure option \""
+			      ..arg.."\" (expected (+|-|*|/)NUM[^NUM])")
+      end
+   end
+
    return cmdlineparser {
       { "-s/--size=WIDTHxHEIGHT", set_size,
         doc = [[Set output image size to WIDTH by HEIGHT pixels]] },
