@@ -32,11 +32,10 @@ function img_output_cmdline.option_parser (params, default_aspect_ratio)
       else
 	 local w, h = string.match (arg, "^(%d+)%s*[,x]%s*(%d+)$")
 	 w = tonumber (w)
-	 w = tonumber (h)
+	 h = tonumber (h)
 	 if not w or not h then
 	    cmdlineparser.error ("invalid size option \""..arg.."\"")
 	 end
-	 print ("w", w, "h", h)
 	 params.width = w
 	 params.height = h
       end
