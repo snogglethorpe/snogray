@@ -29,7 +29,8 @@ PngErrState::throw_libpng_err ()
 void
 PngErrState::libpng_err_handler (png_structp libpng_struct, const char *msg)
 {
-  PngErrState *state = static_cast<PngErrState *> (libpng_struct->error_ptr);
+  PngErrState *state
+    = static_cast<PngErrState *> (png_get_error_ptr (libpng_struct));
 
   if (! state->libpng_err)
     {
