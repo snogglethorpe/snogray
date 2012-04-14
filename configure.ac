@@ -10,7 +10,7 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
-AC_INIT([snogray], [0.5.2], [Miles Bader <miles@gnu.org>])
+AC_INIT([snogray], [0.5.3], [Miles Bader <miles@gnu.org>])
 
 AM_INIT_AUTOMAKE([foreign])
 
@@ -741,6 +741,29 @@ if test $have_libpng = yes; then
   AC_DEFINE([HAVE_LIBPNG], [1], [Define if libpng is installed])
 fi
 AM_CONDITIONAL([have_libpng], [test $have_libpng = yes])
+
+# Configure some details of the PNG image library, if we have it.
+#
+if test $have_libpng = yes; then
+
+  _OLD_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CFLAGS $libpng_CFLAGS"
+
+  AC_MSG_CHECKING([for png_set_expand_gray_1_2_4_to_8 in libpng])
+  AC_TRY_COMPILE([#include <png.h>],
+  		 [png_structp libpng_struct = 0;
+		  png_set_expand_gray_1_2_4_to_8 (libpng_struct)],
+		 [have_png_set_expand_gray_1_2_4_to_8=yes],
+		 [have_png_set_expand_gray_1_2_4_to_8=no])
+  AC_MSG_RESULT([$have_png_set_expand_gray_1_2_4_to_8])
+
+  if test $have_png_set_expand_gray_1_2_4_to_8 = yes; then
+    AC_DEFINE([HAVE_PNG_SET_EXPAND_GRAY_1_2_4_TO_8], [1],
+	      [Define if libpng has "png_set_expand_gray_1_2_4_to_8"])
+  fi
+
+  CPPFLAGS="$_OLD_CPPFLAGS"
+fi
 
 # Check for OpenEXR image library
 #

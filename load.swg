@@ -14,8 +14,28 @@
 %{
 #include "load-ply.h"
 #include "load-msh.h"
-#if HAVE_LIB3DS
-# include "load-3ds.h"
+#include "load-3ds.h"
+%}
+
+
+%{
+// To avoid the need for users to have SWIG available, we always
+// export the same interface, and define error stubs here for
+// functions which are found not to be available at configure time.
+
+#if !HAVE_LIB3DS
+  // Error stubs for functions defined in "load-3ds.h"
+
+  void snogray::load_3ds_file (const std::string &, Scene &scene, Camera &,
+			       const ValTable &)
+  {
+    throw std::runtime_error ("load_3ds_file function not available");
+  }
+  
+  void snogray::load_3ds_file (const std::string &, Mesh &, const ValTable &)
+  {
+    throw std::runtime_error ("load_3ds_file function not available");
+  }
 #endif
 %}
 
@@ -29,11 +49,10 @@ namespace snogray {
   void load_msh_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);
 
-#if HAVE_LIB3DS
   void load_3ds_file (const char *filename, Scene &scene, Camera &camera,
 		      const ValTable &params);
   void load_3ds_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);
-#endif
+
 
 }
