@@ -228,7 +228,11 @@ PngImageSource::PngImageSource (const std::string &_filename,
   // Expand sub-byte grey-scale bit-depths to one-byte-per-pxel
   //
   if (color_type == PNG_COLOR_TYPE_GRAY && _bit_depth < 8)
+#if HAVE_PNG_SET_EXPAND_GRAY_1_2_4_TO_8
+    png_set_expand_gray_1_2_4_to_8 (libpng_struct);
+#else
     png_set_gray_1_2_4_to_8 (libpng_struct);
+#endif
 
   // Convert a tRNS chunk to a full alpha channel.
   //
