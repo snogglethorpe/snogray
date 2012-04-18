@@ -17,6 +17,36 @@ AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS([config.h])
 
 
+# Set CFLAGS and CXXFLAGS to suppress AC_PROG_CC's attempt to set
+# them, preserving anything the user specifies.  [We do this because
+# we attempt to set compiler options in a much finer-grained manner,
+# which makes autoconf's defaults redundant.]
+#
+# For good measure, do the same thing for CPPFLAGS and LDFLAGS as
+# well.
+#
+CFLAGS=${CFLAGS:-""}
+CXXFLAGS=${CXXFLAGS:-""}
+CPPFLAGS=${CPPFLAGS:-""}
+LDFLAGS=${LDFLAGS:-""}
+
+# During configuration, various compiler options may be added to
+# CFLAGS / CXXFLAGS / CPPFLAGS / LDFLAGS, so that any subsequent
+# configuration compiles will be done with compiler options matching
+# what will be used for building.
+#
+# However during building, those added options will be set using other
+# Make variables, so to avoid duplicating the added options, save the
+# original state of these variable (containing only what the user
+# specified on the configure command-line), so we can restore them
+# just before creating the Makefile.
+#
+USER_CFLAGS=$CFLAGS
+USER_CXXFLAGS=$CXXFLAGS
+USER_CPPFLAGS=$CPPFLAGS
+USER_LDFLAGS=$LDFLAGS
+
+
 AC_PROG_CC
 AC_PROG_CXX
 
@@ -72,6 +102,12 @@ AC_ARG_ENABLE([lto],
 		   [Enable link-time optimization]),
     [lto="$enableval"],
     [lto="yes"])
+
+
+# The variable containing our linker flags.  This is addition to
+# LDFLAGS, which is reserved for the user.
+#
+AC_SUBST([CONFIG_LDFLAGS], [])
 
 
 ##
@@ -386,6 +422,7 @@ CXXFLAGS="$CXXFLAGS $CXX_CHECK_FLAGS"
 ## --------------------------------
 ## Language feature tests
 ##
+
 
 #
 # See if this compiler supports the "extern template class Foo<T>"
@@ -1432,25 +1469,22 @@ fi
 # in non-vtable context); however our code should all be safe for
 # --icf=all (the real question is libraries ...).
 #
-SNOGRAY_CHECK_CXX_LINK_FLAG([CXX_LDFLAGS], [-Wl,--icf=all])
+SNOGRAY_CHECK_CXX_LINK_FLAG([CXX_ICF_LDFLAGS], [-Wl,--icf=all])
 
 # If "-Wl,--icf=all" is supported, also check for the compiler
 # "--ffunction-sections" option; this puts each function into its own
 # separate linker section, which increases the opportunities for --icf
 # to work.
 #
-if test x"$CXX_LDFLAGS" != x; then
+if test x"$CXX_ICF_LDFLAGS" != x; then
+  CONFIG_LDFLAGS="$CONFIG_LDFLAGS $CXX_ICF_LDFLAGS"
+
   SNOGRAY_CHECK_CXX_FLAG([CXX_FUNCTION_SECS], [-ffunction-sections])
 
   # We've already defined CXX_EXTRA_REQ_FLAGS above, so append to it.
   #
   CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS $CXX_FUNCTION_SECS"
 fi
-
-
-# Set linker flags.
-#
-LDFLAGS="$CXX_LDFLAGS"
 
 
 # This variable can be set by the user to pass in extra compiler
@@ -1464,6 +1498,14 @@ AC_SUBST([EXTRA_COMPILE_FLAGS], [])
 ## ----------------------------------------------------------------
 ## Final output
 ##
+
+# Reset various compiler-option variables to whatever the user
+# specified.
+#
+CFLAGS=$USER_CFLAGS
+CXXFLAGS=$USER_CXXFLAGS
+CPPFLAGS=$USER_CPPFLAGS
+LDFLAGS=$USER_LDFLAGS
 
 
 AC_CONFIG_FILES([Makefile])
