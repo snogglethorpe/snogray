@@ -22,20 +22,18 @@
 // zero is returned instead.
 //
 template<class T>
-std::vector<T> *
-SWIG_read_numeric_vector (lua_State *L, int index)
+bool
+SWIG_read_numeric_vector (lua_State *L, int index, std::vector<T> &vec)
 {
   if (! lua_istable (L, index))
-    return 0;			// error
-
-  std::vector<T> *vec = new std::vector<T> ();
+    return false;			// error
 
 #if LUA_VERSION_NUM >= 502
   size_t len = lua_rawlen (L, index);
 #else
   size_t len = lua_objlen (L, index);
 #endif
-  vec->reserve (len);
+  vec.reserve (len);
 
   for (size_t i = 0; i < len; i++)
     {
@@ -43,21 +41,18 @@ SWIG_read_numeric_vector (lua_State *L, int index)
       if (! lua_isnumber (L, -1))
 	{
 	  lua_pop (L, 1);
-	  delete vec;
-	  return 0;		// error
+	  return false;
 	}
-      vec->push_back (T (lua_tonumber (L, -1)));
+      vec.push_back (T (lua_tonumber (L, -1)));
       lua_pop (L, 1);
     }
 
-  return vec;
+  return true;
 }
 %}
 
 %define SWIG_TYPEMAP_NUM_VECTOR(T)
-%typemap(in) const std::vector<T> &INPUT
-%{	$1 = SWIG_read_numeric_vector<T> (L,$input);
-	if (!$1) SWIG_fail; %}
-%typemap(freearg) const std::vector<T> &INPUT
-%{	delete $1; %}
+%typemap(in) const std::vector<T> &INPUT (std::vector<T> temp)
+%{	if (! SWIG_read_numeric_vector<T> (L,$input, temp)) SWIG_fail;
+	$1 = &temp; %}
 %enddef
