@@ -87,7 +87,7 @@ public:
   void try_help_err () const __attribute__ ((noreturn));
 
   const char *get_arg ();
-  int num_remaining_args () const;
+  unsigned num_remaining_args () const;
 
   // Parse the argument of the current option using "NAME=VALUE"
   // syntax, and store an entry with name NAME and value VALUE into

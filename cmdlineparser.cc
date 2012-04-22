@@ -80,7 +80,7 @@ CmdLineParser::get_opt ()
   return short_opt;
 }
 
-int
+unsigned
 CmdLineParser::num_remaining_args () const
 {
   return argc - optind;
