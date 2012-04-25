@@ -1,6 +1,6 @@
 // matrix-funs.tcc -- Miscellanous matrix functions
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -69,7 +69,7 @@ cholesky_decomposition (const Matrix<T> &M)
       //
       for (unsigned j = 0; j < i; j++)
 	{
-	  float sum_Lki_Lkj = 0;
+	  T sum_Lki_Lkj = 0;
 	  for (unsigned k = 0; k < i; k++)
 	    sum_Lki_Lkj += L(k,i) * L(k,j);
 
@@ -78,7 +78,7 @@ cholesky_decomposition (const Matrix<T> &M)
 
       // Compute Lii
       //
-      float sum_Lki_sq = 0;
+      T sum_Lki_sq = 0;
       for (unsigned k = 0; k < i; k++)
 	sum_Lki_sq += L(k,i)*L(k,i);
 
@@ -157,7 +157,7 @@ forward_substitution (const Matrix<T> &L, const Matrix<T> &B)
 	  //
 	  //   x(row) = (b(row) - SUM) / L(row,row)
 	  //
-	  float sum = 0;
+	  T sum = 0;
 	  for (unsigned col = 0; col < row; col++)
 	    sum += L (col, row) * X (eqn, col);
 
@@ -232,7 +232,7 @@ back_substitution (const Matrix<T> &U, const Matrix<T> &B)
 	  //
 	  //   x(row) = (b(row) - SUM) / U(row,row)
 	  //
-	  float sum = 0;
+	  T sum = 0;
 	  for (int col = size - 1; col > row; col--)
 	    sum += U (col, row) * X (eqn, col);
 
