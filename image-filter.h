@@ -36,26 +36,28 @@ public:
 
   float operator() (float x, float y) const { return val (x, y); }
 
-  float x_width, y_width;
-  float inv_x_width, inv_y_width;
+  float x_radius, y_radius;
+  float inv_x_radius, inv_y_radius;
 
 protected:
 
-  ImageFilter (float _x_width, float _y_width)
-    : x_width (_x_width), y_width (_y_width),
-      inv_x_width (1 / x_width), inv_y_width (1 / y_width)
+  ImageFilter (float _x_radius, float _y_radius)
+    : x_radius (_x_radius), y_radius (_y_radius),
+      inv_x_radius (1 / x_radius), inv_y_radius (1 / y_radius)
   { }
-  ImageFilter (float _width)
-    : x_width (_width), y_width (_width),
-      inv_x_width (1 / x_width), inv_y_width (1 / y_width)
+  ImageFilter (float _radius)
+    : x_radius (_radius), y_radius (_radius),
+      inv_x_radius (1 / x_radius), inv_y_radius (1 / y_radius)
   { }
 
-  ImageFilter (const ValTable &params, float def_width)
-    : x_width (params.get_float ("x_width,xw,width,w", def_width)
-	       * params.get_float ("x_width_scale", 1)),
-      y_width (params.get_float ("y_width,yw,width,w", def_width)
-	       * params.get_float ("y_width_scale", 1)),
-      inv_x_width (1 / x_width), inv_y_width (1 / y_width)
+  ImageFilter (const ValTable &params, float def_radius)
+    : x_radius (params.get_float ("x_radius,xr,radius,r,x_width,xw,width,w",
+				  def_radius)
+	       * params.get_float ("x_radius_scale", 1)),
+      y_radius (params.get_float ("y_radius,yr,radius,r,y_width,yw,width,w",
+				  def_radius)
+	       * params.get_float ("y_radius_scale", 1)),
+      inv_x_radius (1 / x_radius), inv_y_radius (1 / y_radius)
   { }
 };
 

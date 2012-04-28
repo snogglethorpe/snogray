@@ -1,6 +1,6 @@
 // image-mitchell-filt.h -- Mitchell filter for image output
 //
-//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,26 +30,26 @@ public:
   // support is widespread, that can be used instead.
   static float default_b () { return 1.f / 3.f; }
   static float default_c () { return 1.f / 3.f; }
-  static float default_width () { return 2; }
+  static float default_radius () { return 2; }
 
   ImageMitchellFilt (float _b = default_b(), float _c = default_c(),
-		     float _width = default_width())
-    : ImageFilter (_width), b (_b), c (_c)
+		     float _radius = default_radius())
+    : ImageFilter (_radius), b (_b), c (_c)
   { }
   ImageMitchellFilt (const ValTable &params)
-    : ImageFilter (params, default_width()),
+    : ImageFilter (params, default_radius()),
       b (params.get_float ("b", default_b())),
       c (params.get_float ("c", default_c()))
   { }
 
   virtual float val (float x, float y) const
   {
-    return mitchell1 (x, inv_x_width) * mitchell1 (y, inv_y_width);
+    return mitchell1 (x, inv_x_radius) * mitchell1 (y, inv_y_radius);
   }
 
-  float mitchell1 (float x, float inv_width) const
+  float mitchell1 (float x, float inv_radius) const
   {
-    x = abs (2.f * x * inv_width);
+    x = abs (2.f * x * inv_radius);
 
     // This formula is from the PBRT book
     //

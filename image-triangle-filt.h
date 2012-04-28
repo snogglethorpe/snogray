@@ -1,6 +1,6 @@
 // triangle.h -- Triangleian filter for image output
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,18 +26,18 @@ public:
   // This should be a simple named constant, but C++ (stupidly)
   // disallows non-integral named constants.  Someday when "constexpr"
   // support is widespread, that can be used instead.
-  static float default_width () { return 2; }
+  static float default_radius () { return 2; }
 
-  ImageTriangleFilt (float _width = default_width())
-    : ImageFilter (_width)
+  ImageTriangleFilt (float _radius = default_radius())
+    : ImageFilter (_radius)
   { }
   ImageTriangleFilt (const ValTable &params)
-    : ImageFilter (params, default_width())
+    : ImageFilter (params, default_radius())
   { }
 
   virtual float val (float x, float y) const
   {
-    return max (0.f, x_width - abs (x)) * max (0.f, y_width - abs (y));
+    return max (0.f, x_radius - abs (x)) * max (0.f, y_radius - abs (y));
   }
 };
 

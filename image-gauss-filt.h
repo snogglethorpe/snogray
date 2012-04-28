@@ -1,6 +1,6 @@
 // gauss.h -- Gaussian filter for image output
 //
-//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -26,22 +26,22 @@ class ImageGaussFilt : public ImageFilter
 public:
 
   static float default_alpha () { return 2; }
-  static float default_width () { return 2; }
+  static float default_radius () { return 2; }
 
   ImageGaussFilt (float _alpha = default_alpha(),
-		  float _width = default_width())
-    : ImageFilter (_width),
+		  float _radius = default_radius())
+    : ImageFilter (_radius),
       alpha (_alpha),
-      bias (gauss1 (default_width (), 0)),
-      x_scale (default_width () / _width),
-      y_scale (default_width () / _width)
+      bias (gauss1 (default_radius (), 0)),
+      x_scale (default_radius () / _radius),
+      y_scale (default_radius () / _radius)
   { }
   ImageGaussFilt (const ValTable &params)
-    : ImageFilter (params, default_width()),
+    : ImageFilter (params, default_radius()),
       alpha (params.get_float ("alpha,a", default_alpha())),
-      bias (gauss1 (default_width (), 0)),
-      x_scale (default_width () / x_width),
-      y_scale (default_width () / y_width)
+      bias (gauss1 (default_radius (), 0)),
+      x_scale (default_radius () / x_radius),
+      y_scale (default_radius () / y_radius)
   { }
 
   virtual float val (float x, float y) const
@@ -64,7 +64,7 @@ private:
   //
   float bias;
 
-  // We scale the curve to match our width, in both x- and
+  // We scale the curve to match our radius, in both x- and
   // y-dimensions, so that the filter coverage and the value of alpha
   // are relatively independent.
   //

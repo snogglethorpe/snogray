@@ -36,8 +36,8 @@ public:
 
   ImageFilterConvBase (const ValTable &params = ValTable::NONE)
     : filter (ImageFilter::make (params)),
-      filter_x_radius (filter ? int (ceil (filter->x_width - 1.0001f)) : 0),
-      filter_y_radius (filter ? int (ceil (filter->y_width - 1.0001f)) : 0),
+      filter_x_radius (filter ? int (ceil (filter->x_radius - 1.0001f)) : 0),
+      filter_y_radius (filter ? int (ceil (filter->y_radius - 1.0001f)) : 0),
       neg_clamp (-abs (params.get_float ("neg_clamp", default_neg_clamp ())))
   { }
   ~ImageFilterConvBase () { delete filter; }
@@ -49,7 +49,7 @@ public:
   // "Radius" of FILTER, for x- and y-dimensions.  This is an integer
   // defining the number of adjacent pixels on all sides of a pixel
   // which are effected by output samples within it.  It is calculated
-  // by expanding the filter width in the given dimension to a pixel
+  // by expanding the filter radius in the given dimension to a pixel
   // boundary, and subtracting one to eliminate the center pixel.
   //
   // (this value is really unsigned, but g++ goes nuts with warnings

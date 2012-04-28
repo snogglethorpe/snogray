@@ -148,13 +148,13 @@ ImageScaledOutput::calc_sampled_output_params (unsigned src_width,
       float x_scale = float (dst_width) / float (src_width);
       float y_scale = float (dst_height) / float (src_height);
 
-      // If upscaling, make the filter width wide enough to cover the
-      // output pixels.
+      // If upscaling, make the filter wide enough to cover the output
+      // pixels.
       //
       if (x_scale > 1)
-	dst_params.set ("filter.x_width_scale", x_scale);
+	dst_params.set ("filter.x_radius_scale", x_scale);
       if (y_scale > 1)
-	dst_params.set ("filter.y_width_scale", y_scale);
+	dst_params.set ("filter.y_radius_scale", y_scale);
     }
 
   return dst_params;
