@@ -33,7 +33,6 @@ public:
   // disallows non-integral named constants.  Someday when "constexpr"
   // support is widespread, that can be used instead.
   static float default_neg_clamp () { return -0.1; }
-  static float max_filter_width_scale () { return 2.f; }
 
   ImageFilterConvBase (const ValTable &params = ValTable::NONE)
     : filter (ImageFilter::make (params)),
