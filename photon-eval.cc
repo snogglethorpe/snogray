@@ -13,6 +13,7 @@
 #include "snogmath.h"
 #include "intersect.h"
 #include "bsdf.h"
+#include "gaussian-filter.h"
 
 #include "photon-eval.h"
 
@@ -71,11 +72,19 @@ PhotonEval::Lo (const Intersect &isec, const PhotonMap &photon_map,
   if (found_photons.size () == 0)
     return 0;
 
-  // Pre-compute values used for GAUSS_FILT in the loop.
+  // A gaussian filter, which emphasizes photons nearer to POS, and
+  // de-emphasizes those farther away.
   //
-  float gauss_alpha = 1.818f, gauss_beta = 1.953f;
-  dist_t inv_gauss_denom = 1 / (1 - exp (-gauss_beta));
-  dist_t gauss_exp_scale = -dist_t (gauss_beta) / (2 * max_dist_sq);
+  // GAUSS_ALPHA is a filter parameter which determines the shape of
+  // the filter curve (larger values result in a sharper central
+  // peak), and GAUSS_SCALE scales the result so that the resulting
+  // filter will have an average value of 1 for a set of input points
+  // uniformly distributed over a disk (as we're concerned with the
+  // effect on surfaces).
+  //
+  dist_t gauss_alpha = 2;
+  float gauss_scale = 2.90898;
+  GaussianSqrtFilter<dist_t, float> gauss_filt (max_dist_sq, gauss_alpha);
 
   Color radiance = 0;
 
@@ -91,16 +100,8 @@ PhotonEval::Lo (const Intersect &isec, const PhotonMap &photon_map,
 
       if (bsdf_val.pdf != 0 && bsdf_val.val > 0)
 	{
-	  // A gaussian filter, which emphasizes photons nearer to POS,
-	  // and de-emphasizes those farther away.
-	  //
-	  float gauss_filt
-	    = (gauss_alpha
-	       * float (1 - ((1 - exp (gauss_exp_scale
-				       * (ph.pos - pos).length_squared()))
-			     * inv_gauss_denom)));
-
-	  radiance += bsdf_val.val * ph.power * gauss_filt;
+	  float filt = gauss_filt ((ph.pos - pos).length_squared ());
+	  radiance += bsdf_val.val * ph.power * filt * gauss_scale;
 	}
 
       // XXXX  PBRT avoids calling Bsdf::eval more than once for
@@ -109,6 +110,7 @@ PhotonEval::Lo (const Intersect &isec, const PhotonMap &photon_map,
     }
 
   radiance *= scale;
+
   radiance /= float (max_dist_sq) * PIf;
 
   // Add photon position marker for debugging.
