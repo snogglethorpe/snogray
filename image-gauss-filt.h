@@ -27,7 +27,7 @@ class ImageGaussFilt : public ImageFilter
 {
 public:
 
-  static float default_alpha () { return 2; }
+  static float default_alpha () { return 8; }
   static float default_radius () { return 2; }
 
   ImageGaussFilt (float _alpha = default_alpha(),
