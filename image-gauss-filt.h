@@ -13,6 +13,8 @@
 #ifndef SNOGRAY_IMAGE_GAUSS_FILT_H
 #define SNOGRAY_IMAGE_GAUSS_FILT_H
 
+#include "gaussian-filter.h"
+
 #include "image-filter.h"
 
 
@@ -32,43 +34,28 @@ public:
 		  float _radius = default_radius())
     : ImageFilter (_radius),
       alpha (_alpha),
-      bias (gauss1 (default_radius (), 0)),
-      x_scale (default_radius () / _radius),
-      y_scale (default_radius () / _radius)
+      x_filter (x_radius, _alpha),
+      y_filter (y_radius, _alpha)
   { }
   ImageGaussFilt (const ValTable &params)
     : ImageFilter (params, default_radius()),
       alpha (params.get_float ("alpha,a", default_alpha())),
-      bias (gauss1 (default_radius (), 0)),
-      x_scale (default_radius () / x_radius),
-      y_scale (default_radius () / y_radius)
+      x_filter (x_radius, alpha),
+      y_filter (y_radius, alpha)
   { }
 
   virtual float val (float x, float y) const
   {
-    return gauss1 (x * x_scale, bias) * gauss1 (y * y_scale, bias);
-  }
-
-  float gauss1 (float offs, float _bias) const
-  {
-    return max (exp (-alpha * offs * offs) - _bias, 0.f);
+    return x_filter (x) * y_filter (y);
   }
 
   float alpha;
 
 private:
 
-  // The value of the gaussian curve at the edge of our coverage.
-  // We want the end result to be zero at that point, so we subtract
-  // this value from the value calculated.
+  // Separable filters for x- and y-dimensions.
   //
-  float bias;
-
-  // We scale the curve to match our radius, in both x- and
-  // y-dimensions, so that the filter coverage and the value of alpha
-  // are relatively independent.
-  //
-  float x_scale, y_scale;
+  GaussianFilter<float> x_filter, y_filter;
 };
 
 
