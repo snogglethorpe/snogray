@@ -13,6 +13,8 @@
 #ifndef SNOGRAY_IMAGE_BOX_FILT_H
 #define SNOGRAY_IMAGE_BOX_FILT_H
 
+#include "snogmath.h"
+
 #include "image-filter.h"
 
 
@@ -35,9 +37,9 @@ public:
     : ImageFilter (params, default_radius())
   { }
 
-  virtual float val (float, float) const
+  virtual float val (float x_offs, float y_offs) const
   {
-    return 1;
+    return (abs (x_offs) <= x_radius && abs (y_offs) <= y_radius) ? 1 : 0;
   }
 };
 
