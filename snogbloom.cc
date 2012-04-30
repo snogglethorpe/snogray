@@ -23,7 +23,6 @@
 
 
 using namespace snogray;
-using namespace std;
 
 
 // GaussianLimitPsf class
@@ -101,21 +100,21 @@ private:
 // command-line help
 
 static void
-usage (CmdLineParser &clp, ostream &os)
+usage (CmdLineParser &clp, std::ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] INPUT_IMAGE_FILE OUTPUT_IMAGE_FILE" << endl;
+     << " [OPTION...] INPUT_IMAGE_FILE OUTPUT_IMAGE_FILE" << std::endl;
 }
 
 static void
-help (CmdLineParser &clp, ostream &os)
+help (CmdLineParser &clp, std::ostream &os)
 {
   usage (clp, os);
 
   // These macros just makes the source code for help output easier to line up
   //
-#define s  << endl <<
-#define n  << endl
+#define s  << std::endl <<
+#define n  << std::endl
 
   os << "Add glare effects (\"bloom\") to an image"
 n
@@ -200,7 +199,7 @@ int main (int argc, char *const *argv)
 
   if (clp.num_remaining_args() != 2)
     {
-      usage (clp, cerr);
+      usage (clp, std::cerr);
       clp.try_help_err ();
     }
 
