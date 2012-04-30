@@ -19,6 +19,7 @@
 #include "image-input-cmdline.h"
 #include "image-scaled-output-cmdline.h"
 #include "add-glare.h"
+#include "gaussian-filter.h"
 #include "photopic-glare-psf.h"
 
 
@@ -36,10 +37,7 @@ class GaussianLimitPsf : public GlarePsf
 public:
 
   GaussianLimitPsf (const GlarePsf *_psf, float limit_angle)
-    : psf (_psf), limit (limit_angle),
-      sigma (5.f / (limit * limit)),
-      gauss_edge_value (gauss (limit)),
-      filter_scale (1 / (1 - gauss_edge_value))
+    : psf (_psf), limit (limit_angle), gauss_filter (limit, 5.)
   { }
 
   // Return the value of the PSF at an angle of THETA radians from the
@@ -50,50 +48,20 @@ public:
     if (theta > limit)
       return 0;
     else
-      return (*psf) (theta) * filter (theta);
+      return (*psf) (theta) * gauss_filter (theta);
   }
 
 private:
 
   UniquePtr<const GlarePsf> psf;
 
-  // Return the value of our gaussian function at THETA.  This is the
-  // "raw" gaussian, before we've adjusted to compensate for the edge
-  // value.
-  //
-  float gauss (float theta) const
-  {
-    return exp (-sigma*theta*theta);
-  }
-
-  // Return the value of our filter at THETA.  This is the "real"
-  // value, with a value of exactly 1 at zero, and exactly 0 at LIMIT.
-  //
-  float filter (float theta) const
-  {
-    return (gauss (theta) - gauss_edge_value) * filter_scale;
-  }
-
   // The limit we are restricting.
   //
   float limit;
 
-  // The value σ for the gaussian filter.  This is calculated so that
-  // it approaches zero at the limit.
+  // Gaussian filter to smoothly introduce the limit.
   //
-  float sigma;
-
-  // Value of the gaussian filter at the limit.  We subtract this from
-  // the calculated filter value to ensure that it exactly hits zero
-  // at the limit.
-  //
-  float gauss_edge_value;
-
-  // A scale factor to compensate for the fact that we subtract
-  // FILTER_EDGE_VALUE from the filter.  A gaussian filter has a value
-  // of 1 at the center, so this is 1 / (1 - GAUSS_EDGE_VALUE).
-  //
-  float filter_scale;
+  GaussianFilter<float> gauss_filter;
 };
 
 
