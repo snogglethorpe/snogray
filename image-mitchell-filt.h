@@ -53,7 +53,9 @@ public:
 
     // This formula is from the PBRT book
     //
-    if (x > 1.f)
+    if (x > 2.f)
+      return 0;
+    else if (x > 1.f)
       return ((-b - 6*c) * x*x*x + (6*b + 30*c) * x*x +
 	      (-12*b - 48*c) * x + (8*b + 24*c)) * (1.f/6.f);
     else
