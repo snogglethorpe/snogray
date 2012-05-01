@@ -1,6 +1,6 @@
 // timeval.cc -- Time measurement
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,9 +17,9 @@
 #include "timeval.h"
 
 using namespace snogray;
-using namespace std;
 
-string
+
+std::string
 Timeval::fmt (unsigned sub_sec_prec) const
 {
   unsigned sec  = tv_sec % 60;
@@ -66,7 +66,7 @@ Timeval::fmt (unsigned sub_sec_prec) const
       *end = '\0';
     }
 
-  return string (buf);
+  return std::string (buf);
 }
 
 // arch-tag: 650b9486-0140-4dba-be6e-639589dbc7df
