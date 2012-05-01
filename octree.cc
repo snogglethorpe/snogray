@@ -1,6 +1,6 @@
 // octree.cc -- Voxel tree datatype (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2005, 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2009, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
 #include "octree.h"
 
 using namespace snogray;
-using namespace std;
 
 
 Octree::~Octree ()
@@ -184,7 +183,7 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 
       // Invoke the callback on each of this node's surfaces
       //
-      for (list<const Surface *>::const_iterator si = surfaces.begin();
+      for (std::list<const Surface *>::const_iterator si = surfaces.begin();
 	   si != surfaces.end(); si++)
 	{
 	  const Surface *surf = *si;
