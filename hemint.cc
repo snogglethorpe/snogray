@@ -1,6 +1,6 @@
 // hemint.cc -- numerically integrate over the hemisphere
 //
-//  Copyright (C) 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -27,7 +27,6 @@
 #include "snogmath.h"
 
 using namespace snogray;
-using namespace std;
 
 
 #define LB	(-PI/2)
@@ -100,7 +99,7 @@ struct fun funs[] = {
 static void
 usage (CmdLineParser &clp, ostream &os)
 {
-  os << "Usage: " << clp.prog_name() << " [OPTION...] FUN [ARG...]" << endl;
+  os << "Usage: " << clp.prog_name() << " [OPTION...] FUN [ARG...]" << std::endl;
 }
 
 static void
@@ -110,8 +109,8 @@ help (CmdLineParser &clp, ostream &os)
 
   // These macros just makes the source code for help output easier to line up
   //
-#define s  << endl <<
-#define n  << endl
+#define s  << std::endl <<
+#define n  << std::endl
 
   os <<
   "Numerically integrate over the hemisphere"
@@ -185,9 +184,9 @@ int main (int argc, char *const argv[])
   const char *fun_name = clp.get_arg ();
   if (! fun_name)
     {
-      usage (clp, cerr);
-      cerr << "Try `" << clp.prog_name() << " --help' for more information"
-	   << endl;
+      usage (clp, std::cerr);
+      std::cerr << "Try `" << clp.prog_name() << " --help' for more information"
+		<< std::endl;
       exit (1);
     }
 
@@ -196,7 +195,7 @@ int main (int argc, char *const argv[])
     if (strcmp (fun->name, fun_name) == 0)
       break;
   if (! fun->name)
-    clp.err (string ("Unknown function: " + string (fun_name)));
+    clp.err (std::string ("Unknown function: " + std::string (fun_name)));
 
   const char *p0_str = clp.get_arg ();
   double p0 = p0_str ? atof (p0_str) : fun->p0;
@@ -205,8 +204,8 @@ int main (int argc, char *const argv[])
 
   if (!samps && !quiet)
     {
-      cout << "fun = " << fun->name << ", p0 = " << p0 << endl;
-      cout << "steps = " << steps << endl;
+      std::cout << "fun = " << fun->name << ", p0 = " << p0 << std::endl;
+      std::cout << "steps = " << steps << std::endl;
     }
 
   double sum = 0;
@@ -226,20 +225,20 @@ int main (int argc, char *const argv[])
       sum += v * a;
 
       if (val_samps)
-	cout << theta << " " << v << endl;
+	std::cout << theta << " " << v << std::endl;
       else if (val_area_samps)
-	cout << theta << " " << v * a << endl;
+	std::cout << theta << " " << v * a << std::endl;
       else if (sum_samps)
-	cout << theta << " " << sum << endl;
+	std::cout << theta << " " << sum << std::endl;
       else if (verbose)
-	cout << "f (" << theta << ") = " << v << ", a = " << a << endl;
+	std::cout << "f (" << theta << ") = " << v << ", a = " << a << std::endl;
     }
 
   if (! samps)
     {
       if (! quiet)
-	cout << "integral = ";
-      cout << sum << endl;
+	std::cout << "integral = ";
+      std::cout << sum << std::endl;
     }
 
   return 0;
