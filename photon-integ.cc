@@ -145,6 +145,11 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 
   generate_photons (num_caustic, num_direct, num_indirect);
 
+  std::cout << "* photon-integ:"
+	    << " photon search count: " << photon_eval.num_photons
+	    << ", search radius: " << sqrt (photon_eval.search_radius_sq)
+	    << std::endl;
+
   std::cout << "* photon-integ: ";
   if (use_direct_illum)
     std::cout << direct_illum.num_samples << " direct sample"
