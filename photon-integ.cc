@@ -58,7 +58,7 @@ PhotonInteg::GlobalState::GlobalState (const GlobalRenderState &rstate,
 		       ",fg_bsdf_samples,fg_bsdf_samps",
 		       UNSPEC_UINT))
 {
-  unsigned num_caustic = params.get_uint ("caustic_photons", 50000);
+  unsigned num_caustic = params.get_uint ("caustic_photons,caustic", 50000);
   unsigned num_direct = params.get_uint ("direct_photons,dir", 500000);
   unsigned num_indirect = params.get_uint ("indirect_photons,indir", 500000);
 
