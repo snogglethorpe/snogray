@@ -43,7 +43,6 @@
 #include "load-3ds.h"
 
 using namespace snogray;
-using namespace std;
 
 // The index of refraction we use for reflective objects.
 //
@@ -81,13 +80,13 @@ struct TdsLoader
 
     bool valid () const { return !name.empty (); }
 
-    string name;
+    std::string name;
     const Name *next;
   };
 
   // Load 3ds scene file FILENAME into memory.
   //
-  void load (const string &filename);
+  void load (const std::string &filename);
 
   // Import all meshes/lights in the 3ds scene, transformed by XFORM,
   // into the snogray scene or mesh associated with this loader.
@@ -210,7 +209,7 @@ TdsLoader::convert_material (Lib3dsMaterial *m)
 Ref<const Material>
 TdsLoader::lookup_file_material (const char *name)
 {
-  string mat_name (name);
+  std::string mat_name (name);
 
   // If we already loaded something with this name, just use that.
   //
@@ -284,7 +283,7 @@ TdsLoader::lookup_file_material (const char *name)
 Ref<const Material>
 TdsLoader::lookup_material (const char *name, const Name *hier_names)
 {
-  string mat_name (name);
+  std::string mat_name (name);
   Ref<const Material> mat;
   bool found_user_mapping = false;
 
@@ -300,7 +299,7 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
 	   hn && !found_user_mapping; hn = hn->next)
 	if (hn->valid ())
 	  {
-	    string geom_mat_name (hn->name);
+	    std::string geom_mat_name (hn->name);
 	    geom_mat_name += ':';
 	    geom_mat_name += mat_name;
 
@@ -474,7 +473,7 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	  // doesn't support overlapping sets of smoothing flags, but
 	  // those seem to be rare anyway.
 	  //
-	  vector<VertInfo> vert_info (m->points);
+	  std::vector<VertInfo> vert_info (m->points);
 
 	  // Simple cache to avoid the most repetitive material lookups.
 	  //
@@ -635,7 +634,7 @@ TdsLoader::convert (const Xform &xform)
 // Load 3ds scene file FILENAME into memory.
 //
 void
-TdsLoader::load (const string &filename)
+TdsLoader::load (const std::string &filename)
 {
   if (file)
     lib3ds_file_free (file);
@@ -656,7 +655,7 @@ TdsLoader::load (const string &filename)
 // scene, including lights and the first camera position.
 //
 void
-snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera,
+snogray::load_3ds_file (const std::string &filename, Scene &scene, Camera &camera,
 			const ValTable &)
 {
   TdsLoader l (&scene);
@@ -690,7 +689,8 @@ snogray::load_3ds_file (const string &filename, Scene &scene, Camera &camera,
 // Load meshes (and any materials they use) from a 3ds scene file inot MESH.
 //
 void
-snogray::load_3ds_file (const string &filename, Mesh &mesh, const ValTable &)
+snogray::load_3ds_file (const std::string &filename,
+			Mesh &mesh, const ValTable &)
 {
   TdsLoader l (&mesh);
 
