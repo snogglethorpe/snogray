@@ -18,7 +18,7 @@
 #include "tty-progress.h"
 
 using namespace snogray;
-using namespace std;
+
 
 // Set the start position of the progress range; positions before this
 // are not counted as progress.  This is normally called before
@@ -110,10 +110,11 @@ TtyProgress::update (int pos)
 	  //
 	  os << "\r" << prefix;
 
-	  os << setw (5) << fixed << setprecision (1) << (progress * 100) << "%"
+	  os << std::setw (5) << std::fixed << std::setprecision (1)
+	     << (progress * 100) << "%"
 	     << "  ("
-	     << setw (5) << (now - start_time) << " elapsed, "
-	     << setw (5) << remaining_est << " rem"
+	     << std::setw (5) << (now - start_time) << " elapsed, "
+	     << std::setw (5) << remaining_est << " rem"
 	     << ")";
 
 	  // Estimate which pos we will have reached after the desired
@@ -138,7 +139,8 @@ TtyProgress::update (int pos)
 	  // Output progress
 	  //
 	  os << "\r" << prefix
-	     << setw (5) << fixed << setprecision (1) << (progress * 100)
+	     << std::setw (5) << std::fixed << std::setprecision (1)
+	     << (progress * 100)
 	     << "%";
 
 	  update_pos = int (pos + (end_pos - start_pos) * 0.001);
@@ -160,10 +162,10 @@ TtyProgress::end ()
   if (verbosity != QUIET)
     {
       if (verbosity == MINIMAL)
-	os << "done" << endl;
+	os << "done" << std::endl;
       else
-	os << "\r" << string (prefix.length() + 40, ' ')
-	   << "\r" << prefix << "done" << endl;
+	os << "\r" << std::string (prefix.length() + 40, ' ')
+	   << "\r" << prefix << "done" << std::endl;
     }
 }
 
