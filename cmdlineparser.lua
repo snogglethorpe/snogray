@@ -544,9 +544,9 @@ function cmdlineparser.parse_params (string, table, params_separator_pat)
 	 table[str_gsub (name, "-", "_")] = val
       else
 	 string = str_gsub (string, "-", "_")
-	 if str_match ("^!", string) then
+	 if str_match (string, "^!") then
 	    table[str_sub (string, 2)] = false
-	 elseif str_match ("^no_", string) then
+	 elseif str_match (string, "^no_") then
 	    table[str_sub (string, 4)] = false
 	 else
 	    table[string] = true
