@@ -21,7 +21,7 @@
 #include "sample-map.h"
 
 using namespace snogray;
-using namespace std;
+
 
 // Add samples from the first intersection reached by tracing EYE_RAY
 // into SCENE.
