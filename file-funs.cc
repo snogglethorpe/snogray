@@ -1,6 +1,6 @@
 // file-funs.cc -- Functions for operating on files
 //
-//  Copyright (C) 2005, 2006, 2007  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -21,15 +21,14 @@
 
 
 using namespace snogray;
-using namespace std;
 
 
 // Return true if a file called FILE_NAME is readable.
 //
 bool 
-snogray::file_exists (const string &file_name)
+snogray::file_exists (const std::string &file_name)
 {
-  ifstream test (file_name.c_str ());
+  std::ifstream test (file_name.c_str ());
   bool exists = !!test;
   return exists;
 }
@@ -38,10 +37,11 @@ snogray::file_exists (const string &file_name)
 // ".~1~", ".~2~" etc), and rename FILE_NAME to it.  The backup filename
 // is returned.  If this cannot be done an exception is thrown.
 //
-string
-snogray::rename_to_backup_file (const string &file_name, unsigned backup_limit)
+std::string
+snogray::rename_to_backup_file (const std::string &file_name,
+				unsigned backup_limit)
 {
-  string backup_name;
+  std::string backup_name;
 
   unsigned backup_num;
   for (backup_num = 1; backup_num < backup_limit; backup_num++)
@@ -51,10 +51,11 @@ snogray::rename_to_backup_file (const string &file_name, unsigned backup_limit)
 	break;
     }
   if (backup_num == backup_limit)
-    throw runtime_error (file_name + ": Too many backup files already exist");
+    throw std::runtime_error (file_name
+			      + ": Too many backup files already exist");
 
   if (rename (file_name.c_str(), backup_name.c_str()) != 0)
-    throw runtime_error (backup_name + ": " + strerror (errno));
+    throw std::runtime_error (backup_name + ": " + strerror (errno));
 
   return backup_name;
 }
