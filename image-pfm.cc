@@ -1,6 +1,6 @@
 // image-pfm.cc -- PFM ("Portable Float Map") format image handling
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -37,7 +37,6 @@
 #include "image-pfm.h"
 
 using namespace snogray;
-using namespace std;
 
 static bool
 little_endian ()
@@ -54,7 +53,8 @@ PfmImageSink::PfmImageSink (const std::string &filename,
 			    unsigned width, unsigned height,
 			    const ValTable &params)
   : ImageSink (filename, width, height, params),
-    outf (filename.c_str(), ios_base::out|ios_base::binary|ios_base::trunc),
+    outf (filename.c_str(),
+	  std::ios_base::out|std::ios_base::binary|std::ios_base::trunc),
     raster (width * height * 3), next_y (0)
 {
   if (params.contains ("gamma"))
@@ -92,7 +92,7 @@ PfmImageSink::write_row (const ImageRow &row)
 PfmImageSource::PfmImageSource (const std::string &filename,
 				const ValTable &params)
   : ImageSource (filename, params),
-    inf (filename.c_str(), ios_base::binary), next_y (0)
+    inf (filename.c_str(), std::ios_base::binary), next_y (0)
 {
   char magic[10];
 
