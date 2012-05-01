@@ -1,6 +1,6 @@
 // render-stats.cc -- Print post-rendering statistics
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 #include "render-stats.h"
 
 using namespace snogray;
-using namespace std;
+
 
 // Return 100 * (NUM / DEN) as an int; if DEN == 0, return 0.
 //
@@ -38,16 +38,16 @@ static float fraction (long long num, long long den)
 // Print post-rendering scene statistics
 //
 void
-RenderStats::print (ostream &os)
+RenderStats::print (std::ostream &os)
 {
   long long sc  = scene_intersect_calls;
   long long tnc = intersect.space_node_intersect_calls;
 
-  os << endl;
-  os << "Rendering stats:" << endl;
-  os << "  intersect:" << endl;
-  os << "     rays:            " << setw (16) << commify (sc) << endl;
-  os << "     tree node tests: " << setw (16) << commify (tnc) << endl;
+  os << std::endl;
+  os << "Rendering stats:" << std::endl;
+  os << "  intersect:" << std::endl;
+  os << "     rays:            " << std::setw (16) << commify (sc) << std::endl;
+  os << "     tree node tests: " << std::setw (16) << commify (tnc) << std::endl;
 
   {
     long long surf_tests = intersect.surface_intersects_tests;
@@ -56,12 +56,12 @@ RenderStats::print (ostream &os)
     long long tot_tries = surf_tests + neg_cache_hits;
     long long pos_tries = intersect.surface_intersects_hits;
 
-    os << "     surface tests:   " << setw (16) << commify (tot_tries)
-       << " (success = " << setw(2) << percent (pos_tries, tot_tries)
-       << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
-       << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
+    os << "     surface tests:   " << std::setw (16) << commify (tot_tries)
+       << " (success = " << std::setw(2) << percent (pos_tries, tot_tries)
+       << "%, cached = " << std::setw(2) << percent (neg_cache_hits, tot_tries)
+       << "%; coll = "<< std::setw(2) << percent (neg_cache_colls, tot_tries)
        << "%)"
-       << endl;
+       << std::endl;
   }
 
   long long sst = scene_shadow_tests;
@@ -70,10 +70,11 @@ RenderStats::print (ostream &os)
     {
       long long tnt = shadow.space_node_intersect_calls;
 
-      os << "  shadow:" << endl;
-      os << "     rays:            " << setw (16) << commify (sst)
-	 << endl;
-      os << "     tree node tests: " << setw (16) << commify (tnt) << endl;
+      os << "  shadow:" << std::endl;
+      os << "     rays:            "
+	 << std::setw (16) << commify (sst) << std::endl;
+      os << "     tree node tests: "
+	 << std::setw (16) << commify (tnt) << std::endl;
 
       {
 	long long surf_tests  = shadow.surface_intersects_tests;
@@ -82,12 +83,14 @@ RenderStats::print (ostream &os)
 	long long tot_tries = surf_tests + neg_cache_hits;
 	long long pos_tries = shadow.surface_intersects_hits;
 
-	os << "     surface tests:   " << setw (16) << commify (tot_tries)
-	   << " (success = " << setw(2) << percent (pos_tries, tot_tries)
-	   << "%, cached = " << setw(2) << percent (neg_cache_hits, tot_tries)
-	   << "%; coll = "<< setw(2) << percent (neg_cache_colls, tot_tries)
+	os << "     surface tests:   " << std::setw (16) << commify (tot_tries)
+	   << " (success = " << std::setw(2) << percent (pos_tries, tot_tries)
+	   << "%, cached = "
+	   << std::setw(2) << percent (neg_cache_hits, tot_tries)
+	   << "%; coll = "
+	   << std::setw(2) << percent (neg_cache_colls, tot_tries)
 	   << "%)"
-	   << endl;
+	   << std::endl;
       }
     }
 
@@ -95,12 +98,12 @@ RenderStats::print (ostream &os)
 
   if (ic != 0)
     {
-      os << "  illum:" << endl;
-      os << "     illum calls:     " << setw (16)
-	 << commify (ic) << endl;
+      os << "  illum:" << std::endl;
+      os << "     illum calls:     " << std::setw (16)
+	 << commify (ic) << std::endl;
       if (sst)
-	os << "     average shadow rays:   " << setw (10)
-	   << setprecision(3) << fraction (sst, ic) << endl;
+	os << "     average shadow rays:   " << std::setw (10)
+	   << std::setprecision(3) << fraction (sst, ic) << std::endl;
     }
 }
 
