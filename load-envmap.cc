@@ -23,7 +23,6 @@
 
 
 using namespace snogray;
-using namespace std;
 
 
 // Return an appropriate subclass of Envmap, initialized from SPEC
@@ -35,10 +34,10 @@ using namespace std;
 // an attempt will be made to guess the format based on the image size.
 //
 Ref<Envmap>
-snogray::load_envmap (const string &spec, const string &_fmt)
+snogray::load_envmap (const std::string &spec, const std::string &_fmt)
 {
-  string filename = spec;
-  string fmt = _fmt;
+  std::string filename = spec;
+  std::string fmt = _fmt;
 
   if (fmt.empty ())
     fmt = strip_prefix (filename, ":");
@@ -53,14 +52,15 @@ snogray::load_envmap (const string &spec, const string &_fmt)
 	{
 	  return make_envmap (image, fmt);
 	}
-      catch (runtime_error &err)
+      catch (std::runtime_error &err)
 	{
 	  throw file_error (filename + ": Error loading environment-map: "
 			    + err.what ());
 	}
     }
   else
-    throw runtime_error (filename + ": Unrecognized environment-map file type");
+    throw std::runtime_error (filename
+			      + ": Unrecognized environment-map file type");
 }
 
 
@@ -71,9 +71,9 @@ snogray::load_envmap (const string &spec, const string &_fmt)
 // attempt will be made to guess the format based on the image size.
 //
 Ref<Envmap>
-snogray::make_envmap (const Ref<Image> &image, const string &_fmt)
+snogray::make_envmap (const Ref<Image> &image, const std::string &_fmt)
 {
-  string fmt = _fmt;
+  std::string fmt = _fmt;
 
   if (fmt.empty() || fmt == "auto")
     //
