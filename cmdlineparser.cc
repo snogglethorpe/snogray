@@ -20,7 +20,6 @@
 #include "cmdlineparser.h"
 
 using namespace snogray;
-using namespace std;
 
 
 // misc
@@ -39,21 +38,21 @@ CmdLineParser::prog_name () const
 
 // General error handling
 
-string
+std::string
 CmdLineParser::err_pfx () const
 {
-  return string (argv[0]) + ": ";
+  return std::string (argv[0]) + ": ";
 }
 
 void
 CmdLineParser::err (const char *phrase) const
 {
-  cerr << err_pfx() << phrase << endl;
+  std::cerr << err_pfx() << phrase << std::endl;
   exit (1);
 }
 
 void
-CmdLineParser::err (const string &phrase) const
+CmdLineParser::err (const std::string &phrase) const
 {
   err (phrase.c_str ());
 }
@@ -63,7 +62,7 @@ CmdLineParser::err (const string &phrase) const
 void
 CmdLineParser::try_help_err () const
 {
-  cerr << "Try `" << prog_name() << " --help' for more information" << endl;
+  std::cerr << "Try `" << prog_name() << " --help' for more information" << std::endl;
   exit (10);
 }
 
@@ -95,10 +94,10 @@ CmdLineParser::get_arg ()
     return argv[optind++];
 }
 
-string
+std::string
 CmdLineParser::opt_err_pfx () const
 {
-  string pfx = err_pfx ();
+  std::string pfx = err_pfx ();
   pfx += "Option `-";
   if (long_opt_index >= 0)
     {
@@ -114,14 +113,14 @@ CmdLineParser::opt_err_pfx () const
 void
 CmdLineParser::opt_err (const char *phrase) const
 {
-  cerr << opt_err_pfx() << " " << phrase << endl;
+  std::cerr << opt_err_pfx() << " " << phrase << std::endl;
   exit (2);
 }
 
 void
-CmdLineParser::opt_err (const string &phrase) const
+CmdLineParser::opt_err (const std::string &phrase) const
 {
-  cerr << opt_err_pfx() << " " << phrase << endl;
+  std::cerr << opt_err_pfx() << " " << phrase << std::endl;
   exit (2);
 }
 
