@@ -28,7 +28,6 @@
 
 
 using namespace snogray;
-using namespace std;
 
 
 static void
@@ -130,7 +129,7 @@ static void
 usage (CmdLineParser &clp, ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] X_POS Y_POS [SCENE_FILE... [MAP_IMAGE_FILE]]" << endl;
+     << " [OPTION...] X_POS Y_POS [SCENE_FILE... [MAP_IMAGE_FILE]]" << std::endl;
 }
 
 static void
@@ -140,8 +139,8 @@ help (CmdLineParser &clp, ostream &os)
 
   // These macros just makes the source code for help output easier to line up
   //
-#define s  << endl <<
-#define n  << endl
+#define s  << std::endl <<
+#define n  << std::endl
 
   os <<
   "Shoot a ray at a scene and dump a light-sample map of the first intersection"
@@ -320,14 +319,14 @@ int main (int argc, char *const *argv)
   if (show_intensity && !no_normalize)
     smap.normalize ();
 
-  cout << "sample map has " << smap.num_samples
-       << " / " << num << " samples" << endl;
+  std::cout << "sample map has " << smap.num_samples
+	    << " / " << num << " samples" << std::endl;
 
   if (show_intensity)
     {
-      cout << "   min intensity = " << smap.min << endl;
-      cout << "   max intensity = " << smap.max << endl;
-      cout << "   avg intensity = " << smap.sum / num << endl;
+      std::cout << "   min intensity = " << smap.min << std::endl;
+      std::cout << "   max intensity = " << smap.max << std::endl;
+      std::cout << "   avg intensity = " << smap.sum / num << std::endl;
     }
 
   Image map (map_width, map_height);
