@@ -33,9 +33,13 @@ DirectIllum::GlobalState::GlobalState (unsigned _num_samples)
 
 DirectIllum::DirectIllum (RenderContext &context,
 			  const GlobalState &global_state)
-  : light_select_chan (context.samples.add_channel<float> ())
+  : num_lights_to_sample (
+      global_state.num_samples == 0
+      ? 0
+      : context.scene.num_lights ()),
+    light_select_chan (context.samples.add_channel<float> ())
 {
-  finish_init (context.samples, context, global_state);
+  finish_init (context.samples, global_state);
 }
 
 // Variant constructor which allows specifying a SampleSet other than the
@@ -43,21 +47,23 @@ DirectIllum::DirectIllum (RenderContext &context,
 //
 DirectIllum::DirectIllum (SampleSet &samples, RenderContext &context,
 			  const GlobalState &global_state)
-  : light_select_chan (samples.add_channel<float> ())
+  : num_lights_to_sample (
+      global_state.num_samples == 0
+      ? 0
+      : context.scene.num_lights ()),
+    light_select_chan (samples.add_channel<float> ())
 {
-  finish_init (samples, context, global_state);
+  finish_init (samples, global_state);
 }
     
 // Common portion of constructors.
 //
 void
-DirectIllum::finish_init (SampleSet &samples, RenderContext &context,
-			  const GlobalState &global_state)
+DirectIllum::finish_init (SampleSet &samples, const GlobalState &global_state)
 {
-  unsigned num_lights = context.scene.num_lights ();
   unsigned num_samples = global_state.num_samples;
 
-  for (unsigned i = 0; i < num_lights; i++)
+  for (unsigned i = 0; i < num_lights_to_sample; i++)
     {
       light_samp_channels.push_back (samples.add_channel<UV> (num_samples));
       bsdf_samp_channels.push_back (samples.add_channel<UV> (num_samples));
@@ -80,13 +86,12 @@ DirectIllum::sample_all_lights (const Intersect &isec,
   const
 {
   RenderContext &context = isec.context;
-  unsigned num_lights = context.scene.lights.size ();
 
   context.stats.illum_calls++;
 
   Color radiance = 0;
 
-  for (unsigned i = 0; i < num_lights; i++)
+  for (unsigned i = 0; i < num_lights_to_sample; i++)
     {
       const Light *light = context.scene.lights[i];
       const SampleSet::Channel<UV> &light_chan = light_samp_channels[i];

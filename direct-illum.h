@@ -92,18 +92,25 @@ private:
 
   // Common portion of constructors.
   //
-  void finish_init (SampleSet &samples, RenderContext &context,
-		    const GlobalState &global_state);
+  void finish_init (SampleSet &samples, const GlobalState &global_state);
 
   // Sample channels for light sampling.
   //
   SampleSet::ChannelVec<UV> light_samp_channels;
-  SampleSet::Channel<float> light_select_chan;
 
   // Sample channels for bsdf sampling.
   //
   SampleSet::ChannelVec<UV> bsdf_samp_channels;
   SampleSet::ChannelVec<float> bsdf_layer_channels;
+
+  // Number of lights we will sample each time.  All the above channel
+  // vectors have this size.
+  //
+  unsigned num_lights_to_sample;
+
+  // XXX not used; for selecting a light if we're not sampling all lights.
+  //
+  SampleSet::Channel<float> light_select_chan;
 };
 
 
