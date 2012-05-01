@@ -20,27 +20,26 @@
 #include "image-scaled-output-cmdline.h"
 
 using namespace snogray;
-using namespace std;
 
 
 
 static void
-usage (CmdLineParser &clp, ostream &os)
+usage (CmdLineParser &clp, std::ostream &os)
 {
   os << "Usage: " << clp.prog_name()
      << " [OPTION...] SRC_IMAGE_1 [SRC_IMAGE_2 [OUTPUT_IMAGE]]"
-     << endl;
+     << std::endl;
 }
 
 static void
-help (CmdLineParser &clp, ostream &os)
+help (CmdLineParser &clp, std::ostream &os)
 {
   usage (clp, os);
 
   // These macros just makes the source code for help output easier to line up
   //
-#define s  << endl <<
-#define n  << endl
+#define s  << std::endl <<
+#define n  << std::endl
 
   os <<
   "Output the difference of two images"
@@ -96,7 +95,7 @@ int main (int argc, char *const *argv)
 
   if (clp.num_remaining_args() < 1 || clp.num_remaining_args() > 3)
     {
-      usage (clp, cerr);
+      usage (clp, std::cerr);
       clp.try_help_err ();
     }
 
