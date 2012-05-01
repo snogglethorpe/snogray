@@ -22,7 +22,6 @@
 #include "cubemap.h"
 
 using namespace snogray;
-using namespace std;
 
 Color
 Cubemap::map (const Vec &dir) const
@@ -96,7 +95,7 @@ Cubemap::fill (FillDst &) const
 // Cubemap general loading interface
 
 void
-Cubemap::load (const string &filename)
+Cubemap::load (const std::string &filename)
 {
   if (ImageIo::recognized_filename (filename))
     //
@@ -108,17 +107,17 @@ Cubemap::load (const string &filename)
 	{
 	  load (image);
 	}
-      catch (runtime_error &err)
+      catch (std::runtime_error &err)
 	{
 	  throw file_error (filename + ": Error loading cubemap image: "
-			    + err.what ());
+				 + err.what ());
 	}
     }
 
   else
     // Load from a "descriptor" file
     {
-      ifstream stream (filename.c_str ());
+      std::ifstream stream (filename.c_str ());
 
       if (stream)
 	try
@@ -126,14 +125,14 @@ Cubemap::load (const string &filename)
 	    // Compute filename prefix used for individual image files from
 	    // the path used to open the cubemap file.
 	    //
-	    string filename_pfx;
+	    std::string filename_pfx;
 	    unsigned pfx_end = filename.find_last_of ("/");
 	    if (pfx_end > 0)
 	      filename_pfx = filename.substr (0, pfx_end + 1);
 
 	    load (stream, filename_pfx);
 	  }
-	catch (runtime_error &err)
+	catch (std::runtime_error &err)
 	  {
 	    throw file_error (filename + ": Error loading cubemap file: "
 			      + err.what ());
@@ -147,7 +146,7 @@ Cubemap::load (const string &filename)
 // Loading of a .ctx "descriptor" file
 
 void
-Cubemap::load (istream &stream, const string &filename_pfx)
+Cubemap::load (std::istream &stream, const std::string &filename_pfx)
 {
   unsigned num_faces_loaded = 0;
 
@@ -157,7 +156,7 @@ Cubemap::load (istream &stream, const string &filename_pfx)
       do
 	{
 	  skipped_comment = false;
-	  stream >> ws;
+	  stream >> std::ws;
 	  if (stream.peek () == '#')
 	    {
 	      char ch;
@@ -168,7 +167,7 @@ Cubemap::load (istream &stream, const string &filename_pfx)
 	}
       while (skipped_comment);
 
-      string kw;
+      std::string kw;
       stream >> kw;
 
       unsigned face_num;
@@ -194,15 +193,15 @@ Cubemap::load (istream &stream, const string &filename_pfx)
       else
 	num_faces_loaded++;
 
-      string u_spec, v_spec;
+      std::string u_spec, v_spec;
       stream >> u_spec;
       stream >> v_spec;
 
       face.u_dir = parse_axis_dir (u_spec);
       face.v_dir = parse_axis_dir (v_spec);
 
-      string tex_filename;
-      stream >> ws;
+      std::string tex_filename;
+      stream >> std::ws;
       getline (stream, tex_filename);
 
       if (tex_filename[0] != '/' && filename_pfx.length() > 0)
@@ -212,15 +211,15 @@ Cubemap::load (istream &stream, const string &filename_pfx)
 	{ 
 	  face.tex.reset (new MatrixTex<Color> (tex_filename));
 	}
-      catch (runtime_error &err)
+      catch (std::runtime_error &err)
 	{
-	  throw file_error (string ("Error loading texture: ") + err.what ());
+	  throw file_error (std::string ("Error loading texture: ") + err.what ());
 	}
     }
 }
 
 Vec
-Cubemap::parse_axis_dir (const string &str)
+Cubemap::parse_axis_dir (const std::string &str)
 {
   dist_t val = 1;
   bool bad = false;
@@ -250,7 +249,7 @@ Cubemap::parse_axis_dir (const string &str)
     bad = true;
 
   if (bad)
-    throw runtime_error (str + ": Illegal axis spec");
+    throw std::runtime_error (str + ": Illegal axis spec");
 
   return vec;
 }
