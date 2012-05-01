@@ -21,7 +21,6 @@
 #include "mesh.h"
 
 using namespace snogray;
-using namespace std;
 
 
 // Add a vertex to the mesh
@@ -219,9 +218,10 @@ Mesh::add_normals (const std::vector<MVec> &new_normals, vert_index_t base_vert)
   // in those cases.
   //
   if (base_vert != vertex_normals.size ())
-    throw runtime_error ("BASE_VERT incorrect in Mesh::add_normals");
+    throw std::runtime_error ("BASE_VERT incorrect in Mesh::add_normals");
   if (base_vert + new_normals.size() != vertices.size ())
-    throw runtime_error ("Size of NEW_NORMALS incorrect in Mesh::add_normals");
+    throw std::runtime_error (
+		 "Size of NEW_NORMALS incorrect in Mesh::add_normals");
 
   vertex_normals.insert (vertex_normals.end(),
 			 new_normals.begin(), new_normals.end());
@@ -246,9 +246,10 @@ Mesh::add_normals (const std::vector<sdist_t> &new_normals,
   // in those cases.
   //
   if (base_vert != vertex_normals.size ())
-    throw runtime_error ("BASE_VERT incorrect in Mesh::add_normals");
+    throw std::runtime_error ("BASE_VERT incorrect in Mesh::add_normals");
   if (base_vert + num_new_normals != vertices.size ())
-    throw runtime_error ("Size of NEW_NORMALS incorrect in Mesh::add_normals");
+    throw std::runtime_error (
+		 "Size of NEW_NORMALS incorrect in Mesh::add_normals");
 
   // Note that the Pos default constructor does not initialize the Pos
   // members, so the following will grow the Mesh::normals vector,
@@ -278,9 +279,9 @@ Mesh::add_uvs (const std::vector<UV> &new_uvs, vert_index_t base_vert)
   // in those cases.
   //
   if (base_vert != vertex_uvs.size ())
-    throw runtime_error ("BASE_VERT incorrect in Mesh::add_uvs");
+    throw std::runtime_error ("BASE_VERT incorrect in Mesh::add_uvs");
   if (base_vert + new_uvs.size() != vertices.size ())
-    throw runtime_error ("Size of NEW_UVS incorrect in Mesh::add_uvs");
+    throw std::runtime_error ("Size of NEW_UVS incorrect in Mesh::add_uvs");
 
   vertex_uvs.insert (vertex_uvs.end(), new_uvs.begin(), new_uvs.end());
 }
@@ -302,9 +303,9 @@ Mesh::add_uvs (const std::vector<float> &new_uvs, vert_index_t base_vert)
   // in those cases.
   //
   if (base_vert != vertex_uvs.size ())
-    throw runtime_error ("BASE_VERT incorrect in Mesh::add_uvs");
+    throw std::runtime_error ("BASE_VERT incorrect in Mesh::add_uvs");
   if (base_vert + num_new_uvs != vertices.size ())
-    throw runtime_error ("Size of NEW_UVS incorrect in Mesh::add_uvs");
+    throw std::runtime_error ("Size of NEW_UVS incorrect in Mesh::add_uvs");
 
   // Note that the UV default constructor does not initialize the UV
   // members, so the following will grow the Mesh::uvs vector, but not
@@ -666,7 +667,7 @@ private:
   // Normal groups allocated so far.  The first entry is for vertex
   // BASE_VERT, and all others follow in vertex order.
   //
-  vector<Group> groups;
+  std::vector<Group> groups;
 };
 
 // Add a face with normal FACE_NORMAL to the normal group for VERTEX, or to
@@ -703,7 +704,8 @@ VertNormGroups::add_face (const Mesh::MVec &face_normal,
     }
   else if (cos_fg < 0)
     {
-      throw runtime_error ("Face orientation mismatch while smoothing mesh");
+      throw std::runtime_error (
+		   "Face orientation mismatch while smoothing mesh");
     }
   else
     {
