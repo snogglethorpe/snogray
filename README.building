@@ -39,17 +39,44 @@ DEPENDENCIES
    handling), libpng (for PNG format image handling) OpenEXR (for EXR
    format HDR image handling), etc.
 
-   Snogray requires Lua (the language), but source-code for a Lua
-   implementation should be bundled with the snogray distribution (in
-   the subdirectory "lua"), so no external library is required
-   (although if an external library is present on the system, the
-   snogray configuration step will attempt to use it).
+   In many cases, the appropriate dependencies are found automatically
 
-   The snogray Lua-C++ interface is automatically generated using the
-   "SWIG" interface generator.  A pre-generated interface should be
-   included with the distribution, so SWIG doesn't actually need to be
-   installed for normal compilation.  However, for those doing
-   development, SWIG is required if the Lua-C++ interface is changed.
+   A few specific points:
 
-   [For development snapshots, source code for Lua and pre-generated
-   SWIG interface files may not be present.]
+   * Lua -- Snogray requires Lua (the language).
+
+     A Lua implementation should be included in the snogray
+     distribution (in the subdirectory "lua"), so no external library
+     is required (although if an external library is present on the
+     system, the snogray configuration step will attempt to use it).
+
+     If Lua is _not_ bundled with the distribution (for instance, if
+     this is a development snapshot), and there is no system Lua
+     library installed, a Lua source-directory may be explicitly
+     specified using the configure "--with-lua-src" option.
+
+   * SWIG -- The snogray Lua-C++ interface is automatically generated
+     using the "SWIG" interface generator.
+
+     A pre-generated interface should be included with the
+     distribution, so SWIG doesn't actually need to be installed for
+     normal compilation.  However, for those doing development, SWIG
+     is required if the Lua-C++ interface is changed.
+
+   * Include-file / library paths -- On some systems, include files
+     and libraries may located in non-standard locations, and the
+     configure file will need some help to find them.  An example is
+     FreeBSD and other *BSD systems, where libraries installed via the
+     "ports" system are installed in subdirectories of /usr/local,
+     which the compiler doesn't search by default.
+
+     To specify alternate places to search for include files and
+     libraries, the "CPPFLAGS" and "LDFLAGS" variables may be set on
+     the configure command line.  For instance, on FreeBSD, it's often
+     desirable to find package installed in /usr/local; to do this,
+     invoke configure like:
+
+        ./configure CPPFLAGS='-I/usr/local/include' LDFLAGS='-L/usr/local/lib'
+
+     [This isn't always necessary; for instance, libraries which use
+     the "pkg-config" system are found in /usr/local by default.]

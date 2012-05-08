@@ -137,18 +137,6 @@ OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 OPT_SIZE = $(CXX_OPT_SIZE_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
 
-# Override automake's default values for CFLAGS and CXXFLAGS.  If the
-# user specifies his own values on the command line, his values will
-# override these (make ignores assignments to variables with a value
-# specified by the user on the make command line).
-#
-# Generally the user shouldn't use CFLAGS or CXXFLAGS though -- rather
-#  he should use the OPT and DEBUG variables, which allow similar
-#  control in a more controllable manner.
-#
-CFLAGS =
-CXXFLAGS =
-
 # Set the default compiler options from OPT and DEBUG.  If the user
 # wants to change the optimization or debug settings, he should set one
 # of those on the make command line.
@@ -180,6 +168,13 @@ AM_CXXFLAGS += $(CXX_EXTRA_REQ_FLAGS)
 #
 AM_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS) $(libjpeg_CFLAGS)	\
 	$(libnetpbm_CFLAGS) $(LIB3DS_CFLAGS) $(liblua_CFLAGS)
+
+
+################################################################
+#
+# Linker flags
+#
+AM_LDFLAGS = $(CONFIG_LDFLAGS)
 
 
 ################################################################
