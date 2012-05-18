@@ -81,13 +81,13 @@ public:
     return
       TVec (
 	(  x * xform (0, 0)
-	 + y * xform (1, 0)
-	 + z * xform (2, 0)),
-	(  x * xform (0, 1)
+	 + y * xform (0, 1)
+	 + z * xform (0, 2)),
+	(  x * xform (1, 0)
 	 + y * xform (1, 1)
-	 + z * xform (2, 1)),
-	(  x * xform (0, 2)
-	 + y * xform (1, 2)
+	 + z * xform (1, 2)),
+	(  x * xform (2, 0)
+	 + y * xform (2, 1)
 	 + z * xform (2, 2))
 	);
   }

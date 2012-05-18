@@ -27,7 +27,7 @@ Matrix4<T>::Matrix4 ()
 {
   for (unsigned row = 0; row < 4; row++)
     for (unsigned col = 0; col < 4; col++)
-      el (col, row) = (col == row) ? T(1) : T(0);
+      el (row, col) = (col == row) ? T(1) : T(0);
 }
 
 template<typename T>
@@ -52,7 +52,7 @@ Matrix4<T>::Matrix4 (const T2 _els[16])
 {
   for (unsigned row = 0; row < 4; row++)
     for (unsigned col = 0; col < 4; col++)
-      el (col, row) = _els[row * 4 + col];
+      el (row, col) = _els[row * 4 + col];
 }
 
 template<typename T> template<typename T2>
@@ -60,7 +60,7 @@ Matrix4<T>::Matrix4 (const Matrix4<T2> &m2)
 {
   for (unsigned row = 0; row < 4; row++)
     for (unsigned col = 0; col < 4; col++)
-      els[row][col] = m2 (col, row);
+      els[row][col] = m2 (row, col);
 }
 
 template<typename T>
@@ -70,11 +70,11 @@ Matrix4<T>::operator* (const Matrix4<T> &xform) const
   Matrix4<T> result;
   for (unsigned row = 0; row < 4; row++)
     for (unsigned col = 0; col < 4; col++)
-      result (col, row)
-	= el (0, row) * xform (col, 0)
-	+ el (1, row) * xform (col, 1)
-	+ el (2, row) * xform (col, 2)
-	+ el (3, row) * xform (col, 3);
+      result (row, col)
+	= el (row, 0) * xform (0, col)
+	+ el (row, 1) * xform (1, col)
+	+ el (row, 2) * xform (2, col)
+	+ el (row, 3) * xform (3, col);
   return result;
 }
 
@@ -85,7 +85,7 @@ Matrix4<T>::operator* (T scale) const
   Matrix4<T> result;
   for (unsigned row = 0; row < 4; row++)
     for (unsigned col = 0; col < 4; col++)
-      result (col, row) = el (col, row) * scale;
+      result (row, col) = el (row, col) * scale;
   return result;
 }
 
@@ -117,14 +117,14 @@ Matrix4<T>
 Matrix4<T>::transpose () const
 {
   Matrix4 result;
-  result (0, 0) = el (0, 0); result (0, 1) = el (1, 0);
-  result (0, 2) = el (2, 0); result (0, 3) = el (3, 0);
-  result (1, 0) = el (0, 1); result (1, 1) = el (1, 1);
-  result (1, 2) = el (2, 1); result (1, 3) = el (3, 1);
-  result (2, 0) = el (0, 2); result (2, 1) = el (1, 2);
-  result (2, 2) = el (2, 2); result (2, 3) = el (3, 2);
-  result (3, 0) = el (0, 3); result (3, 1) = el (1, 3);
-  result (3, 2) = el (2, 3); result (3, 3) = el (3, 3);
+  result (0, 0) = el (0, 0); result (1, 0) = el (0, 1);
+  result (2, 0) = el (0, 2); result (3, 0) = el (0, 3);
+  result (0, 1) = el (1, 0); result (1, 1) = el (1, 1);
+  result (2, 1) = el (1, 2); result (3, 1) = el (1, 3);
+  result (0, 2) = el (2, 0); result (1, 2) = el (2, 1);
+  result (2, 2) = el (2, 2); result (3, 2) = el (2, 3);
+  result (0, 3) = el (3, 0); result (1, 3) = el (3, 1);
+  result (2, 3) = el (3, 2); result (3, 3) = el (3, 3);
   return result;
 }
 
@@ -133,29 +133,29 @@ T
 Matrix4<T>::det () const
 {
   return
-    el(0,3) * el(1,2) * el(2,1) * el(3,0)
-    - el(0,2) * el(1,3) * el(2,1) * el(3,0)
-    - el(0,3) * el(1,1) * el(2,2) * el(3,0)
-    + el(0,1) * el(1,3) * el(2,2) * el(3,0)
-    + el(0,2) * el(1,1) * el(2,3) * el(3,0)
-    - el(0,1) * el(1,2) * el(2,3) * el(3,0)
-    - el(0,3) * el(1,2) * el(2,0) * el(3,1)
-    + el(0,2) * el(1,3) * el(2,0) * el(3,1)
-    + el(0,3) * el(1,0) * el(2,2) * el(3,1)
-    - el(0,0) * el(1,3) * el(2,2) * el(3,1)
-    - el(0,2) * el(1,0) * el(2,3) * el(3,1)
-    + el(0,0) * el(1,2) * el(2,3) * el(3,1)
-    + el(0,3) * el(1,1) * el(2,0) * el(3,2)
-    - el(0,1) * el(1,3) * el(2,0) * el(3,2)
-    - el(0,3) * el(1,0) * el(2,1) * el(3,2)
-    + el(0,0) * el(1,3) * el(2,1) * el(3,2)
-    + el(0,1) * el(1,0) * el(2,3) * el(3,2)
-    - el(0,0) * el(1,1) * el(2,3) * el(3,2)
-    - el(0,2) * el(1,1) * el(2,0) * el(3,3)
-    + el(0,1) * el(1,2) * el(2,0) * el(3,3)
-    + el(0,2) * el(1,0) * el(2,1) * el(3,3)
-    - el(0,0) * el(1,2) * el(2,1) * el(3,3)
-    - el(0,1) * el(1,0) * el(2,2) * el(3,3)
+    el(3,0) * el(2,1) * el(1,2) * el(0,3)
+    - el(2,0) * el(3,1) * el(1,2) * el(0,3)
+    - el(3,0) * el(1,1) * el(2,2) * el(0,3)
+    + el(1,0) * el(3,1) * el(2,2) * el(0,3)
+    + el(2,0) * el(1,1) * el(3,2) * el(0,3)
+    - el(1,0) * el(2,1) * el(3,2) * el(0,3)
+    - el(3,0) * el(2,1) * el(0,2) * el(1,3)
+    + el(2,0) * el(3,1) * el(0,2) * el(1,3)
+    + el(3,0) * el(0,1) * el(2,2) * el(1,3)
+    - el(0,0) * el(3,1) * el(2,2) * el(1,3)
+    - el(2,0) * el(0,1) * el(3,2) * el(1,3)
+    + el(0,0) * el(2,1) * el(3,2) * el(1,3)
+    + el(3,0) * el(1,1) * el(0,2) * el(2,3)
+    - el(1,0) * el(3,1) * el(0,2) * el(2,3)
+    - el(3,0) * el(0,1) * el(1,2) * el(2,3)
+    + el(0,0) * el(3,1) * el(1,2) * el(2,3)
+    + el(1,0) * el(0,1) * el(3,2) * el(2,3)
+    - el(0,0) * el(1,1) * el(3,2) * el(2,3)
+    - el(2,0) * el(1,1) * el(0,2) * el(3,3)
+    + el(1,0) * el(2,1) * el(0,2) * el(3,3)
+    + el(2,0) * el(0,1) * el(1,2) * el(3,3)
+    - el(0,0) * el(2,1) * el(1,2) * el(3,3)
+    - el(1,0) * el(0,1) * el(2,2) * el(3,3)
     + el(0,0) * el(1,1) * el(2,2) * el(3,3);
 }
 
@@ -166,69 +166,69 @@ Matrix4<T>::adjoint () const
   Matrix4<T> result;
 
   result(0,0) =
-    el(1,2)*el(2,3)*el(3,1) - el(1,3)*el(2,2)*el(3,1)
-    + el(1,3)*el(2,1)*el(3,2) - el(1,1)*el(2,3)*el(3,2)
-    - el(1,2)*el(2,1)*el(3,3) + el(1,1)*el(2,2)*el(3,3);
-  result(0,1) =
-    el(0,3)*el(2,2)*el(3,1) - el(0,2)*el(2,3)*el(3,1)
-    - el(0,3)*el(2,1)*el(3,2) + el(0,1)*el(2,3)*el(3,2)
-    + el(0,2)*el(2,1)*el(3,3) - el(0,1)*el(2,2)*el(3,3);
-  result(0,2) =
-    el(0,2)*el(1,3)*el(3,1) - el(0,3)*el(1,2)*el(3,1)
-    + el(0,3)*el(1,1)*el(3,2) - el(0,1)*el(1,3)*el(3,2)
-    - el(0,2)*el(1,1)*el(3,3) + el(0,1)*el(1,2)*el(3,3);
-  result(0,3) =
-    el(0,3)*el(1,2)*el(2,1) - el(0,2)*el(1,3)*el(2,1)
-    - el(0,3)*el(1,1)*el(2,2) + el(0,1)*el(1,3)*el(2,2)
-    + el(0,2)*el(1,1)*el(2,3) - el(0,1)*el(1,2)*el(2,3);
+    el(2,1)*el(3,2)*el(1,3) - el(3,1)*el(2,2)*el(1,3)
+    + el(3,1)*el(1,2)*el(2,3) - el(1,1)*el(3,2)*el(2,3)
+    - el(2,1)*el(1,2)*el(3,3) + el(1,1)*el(2,2)*el(3,3);
   result(1,0) =
-    el(1,3)*el(2,2)*el(3,0) - el(1,2)*el(2,3)*el(3,0)
-    - el(1,3)*el(2,0)*el(3,2) + el(1,0)*el(2,3)*el(3,2)
-    + el(1,2)*el(2,0)*el(3,3) - el(1,0)*el(2,2)*el(3,3);
-  result(1,1) =
-    el(0,2)*el(2,3)*el(3,0) - el(0,3)*el(2,2)*el(3,0)
-    + el(0,3)*el(2,0)*el(3,2) - el(0,0)*el(2,3)*el(3,2)
-    - el(0,2)*el(2,0)*el(3,3) + el(0,0)*el(2,2)*el(3,3);
-  result(1,2) =
-    el(0,3)*el(1,2)*el(3,0) - el(0,2)*el(1,3)*el(3,0)
-    - el(0,3)*el(1,0)*el(3,2) + el(0,0)*el(1,3)*el(3,2)
-    + el(0,2)*el(1,0)*el(3,3) - el(0,0)*el(1,2)*el(3,3);
-  result(1,3) =
-    el(0,2)*el(1,3)*el(2,0) - el(0,3)*el(1,2)*el(2,0)
-    + el(0,3)*el(1,0)*el(2,2) - el(0,0)*el(1,3)*el(2,2)
-    - el(0,2)*el(1,0)*el(2,3) + el(0,0)*el(1,2)*el(2,3);
+    el(3,0)*el(2,2)*el(1,3) - el(2,0)*el(3,2)*el(1,3)
+    - el(3,0)*el(1,2)*el(2,3) + el(1,0)*el(3,2)*el(2,3)
+    + el(2,0)*el(1,2)*el(3,3) - el(1,0)*el(2,2)*el(3,3);
   result(2,0) =
-    el(1,1)*el(2,3)*el(3,0) - el(1,3)*el(2,1)*el(3,0)
-    + el(1,3)*el(2,0)*el(3,1) - el(1,0)*el(2,3)*el(3,1)
-    - el(1,1)*el(2,0)*el(3,3) + el(1,0)*el(2,1)*el(3,3);
-  result(2,1) =
-    el(0,3)*el(2,1)*el(3,0) - el(0,1)*el(2,3)*el(3,0)
-    - el(0,3)*el(2,0)*el(3,1) + el(0,0)*el(2,3)*el(3,1)
-    + el(0,1)*el(2,0)*el(3,3) - el(0,0)*el(2,1)*el(3,3);
-  result(2,2) =
-    el(0,1)*el(1,3)*el(3,0) - el(0,3)*el(1,1)*el(3,0)
-    + el(0,3)*el(1,0)*el(3,1) - el(0,0)*el(1,3)*el(3,1)
-    - el(0,1)*el(1,0)*el(3,3) + el(0,0)*el(1,1)*el(3,3);
-  result(2,3) =
-    el(0,3)*el(1,1)*el(2,0) - el(0,1)*el(1,3)*el(2,0)
-    - el(0,3)*el(1,0)*el(2,1) + el(0,0)*el(1,3)*el(2,1)
-    + el(0,1)*el(1,0)*el(2,3) - el(0,0)*el(1,1)*el(2,3);
+    el(2,0)*el(3,1)*el(1,3) - el(3,0)*el(2,1)*el(1,3)
+    + el(3,0)*el(1,1)*el(2,3) - el(1,0)*el(3,1)*el(2,3)
+    - el(2,0)*el(1,1)*el(3,3) + el(1,0)*el(2,1)*el(3,3);
   result(3,0) =
-    el(1,2)*el(2,1)*el(3,0) - el(1,1)*el(2,2)*el(3,0)
-    - el(1,2)*el(2,0)*el(3,1) + el(1,0)*el(2,2)*el(3,1)
-    + el(1,1)*el(2,0)*el(3,2) - el(1,0)*el(2,1)*el(3,2);
+    el(3,0)*el(2,1)*el(1,2) - el(2,0)*el(3,1)*el(1,2)
+    - el(3,0)*el(1,1)*el(2,2) + el(1,0)*el(3,1)*el(2,2)
+    + el(2,0)*el(1,1)*el(3,2) - el(1,0)*el(2,1)*el(3,2);
+  result(0,1) =
+    el(3,1)*el(2,2)*el(0,3) - el(2,1)*el(3,2)*el(0,3)
+    - el(3,1)*el(0,2)*el(2,3) + el(0,1)*el(3,2)*el(2,3)
+    + el(2,1)*el(0,2)*el(3,3) - el(0,1)*el(2,2)*el(3,3);
+  result(1,1) =
+    el(2,0)*el(3,2)*el(0,3) - el(3,0)*el(2,2)*el(0,3)
+    + el(3,0)*el(0,2)*el(2,3) - el(0,0)*el(3,2)*el(2,3)
+    - el(2,0)*el(0,2)*el(3,3) + el(0,0)*el(2,2)*el(3,3);
+  result(2,1) =
+    el(3,0)*el(2,1)*el(0,3) - el(2,0)*el(3,1)*el(0,3)
+    - el(3,0)*el(0,1)*el(2,3) + el(0,0)*el(3,1)*el(2,3)
+    + el(2,0)*el(0,1)*el(3,3) - el(0,0)*el(2,1)*el(3,3);
   result(3,1) =
-    el(0,1)*el(2,2)*el(3,0) - el(0,2)*el(2,1)*el(3,0)
-    + el(0,2)*el(2,0)*el(3,1) - el(0,0)*el(2,2)*el(3,1)
-    - el(0,1)*el(2,0)*el(3,2) + el(0,0)*el(2,1)*el(3,2);
+    el(2,0)*el(3,1)*el(0,2) - el(3,0)*el(2,1)*el(0,2)
+    + el(3,0)*el(0,1)*el(2,2) - el(0,0)*el(3,1)*el(2,2)
+    - el(2,0)*el(0,1)*el(3,2) + el(0,0)*el(2,1)*el(3,2);
+  result(0,2) =
+    el(1,1)*el(3,2)*el(0,3) - el(3,1)*el(1,2)*el(0,3)
+    + el(3,1)*el(0,2)*el(1,3) - el(0,1)*el(3,2)*el(1,3)
+    - el(1,1)*el(0,2)*el(3,3) + el(0,1)*el(1,2)*el(3,3);
+  result(1,2) =
+    el(3,0)*el(1,2)*el(0,3) - el(1,0)*el(3,2)*el(0,3)
+    - el(3,0)*el(0,2)*el(1,3) + el(0,0)*el(3,2)*el(1,3)
+    + el(1,0)*el(0,2)*el(3,3) - el(0,0)*el(1,2)*el(3,3);
+  result(2,2) =
+    el(1,0)*el(3,1)*el(0,3) - el(3,0)*el(1,1)*el(0,3)
+    + el(3,0)*el(0,1)*el(1,3) - el(0,0)*el(3,1)*el(1,3)
+    - el(1,0)*el(0,1)*el(3,3) + el(0,0)*el(1,1)*el(3,3);
   result(3,2) =
-    el(0,2)*el(1,1)*el(3,0) - el(0,1)*el(1,2)*el(3,0)
-    - el(0,2)*el(1,0)*el(3,1) + el(0,0)*el(1,2)*el(3,1)
-    + el(0,1)*el(1,0)*el(3,2) - el(0,0)*el(1,1)*el(3,2);
+    el(3,0)*el(1,1)*el(0,2) - el(1,0)*el(3,1)*el(0,2)
+    - el(3,0)*el(0,1)*el(1,2) + el(0,0)*el(3,1)*el(1,2)
+    + el(1,0)*el(0,1)*el(3,2) - el(0,0)*el(1,1)*el(3,2);
+  result(0,3) =
+    el(2,1)*el(1,2)*el(0,3) - el(1,1)*el(2,2)*el(0,3)
+    - el(2,1)*el(0,2)*el(1,3) + el(0,1)*el(2,2)*el(1,3)
+    + el(1,1)*el(0,2)*el(2,3) - el(0,1)*el(1,2)*el(2,3);
+  result(1,3) =
+    el(1,0)*el(2,2)*el(0,3) - el(2,0)*el(1,2)*el(0,3)
+    + el(2,0)*el(0,2)*el(1,3) - el(0,0)*el(2,2)*el(1,3)
+    - el(1,0)*el(0,2)*el(2,3) + el(0,0)*el(1,2)*el(2,3);
+  result(2,3) =
+    el(2,0)*el(1,1)*el(0,3) - el(1,0)*el(2,1)*el(0,3)
+    - el(2,0)*el(0,1)*el(1,3) + el(0,0)*el(2,1)*el(1,3)
+    + el(1,0)*el(0,1)*el(2,3) - el(0,0)*el(1,1)*el(2,3);
   result(3,3) =
-    el(0,1)*el(1,2)*el(2,0) - el(0,2)*el(1,1)*el(2,0)
-    + el(0,2)*el(1,0)*el(2,1) - el(0,0)*el(1,2)*el(2,1)
-    - el(0,1)*el(1,0)*el(2,2) + el(0,0)*el(1,1)*el(2,2);
+    el(1,0)*el(2,1)*el(0,2) - el(2,0)*el(1,1)*el(0,2)
+    + el(2,0)*el(0,1)*el(1,2) - el(0,0)*el(2,1)*el(1,2)
+    - el(1,0)*el(0,1)*el(2,2) + el(0,0)*el(1,1)*el(2,2);
 
   return result;
 }
@@ -248,7 +248,7 @@ Matrix4<T>::is_identity () const
     for (unsigned col = 0; col < 4; col++)
       {
 	T goal = (row == col) ? T(1) : T(0);
-	T delta = abs (el (col, row) - goal);
+	T delta = abs (el (row, col) - goal);
 	if (delta > T (0.000001))
 	  return false;
       }

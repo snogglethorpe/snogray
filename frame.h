@@ -55,10 +55,10 @@ public:
   //
   Frame (const Matrix4<dist_t> &frame_to_world)
     : origin (
-	 frame_to_world (3, 0), frame_to_world (3, 1), frame_to_world (3, 2)),
-      x (frame_to_world (0, 0), frame_to_world (0, 1), frame_to_world (0, 2)),
-      y (frame_to_world (1, 0), frame_to_world (1, 1), frame_to_world (1, 2)),
-      z (frame_to_world (2, 0), frame_to_world (2, 1), frame_to_world (2, 2))
+	frame_to_world (0, 3), frame_to_world (1, 3), frame_to_world (2, 3)),
+      x (frame_to_world (0, 0), frame_to_world (1, 0), frame_to_world (2, 0)),
+      y (frame_to_world (0, 1), frame_to_world (1, 1), frame_to_world (2, 1)),
+      z (frame_to_world (0, 2), frame_to_world (1, 2), frame_to_world (2, 2))
   { }
 
   // A frame with the given _Z basis vector; the other basis vectors are

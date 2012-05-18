@@ -1,6 +1,6 @@
 // matrix4.h -- 4 x 4 matrices
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,11 +40,11 @@ public:
   template<typename T2>
   explicit Matrix4 (const Matrix4<T2> &m2);
 
-  T &operator() (unsigned col, unsigned row) { return els[row][col]; }
-  const T &operator() (unsigned col, unsigned row) const { return els[row][col]; }
+  T &operator() (unsigned row, unsigned col) { return els[row][col]; }
+  const T &operator() (unsigned row, unsigned col) const { return els[row][col]; }
 
-  T &el (unsigned col, unsigned row) { return els[row][col]; }
-  const T &el (unsigned col, unsigned row) const { return els[row][col]; }
+  T &el (unsigned row, unsigned col) { return els[row][col]; }
+  const T &el (unsigned row, unsigned col) const { return els[row][col]; }
 
   Matrix4 operator* (const Matrix4 &xform) const;
   Matrix4 operator* (T scale) const;

@@ -1,6 +1,6 @@
 // uv.h -- UV datatype, for holding 2d texture coordinates
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -33,8 +33,8 @@ public:
   //
   TUV transformed (const XformBase<T> &xform) const
   {
-    return TUV ((u * xform (0, 0) + v * xform (1, 0) + xform (3, 0)),
-		(u * xform (0, 1) + v * xform (1, 1) + xform (3, 1)));
+    return TUV ((u * xform (0, 0) + v * xform (0, 1) + xform (0, 3)),
+		(u * xform (1, 0) + v * xform (1, 1) + xform (1, 3)));
   }
 
   // Transform this UV by XFORM.

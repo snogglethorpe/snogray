@@ -1,6 +1,6 @@
 // xform.h -- 3d affine transformations
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -39,17 +39,17 @@ public:
   template<typename T2>
   TXform (const Tuple3<T2> &tup)
   {
-    el (3, 0) = tup.x;
-    el (3, 1) = tup.y;
-    el (3, 2) = tup.z;
+    el (0, 3) = tup.x;
+    el (1, 3) = tup.y;
+    el (2, 3) = tup.z;
   }
 
   // A UV value yields a 2d translation
   template<typename T2>
   TXform (const TUV<T2> &uv)
   {
-    el (3, 0) = uv.u;
-    el (3, 1) = uv.v;
+    el (0, 3) = uv.u;
+    el (1, 3) = uv.v;
   }
 
   // Allow easy down-casting from a raw matrix
@@ -105,8 +105,8 @@ public:
     TXform xform;
     T sin_a = sin (angle), cos_a = cos (angle);
     xform (1, 1) = cos_a;
-    xform (2, 1) = -sin_a;
-    xform (1, 2) = sin_a;
+    xform (1, 2) = -sin_a;
+    xform (2, 1) = sin_a;
     xform (2, 2) = cos_a;
     return xform;
   }
@@ -119,8 +119,8 @@ public:
     TXform xform;
     T sin_a = sin (angle), cos_a = cos (angle);
     xform (0, 0) = cos_a;
-    xform (2, 0) = sin_a;
-    xform (0, 2) = -sin_a;
+    xform (0, 2) = sin_a;
+    xform (2, 0) = -sin_a;
     xform (2, 2) = cos_a;
     return xform;
   }
@@ -133,8 +133,8 @@ public:
     TXform xform;
     T sin_a = sin (angle), cos_a = cos (angle);
     xform (0, 0) = cos_a;
-    xform (1, 0) = -sin_a;
-    xform (0, 1) = sin_a;
+    xform (0, 1) = -sin_a;
+    xform (1, 0) = sin_a;
     xform (1, 1) = cos_a;
     return xform;
   }
@@ -176,9 +176,9 @@ public:
   basis (const TVec<T> &x_axis, const TVec<T> &y_axis, const TVec<T> &z_axis)
   {
     TXform xform;
-    xform (0, 0) = x_axis.x; xform (0, 1) = x_axis.y; xform (0, 2) = x_axis.z;
-    xform (1, 0) = y_axis.x; xform (1, 1) = y_axis.y; xform (1, 2) = y_axis.z;
-    xform (2, 0) = z_axis.x; xform (2, 1) = z_axis.y; xform (2, 2) = z_axis.z;
+    xform (0, 0) = x_axis.x; xform (1, 0) = x_axis.y; xform (2, 0) = x_axis.z;
+    xform (0, 1) = y_axis.x; xform (1, 1) = y_axis.y; xform (2, 1) = y_axis.z;
+    xform (0, 2) = z_axis.x; xform (1, 2) = z_axis.y; xform (2, 2) = z_axis.z;
     return xform;
   }
 
@@ -187,9 +187,9 @@ public:
   //
   TXform &translate (T x, T y, T z = 0)
   {
-    el (3, 0) += x;
-    el (3, 1) += y;
-    el (3, 2) += z;
+    el (0, 3) += x;
+    el (1, 3) += y;
+    el (2, 3) += z;
     return *this;
   }
   TXform &translate (const TVec<T> &offs)
@@ -296,13 +296,13 @@ public:
     return
       TVec<T> (
 	(  vec.x * el (0, 0)
-	 + vec.y * el (0, 1)
-	 + vec.z * el (0, 2)),
-	(  vec.x * el (1, 0)
+	 + vec.y * el (1, 0)
+	 + vec.z * el (2, 0)),
+	(  vec.x * el (0, 1)
 	 + vec.y * el (1, 1)
-	 + vec.z * el (1, 2)),
-	(  vec.x * el (2, 0)
-	 + vec.y * el (2, 1)
+	 + vec.z * el (2, 1)),
+	(  vec.x * el (0, 2)
+	 + vec.y * el (1, 2)
 	 + vec.z * el (2, 2))
 	);
   }

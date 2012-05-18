@@ -1,6 +1,6 @@
 // pos.h -- Position datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -79,17 +79,17 @@ public:
     return
       TPos (
 	(  x * xform (0, 0)
-	 + y * xform (1, 0)
-	 + z * xform (2, 0)
-	 +     xform (3, 0)),
-	(  x * xform (0, 1)
+	 + y * xform (0, 1)
+	 + z * xform (0, 2)
+	 +     xform (0, 3)),
+	(  x * xform (1, 0)
 	 + y * xform (1, 1)
-	 + z * xform (2, 1)
-	 +     xform (3, 1)),
-	(  x * xform (0, 2)
-	 + y * xform (1, 2)
+	 + z * xform (1, 2)
+	 +     xform (1, 3)),
+	(  x * xform (2, 0)
+	 + y * xform (2, 1)
 	 + z * xform (2, 2)
-	 +     xform (3, 2))
+	 +     xform (2, 3))
 	);
   }
 
