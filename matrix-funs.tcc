@@ -65,24 +65,24 @@ cholesky_decomposition (const Matrix<T> &M)
 
   for (unsigned i = 0; i < size; i++)
     {
-      // Compute Lji for j < i
+      // Compute Lij for j < i
       //
       for (unsigned j = 0; j < i; j++)
 	{
-	  T sum_Lki_Lkj = 0;
+	  T sum_Lik_Ljk = 0;
 	  for (unsigned k = 0; k < i; k++)
-	    sum_Lki_Lkj += L(k,i) * L(k,j);
+	    sum_Lik_Ljk += L(i,k) * L(j,k);
 
-	  L(j,i) = (M(j,i) - sum_Lki_Lkj) / L(j,j);
+	  L(i,j) = (M(i,j) - sum_Lik_Ljk) / L(j,j);
 	}
 
       // Compute Lii
       //
-      T sum_Lki_sq = 0;
+      T sum_Lik_sq = 0;
       for (unsigned k = 0; k < i; k++)
-	sum_Lki_sq += L(k,i)*L(k,i);
+	sum_Lik_sq += L(i,k)*L(i,k);
 
-      L(i,i) = sqrt (M(i,i) - sum_Lki_sq);
+      L(i,i) = sqrt (M(i,i) - sum_Lik_sq);
 
       // If decomposition failed, return a failure indicator.
       //
@@ -92,10 +92,10 @@ cholesky_decomposition (const Matrix<T> &M)
 	  break;
 	}
 
-      // Fill in Lji with zero for j > i
+      // Fill in Lij with zero for j > i
       //
       for (unsigned j = i + 1; j < size; j++)
-	L(j,i) = 0;
+	L(i,j) = 0;
     }
 
   return L;
@@ -121,7 +121,7 @@ forward_substitution (const Matrix<T> &L, const Matrix<T> &B)
   unsigned size = L.rows();
   unsigned num_eqns = B.columns();
 
-  Matrix<T> X (num_eqns, size);
+  Matrix<T> X (size, num_eqns);
 
   // Each column of B represents a separate equation, which we solve
   // one by one.
@@ -159,11 +159,11 @@ forward_substitution (const Matrix<T> &L, const Matrix<T> &B)
 	  //
 	  T sum = 0;
 	  for (unsigned col = 0; col < row; col++)
-	    sum += L (col, row) * X (eqn, col);
+	    sum += L (row, col) * X (col, eqn);
 
 	  // Now compute X(row).
 	  //
-	  X (eqn, row) = (B (eqn, row) - sum) / L (row, row);
+	  X (row, eqn) = (B (row, eqn) - sum) / L (row, row);
 	}
     }
 
@@ -190,7 +190,7 @@ back_substitution (const Matrix<T> &U, const Matrix<T> &B)
   unsigned size = U.rows();
   unsigned num_eqns = B.columns();
 
-  Matrix<T> X (num_eqns, size);
+  Matrix<T> X (size, num_eqns);
 
   // Each column of B represents a separate equation, which we solve
   // one by one.
@@ -234,11 +234,11 @@ back_substitution (const Matrix<T> &U, const Matrix<T> &B)
 	  //
 	  T sum = 0;
 	  for (int col = size - 1; col > row; col--)
-	    sum += U (col, row) * X (eqn, col);
+	    sum += U (row, col) * X (col, eqn);
 
 	  // Now compute X(row).
 	  //
-	  X (eqn, row) = (B (eqn, row) - sum) / U (row, row);
+	  X (row, eqn) = (B (row, eqn) - sum) / U (row, row);
 	}
     }
 

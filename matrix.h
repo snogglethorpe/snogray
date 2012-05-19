@@ -1,6 +1,6 @@
 // matrix.h -- General-purpose matrix type
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,26 +30,26 @@ public:
   // Make an empty matrix, which can later be assigned to from a
   // non-empty matrix.
   //
-  Matrix () : _columns (0), _rows (0) { }
+  Matrix () : _rows (0), _columns (0) { }
 
-  // Make a COLUMNS x ROWS sized matrix with uninitialized ata.
+  // Make a COLUMNS x ROWS sized matrix with uninitialized data.
   //
-  Matrix (unsigned columns, unsigned rows)
-    : _columns (columns), _rows (rows),
-      _data (columns * rows)	// default-initialized!
+  Matrix (unsigned rows, unsigned columns)
+    : _rows (rows), _columns (columns),
+      _data (rows * columns)	// default-initialized!
   { }
 
-  // Make a COLUMNS x ROWS sized matrix with data copied from INIT
+  // Make a ROWS x COLUMNS sized matrix with data copied from INIT
   // (which should contain the data in standard row-major C order).
   //
-  Matrix (unsigned columns, unsigned rows, const std::vector<T> &init)
-    : _columns (columns), _rows (rows), _data (init)
+  Matrix (unsigned rows, unsigned columns, const std::vector<T> &init)
+    : _rows (rows), _columns (columns), _data (init)
   { }
 
   // Copy-constructor.
   //
   Matrix (const Matrix &mat)
-    : _columns (mat._columns), _rows (mat._rows), _data (mat._data)
+    : _rows (mat._rows), _columns (mat._columns), _data (mat._data)
   { }
 
   // Make this into an empty matrix, by setting the number of rows and
@@ -57,7 +57,7 @@ public:
   //
   void clear ()
   {
-    _columns = _rows = 0;
+    _rows = _columns = 0;
     _data.clear ();
   }
 
@@ -71,19 +71,19 @@ public:
 
   // COL,ROW element-access operator.
   //
-  T &operator() (unsigned col, unsigned row)
+  T &operator() (unsigned row, unsigned col)
   {
     return _data[row * _columns + col];
   }
-  const T &operator() (unsigned col, unsigned row) const
+  const T &operator() (unsigned row, unsigned col) const
   {
     return _data[row * _columns + col];
   }
 
   // Matrix sizes.
   //
-  unsigned columns () const { return _columns; }
   unsigned rows () const { return _rows; }
+  unsigned columns () const { return _columns; }
 
   // Return a raw pointer to the matrix data, which is stored in
   // standard row-major C order.
@@ -105,7 +105,7 @@ public:
 
 private:
 
-  unsigned _columns, _rows;
+  unsigned _rows, _columns;
   std::vector<T> _data;
 };
 
