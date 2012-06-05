@@ -179,7 +179,7 @@ CmdLineParser::float_opt_arg (float default_val) const
 static std::string
 dashes_to_underscores (const std::string &str)
 {
-  std::string::size_type pos;
+  std::string::size_type pos = 0;
   std::string copy = str;
   while ((pos = str.find_first_of ("-", pos)) != std::string::npos)
     copy[pos] = '_';
