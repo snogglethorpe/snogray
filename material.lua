@@ -241,7 +241,9 @@ function material.mirror (reflect, _ior, under, params)
    -- convert to primitive types
    _ior = ior (_ior)
    reflect = color_tex_val (reflect)
-   under = color_tex_val (under)
+   if not is_material (under) then
+      under = color_tex_val (under)
+   end
 
    return postproc_material (raw.mirror (_ior, reflect, under), params)
 end
