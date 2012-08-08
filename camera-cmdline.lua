@@ -59,7 +59,17 @@ end
 -- (and optionally using SCN in the case auto-focus is requested).
 --
 local function interpret_camera_cmds (cmds, camera, scn)
-   -- Translate the "direction indicator" letter DIR_INDIC into a real
+   -- Return -VAL if CAMERA reverses handedness, otherwise return VAL.
+   --
+   local function negate_if_reverse_handed (val)
+      if camera.handedness_reversed then
+	 return -val
+      else
+	 return val
+      end
+   end
+
+  -- Translate the "direction indicator" letter DIR_INDIC into a real
    -- direction vector.
    --
    local function make_dir (dir_indic)
