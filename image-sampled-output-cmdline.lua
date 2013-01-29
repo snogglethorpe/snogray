@@ -1,6 +1,6 @@
 -- image-sampled-output-cmdline.lua -- Command-line parsing for image output
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -94,6 +94,10 @@ function img_output_cmdline.option_parser (params, default_aspect_ratio)
       cmdlineparser.store_with_sub_params (arg, "filter", params, "type")
    end
 
+   local function set_output_opt (arg)
+      cmdlineparser.parse_params (arg, params)
+   end
+
    return cmdlineparser {
       { "-s/--size=WIDTHxHEIGHT", set_size,
         doc = [[Set output image size to WIDTH by HEIGHT pixels]] },
@@ -118,9 +122,9 @@ function img_output_cmdline.option_parser (params, default_aspect_ratio)
                 (dithering is used by default for low-dynamic-range
 	        output formats, where it helps prevent banding of
                 very shallow gradients) ]] },
-      { "-O/--output-options", set_output_opts,
-        doc = [[Set output-image options; OPTS has the format
-		OPT1=VAL1; current options include:\+
+      { "-O/--output-option=OPTION_SPEC", set_output_opt,
+        doc = [[Set an output-image option; OPTION_SPEC has the format
+		OPTION=VALUE; current options include:\+
 		\|"format"  -- \>output file type
 		\|"gamma"   -- target gamma correction
 		\|"quality" -- image compression quality (0-100)
