@@ -1,6 +1,6 @@
 # Autoconf configuration for snogray
 #
-#  Copyright (C) 2006-2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2006-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -1183,8 +1183,17 @@ fi
 
 ##
 ## ----------------------------------------------------------------
-## Try to set optimization flags based on the type of CPU being used
+## Try to set compiler flags appropriately
 ##
+
+# Various flags get added to these, and then validated below.
+#
+# "REQ" flags are always required, even when not optimizing (e.g. for
+# correctness); "OPT" flags are optimization flags.
+#
+CXX_EXTRA_REQ_FLAGS=""
+CXX_EXTRA_OPT_FLAGS=""
+
 
 if test "$GXX" = yes; then
 
@@ -1265,13 +1274,10 @@ if test "$GXX" = yes; then
     fi
   fi
 
-  # Validate extra optimization flags.
+  # Add extra optimization flags.
   #
-  CXX_EXTRA_OPT_FLAGS="$CXX_MATH_OPT_FLAGS"
-  SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_OPT_FLAGS], [$CXX_EXTRA_OPT_FLAGS])
-
-  CXX_EXTRA_REQ_FLAGS="$CXX_MATH_REQ_FLAGS"
-  SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_REQ_FLAGS], [$CXX_EXTRA_REQ_FLAGS])
+  CXX_EXTRA_OPT_FLAGS="$CXX_EXTRA_OPT_FLAGS $CXX_MATH_OPT_FLAGS"
+  CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS $CXX_MATH_REQ_FLAGS"
 
 
   # First try the "-march=native" option
@@ -1477,13 +1483,16 @@ SNOGRAY_CHECK_CXX_LINK_FLAG([CXX_ICF_LDFLAGS], [-Wl,--icf=all])
 #
 if test x"$CXX_ICF_LDFLAGS" != x; then
   CONFIG_LDFLAGS="$CONFIG_LDFLAGS $CXX_ICF_LDFLAGS"
-
-  SNOGRAY_CHECK_CXX_FLAG([CXX_FUNCTION_SECS], [-ffunction-sections])
-
-  # We've already defined CXX_EXTRA_REQ_FLAGS above, so append to it.
-  #
-  CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS $CXX_FUNCTION_SECS"
+  CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS -ffunction-sections"
 fi
+
+
+# Validate whatever's in CXX_EXTRA_REQ_FLAGS and CXX_EXTRA_OPT_FLAGS.
+# The resulting subst in the Makefile will only contain those the
+# compiler actually accepts.
+#
+SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_REQ_FLAGS], [$CXX_EXTRA_REQ_FLAGS])
+SNOGRAY_CHECK_CXX_FLAGS([CXX_EXTRA_OPT_FLAGS], [$CXX_EXTRA_OPT_FLAGS])
 
 
 # This variable can be set by the user to pass in extra compiler
