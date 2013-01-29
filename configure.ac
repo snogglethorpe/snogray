@@ -1486,6 +1486,18 @@ if test x"$CXX_ICF_LDFLAGS" != x; then
   CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS -ffunction-sections"
 fi
 
+# gcc requires the -pthread flag when using multi-threading (without
+# -pthread, threading primitives will still _kinda_ work, with weird
+# and hard-to-debug problems, like mutexes silently doing nothing...),
+# so add that if necessary.
+#
+# If other compilers have some a similar requirement for other
+# options, they could be added here.
+#
+if test "$thread_api_name" != none; then
+  CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS -pthread"
+fi
+
 
 # Validate whatever's in CXX_EXTRA_REQ_FLAGS and CXX_EXTRA_OPT_FLAGS.
 # The resulting subst in the Makefile will only contain those the
