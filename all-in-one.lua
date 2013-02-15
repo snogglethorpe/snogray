@@ -1,6 +1,6 @@
 -- all-in-one.lua -- Old "all-in-one" Lua scene interface for snogray
 --
---  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -166,7 +166,7 @@ all_in_one.rotate = transform.rotate
 all_in_one.rotate_x = transform.rotate_x
 all_in_one.rotate_y = transform.rotate_y
 all_in_one.rotate_z = transform.rotate_z
-all_in_one.basis_xform = transform.basis_xform
+all_in_one.basis_xform = transform.basis
 
 all_in_one.trans = all_in_one.translate
 all_in_one.rot = all_in_one.rotate
