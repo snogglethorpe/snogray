@@ -1,6 +1,6 @@
 # Automake Makefile template for snogray
 #
-#  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -71,7 +71,7 @@ noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a	\
 	libsnoglua.a libsnogmat.a libsnograw.a libsnogrdrive.a	\
 	libsnogrender.a libsnogscene.a libsnogscenecli.a	\
 	libsnogspace.a libsnogsurf.a libsnogtex.a libsnogutil.a	\
-	libluaexts.a
+	liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -346,21 +346,17 @@ libsnoglua_a_SOURCES = invoke-lua-driver.cc invoke-lua-driver.h	\
 
 # Library dependencies of libsnoglua.a
 #
-libsnoglua_LIBS = libsnograw.a libluaexts.a $(liblua_LIBS)
+libsnoglua_LIBS = libsnograw.a liblpeg.a $(liblua_LIBS)
 
 
 ################################################################
 #
-# Library of statically-linked lua extension modules.  These could
-# also be dynamically loaded, but that needs more infrastructure work.
+# LPeg library.  This library isn't so common, so we just use our own
+# copy.
 #
 
-libluaexts_a_SOURCES = lpeg.c lpeg.h
-
-libluaexts_a_CFLAGS = $(AM_CFLAGS) -DNDEBUG
-
-# Make automake suck slightly less
-libluaexts_a_SHORTNAME = le
+liblpeg_a_SOURCES = lpcap.c lpcap.h lpcode.c lpcode.h lpprint.c		\
+	lpprint.h lptree.c lptree.h lptypes.h lpvm.c lpvm.h
 
 
 ################################################################
