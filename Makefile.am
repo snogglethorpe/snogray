@@ -128,20 +128,28 @@ endif
 
 ################################################################
 #
-# General compilation flags.  "OPT" and "DEBUG" intentionally have short
-# names so that it's easy for a user to override them from the command
-# line.  CXX_OPT_FLAGS, CXX_OPT_SIZE_FLAGS, CXX_MACH_FLAGS,
-# CXX_EXTRA_OPT_FLAGS, and EXTRA_COMPILE_FLAGS are set by configure.
+# General compilation flags.  "OPT" and "DEBUG" intentionally have
+# short names so that it's easy for a user to override them from the
+# command line.  CXX_OPT_FLAGS, CXX_OPT_SIZE_FLAGS, CXX_MACH_FLAGS,
+# and CXX_EXTRA_OPT_FLAGS are set by configure.
 #
 OPT = $(CXX_OPT_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 OPT_SIZE = $(CXX_OPT_SIZE_FLAGS) $(CXX_EXTRA_OPT_FLAGS) $(CXX_MACH_FLAGS)
 DEBUG = -g
 
 # Set the default compiler options from OPT and DEBUG.  If the user
-# wants to change the optimization or debug settings, he should set one
-# of those on the make command line.
+# wants to change the optimization or debug settings, he should set
+# one of those on the make command line.  CXX_STD_FLAGS,
+# CXX_CHECK_FLAGS, and EXTRA_COMPILE_FLAGS are set by configure.
 #
-AM_CFLAGS = $(OPT) $(DEBUG) $(EXTRA_COMPILE_FLAGS)
+# [Note that using CXX_CHECK_FLAGS in AM_CFLAGS, which is used by the
+# C compiler, is a little hacky, but usually works in practice as the
+# C and C++ compilers are usually the "same" compiler and so accept
+# mostly the same options.  If this turns out not to work for some
+# compiler, a separate "C_CHECK_FLAGS" variable could be introduced
+# which contains check options specifically for the C compiler.]
+#
+AM_CFLAGS = $(OPT) $(DEBUG) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
 AM_CXXFLAGS = $(OPT) $(DEBUG) $(CXX_STD_FLAGS) $(CXX_CHECK_FLAGS) $(EXTRA_COMPILE_FLAGS)
 
 # Versions of AM_CFLAGS and AM_CXXFLAGS for situations where we want to
