@@ -1,6 +1,6 @@
 // surface-light.h -- General-purpose area light
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -48,6 +48,8 @@ public:
   // A sampler for the surface which is lit.
   //
   UniquePtr<const Surface::Sampler> sampler;
+
+private:
 
   // Radiant emittance of this light (W / m^2).
   //
