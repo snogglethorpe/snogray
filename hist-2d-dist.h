@@ -74,6 +74,13 @@ public:
   //
   float pdf (const UV &pos) const;
 
+  // Return true if sampling this distribution will always return zero.
+  //
+  bool empty () const
+  {
+    return height == 0 || whole_row_cumulative_sums[height - 1] == 0;
+  }
+
 private:
 
   // Calculate the PDF based from the histogram HIST.  HIST's size
