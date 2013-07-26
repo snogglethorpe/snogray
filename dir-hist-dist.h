@@ -1,6 +1,6 @@
 // dir-hist-dist.h -- Sampling distribution based on a directional histogram
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,15 +28,15 @@ class DirHistDist : public Hist2dDist
 {
 public:
 
-  // This constructor allocates the necessary memory, but won't be
-  // usable until a histogram has been specified using DirHistDist::calc.
+  // This object won't be useful until a histogram has been set using
+  // DirHistDist::set_histogram.
   //
-  DirHistDist (unsigned w, unsigned h) : Hist2dDist (w, h) { }
+  DirHistDist () { }
 
   // This constructor automatically copies the size from HIST, and
   // calculates the PDF.  No references to HIST is kept.
   //
-  DirHistDist (const DirHist &hist) : Hist2dDist (hist) { calc (hist); }
+  DirHistDist (const DirHist &hist) : Hist2dDist (hist) { }
 
   // Return a sample of this distribution based on the random
   // variables in PARAM.  The PDF at the sample location is returned

@@ -1,6 +1,6 @@
 // photon-eval.cc -- Photon-map evaluation (lighting, etc)
 //
-//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,8 +35,8 @@ PhotonEval::GlobalState::GlobalState (unsigned num_search_photons,
 
 PhotonEval::PhotonEval (RenderContext &, const GlobalState &global_state)
   : global (global_state),
-    // photon_dir_hist (64, 64), photon_dir_dist (64, 64),
-    photon_dir_hist (8, 8), photon_dir_dist (8, 8)
+    // photon_dir_hist (64, 64)
+    photon_dir_hist (8, 8)
 {
 }
 
@@ -184,7 +184,7 @@ PhotonEval::photon_dist (const Intersect &isec, const PhotonMap &photon_map)
 
   // Calculate a distribution from PHOTON_DIR_HIST.
   //
-  photon_dir_dist.calc (photon_dir_hist);
+  photon_dir_dist.set_histogram (photon_dir_hist);
 
   return photon_dir_dist;
 }
