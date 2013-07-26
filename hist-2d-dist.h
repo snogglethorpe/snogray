@@ -74,9 +74,6 @@ public:
   //
   float pdf (const UV &pos) const;
 
-  unsigned width, height, size;
-  float column_width, row_height;
-
 private:
 
   // Calculate the PDF based from the histogram HIST.  HIST's size
@@ -103,6 +100,15 @@ private:
   // INDIVIDUAL_ROW_CUMULATIVE_SUMS of the beginning of the row.
   //
   float pdf (unsigned col, unsigned row, unsigned row_offs) const;
+
+  // Size of input histogram.
+  //
+  unsigned width, height, size;
+
+  // Height/width of element in the input histogram, if the entire
+  // histogram occupies a 1-by-1 unit square.
+  //	
+  float column_width, row_height;
 
   // Cumulative sum of whole-row probabilities.  Each entry is the
   // probability of choosing that row or any row before it (so the
