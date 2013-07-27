@@ -1,6 +1,6 @@
 // intersect.cc -- Datatype for recording surface-ray intersection results
 //
-//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -137,11 +137,11 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
 		      RenderContext &_context,
 		      const Material &_material,
 		      const Frame &_normal_frame,
-		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
+		      const UV &_tex_coords_uv, const UV &dTds, const UV &dTdt)
   : normal_frame (_normal_frame), geom_frame (_normal_frame),
     // v and back are initialized by Intersect::finish_init
     material (_material),
-    tex_coords (normal_frame.origin, _tex_coords),
+    tex_coords (normal_frame.origin, _tex_coords_uv),
     media (_media), context (_context)
 {
   finish_init (ray, dTds, dTdt);
@@ -151,11 +151,11 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
 		      RenderContext &_context,
 		      const Material &_material,
 		      const Frame &_normal_frame, const Frame &_geom_frame,
-		      const UV &_tex_coords, const UV &dTds, const UV &dTdt)
+		      const UV &_tex_coords_uv, const UV &dTds, const UV &dTdt)
   : normal_frame (_normal_frame), geom_frame (_geom_frame),
     // v, geom_n, and back are initialized by Intersect::finish_init
     material (_material),
-    tex_coords (normal_frame.origin, _tex_coords),
+    tex_coords (normal_frame.origin, _tex_coords_uv),
     media (_media), context (_context)
 {
   finish_init (ray, dTds, dTdt);

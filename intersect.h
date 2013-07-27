@@ -1,6 +1,6 @@
 // intersect.h -- Datatype for recording scene-ray intersection result
 //
-//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -44,11 +44,11 @@ public:
   Intersect (const Ray &ray, const Media &_media, RenderContext &context,
 	     const Material &_material,
 	     const Frame &_normal_frame,
-	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
+	     const UV &_tex_coords_uv, const UV &dTds, const UV &dTdt);
   Intersect (const Ray &ray, const Media &_media, RenderContext &context,
 	     const Material &_material,
 	     const Frame &_normal_frame, const Frame &_geom_frame,
-	     const UV &_tex_coords, const UV &dTds, const UV &dTdt);
+	     const UV &_tex_coords_uv, const UV &dTds, const UV &dTdt);
 
   // Copy-constructor.
   //

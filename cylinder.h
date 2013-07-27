@@ -1,6 +1,6 @@
 // cylinder.h -- Cylindrical surface
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -128,15 +128,23 @@ private:
     Pos isec_point;
   };
 
-  // Return the texture coordinates for object-space position OPOS on
+  // Return 2d texture coordinates for object-space position OPOS on
   // the cylinder.
   //
-  UV tex_coords (const Pos &opos) const
+  UV tex_coords_uv (const Pos &opos) const
   {
     return UV (float (atan2 (opos.y, opos.x)) * INV_PIf * 0.5f + 0.5f,
 	       float (opos.z) * 0.5f + 0.5f);
   }
 
+  // Returns a vector along a radius of the cylinder pointing at a
+  // location on the circumference corresponding to PARAM.
+  //
+  Vec radius (const UV &param) const
+  {
+    float theta = param.u * 2 * PIf;
+    return Vec (cos (theta), sin (theta), 0);
+  }
 };
 
 

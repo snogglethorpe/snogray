@@ -1,6 +1,6 @@
 // cylinder.cc -- Cylindrical surface
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -139,7 +139,7 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 
   return Intersect (ray, media, context, *cylinder.material,
 		    Frame (point, s, t, norm),
-		    cylinder.tex_coords (isec_point), dTds, dTdt);
+		    cylinder.tex_coords_uv (isec_point), dTds, dTdt);
 }
 
 // Return the texture-coordinates of this intersection.
@@ -147,7 +147,7 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 TexCoords
 Cylinder::IsecInfo::tex_coords () const
 {
-  return TexCoords (ray.end(), cylinder.tex_coords (isec_point));
+  return TexCoords (ray.end(), cylinder.tex_coords_uv (isec_point));
 }
 
 // Return the normal of this intersection (in the world frame).
