@@ -1,6 +1,6 @@
 // tex-coords.h -- Structure to hold texture coordinates
 //
-//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@ public:
   TexCoords (const Pos &_pos, const UV &_uv)
     : pos (_pos), uv (_uv)
   { }
+  TexCoords () {}  // allow to be uninitialized
 
   Pos pos;
   UV uv;
