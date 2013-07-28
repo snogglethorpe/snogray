@@ -1,6 +1,6 @@
 // ellipse.cc -- Ellipse surface
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,76 +31,10 @@ Ellipse::intersect (Ray &ray, RenderContext &context) const
   if (intersects (ray, t, u, v))
     {
       ray.t1 = t;
-      return new (context) IsecInfo (ray, *this);
+      return new (context) IsecInfo (ray, *this, UV (u,v));
     }
   return 0;
 }
-
-
-// Ellipse::IsecInfo::IsecDetails class
-
-// This class encapsulates calculation of some ellipse intersection
-// details.
-//
-struct Ellipse::IsecInfo::IsecDetails
-{
-  // Construct a texture-calculator at POINT, for ellipse ELLIPSE.
-  //
-  IsecDetails (const Pos &point, const Ellipse &ellipse)
-  {
-    // [We do initialization in the constructor body, rather than
-    // using initialization forms, because it allows us to use
-    // temporary variables.]
-
-    // The ellipse's two "radii".
-    //
-    Vec rad1 = ellipse.edge1 / 2;
-    Vec rad2 = ellipse.edge2 / 2;
-    dist_t inv_rad1_len = 1 / rad1.length ();
-    dist_t inv_rad2_len = 1 / rad1.length ();
-
-    // Center of ellipse.
-    //
-    Pos center = ellipse.corner + rad1 + rad2;
-
-    // Tangent vectors.
-    //
-    Vec s = rad1 * inv_rad1_len;
-    Vec t = cross (s, ellipse.normal);
-
-    // Normal frame.
-    //
-    norm_frame = Frame (point, s, t, ellipse.normal);
-
-    // 2d texture coordinates.
-    //
-    Vec ocent = norm_frame.to (center);
-    tex_coords = UV (float (-ocent.x * inv_rad1_len) * 0.5f + 0.5f,
-		     float (-ocent.y * inv_rad2_len) * 0.5f + 0.5f);
-    //
-    // TEX_COORDS will not be "correct" in case where edge1 and edge2 are
-    // skewed (not perpendicular); it's not really hard to calculate it
-    // correctly in that case, but a bit annoying.
-
-    // Calculate partial derivatives of texture coordinates dTds and dTdt,
-    // where T is the texture coordinates (for bump mapping).
-    //
-    dTds = UV (0.5f * float (inv_rad1_len), 0);
-    dTdt = UV (0, 0.5f * float (inv_rad2_len));
-  }
-
-  // Normal frame.
-  //
-  Frame norm_frame;
-
-  // Ellipse texture coordinates.
-  //
-  UV tex_coords;
-
-  // Texture-coordinate partial derivatives (for bump mapping).
-  //
-  UV dTds, dTdt;
-};
 
 
 // Ellipse::IsecInfo methods
@@ -111,11 +45,32 @@ Intersect
 Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   const
 {
-  IsecDetails isec_details (ray.end (), ellipse);
+  const Pos &point = ray.end ();
+
+  // The ellipse's two "radii".
+  //
+  Vec rad1 = ellipse.edge1 / 2;
+  Vec rad2 = ellipse.edge2 / 2;
+  dist_t inv_rad1_len = 1 / rad1.length ();
+  dist_t inv_rad2_len = 1 / rad2.length ();
+
+  // Tangent vectors.
+  //
+  Vec s = rad1 * inv_rad1_len;
+  Vec t = cross (s, ellipse.normal);
+
+  // Normal frame.
+  //
+  Frame norm_frame = Frame (point, s, t, ellipse.normal);
+
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  UV dTds = UV (0.5f * float (inv_rad1_len), 0);
+  UV dTdt = UV (0, 0.5f * float (inv_rad2_len));
 
   return Intersect (ray, media, context, *ellipse.material,
-		    isec_details.norm_frame, isec_details.tex_coords,
-		    isec_details.dTds, isec_details.dTdt);
+		    norm_frame, uv, dTds, dTdt);
 }
 
 // Return the texture-coordinates of this intersection.
@@ -123,10 +78,7 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 TexCoords
 Ellipse::IsecInfo::tex_coords () const
 {
-  Pos point = ray.end ();
-  IsecDetails isec_details (point, ellipse);
-
-  return TexCoords (point, isec_details.tex_coords);
+  return TexCoords (ray.end (), uv);
 }
 
 // Return the normal of this intersection (in the world frame).
@@ -168,7 +120,7 @@ Ellipse::occludes (const Ray &ray, const Medium &medium,
       if (material->fully_occluding ())
 	return true;
 
-      IsecInfo isec_info (Ray (ray, t), *this);
+      IsecInfo isec_info (Ray (ray, t), *this, UV (u, v));
       return material->occludes (isec_info, medium, total_transmittance);
     }
   return false;

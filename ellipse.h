@@ -1,6 +1,6 @@
 // ellipse.h -- Ellipse surface
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -119,8 +119,8 @@ private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
-    IsecInfo (const Ray &ray, const Ellipse &_ellipse)
-      : Surface::IsecInfo (ray), ellipse (_ellipse)
+    IsecInfo (const Ray &ray, const Ellipse &_ellipse, const UV &_uv)
+      : Surface::IsecInfo (ray), ellipse (_ellipse), uv (_uv)
     { }
 
     virtual Intersect make_intersect (const Media &media,
@@ -129,9 +129,9 @@ private:
     virtual TexCoords tex_coords () const;
     virtual Vec normal () const;
 
-    struct IsecDetails; // helper class
-
     const Ellipse &ellipse;
+
+    UV uv;
   };
 
   // Return true if this surface intersects RAY; if true is returned, the
