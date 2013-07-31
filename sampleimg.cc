@@ -1,6 +1,6 @@
 // sampleimg.cc -- Generate samples from an input image
 //
-//  Copyright (C) 2010, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -50,7 +50,8 @@ int main (int argc, char *argv[])
   const char *prog_name = argv[0];
   const char *meth_name = "radical";
   unsigned num_samples = 1000000;
-  Color samp_color = 0.1;
+  bool num_samples_specified = false; // true if user specified it
+  Color samp_color = 0;
 
   int opt;
   while ((opt = getopt_long (argc, argv, short_options, long_options, 0)) > 0)
@@ -61,6 +62,7 @@ int main (int argc, char *argv[])
 	break;
       case 'n':
 	num_samples = atoi (optarg);
+	num_samples_specified = true;
 	break;
       case 'v':
 	samp_color = atof (optarg);
@@ -111,13 +113,23 @@ int main (int argc, char *argv[])
 
   Hist2d hist (w, h);
 
+  intens_t intens_sum = 0;
   for (unsigned row = 0; row < h; row++)
     for (unsigned col = 0; col < w; col++)
       {
 	Color color = inp_image (col, row);
 	intens_t intens = color.intensity();;
+	intens_sum += intens;
 	hist.add (col, row, intens);
       }
+
+  // If the user didn't specify a value, choose one based on the image
+  // brightness.
+  //
+  if (samp_color == 0)
+    samp_color = min (intens_sum / num_samples, 1.f);
+  else if (! num_samples_specified)
+    num_samples = intens_sum / samp_color.intensity();
 
   Random rng;
   Hist2dDist dist (hist);
@@ -201,6 +213,7 @@ int main (int argc, char *argv[])
   out_image.save (argv[optind + 1]);
 
   std::cout << "number of samples:  " << num_samples << std::endl;
+  std::cout << "sample value:       " << samp_color.intensity() << std::endl;
   std::cout << "sampling method:    " << meth_name << std::endl;
   std::cout << "PDF reciprocal sum: " << inv_pdf_sum / num_samples << std::endl;
 
