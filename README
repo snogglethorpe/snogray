@@ -73,9 +73,13 @@ Authors
    distribution (in general, these are not modified from their original
    source):
 
-     * rply.c and rply.h:  Diego Nehab
+     * Diego Nehab:
+          RPly: rply.c and rply.h
 
-     * lpeg.c, lpeg.h, and lpeg.html:  Roberto Ierusalimschy
+     * Roberto Ierusalimschy:
+	  LPeg: lpcap.c, lpcap.h, lpcode.c, lpcode.h, lpprint.c
+	        lpprint.h, lptree.c, lptree.h, lptypes.h, lpvm.c,
+	        lpvm.h, and lpeg.html
 
      * Lua (if Lua is included in the distribution):  see http://www.lua.org
 
