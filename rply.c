@@ -618,6 +618,7 @@ int ply_write(p_ply ply, double value) {
     p_ply_property property = NULL;
     int type = -1;
     int breakafter = 0;
+    int spaceafter = 1;
     if (ply->welement > ply->nelements) return 0;
     element = &ply->element[ply->welement];
     if (ply->wproperty > element->nproperties) return 0;
@@ -646,13 +647,22 @@ int ply_write(p_ply ply, double value) {
     if (ply->wproperty >= element->nproperties) {
         ply->wproperty = 0;
         ply->winstance_index++;
-        if (ply->storage_mode == PLY_ASCII) breakafter = 1;
+        breakafter = 1;
+        spaceafter = 0;
     }
     if (ply->winstance_index >= element->ninstances) {
         ply->winstance_index = 0;
-        ply->welement++;
+        do {
+            ply->welement++;
+            element = &ply->element[ply->welement];
+        } while (ply->welement < ply->nelements && !element->ninstances);
     }
-    return !breakafter || putc('\n', ply->fp) > 0;
+    if (ply->storage_mode == PLY_ASCII) {
+        return (!spaceafter || putc(' ', ply->fp) > 0) && 
+               (!breakafter || putc('\n', ply->fp) > 0);
+    } else { 
+        return 1;
+    }
 }
 
 int ply_close(p_ply ply) {
@@ -1292,42 +1302,42 @@ static int ply_type_check(void) {
  * ---------------------------------------------------------------------- */
 static int oascii_int8(p_ply ply, double value) {
     if (value > PLY_INT8_MAX || value < PLY_INT8_MIN) return 0;
-    return fprintf(ply->fp, "%d ", (t_ply_int8) value) > 0;
+    return fprintf(ply->fp, "%d", (t_ply_int8) value) > 0;
 }
 
 static int oascii_uint8(p_ply ply, double value) {
     if (value > PLY_UINT8_MAX || value < 0) return 0;
-    return fprintf(ply->fp, "%d ", (t_ply_uint8) value) > 0;
+    return fprintf(ply->fp, "%d", (t_ply_uint8) value) > 0;
 }
 
 static int oascii_int16(p_ply ply, double value) {
     if (value > PLY_INT16_MAX || value < PLY_INT16_MIN) return 0;
-    return fprintf(ply->fp, "%d ", (t_ply_int16) value) > 0;
+    return fprintf(ply->fp, "%d", (t_ply_int16) value) > 0;
 }
 
 static int oascii_uint16(p_ply ply, double value) {
     if (value > PLY_UINT16_MAX || value < 0) return 0;
-    return fprintf(ply->fp, "%d ", (t_ply_uint16) value) > 0;
+    return fprintf(ply->fp, "%d", (t_ply_uint16) value) > 0;
 }
 
 static int oascii_int32(p_ply ply, double value) {
     if (value > PLY_INT32_MAX || value < PLY_INT32_MIN) return 0;
-    return fprintf(ply->fp, "%d ", (t_ply_int32) value) > 0;
+    return fprintf(ply->fp, "%d", (t_ply_int32) value) > 0;
 }
 
 static int oascii_uint32(p_ply ply, double value) {
     if (value > PLY_UINT32_MAX || value < 0) return 0;
-    return fprintf(ply->fp, "%d ", (t_ply_uint32) value) > 0;
+    return fprintf(ply->fp, "%d", (t_ply_uint32) value) > 0;
 }
 
 static int oascii_float32(p_ply ply, double value) {
     if (value < -FLT_MAX || value > FLT_MAX) return 0;
-    return fprintf(ply->fp, "%g ", (float) value) > 0;
+    return fprintf(ply->fp, "%g", (float) value) > 0;
 }
 
 static int oascii_float64(p_ply ply, double value) {
     if (value < -DBL_MAX || value > DBL_MAX) return 0;
-    return fprintf(ply->fp, "%g ", value) > 0;
+    return fprintf(ply->fp, "%g", value) > 0;
 }
 
 static int obinary_int8(p_ply ply, double value) {
