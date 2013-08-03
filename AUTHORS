@@ -1,3 +1,9 @@
-Miles Bader:  Almost everything
-Diego Nehab:  rply.c, rply.h
-Roberto Ierusalimschy: lpeg.c, lpeg.h, lpeg.html
+Miles Bader:
+    Everything not mentioned below
+
+Diego Nehab:
+    PLY parser: rply.c, rply.h
+
+Roberto Ierusalimschy:
+    LPeg: lpcap.c, lpcap.h, lpcode.c, lpcode.h, lpprint.c lpprint.h,
+	lptree.c, lptree.h, lptypes.h, lpvm.c, lpvm.h, lpeg.html
