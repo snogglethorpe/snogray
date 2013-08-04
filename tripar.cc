@@ -1,6 +1,6 @@
 // tripar.cc -- Triangle/parallelogram surface
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -169,8 +169,12 @@ Tripar::Sampler::sample (const UV &param) const
     {
       u = 1 - u;
       v = 1 - v;
-      area *= 0.5f;
     }
+
+  // Triangles have half the area of the corresponding parallelograms.
+  //
+  if (! tripar.parallelogram)
+    area *= 0.5f;
 
   // position
   Pos pos = tripar.v0 + tripar.e1 * u + tripar.e2 * v;
