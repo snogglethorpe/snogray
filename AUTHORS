@@ -2,7 +2,7 @@ Miles Bader:
     Everything not mentioned below
 
 Diego Nehab:
-    PLY parser: rply.c, rply.h
+    RPly: rply.c, rply.h
 
 Roberto Ierusalimschy:
     LPeg: lpcap.c, lpcap.h, lpcode.c, lpcode.h, lpprint.c lpprint.h,
