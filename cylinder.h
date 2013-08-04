@@ -13,6 +13,7 @@
 #ifndef SNOGRAY_CYLINDER_H
 #define SNOGRAY_CYLINDER_H
 
+#include "surface-sampler.h"
 
 #include "local-primitive.h"
 

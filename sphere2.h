@@ -1,6 +1,6 @@
 // sphere2.h -- Alternative sphere surface
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,6 +14,7 @@
 #define SNOGRAY_SPHERE2_H
 
 #include "spherical-coords.h"
+#include "surface-sampler.h"
 
 #include "local-primitive.h"
 

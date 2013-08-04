@@ -1,6 +1,6 @@
 // surface-light.cc -- General-purpose area light
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,6 +17,7 @@
 #include "scene.h"
 
 #include "surface-light.h"
+#include "surface-sampler.h"
 
 
 using namespace snogray;
