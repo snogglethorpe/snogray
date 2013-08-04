@@ -66,12 +66,12 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a	\
-	libsnogimagecli.a libsnoglight.a libsnogloaders.a	\
-	libsnoglua.a libsnogmat.a libsnograw.a libsnogrdrive.a	\
-	libsnogrender.a libsnogscene.a libsnogscenecli.a	\
-	libsnogspace.a libsnogsurf.a libsnogtex.a libsnogutil.a	\
-	liblpeg.a
+noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnoggeom.a		\
+	libsnogimage.a libsnogimagecli.a libsnoglight.a			\
+	libsnogloaders.a libsnoglua.a libsnogmat.a libsnograw.a		\
+	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
+	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
+	libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -237,18 +237,25 @@ endif
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h bsdf.h	\
-	camera.cc camera.h coords.h cyl-xform.cc cyl-xform.h dist.h	\
-	frame.h local-xform.cc local-xform.h material-dict.cc		\
-	material-dict.h material.cc material.h matrix4.cc matrix4.h	\
-	matrix4.tcc medium.h photon.h photon-map.cc photon-map.h	\
-	pos.h pos-io.cc pos-io.h primitive.cc primitive.h		\
-	quadratic-roots.h scene.cc scene.h sphere-isec.h		\
-	spherical-coords.h surface.cc surface.h surface-group.cc	\
-	surface-group.h surface-light.cc surface-light.h tex.h		\
-	tex-coords.h tripar-isec.h triv-space.h tuple3.h uv.h		\
-	uv-io.cc uv-io.h vec.h vec-io.cc vec-io.h xform.h		\
-	xform-base.h xform-io.cc xform-io.h
+libsnogscene_a_SOURCES = bsdf.h camera.cc camera.h dist.h		\
+	material-dict.cc material-dict.h material.cc material.h		\
+	medium.h photon.h photon-map.cc photon-map.h primitive.cc	\
+	primitive.h scene.cc scene.h surface.cc surface.h		\
+	surface-group.cc surface-group.h surface-light.cc		\
+	surface-light.h tex.h tex-coords.h triv-space.h
+
+
+################################################################
+#
+# Snogray geometry library, libsnoggeom.a
+#
+
+libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
+	cyl-xform.cc cyl-xform.h frame.h local-xform.cc local-xform.h	\
+	matrix4.cc matrix4.h matrix4.tcc pos.h pos-io.cc pos-io.h	\
+	quadratic-roots.h sphere-isec.h spherical-coords.h		\
+	tripar-isec.h tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc	\
+	vec-io.h xform.h xform-base.h xform-io.cc xform-io.h
 
 
 ################################################################
@@ -477,7 +484,7 @@ LIBS += $(MUDFLAP:-f%=-l%)
 # Groups of associated libraries
 #
 CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
-	libsnogtex.a libsnogspace.a libsnogscene.a
+	libsnogtex.a libsnogspace.a libsnogscene.a libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
