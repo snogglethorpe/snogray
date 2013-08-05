@@ -1,6 +1,6 @@
 // photon-map.h -- Data structure to hold photons in space
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -106,6 +106,8 @@ left_balanced_left_child_nodes (unsigned num)
 
 
 
+namespace { // keep local to file
+
 // A comparison object for sorting vectors of photon along a given
 // axis.
 //
@@ -120,6 +122,9 @@ struct photon_axis_cmp
 
   unsigned axis;
 };
+
+} // namespace
+
 
 // Copy photons from the source-range BEG to END, into the
 // PhotonMap::photons vector in kd-tree heap order, with the root at
@@ -222,6 +227,8 @@ PhotonMap::make_kdtree (const std::vector<Photon>::iterator &beg,
 
 // PhotonMap::find_photons
 
+namespace { // keep local to file
+
 // A comparison object for sorting vectors of photon pointers
 // according to their distance from a fixed point.
 //
@@ -238,6 +245,9 @@ struct photon_ptr_dist_cmp
 
   const Pos &pos;
 };
+
+} // namespace
+
 
 // Search the kd-tree starting from the node at KD_TREE_NODE_INDEX,
 // for the MAX_PHOTONS closest photons to POS.  Only photons within

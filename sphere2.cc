@@ -148,6 +148,8 @@ Sphere2::make_sampler () const
 
 // Sphere2::Sampler
 
+namespace { // keep local to file
+
 // A functor for Surface::Sampler::sample_with_approx_area_pdf.
 // Returns a sample position in world-space based on an input
 // parameter.
@@ -161,6 +163,9 @@ struct PosSampler
   }
   const Sphere2 &sphere;
 };
+
+} // namespace
+
 
 // Return a sample of this surface.
 //

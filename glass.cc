@@ -1,6 +1,6 @@
 // glass.h -- Glass (transmissive, reflective) material
 //
-//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,17 +22,19 @@
 using namespace snogray;
 
 
+namespace { // keep local to file
+
 // Common information used for refraction methods.
 //
-class snogray::GlassBsdf : public Bsdf
+class GlassBsdf : public Bsdf
 {
 public:
 
-  GlassBsdf (const Glass &glass, const Intersect &isec)
+  GlassBsdf (const Medium &medium, const Intersect &isec)
     : Bsdf (isec), entering (! isec.back),
-      old_ior ((entering ? isec.media.medium : glass._medium).ior),
+      old_ior ((entering ? isec.media.medium : medium).ior),
       new_ior ((entering
-		? glass._medium
+		? medium
 		: isec.media.enclosing_medium (isec.context.default_medium))
 	       .ior)
   { }
@@ -193,13 +195,15 @@ private:
   float old_ior, new_ior;
 };
 
+} // namespace
+
 
 // Return a new BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
 Glass::get_bsdf (const Intersect &isec) const
 {
-  return new (isec) GlassBsdf (*this, isec);
+  return new (isec) GlassBsdf (_medium, isec);
 }
 
 

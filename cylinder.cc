@@ -211,6 +211,8 @@ Cylinder::make_sampler () const
 
 // Cylinder::Sampler
 
+namespace { // keep local to file
+
 // A functor for calling Surface::Sampler::sample_with_approx_pdf.
 // Returns a sample position in world-space based on an input
 // parameter.
@@ -226,6 +228,9 @@ struct PosSampler
   }
   const Cylinder &cylinder;
 };
+
+} // namespace
+
 
 // Return a sample of this surface.
 //

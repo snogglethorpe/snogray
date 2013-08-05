@@ -1,6 +1,6 @@
 // snogbloom.cc -- Add glare effects ("bloom") to an image
 //
-//  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -27,6 +27,8 @@ using namespace snogray;
 
 
 // GaussianLimitPsf class
+
+namespace { // keep local to file
 
 // A "modifier" point-spread-function that limits another PSF to a
 // certain maximum angle, smoothly fading it towards the edge using a
@@ -63,6 +65,8 @@ private:
   //
   GaussianFilter<float> gauss_filter;
 };
+
+} // namespace
 
 
 // command-line help

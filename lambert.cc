@@ -1,6 +1,6 @@
 // lambert.cc -- Lambertian material
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,6 +20,8 @@ using namespace snogray;
 
 
 
+
+namespace { // keep local to file
 
 // The details of lambertian evaluation are in this class.
 //
@@ -81,6 +83,8 @@ private:
 
   CosDist dist;
 };
+
+} // namespace
 
 
 // Make a BSDF object for this material instantiated at ISEC.

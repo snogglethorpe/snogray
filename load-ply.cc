@@ -1,6 +1,6 @@
 // load-ply.cc -- Load a .ply format mesh file
 //
-//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,6 +28,8 @@ using namespace snogray;
 
 
 
+namespace { // keep local to file
+
 struct RplyState
 {
   RplyState (Mesh &_mesh)
@@ -47,6 +49,8 @@ struct RplyState
   //
   std::string err_str;
 };
+
+} // namespace
 
 
 // Error callback for rply library

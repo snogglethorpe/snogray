@@ -1,6 +1,6 @@
 // load-3ds.cc -- Load 3ds scene file
 //
-//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -53,6 +53,8 @@ using namespace snogray;
 #define DUMMY_NODE_NAME		"$$$DUMMY"
 
 
+
+namespace { // keep local to file
 
 struct TdsLoader
 {
@@ -150,6 +152,8 @@ struct TdsLoader
   //
   const MaterialDict &user_materials;
 };
+
+} // namespace
 
 
 // TdsLoader::convert_material
@@ -383,6 +387,8 @@ TdsLoader::set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform)
 
 
 
+namespace { // keep local to file
+
 // A structure to keep track of per-vertex information while loading in
 // a 3ds mesh.
 //
@@ -412,6 +418,9 @@ struct VertInfo
   //
   int next_split_vertex;
 };
+
+} // namespace
+
 
 // Import 3ds scene objects underneath NODE, transformed by XFORM,
 // into the snogray scene or mesh associated with this loader.

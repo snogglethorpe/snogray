@@ -1,6 +1,6 @@
 // stencil.cc -- Masking material for partial transparency/translucency
 //
-//  Copyright (C) 2010, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,6 +20,8 @@
 
 using namespace snogray;
 
+
+namespace { // keep local to file
 
 // Stencil BSDF representing the stencil at a particular intersection.
 //
@@ -125,6 +127,8 @@ private:
   float opacity_intens, inv_opacity_intens;
   Bsdf *underlying_bsdf;
 };
+
+} // namespace
 
 
 // Return a new BSDF object for this material instantiated at ISEC.

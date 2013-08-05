@@ -1,6 +1,6 @@
 // space.cc -- Space-division abstraction (hierarchically arranges 3D space)
 //
-//  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -21,6 +21,8 @@ using namespace snogray;
 
 // "Closest" intersection testing (tests all surfaces for intersection
 // with a ray, information about the closest intersection)
+
+namespace { // keep local to file
 
 struct ClosestIntersectCallback : Space::IntersectCallback
 {
@@ -50,6 +52,8 @@ struct ClosestIntersectCallback : Space::IntersectCallback
   RenderContext &context;
 };
 
+} // namespace
+
 
 // Return the closest surface in this scene which intersects the
 // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
@@ -72,6 +76,8 @@ Space::intersect (Ray &ray, RenderContext &context) const
 
 
 // Simple (boolean) intersection testing
+
+namespace { // keep local to file
 
 struct IntersectsCallback : Space::IntersectCallback
 {
@@ -100,6 +106,8 @@ struct IntersectsCallback : Space::IntersectCallback
   RenderContext &context;
 };
 
+} // namespace
+
 
 // Return true if any object intersects RAY.
 //
@@ -117,6 +125,8 @@ Space::intersects (const Ray &ray, RenderContext &context) const
 
 
 // Occludes calculation, including partial occlusion.
+
+namespace { // keep local to file
 
 struct OccludesCallback : Space::IntersectCallback
 {
@@ -151,6 +161,8 @@ struct OccludesCallback : Space::IntersectCallback
   //
   bool occludes;
 };
+
+} // namespace
 
 
 // Return true if some surface in this space completely occludes RAY.

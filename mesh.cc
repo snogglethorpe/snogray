@@ -1,6 +1,6 @@
 // mesh.cc -- Mesh surface			-*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -604,6 +604,8 @@ Mesh::Triangle::bbox () const
 
 
 
+namespace { // keep local to file
+
 // Object for calculating vertex normals.
 //
 class VertNormGroups
@@ -669,6 +671,9 @@ private:
   //
   std::vector<Group> groups;
 };
+
+} // namespace
+
 
 // Add a face with normal FACE_NORMAL to the normal group for VERTEX, or to
 // some other normal group derived from it, or to a new normal group, such

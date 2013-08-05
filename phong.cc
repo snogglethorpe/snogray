@@ -1,6 +1,6 @@
 // phong.cc -- Phong material
 //
-//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,6 +22,8 @@
 using namespace snogray;
 
 
+
+namespace { // keep local to file
 
 // The details of phong evaluation are in this class.
 //
@@ -172,6 +174,8 @@ private:
   //
   float inv_diff_weight, inv_spec_weight;
 };
+
+} // namespace
 
 
 // Make a BSDF object for this material instantiated at ISEC.
