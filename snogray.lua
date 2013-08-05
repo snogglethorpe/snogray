@@ -1,6 +1,6 @@
 -- snogray.lua -- Top-level driver for snogray
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -252,9 +252,12 @@ if not quiet then
    end
    print ("* camera: "..cam_desc)
 
-   if num_threads ~= 1 then
-      print ("* using "..tostring(num_threads).." threads")
-   end
+   print ("* using "
+	  ..commify_with_units(num_threads, " thread", " threads")
+          .." and "
+	  ..commify_with_units(render_params.samples or 1,
+			       " sample", " samples")
+          .."/pixel")
 end
 
 
