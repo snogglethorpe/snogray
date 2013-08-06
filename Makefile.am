@@ -468,7 +468,7 @@ snogpaths-data.h: Makefile
 #
 snogpaths_verbose = $(snogpaths_verbose_$(V))
 snogpaths_verbose_ = $(snogpaths_verbose_$(AM_DEFAULT_VERBOSITY))
-snogpaths_verbose_0 = @echo "  PATHS " $@;
+snogpaths_verbose_0 = @echo "  PATHS   " $@;
 
 
 ################################################################
@@ -588,7 +588,7 @@ SWIG_FLAGS = $(SWIG_NOMODULEGLOBAL_FLAG)
 #
 swig_verbose = $(swig_verbose_$(V))
 swig_verbose_ = $(swig_verbose_$(AM_DEFAULT_VERBOSITY))
-swig_verbose_0 = @echo "  SWIG  " $@;
+swig_verbose_0 = @echo "  SWIG    " $@;
 
 # Build rules for swig-generated files we use.
 #
