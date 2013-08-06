@@ -1,6 +1,6 @@
 -- load-pbrt.lua -- Load a PBRT scene file
 --
---  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -1476,15 +1476,6 @@ local function load_pbrt_in_state (state, scene, camera)
       end
       state:set_param ("output.width", width)
       state:set_param ("output.height", height)
-
-      -- Update the camera aspect ratio to match the final image size.
-      -- This must be done before setting the FOV -- otherwise later
-      -- changing the aspect ratio to fit the desired image output
-      -- image size ends up adjusting the FOV incorrectly, as it tries
-      -- to maintain the FOV of the image diagonal, instead of
-      -- whatever the scene file wanted.
-      --
-      camera:set_aspect_ratio (aspect_ratio)
 
       -- The PBRT fov parameter sets the FOV of either the horizontal or
       -- vertical dimension, depending on which is smaller.  Copy this
