@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005-2007, 2009, 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2009, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -38,7 +38,8 @@ Camera::Camera (const Format &fmt, float _scene_unit, float focal_len)
     user_up (Vec (0, 1, 0)),
     forward (Vec (0, 0, 1)), up (Vec (0, 1, 0)), right (Vec (1, 0, 0)),
     handedness_reversed (false),
-    target_dist (1), aperture (0), focus (0), scene_unit (_scene_unit)
+    target_dist (1), aperture (0), focus (0), scene_unit (_scene_unit),
+    fov_axis (Format::VERT)
 {
   // By default, set the focal length proportional to a 50mm lens for 35mm film
   //

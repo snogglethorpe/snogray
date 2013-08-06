@@ -1,6 +1,6 @@
 // camera.h -- Camera datatype
 //
-//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,37 +29,31 @@ public:
   class Format {
   public:
 
-    Format (float width, float height)
-      : film_width (width), film_height (height)
-    { }
+    enum Axis { HORIZ, VERT, DIAG };
 
-    dist_t film_diagonal () const
+    Format (float _width, float _height) : width (_width), height (_height) { }
+
+    dist_t dimension (Axis axis) const
     {
-      return sqrt (film_height * film_height + film_width * film_width);
+      switch (axis)
+	{
+	case HORIZ: return width;
+	case VERT:  return height;
+	default:    return sqrt (height * height + width * width);
+	}
     }
 
-    // Return the horizontal field-of-view of a lens with the given focal length
+    // Return the field-of-view on the given axis, of a lens with the given
+    // focal length.
     //
-    float horiz_fov (float focal_length) const
+    float fov (Axis axis, float focal_length) const
     {
-      return atan2 (film_width / 2, focal_length) * 2;
-    }
-
-    // Return the vertical field-of-view of a lens with the given focal length
-    //
-    float vertical_fov (float focal_length) const
-    {
-      return atan2 (film_height / 2, focal_length) * 2;
-    }
-
-    float diagonal_fov (float focal_length) const
-    {
-      return atan2 (film_diagonal () / 2, focal_length) * 2;
+      return atan2 (dimension (axis) / 2, focal_length) * 2;
     }
 
     // Size of film
     //
-    dist_t film_width, film_height;
+    dist_t width, height;
   };
 
   enum orient_t { ORIENT_VERT, ORIENT_HORIZ };
@@ -194,31 +188,34 @@ public:
   //
   dist_t focal_length () const
   {
-    return format.film_width / 2 / tan_half_fov_x;
+    return format.width / 2 / tan_half_fov_x;
   }
   void set_focal_length (dist_t focal_len)
   {
-    tan_half_fov_x = format.film_width / 2 / focal_len;
-    tan_half_fov_y = format.film_height / 2 / focal_len;
+    tan_half_fov_x = format.width / 2 / focal_len;
+    tan_half_fov_y = format.height / 2 / focal_len;
   }
 
-  // Return the "equivalent" focal length in format FOC_LEN_FMT:  a focal
-  // length that has the same diagonal field-of-view in FOC_LEN_FMT as the
-  // camera's focal length does in its current format.
+  // Return the "equivalent" focal length in format FOC_LEN_FMT:  a
+  // focal length that has the same field-of-view, on the axis
+  // FOV_AXIS, in FOC_LEN_FMT as the camera's focal length does in its
+  // current format.
   //
   dist_t focal_length (const Format &foc_len_fmt) const
   {
-    float diag_fov = format.diagonal_fov (focal_length ());
-    dist_t tan_half_diag_fov = tan (diag_fov / 2);
-    return foc_len_fmt.film_diagonal() / 2 / tan_half_diag_fov;
+    float fov = format.fov (fov_axis, focal_length ());
+    dist_t tan_half_fov = tan (fov / 2);
+    return foc_len_fmt.dimension (fov_axis) / 2 / tan_half_fov;
   }
-  // Set the actual focal length to something that has the same diagonal
-  // field of view that FOCAL_LEN does in FOC_LEN_FMT.
+  // Set the actual focal length to something that has the same
+  // field-of-view, on the axis FOV_AXIS, that FOCAL_LEN does in
+  // FOC_LEN_FMT.
   //
   void set_focal_length (dist_t focal_len, const Format &foc_len_fmt)
   {
-    set_diagonal_fov (foc_len_fmt.diagonal_fov (focal_len));
+    set_fov (fov_axis, foc_len_fmt.fov (fov_axis, focal_len));
   }
+
 
   void zoom (float magnification)
   {
@@ -226,39 +223,42 @@ public:
     tan_half_fov_y /= dist_t (magnification);
   }
 
-  void set_horiz_fov (float fov)
-  {
-    tan_half_fov_x = tan (fov / 2);
-    tan_half_fov_y = format.film_height / (format.film_width / tan_half_fov_x);
-  }
-  void set_vert_fov (float fov)
-  {
-    tan_half_fov_y = tan (fov / 2);
-    tan_half_fov_x = format.film_width / (format.film_height / tan_half_fov_y);
-  }
-  void set_diagonal_fov (float fov)
+
+  // Set the camera's field-of-view along the given axis.
+  //
+  void set_fov (Format::Axis axis, float fov)
   {
     float tan_half_fov = tan (fov / 2);
-    float diag_angle = float (atan2 (format.film_width, format.film_height));
-    tan_half_fov_x = sin (diag_angle) * tan_half_fov;
-    tan_half_fov_y = cos (diag_angle) * tan_half_fov;
+    float axis_dimen = format.dimension (axis);
+
+    tan_half_fov_x = tan_half_fov * (format.width / axis_dimen);
+    tan_half_fov_y = tan_half_fov * (format.height / axis_dimen);
+
+    // Remember which axis was used, so set_focal_length can preserve it.
+    //
+    fov_axis = axis;
   }
 
+  // Shortcuts for setting the field-of-view on specific axes.
+  //
+  void set_horiz_fov (float fov) { set_fov (Format::HORIZ, fov); }
+  void set_vert_fov (float fov) { set_fov (Format::VERT, fov); }
+  void set_diag_fov (float fov) { set_fov (Format::DIAG, fov); }
 
   float aspect_ratio () const
   {
-    return float (format.film_width / format.film_height);
+    return float (format.width / format.height);
   }
   void set_aspect_ratio (float aspect_ratio)
   {
     dist_t old_focal_len = focal_length ();
     Format old_format = format;
 
-    dist_t old_diagonal = format.film_diagonal ();
+    dist_t old_diagonal = format.dimension (Format::DIAG);
     dist_t new_diag_angle = atan (aspect_ratio);
 
-    format.film_width = old_diagonal * sin (new_diag_angle);
-    format.film_height = old_diagonal * cos (new_diag_angle);
+    format.width = old_diagonal * sin (new_diag_angle);
+    format.height = old_diagonal * cos (new_diag_angle);
 
     set_focal_length (old_focal_len, old_format);
   }
@@ -282,7 +282,7 @@ public:
     if (orient != cur_orient)
       // Flip the current format
       //
-      set_format (Format (format.film_height, format.film_width));
+      set_format (Format (format.height, format.width));
   }
 
   // Get/set the camera aperture for depth-of-field simulation, in f-stops.
@@ -352,6 +352,12 @@ public:
   // use for focal-length, aperture etc, nominally mm).
   //
   dist_t scene_unit;
+
+  // Whichever axis was last used to set the field-of-view.  When the
+  // camera aspect ratio is changed, this will be the axis where the
+  // field-of-view is preserved.
+  //
+  Format::Axis fov_axis;
 
   dist_t tan_half_fov_x, tan_half_fov_y;
 

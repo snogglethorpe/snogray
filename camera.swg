@@ -1,6 +1,6 @@
 # camera.swg -- SWIG interfaces for snogray cameras
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -72,7 +72,7 @@ namespace snogray {
 
     void set_horiz_fov (float fov);
     void set_vert_fov (float fov);
-    void set_diagonal_fov (float fov);
+    void set_diag_fov (float fov);
 
     float aspect_ratio () const;
     void set_aspect_ratio (float aspect_ratio);
