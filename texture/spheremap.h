@@ -1,6 +1,6 @@
 // spheremap.h -- Texture wrapped around a sphere
 //
-//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,10 +17,10 @@
 #include "snogmath.h"
 #include "excepts.h"
 #include "color.h"
-#include "uv.h"
+#include "geometry/uv.h"
 #include "matrix-tex.h"
 #include "envmap.h"
-#include "spherical-coords.h"
+#include "geometry/spherical-coords.h"
 
 
 namespace snogray {

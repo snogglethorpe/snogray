@@ -15,7 +15,7 @@
 #include "scene.h"
 #include "texture/envmap.h"
 #include "light/envmap-light.h"
-#include "xform.h"
+#include "geometry/xform.h"
 #include "load-envmap.h"
 #include "light/far-light.h"
 #include "excepts.h"

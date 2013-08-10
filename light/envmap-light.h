@@ -16,9 +16,9 @@
 
 #include "light.h"
 #include "texture/envmap.h"
-#include "frame.h"
-#include "hist-2d.h"
-#include "hist-2d-dist.h"
+#include "geometry/frame.h"
+#include "geometry/hist-2d.h"
+#include "geometry/hist-2d-dist.h"
 
 
 namespace snogray {

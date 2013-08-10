@@ -1,6 +1,6 @@
 // render-pattern.h -- Generator for pixel coordinates to be rendered
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_RENDER_PATTERN_H
 #define SNOGRAY_RENDER_PATTERN_H
 
-#include "uv.h"
+#include "geometry/uv.h"
 #include "tint.h"
 
 

@@ -1,6 +1,6 @@
 // tessel-param.h -- Parametric tessellation functions
 //
-//  Copyright (C) 2005-2008, 2011-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2011-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,8 +13,9 @@
 #ifndef SNOGRAY_TESSEL_PARAM_H
 #define SNOGRAY_TESSEL_PARAM_H
 
+#include "geometry/xform.h"
+
 #include "tessel.h"
-#include "xform.h"
 
 
 namespace snogray {

@@ -11,7 +11,7 @@
 //
 
 #include "snogmath.h"
-#include "vec.h"
+#include "geometry/vec.h"
 #include "media.h"
 #include "intersect.h"
 #include "ward-dist.h"

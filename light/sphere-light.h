@@ -14,8 +14,9 @@
 #define SNOGRAY_SPHERE_LIGHT_H
 
 #include "color.h"
-#include "pos.h"
+#include "geometry/pos.h"
 #include "texture/tex.h"
+
 #include "light.h"
 
 

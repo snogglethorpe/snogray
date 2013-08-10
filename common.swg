@@ -14,13 +14,13 @@
 %{
 #include "ray.h"
 #include "ray-io.h"
-#include "pos.h"
-#include "pos-io.h"
-#include "vec.h"
-#include "vec-io.h"
-#include "matrix4.h"
-#include "xform.h"
-#include "xform-io.h"
+#include "geometry/pos.h"
+#include "geometry/pos-io.h"
+#include "geometry/vec.h"
+#include "geometry/vec-io.h"
+#include "geometry/matrix4.h"
+#include "geometry/xform.h"
+#include "geometry/xform-io.h"
 #include "texture/xform-tex.h" // ugh
 %}
 

@@ -66,7 +66,7 @@
 %}
 
 
-%include "coords.h"
+%include "geometry/coords.h"
 
 // For handling fixed-length array arguments
 //

@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_ELLIPSE_H
 #define SNOGRAY_ELLIPSE_H
 
-#include "tripar-isec.h"
+#include "geometry/tripar-isec.h"
 #include "surface-sampler.h"
 
 #include "primitive.h"

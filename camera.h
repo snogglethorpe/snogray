@@ -14,10 +14,10 @@
 #define SNOGRAY_CAMERA_H
 
 #include "snogmath.h"
-#include "coords.h"
+#include "geometry/coords.h"
 #include "ray.h"
-#include "xform.h"
-#include "disk-sample.h"
+#include "geometry/xform.h"
+#include "geometry/disk-sample.h"
 
 
 namespace snogray {

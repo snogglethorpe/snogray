@@ -1,6 +1,6 @@
 // tessel.h -- Surface tessellation
 //
-//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,9 +17,9 @@
 #include <utility>		// for std::pair
 #include <vector>
 
-#include "pos.h"
-#include "vec.h"
-#include "uv.h"
+#include "geometry/pos.h"
+#include "geometry/vec.h"
+#include "geometry/uv.h"
 #include "llist.h"
 #include "freelist.h"
 

@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "quadratic-roots.h"
+#include "geometry/quadratic-roots.h"
 #include "intersect.h"
 
 #include "cylinder.h"

@@ -15,8 +15,8 @@
 
 #include "image.h"
 #include "random.h"
-#include "hist-2d.h"
-#include "hist-2d-dist.h"
+#include "geometry/hist-2d.h"
+#include "geometry/hist-2d-dist.h"
 #include "grid.h"
 #include "sample-set.h"
 #include "radical-inverse.h"

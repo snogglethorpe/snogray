@@ -14,8 +14,8 @@
 #define SNOGRAY_PHOTON_EVAL_H
 
 #include "material/bsdf.h"
-#include "dir-hist.h"
-#include "dir-hist-dist.h"
+#include "geometry/dir-hist.h"
+#include "geometry/dir-hist-dist.h"
 #include "photon-map.h"
 
 

@@ -13,11 +13,11 @@
 #ifndef SNOGRAY_INTERSECT_H
 #define SNOGRAY_INTERSECT_H
 
-#include "uv.h"
+#include "geometry/uv.h"
 #include "ref.h"
 #include "ray.h"
 #include "material/bsdf.h"
-#include "frame.h"
+#include "geometry/frame.h"
 #include "color.h"
 #include "render-context.h"
 #include "texture/tex-coords.h"

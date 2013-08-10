@@ -13,8 +13,8 @@
 #include "scene.h"
 #include "light-map.h"
 #include "texture/spheremap.h"
-#include "sphere-sample.h"
-#include "tangent-disk-sample.h"
+#include "geometry/sphere-sample.h"
+#include "geometry/tangent-disk-sample.h"
 
 #include "envmap-light.h"
 

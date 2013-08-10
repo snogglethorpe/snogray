@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "ray.h"
-#include "bbox.h"
+#include "geometry/bbox.h"
 #include "intersect.h"
 
 

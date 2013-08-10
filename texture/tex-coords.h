@@ -13,8 +13,8 @@
 #ifndef SNOGRAY_TEX_COORDS_H
 #define SNOGRAY_TEX_COORDS_H
 
-#include "uv.h"
-#include "pos.h"
+#include "geometry/uv.h"
+#include "geometry/pos.h"
 
 
 namespace snogray {

@@ -16,8 +16,8 @@
 
 #include "material/material.h"
 
+#include "geometry/local-xform.h"
 #include "primitive.h"
-#include "local-xform.h"
 
 
 namespace snogray {

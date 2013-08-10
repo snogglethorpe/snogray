@@ -16,7 +16,7 @@
 #include "excepts.h"
 #include "string-funs.h"
 
-#include "tripar-isec.h"
+#include "geometry/tripar-isec.h"
 
 #include "mesh.h"
 

@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = light material surface texture
+SUBDIRS = geometry light material surface texture
 
 include lua-install-dirs.mk
 
@@ -49,12 +49,11 @@ pkglua_DATA = module-setup.lua snogray.lua
 # names have a "snogray." prefix.
 #
 pkgluamodulesnogray_DATA = accel.lua all-in-one.lua camera.lua		\
-	camera-cmdline.lua cmdlineparser.lua color.lua coord.lua	\
-	file.lua filename.lua image-sampled-output-cmdline.lua		\
-	image.lua limit-cmdline.lua load.lua lpeg-utils.lua		\
-	render-cmdline.lua render.lua scene.lua scene-cmdline.lua	\
-	string-fill.lua string.lua swig.lua sys.lua table.lua		\
-	transform.lua
+	camera-cmdline.lua cmdlineparser.lua color.lua file.lua		\
+	filename.lua image-sampled-output-cmdline.lua image.lua		\
+	limit-cmdline.lua load.lua lpeg-utils.lua render-cmdline.lua	\
+	render.lua scene.lua scene-cmdline.lua string-fill.lua		\
+	string.lua swig.lua sys.lua table.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -64,11 +63,11 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnoggeom.a		\
-	libsnogimage.a libsnogimagecli.a libsnogisec.a			\
-	libsnogloaders.a libsnoglua.a libsnogphoton.a libsnograw.a	\
-	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
-	libsnogscenecli.a libsnogspace.a libsnogutil.a liblpeg.a
+noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
+	libsnogimagecli.a libsnogisec.a libsnogloaders.a libsnoglua.a	\
+	libsnogphoton.a libsnograw.a libsnogrdrive.a libsnogrender.a	\
+	libsnogscene.a libsnogscenecli.a libsnogspace.a libsnogutil.a	\
+	liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -193,22 +192,6 @@ endif
 #
 
 libsnogscene_a_SOURCES = camera.cc camera.h scene.cc scene.h
-
-
-################################################################
-#
-# Snogray geometry library, libsnoggeom.a
-#
-
-libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
-	cone-sample.h cyl-xform.cc cyl-xform.h dir-hist.h		\
-	dir-hist-dist.h disk-sample.h frame.h hist-2d.h			\
-	hist-2d-dist.cc hist-2d-dist.h local-xform.cc local-xform.h	\
-	matrix4.cc matrix4.h matrix4.tcc pos.h pos-io.cc pos-io.h	\
-	quadratic-roots.h sphere-isec.h sphere-sample.h			\
-	spherical-coords.h tangent-disk-sample.h tripar-isec.h		\
-	tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc vec-io.h		\
-	xform.h xform-base.h xform-io.cc xform-io.h
 
 
 ################################################################
@@ -389,7 +372,7 @@ LIBS += $(MUDFLAP:-f%=-l%)
 CORE_LIBS = libsnogrender.a libsnogphoton.a libsnogspace.a		\
 	libsnogscene.a material/libsnogmat.a surface/libsnogsurf.a	\
 	texture/libsnogtex.a light/libsnoglight.a libsnogisec.a		\
-	libsnoggeom.a
+	geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\

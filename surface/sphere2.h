@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_SPHERE2_H
 #define SNOGRAY_SPHERE2_H
 
-#include "spherical-coords.h"
+#include "geometry/spherical-coords.h"
 #include "surface-sampler.h"
 
 #include "local-primitive.h"

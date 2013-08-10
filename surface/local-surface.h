@@ -1,6 +1,6 @@
 // local-surface.h -- Transformed surface
 //
-//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
 #define SNOGRAY_LOCAL_SURFACE_H
 
 
+#include "geometry/local-xform.h"
 #include "surface.h"
-#include "local-xform.h"
 
 
 namespace snogray {

@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "disk-sample.h"
+#include "geometry/disk-sample.h"
 
 #include "ellipse.h"
 

@@ -1,6 +1,6 @@
 // dist.h -- Common superclass for distribution classes
 //
-//  Copyright (C) 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
 #define SNOGRAY_DIST_H
 
 #include "snogmath.h"
-#include "vec.h"
-#include "spherical-coords.h"
+#include "geometry/vec.h"
+#include "geometry/spherical-coords.h"
 
 
 namespace snogray {

@@ -11,8 +11,8 @@
 //
 
 #include "intersect.h"
-#include "sphere-isec.h"
-#include "sphere-sample.h"
+#include "geometry/sphere-isec.h"
+#include "geometry/sphere-sample.h"
 #include "light/surface-light.h"
 
 #include "sphere2.h"

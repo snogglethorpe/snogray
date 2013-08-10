@@ -44,14 +44,34 @@ else
    -- try to load "PKG/PKG.lua"), and if that fails, then (2) just the
    -- current directory ("PKG.lua").
    --
+
+   -- A table mapping module names to their locations in the source
+   -- tree, for cases which can't be guessed based on the name.
+   --
+   local uninst_module_mapping = {
+      coord = "geometry/coord",
+      transform = "geometry/transform"
+   }
+
    local function load_uninstalled_snogray_package (pkg, ...)
       local snogray_pkg = string.match (pkg, "^snogray[.](.*)$")
       if snogray_pkg then
 	 return function ()
-		   -- First try loading from a subdirectory of the same name
 		   local thunk, err
-		      = loadfile (snogray_pkg.."/"..snogray_pkg..".lua")
-		   -- Then try just loading from the current directory
+
+		   -- See if this name has an explicitly recorded location
+		   local mapped = uninst_module_mapping[snogray_pkg]
+		   if mapped then
+		      -- If so, just use it
+		      snogray_pkg = mapped
+		   else
+		      -- Otherwise first try loading from a
+		      -- subdirectory of the same name as the module
+		      thunk, err
+			 = loadfile (snogray_pkg.."/"..snogray_pkg..".lua")
+		   end
+
+		   -- Try loading from the current directory
 		   if not thunk then
 		      thunk, err = loadfile (snogray_pkg..".lua")
 		   end

@@ -12,8 +12,8 @@
 
 #include <algorithm>
 
-#include "bbox.h"
 #include "snogassert.h"
+#include "geometry/bbox.h"
 
 #include "photon-map.h"
 

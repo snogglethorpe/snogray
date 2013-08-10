@@ -1,6 +1,6 @@
 // instance.h -- Transformed virtual instance of a surface
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_INSTANCE_H
 #define SNOGRAY_INSTANCE_H
 
-#include "xform.h"
+#include "geometry/xform.h"
 #include "model.h"
 
 #include "local-surface.h"
