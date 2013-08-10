@@ -237,12 +237,11 @@ endif
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = bsdf.h camera.cc camera.h dist.h		\
-	material-dict.cc material-dict.h material.cc material.h		\
-	medium.h photon.h photon-map.cc photon-map.h primitive.cc	\
-	primitive.h scene.cc scene.h surface.cc surface.h		\
-	surface-group.cc surface-group.h tex.h tex-coords.h		\
-	triv-space.h
+libsnogscene_a_SOURCES = camera.cc camera.h dist.h material.cc		\
+	material.h material-dict.cc material-dict.h medium.h photon.h	\
+	photon-map.cc photon-map.h primitive.cc primitive.h scene.cc	\
+	scene.h surface.cc surface.h surface-group.cc surface-group.h	\
+	tex.h tex-coords.h triv-space.h
 
 
 ################################################################
@@ -306,11 +305,11 @@ libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
 # Snogray material library, libsnogmat.a
 #
 
-libsnogmat_a_SOURCES = cook-torrance.cc cook-torrance.h cos-dist.h	\
-	fresnel.h glass.cc glass.h glow.cc glow.h lambert.cc		\
-	lambert.h mirror.cc mirror.h norm-glow.cc norm-glow.h		\
-	phong-dist.h phong.cc phong.h thin-glass.cc thin-glass.h	\
-	stencil.cc stencil.h ward-dist.h
+libsnogmat_a_SOURCES = bsdf.h cook-torrance.cc cook-torrance.h	\
+	cos-dist.h fresnel.h glass.cc glass.h glow.cc glow.h	\
+	lambert.cc lambert.h mirror.cc mirror.h norm-glow.cc	\
+	norm-glow.h phong-dist.h phong.cc phong.h thin-glass.cc	\
+	thin-glass.h stencil.cc stencil.h ward-dist.h
 
 
 ################################################################
