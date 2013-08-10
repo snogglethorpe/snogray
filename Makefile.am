@@ -241,7 +241,8 @@ libsnogscene_a_SOURCES = camera.cc camera.h dist.h material.cc		\
 	material.h material-dict.cc material-dict.h medium.h photon.h	\
 	photon-map.cc photon-map.h primitive.cc primitive.h scene.cc	\
 	scene.h surface.cc surface.h surface-group.cc surface-group.h	\
-	tex.h tex-coords.h triv-space.h
+	surface-sampler.cc surface-sampler.h tex.h tex-coords.h		\
+	triv-space.h
 
 
 ################################################################
@@ -297,7 +298,7 @@ libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
 libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
 	far-light.h image-sum.h light-map.h light.h point-light.cc	\
 	point-light.h sphere-light.cc sphere-light.h surface-light.cc	\
-	surface-light.h surface-sampler.cc surface-sampler.h
+	surface-light.h
 
 
 ################################################################
