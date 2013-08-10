@@ -67,7 +67,7 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnoggeom.a		\
-	libsnogimage.a libsnogimagecli.a libsnoglight.a			\
+	libsnogimage.a libsnogimagecli.a libsnogisec.a libsnoglight.a	\
 	libsnogloaders.a libsnoglua.a libsnogmat.a libsnograw.a		\
 	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
 	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
@@ -205,16 +205,24 @@ config.h: update_version
 libsnogrender_a_SOURCES = dir-hist.h dir-hist-dist.h direct-illum.cc	\
 	direct-illum.h direct-integ.h filter-volume-integ.h		\
 	global-render-state.cc global-render-state.h grid.cc grid.h	\
-	hist-2d.h hist-2d-dist.cc hist-2d-dist.h integ.h intersect.cc	\
-	intersect.h isec-cache.h media.cc media.h mis-sample-weight.h	\
-	path-integ.cc path-integ.h photon-eval.cc photon-eval.h		\
-	photon-integ.cc photon-integ.h photon-shooter.cc		\
-	photon-shooter.h ray.h ray-io.cc ray-io.h recursive-integ.cc	\
+	hist-2d.h hist-2d-dist.cc hist-2d-dist.h integ.h media.cc	\
+	media.h mis-sample-weight.h path-integ.cc path-integ.h		\
+	photon-eval.cc photon-eval.h photon-integ.cc photon-integ.h	\
+	photon-shooter.cc photon-shooter.h recursive-integ.cc		\
 	recursive-integ.h render-context.cc render-context.h		\
 	render-params.h render-stats.cc render-stats.h cone-sample.h	\
 	disk-sample.h sample-gen.h sample-set.cc sample-set.h		\
 	sphere-sample.h tangent-disk-sample.h surface-integ.h		\
 	volume-integ.h zero-surface-integ.h
+
+
+################################################################
+#
+# Snogray intersection library, libsnogisec.a
+#
+
+libsnogisec_a_SOURCES = intersect.cc intersect.h isec-cache.h ray.h	\
+	ray-io.cc ray-io.h
 
 
 ################################################################
@@ -484,8 +492,9 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogmat.a libsnogsurf.a libsnogrender.a libsnogtex.a	\
-	libsnogspace.a libsnogscene.a libsnoglight.a libsnoggeom.a
+CORE_LIBS = libsnogrender.a libsnogmat.a libsnogsurf.a libsnogtex.a	\
+	libsnogspace.a libsnogscene.a libsnoglight.a libsnogisec.a	\
+	libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
