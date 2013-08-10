@@ -241,8 +241,8 @@ libsnogscene_a_SOURCES = bsdf.h camera.cc camera.h dist.h		\
 	material-dict.cc material-dict.h material.cc material.h		\
 	medium.h photon.h photon-map.cc photon-map.h primitive.cc	\
 	primitive.h scene.cc scene.h surface.cc surface.h		\
-	surface-group.cc surface-group.h surface-light.cc		\
-	surface-light.h tex.h tex-coords.h triv-space.h
+	surface-group.cc surface-group.h tex.h tex-coords.h		\
+	triv-space.h
 
 
 ################################################################
@@ -297,8 +297,8 @@ libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
 
 libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
 	far-light.h image-sum.h light-map.h light.h point-light.cc	\
-	point-light.h sphere-light.cc sphere-light.h			\
-	surface-sampler.cc surface-sampler.h
+	point-light.h sphere-light.cc sphere-light.h surface-light.cc	\
+	surface-light.h surface-sampler.cc surface-sampler.h
 
 
 ################################################################
@@ -483,8 +483,8 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogmat.a libsnogsurf.a libsnoglight.a libsnogrender.a	\
-	libsnogtex.a libsnogspace.a libsnogscene.a libsnoggeom.a
+CORE_LIBS = libsnogmat.a libsnogsurf.a libsnogrender.a libsnogtex.a	\
+	libsnogspace.a libsnogscene.a libsnoglight.a libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
