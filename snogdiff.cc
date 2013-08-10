@@ -1,6 +1,6 @@
 // snogdiff.cc -- Image-comparison utility
 //
-//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,6 +11,7 @@
 //
 
 #include <iostream>
+#include <iomanip>
 
 #include "snogmath.h"
 #include "cmdlineparser.h"
@@ -120,6 +121,12 @@ int main (int argc, char *const *argv)
   //
   ImageRow row1 (width), row2 (width), dst_row (width);
 
+  // Statistics on input images: sum of all color-component values in
+  // both images, and the sum of their differences squared.
+  //
+  double sum1 = 0, sum2 = 0;
+  double sum_diff_sq = 0;
+
   // Copy input image to output image, doing any processing
   //
   for (unsigned y = 0; y < height; y++)
@@ -128,12 +135,42 @@ int main (int argc, char *const *argv)
       src2.read_row (row2);
 
       for (unsigned x = 0; x < width; x++)
-	dst_row[x]
-	  = abs (row1[x].alpha_scaled_color()
-		 - row2[x].alpha_scaled_color());
+	{
+	  Color col1 = row1[x].alpha_scaled_color();
+	  Color col2 = row2[x].alpha_scaled_color();
+
+	  for (unsigned c = 0; c < Color::NUM_COMPONENTS; c++)
+	    {
+	      double val1 = col1[c];
+	      double val2 = col2[c];
+
+	      sum1 += val1;
+	      sum2 += val2;
+	      sum_diff_sq += (val1 - val2) * (val1 - val2);
+	    }
+
+	  dst_row[x] = abs (col1 - col2);
+	}
 
       dst.write_row (dst_row);
     }
+
+  // Print image statistics.
+
+  double num_values = width * height * Color::NUM_COMPONENTS;
+  double avg1 = sum1 / num_values;
+  double avg2 = sum2 / num_values;
+  double avg_delta = (std::abs (avg1 - avg2) / std::min (avg1, avg2));
+  double mse = sum_diff_sq / num_values;
+
+  std::cout << std::fixed
+	    << std::setprecision (6)
+	    << "* avg1 = " << avg1
+	    << ", avg2 = " << avg2
+	    << std::setprecision (8)
+	    << ", avg_delta = " << avg_delta
+	    << ", mse = " << mse
+	    << std::endl;
 }
 
 // arch-tag: 7e0ac89a-194f-4ebb-be2f-ca8714bca63c
