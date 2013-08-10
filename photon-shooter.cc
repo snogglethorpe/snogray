@@ -13,9 +13,9 @@
 #include <iostream>
 
 #include "light/light.h"
-#include "media.h"
+#include "material/media.h"
 #include "scene.h"
-#include "bsdf.h"
+#include "material/bsdf.h"
 #include "radical-inverse.h"
 #include "render-context.h"
 #include "global-render-state.h"

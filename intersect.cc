@@ -11,9 +11,9 @@
 //
 
 #include "surface.h"
-#include "material.h"
-#include "bsdf.h"
-#include "media.h"
+#include "material/material.h"
+#include "material/bsdf.h"
+#include "material/media.h"
 #include "scene.h"
 #include "render-context.h"
 

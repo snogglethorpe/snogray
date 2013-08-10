@@ -19,7 +19,6 @@
 #include "load-envmap.h"
 #include "light/far-light.h"
 #include "excepts.h"
-#include "glow.h"
 #include "image-io.h"
 #include "string-funs.h"
 

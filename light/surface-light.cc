@@ -13,7 +13,7 @@
 #include <stdexcept>
 
 #include "intersect.h"
-#include "cos-dist.h"
+#include "material/cos-dist.h"
 #include "scene.h"
 
 #include "surface-light.h"

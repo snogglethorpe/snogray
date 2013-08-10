@@ -1,6 +1,6 @@
 // recursive-integ.cc -- Superclass for simple recursive surface integrators
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,9 +11,9 @@
 //
 
 #include "scene.h"
-#include "bsdf.h"
-#include "media.h"
-#include "material.h"
+#include "material/bsdf.h"
+#include "material/media.h"
+#include "material/material.h"
 
 #include "recursive-integ.h"
 

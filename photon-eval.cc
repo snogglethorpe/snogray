@@ -12,7 +12,7 @@
 
 #include "snogmath.h"
 #include "intersect.h"
-#include "bsdf.h"
+#include "material/bsdf.h"
 #include "gaussian-filter.h"
 
 #include "photon-eval.h"

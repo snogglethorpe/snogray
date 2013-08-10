@@ -1,6 +1,6 @@
 // primitive.h -- Primitive surface
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #define SNOGRAY_PRIMITIVE_H
 
 #include "surface.h"
-#include "material.h"
+#include "material/material.h"
 
 
 namespace snogray {

@@ -1,6 +1,6 @@
 // photon-integ.cc -- Photon-mapping surface integrator
 //
-//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,9 +14,9 @@
 
 #include "snogmath.h"
 #include "scene.h"
-#include "bsdf.h"
-#include "media.h"
-#include "material.h"
+#include "material/bsdf.h"
+#include "material/media.h"
+#include "material/material.h"
 #include "mis-sample-weight.h"
 #include "photon-shooter.h"
 

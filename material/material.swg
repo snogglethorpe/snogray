@@ -1,6 +1,6 @@
 # material.swg -- SWIG interfaces for snogray materials
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,16 +12,16 @@
 
 
 %{
-#include "material.h"
-#include "material-dict.h"
-#include "glow.h"
-#include "norm-glow.h"
-#include "glass.h"
-#include "thin-glass.h"
-#include "mirror.h"
-#include "stencil.h"
-#include "cook-torrance.h"
-#include "lambert.h"
+#include "material/material.h"
+#include "material/material-dict.h"
+#include "material/glow.h"
+#include "material/norm-glow.h"
+#include "material/glass.h"
+#include "material/thin-glass.h"
+#include "material/mirror.h"
+#include "material/stencil.h"
+#include "material/cook-torrance.h"
+#include "material/lambert.h"
 %}
 
 

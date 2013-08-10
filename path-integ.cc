@@ -1,6 +1,6 @@
 // path-integ.cc -- Path-tracing surface integrator
 //
-//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,10 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "bsdf.h"
+#include "material/bsdf.h"
 #include "scene.h"
-#include "media.h"
-#include "material.h"
+#include "material/media.h"
+#include "material/material.h"
 #include "photon-shooter.h"
 
 #include "path-integ.h"

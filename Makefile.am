@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = light texture
+SUBDIRS = light material texture
 
 include lua-install-dirs.mk
 
@@ -52,9 +52,9 @@ pkgluamodulesnogray_DATA = accel.lua all-in-one.lua camera.lua		\
 	camera-cmdline.lua cmdlineparser.lua color.lua coord.lua	\
 	file.lua filename.lua image-sampled-output-cmdline.lua		\
 	image.lua limit-cmdline.lua load.lua lpeg-utils.lua		\
-	material.lua render-cmdline.lua render.lua scene.lua		\
-	scene-cmdline.lua string-fill.lua string.lua surface.lua	\
-	swig.lua sys.lua table.lua transform.lua
+	render-cmdline.lua render.lua scene.lua scene-cmdline.lua	\
+	string-fill.lua string.lua surface.lua swig.lua sys.lua		\
+	table.lua transform.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -66,8 +66,8 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnoggeom.a		\
 	libsnogimage.a libsnogimagecli.a libsnogisec.a			\
-	libsnogloaders.a libsnoglua.a libsnogmat.a libsnogphoton.a	\
-	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
+	libsnogloaders.a libsnoglua.a libsnogphoton.a libsnograw.a	\
+	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
 	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogutil.a	\
 	liblpeg.a
 
@@ -81,7 +81,7 @@ EXTRA_DIST =								\
 	README README.building README.issues README.usage		\
 	README.utils							\
 	camera.swg color.swg common.swg image.swg load.swg		\
-	material.swg rdrive.swg render.swg scene.swg snograw.swg	\
+	rdrive.swg render.swg scene.swg snograw.swg			\
 	space.swg surface.swg util.swg val-table.swg vector.swg		\
 	update-version.sh						\
 	autogen.sh							\
@@ -228,19 +228,6 @@ libsnogspace_a_SOURCES = octree.cc octree.h space.cc space.h		\
 
 libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
 	tty-progress.cc tty-progress.h version.cc version.h
-
-
-################################################################
-#
-# Snogray material library, libsnogmat.a
-#
-
-libsnogmat_a_SOURCES = bsdf.h cook-torrance.cc cook-torrance.h		\
-	cos-dist.h dist.h fresnel.h glass.cc glass.h glow.cc glow.h	\
-	lambert.cc lambert.h material.cc material.h material-dict.cc	\
-	material-dict.h media.cc media.h medium.h mirror.cc mirror.h	\
-	norm-glow.cc norm-glow.h phong-dist.h phong.cc phong.h		\
-	thin-glass.cc thin-glass.h stencil.cc stencil.h ward-dist.h
 
 
 ################################################################
@@ -417,7 +404,7 @@ LIBS += $(MUDFLAP:-f%=-l%)
 # Groups of associated libraries
 #
 CORE_LIBS = libsnogrender.a libsnogphoton.a libsnogspace.a	\
-	libsnogscene.a libsnogmat.a libsnogsurf.a		\
+	libsnogscene.a material/libsnogmat.a libsnogsurf.a	\
 	texture/libsnogtex.a light/libsnoglight.a libsnogisec.a	\
 	libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
@@ -554,9 +541,9 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # dependencies.
 #
 snograw_lua_wrap.cc: camera.swg color.swg common.swg image.swg		\
-	light/light.swg load.swg material.swg rdrive.swg render.swg	\
-	scene.swg space.swg surface.swg texture/texture.swg util.swg	\
-	val-table.swg vector.swg
+	light/light.swg load.swg material/material.swg rdrive.swg	\
+	render.swg scene.swg space.swg surface.swg			\
+	texture/texture.swg util.swg val-table.swg vector.swg
 
 
 # Compiler options for compiling SWIG-generated Lua interface.

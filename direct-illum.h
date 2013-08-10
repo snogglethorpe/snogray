@@ -1,6 +1,6 @@
 // direct-illum.h -- Direct-lighting calculations
 //
-//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #define SNOGRAY_DIRECT_ILLUM_H
 
 #include "color.h"
-#include "bsdf.h"
+#include "material/bsdf.h"
 #include "sample-set.h"
 
 

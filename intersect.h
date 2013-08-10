@@ -16,7 +16,7 @@
 #include "uv.h"
 #include "ref.h"
 #include "ray.h"
-#include "bsdf.h"
+#include "material/bsdf.h"
 #include "frame.h"
 #include "color.h"
 #include "render-context.h"

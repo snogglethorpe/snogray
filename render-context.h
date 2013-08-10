@@ -1,6 +1,6 @@
 // render-context.h --  "semi-global" information used during rendering
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
 #include "render-params.h"
 #include "random.h"
 #include "mempool.h"
-#include "medium.h"
+#include "material/medium.h"
 #include "pool.h"
 #include "sample-set.h"
 #include "surface-integ.h"

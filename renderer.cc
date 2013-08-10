@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006, 2007, 2008, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,7 +11,7 @@
 //
 
 #include "camera.h"
-#include "media.h"
+#include "material/media.h"
 #include "sample-set.h"
 #include "render-packet.h"
 

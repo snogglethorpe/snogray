@@ -11,9 +11,9 @@
 //
 
 #include "scene.h"
-#include "bsdf.h"
+#include "material/bsdf.h"
 #include "light/light.h"
-#include "media.h"
+#include "material/media.h"
 #include "mis-sample-weight.h"
 
 #include "direct-illum.h"
