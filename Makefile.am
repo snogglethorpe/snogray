@@ -245,7 +245,7 @@ endif
 
 libsnogscene_a_SOURCES = camera.cc camera.h material-dict.cc		\
 	material-dict.h photon.h photon-map.cc photon-map.h scene.cc	\
-	scene.h surface-group.cc surface-group.h
+	scene.h
 
 
 ################################################################
@@ -329,10 +329,11 @@ libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\
 	instance.cc instance.h local-primitive.h local-surface.h	\
 	mesh.cc mesh.h model.cc model.h primitive.cc primitive.h	\
 	sphere.cc sphere.h sphere2.cc sphere2.h surface.cc surface.h	\
-	surface-sampler.cc surface-sampler.h tessel.cc tessel.h		\
-	tessel-param.cc tessel-param.h tessel-sinc.cc tessel-sinc.h	\
-	tessel-sphere.cc tessel-sphere.h tessel-torus.cc		\
-	tessel-torus.h tripar.cc tripar.h
+	surface-group.cc surface-group.h surface-sampler.cc		\
+	surface-sampler.h tessel.cc tessel.h tessel-param.cc		\
+	tessel-param.h tessel-sinc.cc tessel-sinc.h tessel-sphere.cc	\
+	tessel-sphere.h tessel-torus.cc tessel-torus.h tripar.cc	\
+	tripar.h
 
 
 ################################################################
