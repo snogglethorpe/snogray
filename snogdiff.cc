@@ -15,6 +15,7 @@
 
 #include "snogmath.h"
 #include "cmdlineparser.h"
+#include "unique-ptr.h"
 #include "image-input.h"
 #include "image-input-cmdline.h"
 #include "image-scaled-output.h"
@@ -28,7 +29,7 @@ static void
 usage (CmdLineParser &clp, std::ostream &os)
 {
   os << "Usage: " << clp.prog_name()
-     << " [OPTION...] SRC_IMAGE_1 [SRC_IMAGE_2 [OUTPUT_IMAGE]]"
+     << " [OPTION...] SRC_IMAGE_1 SRC_IMAGE_2 [OUTPUT_IMAGE]"
      << std::endl;
 }
 
@@ -51,9 +52,14 @@ s IMAGE_SCALED_OUTPUT_OPTIONS_HELP
 n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
-s "If no filenames are given, standard input or output is used.  Input/output"
-s "image formats are guessed using the corresponding filenames when possible"
-s "(using the file's extension)."
+s "In addition to producing a difference image (when an output filename"
+s "is specified), some image-comparison statistics are printed on stdout."
+n
+s "The exit status is zero (\"success\") if the images were identical,"
+s "and non-zero otherwise."
+n
+s "Input/output image formats are guessed using the corresponding filenames"
+s "(using the files' extensions)."
 n
     ;
 
@@ -94,7 +100,7 @@ int main (int argc, char *const *argv)
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
       }
 
-  if (clp.num_remaining_args() < 1 || clp.num_remaining_args() > 3)
+  if (clp.num_remaining_args() < 2 || clp.num_remaining_args() > 3)
     {
       usage (clp, std::cerr);
       clp.try_help_err ();
@@ -115,7 +121,13 @@ int main (int argc, char *const *argv)
 
   // The output image.
   //
-  ImageScaledOutput dst (clp.get_arg (), width, height, dst_params);
+  UniquePtr<ImageScaledOutput> dst;
+
+  // The output image is optional, so only create if a name was given.
+  //
+  if (clp.num_remaining_args () == 1)
+    dst.reset (new ImageScaledOutput (clp.get_arg (),
+				      width, height, dst_params));;
 
   // These are temporary image rows used during processing.
   //
@@ -152,7 +164,8 @@ int main (int argc, char *const *argv)
 	  dst_row[x] = abs (col1 - col2);
 	}
 
-      dst.write_row (dst_row);
+      if (dst)
+	dst->write_row (dst_row);
     }
 
   // Print image statistics.
