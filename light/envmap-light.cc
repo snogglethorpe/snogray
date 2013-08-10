@@ -12,7 +12,7 @@
 
 #include "scene.h"
 #include "light-map.h"
-#include "spheremap.h"
+#include "texture/spheremap.h"
 #include "sphere-sample.h"
 #include "tangent-disk-sample.h"
 

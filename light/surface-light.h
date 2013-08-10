@@ -15,7 +15,7 @@
 
 #include "unique-ptr.h"
 #include "color.h"
-#include "tex.h"
+#include "texture/tex.h"
 #include "light.h"
 #include "surface.h"
 

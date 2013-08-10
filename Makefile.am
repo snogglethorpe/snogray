@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = light
+SUBDIRS = light texture
 
 include lua-install-dirs.mk
 
@@ -54,7 +54,7 @@ pkgluamodulesnogray_DATA = accel.lua all-in-one.lua camera.lua		\
 	image.lua limit-cmdline.lua load.lua lpeg-utils.lua		\
 	material.lua render-cmdline.lua render.lua scene.lua		\
 	scene-cmdline.lua string-fill.lua string.lua surface.lua	\
-	swig.lua sys.lua table.lua texture.lua transform.lua
+	swig.lua sys.lua table.lua transform.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -68,8 +68,8 @@ noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnoggeom.a		\
 	libsnogimage.a libsnogimagecli.a libsnogisec.a			\
 	libsnogloaders.a libsnoglua.a libsnogmat.a libsnogphoton.a	\
 	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
-	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
-	libsnogutil.a liblpeg.a
+	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogutil.a	\
+	liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -82,8 +82,7 @@ EXTRA_DIST =								\
 	README.utils							\
 	camera.swg color.swg common.swg image.swg load.swg		\
 	material.swg rdrive.swg render.swg scene.swg snograw.swg	\
-	space.swg surface.swg tex.swg util.swg val-table.swg		\
-	vector.swg							\
+	space.swg surface.swg util.swg val-table.swg vector.swg		\
 	update-version.sh						\
 	autogen.sh							\
 	lpeg.html							\
@@ -220,20 +219,6 @@ libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
 
 libsnogspace_a_SOURCES = octree.cc octree.h space.cc space.h		\
 	space-builder.h triv-space.h
-
-
-################################################################
-#
-# Snogray texture library, libsnogtex.a
-#
-
-libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
-	check-tex.h cmp-tex.cc cmp-tex.h cmp-tex.tcc coord-tex.h	\
-	cubemap.cc cubemap.h envmap.h grey-tex.h intens-tex.h		\
-	interp-tex.h matrix-linterp.h matrix-tex.cc matrix-tex.h	\
-	matrix-tex.tcc misc-map-tex.h perlin.cc perlin.h perlin-tex.h	\
-	perturb-tex.h rescale-tex.h spheremap.cc spheremap.h tex.h	\
-	tex-coords.h worley.cc worley.h worley-tex.h xform-tex.h
 
 
 ################################################################
@@ -432,8 +417,9 @@ LIBS += $(MUDFLAP:-f%=-l%)
 # Groups of associated libraries
 #
 CORE_LIBS = libsnogrender.a libsnogphoton.a libsnogspace.a	\
-	libsnogscene.a libsnogmat.a libsnogsurf.a libsnogtex.a	\
-	light/libsnoglight.a libsnogisec.a libsnoggeom.a
+	libsnogscene.a libsnogmat.a libsnogsurf.a		\
+	texture/libsnogtex.a light/libsnoglight.a libsnogisec.a	\
+	libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
@@ -569,7 +555,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 #
 snograw_lua_wrap.cc: camera.swg color.swg common.swg image.swg		\
 	light/light.swg load.swg material.swg rdrive.swg render.swg	\
-	scene.swg space.swg surface.swg tex.swg util.swg		\
+	scene.swg space.swg surface.swg texture/texture.swg util.swg	\
 	val-table.swg vector.swg
 
 

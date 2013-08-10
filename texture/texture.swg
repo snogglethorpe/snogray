@@ -1,6 +1,6 @@
 # tex.swg -- SWIG interfaces for snogray textures
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,24 +12,24 @@
 
 
 %{
-#include "tex.h"
+#include "texture/tex.h"
 #include "image.h"
-#include "envmap.h"
+#include "texture/envmap.h"
 #include "load-envmap.h"
-#include "matrix-tex.h"
-#include "arith-tex.h"
-#include "grey-tex.h"
-#include "intens-tex.h"
-#include "xform-tex.h"
-#include "check-tex.h"
-#include "misc-map-tex.h"
-#include "perlin-tex.h"
-#include "worley-tex.h"
-#include "coord-tex.h"
-#include "interp-tex.h"
-#include "cmp-tex.h"
-#include "perturb-tex.h"
-#include "rescale-tex.h"
+#include "texture/matrix-tex.h"
+#include "texture/arith-tex.h"
+#include "texture/grey-tex.h"
+#include "texture/intens-tex.h"
+#include "texture/xform-tex.h"
+#include "texture/check-tex.h"
+#include "texture/misc-map-tex.h"
+#include "texture/perlin-tex.h"
+#include "texture/worley-tex.h"
+#include "texture/coord-tex.h"
+#include "texture/interp-tex.h"
+#include "texture/cmp-tex.h"
+#include "texture/perturb-tex.h"
+#include "texture/rescale-tex.h"
 %}
 
 

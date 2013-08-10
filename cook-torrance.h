@@ -1,6 +1,6 @@
 // cook-torrance.h -- Cook-Torrance material
 //
-//  Copyright (C) 2006, 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_COOK_TORRANCE_H
 #define SNOGRAY_COOK_TORRANCE_H
 
-#include "tex.h"
+#include "texture/tex.h"
 #include "material.h"
 #include "fresnel.h"
 

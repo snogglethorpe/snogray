@@ -1,6 +1,6 @@
 // load-envmap.cc -- Environment map loading
 //
-//  Copyright (C) 2006-2008, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,8 +15,8 @@
 
 #include "excepts.h"
 #include "image-io.h"
-#include "cubemap.h"
-#include "spheremap.h"
+#include "texture/cubemap.h"
+#include "texture/spheremap.h"
 #include "string-funs.h"
 
 #include "load-envmap.h"

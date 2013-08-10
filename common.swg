@@ -1,6 +1,6 @@
 # common.swg -- Stuff that needs to be defined before most other SWIG interfaces
 #
-#  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #include "matrix4.h"
 #include "xform.h"
 #include "xform-io.h"
-#include "xform-tex.h" // ugh
+#include "texture/xform-tex.h" // ugh
 %}
 
 

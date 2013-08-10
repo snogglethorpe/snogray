@@ -20,7 +20,7 @@
 #include "frame.h"
 #include "color.h"
 #include "render-context.h"
-#include "tex-coords.h"
+#include "texture/tex-coords.h"
 
 
 namespace snogray {
