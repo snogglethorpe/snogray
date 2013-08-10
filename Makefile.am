@@ -245,7 +245,7 @@ endif
 
 libsnogscene_a_SOURCES = camera.cc camera.h material-dict.cc		\
 	material-dict.h photon.h photon-map.cc photon-map.h scene.cc	\
-	scene.h surface-group.cc surface-group.h triv-space.h
+	scene.h surface-group.cc surface-group.h
 
 
 ################################################################
@@ -270,7 +270,7 @@ libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
 #
 
 libsnogspace_a_SOURCES = octree.cc octree.h space.cc space.h		\
-	space-builder.h
+	space-builder.h triv-space.h
 
 
 ################################################################
