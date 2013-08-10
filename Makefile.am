@@ -205,9 +205,9 @@ config.h: update_version
 libsnogrender_a_SOURCES = dir-hist.h dir-hist-dist.h direct-illum.cc	\
 	direct-illum.h direct-integ.h filter-volume-integ.h		\
 	global-render-state.cc global-render-state.h grid.cc grid.h	\
-	hist-2d.h hist-2d-dist.cc hist-2d-dist.h integ.h media.cc	\
-	media.h mis-sample-weight.h path-integ.cc path-integ.h		\
-	photon-eval.cc photon-eval.h photon-integ.cc photon-integ.h	\
+	hist-2d.h hist-2d-dist.cc hist-2d-dist.h integ.h		\
+	mis-sample-weight.h path-integ.cc path-integ.h photon-eval.cc	\
+	photon-eval.h photon-integ.cc photon-integ.h			\
 	photon-shooter.cc photon-shooter.h recursive-integ.cc		\
 	recursive-integ.h render-context.cc render-context.h		\
 	render-params.h render-stats.cc render-stats.h cone-sample.h	\
@@ -246,9 +246,9 @@ endif
 #
 
 libsnogscene_a_SOURCES = camera.cc camera.h dist.h material-dict.cc	\
-	material-dict.h medium.h photon.h photon-map.cc photon-map.h	\
-	scene.cc scene.h surface-group.cc surface-group.h tex.h		\
-	tex-coords.h triv-space.h
+	material-dict.h photon.h photon-map.cc photon-map.h scene.cc	\
+	scene.h surface-group.cc surface-group.h tex.h tex-coords.h	\
+	triv-space.h
 
 
 ################################################################
@@ -312,12 +312,12 @@ libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
 # Snogray material library, libsnogmat.a
 #
 
-libsnogmat_a_SOURCES = bsdf.h cook-torrance.cc cook-torrance.h	\
-	cos-dist.h fresnel.h glass.cc glass.h glow.cc glow.h	\
-	lambert.cc lambert.h material.cc material.h mirror.cc	\
-	mirror.h norm-glow.cc norm-glow.h phong-dist.h phong.cc	\
-	phong.h thin-glass.cc thin-glass.h stencil.cc stencil.h	\
-	ward-dist.h
+libsnogmat_a_SOURCES = bsdf.h cook-torrance.cc cook-torrance.h		\
+	cos-dist.h fresnel.h glass.cc glass.h glow.cc glow.h		\
+	lambert.cc lambert.h material.cc material.h media.cc media.h	\
+	medium.h mirror.cc mirror.h norm-glow.cc norm-glow.h		\
+	phong-dist.h phong.cc phong.h thin-glass.cc thin-glass.h	\
+	stencil.cc stencil.h ward-dist.h
 
 
 ################################################################
