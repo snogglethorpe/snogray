@@ -245,7 +245,7 @@ endif
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = camera.cc camera.h dist.h material-dict.cc	\
+libsnogscene_a_SOURCES = camera.cc camera.h material-dict.cc		\
 	material-dict.h photon.h photon-map.cc photon-map.h scene.cc	\
 	scene.h surface-group.cc surface-group.h tex.h tex-coords.h	\
 	triv-space.h
@@ -313,7 +313,7 @@ libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
 #
 
 libsnogmat_a_SOURCES = bsdf.h cook-torrance.cc cook-torrance.h		\
-	cos-dist.h fresnel.h glass.cc glass.h glow.cc glow.h		\
+	cos-dist.h dist.h fresnel.h glass.cc glass.h glow.cc glow.h	\
 	lambert.cc lambert.h material.cc material.h media.cc media.h	\
 	medium.h mirror.cc mirror.h norm-glow.cc norm-glow.h		\
 	phong-dist.h phong.cc phong.h thin-glass.cc thin-glass.h	\
