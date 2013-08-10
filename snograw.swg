@@ -142,7 +142,7 @@ namespace snogray {
 //
 %include "common.swg"
 %include "image.swg"
-%include "surface.swg"
+%include "surface/surface.swg"
 %include "material/material.swg"
 %include "light/light.swg"
 %include "scene.swg"

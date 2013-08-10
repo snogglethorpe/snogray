@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "surface.h"
+#include "surface/surface.h"
 #include "material/material.h"
 #include "material/bsdf.h"
 #include "material/media.h"

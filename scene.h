@@ -15,12 +15,12 @@
 
 #include <vector>
 
-#include "surface.h"
+#include "surface/surface.h"
 #include "light/light.h"
 #include "intersect.h"
 #include "space.h"
 #include "ray.h"
-#include "surface-group.h"
+#include "surface/surface-group.h"
 
 
 namespace snogray {

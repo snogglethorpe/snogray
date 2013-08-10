@@ -15,7 +15,7 @@
 #include <csetjmp>
 
 #include "excepts.h"
-#include "mesh.h"
+#include "surface/mesh.h"
 
 extern "C" {
 #include "rply.h"

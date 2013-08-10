@@ -15,9 +15,9 @@
 #include "intersect.h"
 #include "material/cos-dist.h"
 #include "scene.h"
+#include "surface/surface-sampler.h"
 
 #include "surface-light.h"
-#include "surface-sampler.h"
 
 
 using namespace snogray;

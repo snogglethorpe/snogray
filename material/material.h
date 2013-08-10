@@ -18,7 +18,7 @@
 #include "color.h"
 #include "ref.h"
 #include "texture/tex.h"
-#include "surface.h"
+#include "surface/surface.h"
 
 
 namespace snogray {

@@ -1,6 +1,6 @@
 # surface.swg -- SWIG interfaces for snogray surfaces
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,18 +12,18 @@
 
 
 %{
-#include "mesh.h"
-#include "tripar.h"
-#include "ellipse.h"
-#include "sphere.h"
-#include "sphere2.h"
-#include "cylinder.h"
-#include "instance.h"
-#include "model.h"
-#include "surface-group.h"
-#include "tessel-sphere.h"
-#include "tessel-sinc.h"
-#include "tessel-torus.h"
+#include "surface/mesh.h"
+#include "surface/tripar.h"
+#include "surface/ellipse.h"
+#include "surface/sphere.h"
+#include "surface/sphere2.h"
+#include "surface/cylinder.h"
+#include "surface/instance.h"
+#include "surface/model.h"
+#include "surface/surface-group.h"
+#include "surface/tessel-sphere.h"
+#include "surface/tessel-sinc.h"
+#include "surface/tessel-torus.h"
 
 // Static helper functions
 //
