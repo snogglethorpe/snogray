@@ -48,6 +48,7 @@ help (CmdLineParser &clp, std::ostream &os)
 n
 s "  -d, --delta=THRESH         Set delta threshold for \"identical\" images"
 s "  -m, --mse=THRESH           Set MSE threshold for \"identical\" images"
+s "  -q, --quiet                Don't print image statistics"
 n
 s IMAGE_INPUT_OPTIONS_HELP
 n
@@ -79,13 +80,14 @@ int main (int argc, char *const *argv)
   static struct option long_options[] = {
     { "delta",	required_argument, 0, 'd' },
     { "mse",	required_argument, 0, 'm' },
+    { "quiet",	no_argument, 0, 'q' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_SCALED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "d:m:"
+    "d:m:q"
     IMAGE_INPUT_SHORT_OPTIONS
     IMAGE_SCALED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -99,6 +101,7 @@ int main (int argc, char *const *argv)
   // Image comparison parameters.
   //
   double delta_thresh = 0, mse_thresh = 0;
+  bool quiet = false;
 
   // Parse command-line options
   //
@@ -108,6 +111,7 @@ int main (int argc, char *const *argv)
       {
       case 'd': delta_thresh = clp.float_opt_arg (); break;
       case 'm': mse_thresh = clp.float_opt_arg (); break;
+      case 'q': quiet = true; break;
 
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
 	IMAGE_SCALED_OUTPUT_OPTION_CASES (clp, dst_params);
@@ -198,7 +202,7 @@ int main (int argc, char *const *argv)
 
   // Print image statistics, but only if images differed.
   //
-  if (different)
+  if (different && !quiet)
     std::cout << std::fixed
 	      << std::setprecision (6)
 	      << "* avg1 = " << avg1
