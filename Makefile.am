@@ -68,8 +68,8 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnoggeom.a		\
 	libsnogimage.a libsnogimagecli.a libsnogisec.a libsnoglight.a	\
-	libsnogloaders.a libsnoglua.a libsnogmat.a libsnograw.a		\
-	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
+	libsnogloaders.a libsnoglua.a libsnogmat.a libsnogphoton.a	\
+	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
 	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
 	libsnogutil.a liblpeg.a
 
@@ -205,13 +205,21 @@ config.h: update_version
 libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
 	direct-integ.h filter-volume-integ.h global-render-state.cc	\
 	global-render-state.h grid.cc grid.h integ.h			\
-	mis-sample-weight.h path-integ.cc path-integ.h photon-eval.cc	\
-	photon-eval.h photon-integ.cc photon-integ.h			\
-	photon-shooter.cc photon-shooter.h recursive-integ.cc		\
+	mis-sample-weight.h path-integ.cc path-integ.h			\
+	photon-integ.cc photon-integ.h recursive-integ.cc		\
 	recursive-integ.h render-context.cc render-context.h		\
 	render-params.h render-stats.cc render-stats.h sample-gen.h	\
 	sample-set.cc sample-set.h surface-integ.h volume-integ.h	\
 	zero-surface-integ.h
+
+
+################################################################
+#
+# Snogray photon-mapping library, libsnogphoton.a
+#
+
+libsnogphoton_a_SOURCES = photon.h photon-eval.cc photon-eval.h		\
+	photon-map.cc photon-map.h photon-shooter.cc photon-shooter.h
 
 
 ################################################################
@@ -243,8 +251,7 @@ endif
 # Snogray scene-representation library, libsnogscene.a
 #
 
-libsnogscene_a_SOURCES = camera.cc camera.h photon.h photon-map.cc	\
-	photon-map.h scene.cc scene.h
+libsnogscene_a_SOURCES = camera.cc camera.h scene.cc scene.h
 
 
 ################################################################
@@ -492,9 +499,9 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogrender.a libsnogspace.a libsnogscene.a	\
-	libsnogmat.a libsnogsurf.a libsnogtex.a libsnoglight.a	\
-	libsnogisec.a libsnoggeom.a
+CORE_LIBS = libsnogrender.a libsnogphoton.a libsnogspace.a	\
+	libsnogscene.a libsnogmat.a libsnogsurf.a libsnogtex.a	\
+	libsnoglight.a libsnogisec.a libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
