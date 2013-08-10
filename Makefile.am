@@ -245,8 +245,7 @@ endif
 
 libsnogscene_a_SOURCES = camera.cc camera.h material-dict.cc		\
 	material-dict.h photon.h photon-map.cc photon-map.h scene.cc	\
-	scene.h surface-group.cc surface-group.h tex.h tex-coords.h	\
-	triv-space.h
+	scene.h surface-group.cc surface-group.h triv-space.h
 
 
 ################################################################
@@ -281,11 +280,11 @@ libsnogspace_a_SOURCES = octree.cc octree.h space.cc space.h		\
 
 libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
 	check-tex.h cmp-tex.cc cmp-tex.h cmp-tex.tcc coord-tex.h	\
-	cubemap.cc cubemap.h envmap.h grey-tex.h intens-tex.h	\
+	cubemap.cc cubemap.h envmap.h grey-tex.h intens-tex.h		\
 	interp-tex.h matrix-linterp.h matrix-tex.cc matrix-tex.h	\
 	matrix-tex.tcc misc-map-tex.h perlin.cc perlin.h perlin-tex.h	\
-	perturb-tex.h rescale-tex.h spheremap.cc spheremap.h worley.cc	\
-	worley.h worley-tex.h xform-tex.h
+	perturb-tex.h rescale-tex.h spheremap.cc spheremap.h tex.h	\
+	tex-coords.h worley.cc worley.h worley-tex.h xform-tex.h
 
 
 ################################################################
