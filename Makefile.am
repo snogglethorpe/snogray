@@ -202,10 +202,9 @@ config.h: update_version
 # Snogray core rendering library, libsnogrender.a
 #
 
-libsnogrender_a_SOURCES = dir-hist.h dir-hist-dist.h direct-illum.cc	\
-	direct-illum.h direct-integ.h filter-volume-integ.h		\
-	global-render-state.cc global-render-state.h grid.cc grid.h	\
-	hist-2d.h hist-2d-dist.cc hist-2d-dist.h integ.h		\
+libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
+	direct-integ.h filter-volume-integ.h global-render-state.cc	\
+	global-render-state.h grid.cc grid.h integ.h			\
 	mis-sample-weight.h path-integ.cc path-integ.h photon-eval.cc	\
 	photon-eval.h photon-integ.cc photon-integ.h			\
 	photon-shooter.cc photon-shooter.h recursive-integ.cc		\
@@ -256,12 +255,14 @@ libsnogscene_a_SOURCES = camera.cc camera.h material-dict.cc		\
 #
 
 libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
-	cone-sample.h cyl-xform.cc cyl-xform.h disk-sample.h frame.h	\
-	local-xform.cc local-xform.h matrix4.cc matrix4.h matrix4.tcc	\
-	pos.h pos-io.cc pos-io.h quadratic-roots.h sphere-isec.h	\
-	sphere-sample.h spherical-coords.h tangent-disk-sample.h	\
-	tripar-isec.h tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc	\
-	vec-io.h xform.h xform-base.h xform-io.cc xform-io.h
+	cone-sample.h cyl-xform.cc cyl-xform.h dir-hist.h		\
+	dir-hist-dist.h disk-sample.h frame.h hist-2d.h			\
+	hist-2d-dist.cc hist-2d-dist.h local-xform.cc local-xform.h	\
+	matrix4.cc matrix4.h matrix4.tcc pos.h pos-io.cc pos-io.h	\
+	quadratic-roots.h sphere-isec.h sphere-sample.h			\
+	spherical-coords.h tangent-disk-sample.h tripar-isec.h		\
+	tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc vec-io.h		\
+	xform.h xform-base.h xform-io.cc xform-io.h
 
 
 ################################################################
