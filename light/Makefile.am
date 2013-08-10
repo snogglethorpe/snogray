@@ -12,6 +12,7 @@
 
 include $(top_srcdir)/config.mk
 include $(top_srcdir)/lua-install-dirs.mk
+include $(top_srcdir)/image/image-deps.mk
 
 
 noinst_LIBRARIES = libsnoglight.a
@@ -19,6 +20,9 @@ noinst_LIBRARIES = libsnoglight.a
 pkgluamodulesnogray_DATA = light.lua
 
 EXTRA_DIST = light.swg $(pkgluamodulesnogray_DATA)
+
+
+AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 
 libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\

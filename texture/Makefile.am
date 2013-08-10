@@ -12,6 +12,7 @@
 
 include $(top_srcdir)/config.mk
 include $(top_srcdir)/lua-install-dirs.mk
+include $(top_srcdir)/image/image-deps.mk
 
 
 noinst_LIBRARIES = libsnogtex.a
@@ -19,6 +20,9 @@ noinst_LIBRARIES = libsnogtex.a
 pkgluamodulesnogray_DATA = texture.lua
 
 EXTRA_DIST = texture.swg $(pkgluamodulesnogray_DATA)
+
+
+AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 
 libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\

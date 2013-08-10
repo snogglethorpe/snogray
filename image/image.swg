@@ -1,6 +1,6 @@
 # image.swg -- SWIG interfaces for snogray image-handling
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,9 +12,9 @@
 
 
 %{
-#include "tuple-matrix.h"
-#include "image.h"
-#include "image-sampled-output.h"
+#include "image/tuple-matrix.h"
+#include "image/image.h"
+#include "image/image-sampled-output.h"
 #include "recover-image.h"
 %}
 

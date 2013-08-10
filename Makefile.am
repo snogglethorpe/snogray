@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = geometry light material surface texture
+SUBDIRS = geometry image light material surface texture
 
 include lua-install-dirs.mk
 
@@ -50,7 +50,7 @@ pkglua_DATA = module-setup.lua snogray.lua
 #
 pkgluamodulesnogray_DATA = accel.lua all-in-one.lua camera.lua		\
 	camera-cmdline.lua cmdlineparser.lua color.lua file.lua		\
-	filename.lua image-sampled-output-cmdline.lua image.lua		\
+	filename.lua image-sampled-output-cmdline.lua			\
 	limit-cmdline.lua load.lua lpeg-utils.lua render-cmdline.lua	\
 	render.lua scene.lua scene-cmdline.lua string-fill.lua		\
 	string.lua swig.lua sys.lua table.lua
@@ -63,11 +63,10 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimage.a		\
-	libsnogimagecli.a libsnogisec.a libsnogloaders.a libsnoglua.a	\
-	libsnogphoton.a libsnograw.a libsnogrdrive.a libsnogrender.a	\
-	libsnogscene.a libsnogscenecli.a libsnogspace.a libsnogutil.a	\
-	liblpeg.a
+noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimagecli.a	\
+	libsnogisec.a libsnogloaders.a libsnoglua.a libsnogphoton.a	\
+	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
+	libsnogscenecli.a libsnogspace.a libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -78,7 +77,7 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	camera.swg color.swg common.swg image.swg load.swg		\
+	camera.swg color.swg common.swg load.swg			\
 	rdrive.swg render.swg scene.swg snograw.swg			\
 	space.swg util.swg val-table.swg vector.swg			\
 	update-version.sh						\
@@ -123,6 +122,10 @@ endif
 
 
 include $(top_srcdir)/config.mk
+include $(top_srcdir)/image/image-deps.mk
+
+
+AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 
 ################################################################
@@ -263,46 +266,6 @@ liblpeg_a_SOURCES = lpcap.c lpcap.h lpcode.c lpcode.h lpprint.c		\
 
 ################################################################
 #
-# Snogray image I/O library, libsnogimage.a
-#
-
-libsnogimage_a_SOURCES = image.h image-box-filt.h image-byte-vec.cc	\
-	image-byte-vec.h image-dispatch.cc image-filter-conv.h		\
-	image-filter.cc image-filter.h image-gauss-filt.h image-input.h	\
-	image-io.cc image-io.h image-mitchell-filt.h			\
-	image-sampled-output.cc image-sampled-output.h			\
-	image-scaled-output.cc image-scaled-output.h image-pfm.cc	\
-	image-pfm.h image-rgbe.cc image-rgbe.h image-tga.cc image-tga.h	\
-	image-triangle-filt.h tuple-adaptor.h tuple-matrix.cc		\
-	tuple-matrix.h tuple-matrix.tcc
-
-# Library dependencies of libsnogimage.a
-#
-libsnogimage_LIBS =
-
-if have_libpng
-  libsnogimage_a_SOURCES += image-png.cc image-png.h
-  libsnogimage_LIBS += $(libpng_LIBS)
-endif
-
-if have_libexr
-  libsnogimage_a_SOURCES += image-exr.cc image-exr.h
-  libsnogimage_LIBS += $(libexr_LIBS)
-endif
-
-if have_libjpeg
-  libsnogimage_a_SOURCES += image-jpeg.cc image-jpeg.h
-  libsnogimage_LIBS += $(libjpeg_LIBS)
-endif
-
-if have_libnetpbm
-  libsnogimage_a_SOURCES += image-ppm.cc image-ppm.h
-  libsnogimage_LIBS += $(libnetpbm_LIBS)
-endif
-
-
-################################################################
-#
 # Snogray image command-line handling library, libsnogimagecli.a
 #
 
@@ -375,8 +338,8 @@ CORE_LIBS = libsnogrender.a libsnogphoton.a libsnogspace.a		\
 	geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
-IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
-	libsnogcolor.a
+IMAGE_LIBS = libsnogimagecli.a image/libsnogimage.a	\
+	$(libsnogimage_LIBS) libsnogcolor.a
 MISC_LIBS = libsnogcli.a libsnogutil.a
 
 
@@ -506,7 +469,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
 #
-snograw_lua_wrap.cc: camera.swg color.swg common.swg image.swg		\
+snograw_lua_wrap.cc: camera.swg color.swg common.swg image/image.swg	\
 	light/light.swg load.swg material/material.swg rdrive.swg	\
 	render.swg scene.swg space.swg surface/surface.swg		\
 	texture/texture.swg util.swg val-table.swg vector.swg

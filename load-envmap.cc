@@ -14,7 +14,7 @@
 #include <fstream>
 
 #include "excepts.h"
-#include "image-io.h"
+#include "image/image-io.h"
 #include "texture/cubemap.h"
 #include "texture/spheremap.h"
 #include "string-funs.h"

@@ -14,7 +14,7 @@
 #define SNOGRAY_LIGHT_MAP_H
 
 
-#include "image.h"
+#include "image/image.h"
 #include "geometry/uv.h"
 
 

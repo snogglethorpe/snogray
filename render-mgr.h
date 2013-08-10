@@ -1,6 +1,6 @@
 // render-mgr.h -- Outer rendering driver
 //
-//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 
 #include "config.h"
 #include "render-pattern.h"
-#include "image-sampled-output.h"
+#include "image/image-sampled-output.h"
 
 
 namespace snogray {

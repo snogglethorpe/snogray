@@ -1528,9 +1528,9 @@ CPPFLAGS=$USER_CPPFLAGS
 LDFLAGS=$USER_LDFLAGS
 
 
-AC_CONFIG_FILES([Makefile geometry/Makefile light/Makefile
-			  material/Makefile surface/Makefile
-			  texture/Makefile])
+AC_CONFIG_FILES([Makefile geometry/Makefile image/Makefile
+			  light/Makefile material/Makefile
+			  surface/Makefile texture/Makefile])
 
 AC_OUTPUT
 

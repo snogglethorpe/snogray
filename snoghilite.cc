@@ -1,6 +1,6 @@
 // snoghilite.cc -- Add highlights to low-dynamic-range image
 //
-//  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
 #include <cstring>
 
 #include "cmdlineparser.h"
-#include "image-input.h"
-#include "image-scaled-output.h"
+#include "image/image-input.h"
+#include "image/image-scaled-output.h"
 #include "image-input-cmdline.h"
 #include "image-scaled-output-cmdline.h"
 #include "string-funs.h"

@@ -1,6 +1,6 @@
 // add-glare.h -- Add glare effects ("bloom") to an image
 //
-//  Copyright (C) 2007, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2011-2013  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -13,7 +13,7 @@
 #define __GLARE_H__
 
 #include "glare-psf.h"
-#include "image.h"
+#include "image/image.h"
 
 
 namespace snogray {

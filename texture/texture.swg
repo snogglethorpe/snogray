@@ -13,7 +13,7 @@
 
 %{
 #include "texture/tex.h"
-#include "image.h"
+#include "image/image.h"
 #include "texture/envmap.h"
 #include "load-envmap.h"
 #include "texture/matrix-tex.h"

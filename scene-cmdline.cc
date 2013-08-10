@@ -19,7 +19,7 @@
 #include "load-envmap.h"
 #include "light/far-light.h"
 #include "excepts.h"
-#include "image-io.h"
+#include "image/image-io.h"
 #include "string-funs.h"
 
 #include "scene-cmdline.h"

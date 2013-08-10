@@ -1,6 +1,6 @@
 // recover.cc -- Recovery of partial output images
 //
-//  Copyright (C) 2005-2007, 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,8 +11,8 @@
 //
 
 #include "excepts.h"
-#include "image-io.h"
-#include "image-input.h"
+#include "image/image-io.h"
+#include "image/image-input.h"
 
 #include "recover-image.h"
 

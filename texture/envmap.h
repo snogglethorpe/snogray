@@ -16,7 +16,7 @@
 #include "ref.h"
 #include "color.h"
 #include "geometry/vec.h"
-#include "image.h"
+#include "image/image.h"
 
 
 namespace snogray {

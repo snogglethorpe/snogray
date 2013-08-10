@@ -15,7 +15,7 @@
 
 #include "unique-ptr.h"
 #include "cmdlineparser.h"
-#include "image.h"
+#include "image/image.h"
 #include "image-input-cmdline.h"
 #include "image-scaled-output-cmdline.h"
 #include "add-glare.h"

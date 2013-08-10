@@ -13,7 +13,7 @@
 #include <getopt.h>
 #include <iostream>
 
-#include "image.h"
+#include "image/image.h"
 #include "random.h"
 #include "geometry/hist-2d.h"
 #include "geometry/hist-2d-dist.h"

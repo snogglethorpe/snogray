@@ -141,7 +141,7 @@ namespace snogray {
 // These includes export various subsets of snogray functionality.
 //
 %include "common.swg"
-%include "image.swg"
+%include "image/image.swg"
 %include "surface/surface.swg"
 %include "material/material.swg"
 %include "light/light.swg"
