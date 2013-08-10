@@ -1,6 +1,6 @@
 -- module-setup.lua -- Lua module system tweaking for snogray
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -39,13 +39,22 @@ else
    --
    -- We're operating in "uninstalled mode".  Add a package searcher
    -- that just tries to load anything prefixed with "snogray." from
-   -- the current directory.
+   -- (1) a subdirectory of the current directory with the same name
+   -- as the module (so for a module spec "snogray.PKG.PKG", it will
+   -- try to load "PKG/PKG.lua"), and if that fails, then (2) just the
+   -- current directory ("PKG.lua").
    --
    local function load_uninstalled_snogray_package (pkg, ...)
       local snogray_pkg = string.match (pkg, "^snogray[.](.*)$")
       if snogray_pkg then
 	 return function ()
-		   local thunk, err = loadfile (snogray_pkg..".lua")
+		   -- First try loading from a subdirectory of the same name
+		   local thunk, err
+		      = loadfile (snogray_pkg.."/"..snogray_pkg..".lua")
+		   -- Then try just loading from the current directory
+		   if not thunk then
+		      thunk, err = loadfile (snogray_pkg..".lua")
+		   end
 		   if not thunk then
 		      error (err, 0)
 		   end
