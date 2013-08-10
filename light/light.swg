@@ -1,6 +1,6 @@
 # light.swg -- SWIG interfaces for snogray lights
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,10 +12,10 @@
 
 
 %{
-#include "point-light.h"
-#include "sphere-light.h"
-#include "far-light.h"
-#include "envmap-light.h"
+#include "light/point-light.h"
+#include "light/sphere-light.h"
+#include "light/far-light.h"
+#include "light/envmap-light.h"
 %}
 
 

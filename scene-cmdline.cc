@@ -1,6 +1,6 @@
 // scene-cmdline.h -- Command-line options for scene parameters
 //
-//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,10 +14,10 @@
 
 #include "scene.h"
 #include "envmap.h"
-#include "envmap-light.h"
+#include "light/envmap-light.h"
 #include "xform.h"
 #include "load-envmap.h"
-#include "far-light.h"
+#include "light/far-light.h"
 #include "excepts.h"
 #include "glow.h"
 #include "image-io.h"

@@ -12,7 +12,7 @@
 
 #include "scene.h"
 #include "bsdf.h"
-#include "light.h"
+#include "light/light.h"
 #include "media.h"
 #include "mis-sample-weight.h"
 

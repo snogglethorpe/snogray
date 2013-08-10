@@ -36,30 +36,28 @@ noinst_PROGRAMS += hemint
 endif
 
 
+SUBDIRS = light
+
+include lua-install-dirs.mk
+
+
 # Lua files loaded directly.
 #
-pkgluadir = $(pkgdatadir)/lua
 pkglua_DATA = module-setup.lua snogray.lua
-
-# Lua modules (loaded via the Lua 'require' function).
-#
-pkgluamoduledir = $(pkgluadir)/module
 
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-pkgluamodulesnograydir = $(pkgluamoduledir)/snogray
 pkgluamodulesnogray_DATA = accel.lua all-in-one.lua camera.lua		\
 	camera-cmdline.lua cmdlineparser.lua color.lua coord.lua	\
 	file.lua filename.lua image-sampled-output-cmdline.lua		\
-	image.lua light.lua limit-cmdline.lua load.lua lpeg-utils.lua	\
+	image.lua limit-cmdline.lua load.lua lpeg-utils.lua		\
 	material.lua render-cmdline.lua render.lua scene.lua		\
 	scene-cmdline.lua string-fill.lua string.lua surface.lua	\
 	swig.lua sys.lua table.lua texture.lua transform.lua
 
 # Lua loaders for various scene/mesh formats.
 #
-pkglualoaderdir = $(pkgluadir)/loader
 pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 	load-pbrt.lua load-stl.lua load-ug.lua
 
@@ -67,7 +65,7 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnoggeom.a		\
-	libsnogimage.a libsnogimagecli.a libsnogisec.a libsnoglight.a	\
+	libsnogimage.a libsnogimagecli.a libsnogisec.a			\
 	libsnogloaders.a libsnoglua.a libsnogmat.a libsnogphoton.a	\
 	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
 	libsnogscenecli.a libsnogspace.a libsnogsurf.a libsnogtex.a	\
@@ -82,7 +80,7 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	camera.swg color.swg common.swg image.swg light.swg load.swg	\
+	camera.swg color.swg common.swg image.swg load.swg		\
 	material.swg rdrive.swg render.swg scene.swg snograw.swg	\
 	space.swg surface.swg tex.swg util.swg val-table.swg		\
 	vector.swg							\
@@ -245,17 +243,6 @@ libsnogtex_a_SOURCES = arith-tex.cc arith-tex.h arith-tex.tcc		\
 
 libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
 	tty-progress.cc tty-progress.h version.cc version.h
-
-
-################################################################
-#
-# Snogray light library, libsnoglight.a
-#
-
-libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
-	far-light.h image-sum.h light-map.h light.h point-light.cc	\
-	point-light.h sphere-light.cc sphere-light.h surface-light.cc	\
-	surface-light.h
 
 
 ################################################################
@@ -446,7 +433,7 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 CORE_LIBS = libsnogrender.a libsnogphoton.a libsnogspace.a	\
 	libsnogscene.a libsnogmat.a libsnogsurf.a libsnogtex.a	\
-	libsnoglight.a libsnogisec.a libsnoggeom.a
+	light/libsnoglight.a libsnogisec.a libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a libsnogimage.a $(libsnogimage_LIBS)	\
@@ -580,9 +567,9 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
 #
-snograw_lua_wrap.cc: camera.swg color.swg common.swg image.swg	\
-	light.swg load.swg material.swg rdrive.swg render.swg	\
-	scene.swg space.swg surface.swg tex.swg util.swg	\
+snograw_lua_wrap.cc: camera.swg color.swg common.swg image.swg		\
+	light/light.swg load.swg material.swg rdrive.swg render.swg	\
+	scene.swg space.swg surface.swg tex.swg util.swg		\
 	val-table.swg vector.swg
 
 

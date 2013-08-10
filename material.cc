@@ -1,6 +1,6 @@
 // material.cc -- Surface material datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "light.h"
+#include "light/light.h"
 
 #include "material.h"
 

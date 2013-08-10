@@ -11,7 +11,7 @@
 //
 
 #include "surface.h"
-#include "light.h"
+#include "light/light.h"
 
 #include "space.h"
 

@@ -1,6 +1,6 @@
 // sphere2.cc -- Alternative sphere surface
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #include "intersect.h"
 #include "sphere-isec.h"
 #include "sphere-sample.h"
-#include "surface-light.h"
+#include "light/surface-light.h"
 
 #include "sphere2.h"
 

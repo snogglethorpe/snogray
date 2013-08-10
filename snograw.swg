@@ -1,6 +1,6 @@
 # snograw.swg -- Swig interface specification for snogray
 #
-#  Copyright (C) 2007-2008, 2010-2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2007-2008, 2010-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -144,7 +144,7 @@ namespace snogray {
 %include "image.swg"
 %include "surface.swg"
 %include "material.swg"
-%include "light.swg"
+%include "light/light.swg"
 %include "scene.swg"
 %include "tex.swg"
 %include "camera.swg"

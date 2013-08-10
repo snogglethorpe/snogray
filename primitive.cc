@@ -1,6 +1,6 @@
 // surface.cc -- Primitive surface
 //
-//  Copyright (C) 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "surface-light.h"
+#include "light/surface-light.h"
 
 #include "primitive.h"
 

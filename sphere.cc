@@ -1,6 +1,6 @@
 // sphere.cc -- Sphere surface
 //
-//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
 
 #include "intersect.h"
 #include "sphere-isec.h"
-#include "sphere-light.h"
+#include "light/sphere-light.h"
 #include "sphere-sample.h"
 
 #include "sphere.h"
