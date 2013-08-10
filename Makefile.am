@@ -210,10 +210,9 @@ libsnogrender_a_SOURCES = dir-hist.h dir-hist-dist.h direct-illum.cc	\
 	photon-eval.h photon-integ.cc photon-integ.h			\
 	photon-shooter.cc photon-shooter.h recursive-integ.cc		\
 	recursive-integ.h render-context.cc render-context.h		\
-	render-params.h render-stats.cc render-stats.h cone-sample.h	\
-	disk-sample.h sample-gen.h sample-set.cc sample-set.h		\
-	sphere-sample.h tangent-disk-sample.h surface-integ.h		\
-	volume-integ.h zero-surface-integ.h
+	render-params.h render-stats.cc render-stats.h sample-gen.h	\
+	sample-set.cc sample-set.h surface-integ.h volume-integ.h	\
+	zero-surface-integ.h
 
 
 ################################################################
@@ -257,9 +256,10 @@ libsnogscene_a_SOURCES = camera.cc camera.h material-dict.cc		\
 #
 
 libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
-	cyl-xform.cc cyl-xform.h frame.h local-xform.cc local-xform.h	\
-	matrix4.cc matrix4.h matrix4.tcc pos.h pos-io.cc pos-io.h	\
-	quadratic-roots.h sphere-isec.h spherical-coords.h		\
+	cone-sample.h cyl-xform.cc cyl-xform.h disk-sample.h frame.h	\
+	local-xform.cc local-xform.h matrix4.cc matrix4.h matrix4.tcc	\
+	pos.h pos-io.cc pos-io.h quadratic-roots.h sphere-isec.h	\
+	sphere-sample.h spherical-coords.h tangent-disk-sample.h	\
 	tripar-isec.h tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc	\
 	vec-io.h xform.h xform-base.h xform-io.cc xform-io.h
 
