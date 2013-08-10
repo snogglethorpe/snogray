@@ -46,6 +46,9 @@ help (CmdLineParser &clp, std::ostream &os)
   os <<
   "Output the difference of two images"
 n
+s "  -d, --delta=THRESH         Set delta threshold for \"identical\" images"
+s "  -m, --mse=THRESH           Set MSE threshold for \"identical\" images"
+n
 s IMAGE_INPUT_OPTIONS_HELP
 n
 s IMAGE_SCALED_OUTPUT_OPTIONS_HELP
@@ -53,7 +56,8 @@ n
 s CMDLINEPARSER_GENERAL_OPTIONS_HELP
 n
 s "In addition to producing a difference image (when an output filename"
-s "is specified), some image-comparison statistics are printed on stdout."
+s "is specified), if the images were different some image-comparison"
+s "statistics are printed on stdout."
 n
 s "The exit status is zero (\"success\") if the images were identical,"
 s "and non-zero otherwise."
@@ -73,12 +77,15 @@ int main (int argc, char *const *argv)
   // Command-line option specs
   //
   static struct option long_options[] = {
+    { "delta",	required_argument, 0, 'd' },
+    { "mse",	required_argument, 0, 'm' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_SCALED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
+    "d:m:"
     IMAGE_INPUT_SHORT_OPTIONS
     IMAGE_SCALED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -89,12 +96,19 @@ int main (int argc, char *const *argv)
   //
   ValTable src_params, dst_params;
 
+  // Image comparison parameters.
+  //
+  double delta_thresh = 0, mse_thresh = 0;
+
   // Parse command-line options
   //
   int opt;
   while ((opt = clp.get_opt ()) > 0)
     switch (opt)
       {
+      case 'd': delta_thresh = clp.float_opt_arg (); break;
+      case 'm': mse_thresh = clp.float_opt_arg (); break;
+
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
 	IMAGE_SCALED_OUTPUT_OPTION_CASES (clp, dst_params);
 	CMDLINEPARSER_GENERAL_OPTION_CASES (clp);
@@ -168,22 +182,33 @@ int main (int argc, char *const *argv)
 	dst->write_row (dst_row);
     }
 
-  // Print image statistics.
-
+  // Calculate image statistics.
+  //
   double num_values = width * height * Color::NUM_COMPONENTS;
   double avg1 = sum1 / num_values;
   double avg2 = sum2 / num_values;
   double avg_delta = (std::abs (avg1 - avg2) / std::min (avg1, avg2));
   double mse = sum_diff_sq / num_values;
 
-  std::cout << std::fixed
-	    << std::setprecision (6)
-	    << "* avg1 = " << avg1
-	    << ", avg2 = " << avg2
-	    << std::setprecision (8)
-	    << ", avg_delta = " << avg_delta
-	    << ", mse = " << mse
-	    << std::endl;
+  // True if the images are considered "different."
+  //
+  bool different
+    = (((delta_thresh > 0 || mse_thresh == 0) && avg_delta > delta_thresh)
+       || ((mse_thresh > 0 || delta_thresh == 0) && mse > mse_thresh));
+
+  // Print image statistics, but only if images differed.
+  //
+  if (different)
+    std::cout << std::fixed
+	      << std::setprecision (6)
+	      << "* avg1 = " << avg1
+	      << ", avg2 = " << avg2
+	      << std::setprecision (8)
+	      << ", avg_delta = " << avg_delta
+	      << ", mse = " << mse
+	      << std::endl;
+
+  exit (different ? 10 : 0);
 }
 
 // arch-tag: 7e0ac89a-194f-4ebb-be2f-ca8714bca63c
