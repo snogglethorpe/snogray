@@ -1,6 +1,7 @@
-# rdrive.swg -- SWIG interfaces for "rdrive", the "rendering driver" library
+# render-mgr.swg -- SWIG interfaces for "render-mgr", the snogray
+#	"rendering manager" library
 #
-#  Copyright (C) 2011, 2012, 2013  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as

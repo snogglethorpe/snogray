@@ -148,7 +148,7 @@ namespace snogray {
 %include "scene/scene.swg"
 %include "texture/texture.swg"
 %include "scene/camera.swg"
-%include "rdrive.swg"
+%include "render-mgr.swg"
 %include "render/render.swg"
 %include "space/space.swg"
 %include "color/color.swg"

@@ -64,7 +64,7 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a	\
-	libsnogrdrive.a libsnogutil.a liblpeg.a
+	libsnogrendermgr.a libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -75,7 +75,7 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	common.swg load.swg rdrive.swg snograw.swg			\
+	common.swg load.swg render-mgr.swg snograw.swg			\
 	util.swg val-table.swg vector.swg				\
 	update-version.sh						\
 	autogen.sh							\
@@ -139,15 +139,15 @@ config.h: update_version
 
 ################################################################
 #
-# Snogray rendering driver library, libsnogrdrive.a
+# Snogray rendering driver library, libsnogrendermgr.a
 #
 
-libsnogrdrive_a_SOURCES = render-cmdline.h render-mgr.cc render-mgr.h	\
+libsnogrendermgr_a_SOURCES = render-cmdline.h render-mgr.cc render-mgr.h	\
 	render-packet.h render-pattern.h renderer.cc renderer.h		\
 	wire-frame.h
 
 if use_threads
-libsnogrdrive_a_SOURCES += render-queue.cc render-queue.h	\
+libsnogrendermgr_a_SOURCES += render-queue.cc render-queue.h	\
 	render-thread.cc render-thread.h
 endif
 
@@ -260,7 +260,7 @@ MISC_LIBS = cli/libsnogcli.a libsnogutil.a
 #
 
 snogray_SOURCES = snogray.cc recover-image.cc recover-image.h
-snogray_LDADD = $(LUA_LIBS) libsnogrdrive.a $(LOADER_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) \
+snogray_LDADD = $(LUA_LIBS) libsnogrendermgr.a $(LOADER_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) \
 	$(MISC_LIBS)
 
 snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
@@ -382,7 +382,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 #
 snograw_lua_wrap.cc: scene/camera.swg color/color.swg common.swg	\
 	image/image.swg light/light.swg load.swg			\
-	material/material.swg rdrive.swg render/render.swg		\
+	material/material.swg render-mgr.swg render/render.swg		\
 	scene/scene.swg space/space.swg surface/surface.swg		\
 	texture/texture.swg util.swg val-table.swg vector.swg
 
