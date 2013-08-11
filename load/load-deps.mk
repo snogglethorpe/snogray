@@ -1,4 +1,4 @@
-# Makefile fragment for extra compile-time dependencies of libsnogloaders.a
+# Makefile fragment for extra compile-time dependencies of libsnogload.a
 #
 #  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 #
@@ -11,10 +11,10 @@
 #
 
 
-# Library dependencies of libsnogloaders.a
+# Library dependencies of libsnogload.a
 #
-libsnogloaders_LIBS =
+libsnogload_LIBS =
 
 if have_lib3ds
-  libsnogloaders_LIBS += $(LIB3DS_LIBS)
+  libsnogload_LIBS += $(LIB3DS_LIBS)
 endif

@@ -37,7 +37,7 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
-	loaders material photon render render-mgr scene scenecli	\
+	load material photon render render-mgr scene scenecli	\
 	space surface texture util
 
 
@@ -110,7 +110,7 @@ endif
 
 include $(top_srcdir)/config.mk
 include $(top_srcdir)/image/image-deps.mk
-include $(top_srcdir)/loaders/loaders-deps.mk
+include $(top_srcdir)/load/load-deps.mk
 
 
 AM_CPPFLAGS += $(liblua_CFLAGS) $(libsnogimage_CPPFLAGS)
@@ -159,7 +159,7 @@ CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
 	texture/libsnogtex.a light/libsnoglight.a		\
 	intersect/libsnogisec.a geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
-LOADER_LIBS = loaders/libsnogloaders.a $(libsnogloaders_LIBS)
+LOADER_LIBS = load/libsnogload.a $(libsnogload_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
 	$(libsnogimage_LIBS) color/libsnogcolor.a
 MISC_LIBS = cli/libsnogcli.a util/libsnogutil.a
@@ -292,7 +292,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # dependencies.
 #
 snograw_lua_wrap.cc: scene/camera.swg color/color.swg common.swg	\
-	image/image.swg light/light.swg loaders/load.swg		\
+	image/image.swg light/light.swg load/load.swg			\
 	material/material.swg render-mgr/render-mgr.swg			\
 	render/render.swg scene/scene.swg space/space.swg		\
 	surface/surface.swg texture/texture.swg util/util.swg		\

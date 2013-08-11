@@ -109,7 +109,7 @@ else
    --
    lua_dir = "."
    lua_module_dir = "."
-   lua_loader_dir = "loaders"
+   lua_loader_dir = "load"
 end
 
 -- Setup a "module" which stores various snogray environment parameters.

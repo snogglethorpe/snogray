@@ -12,9 +12,9 @@
 
 
 %{
-#include "loaders/load-ply.h"
-#include "loaders/load-msh.h"
-#include "loaders/load-3ds.h"
+#include "load/load-ply.h"
+#include "load/load-msh.h"
+#include "load/load-3ds.h"
 %}
 
 
