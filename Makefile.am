@@ -37,7 +37,7 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
-	load material photon render render-mgr scene scenecli	\
+	load material photon render render-mgr scene scenecli snograw	\
 	space surface texture util
 
 
@@ -56,7 +56,7 @@ pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnoglua.a libsnograw.a
+noinst_LIBRARIES = libsnoglua.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -67,7 +67,6 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	common.swg snograw.swg						\
 	update-version.sh						\
 	autogen.sh							\
 	stats.txt spd.txt
@@ -98,14 +97,7 @@ dist-hook:
 
 # Some extra stuff that needs cleaning up
 #
-CLEANFILES = liblua.a snograw.so version.cc
-
-# We only clean up "snograw_lua_wrap.cc" if it's possible to
-# regenerate it.
-#
-if have_swig
-CLEANFILES += snograw_lua_wrap.cc
-endif
+CLEANFILES = liblua.a version.cc
 
 
 include $(top_srcdir)/config.mk
@@ -138,7 +130,7 @@ libsnoglua_a_SOURCES = invoke-lua-driver.cc invoke-lua-driver.h	\
 
 # Library dependencies of libsnoglua.a
 #
-libsnoglua_LIBS = libsnograw.a liblpeg/liblpeg.a $(liblua_LIBS)
+libsnoglua_LIBS = snograw/libsnograw.a liblpeg/liblpeg.a $(liblua_LIBS)
 
 
 ################################################################
@@ -242,90 +234,5 @@ liblua.a:
 endif
 
 endif
-
-
-###############################################################
-#
-# "Raw" SWIG interface to snogray, libsnograw.a
-#
-
-# If the swig interface generator is available, we can update the C++
-# interface when snograw.swg changes; otherwise we need to use
-# pregenerated copies.
-#
-if have_swig
-
-SWIG_FLAGS = $(SWIG_NOMODULEGLOBAL_FLAG)
-
-# automake "silent-rules" hooks for swig.
-#
-swig_verbose = $(swig_verbose_$(V))
-swig_verbose_ = $(swig_verbose_$(AM_DEFAULT_VERBOSITY))
-swig_verbose_0 = @echo "  SWIG    " $@;
-
-# Build rules for swig-generated files we use.
-#
-%_lua_wrap.cc : %.swg
-	$(swig_verbose)$(SWIG) $(SWIG_FLAGS) -o $@ -c++ -lua $<
-
-else
-
-# A dummy build rule for swig-generated files that gets used when the
-# swig program isn't available; it just prints an warning/error
-# message when make tries to regenerate the file (which normally
-# shouldn't be necessary with a tarball distribution, as
-# swig-generated files are distributed in the tarball).
-#
-%_wrap.cc : %.swg
-	@if test -r "$@"; then						       \
-	  echo '** Warning: $< is newer than $@, but cannot run swig interface generator'; \
-	else								       \
-	  echo '** Error: cannot run swig interface generator to generate $@'; \
-	  exit 1;							       \
-	fi
-
-endif
-
-libsnograw_a_SOURCES = snograw_lua_wrap.cc
-
-# We include some other SWIG files from snograw.swg, so reflect those
-# dependencies.
-#
-snograw_lua_wrap.cc: scene/camera.swg color/color.swg common.swg	\
-	image/image.swg light/light.swg load/load.swg			\
-	material/material.swg render-mgr/render-mgr.swg			\
-	render/render.swg scene/scene.swg space/space.swg		\
-	surface/surface.swg texture/texture.swg util/util.swg		\
-	util/val-table.swg util/lua-vector.swg
-
-
-# Compiler options for compiling SWIG-generated Lua interface.
-#
-# These are the same as the default compiler options, except:
-# (1) Optimize for size (SWIG-generated code can be bloated)
-# (2) Add "-fno-strict-aliasing", as the generated code uses some
-#     dodgy aliasing tricks
-# (3) Don't use pedantic checking options (the quality of the
-#     generated code is not something we can easily control)
-#
-libsnograw_a_CXXFLAGS = $(OPT_SIZE) $(DEBUG) $(CXX_STD_FLAGS) -fno-strict-aliasing $(CXX_EXTRA_REQ_FLAGS) $(EXTRA_COMPILE_FLAGS)
-
-# Make automake suck slightly less
-libsnograw_a_SHORTNAME = sl
-
-# This makes sure that liblua.a gets built when necessary.
-#
-if build_lua
-libsnograw_a_DEPENDENCIES = liblua.a
-endif
-
-## Build a dynamically loadable Lua module, for debugging.
-##
-snograw_so_LIBS = $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
-snograw_so_DEPS = $(filterout, -l%, $(snograw_so_LIBS)
-snograw.so: $(snograw_DEPS)
-	$(CXX) -o $@ --shared -Wl,-uluaopen_snograw libsnograw.a \
-		$(snograw_so_LIBS)
-
 
 ## arch-tag: cfcae754-60d5-470f-b3ea-248fbf0a01c8
