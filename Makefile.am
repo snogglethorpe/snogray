@@ -10,6 +10,11 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
+include $(top_srcdir)/config.mk
+include $(top_srcdir)/lua-install-dirs.mk
+include $(top_srcdir)/image/image-deps.mk
+include $(top_srcdir)/load/load-deps.mk
+
 
 # Targets
 #
@@ -39,9 +44,6 @@ endif
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
 	load material photon render render-mgr scene scenecli snograw	\
 	space surface texture util
-
-
-include lua-install-dirs.mk
 
 
 # Lua files loaded directly.
@@ -98,11 +100,6 @@ dist-hook:
 # Some extra stuff that needs cleaning up
 #
 CLEANFILES = liblua.a version.cc
-
-
-include $(top_srcdir)/config.mk
-include $(top_srcdir)/image/image-deps.mk
-include $(top_srcdir)/load/load-deps.mk
 
 
 AM_CPPFLAGS += $(liblua_CFLAGS) $(libsnogimage_CPPFLAGS)
