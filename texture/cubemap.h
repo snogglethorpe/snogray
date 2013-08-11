@@ -1,6 +1,6 @@
 // cubemap.h -- Texture wrapped around a cube
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2009, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_CUBEMAP_H
 #define SNOGRAY_CUBEMAP_H
 
-#include "color.h"
+#include "color/color.h"
 #include "tex.h"
 #include "envmap.h"
 #include "unique-ptr.h"

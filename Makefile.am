@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = geometry image light material space surface texture
+SUBDIRS = color geometry image light material space surface texture
 
 include lua-install-dirs.mk
 
@@ -49,11 +49,11 @@ pkglua_DATA = module-setup.lua snogray.lua
 # names have a "snogray." prefix.
 #
 pkgluamodulesnogray_DATA = all-in-one.lua camera.lua			\
-	camera-cmdline.lua cmdlineparser.lua color.lua file.lua		\
-	filename.lua image-sampled-output-cmdline.lua			\
-	limit-cmdline.lua load.lua lpeg-utils.lua render-cmdline.lua	\
-	render.lua scene.lua scene-cmdline.lua string-fill.lua		\
-	string.lua swig.lua sys.lua table.lua
+	camera-cmdline.lua cmdlineparser.lua file.lua filename.lua	\
+	image-sampled-output-cmdline.lua limit-cmdline.lua load.lua	\
+	lpeg-utils.lua render-cmdline.lua render.lua scene.lua		\
+	scene-cmdline.lua string-fill.lua string.lua swig.lua sys.lua	\
+	table.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -63,9 +63,9 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimagecli.a	\
-	libsnogisec.a libsnogloaders.a libsnoglua.a libsnogphoton.a	\
-	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
+noinst_LIBRARIES = libsnogcli.a libsnogimagecli.a libsnogisec.a		\
+	libsnogloaders.a libsnoglua.a libsnogphoton.a libsnograw.a	\
+	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
 	libsnogscenecli.a libsnogutil.a liblpeg.a
 
 
@@ -77,7 +77,7 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	camera.swg color.swg common.swg load.swg			\
+	camera.swg common.swg load.swg					\
 	rdrive.swg render.swg scene.swg snograw.swg			\
 	util.swg val-table.swg vector.swg				\
 	update-version.sh						\
@@ -267,15 +267,6 @@ libsnogimagecli_a_SOURCES = image-input-cmdline.h			\
 
 ################################################################
 #
-# Snogray color library, libsnogcolor.a
-#
-
-libsnogcolor_a_SOURCES = color.cc color.h color-io.cc color-io.h	\
-	color-math.h tint.h tint-io.cc tint-io.h
-
-
-################################################################
-#
 # Snogray general utility library, libsnogutil.a
 #
 
@@ -330,7 +321,7 @@ CORE_LIBS = libsnogrender.a libsnogphoton.a space/libsnogspace.a	\
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = libsnogimagecli.a image/libsnogimage.a	\
-	$(libsnogimage_LIBS) libsnogcolor.a
+	$(libsnogimage_LIBS) color/libsnogcolor.a
 MISC_LIBS = libsnogcli.a libsnogutil.a
 
 
@@ -460,10 +451,11 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
 #
-snograw_lua_wrap.cc: camera.swg color.swg common.swg image/image.swg	\
-	light/light.swg load.swg material/material.swg rdrive.swg	\
-	render.swg scene.swg space/space.swg surface/surface.swg	\
-	texture/texture.swg util.swg val-table.swg vector.swg
+snograw_lua_wrap.cc: camera.swg color/color.swg common.swg	\
+	image/image.swg light/light.swg load.swg		\
+	material/material.swg rdrive.swg render.swg scene.swg	\
+	space/space.swg surface/surface.swg texture/texture.swg	\
+	util.swg val-table.swg vector.swg
 
 
 # Compiler options for compiling SWIG-generated Lua interface.

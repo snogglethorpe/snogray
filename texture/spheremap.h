@@ -16,7 +16,7 @@
 #include "tex.h"
 #include "snogmath.h"
 #include "excepts.h"
-#include "color.h"
+#include "color/color.h"
 #include "geometry/uv.h"
 #include "matrix-tex.h"
 #include "envmap.h"

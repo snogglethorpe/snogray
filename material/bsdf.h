@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_BSDF_H
 #define SNOGRAY_BSDF_H
 
-#include "color.h"
+#include "color/color.h"
 #include "geometry/vec.h"
 #include "geometry/uv.h"
 

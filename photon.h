@@ -14,7 +14,7 @@
 #define SNOGRAY_PHOTON_H
 
 #include "geometry/pos.h"
-#include "color.h"
+#include "color/color.h"
 
 
 namespace snogray {

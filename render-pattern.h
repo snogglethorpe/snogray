@@ -14,7 +14,7 @@
 #define SNOGRAY_RENDER_PATTERN_H
 
 #include "geometry/uv.h"
-#include "tint.h"
+#include "color/tint.h"
 
 
 namespace snogray {

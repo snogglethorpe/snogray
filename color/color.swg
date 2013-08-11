@@ -1,6 +1,6 @@
 # color.swg -- SWIG interfaces for color handling
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,8 +12,8 @@
 
 
 %{
-#include "color.h"
-#include "color-io.h"
+#include "color/color.h"
+#include "color/color-io.h"
 %}
 
 

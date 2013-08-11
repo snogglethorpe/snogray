@@ -1,6 +1,6 @@
 // grey-tex.h -- float-to-color conversion texture
 //
-//  Copyright (C) 2008, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #define SNOGRAY_GREY_TEX_H
 
 #include "tex.h"
-#include "color.h"
+#include "color/color.h"
 
 
 namespace snogray {

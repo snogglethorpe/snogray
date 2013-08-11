@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_DIRECT_ILLUM_H
 #define SNOGRAY_DIRECT_ILLUM_H
 
-#include "color.h"
+#include "color/color.h"
 #include "material/bsdf.h"
 #include "sample-set.h"
 

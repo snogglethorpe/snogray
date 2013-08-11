@@ -1,6 +1,6 @@
 // surface-integ.h -- Light integrator interface for surfaces
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #define SNOGRAY_SURFACE_INTEG_H
 
 #include "ray.h"
-#include "tint.h"
+#include "color/tint.h"
 #include "sample-set.h"
 
 #include "integ.h"

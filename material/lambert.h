@@ -14,7 +14,7 @@
 #define SNOGRAY_LAMBERT_H
 
 #include "texture/tex.h"
-#include "color.h"
+#include "color/color.h"
 
 #include "material.h"
 

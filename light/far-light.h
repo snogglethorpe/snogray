@@ -14,9 +14,10 @@
 #define SNOGRAY_FAR_LIGHT_H
 
 #include "snogmath.h"
-#include "light.h"
-#include "color.h"
+#include "color/color.h"
 #include "geometry/pos.h"
+
+#include "light.h"
 
 
 namespace snogray {

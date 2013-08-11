@@ -14,7 +14,7 @@
 #define SNOGRAY_MEDIUM_H
 
 #include "geometry/coords.h"
-#include "color.h"
+#include "color/color.h"
 
 namespace snogray {
 

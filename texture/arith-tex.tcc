@@ -1,6 +1,6 @@
 // arith-tex.tcc -- arithmetic on textured values
 //
-//  Copyright (C) 2008, 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
 #include "config.h"
 
 #include "snogmath.h"
-#include "color.h"
-#include "color-math.h"
+#include "color/color.h"
+#include "color/color-math.h"
 
 
 namespace snogray {

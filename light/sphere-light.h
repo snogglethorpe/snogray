@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_SPHERE_LIGHT_H
 #define SNOGRAY_SPHERE_LIGHT_H
 
-#include "color.h"
+#include "color/color.h"
 #include "geometry/pos.h"
 #include "texture/tex.h"
 

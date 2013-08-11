@@ -14,7 +14,7 @@
 #define SNOGRAY_ENVMAP_H
 
 #include "ref.h"
-#include "color.h"
+#include "color/color.h"
 #include "geometry/vec.h"
 #include "image/image.h"
 
