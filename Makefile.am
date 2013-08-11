@@ -37,8 +37,8 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
-	material photon render render-mgr scene scenecli space		\
-	surface texture util
+	loaders material photon render render-mgr scene scenecli	\
+	space surface texture util
 
 
 include lua-install-dirs.mk
@@ -51,17 +51,12 @@ pkglua_DATA = module-setup.lua snogray.lua
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua load.lua
-
-# Lua loaders for various scene/mesh formats.
-#
-pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
-	load-pbrt.lua load-stl.lua load-ug.lua
+pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
 
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a
+noinst_LIBRARIES = libsnoglua.a libsnograw.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -72,7 +67,7 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	common.swg load.swg snograw.swg					\
+	common.swg snograw.swg						\
 	update-version.sh						\
 	autogen.sh							\
 	stats.txt spd.txt
@@ -115,6 +110,7 @@ endif
 
 include $(top_srcdir)/config.mk
 include $(top_srcdir)/image/image-deps.mk
+include $(top_srcdir)/loaders/loaders-deps.mk
 
 
 AM_CPPFLAGS += $(liblua_CFLAGS) $(libsnogimage_CPPFLAGS)
@@ -130,24 +126,6 @@ update_version:
 .PHONY: update_version
 
 config.h: update_version
-
-
-################################################################
-#
-# Snogray format-specific loader library
-#
-
-libsnogloaders_a_SOURCES = load-msh.cc load-msh.h load-ply.cc	\
-	load-ply.h rply.c rply.h load-envmap.cc load-envmap.h
-
-# Library dependencies of libsnogloaders.a
-#
-libsnogloaders_LIBS =
-
-if have_lib3ds
-  libsnogloaders_a_SOURCES += load-3ds.cc load-3ds.h
-  libsnogloaders_LIBS += $(LIB3DS_LIBS)
-endif
 
 
 ################################################################
@@ -181,7 +159,7 @@ CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
 	texture/libsnogtex.a light/libsnoglight.a		\
 	intersect/libsnogisec.a geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
-LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
+LOADER_LIBS = loaders/libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
 	$(libsnogimage_LIBS) color/libsnogcolor.a
 MISC_LIBS = cli/libsnogcli.a util/libsnogutil.a
@@ -314,7 +292,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # dependencies.
 #
 snograw_lua_wrap.cc: scene/camera.swg color/color.swg common.swg	\
-	image/image.swg light/light.swg load.swg			\
+	image/image.swg light/light.swg loaders/load.swg		\
 	material/material.swg render-mgr/render-mgr.swg			\
 	render/render.swg scene/scene.swg space/space.swg		\
 	surface/surface.swg texture/texture.swg util/util.swg		\

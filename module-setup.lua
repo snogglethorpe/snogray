@@ -67,7 +67,7 @@ else
       ["swig"]		 = "util/swig",
       ["sys"]		 = "util/sys",
       ["table"]		 = "util/table",
-      ["transform"]	 = "geometry/transform"
+      ["transform"]	 = "geometry/transform",
    }
 
    local function load_uninstalled_snogray_package (pkg, ...)
@@ -109,7 +109,7 @@ else
    --
    lua_dir = "."
    lua_module_dir = "."
-   lua_loader_dir = "."
+   lua_loader_dir = "loaders"
 end
 
 -- Setup a "module" which stores various snogray environment parameters.

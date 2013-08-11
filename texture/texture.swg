@@ -15,7 +15,7 @@
 #include "texture/tex.h"
 #include "image/image.h"
 #include "texture/envmap.h"
-#include "load-envmap.h"
+#include "loaders/load-envmap.h"
 #include "texture/matrix-tex.h"
 #include "texture/arith-tex.h"
 #include "texture/grey-tex.h"

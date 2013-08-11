@@ -16,7 +16,7 @@
 #include "texture/envmap.h"
 #include "light/envmap-light.h"
 #include "geometry/xform.h"
-#include "load-envmap.h"
+#include "loaders/load-envmap.h"
 #include "light/far-light.h"
 #include "util/excepts.h"
 #include "image/image-io.h"

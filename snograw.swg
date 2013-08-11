@@ -152,7 +152,7 @@ namespace snogray {
 %include "render/render.swg"
 %include "space/space.swg"
 %include "color/color.swg"
-%include "load.swg"
+%include "loaders/load.swg"
 %include "util/util.swg"
 
 

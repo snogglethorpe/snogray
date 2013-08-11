@@ -1,6 +1,6 @@
 # surface.swg -- SWIG interfaces for snogray surfaces
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,9 +12,9 @@
 
 
 %{
-#include "load-ply.h"
-#include "load-msh.h"
-#include "load-3ds.h"
+#include "loaders/load-ply.h"
+#include "loaders/load-msh.h"
+#include "loaders/load-3ds.h"
 %}
 
 

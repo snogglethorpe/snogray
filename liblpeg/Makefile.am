@@ -23,5 +23,3 @@ AM_CPPFLAGS += $(liblua_CFLAGS)
 
 liblpeg_a_SOURCES = lpcap.c lpcap.h lpcode.c lpcode.h lpprint.c	\
 	lpprint.h lptree.c lptree.h lptypes.h lpvm.c lpvm.h
-
-
