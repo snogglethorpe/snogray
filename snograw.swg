@@ -150,7 +150,7 @@ namespace snogray {
 %include "camera.swg"
 %include "rdrive.swg"
 %include "render.swg"
-%include "space.swg"
+%include "space/space.swg"
 %include "color.swg"
 %include "load.swg"
 %include "util.swg"

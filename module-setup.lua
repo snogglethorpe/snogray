@@ -50,7 +50,8 @@ else
    --
    local uninst_module_mapping = {
       coord = "geometry/coord",
-      transform = "geometry/transform"
+      transform = "geometry/transform",
+      accel = "space/accel"
    }
 
    local function load_uninstalled_snogray_package (pkg, ...)

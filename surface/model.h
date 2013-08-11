@@ -1,6 +1,6 @@
 // model.h -- A surface encapsulated into its own model
 //
-//  Copyright (C) 2007-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
 #define SNOGRAY_MODEL_H
 
 #include "ref.h"
-#include "space.h"
-#include "space-builder.h"
+#include "space/space.h"
+#include "space/space-builder.h"
 #include "surface.h"
 #include "unique-ptr.h"
 #include "ray.h"

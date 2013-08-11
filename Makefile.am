@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = geometry image light material surface texture
+SUBDIRS = geometry image light material space surface texture
 
 include lua-install-dirs.mk
 
@@ -48,7 +48,7 @@ pkglua_DATA = module-setup.lua snogray.lua
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-pkgluamodulesnogray_DATA = accel.lua all-in-one.lua camera.lua		\
+pkgluamodulesnogray_DATA = all-in-one.lua camera.lua			\
 	camera-cmdline.lua cmdlineparser.lua color.lua file.lua		\
 	filename.lua image-sampled-output-cmdline.lua			\
 	limit-cmdline.lua load.lua lpeg-utils.lua render-cmdline.lua	\
@@ -66,7 +66,7 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 noinst_LIBRARIES = libsnogcli.a libsnogcolor.a libsnogimagecli.a	\
 	libsnogisec.a libsnogloaders.a libsnoglua.a libsnogphoton.a	\
 	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
-	libsnogscenecli.a libsnogspace.a libsnogutil.a liblpeg.a
+	libsnogscenecli.a libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -79,7 +79,7 @@ EXTRA_DIST =								\
 	README.utils							\
 	camera.swg color.swg common.swg load.swg			\
 	rdrive.swg render.swg scene.swg snograw.swg			\
-	space.swg util.swg val-table.swg vector.swg			\
+	util.swg val-table.swg vector.swg				\
 	update-version.sh						\
 	autogen.sh							\
 	lpeg.html							\
@@ -195,15 +195,6 @@ endif
 #
 
 libsnogscene_a_SOURCES = camera.cc camera.h scene.cc scene.h
-
-
-################################################################
-#
-# Snogray acceleration-structure library, libsnogspace.a
-#
-
-libsnogspace_a_SOURCES = octree.cc octree.h space.cc space.h		\
-	space-builder.h triv-space.h
 
 
 ################################################################
@@ -332,7 +323,7 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogrender.a libsnogphoton.a libsnogspace.a		\
+CORE_LIBS = libsnogrender.a libsnogphoton.a space/libsnogspace.a	\
 	libsnogscene.a material/libsnogmat.a surface/libsnogsurf.a	\
 	texture/libsnogtex.a light/libsnoglight.a libsnogisec.a		\
 	geometry/libsnoggeom.a
@@ -471,7 +462,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 #
 snograw_lua_wrap.cc: camera.swg color.swg common.swg image/image.swg	\
 	light/light.swg load.swg material/material.swg rdrive.swg	\
-	render.swg scene.swg space.swg surface/surface.swg		\
+	render.swg scene.swg space/space.swg surface/surface.swg	\
 	texture/texture.swg util.swg val-table.swg vector.swg
 
 

@@ -1,6 +1,6 @@
 // model.cc -- A surface encapsulated into its own model
 //
-//  Copyright (C) 2007, 2009-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,9 +12,9 @@
 
 #include <memory>
 
-#include "space.h"
-#include "space-builder.h"
 #include "snogassert.h"
+#include "space/space.h"
+#include "space/space-builder.h"
 
 #include "model.h"
 

@@ -12,9 +12,10 @@
 
 #include <stdexcept>
 
+#include "space/space.h"
+#include "space/space-builder.h"
+
 #include "surface.h"
-#include "space.h"
-#include "space-builder.h"
 
 
 using namespace snogray;

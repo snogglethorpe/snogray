@@ -18,7 +18,7 @@
 #include "surface/surface.h"
 #include "light/light.h"
 #include "intersect.h"
-#include "space.h"
+#include "space/space.h"
 #include "ray.h"
 #include "surface/surface-group.h"
 

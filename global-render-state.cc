@@ -1,6 +1,6 @@
 // global-render-state.cc -- global information used during rendering
 //
-//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,8 +11,8 @@
 //
 
 #include "excepts.h"
-#include "octree.h"
-#include "triv-space.h"
+#include "space/octree.h"
+#include "space/triv-space.h"
 #include "grid.h"
 #include "direct-integ.h"
 #include "path-integ.h"

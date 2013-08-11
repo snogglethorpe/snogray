@@ -1,6 +1,6 @@
 // instance.cc -- Transformed object model
 //
-//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,7 +11,7 @@
 //
 
 #include "intersect.h"
-#include "space.h"
+#include "space/space.h"
 #include "model.h"
 #include "excepts.h"
 
