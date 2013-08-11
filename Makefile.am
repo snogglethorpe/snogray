@@ -159,7 +159,7 @@ CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
 	texture/libsnogtex.a light/libsnoglight.a		\
 	intersect/libsnogisec.a geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
-LOADER_LIBS = load/libsnogload.a $(libsnogload_LIBS)
+LOAD_LIBS = load/libsnogload.a $(libsnogload_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
 	$(libsnogimage_LIBS) color/libsnogcolor.a
 MISC_LIBS = cli/libsnogcli.a util/libsnogutil.a
@@ -172,10 +172,10 @@ MISC_LIBS = cli/libsnogcli.a util/libsnogutil.a
 
 snogray_SOURCES = snogray.cc recover-image.cc recover-image.h
 snogray_LDADD = $(LUA_LIBS) render-mgr/libsnogrendermgr.a	\
-	$(LOADER_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
+	$(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
-snogsamp_LDADD = $(LOADER_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
+snogsamp_LDADD = $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
 snogcvt_SOURCES = snogcvt.cc
 snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
