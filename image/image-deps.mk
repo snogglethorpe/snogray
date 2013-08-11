@@ -20,8 +20,7 @@
 # automake's implementation has annoying side-effects).
 #
 libsnogimage_CPPFLAGS = $(libpng_CFLAGS) $(libexr_CFLAGS)	\
-	$(libjpeg_CFLAGS) $(libnetpbm_CFLAGS) $(LIB3DS_CFLAGS)	\
-	$(liblua_CFLAGS)
+	$(libjpeg_CFLAGS) $(libnetpbm_CFLAGS) $(LIB3DS_CFLAGS)
 
 
 # Library dependencies of libsnogimage.a

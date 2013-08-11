@@ -118,7 +118,7 @@ include $(top_srcdir)/config.mk
 include $(top_srcdir)/image/image-deps.mk
 
 
-AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
+AM_CPPFLAGS += $(liblua_CFLAGS) $(libsnogimage_CPPFLAGS)
 
 
 ################################################################
