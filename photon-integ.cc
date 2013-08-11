@@ -18,7 +18,7 @@
 #include "material/media.h"
 #include "material/material.h"
 #include "mis-sample-weight.h"
-#include "photon-shooter.h"
+#include "photon/photon-shooter.h"
 
 #include "photon-integ.h"
 

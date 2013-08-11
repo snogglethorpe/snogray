@@ -1532,8 +1532,9 @@ AC_CONFIG_FILES([Makefile cli/Makefile color/Makefile
 			  geometry/Makefile image/Makefile
 			  imagecli/Makefile intersect/Makefile
 			  light/Makefile material/Makefile
-			  scenecli/Makefile space/Makefile
-			  surface/Makefile texture/Makefile])
+			  photon/Makefile scenecli/Makefile
+			  space/Makefile surface/Makefile
+			  texture/Makefile])
 
 AC_OUTPUT
 

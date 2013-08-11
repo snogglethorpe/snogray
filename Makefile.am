@@ -37,7 +37,7 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light material	\
-	scenecli space surface texture
+	photon scenecli space surface texture
 
 
 include lua-install-dirs.mk
@@ -63,9 +63,9 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnogphoton.a	\
-	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
-	libsnogutil.a liblpeg.a
+noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a		\
+	libsnogrdrive.a libsnogrender.a libsnogscene.a libsnogutil.a	\
+	liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -153,15 +153,6 @@ libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
 	render-params.h render-stats.cc render-stats.h sample-gen.h	\
 	sample-set.cc sample-set.h surface-integ.h volume-integ.h	\
 	zero-surface-integ.h
-
-
-################################################################
-#
-# Snogray photon-mapping library, libsnogphoton.a
-#
-
-libsnogphoton_a_SOURCES = photon.h photon-eval.cc photon-eval.h		\
-	photon-map.cc photon-map.h photon-shooter.cc photon-shooter.h
 
 
 ################################################################
@@ -277,10 +268,11 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogrender.a libsnogphoton.a space/libsnogspace.a	\
-	libsnogscene.a material/libsnogmat.a surface/libsnogsurf.a	\
-	texture/libsnogtex.a light/libsnoglight.a			\
-	intersect/libsnogisec.a geometry/libsnoggeom.a
+CORE_LIBS = libsnogrender.a photon/libsnogphoton.a			\
+	space/libsnogspace.a libsnogscene.a material/libsnogmat.a	\
+	surface/libsnogsurf.a texture/libsnogtex.a			\
+	light/libsnoglight.a intersect/libsnogisec.a			\
+	geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\

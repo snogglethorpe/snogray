@@ -14,7 +14,7 @@
 #include "scene.h"
 #include "material/media.h"
 #include "material/material.h"
-#include "photon-shooter.h"
+#include "photon/photon-shooter.h"
 
 #include "path-integ.h"
 

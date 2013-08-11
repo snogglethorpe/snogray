@@ -14,8 +14,8 @@
 #define SNOGRAY_PHOTON_INTEG_H
 
 #include "material/bsdf.h"
-#include "photon-map.h"
-#include "photon-eval.h"
+#include "photon/photon-map.h"
+#include "photon/photon-eval.h"
 #include "direct-illum.h"
 
 #include "recursive-integ.h"
