@@ -1,6 +1,6 @@
 # rdrive.swg -- SWIG interfaces for "rdrive", the "rendering driver" library
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2012, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
 #include "render-mgr.h"
 #include "render-pattern.h"
 #include "render-stats.h"
-#include "tty-progress.h"
+#include "cli/tty-progress.h"
 %}
 
 

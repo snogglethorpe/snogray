@@ -1,6 +1,6 @@
 // lua-setup.cc -- Create a new snogray-specific lua state
 //
-//  Copyright (C) 2006-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ extern "C"
 #include "lua-funs.h"
 #include "funptr-cast.h"
 #include "snogpaths.h"
-#include "version.h"
+#include "cli/version.h"
 
 #include "lua-setup.h"
 

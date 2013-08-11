@@ -50,6 +50,7 @@ else
    --
    local uninst_module_mapping = {
       accel = "space/accel",
+      cmdlineparser = "cli/cmdlineparser",
       coord = "geometry/coord",
       ["image-sampled-output-cmdline"]
 	 = "imagecli/image-sampled-output-cmdline",

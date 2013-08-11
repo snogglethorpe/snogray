@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = color geometry image imagecli intersect light material	\
+SUBDIRS = cli color geometry image imagecli intersect light material	\
 	space surface texture
 
 
@@ -51,10 +51,10 @@ pkglua_DATA = module-setup.lua snogray.lua
 # names have a "snogray." prefix.
 #
 pkgluamodulesnogray_DATA = all-in-one.lua camera.lua			\
-	camera-cmdline.lua cmdlineparser.lua file.lua filename.lua	\
-	limit-cmdline.lua load.lua lpeg-utils.lua render-cmdline.lua	\
-	render.lua scene.lua scene-cmdline.lua string-fill.lua		\
-	string.lua swig.lua sys.lua table.lua
+	camera-cmdline.lua file.lua filename.lua limit-cmdline.lua	\
+	load.lua lpeg-utils.lua render-cmdline.lua render.lua		\
+	scene.lua scene-cmdline.lua string-fill.lua string.lua		\
+	swig.lua sys.lua table.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -64,9 +64,9 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogloaders.a libsnoglua.a		\
-	libsnogphoton.a libsnograw.a libsnogrdrive.a libsnogrender.a	\
-	libsnogscene.a libsnogscenecli.a libsnogutil.a liblpeg.a
+noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnogphoton.a	\
+	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
+	libsnogscenecli.a libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -190,15 +190,6 @@ libsnogscene_a_SOURCES = camera.cc camera.h scene.cc scene.h
 
 ################################################################
 #
-# Snogray command-line-interface library, libsnogcli.a
-#
-
-libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
-	tty-progress.cc tty-progress.h version.cc version.h
-
-
-################################################################
-#
 # Snogray scene command-line handling library, libsnogscenecli.a
 #
 
@@ -303,7 +294,7 @@ LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
 	$(libsnogimage_LIBS) color/libsnogcolor.a
-MISC_LIBS = libsnogcli.a libsnogutil.a
+MISC_LIBS = cli/libsnogcli.a libsnogutil.a
 
 
 ###############################################################

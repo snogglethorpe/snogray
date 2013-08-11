@@ -14,7 +14,7 @@
 #include <cstring>
 
 #include "unique-ptr.h"
-#include "cmdlineparser.h"
+#include "cli/cmdlineparser.h"
 #include "image/image.h"
 #include "imagecli/image-input-cmdline.h"
 #include "imagecli/image-scaled-output-cmdline.h"

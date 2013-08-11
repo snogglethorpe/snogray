@@ -20,7 +20,7 @@
 #include "render-context.h"
 #include "global-render-state.h"
 
-#include "tty-progress.h"
+#include "cli/tty-progress.h"
 #include "string-funs.h"
 
 #include "photon-shooter.h"

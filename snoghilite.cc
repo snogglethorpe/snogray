@@ -13,7 +13,7 @@
 #include <iostream>
 #include <cstring>
 
-#include "cmdlineparser.h"
+#include "cli/cmdlineparser.h"
 #include "image/image-input.h"
 #include "image/image-scaled-output.h"
 #include "imagecli/image-input-cmdline.h"
