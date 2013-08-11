@@ -36,8 +36,9 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = cli color geometry image imagecli intersect light material	\
-	photon render render-mgr scene scenecli space surface texture util
+SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
+	material photon render render-mgr scene scenecli space		\
+	surface texture util
 
 
 include lua-install-dirs.mk
@@ -60,8 +61,7 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a	\
-	liblpeg.a
+noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -75,7 +75,6 @@ EXTRA_DIST =								\
 	common.swg load.swg snograw.swg					\
 	update-version.sh						\
 	autogen.sh							\
-	lpeg.html							\
 	stats.txt spd.txt
 
 noinst_SCRIPTS = update-version.sh
@@ -161,17 +160,7 @@ libsnoglua_a_SOURCES = invoke-lua-driver.cc invoke-lua-driver.h	\
 
 # Library dependencies of libsnoglua.a
 #
-libsnoglua_LIBS = libsnograw.a liblpeg.a $(liblua_LIBS)
-
-
-################################################################
-#
-# LPeg library.  This library isn't so common, so we just use our own
-# copy.
-#
-
-liblpeg_a_SOURCES = lpcap.c lpcap.h lpcode.c lpcode.h lpprint.c		\
-	lpprint.h lptree.c lptree.h lptypes.h lpvm.c lpvm.h
+libsnoglua_LIBS = libsnograw.a liblpeg/liblpeg.a $(liblua_LIBS)
 
 
 ################################################################
