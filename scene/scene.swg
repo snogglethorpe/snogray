@@ -13,7 +13,7 @@
 
 %{
 #include "geometry/coords.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "geometry/bbox-io.h"
 %}
 

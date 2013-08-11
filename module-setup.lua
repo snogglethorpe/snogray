@@ -50,6 +50,7 @@ else
    --
    local uninst_module_mapping = {
       ["accel"]		 = "space/accel",
+      ["camera"]	 = "scene/camera",
       ["camera-cmdline"] = "scenecli/camera-cmdline",
       ["cmdlineparser"]	 = "cli/cmdlineparser",
       ["coord"]		 = "geometry/coord",

@@ -11,7 +11,7 @@
 //
 
 #include "material/bsdf.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "material/media.h"
 #include "material/material.h"
 #include "photon/photon-shooter.h"

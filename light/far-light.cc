@@ -11,7 +11,7 @@
 //
 
 #include "geometry/bbox.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "intersect/intersect.h"
 #include "geometry/cone-sample.h"
 #include "geometry/tangent-disk-sample.h"

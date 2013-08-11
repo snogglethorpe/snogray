@@ -12,7 +12,7 @@
 
 #include <cstdlib>
 
-#include "scene.h"
+#include "scene/scene.h"
 #include "texture/envmap.h"
 #include "light/envmap-light.h"
 #include "geometry/xform.h"

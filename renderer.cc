@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "camera.h"
+#include "scene/camera.h"
 #include "material/media.h"
 #include "sample-set.h"
 #include "render-packet.h"

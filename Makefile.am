@@ -37,7 +37,7 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light material	\
-	photon scenecli space surface texture
+	photon scene scenecli space surface texture
 
 
 include lua-install-dirs.mk
@@ -50,10 +50,10 @@ pkglua_DATA = module-setup.lua snogray.lua
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-pkgluamodulesnogray_DATA = all-in-one.lua camera.lua file.lua	\
-	filename.lua limit-cmdline.lua load.lua lpeg-utils.lua	\
-	render-cmdline.lua render.lua scene.lua string-fill.lua	\
-	string.lua swig.lua sys.lua table.lua
+pkgluamodulesnogray_DATA = all-in-one.lua file.lua filename.lua		\
+	limit-cmdline.lua load.lua lpeg-utils.lua render-cmdline.lua	\
+	render.lua string-fill.lua string.lua swig.lua sys.lua		\
+	table.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -63,9 +63,8 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a		\
-	libsnogrdrive.a libsnogrender.a libsnogscene.a libsnogutil.a	\
-	liblpeg.a
+noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a	\
+	libsnogrdrive.a libsnogrender.a libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -76,8 +75,7 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	camera.swg common.swg load.swg					\
-	rdrive.swg render.swg scene.swg snograw.swg			\
+	common.swg load.swg rdrive.swg render.swg snograw.swg		\
 	util.swg val-table.swg vector.swg				\
 	update-version.sh						\
 	autogen.sh							\
@@ -172,14 +170,6 @@ endif
 
 ################################################################
 #
-# Snogray scene-representation library, libsnogscene.a
-#
-
-libsnogscene_a_SOURCES = camera.cc camera.h scene.cc scene.h
-
-
-################################################################
-#
 # Snogray format-specific loader library
 #
 
@@ -268,11 +258,11 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogrender.a photon/libsnogphoton.a			\
-	space/libsnogspace.a libsnogscene.a material/libsnogmat.a	\
-	surface/libsnogsurf.a texture/libsnogtex.a			\
-	light/libsnoglight.a intersect/libsnogisec.a			\
-	geometry/libsnoggeom.a
+CORE_LIBS = libsnogrender.a photon/libsnogphoton.a	\
+	space/libsnogspace.a scene/libsnogscene.a	\
+	material/libsnogmat.a surface/libsnogsurf.a	\
+	texture/libsnogtex.a light/libsnoglight.a	\
+	intersect/libsnogisec.a geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
@@ -406,10 +396,10 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
 #
-snograw_lua_wrap.cc: camera.swg color/color.swg common.swg	\
-	image/image.swg light/light.swg load.swg		\
-	material/material.swg rdrive.swg render.swg scene.swg	\
-	space/space.swg surface/surface.swg texture/texture.swg	\
+snograw_lua_wrap.cc: scene/camera.swg color/color.swg common.swg	\
+	image/image.swg light/light.swg load.swg			\
+	material/material.swg rdrive.swg render.swg scene/scene.swg	\
+	space/space.swg surface/surface.swg texture/texture.swg		\
 	util.swg val-table.swg vector.swg
 
 

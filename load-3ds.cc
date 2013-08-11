@@ -27,13 +27,13 @@
 #include <lib3ds/matrix.h>
 
 #include "excepts.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "material/mirror.h"
 #include "material/thin-glass.h"
 #include "surface/sphere.h"
 #include "surface/mesh.h"
-#include "scene.h"
-#include "camera.h"
+#include "scene/scene.h"
+#include "scene/camera.h"
 #include "material/phong.h"
 #include "material/lambert.h"
 #include "material/cook-torrance.h"

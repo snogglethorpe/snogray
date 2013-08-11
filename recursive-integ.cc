@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "scene.h"
+#include "scene/scene.h"
 #include "material/bsdf.h"
 #include "material/media.h"
 #include "material/material.h"
