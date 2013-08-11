@@ -12,7 +12,7 @@
 
 #include <stdexcept>
 
-#include "intersect.h"
+#include "intersect/intersect.h"
 #include "material/cos-dist.h"
 #include "scene.h"
 #include "surface/surface-sampler.h"

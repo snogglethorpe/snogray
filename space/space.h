@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_SPACE_H
 #define SNOGRAY_SPACE_H
 
-#include "ray.h"
+#include "intersect/ray.h"
 #include "surface/surface.h"
 #include "render-context.h"
 

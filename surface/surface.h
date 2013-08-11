@@ -15,9 +15,9 @@
 
 #include <vector>
 
-#include "ray.h"
 #include "geometry/bbox.h"
-#include "intersect.h"
+#include "intersect/ray.h"
+#include "intersect/intersect.h"
 
 
 namespace snogray {

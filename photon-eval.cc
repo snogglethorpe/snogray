@@ -11,7 +11,7 @@
 //
 
 #include "snogmath.h"
-#include "intersect.h"
+#include "intersect/intersect.h"
 #include "material/bsdf.h"
 #include "gaussian-filter.h"
 

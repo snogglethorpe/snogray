@@ -1,6 +1,6 @@
 // tripar-isec.h -- Triangle/parallelogram intersection  -*- coding: utf-8 -*-
 //
-//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 
 #include "pos.h"
 #include "vec.h"
-#include "ray.h"
+#include "intersect/ray.h"
 
 
 //

@@ -14,7 +14,7 @@
 
 #include "snogmath.h"
 #include "material/cos-dist.h"
-#include "intersect.h"
+#include "intersect/intersect.h"
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
 

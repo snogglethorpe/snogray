@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_SURFACE_INTEG_H
 #define SNOGRAY_SURFACE_INTEG_H
 
-#include "ray.h"
+#include "intersect/ray.h"
 #include "color/tint.h"
 #include "sample-set.h"
 

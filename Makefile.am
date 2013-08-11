@@ -36,7 +36,9 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = color geometry image imagecli light material space surface texture
+SUBDIRS = color geometry image imagecli intersect light material	\
+	space surface texture
+
 
 include lua-install-dirs.mk
 
@@ -62,10 +64,9 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogisec.a libsnogloaders.a		\
-	libsnoglua.a libsnogphoton.a libsnograw.a libsnogrdrive.a	\
-	libsnogrender.a libsnogscene.a libsnogscenecli.a		\
-	libsnogutil.a liblpeg.a
+noinst_LIBRARIES = libsnogcli.a libsnogloaders.a libsnoglua.a		\
+	libsnogphoton.a libsnograw.a libsnogrdrive.a libsnogrender.a	\
+	libsnogscene.a libsnogscenecli.a libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -162,15 +163,6 @@ libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
 
 libsnogphoton_a_SOURCES = photon.h photon-eval.cc photon-eval.h		\
 	photon-map.cc photon-map.h photon-shooter.cc photon-shooter.h
-
-
-################################################################
-#
-# Snogray intersection library, libsnogisec.a
-#
-
-libsnogisec_a_SOURCES = intersect.cc intersect.h isec-cache.h ray.h	\
-	ray-io.cc ray-io.h
 
 
 ################################################################
@@ -305,8 +297,8 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 CORE_LIBS = libsnogrender.a libsnogphoton.a space/libsnogspace.a	\
 	libsnogscene.a material/libsnogmat.a surface/libsnogsurf.a	\
-	texture/libsnogtex.a light/libsnoglight.a libsnogisec.a		\
-	geometry/libsnoggeom.a
+	texture/libsnogtex.a light/libsnoglight.a			\
+	intersect/libsnogisec.a geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\

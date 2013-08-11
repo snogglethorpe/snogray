@@ -22,7 +22,7 @@
 #include "pool.h"
 #include "sample-set.h"
 #include "surface-integ.h"
-#include "isec-cache.h"
+#include "intersect/isec-cache.h"
 #include "unique-ptr.h"
 
 

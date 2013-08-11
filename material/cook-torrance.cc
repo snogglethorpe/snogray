@@ -13,7 +13,7 @@
 #include "snogmath.h"
 #include "geometry/vec.h"
 #include "media.h"
-#include "intersect.h"
+#include "intersect/intersect.h"
 #include "ward-dist.h"
 #include "cos-dist.h"
 #include "bsdf.h"

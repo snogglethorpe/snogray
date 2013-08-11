@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect.h"
+#include "intersect/intersect.h"
 #include "geometry/disk-sample.h"
 
 #include "ellipse.h"

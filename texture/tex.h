@@ -1,6 +1,6 @@
 // tex.h -- texture base class
 //
-//  Copyright (C) 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #define SNOGRAY_TEX_H
 
 #include "ref.h"
-#include "intersect.h"
+#include "intersect/intersect.h"
 #include "tex-coords.h"
 
 

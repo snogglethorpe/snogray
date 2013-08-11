@@ -18,7 +18,7 @@
 #include "space/space-builder.h"
 #include "surface.h"
 #include "unique-ptr.h"
-#include "ray.h"
+#include "intersect/ray.h"
 #include "mutex.h"
 
 

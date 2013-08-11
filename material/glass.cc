@@ -12,7 +12,7 @@
 
 #include "snogmath.h"
 #include "fresnel.h"
-#include "intersect.h"
+#include "intersect/intersect.h"
 #include "media.h"
 #include "bsdf.h"
 
