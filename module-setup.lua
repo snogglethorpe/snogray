@@ -56,6 +56,8 @@ else
       ["coord"]		 = "geometry/coord",
       ["image-sampled-output-cmdline"]
 	 = "imagecli/image-sampled-output-cmdline",
+      ["render"]	 = "render-mgr/render",
+      ["render-cmdline"] = "render-mgr/render-cmdline",
       ["scene-cmdline"]  = "scenecli/scene-cmdline",
       ["transform"]	 = "geometry/transform"
    }

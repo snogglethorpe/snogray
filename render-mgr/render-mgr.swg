@@ -15,8 +15,8 @@
 %{
 #include <iosfwd>
 
-#include "render-mgr.h"
-#include "render-pattern.h"
+#include "render-mgr/render-mgr.h"
+#include "render-mgr/render-pattern.h"
 #include "render/render-stats.h"
 #include "cli/tty-progress.h"
 %}
