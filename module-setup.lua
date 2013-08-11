@@ -49,12 +49,14 @@ else
    -- tree, for cases which can't be guessed based on the name.
    --
    local uninst_module_mapping = {
-      accel = "space/accel",
-      cmdlineparser = "cli/cmdlineparser",
-      coord = "geometry/coord",
+      ["accel"]		 = "space/accel",
+      ["camera-cmdline"] = "scenecli/camera-cmdline",
+      ["cmdlineparser"]	 = "cli/cmdlineparser",
+      ["coord"]		 = "geometry/coord",
       ["image-sampled-output-cmdline"]
 	 = "imagecli/image-sampled-output-cmdline",
-      transform = "geometry/transform"
+      ["scene-cmdline"]  = "scenecli/scene-cmdline",
+      ["transform"]	 = "geometry/transform"
    }
 
    local function load_uninstalled_snogray_package (pkg, ...)

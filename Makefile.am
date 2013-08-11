@@ -37,7 +37,7 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light material	\
-	space surface texture
+	scenecli space surface texture
 
 
 include lua-install-dirs.mk
@@ -50,11 +50,10 @@ pkglua_DATA = module-setup.lua snogray.lua
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-pkgluamodulesnogray_DATA = all-in-one.lua camera.lua			\
-	camera-cmdline.lua file.lua filename.lua limit-cmdline.lua	\
-	load.lua lpeg-utils.lua render-cmdline.lua render.lua		\
-	scene.lua scene-cmdline.lua string-fill.lua string.lua		\
-	swig.lua sys.lua table.lua
+pkgluamodulesnogray_DATA = all-in-one.lua camera.lua file.lua	\
+	filename.lua limit-cmdline.lua load.lua lpeg-utils.lua	\
+	render-cmdline.lua render.lua scene.lua string-fill.lua	\
+	string.lua swig.lua sys.lua table.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -66,7 +65,7 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 #
 noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnogphoton.a	\
 	libsnograw.a libsnogrdrive.a libsnogrender.a libsnogscene.a	\
-	libsnogscenecli.a libsnogutil.a liblpeg.a
+	libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -186,14 +185,6 @@ endif
 #
 
 libsnogscene_a_SOURCES = camera.cc camera.h scene.cc scene.h
-
-
-################################################################
-#
-# Snogray scene command-line handling library, libsnogscenecli.a
-#
-
-libsnogscenecli_a_SOURCES =  scene-cmdline.cc scene-cmdline.h
 
 
 ################################################################
