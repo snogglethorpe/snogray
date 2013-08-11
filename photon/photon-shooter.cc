@@ -17,8 +17,8 @@
 #include "scene/scene.h"
 #include "material/bsdf.h"
 #include "radical-inverse.h"
-#include "render-context.h"
-#include "global-render-state.h"
+#include "render/render-context.h"
+#include "render/global-render-state.h"
 
 #include "cli/tty-progress.h"
 #include "string-funs.h"

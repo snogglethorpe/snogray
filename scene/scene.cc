@@ -14,7 +14,7 @@
 #include "unique-ptr.h"
 #include "space/space.h"
 #include "space/space-builder.h"
-#include "render-context.h"
+#include "render/render-context.h"
 
 #include "scene.h"
 

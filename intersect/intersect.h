@@ -19,7 +19,7 @@
 #include "material/bsdf.h"
 #include "geometry/frame.h"
 #include "color/color.h"
-#include "render-context.h"
+#include "render/render-context.h"
 #include "texture/tex-coords.h"
 
 

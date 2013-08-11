@@ -15,7 +15,7 @@
 
 #include "intersect/ray.h"
 #include "surface/surface.h"
-#include "render-context.h"
+#include "render/render-context.h"
 
 
 namespace snogray {

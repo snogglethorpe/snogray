@@ -37,7 +37,7 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light material	\
-	photon scene scenecli space surface texture
+	photon render scene scenecli space surface texture
 
 
 include lua-install-dirs.mk
@@ -64,7 +64,7 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 # Internal libraries; not installed
 #
 noinst_LIBRARIES = libsnogloaders.a libsnoglua.a libsnograw.a	\
-	libsnogrdrive.a libsnogrender.a libsnogutil.a liblpeg.a
+	libsnogrdrive.a libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -75,7 +75,7 @@ EXTRA_DIST =								\
 	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
 	README README.building README.issues README.usage		\
 	README.utils							\
-	common.swg load.swg rdrive.swg render.swg snograw.swg		\
+	common.swg load.swg rdrive.swg snograw.swg			\
 	util.swg val-table.swg vector.swg				\
 	update-version.sh						\
 	autogen.sh							\
@@ -135,22 +135,6 @@ update_version:
 .PHONY: update_version
 
 config.h: update_version
-
-
-################################################################
-#
-# Snogray core rendering library, libsnogrender.a
-#
-
-libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
-	direct-integ.h filter-volume-integ.h global-render-state.cc	\
-	global-render-state.h grid.cc grid.h integ.h			\
-	mis-sample-weight.h path-integ.cc path-integ.h			\
-	photon-integ.cc photon-integ.h recursive-integ.cc		\
-	recursive-integ.h render-context.cc render-context.h		\
-	render-params.h render-stats.cc render-stats.h sample-gen.h	\
-	sample-set.cc sample-set.h surface-integ.h volume-integ.h	\
-	zero-surface-integ.h
 
 
 ################################################################
@@ -258,10 +242,10 @@ LIBS += $(MUDFLAP:-f%=-l%)
 #
 # Groups of associated libraries
 #
-CORE_LIBS = libsnogrender.a photon/libsnogphoton.a	\
-	space/libsnogspace.a scene/libsnogscene.a	\
-	material/libsnogmat.a surface/libsnogsurf.a	\
-	texture/libsnogtex.a light/libsnoglight.a	\
+CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
+	space/libsnogspace.a scene/libsnogscene.a		\
+	material/libsnogmat.a surface/libsnogsurf.a		\
+	texture/libsnogtex.a light/libsnoglight.a		\
 	intersect/libsnogisec.a geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
@@ -398,9 +382,9 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 #
 snograw_lua_wrap.cc: scene/camera.swg color/color.swg common.swg	\
 	image/image.swg light/light.swg load.swg			\
-	material/material.swg rdrive.swg render.swg scene/scene.swg	\
-	space/space.swg surface/surface.swg texture/texture.swg		\
-	util.swg val-table.swg vector.swg
+	material/material.swg rdrive.swg render/render.swg		\
+	scene/scene.swg space/space.swg surface/surface.swg		\
+	texture/texture.swg util.swg val-table.swg vector.swg
 
 
 # Compiler options for compiling SWIG-generated Lua interface.

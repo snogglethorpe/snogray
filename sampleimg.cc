@@ -17,8 +17,8 @@
 #include "random.h"
 #include "geometry/hist-2d.h"
 #include "geometry/hist-2d-dist.h"
-#include "grid.h"
-#include "sample-set.h"
+#include "render/grid.h"
+#include "render/sample-set.h"
 #include "radical-inverse.h"
 
 using namespace snogray;

@@ -1,6 +1,6 @@
 // renderer.h -- Low-level rendering driver
 //
-//  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,9 +13,9 @@
 #ifndef SNOGRAY_RENDERER_H
 #define SNOGRAY_RENDERER_H
 
-#include "render-context.h"
-#include "render-stats.h"
-#include "sample-set.h"
+#include "render/render-context.h"
+#include "render/render-stats.h"
+#include "render/sample-set.h"
 
 
 namespace snogray {

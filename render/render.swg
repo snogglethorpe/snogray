@@ -1,6 +1,6 @@
 # render.swg -- SWIG interfaces for snogray rendering types
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,8 +12,8 @@
 
 
 %{
-#include "global-render-state.h"
-#include "render-context.h"
+#include "render/global-render-state.h"
+#include "render/render-context.h"
 %}
 
 

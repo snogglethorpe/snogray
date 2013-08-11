@@ -16,7 +16,7 @@
 
 #include "render-mgr.h"
 #include "render-pattern.h"
-#include "render-stats.h"
+#include "render/render-stats.h"
 #include "cli/tty-progress.h"
 %}
 
