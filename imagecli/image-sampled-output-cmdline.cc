@@ -15,8 +15,8 @@
 #include <cstring>
 #include <cstdlib>
 
-#include "snogmath.h"
-#include "val-table.h"
+#include "util/snogmath.h"
+#include "util/val-table.h"
 #include "cli/cmdlineparser.h"
 
 #include "image-sampled-output-cmdline.h"

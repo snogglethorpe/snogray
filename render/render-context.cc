@@ -1,6 +1,6 @@
 // render-context.cc -- "semi-global" information used during rendering
 //
-//  Copyright (C) 2006, 2007, 2009, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2009, 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "mutex.h"
+#include "util/mutex.h"
 
 #include "render-context.h"
 

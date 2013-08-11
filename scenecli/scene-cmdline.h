@@ -1,6 +1,6 @@
 // scene-cmdline.h -- Command-line options for scene parameters
 //
-//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_SCENE_CMDLINE_H
 #define SNOGRAY_SCENE_CMDLINE_H
 
-#include "val-table.h"
+#include "util/val-table.h"
 
 
 #define SCENE_OPTIONS_HELP "\

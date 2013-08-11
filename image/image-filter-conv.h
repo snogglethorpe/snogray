@@ -13,8 +13,8 @@
 #ifndef SNOGRAY_IMAGE_FILTER_CONV_H
 #define SNOGRAY_IMAGE_FILTER_CONV_H
 
-#include "snogmath.h"
-#include "val-table.h"
+#include "util/snogmath.h"
+#include "util/val-table.h"
 #include "color/color.h"
 #include "image-filter.h"
 

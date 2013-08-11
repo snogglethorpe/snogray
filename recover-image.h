@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "val-table.h"
+#include "util/val-table.h"
 #include "image/image-sampled-output.h"
 
 

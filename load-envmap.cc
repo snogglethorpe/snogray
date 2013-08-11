@@ -13,11 +13,11 @@
 #include <string>
 #include <fstream>
 
-#include "excepts.h"
+#include "util/excepts.h"
+#include "util/string-funs.h"
 #include "image/image-io.h"
 #include "texture/cubemap.h"
 #include "texture/spheremap.h"
-#include "string-funs.h"
 
 #include "load-envmap.h"
 

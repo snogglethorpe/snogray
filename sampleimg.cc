@@ -14,12 +14,12 @@
 #include <iostream>
 
 #include "image/image.h"
-#include "random.h"
+#include "util/random.h"
 #include "geometry/hist-2d.h"
 #include "geometry/hist-2d-dist.h"
 #include "render/grid.h"
 #include "render/sample-set.h"
-#include "radical-inverse.h"
+#include "util/radical-inverse.h"
 
 using namespace snogray;
 

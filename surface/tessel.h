@@ -20,8 +20,8 @@
 #include "geometry/pos.h"
 #include "geometry/vec.h"
 #include "geometry/uv.h"
-#include "llist.h"
-#include "freelist.h"
+#include "util/llist.h"
+#include "util/freelist.h"
 
 
 namespace snogray {

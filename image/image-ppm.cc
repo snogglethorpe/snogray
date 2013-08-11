@@ -1,6 +1,6 @@
 // image-ppm.cc -- PPM/PGM/PBM format image handling
 //
-//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "snogmath.h"
-#include "string-funs.h"
+#include "util/snogmath.h"
+#include "util/string-funs.h"
 
 #include "image-ppm.h"
 

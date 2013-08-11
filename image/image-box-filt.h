@@ -1,6 +1,6 @@
 // image-box-filt.h -- Boxian filter for image output
 //
-//  Copyright (C) 2006, 2007, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_IMAGE_BOX_FILT_H
 #define SNOGRAY_IMAGE_BOX_FILT_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 
 #include "image-filter.h"
 

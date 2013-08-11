@@ -14,8 +14,8 @@
 #include <fstream>
 #include <sstream>
 
-#include "snogmath.h"
-#include "excepts.h"
+#include "util/snogmath.h"
+#include "util/excepts.h"
 #include "image/image-io.h"
 #include "matrix-tex.h"
 

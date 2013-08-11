@@ -18,8 +18,8 @@
 #include "image/image-scaled-output.h"
 #include "imagecli/image-input-cmdline.h"
 #include "imagecli/image-scaled-output-cmdline.h"
-#include "string-funs.h"
-#include "unique-ptr.h"
+#include "util/string-funs.h"
+#include "util/unique-ptr.h"
 
 using namespace snogray;
 

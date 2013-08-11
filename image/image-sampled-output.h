@@ -1,6 +1,6 @@
 // image-sampled-output.h -- High-level image output
 //
-//  Copyright (C) 2005-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
 #include <vector>
 #include <deque>
 
-#include "unique-ptr.h"
+#include "util/unique-ptr.h"
 #include "image-filter-conv.h"
 #include "image-io.h"
 

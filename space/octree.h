@@ -16,7 +16,7 @@
 #include <list>
 
 #include "geometry/pos.h"
-#include "unique-ptr.h"
+#include "util/unique-ptr.h"
 
 #include "space.h"
 #include "space-builder.h"

@@ -14,7 +14,7 @@
 #define SNOGRAY_RENDER_PARAMS_H
 
 #include "geometry/coords.h"
-#include "val-table.h"
+#include "util/val-table.h"
 
 namespace snogray {
 

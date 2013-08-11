@@ -11,7 +11,7 @@
 //
 
 #include "geometry/bbox.h"
-#include "grab.h"
+#include "util/grab.h"
 
 #include "octree.h"
 

@@ -1,6 +1,6 @@
 // photopic-glare-psf.cc -- Photopic glare point-spread-function
 //
-//  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -19,7 +19,7 @@
 // Proceedings of SIGGRAPH, pp. 325–334. ACM, New York (1995)
 //
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 
 #include "photopic-glare-psf.h"
 

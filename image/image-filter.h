@@ -1,6 +1,6 @@
 // image-filter.h -- Filters for image output
 //
-//  Copyright (C) 2006, 2007, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2011-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,8 +13,8 @@
 #ifndef SNOGRAY_IMAGE_FILTER_H
 #define SNOGRAY_IMAGE_FILTER_H
 
-#include "snogmath.h"
-#include "val-table.h"
+#include "util/snogmath.h"
+#include "util/val-table.h"
 
 
 namespace snogray {

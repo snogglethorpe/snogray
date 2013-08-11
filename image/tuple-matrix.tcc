@@ -1,6 +1,6 @@
 // tuple-matrix.tcc -- Generic matrix storage type
 //
-//  Copyright (C) 2005-2008, 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
 #include <iostream>
 #include <algorithm>
 
-#include "globals.h"
-#include "excepts.h"
+#include "util/globals.h"
+#include "util/excepts.h"
 
 #include "image-input.h"
 #include "image-scaled-output.h"

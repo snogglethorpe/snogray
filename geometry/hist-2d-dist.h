@@ -16,7 +16,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "compiler.h"
+#include "util/compiler.h"
 
 #include "hist-2d.h"
 

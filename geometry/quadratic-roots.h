@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_QUADRATIC_ROOTS_H
 #define SNOGRAY_QUADRATIC_ROOTS_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "intersect/ray.h"
 
 

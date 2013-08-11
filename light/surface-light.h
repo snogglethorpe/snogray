@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_SURFACE_LIGHT_H
 #define SNOGRAY_SURFACE_LIGHT_H
 
-#include "unique-ptr.h"
+#include "util/unique-ptr.h"
 #include "color/color.h"
 #include "texture/tex.h"
 #include "light.h"

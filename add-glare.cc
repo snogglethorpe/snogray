@@ -1,6 +1,6 @@
 // add-glare.cc -- Add glare effects ("bloom") to an image
 //
-//  Copyright (C) 2007, 2008, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2011-2013  Miles Bader <miles@gnu.org>
 //
 // This file is subject to the terms and conditions of the GNU General
 // Public License.  See the file COPYING in the main directory of this
@@ -11,9 +11,9 @@
 
 #include <fftw3.h>
 
-#include "snogmath.h"
-#include "num-cores.h"
-#include "radical-inverse.h"
+#include "util/snogmath.h"
+#include "util/num-cores.h"
+#include "util/radical-inverse.h"
 
 #include "add-glare.h"
 

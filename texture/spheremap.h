@@ -14,8 +14,8 @@
 #define SNOGRAY_SPHEREMAP_H
 
 #include "tex.h"
-#include "snogmath.h"
-#include "excepts.h"
+#include "util/snogmath.h"
+#include "util/excepts.h"
 #include "color/color.h"
 #include "geometry/uv.h"
 #include "matrix-tex.h"

@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "snogassert.h"
+#include "util/snogassert.h"
 #include "space/space.h"
 #include "space/space-builder.h"
 

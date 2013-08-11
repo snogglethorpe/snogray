@@ -12,7 +12,7 @@
 
 #include <stdexcept>
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "material/cos-dist.h"
 #include "intersect/intersect.h"
 #include "geometry/sphere-isec.h"

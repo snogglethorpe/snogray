@@ -12,9 +12,9 @@
 
 #include <iostream>
 
-#include "globals.h"
-#include "excepts.h"
-#include "string-funs.h"
+#include "util/globals.h"
+#include "util/excepts.h"
+#include "util/string-funs.h"
 
 #include "geometry/tripar-isec.h"
 

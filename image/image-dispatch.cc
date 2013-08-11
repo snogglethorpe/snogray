@@ -1,6 +1,6 @@
 // image-dispatch.cc -- Image backend selection
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2006, 2007, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,8 +12,8 @@
 
 #include "config.h"
 
-#include "excepts.h"
-#include "string-funs.h"
+#include "util/excepts.h"
+#include "util/string-funs.h"
 
 #include "image-pfm.h"
 #include "image-rgbe.h"

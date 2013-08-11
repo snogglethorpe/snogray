@@ -12,7 +12,7 @@
 
 #include <algorithm>
 
-#include "snogassert.h"
+#include "util/snogassert.h"
 #include "geometry/bbox.h"
 
 #include "photon-map.h"

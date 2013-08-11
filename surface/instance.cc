@@ -12,8 +12,8 @@
 
 #include "intersect/intersect.h"
 #include "space/space.h"
+#include "util/excepts.h"
 #include "model.h"
-#include "excepts.h"
 
 #include "instance.h"
 

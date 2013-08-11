@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "intersect/intersect.h"
 #include "phong-dist.h"
 #include "cos-dist.h"

@@ -14,7 +14,7 @@
 #include <iomanip>
 
 #include "scene/scene.h"
-#include "string-funs.h"
+#include "util/string-funs.h"
 
 #include "render-stats.h"
 

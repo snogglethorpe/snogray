@@ -13,8 +13,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "snogmath.h"
-#include "unique-ptr.h"
+#include "util/snogmath.h"
+#include "util/unique-ptr.h"
 #include "cli/cmdlineparser.h"
 #include "image/image-input.h"
 #include "image/image-scaled-output.h"

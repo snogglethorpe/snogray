@@ -16,12 +16,12 @@
 #include "material/media.h"
 #include "scene/scene.h"
 #include "material/bsdf.h"
-#include "radical-inverse.h"
+#include "util/radical-inverse.h"
 #include "render/render-context.h"
 #include "render/global-render-state.h"
 
 #include "cli/tty-progress.h"
-#include "string-funs.h"
+#include "util/string-funs.h"
 
 #include "photon-shooter.h"
 

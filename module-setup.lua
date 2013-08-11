@@ -54,11 +54,19 @@ else
       ["camera-cmdline"] = "scenecli/camera-cmdline",
       ["cmdlineparser"]	 = "cli/cmdlineparser",
       ["coord"]		 = "geometry/coord",
+      ["file"]		 = "util/file",
+      ["filename"]	 = "util/filename",
       ["image-sampled-output-cmdline"]
 	 = "imagecli/image-sampled-output-cmdline",
+      ["lpeg-utils"]	 = "util/lpeg-utils",
       ["render"]	 = "render-mgr/render",
       ["render-cmdline"] = "render-mgr/render-cmdline",
       ["scene-cmdline"]  = "scenecli/scene-cmdline",
+      ["string"]	 = "util/string",
+      ["string-fill"]	 = "util/string-fill",
+      ["swig"]		 = "util/swig",
+      ["sys"]		 = "util/sys",
+      ["table"]		 = "util/table",
       ["transform"]	 = "geometry/transform"
    }
 

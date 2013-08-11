@@ -1,6 +1,6 @@
-# vector.swg -- Lua table -> std::vector conversion
+# lua-vector.swg -- Lua table -> std::vector conversion
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as

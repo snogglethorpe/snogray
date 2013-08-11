@@ -1,6 +1,6 @@
 // image-filter.cc -- Filters for image output
 //
-//  Copyright (C) 2006, 2007, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "excepts.h"
-#include "val-table.h"
+#include "util/excepts.h"
+#include "util/val-table.h"
 #include "image-mitchell-filt.h"
 #include "image-gauss-filt.h"
 #include "image-triangle-filt.h"

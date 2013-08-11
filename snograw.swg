@@ -75,16 +75,16 @@
 %apply (float INPUT[ANY]) {(const dist_t els[16])};
 
 
-%include "vector.swg"
+%include "util/lua-vector.swg"
 SWIG_TYPEMAP_NUM_VECTOR(float)
 SWIG_TYPEMAP_NUM_VECTOR(unsigned)
 
 
-%include "val-table.swg"
+%include "util/val-table.swg"
 
 
 %{
-#include "ref.h"
+#include "util/ref.h"
 %}
 
 
@@ -153,7 +153,7 @@ namespace snogray {
 %include "space/space.swg"
 %include "color/color.swg"
 %include "load.swg"
-%include "util.swg"
+%include "util/util.swg"
 
 
 # arch-tag: ced00636-fe46-45bd-b738-1949800e26f1

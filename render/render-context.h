@@ -16,14 +16,14 @@
 #include "global-render-state.h"
 #include "render-stats.h"
 #include "render-params.h"
-#include "random.h"
-#include "mempool.h"
+#include "util/random.h"
+#include "util/mempool.h"
+#include "util/pool.h"
 #include "material/medium.h"
-#include "pool.h"
 #include "sample-set.h"
 #include "surface-integ.h"
 #include "intersect/isec-cache.h"
-#include "unique-ptr.h"
+#include "util/unique-ptr.h"
 
 
 namespace snogray {

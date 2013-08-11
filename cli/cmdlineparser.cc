@@ -1,6 +1,6 @@
 // cmdlineparser.cc -- Command-line parser
 //
-//  Copyright (C) 2005-2007, 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
 #include <string>
 #include <cstring>
 
-#include "val-table.h"
-#include "string-funs.h"
+#include "util/val-table.h"
+#include "util/string-funs.h"
 
 #include "cmdlineparser.h"
 

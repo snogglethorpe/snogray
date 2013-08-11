@@ -1,6 +1,6 @@
 // grid.cc -- sample generator using a simple jittered grid
 //
-//  Copyright (C) 2006, 2007, 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006, 2007, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,9 +10,9 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "snogmath.h"
-#include "snogassert.h"
-#include "random.h"
+#include "util/snogmath.h"
+#include "util/snogassert.h"
+#include "util/random.h"
 
 #include "grid.h"
 

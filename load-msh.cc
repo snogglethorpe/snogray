@@ -16,7 +16,7 @@
 
 #include "config.h"
 
-#include "excepts.h"
+#include "util/excepts.h"
 #include "surface/mesh.h"
 
 #include "load-msh.h"

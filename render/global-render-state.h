@@ -1,6 +1,6 @@
 // global-render-state.h -- global information used during rendering
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
 #include "sample-gen.h"
 #include "surface-integ.h"
 #include "volume-integ.h"
-#include "val-table.h"
-#include "unique-ptr.h"
+#include "util/val-table.h"
+#include "util/unique-ptr.h"
 
 
 namespace snogray {

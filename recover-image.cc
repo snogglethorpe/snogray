@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "excepts.h"
+#include "util/excepts.h"
 #include "image/image-io.h"
 #include "image/image-input.h"
 

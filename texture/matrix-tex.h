@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "tex.h"
 #include "image/tuple-matrix.h"
 #include "matrix-linterp.h"

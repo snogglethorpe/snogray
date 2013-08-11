@@ -1,6 +1,6 @@
 // renderer.cc -- Output rendering object
 //
-//  Copyright (C) 2006-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,16 +13,16 @@
 #include <list>
 #include <map>
 
-#include "snogmath.h"
-#include "snogassert.h"
-#include "progress.h"
+#include "util/snogmath.h"
+#include "util/snogassert.h"
+#include "util/progress.h"
 #include "renderer.h"
 #include "render-packet.h"
 #if USE_THREADS
 #include "render-thread.h"
 #include "render-queue.h"
 #endif
-#include "float-excepts-guard.h"
+#include "util/float-excepts-guard.h"
 
 #include "render-mgr.h"
 

@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_CAMERA_H
 #define SNOGRAY_CAMERA_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "geometry/coords.h"
 #include "intersect/ray.h"
 #include "geometry/xform.h"

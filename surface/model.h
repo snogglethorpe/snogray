@@ -13,13 +13,13 @@
 #ifndef SNOGRAY_MODEL_H
 #define SNOGRAY_MODEL_H
 
-#include "ref.h"
+#include "util/ref.h"
 #include "space/space.h"
 #include "space/space-builder.h"
 #include "surface.h"
-#include "unique-ptr.h"
+#include "util/unique-ptr.h"
 #include "intersect/ray.h"
-#include "mutex.h"
+#include "util/mutex.h"
 
 
 namespace snogray {

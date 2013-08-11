@@ -25,8 +25,7 @@ extern "C"
 }
 
 #include "lua-funs.h"
-#include "funptr-cast.h"
-#include "snogpaths.h"
+#include "util/snogpaths.h"
 #include "cli/version.h"
 
 #include "lua-setup.h"

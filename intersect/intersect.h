@@ -14,7 +14,7 @@
 #define SNOGRAY_INTERSECT_H
 
 #include "geometry/uv.h"
-#include "ref.h"
+#include "util/ref.h"
 #include "ray.h"
 #include "material/bsdf.h"
 #include "geometry/frame.h"

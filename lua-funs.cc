@@ -1,6 +1,6 @@
 // lua-funs.cc -- Functions for use with Lua
 //
-//  Copyright (C) 2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ extern "C"
 #include "lauxlib.h"
 }
 
-#include "val-table.h"
+#include "util/val-table.h"
 
 #include "lua-funs.h"
 

@@ -18,9 +18,9 @@
 #include "geometry/xform.h"
 #include "load-envmap.h"
 #include "light/far-light.h"
-#include "excepts.h"
+#include "util/excepts.h"
 #include "image/image-io.h"
-#include "string-funs.h"
+#include "util/string-funs.h"
 
 #include "scene-cmdline.h"
 

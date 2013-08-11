@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "scene/scene.h"
 #include "material/bsdf.h"
 #include "material/media.h"

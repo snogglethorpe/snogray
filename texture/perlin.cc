@@ -1,6 +1,6 @@
 // perlin.h -- Perlin noise function
 //
-//  Copyright (C) 2008  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
 
 #include <algorithm>
 
-#include "interp.h"
+#include "util/interp.h"
 
 #include "perlin.h"
 

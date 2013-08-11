@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_FAR_LIGHT_H
 #define SNOGRAY_FAR_LIGHT_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "color/color.h"
 #include "geometry/pos.h"
 

@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "excepts.h"
+#include "util/excepts.h"
 #include "space/octree.h"
 #include "space/triv-space.h"
 #include "grid.h"

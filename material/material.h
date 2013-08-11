@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "color/color.h"
-#include "ref.h"
+#include "util/ref.h"
 #include "texture/tex.h"
 #include "surface/surface.h"
 

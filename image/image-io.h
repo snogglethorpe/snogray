@@ -16,9 +16,9 @@
 #include <string>
 #include <vector>
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "color/tint.h"
-#include "val-table.h"
+#include "util/val-table.h"
 
 
 namespace snogray {

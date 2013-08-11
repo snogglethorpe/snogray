@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_COLOR_H
 #define SNOGRAY_COLOR_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "image/tuple-adaptor.h"
 
 

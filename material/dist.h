@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_DIST_H
 #define SNOGRAY_DIST_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "geometry/vec.h"
 #include "geometry/spherical-coords.h"
 

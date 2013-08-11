@@ -10,10 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "intersect/intersect.h"
 #include "material/bsdf.h"
-#include "gaussian-filter.h"
+#include "util/gaussian-filter.h"
 
 #include "photon-eval.h"
 

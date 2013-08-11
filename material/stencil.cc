@@ -14,7 +14,7 @@
 #include "media.h"
 #include "fresnel.h"
 #include "bsdf.h"
-#include "compiler.h"
+#include "util/compiler.h"
 
 #include "stencil.h"
 

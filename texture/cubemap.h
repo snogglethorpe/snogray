@@ -16,7 +16,7 @@
 #include "color/color.h"
 #include "tex.h"
 #include "envmap.h"
-#include "unique-ptr.h"
+#include "util/unique-ptr.h"
 
 
 namespace snogray {

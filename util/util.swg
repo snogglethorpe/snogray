@@ -1,6 +1,6 @@
 # util.swg -- SWIG interfaces for miscellaneous utility functions/data
 #
-#  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
 %{
 #include <iostream>
 
-#include "num-cores.h"
-#include "rusage.h"
+#include "util/num-cores.h"
+#include "util/rusage.h"
 %}
 
 

@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_POINT_LIGHT_H
 #define SNOGRAY_POINT_LIGHT_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "color/color.h"
 #include "geometry/frame.h"
 

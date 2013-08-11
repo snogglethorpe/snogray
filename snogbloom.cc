@@ -13,13 +13,13 @@
 #include <iostream>
 #include <cstring>
 
-#include "unique-ptr.h"
+#include "util/unique-ptr.h"
 #include "cli/cmdlineparser.h"
 #include "image/image.h"
 #include "imagecli/image-input-cmdline.h"
 #include "imagecli/image-scaled-output-cmdline.h"
 #include "add-glare.h"
-#include "gaussian-filter.h"
+#include "util/gaussian-filter.h"
 #include "photopic-glare-psf.h"
 
 

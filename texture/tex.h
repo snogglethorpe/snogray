@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_TEX_H
 #define SNOGRAY_TEX_H
 
-#include "ref.h"
+#include "util/ref.h"
 #include "intersect/intersect.h"
 #include "tex-coords.h"
 

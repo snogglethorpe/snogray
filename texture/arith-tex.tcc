@@ -15,7 +15,7 @@
 
 #include "config.h"
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 #include "color/color.h"
 #include "color/color-math.h"
 

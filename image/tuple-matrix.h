@@ -17,9 +17,9 @@
 
 #include <vector>
 
-#include "ref.h"
+#include "util/ref.h"
 #include "color/color.h"
-#include "val-table.h"
+#include "util/val-table.h"
 #include "tuple-adaptor.h"
 
 // Use OpenEXR "half" datatype as default matrix storage element if possible.

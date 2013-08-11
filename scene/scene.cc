@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "snogassert.h"
-#include "unique-ptr.h"
+#include "util/snogassert.h"
+#include "util/unique-ptr.h"
 #include "space/space.h"
 #include "space/space-builder.h"
 #include "render/render-context.h"

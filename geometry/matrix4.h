@@ -1,6 +1,6 @@
 // matrix4.h -- 4 x 4 matrices
 //
-//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,7 @@
 #ifndef SNOGRAY_MATRIX4_H
 #define SNOGRAY_MATRIX4_H
 
-#include "snogmath.h"
+#include "util/snogmath.h"
 
 
 namespace snogray {
