@@ -17,9 +17,9 @@
 #include "cmdlineparser.h"
 #include "unique-ptr.h"
 #include "image/image-input.h"
-#include "image-input-cmdline.h"
 #include "image/image-scaled-output.h"
-#include "image-scaled-output-cmdline.h"
+#include "imagecli/image-input-cmdline.h"
+#include "imagecli/image-scaled-output-cmdline.h"
 
 using namespace snogray;
 

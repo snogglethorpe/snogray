@@ -36,7 +36,7 @@ noinst_PROGRAMS += hemint
 endif
 
 
-SUBDIRS = color geometry image light material space surface texture
+SUBDIRS = color geometry image imagecli light material space surface texture
 
 include lua-install-dirs.mk
 
@@ -50,10 +50,9 @@ pkglua_DATA = module-setup.lua snogray.lua
 #
 pkgluamodulesnogray_DATA = all-in-one.lua camera.lua			\
 	camera-cmdline.lua cmdlineparser.lua file.lua filename.lua	\
-	image-sampled-output-cmdline.lua limit-cmdline.lua load.lua	\
-	lpeg-utils.lua render-cmdline.lua render.lua scene.lua		\
-	scene-cmdline.lua string-fill.lua string.lua swig.lua sys.lua	\
-	table.lua
+	limit-cmdline.lua load.lua lpeg-utils.lua render-cmdline.lua	\
+	render.lua scene.lua scene-cmdline.lua string-fill.lua		\
+	string.lua swig.lua sys.lua table.lua
 
 # Lua loaders for various scene/mesh formats.
 #
@@ -63,10 +62,10 @@ pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 
 # Internal libraries; not installed
 #
-noinst_LIBRARIES = libsnogcli.a libsnogimagecli.a libsnogisec.a		\
-	libsnogloaders.a libsnoglua.a libsnogphoton.a libsnograw.a	\
-	libsnogrdrive.a libsnogrender.a libsnogscene.a			\
-	libsnogscenecli.a libsnogutil.a liblpeg.a
+noinst_LIBRARIES = libsnogcli.a libsnogisec.a libsnogloaders.a		\
+	libsnoglua.a libsnogphoton.a libsnograw.a libsnogrdrive.a	\
+	libsnogrender.a libsnogscene.a libsnogscenecli.a		\
+	libsnogutil.a liblpeg.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -257,16 +256,6 @@ liblpeg_a_SOURCES = lpcap.c lpcap.h lpcode.c lpcode.h lpprint.c		\
 
 ################################################################
 #
-# Snogray image command-line handling library, libsnogimagecli.a
-#
-
-libsnogimagecli_a_SOURCES = image-input-cmdline.h			\
-	image-sampled-output-cmdline.cc image-sampled-output-cmdline.h	\
-	image-scaled-output-cmdline.h
-
-
-################################################################
-#
 # Snogray general utility library, libsnogutil.a
 #
 
@@ -320,7 +309,7 @@ CORE_LIBS = libsnogrender.a libsnogphoton.a space/libsnogspace.a	\
 	geometry/libsnoggeom.a
 LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
 LOADER_LIBS = libsnogloaders.a $(libsnogloaders_LIBS)
-IMAGE_LIBS = libsnogimagecli.a image/libsnogimage.a	\
+IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
 	$(libsnogimage_LIBS) color/libsnogcolor.a
 MISC_LIBS = libsnogcli.a libsnogutil.a
 

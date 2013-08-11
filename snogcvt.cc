@@ -16,8 +16,8 @@
 #include "cmdlineparser.h"
 #include "image/image-input.h"
 #include "image/image-scaled-output.h"
-#include "image-input-cmdline.h"
-#include "image-scaled-output-cmdline.h"
+#include "imagecli/image-input-cmdline.h"
+#include "imagecli/image-scaled-output-cmdline.h"
 #include "string-funs.h"
 #include "unique-ptr.h"
 

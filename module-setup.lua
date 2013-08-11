@@ -49,9 +49,11 @@ else
    -- tree, for cases which can't be guessed based on the name.
    --
    local uninst_module_mapping = {
+      accel = "space/accel",
       coord = "geometry/coord",
-      transform = "geometry/transform",
-      accel = "space/accel"
+      ["image-sampled-output-cmdline"]
+	 = "imagecli/image-sampled-output-cmdline",
+      transform = "geometry/transform"
    }
 
    local function load_uninstalled_snogray_package (pkg, ...)
