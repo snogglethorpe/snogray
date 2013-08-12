@@ -49,12 +49,9 @@ pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =								\
-	autogen.sh update-version.sh					\
-	config.mk							\
+	autogen.sh config.mk						\
 	$(pkglua_DATA) $(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)	\
 	README README.building README.issues README.usage README.utils
-
-noinst_SCRIPTS = update-version.sh
 
 
 # Try to clean up the extra subdirectories of $(datadir) we use when
@@ -68,24 +65,7 @@ uninstall-hook:
 	-rmdir $(DESTDIR)$(pkgdatadir)
 
 
-# Some extra stuff that needs cleaning up
-#
-CLEANFILES = version.cc
-
-
 AM_CPPFLAGS += $(liblua_CFLAGS) $(libsnogimage_CPPFLAGS)
-
-
-################################################################
-#
-# Version frobbing
-#
-
-update_version:
-	@$(SHELL) $(srcdir)/update-version.sh "$(PACKAGE_VERSION)" "version.cc"
-.PHONY: update_version
-
-config.h: update_version
 
 
 ################################################################

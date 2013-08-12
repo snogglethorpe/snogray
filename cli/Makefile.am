@@ -16,11 +16,31 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 
 noinst_LIBRARIES = libsnogcli.a
+noinst_SCRIPTS = update-version.sh
 
 pkgluamodulesnogray_DATA = cmdlineparser.lua
 
-EXTRA_DIST = $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = update-version.sh $(pkgluamodulesnogray_DATA)
+
+CLEANFILES = version.cc
 
 
 libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
 	tty-progress.cc tty-progress.h version.cc version.h
+
+
+################################################################
+#
+# Version frobbing
+#
+
+update_version:
+	@$(SHELL) $(srcdir)/update-version.sh "$(PACKAGE_VERSION)" "version.cc"
+.PHONY: update_version
+
+version.cc: update_version
+
+# This forces update_version to be run before checking whether the
+# library is up-to-date
+#
+version.h: update_version
