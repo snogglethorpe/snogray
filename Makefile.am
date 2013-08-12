@@ -122,14 +122,6 @@ libsnoglua_LIBS = snograw/libsnograw.a liblpeg/liblpeg.a $(liblua_LIBS)
 
 ################################################################
 #
-# Extra library configuration
-#
-
-LIBS += $(MUDFLAP:-f%=-l%)
-
-
-################################################################
-#
 # Groups of associated libraries
 #
 CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
