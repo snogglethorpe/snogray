@@ -107,7 +107,7 @@ MISC_LIBS = cli/libsnogcli.a util/libsnogutil.a
 # Programs
 #
 
-snogray_SOURCES = snogray.cc recover-image.cc recover-image.h
+snogray_SOURCES = snogray.cc
 snogray_LDADD = $(LUA_LIBS) render-mgr/libsnogrendermgr.a	\
 	$(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 

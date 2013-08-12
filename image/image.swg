@@ -15,7 +15,7 @@
 #include "image/tuple-matrix.h"
 #include "image/image.h"
 #include "image/image-sampled-output.h"
-#include "recover-image.h"
+#include "image/recover-image.h"
 %}
 
 
