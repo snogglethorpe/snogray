@@ -14,6 +14,7 @@ include $(top_srcdir)/config.mk
 include $(top_srcdir)/lua-install-dirs.mk
 include $(top_srcdir)/image/image-deps.mk
 include $(top_srcdir)/load/load-deps.mk
+include $(top_srcdir)/lua/lua-deps.mk
 
 
 # Targets
@@ -42,23 +43,18 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
-	liblua load material photon render render-mgr scene scenecli	\
-	snograw space surface texture util
+	liblua load lua material photon render render-mgr scene		\
+	scenecli snograw space surface texture util
 
 
 # Lua files loaded directly.
 #
-pkglua_DATA = module-setup.lua snogray.lua
+pkglua_DATA = snogray.lua
 
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
 pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
-
-
-# Internal libraries; not installed
-#
-noinst_LIBRARIES = libsnoglua.a
 
 
 # Various files to include in distribution not covered by automatic rules
@@ -109,19 +105,6 @@ config.h: update_version
 
 ################################################################
 #
-# Snogray Lua support library, libsnoglua.a
-#
-
-libsnoglua_a_SOURCES = invoke-lua-driver.cc invoke-lua-driver.h	\
-	lua-funs.cc lua-funs.h lua-setup.cc lua-setup.h
-
-# Library dependencies of libsnoglua.a
-#
-libsnoglua_LIBS = snograw/libsnograw.a liblpeg/liblpeg.a $(liblua_LIBS)
-
-
-################################################################
-#
 # Groups of associated libraries
 #
 CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
@@ -129,7 +112,7 @@ CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
 	material/libsnogmat.a surface/libsnogsurf.a		\
 	texture/libsnogtex.a light/libsnoglight.a		\
 	intersect/libsnogisec.a geometry/libsnoggeom.a
-LUA_LIBS = libsnoglua.a $(libsnoglua_LIBS)
+LUA_LIBS = lua/libsnoglua.a $(libsnoglua_LIBS)
 LOAD_LIBS = load/libsnogload.a $(libsnogload_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
 	$(libsnogimage_LIBS) color/libsnogcolor.a

@@ -122,7 +122,7 @@ setup_lua_module_loader (lua_State *L)
   //
   static const char lua_module_setup_script[] = "\
     local snogray_installed_lua_root, module_setup_file = ... \
-    local mod_setup = loadfile (module_setup_file) \
+    local mod_setup = loadfile ('lua/'..module_setup_file) \
     if mod_setup then \
       mod_setup (nil) \
     else \

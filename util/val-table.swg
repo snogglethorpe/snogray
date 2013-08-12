@@ -1,6 +1,6 @@
 # val-table.swg -- Lua table -> ValTable conversion
 #
-#  Copyright (C) 2011  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2011, 2013  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,7 +12,7 @@
 
 // Lua table -> ValTable conversion
 //
-%{ #include "lua-funs.h" %}
+%{ #include "lua/lua-funs.h" %}
 %typemap(in, checkfn="lua_istable") const snogray::ValTable& (snogray::ValTable valtab)
 %{	lua_pushvalue (L, $input);
 	snogray::lua_store_into_val_table (L, valtab);
