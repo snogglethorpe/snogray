@@ -42,8 +42,8 @@ endif
 
 
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
-	load material photon render render-mgr scene scenecli snograw	\
-	space surface texture util
+	liblua load material photon render render-mgr scene scenecli	\
+	snograw space surface texture util
 
 
 # Lua files loaded directly.
@@ -87,19 +87,9 @@ uninstall-hook:
 	-rmdir $(DESTDIR)$(pkgdatadir)
 
 
-# Allow specifying a Lua distribution to be included.  If we're already
-# building using a local copy of Lua, it is distributed by default.
-#
-dist-hook:
-	if test x"$(LUA_DIST)" != x; then			\
-	  cp -pR "$(LUA_DIST)" $(distdir)/lua;			\
-	  find $(distdir)/lua -name '*.[oa]' -exec rm {} \; ;	\
-	fi
-
-
 # Some extra stuff that needs cleaning up
 #
-CLEANFILES = liblua.a version.cc
+CLEANFILES = version.cc
 
 
 AM_CPPFLAGS += $(liblua_CFLAGS) $(libsnogimage_CPPFLAGS)
@@ -187,49 +177,5 @@ hemint_LDADD = util/libsnogutil.a
 sampleimg_SOURCES = sampleimg.cc
 sampleimg_LDADD = $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
-###############################################################
-#
-# Local copy of lua distribution (optional)
-#
-
-if build_lua
-
-# We use two different methods for building liblua.a, depending on whether
-# we're using a separate build directory or not, and whether the Lua source
-# directory is a subdirectory (and thus is "ours"):
-#
-# + If building in the source dir, and the Lua source directory is a simple
-#   subdirectory of the top-level source dir, we build liblua.a in the Lua
-#   source directory and copy it to our top-level directory.  This avoids
-#   most assumptions about how make works.
-#
-# + If using a separate build dir, or if the Lua source directory is
-#   "somewhere else", we build liblua.a in the current directory, using the
-#   Makefile from the Lua source directory, and VPATH to tell make where to
-#   find the source files. This requires that make support at using VPATH
-#   to find source files, which seems a reasonable assumption in this case.
-#   It also requires that no lua object files have the same name as any of
-#   our object files; that's the case currently (all Lua source/object
-#   files begin with "l").
-#
-if build_lua_in_src_dir
-
-liblua.a:
-	(cd $(LUA_SRC); $(MAKE) $(AM_MAKEFLAGS) CC='$(CC)' RANLIB='$(RANLIB)' CFLAGS='$(AM_CFLAGS) $(CFLAGS)' liblua.a)
-	cp -p $(LUA_SRC)/liblua.a .
-	$(RANLIB) $@
-clean-local:
-	-rm -rf $(LUA_SRC)/liblua.a
-mostlyclean-local:
-	-rm -rf $(LUA_SRC)/*.o
-
-else !build_lua_in_src_dir
-
-liblua.a:
-	$(MAKE) -f $(LUA_SRC)/Makefile $(AM_MAKEFLAGS) CC='$(CC)' RANLIB='$(RANLIB)' CFLAGS='$(AM_CFLAGS) $(CFLAGS)' VPATH=$(LUA_SRC) liblua.a
-
-endif
-
-endif
 
 ## arch-tag: cfcae754-60d5-470f-b3ea-248fbf0a01c8

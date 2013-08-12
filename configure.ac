@@ -125,8 +125,8 @@ AC_SUBST([CONFIG_LDFLAGS], [])
 #       Lua library will be checked for).
 #
 #   (2) If the user specifies --with-lua-src, then a Lua library will
-#       be built from the source in $top_srcdir/lua and used (and no
-#       system Lua library will be checked for).
+#       be built from the source in $top_srcdir/liblua/lua-dist and
+#       used (and no system Lua library will be checked for).
 #
 #   (3) If --with-lua-src isn't specified, and a system LuaJIT or Lua
 #       library is found, then the system library is used.  A LuaJIT
@@ -134,7 +134,7 @@ AC_SUBST([CONFIG_LDFLAGS], [])
 #
 #   (4) If --with-lua-src isn't specified and no system LuaJIT or Lua
 #       library is found, then a Lua library is built from source code
-#       $top_srcdir/lua and used.
+#       $top_srcdir/liblua/lua-dist and used.
 #
 # In any case where it attempts to build from Lua source code, it is a
 # fatal error if no source code is found in the selected location.
@@ -152,15 +152,20 @@ else
   build_lua_from_src=yes
 fi
 if test x"$lua_dist" = xyes; then
-  lua_dist=$srcdir/lua
+  lua_dist=$srcdir/liblua/lua-dist
+  lua_dist_make='$(top_srcdir)/liblua/lua-dist'
+else
+  lua_dist_make="$lua_dist"
 fi
 
 AC_MSG_CHECKING([for Lua source directory])
 lua_dist=`echo "$lua_dist" | sed -e 's@^./@@' -e 's@/*$@@'`
+lua_dist_make=`echo "$lua_dist_make" | sed -e 's@^./@@' -e 's@/*$@@'`
 lua_src=none
-for dir in "$lua_dist" "$lua_dist/src"; do
-    if test -r "$dir/lapi.c"; then
-       lua_src="$dir"
+for sfx in '' '/src'; do
+    if test -r "$lua_dist$sfx/lapi.c"; then
+       lua_src="$lua_dist$sfx"
+       lua_src_make="$lua_dist_make$sfx"
        break
     fi
 done
@@ -172,31 +177,30 @@ fi
 
 build_lua_in_src_dir=no
 if test "$lua_src" != none; then
-  AC_SUBST([LUA_DIST], [$lua_dist])
-  AC_SUBST([LUA_SRC], [$lua_src])
+  AC_SUBST([LUA_DIST], [$lua_dist_make])
+  AC_SUBST([LUA_SRC], [$lua_src_make])
 
-  # We use two different methods for building liblua.a, depending on whether
-  # we're using a separate build directory or not, and whether the Lua source
-  # directory is a subdirectory (and thus is "ours"):
+  # We use two different methods for building liblua.a, depending on
+  # whether we're using a separate build directory or not, and whether
+  # the Lua source directory is a subdirectory (and thus is "ours"):
   #
-  # + If building in the source dir, and the Lua source directory is a simple
-  #   subdirectory of the top-level source dir, we build liblua.a in the Lua
-  #   source directory and copy it to our top-level directory.  This avoids
-  #   most assumptions about how make works.
+  # + If building in the source dir, and the Lua source directory is a
+  #   simple subdirectory of the top-level source dir, we build
+  #   liblua.a in the Lua source directory and copy it to our
+  #   top-level directory.  This avoids most assumptions about how
+  #   make works.
   #
   # + If using a separate build dir, or if the Lua source directory is
-  #   "somewhere else", we build liblua.a in the current directory, using the
-  #   Makefile from the Lua source directory, and VPATH to tell make where to
-  #   find the source files. This requires that make support at using VPATH
-  #   to find source files, which seems a reasonable assumption in this case.
-  #   It also requires that no lua object files have the same name as any of
-  #   our object files; that's the case currently (all Lua source/object
-  #   files begin with "l").
+  #   "somewhere else", we build liblua.a in the current directory,
+  #   using the Makefile from the Lua source directory, and VPATH to
+  #   tell make where to find the source files. This requires that
+  #   make support at using VPATH to find source files, which seems a
+  #   reasonable assumption in this case.
   #
-  # Our test to determine if LUA_SRC is "our" subdirectory is very simple, we
-  # just see if $lua_dist _doesn't_ contain a slash (we use $lua_dist instead
-  # of $lua_src because $lua_src is often a subdirectory of $lua_dist, and so
-  # will have a slash added).
+  # Our test to determine if LUA_SRC is "our" subdirectory is very
+  # simple, we just see if $lua_dist _doesn't_ contain a slash (we use
+  # $lua_dist instead of $lua_src because $lua_src is often a
+  # subdirectory of $lua_dist, and so will have a slash added).
   #
   AC_MSG_CHECKING([whether to build Lua in source directory])
   lua_dist_slash=`echo "$lua_dist" | grep /`
@@ -721,7 +725,7 @@ fi
 if test $have_liblua = no || test $build_lua_from_src = yes; then
   if test x"$lua_src" != xnone; then
     AC_SUBST([liblua_CFLAGS], ['-I$(LUA_SRC)'])
-    AC_SUBST([liblua_LIBS], [liblua.a])
+    AC_SUBST([liblua_LIBS], ['$(top_builddir)/liblua/liblua.a'])
     build_lua_from_src=yes
     have_liblua=yes
   fi
@@ -1532,12 +1536,13 @@ AC_CONFIG_FILES([Makefile cli/Makefile color/Makefile
 			  geometry/Makefile image/Makefile
 			  imagecli/Makefile intersect/Makefile
 			  light/Makefile liblpeg/Makefile
-			  load/Makefile material/Makefile
-			  photon/Makefile render/Makefile
-			  render-mgr/Makefile scene/Makefile
-			  scenecli/Makefile snograw/Makefile
-			  space/Makefile surface/Makefile
-			  texture/Makefile util/Makefile])
+			  liblua/Makefile load/Makefile
+			  material/Makefile photon/Makefile
+			  render/Makefile render-mgr/Makefile
+			  scene/Makefile scenecli/Makefile
+			  snograw/Makefile space/Makefile
+			  surface/Makefile texture/Makefile
+			  util/Makefile])
 
 AC_OUTPUT
 

@@ -71,7 +71,7 @@ libsnograw_a_SHORTNAME = sl
 #
 if have_swig
 
-SWIG_FLAGS = -I$(top_srcdir) $($(SWIG_NOMODULEGLOBAL_FLAG)
+SWIG_FLAGS = -I$(top_builddir) -I$(top_srcdir) $($(SWIG_NOMODULEGLOBAL_FLAG)
 
 # automake "silent-rules" hooks for swig.
 #
@@ -100,13 +100,6 @@ else
 	  exit 1;							       \
 	fi
 
-endif
-
-
-# This makes sure that liblua.a gets built when necessary.
-#
-if build_lua
-libsnograw_a_DEPENDENCIES = $(top_builddir)/liblua.a
 endif
 
 
