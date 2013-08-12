@@ -26,4 +26,4 @@ EXTRA_DIST = $(pkgluamodulesnogray_DATA)
 AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 
-libsnogscenecli_a_SOURCES = scene-cmdline.cc scene-cmdline.h
+libsnogscenecli_a_SOURCES = 
