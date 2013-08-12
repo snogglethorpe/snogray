@@ -23,7 +23,8 @@ EXTRA_DIST = material.swg $(pkgluamodulesnogray_DATA)
 
 libsnogmat_a_SOURCES = bsdf.h cook-torrance.cc cook-torrance.h		\
 	cos-dist.h dist.h fresnel.h glass.cc glass.h glow.cc glow.h	\
-	lambert.cc lambert.h material.cc material.h material-dict.cc	\
-	material-dict.h media.cc media.h medium.h mirror.cc mirror.h	\
-	norm-glow.cc norm-glow.h phong-dist.h phong.cc phong.h		\
-	thin-glass.cc thin-glass.h stencil.cc stencil.h ward-dist.h
+	hemi-dist.h lambert.cc lambert.h material.cc material.h		\
+	material-dict.cc material-dict.h media.cc media.h medium.h	\
+	mirror.cc mirror.h norm-glow.cc norm-glow.h phong-dist.h	\
+	phong.cc phong.h thin-glass.cc thin-glass.h stencil.cc		\
+	stencil.h ward-dist.h
