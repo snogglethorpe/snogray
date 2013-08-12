@@ -44,13 +44,10 @@ pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =								\
+	autogen.sh update-version.sh					\
 	config.mk							\
-	$(pkglua_DATA)							\
-	$(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)		\
-	README README.building README.issues README.usage		\
-	README.utils							\
-	update-version.sh						\
-	autogen.sh
+	$(pkglua_DATA) $(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)	\
+	README README.building README.issues README.usage README.utils
 
 noinst_SCRIPTS = update-version.sh
 
@@ -128,6 +125,3 @@ endif
 
 sampleimg_SOURCES = sampleimg.cc
 sampleimg_LDADD = $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
-
-
-## arch-tag: cfcae754-60d5-470f-b3ea-248fbf0a01c8
