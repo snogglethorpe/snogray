@@ -29,7 +29,7 @@ endif
 
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
 	liblua load lua material photon render render-mgr scene		\
-	scenecli snograw space surface texture util
+	snograw space surface texture util
 
 if build_snogbloom
   SUBDIRS += glare

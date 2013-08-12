@@ -18,7 +18,8 @@ include $(top_srcdir)/image/image-deps.mk
 
 noinst_LIBRARIES = libsnogscene.a
 
-pkgluamodulesnogray_DATA = camera.lua scene.lua
+pkgluamodulesnogray_DATA = camera.lua camera-cmdline.lua scene.lua	\
+	scene-cmdline.lua
 
 EXTRA_DIST = camera.swg scene.swg $(pkgluamodulesnogray_DATA)
 

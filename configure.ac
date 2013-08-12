@@ -1540,9 +1540,9 @@ AC_CONFIG_FILES([Makefile cli/Makefile color/Makefile
 			  load/Makefile lua/Makefile material/Makefile
 			  photon/Makefile render/Makefile
 			  render-mgr/Makefile scene/Makefile
-			  scenecli/Makefile snograw/Makefile
-			  space/Makefile surface/Makefile
-			  texture/Makefile util/Makefile])
+			  snograw/Makefile space/Makefile
+			  surface/Makefile texture/Makefile
+			  util/Makefile])
 
 AC_OUTPUT
 

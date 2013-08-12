@@ -51,7 +51,7 @@ else
    local uninst_module_mapping = {
       ["accel"]		 = "space/accel",
       ["camera"]	 = "scene/camera",
-      ["camera-cmdline"] = "scenecli/camera-cmdline",
+      ["camera-cmdline"] = "scene/camera-cmdline",
       ["cmdlineparser"]	 = "cli/cmdlineparser",
       ["coord"]		 = "geometry/coord",
       ["file"]		 = "util/file",
@@ -61,7 +61,7 @@ else
       ["lpeg-utils"]	 = "util/lpeg-utils",
       ["render"]	 = "render-mgr/render",
       ["render-cmdline"] = "render-mgr/render-cmdline",
-      ["scene-cmdline"]  = "scenecli/scene-cmdline",
+      ["scene-cmdline"]  = "scene/scene-cmdline",
       ["string"]	 = "util/string",
       ["string-fill"]	 = "util/string-fill",
       ["swig"]		 = "util/swig",
