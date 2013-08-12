@@ -1,0 +1,8 @@
+# Ignore generated binaries
+#
+snograw.so
+
+# Ignore generated sources
+#
+snograw_lua_wrap.cc
+swigluarun.h
