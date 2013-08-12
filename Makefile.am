@@ -27,6 +27,8 @@ if build_snogbloom
 endif
 
 
+# Library subdirectories
+#
 SUBDIRS = cli color geometry image intersect light liblpeg liblua	\
 	load lua material photon render render-mgr scene snograw	\
 	space surface texture util
