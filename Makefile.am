@@ -20,25 +20,9 @@ include $(top_srcdir)/lua/lua-deps.mk
 # Targets
 #
 bin_PROGRAMS = snogray snogcvt snoghilite snogdiff sampleimg
-noinst_PROGRAMS =
 
 if build_snogbloom
   bin_PROGRAMS += snogbloom
-endif
-
-
-# Targets we don't want for whatever reason.  Automake bitches if we
-# simply remove them from the above target variables, so we
-# "conditionally" add them back here.
-#
-if never
-
-# snogsamp is broken now
-bin_PROGRAMS += snogsamp
-
-# hemint is rarely used, so don't compile it
-noinst_PROGRAMS += hemint
-
 endif
 
 
@@ -128,9 +112,6 @@ snogray_SOURCES = snogray.cc recover-image.cc recover-image.h
 snogray_LDADD = $(LUA_LIBS) render-mgr/libsnogrendermgr.a	\
 	$(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
 
-snogsamp_SOURCES = snogsamp.cc sample-map.cc sample-map.h
-snogsamp_LDADD = $(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
-
 snogcvt_SOURCES = snogcvt.cc
 snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 
@@ -145,9 +126,6 @@ if build_snogbloom
 	glare-psf.h photopic-glare-psf.cc photopic-glare-psf.h
   snogbloom_LDADD = $(IMAGE_LIBS) $(MISC_LIBS) $(libfftw3_LIBS)
 endif
-
-hemint_SOURCES = hemint.cc
-hemint_LDADD = util/libsnogutil.a
 
 sampleimg_SOURCES = sampleimg.cc
 sampleimg_LDADD = $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
