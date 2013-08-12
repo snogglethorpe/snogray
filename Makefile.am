@@ -87,11 +87,12 @@ config.h: update_version
 #
 # Groups of associated libraries
 #
-CORE_LIBS = render/libsnogrender.a photon/libsnogphoton.a	\
-	space/libsnogspace.a scene/libsnogscene.a		\
-	material/libsnogmat.a surface/libsnogsurf.a		\
-	texture/libsnogtex.a light/libsnoglight.a		\
-	intersect/libsnogisec.a geometry/libsnoggeom.a
+RENDER_LIBS = render-mgr/libsnogrendermgr.a render/libsnogrender.a	\
+	photon/libsnogphoton.a space/libsnogspace.a			\
+	scene/libsnogscene.a material/libsnogmat.a			\
+	surface/libsnogsurf.a texture/libsnogtex.a			\
+	light/libsnoglight.a intersect/libsnogisec.a			\
+	geometry/libsnoggeom.a
 LUA_LIBS = lua/libsnoglua.a $(libsnoglua_LIBS)
 LOAD_LIBS = load/libsnogload.a $(libsnogload_LIBS)
 IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
@@ -105,8 +106,8 @@ MISC_LIBS = cli/libsnogcli.a util/libsnogutil.a
 #
 
 snogray_SOURCES = snogray.cc
-snogray_LDADD = $(LUA_LIBS) render-mgr/libsnogrendermgr.a	\
-	$(LOAD_LIBS) $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
+snogray_LDADD = $(LUA_LIBS) $(LOAD_LIBS) $(RENDER_LIBS) $(IMAGE_LIBS)	\
+	$(MISC_LIBS)
 
 snogcvt_SOURCES = snogcvt.cc
 snogcvt_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
@@ -124,4 +125,4 @@ if build_snogbloom
 endif
 
 sampleimg_SOURCES = sampleimg.cc
-sampleimg_LDADD = $(CORE_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
+sampleimg_LDADD = $(RENDER_LIBS) $(IMAGE_LIBS) $(MISC_LIBS)
