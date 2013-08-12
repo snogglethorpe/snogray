@@ -56,8 +56,7 @@ else
       ["coord"]		 = "geometry/coord",
       ["file"]		 = "util/file",
       ["filename"]	 = "util/filename",
-      ["image-sampled-output-cmdline"]
-	 = "imagecli/image-sampled-output-cmdline",
+      ["image-sampled-output-cmdline"] = "image/image-sampled-output-cmdline",
       ["lpeg-utils"]	 = "util/lpeg-utils",
       ["render"]	 = "render-mgr/render",
       ["render-cmdline"] = "render-mgr/render-cmdline",

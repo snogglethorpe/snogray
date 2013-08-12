@@ -27,9 +27,9 @@ if build_snogbloom
 endif
 
 
-SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
-	liblua load lua material photon render render-mgr scene		\
-	snograw space surface texture util
+SUBDIRS = cli color geometry image intersect light liblpeg liblua	\
+	load lua material photon render render-mgr scene snograw	\
+	space surface texture util
 
 if build_snogbloom
   SUBDIRS += glare
@@ -100,8 +100,8 @@ RENDER_LIBS = render-mgr/libsnogrendermgr.a render/libsnogrender.a	\
 	geometry/libsnoggeom.a
 LUA_LIBS = lua/libsnoglua.a $(libsnoglua_LIBS)
 LOAD_LIBS = load/libsnogload.a $(libsnogload_LIBS)
-IMAGE_LIBS = imagecli/libsnogimagecli.a image/libsnogimage.a	\
-	$(libsnogimage_LIBS) color/libsnogcolor.a
+IMAGE_LIBS = image/libsnogimage.a $(libsnogimage_LIBS)	\
+	color/libsnogcolor.a
 MISC_LIBS = cli/libsnogcli.a util/libsnogutil.a
 
 

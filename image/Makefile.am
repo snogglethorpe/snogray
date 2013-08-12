@@ -17,7 +17,7 @@ include $(srcdir)/image-deps.mk
 
 noinst_LIBRARIES = libsnogimage.a
 
-pkgluamodulesnogray_DATA = image.lua
+pkgluamodulesnogray_DATA = image.lua image-sampled-output-cmdline.lua
 
 EXTRA_DIST = image-deps.mk image.swg $(pkgluamodulesnogray_DATA)
 
@@ -28,13 +28,15 @@ AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 libsnogimage_a_SOURCES = image.h image-box-filt.h image-byte-vec.cc	\
 	image-byte-vec.h image-dispatch.cc image-filter-conv.h		\
 	image-filter.cc image-filter.h image-gauss-filt.h		\
-	image-input.h image-io.cc image-io.h image-mitchell-filt.h	\
-	image-sampled-output.cc image-sampled-output.h			\
-	image-scaled-output.cc image-scaled-output.h image-pfm.cc	\
-	image-pfm.h image-rgbe.cc image-rgbe.h image-tga.cc		\
-	image-tga.h image-triangle-filt.h recover-image.cc		\
-	recover-image.h tuple-adaptor.h tuple-matrix.cc			\
-	tuple-matrix.h tuple-matrix.tcc
+	image-input.h image-input-cmdline.h image-io.cc image-io.h	\
+	image-mitchell-filt.h image-sampled-output.cc			\
+	image-sampled-output.h image-sampled-output-cmdline.cc		\
+	image-sampled-output-cmdline.h image-scaled-output.cc		\
+	image-scaled-output.h image-scaled-output-cmdline.h		\
+	image-pfm.cc image-pfm.h image-rgbe.cc image-rgbe.h		\
+	image-tga.cc image-tga.h image-triangle-filt.h			\
+	recover-image.cc recover-image.h tuple-adaptor.h		\
+	tuple-matrix.cc tuple-matrix.h tuple-matrix.tcc
 
 if have_libpng
   libsnogimage_a_SOURCES += image-png.cc image-png.h

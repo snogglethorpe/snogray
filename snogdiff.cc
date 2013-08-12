@@ -18,8 +18,8 @@
 #include "cli/cmdlineparser.h"
 #include "image/image-input.h"
 #include "image/image-scaled-output.h"
-#include "imagecli/image-input-cmdline.h"
-#include "imagecli/image-scaled-output-cmdline.h"
+#include "image/image-input-cmdline.h"
+#include "image/image-scaled-output-cmdline.h"
 
 using namespace snogray;
 

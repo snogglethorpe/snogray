@@ -13,13 +13,13 @@
 #include <iostream>
 #include <cstring>
 
+#include "util/string-funs.h"
+#include "util/unique-ptr.h"
 #include "cli/cmdlineparser.h"
 #include "image/image-input.h"
 #include "image/image-scaled-output.h"
-#include "imagecli/image-input-cmdline.h"
-#include "imagecli/image-scaled-output-cmdline.h"
-#include "util/string-funs.h"
-#include "util/unique-ptr.h"
+#include "image/image-input-cmdline.h"
+#include "image/image-scaled-output-cmdline.h"
 
 using namespace snogray;
 
