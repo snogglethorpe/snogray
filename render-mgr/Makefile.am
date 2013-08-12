@@ -22,9 +22,9 @@ pkgluamodulesnogray_DATA = render-cmdline.lua render.lua
 EXTRA_DIST = render-mgr.swg $(pkgluamodulesnogray_DATA)
 
 
-libsnogrendermgr_a_SOURCES = render-cmdline.h render-mgr.cc		\
-	render-mgr.h render-packet.h render-pattern.h renderer.cc	\
-	renderer.h wire-frame.h
+libsnogrendermgr_a_SOURCES = render-mgr.cc render-mgr.h		\
+	render-packet.h render-pattern.h renderer.cc renderer.h	\
+	wire-frame.h
 
 if use_threads
 libsnogrendermgr_a_SOURCES += render-queue.cc render-queue.h	\
