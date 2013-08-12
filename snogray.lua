@@ -25,6 +25,7 @@ local round_and_commify = string.round_and_commify
 local lpad = string.left_pad
 
 local file = require 'snogray.file'
+local table = require 'snogray.table'
 
 local clp = require 'snogray.cmdlineparser'
 
@@ -115,6 +116,27 @@ local output_file = args[2] -- may be null
 
 
 ----------------------------------------------------------------
+-- Helper functions
+--
+
+-- Copy the contents of FROM to TO, except where TO has an existing
+-- entry.  Table values are recursively installed in the same manner.
+--
+local function install_new_entries (from, to)
+   if type (from) == 'table' and type (to) == 'table' then
+      for k, v in pairs (from) do
+	 local existing = to[k]
+	 if not existing then
+	    to[k] = v
+	 elseif type (v) == 'table' then
+	    install_new_entries (v, existing)
+	 end
+      end
+   end
+end
+
+
+----------------------------------------------------------------
 -- Load the scene
 --
 
@@ -128,7 +150,21 @@ local camera = camera.new ()	-- ditto
 --
 output_params.filename = output_file
 
-load.scene (scene_file, scene, camera, params)
+-- We make a copy of PARAMS and pass it to the loader.
+--
+local loader_params = table.deep_copy (params)
+
+-- Call the loader
+--
+load.scene (scene_file, scene, camera, loader_params)
+
+-- Now copy back any _new_ parameters in LOADER_PARAMS to PARAMS.
+--
+-- Keeping existing params in PARAMS ensures that any parameters the
+-- user specified on the command-line override parameters set by the
+-- loader.
+--
+install_new_entries (loader_params, params)
 
 -- Do post-load scene setup (nothing can be added to scene after this).
 --
@@ -137,6 +173,8 @@ load.scene (scene_file, scene, camera, params)
 --
 scene:setup (accel.factory())
 
+-- Apply our parameter tables.
+--
 scene_cmdline.apply (scene_params, scene)
 camera_cmdline.apply (camera_params, camera, scene)
 
