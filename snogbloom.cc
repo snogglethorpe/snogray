@@ -18,9 +18,9 @@
 #include "image/image.h"
 #include "imagecli/image-input-cmdline.h"
 #include "imagecli/image-scaled-output-cmdline.h"
-#include "add-glare.h"
 #include "util/gaussian-filter.h"
-#include "photopic-glare-psf.h"
+#include "glare/add-glare.h"
+#include "glare/photopic-glare-psf.h"
 
 
 using namespace snogray;

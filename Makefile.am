@@ -15,6 +15,7 @@ include $(top_srcdir)/lua-install-dirs.mk
 include $(top_srcdir)/image/image-deps.mk
 include $(top_srcdir)/load/load-deps.mk
 include $(top_srcdir)/lua/lua-deps.mk
+include $(top_srcdir)/glare/glare-deps.mk
 
 
 # Targets
@@ -29,6 +30,10 @@ endif
 SUBDIRS = cli color geometry image imagecli intersect light liblpeg	\
 	liblua load lua material photon render render-mgr scene		\
 	scenecli snograw space surface texture util
+
+if build_snogbloom
+  SUBDIRS += glare
+endif
 
 
 # Lua files loaded directly.
@@ -119,9 +124,9 @@ snogdiff_SOURCES = snogdiff.cc
 snogdiff_LDADD = $(IMAGE_LIBS) $(MISC_LIBS)
 
 if build_snogbloom
-  snogbloom_SOURCES = snogbloom.cc add-glare.cc add-glare.h	\
-	glare-psf.h photopic-glare-psf.cc photopic-glare-psf.h
-  snogbloom_LDADD = $(IMAGE_LIBS) $(MISC_LIBS) $(libfftw3_LIBS)
+  snogbloom_SOURCES = snogbloom.cc
+  snogbloom_LDADD = glare/libsnogglare.a $(libsnogglare_LIBS)	\
+	  $(IMAGE_LIBS) $(MISC_LIBS)
 endif
 
 sampleimg_SOURCES = sampleimg.cc
