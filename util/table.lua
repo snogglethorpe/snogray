@@ -1,6 +1,6 @@
 -- table.lua -- Miscellaneous table functions
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -25,13 +25,35 @@ local table = {}
 setmetatable (table, {__index = std_table})
 
 
-function table.shallow_copy (table)
-   local copy = {}
-   for k, v in pairs (table) do
-      copy[k] = v
+-- Return a copy of OBJ, with only the top-level table structure
+-- copied.  A non-table is returned as-is.
+--
+function table.shallow_copy (obj)
+   if type (obj) == 'table' then
+      local copy = {}
+      for k, v in pairs (obj) do
+	 copy[k] = v
+      end
+      obj = copy
    end
-   return copy
+   return obj
 end
+
+
+-- Return a copy of OBJ, with all table structure copied.  Any
+-- non-tables are just used as-is.  Only values are copied, not keys.
+--
+local function deep_copy (obj)
+   if type (obj) == 'table' then
+      local copy = {}
+      for k, v in pairs (obj) do
+	 copy[k] = deep_copy (v)
+      end
+      obj = copy
+   end
+   return obj
+end
+table.deep_copy = deep_copy
 
 
 -- Return a table containing every value in KEYS as a key, with value
