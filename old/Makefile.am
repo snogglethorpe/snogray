@@ -1,6 +1,8 @@
 # This isn't a working Makefile.am, these are just fragments from the
 # old top-level file.
 
+EXTRA_DIST = stats.txt spd.txt
+
 # snogsamp is broken now
 bin_PROGRAMS += snogsamp
 

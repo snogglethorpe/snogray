@@ -50,8 +50,7 @@ EXTRA_DIST =								\
 	README README.building README.issues README.usage		\
 	README.utils							\
 	update-version.sh						\
-	autogen.sh							\
-	stats.txt spd.txt
+	autogen.sh
 
 noinst_SCRIPTS = update-version.sh
 
