@@ -205,7 +205,7 @@ int main (int argc, char *const *argv)
   if (different && !quiet)
     std::cout << std::fixed
 	      << std::setprecision (6)
-	      << "* avg1 = " << avg1
+	      << "avg1 = " << avg1
 	      << ", avg2 = " << avg2
 	      << std::setprecision (8)
 	      << ", avg_delta = " << avg_delta
