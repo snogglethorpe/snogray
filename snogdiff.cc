@@ -212,7 +212,7 @@ int main (int argc, char *const *argv)
 	      << ", mse = " << mse
 	      << std::endl;
 
-  exit (different ? 10 : 0);
+  return (different ? 10 : 0);
 }
 
 // arch-tag: 7e0ac89a-194f-4ebb-be2f-ca8714bca63c
