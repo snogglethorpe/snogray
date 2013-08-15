@@ -18,7 +18,7 @@ local installed_mode, lua_root = ...
 
 -- Various directories
 --
-local lua_dir, lua_module_dir, lua_loader_dir
+local lua_dir, lua_loader_dir
 
 if installed_mode then
    --
@@ -28,13 +28,12 @@ if installed_mode then
    -- Various directories in their proper locations.
    --
    lua_dir = lua_root
-   lua_module_dir = lua_dir.."/module"
    lua_loader_dir = lua_dir.."/loader"
 
    -- Push the installation Lua directory onto the front of the module
    -- search path.
    --
-   package.path = lua_module_dir.."/?.lua;"..package.path
+   package.path = lua_dir.."/module/?.lua;"..package.path
 else
    --
    -- We're operating in "uninstalled mode".  Add a package searcher
@@ -108,7 +107,6 @@ else
    -- Everything in current directory.
    --
    lua_dir = lua_root
-   lua_module_dir = lua_root
    lua_loader_dir = lua_root.."/load"
 end
 
@@ -119,8 +117,6 @@ end
 --   lua_dir		The root of the tree where snogray Lua files are
 --			stored.
 --
---   lua_module_dir	The directory where snogray Lua modules are stored.
---
 --   lua_loader_dir	The directory where snogray Lua scene/mesh
 --			loaders are stored.
 --
@@ -128,7 +124,6 @@ end
 --
 local snogray_environ = {}
 snogray_environ.lua_dir = lua_dir
-snogray_environ.lua_module_dir = lua_module_dir
 snogray_environ.lua_loader_dir = lua_loader_dir
 
 package.loaded['snogray.environ'] = snogray_environ
