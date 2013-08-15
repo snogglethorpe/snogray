@@ -1,6 +1,6 @@
 // invoke-driver.cc -- Find and invoke the top-level Lua driver
 //
-//  Copyright (C) 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -11,6 +11,7 @@
 //
 
 #include <iostream>
+#include <string>
 #include <stdexcept>
 #include <cstdlib>
 
@@ -50,7 +51,16 @@ snogray::invoke_lua_driver (const std::string &driver_name, const char **argv)
   lua_State *L;
   try
     {
-      L = new_snogray_lua_state ();
+      // Get directory from PROG, or use "." if none.
+      //
+      std::string prog_dir = prog;
+      std::string::size_type slash = prog_dir.find_last_of ("/");
+      if (slash == std::string::npos)
+	prog_dir = ".";
+      else
+	prog_dir.erase (slash == 0 ? 1 : slash);
+
+      L = new_snogray_lua_state (prog_dir);
     }
   catch (std::exception &exc)
     {

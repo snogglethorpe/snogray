@@ -105,49 +105,70 @@ snogray_lua_panic (lua_State *L)
 
 // setup_module_loader
 
-// Tweak the module system in Lua state L to properly load our modules.
+// Tweak the module system in Lua state L to properly load our
+// modules.  UNINSTALLED_DIR is a directory to search for lua source
+// files in uninstalled-mode; if it is empty uninstalled-mode isn't
+// used.
 //
 static void
-setup_lua_module_loader (lua_State *L)
+setup_lua_module_loader (lua_State *L, const std::string &uninstalled_dir)
 {
   // A small Lua script to set up the module system for loading
   // snogray packages.
   //
-  // It expects two arguments:  (1) the directory where we can find
-  // installed Lua files, and (2) the name of the file to load to do the
-  // module system setup.
+  // It expects three arguments:  (1) a directory to search for an
+  // uninstalled snogray distribution, (2) the directory where we can
+  // find installed Lua files, and (3) the name of the file to load to
+  // do the module system setup.
+  //
+  // If (1) is non-nil and the snogray module-loader Lua source file
+  // given by (3) can be found relative to the directory given by (1),
+  // then it is assumed we are running in "uninstalled mode", and that
+  // all snogray Lua files will be found in their source-tree
+  // locations relative to that directory.  Otherwise it is assumed we
+  // are running in "installed mode", and that all snogray Lua files
+  // can be found in their installed location relative to the
+  // directory given by (2).
   //
   // As this code this has to be executed _before_ we load any modules,
   // we keep it as a C string instead of storing it in a file.
   //
   static const char lua_module_setup_script[] = "\
-    local snogray_installed_lua_root, module_setup_file = ... \
-    local mod_setup = loadfile ('lua/'..module_setup_file) \
+    local snogray_uninstalled_root, snogray_installed_lua_root, module_setup_file = ... \
+    local mod_setup = \
+      (snogray_uninstalled_root \
+       and loadfile (snogray_uninstalled_root..'/lua/'..module_setup_file)) \
     if mod_setup then \
-      mod_setup (nil) \
+      mod_setup (false, snogray_uninstalled_root) \
     else \
       mod_setup = loadfile (snogray_installed_lua_root \
                             ..'/'..module_setup_file) \
       if mod_setup then  \
-	mod_setup (snogray_installed_lua_root) \
+	mod_setup (true, snogray_installed_lua_root) \
       else \
 	error (module_setup_file..' not found', 0) \
       end \
     end";
 
   luaL_loadstring (L, lua_module_setup_script);
+  if (uninstalled_dir.empty ())
+    lua_pushnil (L);		// don't try uninstalled mode
+  else
+    lua_pushstring (L, uninstalled_dir.c_str ());
   lua_pushstring (L, (installed_pkgdatadir () + "/lua").c_str());
   lua_pushstring (L, "module-setup.lua"); // Lua file with module setup code
-  lua_call (L, 2, 0);
+  lua_call (L, 3, 0);
 }
 
 
 // Lua initialization
 
 // Return a new Lua state setup with our special environment.
+// UNINSTALLED_DIR is a directory to search for lua source files in
+// uninstalled-mode; if it is empty uninstalled-mode isn't used.
 //
 lua_State *
-snogray::new_snogray_lua_state ()
+snogray::new_snogray_lua_state (const std::string &uninstalled_dir)
 {
   // Do one-time setup of lua environment.
 
@@ -187,7 +208,7 @@ snogray::new_snogray_lua_state ()
 
   // Setup the module system to load more stuff.
   //
-  setup_lua_module_loader (L);
+  setup_lua_module_loader (L, uninstalled_dir);
 
   // Add snogray version string to the "snogray.environ" module.
   //

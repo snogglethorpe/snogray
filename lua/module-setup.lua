@@ -14,20 +14,20 @@
 -- Lua files, or nil if the current directory should be used to find
 -- uninstalled Lua files instead.
 --
-local installed_lua_root = ...
+local installed_mode, lua_root = ...
 
 -- Various directories
 --
 local lua_dir, lua_module_dir, lua_loader_dir
 
-if installed_lua_root then
+if installed_mode then
    --
    -- We're operating in "installed mode".  
    --
 
    -- Various directories in their proper locations.
    --
-   lua_dir = installed_lua_root
+   lua_dir = lua_root
    lua_module_dir = lua_dir.."/module"
    lua_loader_dir = lua_dir.."/loader"
 
@@ -84,12 +84,13 @@ else
 		      -- Otherwise first try loading from a
 		      -- subdirectory of the same name as the module
 		      thunk, err
-			 = loadfile (snogray_pkg.."/"..snogray_pkg..".lua")
+			 = loadfile (lua_root.."/"..snogray_pkg
+				     .."/"..snogray_pkg..".lua")
 		   end
 
 		   -- Try loading from the current directory
 		   if not thunk then
-		      thunk, err = loadfile (snogray_pkg..".lua")
+		      thunk, err = loadfile (lua_root.."/"..snogray_pkg..".lua")
 		   end
 		   if not thunk then
 		      error (err, 0)
@@ -106,9 +107,9 @@ else
 
    -- Everything in current directory.
    --
-   lua_dir = "."
-   lua_module_dir = "."
-   lua_loader_dir = "load"
+   lua_dir = lua_root
+   lua_module_dir = lua_root
+   lua_loader_dir = lua_root.."/load"
 end
 
 -- Setup a "module" which stores various snogray environment parameters.
