@@ -1,6 +1,6 @@
 // image-scaled-output.cc -- Output of scaled images
 //
-//  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -31,10 +31,7 @@ ImageScaledOutput::ImageScaledOutput (const std::string &filename,
     cur_src_y (0),
     x_scale (float (width) / float (src_width)),
     y_scale (float (height) / float (src_height)),
-    preclamp (
-      params.get_bool ("preclamp", max_intens() != 0)
-      ? max_intens ()
-      : 0.0f)
+    preclamp (params.get_float ("preclamp", max_intens()))
 { }
 			
 

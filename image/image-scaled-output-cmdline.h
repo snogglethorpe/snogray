@@ -1,7 +1,7 @@
 // image-scaled-output-cmdline.h -- Support for command-line parsing
 //	of scaled output image parameters
 //
-//  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -23,9 +23,11 @@
 #define IMAGE_SCALED_OUTPUT_OPTIONS_HELP				\
   IMAGE_SAMPLED_OUTPUT_OPTIONS_HELP "\
 \n\n\
-      --no-preclamp          Do not clamp to output range before filtering\n\
+      --no-preclamp          Do not clamp before filtering\n\
 			       (preclamping is used by default for\n\
-				low-dynamic-range image output formats)"
+				low-dynamic-range image output formats)\n\
+      --preclamp=THRESH      Clamp to a maximum of THRESH before filtering\n\
+			       (default is the output format's maximum)"
 
 #define IMAGE_SCALED_OUTPUT_SHORT_OPTIONS	\
   IMAGE_SAMPLED_OUTPUT_SHORT_OPTIONS
@@ -35,15 +37,15 @@
 
 #define IMAGE_SCALED_OUTPUT_LONG_OPTIONS				\
   IMAGE_SAMPLED_OUTPUT_LONG_OPTIONS,					\
-  { "preclamp", no_argument, 0, IMAGE_SCALED_OUTPUT_OPT_PRECLAMP },	\
+  { "preclamp", required_argument, 0, IMAGE_SCALED_OUTPUT_OPT_PRECLAMP }, \
   { "no-preclamp", no_argument, 0, IMAGE_SCALED_OUTPUT_OPT_NO_PRECLAMP }
 
 #define IMAGE_SCALED_OUTPUT_OPTION_CASES(clp, params)	\
   case IMAGE_SCALED_OUTPUT_OPT_PRECLAMP:		\
-    params.set ("preclamp", true);			\
+    params.set ("preclamp", clp.float_opt_arg ());	\
     break;						\
   case IMAGE_SCALED_OUTPUT_OPT_NO_PRECLAMP:		\
-    params.set ("preclamp", false);			\
+    params.set ("preclamp", 0.f);			\
     break;						\
   IMAGE_SAMPLED_OUTPUT_OPTION_CASES (clp, params);
 
