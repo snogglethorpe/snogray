@@ -59,6 +59,7 @@ local render_params = {}
 local scene_params = {}
 local camera_params = {}
 local output_params = {}
+local preload_scene_files, postload_scene_files = {}, {}
 
 -- All parameters together.
 --
@@ -81,6 +82,12 @@ local parser = clp {
    render_cmdline.option_parser (render_params),
    "Scene options:",
    scene_cmdline.option_parser (scene_params),
+   { "--preload=SCENE",
+     function (arg) table.insert (preload_scene_files, arg) end,
+     doc = [[Load scene-file SCENE before main scene]] },
+   { "--postload=SCENE",
+     function (arg) table.insert (postload_scene_files, arg) end,
+     doc = [[Load scene-file SCENE after main scene]] },
    "Camera options:",
    camera_cmdline.option_parser (camera_params),
    "Output image options:",
@@ -154,9 +161,24 @@ output_params.filename = output_file
 --
 local loader_params = table.deep_copy (params)
 
--- Call the loader
 --
+-- Call the loader to load the main scene, and any pre- or post-loaded
+-- scene files (which are loaded into the same environment, and so
+-- "additive."
+--
+
+-- pre-loaded scene files
+for i, preload in ipairs (preload_scene_files) do
+   load.scene (preload, scene, camera, loader_params)
+end
+
+-- main scene file
 load.scene (scene_file, scene, camera, loader_params)
+
+-- post-loaded scene files
+for i, postload in ipairs (postload_scene_files) do
+   load.scene (postload, scene, camera, loader_params)
+end
 
 -- Now copy back any _new_ parameters in LOADER_PARAMS to PARAMS.
 --
