@@ -1,6 +1,6 @@
 -- cmdlineparser.lua -- Parsing of GNU-style command-line options
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -210,27 +210,42 @@ end
 
 local function options_help (parser)
    local help = nil
-   local add_sep = false
+   local pending_blank = false
    for k = 1, #parser do
       local entry = parser[k]
 
+      -- All entries other than "normal" options are bounded by a
+      -- blank line on either side, with blank lines at the beginning
+      -- or end suppressed.  We just set the defaults here and turn
+      -- them off for normal options below.
+      --
+      local pre_blank = (k > 1)
+      local post_blank = true
+
+      -- Format the individual entry.
+      --
       local entry_help
       if is_parser (entry) then
 	 entry_help = options_help (entry)
-	 add_sep = true
       elseif is_option (entry) then
 	 entry_help = one_option_help (entry)
+	 pre_blank = false
+	 post_blank = false
       elseif type (entry) == 'string' then
-	 entry_help = " "..entry.."\n"
+	 entry_help = " "..entry
       end
 
+      -- Add the formatted entry to our accumulating help text.
+      --
       if entry_help then
+	 if pending_blank or pre_blank then
+	    entry_help = "\n"..entry_help
+	    pending_blank = false
+	 end
+
 	 help = sep_concat (help, "\n", entry_help)
 
-	 if add_sep and help then
-	    help = help.."\n"
-	    add_sep = false
-	 end
+	 pending_blank = pending_blank or post_blank
       end
    end
    return help
