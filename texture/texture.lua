@@ -1,6 +1,6 @@
 -- texture.lua -- Texture support
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -120,8 +120,12 @@ texture.tex_vals = tex_vals
 
 -- Image textures (read from a file)
 --
-texture.image = raw.image_tex
-texture.mono_image = raw.mono_image_tex
+function texture.image (arg1, ...)
+   return raw.image_tex (load.filename_in_cur_load_directory (arg1), ...)
+end
+function texture.mono_image (arg1, ...)
+   return raw.mono_image_tex (load.filename_in_cur_load_directory (arg1), ...)
+end
 
 -- Return a "grey_tex" texture object using the floating-point texture
 -- VAL as a source.  This can be used to convert a floating-point

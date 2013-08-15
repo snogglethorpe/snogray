@@ -122,9 +122,10 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 * TODO Add some sort of search-path for finding scenes/images/textures/etc
 
-  Nuance: Scene files loading other assets should see a search path
-  which adds their own path to the global path in some manner, to
-  allow somewhat self-contained scene directories.
+  Currently, there is code to keep track of the location of the
+  current file being loaded, and relative scene/mesh/image/texture
+  filenames are interpreted relative to the load-directory which is
+  current when they are loaded.
 
 * TODO Add some hack to reduce "speckling"
 

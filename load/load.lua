@@ -1,6 +1,6 @@
 -- load.lua -- Scene/mesh loading
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -20,6 +20,73 @@ local load = {}
 local filename = require 'snogray.filename'
 local swig = require 'snogray.swig'
 local raw = require 'snogray.snograw'
+
+
+----------------------------------------------------------------
+-- Current load-file/directory management
+--
+-- We keep track of the name of the current file being loaded and its
+-- directory.  Filename loading functions can then use this
+-- information to look in the same location for other files.
+--
+
+local load_filename_stack = {}
+
+-- Push NAME onto the stack of filenames being loaded.
+--
+function load.push_load_filename (name)
+   load_filename_stack[#load_filename_stack + 1] = name
+end
+
+-- Pop the top of the stack of filenames being loaded.
+--
+function load.pop_load_filename (name)
+   load_filename_stack[#load_filename_stack] = nil
+end
+
+-- Return the filename of the file currently being loaded, or nil if none.
+--
+function load.cur_load_filename ()
+   return load_filename_stack[#load_filename_stack]
+end
+
+-- Return the directory of the file currently being loaded, or nil if none.
+--
+function load.cur_load_directory ()
+   local cur_file = load_filename_stack[#load_filename_stack]
+   return cur_file and filename.directory (cur_file)
+end
+
+-- If OBJ is a string, and a relative filename, then prepend the
+-- current load-directory to it, and return the result.  Non-strings
+-- and absolute filenames are returned as-is.
+--
+function load.filename_in_cur_load_directory (obj)
+   if obj and type (obj) == 'string' then
+      local cur_dir = load.cur_load_directory ()
+      local old = obj
+      obj = filename.in_directory (obj, cur_dir)
+   end
+
+   return obj
+end
+
+
+-- Return LOADER inside a wrapper with the same interface which 
+-- (1) prepends the current load-directory to the filename argument to
+-- LOADER, and (2) pushes that filename on the load-directory stack
+-- while calling LOADER, popping it after LOADER returns.  The return
+-- value from LOADER is returned.
+--
+local function wrap_loader_with_cur_load_file_manager (loader)
+   return function  (name, ...)
+	       name = load.filename_in_cur_load_directory (name)
+	       load.push_load_filename (name)
+	       local rval = loader (name, ...)
+	       load.pop_load_filename ()
+	       return rval
+	    end
+end
 
 
 ----------------------------------------------------------------
@@ -71,7 +138,18 @@ local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
 	      --
 	      local loader = environ[loader_name]
 	      if loader then
+		 -- Add a wrapper around LOADER that manages the
+		 -- current load directory.
+		 --
+		 loader = wrap_loader_with_cur_load_file_manager (loader)
+
+		 -- Remember LOADER so that next time it will be
+		 -- called directly.
+		 --
 		 loader_table[ext] = loader
+
+		 -- Call LOADER to actually load the file.
+		 --
 		 return loader (...)
 	      else
 		 error ("loading "..loader_file.." didn't define "..loader_name)
@@ -115,7 +193,8 @@ local function add_loader (loader_table, format, loader, loader_file)
 	    = function (...) return loader_table[loader] (...) end
       end
    else
-      loader_table[format] = loader
+      -- directly set the loader function
+      loader_table[format] = wrap_loader_with_cur_load_file_manager (loader)
    end
 end
 

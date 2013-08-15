@@ -1,6 +1,6 @@
 -- image.lua -- Lua image handling for snogray
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -17,9 +17,13 @@ local image = {}
 -- imports
 --
 local raw = require "snogray.snograw"
+local load = require "snogray.load"
 
 
-image.new = raw.image
+function image.new (arg1, ...)
+   return raw.image (load.filename_in_cur_load_directory (arg1), ...)
+end
+
 image.sampled_output = raw.ImageSampledOutput
 image.scaled_output = raw.ImageScaledOutput
 image.input = raw.ImageInput
