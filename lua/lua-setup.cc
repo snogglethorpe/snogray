@@ -46,24 +46,44 @@ extern "C" int luaopen_snograw (lua_State *L);
 static int
 luaopen_snograw_fixup (lua_State *L)
 {
+  // Module name of snograw module used in its SWIG definition file
+  // (note that this may be different the name used in the Lua module
+  // system).
+  //
+  const char *module_name = "snograw";
+
+  // Remember the initial TOS position, so we can see if it changes.
+  //
+  int initial_stack_len = lua_gettop (L);
+
+  // Initialize the actual snograw module.
+  //
   int rv = luaopen_snograw (L);
+
   if (rv)
     {
-      // If luaopen_snograw returned a string, that means it put the actual
-      // module table in a global variable called "snograw".  Get the value
-      // of that table, delete the variable, and return the table instead,
-      // to reflect modern Lua module practice.
+      // In new versions of SWIG, the module init function simply
+      // returns the module table, which is "modern" Lua module
+      // practice, and exactly what we want.
       //
-      if (lua_isstring (L, -1))
+      // In old versions of SWIG, on the other hand, the module init
+      // function returns nothing, and instead puts the module table
+      // in a global variable with the same name as the module.
+      //
+      // We need to detect the latter situation, and fix it up to look
+      // like the former, by grabbing the contents of the global
+      // variable (the module table), pushing it on the stack, and
+      // deleting the global variable.
+      //
+      if (lua_gettop (L) == initial_stack_len)
 	{
-	  const char *module_name = lua_tostring (L, -1);
 	  lua_getglobal (L, module_name); // get module table from global var
-	  lua_insert (L, -2);		  // swap table and module_name
 	  lua_pushnil (L);
 	  lua_setglobal (L, module_name); // delete global variable
-	  lua_pop (L, 1);		  // pop module name
-	  // now module table is on the top of the stack
 	}
+
+      // Now the module table is on the top of the stack (regardless
+      // of what version of SWIG was used).
     }
   return rv;
 }
