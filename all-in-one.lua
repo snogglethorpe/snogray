@@ -141,6 +141,7 @@ all_in_one.perlin_abs_series_tex = texture.perlin_abs_series
 -- compat material support
 --
 
+all_in_one.is_material = material.is_material
 all_in_one.is_ior = material.is_ior
 all_in_one.ior = material.ior
 all_in_one.is_ior_spec = material.is_ior_spec
