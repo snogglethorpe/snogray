@@ -1,6 +1,6 @@
 -- surface.lua -- Surface support
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -125,12 +125,53 @@ end
 --
 surface.cube = surface.parallelepiped
 
--- Return an elliptical surface.
+-- Given the "axis" of a disk (a vector orthogonal to its surface) and
+-- its radius, return two radius vectors appropriate for an ellipse
+-- surface.
+--
+local function disk_radii (axis, radius)
+   local rad1 = axis:perpendicular():unit() * radius
+   local rad2 = cross (rad1:unit(), axis:unit()) * radius
+   return rad1, rad2
+end
+
+-- Return an elliptical / disk surface.
 --
 -- args: MAT, XFORM
---   or: MAT, BASE, AXIS, RADIUS
+--   or: MAT, BASE, RADIUS1, RADIUS2 (where RADIUS1 and RADIUS2 are vectors)
+--   or: MAT, BASE, AXIS, RADIUS (for a disk, where RADIUS is a scalar)
 --
-surface.ellipse = raw.Ellipse
+-- BASE is the position of the center of the ellipse.  RADIUS1 and
+-- RADIUS2 are vectors pointing from BASE along the minor and major
+-- axes.  Alternatively, AXIS is a vector perpendicular to the
+-- ellipse's surface, from BASE (only its direction is used) and
+-- RADIUS is the single radius of a disk.
+--
+function surface.ellipse (mat, ...)
+   -- Detect the AXIS+RADIUS case, and handle appropriately.
+   --
+   local num_rest_args = select ('#', ...)
+   if num_rest_args == 3 then
+      local base = select (1, ...)
+      local axis = select (2, ...)
+      local radius = select (3, ...)
+
+      if type (radius) == 'number' then
+	 return raw.Ellipse (mat, base, disk_radii (axis, radius))
+      end
+      -- ... otherwise just fall through
+   end
+
+   -- Directly call the underlying constructor.
+   --
+   return raw.Ellipse (mat, ...)
+end
+
+-- Alias for the common case where a disk is desired (presumably in
+-- that case, the AXIS+RADIUS method of specifying the orientation and
+-- radius will be used).
+--
+surface.disk = surface.ellipse
 
 -- Return a cylindrical surface (with no ends).
 --
