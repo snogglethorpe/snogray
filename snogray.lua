@@ -218,6 +218,14 @@ local scene_end_ru = sys.rusage () -- end marker for scene setup
 -- Setup the output file
 --
 
+
+-- If rendering with an alpha-channel, make sure the output handles it too.
+--
+if render_params.background_alpha and render_params.background_alpha ~= 1 then
+   output_params.alpha_channel = true
+end
+
+
 -- If we're in recovery mode, move an existing output file out of the
 -- way; otherwise an existing output file is an error (to prevent
 -- accidental overwriting).
