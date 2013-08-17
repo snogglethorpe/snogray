@@ -320,6 +320,11 @@ if not quiet then
    end
    print ("* camera: "..cam_desc)
 
+   print ("* output: file "..output_file)
+   print ("* output: size "..image_out.width.."x"..image_out.height
+          ..", "..(image_out:has_alpha_channel() and "with" or "no")
+          .." alpha-channel") 
+
    print ("* using "
 	  ..commify_with_units(num_threads, " thread", " threads")
           .." and "
