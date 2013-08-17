@@ -124,6 +124,7 @@ end
 -- Alias for common usage
 --
 surface.cube = surface.parallelepiped
+surface.box = surface.parallelepiped
 
 -- Given the "axis" of a disk (a vector orthogonal to its surface) and
 -- its radius, return two radius vectors appropriate for an ellipse

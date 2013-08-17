@@ -211,6 +211,7 @@ all_in_one.rectangle = surface.rectangle
 
 all_in_one.parallelepiped = surface.parallelepiped
 all_in_one.cube = surface.cube
+all_in_one.box = surface.box
 
 all_in_one.ellipse = surface.ellipse
 
