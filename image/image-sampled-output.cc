@@ -76,6 +76,11 @@ ImageSampledOutput::set_raw_min_y (int new_min_y)
 	      alpha *= 1 / weight;
 	    }
 
+	  // Discard negative values.
+	  //
+	  alpha = clamp (alpha, 0.f, 1.f);
+	  col = max (col, Color (0));
+
 	  // We "alpha unscale" COL ourselves, instead of using
 	  // Tint::unscaled_color above, as we need to do it _after_
 	  // scaling ALPHA by 1/WEIGHT; otherwise the alpha value will
