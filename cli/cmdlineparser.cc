@@ -64,7 +64,7 @@ CmdLineParser::try_help_err () const
 {
   std::cerr << "Try '" << prog_name() << " --help' for more information."
 	    << std::endl;
-  exit (10);
+  exit (1);
 }
 
 
@@ -76,7 +76,7 @@ CmdLineParser::get_opt ()
   long_opt_index = -1;		// not guaranteed set by getopt_long
   short_opt = getopt_long (argc, argv, short_opts, long_opts, &long_opt_index);
   if (short_opt == '?')
-    exit (1);
+    try_help_err ();
   return short_opt;
 }
 
@@ -115,14 +115,14 @@ void
 CmdLineParser::opt_err (const char *phrase) const
 {
   std::cerr << opt_err_pfx() << " " << phrase << std::endl;
-  exit (2);
+  try_help_err ();
 }
 
 void
 CmdLineParser::opt_err (const std::string &phrase) const
 {
   std::cerr << opt_err_pfx() << " " << phrase << std::endl;
-  exit (2);
+  try_help_err ();
 }
 
 const char *
