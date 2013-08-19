@@ -62,7 +62,8 @@ CmdLineParser::err (const std::string &phrase) const
 void
 CmdLineParser::try_help_err () const
 {
-  std::cerr << "Try `" << prog_name() << " --help' for more information" << std::endl;
+  std::cerr << "Try '" << prog_name() << " --help' for more information."
+	    << std::endl;
   exit (10);
 }
 
