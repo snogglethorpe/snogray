@@ -16,9 +16,9 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnogcolor.a
 
-pkgluamodulesnogray_DATA = color.lua
+dist_pkgluamodulesnogray_DATA = color.lua
 
-EXTRA_DIST = color.swg $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = color.swg
 
 
 libsnogcolor_a_SOURCES = color.cc color.h color-io.cc color-io.h	\

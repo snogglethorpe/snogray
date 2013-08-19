@@ -18,9 +18,9 @@ include $(top_srcdir)/lua-install-dirs.mk
 noinst_LIBRARIES = libsnogcli.a
 noinst_SCRIPTS = update-version.sh
 
-pkgluamodulesnogray_DATA = cmdlineparser.lua
+dist_pkgluamodulesnogray_DATA = cmdlineparser.lua
 
-EXTRA_DIST = update-version.sh $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = update-version.sh
 
 CLEANFILES = version.cc
 

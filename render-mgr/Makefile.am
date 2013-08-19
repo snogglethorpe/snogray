@@ -17,9 +17,9 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnogrendermgr.a
 
-pkgluamodulesnogray_DATA = render-cmdline.lua render.lua
+dist_pkgluamodulesnogray_DATA = render-cmdline.lua render.lua
 
-EXTRA_DIST = render-mgr.swg $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = render-mgr.swg
 
 
 libsnogrendermgr_a_SOURCES = render-mgr.cc render-mgr.h		\

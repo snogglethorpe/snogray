@@ -16,9 +16,7 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnoggeom.a
 
-pkgluamodulesnogray_DATA = coord.lua transform.lua
-
-EXTRA_DIST = $(pkgluamodulesnogray_DATA)
+dist_pkgluamodulesnogray_DATA = coord.lua transform.lua
 
 
 libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\

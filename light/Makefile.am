@@ -17,9 +17,9 @@ include $(top_srcdir)/image/image-deps.mk
 
 noinst_LIBRARIES = libsnoglight.a
 
-pkgluamodulesnogray_DATA = light.lua
+dist_pkgluamodulesnogray_DATA = light.lua
 
-EXTRA_DIST = light.swg $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = light.swg
 
 
 AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)

@@ -16,9 +16,9 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnogmat.a
 
-pkgluamodulesnogray_DATA = material.lua
+dist_pkgluamodulesnogray_DATA = material.lua
 
-EXTRA_DIST = material.swg $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = material.swg
 
 
 libsnogmat_a_SOURCES = bsdf.h cook-torrance.cc cook-torrance.h		\

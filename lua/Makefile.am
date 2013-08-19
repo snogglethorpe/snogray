@@ -16,9 +16,7 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnoglua.a
 
-pkglua_DATA = module-setup.lua
-
-EXTRA_DIST = $(pkglua_DATA)
+dist_pkglua_DATA = module-setup.lua
 
 
 AM_CPPFLAGS += $(liblua_CFLAGS)

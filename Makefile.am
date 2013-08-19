@@ -40,19 +40,18 @@ endif
 
 # Lua files loaded directly.
 #
-pkglua_DATA = snogray.lua
+dist_pkglua_DATA = snogray.lua
 
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
+dist_pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
 
 
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =								\
 	autogen.sh config.mk						\
-	$(pkglua_DATA) $(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)	\
 	README README.building README.issues README.usage README.utils
 
 

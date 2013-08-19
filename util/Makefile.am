@@ -16,11 +16,10 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnogutil.a
 
-pkgluamodulesnogray_DATA = file.lua filename.lua lpeg-utils.lua	\
-	 string-fill.lua string.lua swig.lua sys.lua table.lua
+dist_pkgluamodulesnogray_DATA = file.lua filename.lua lpeg-utils.lua	\
+	  string-fill.lua string.lua swig.lua sys.lua table.lua
 
-EXTRA_DIST = lua-vector.swg util.swg val-table.swg	\
-	$(pkgluamodulesnogray_DATA)
+EXTRA_DIST = lua-vector.swg util.swg val-table.swg
 
 CLEANFILES = snogpaths-data.h
 

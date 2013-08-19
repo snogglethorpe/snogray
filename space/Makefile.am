@@ -17,9 +17,9 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnogspace.a
 
-pkgluamodulesnogray_DATA = accel.lua
+dist_pkgluamodulesnogray_DATA = accel.lua
 
-EXTRA_DIST = space.swg $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = space.swg
 
 
 ################################################################

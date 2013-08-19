@@ -16,9 +16,9 @@ include $(top_srcdir)/lua-install-dirs.mk
 
 noinst_LIBRARIES = libsnogsurf.a
 
-pkgluamodulesnogray_DATA = surface.lua
+dist_pkgluamodulesnogray_DATA = surface.lua
 
-EXTRA_DIST = surface.swg $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = surface.swg
 
 
 libsnogsurf_a_SOURCES = cylinder.cc cylinder.h ellipse.cc ellipse.h	\

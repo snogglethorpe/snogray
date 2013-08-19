@@ -21,14 +21,14 @@ noinst_LIBRARIES = libsnogload.a
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-pkgluamodulesnogray_DATA = load.lua
+dist_pkgluamodulesnogray_DATA = load.lua
 
 # Lua loaders for various scene/mesh formats.
 #
-pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
+dist_pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
 	load-pbrt.lua load-stl.lua load-ug.lua
 
-EXTRA_DIST = load.swg $(pkgluamodulesnogray_DATA) $(pkglualoader_DATA)
+EXTRA_DIST = load.swg
 
 
 AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)

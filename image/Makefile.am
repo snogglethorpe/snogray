@@ -17,9 +17,9 @@ include $(srcdir)/image-deps.mk
 
 noinst_LIBRARIES = libsnogimage.a
 
-pkgluamodulesnogray_DATA = image.lua image-sampled-output-cmdline.lua
+dist_pkgluamodulesnogray_DATA = image.lua image-sampled-output-cmdline.lua
 
-EXTRA_DIST = image-deps.mk image.swg $(pkgluamodulesnogray_DATA)
+EXTRA_DIST = image-deps.mk image.swg
 
 
 AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
