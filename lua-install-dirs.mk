@@ -23,7 +23,3 @@ pkgluamoduledir = $(pkgluadir)/module
 # names have a "snogray." prefix.
 #
 pkgluamodulesnograydir = $(pkgluamoduledir)/snogray
-
-# Lua loaders for various scene/mesh formats.
-#
-pkglualoaderdir = $(pkgluadir)/loader

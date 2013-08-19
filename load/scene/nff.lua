@@ -1,6 +1,6 @@
 -- load-nff.lua -- Load a .nff (or .aff) format mesh
 --
---  Copyright (C) 2008, 2010-2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2008, 2010-2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -40,6 +40,9 @@
 --      brightness of any background color, which may be undesirable.
 --  
 
+local nff = {}  -- module
+
+
 local lpeg = require 'lpeg'
 local lpeg_utils = require 'snogray.lpeg-utils'
 local coord = require 'snogray.coord'
@@ -68,7 +71,8 @@ local WS_COLOR = (WS_FLOAT * WS_FLOAT * WS_FLOAT) / color
 -- this matches a newline, and also updates the error location
 local WS_NL_SYNC = WS_NL * lpeg_utils.ERR_POS
 
-function load_nff (filename, scene, camera)
+
+function nff.load (filename, scene, camera)
    local cur_mat = nil
    local cur_mesh = nil
 
@@ -292,3 +296,6 @@ function load_nff (filename, scene, camera)
       scene:add (cur_mesh)
    end
 end
+
+
+return nff

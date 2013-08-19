@@ -18,6 +18,13 @@ include $(top_srcdir)/image/image-deps.mk
 
 noinst_LIBRARIES = libsnogload.a
 
+
+# Lua loader directories for various scene/mesh formats.
+#
+pkglualoaderdir = $(pkgluamodulesnograydir)/loader
+pkgluasceneloaderdir = $(pkglualoaderdir)/scene
+pkgluameshloaderdir = $(pkglualoaderdir)/mesh
+
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
@@ -25,8 +32,16 @@ dist_pkgluamodulesnogray_DATA = load.lua
 
 # Lua loaders for various scene/mesh formats.
 #
-dist_pkglualoader_DATA = load-lua.lua load-nff.lua load-obj.lua	\
-	load-pbrt.lua load-stl.lua load-ug.lua
+dist_pkgluasceneloader_DATA = scene/lua.lua scene/pbrt.lua scene/nff.lua
+dist_pkgluameshloader_DATA = mesh/obj.lua mesh/stl.lua mesh/ug.lua
+
+# Try to clean up our extra install directories when uninstalling.
+#
+uninstall-hook:
+	-rmdir $(DESTDIR)$(pkgluameshloaderdir)
+	-rmdir $(DESTDIR)$(pkgluasceneloaderdir)
+	-rmdir $(DESTDIR)$(pkglualoaderdir)
+
 
 EXTRA_DIST = load.swg
 

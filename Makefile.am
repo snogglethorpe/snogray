@@ -59,7 +59,6 @@ EXTRA_DIST =								\
 # uninstalling.
 #
 uninstall-hook:
-	-rmdir $(DESTDIR)$(pkglualoaderdir)
 	-rmdir $(DESTDIR)$(pkgluamodulesnograydir)
 	-rmdir $(DESTDIR)$(pkgluamoduledir)
 	-rmdir $(DESTDIR)$(pkgluadir)

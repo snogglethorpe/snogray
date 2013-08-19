@@ -93,69 +93,40 @@ end
 -- Autoloading
 --
 
--- A metatable for inheriting from the global environment
+-- Add an "autoloader" for file format FORMAT to LOADER_TABLE, which
+-- when invoked will require the Lua module LOADER_MODULE_NAME, and
+-- call a function called "load" in the module to do the loading.  At
+-- that time, it will also install the function into LOADER_TABLE so
+-- that it will be called directly for subsequent files of the same
+-- type.
 --
-local inherit_global_metatable = { __index = _G }
-
--- Add a stub for file-extension EXT to LOADER_TABLE that will load
--- LOADER_FILE and call the function named LOADER_NAME (which
--- LOADER_FILE must define); the stub will also install that function
--- into LOADER_TABLE so that it can be called directly for subsequent
--- files of the same type.
---
-local function add_autoload_stub (loader_table, ext, loader_file, loader_name)
-   local loader_dir = require ('snogray.environ').lua_loader_dir
-   loader_table[ext]
+local function add_loader_autoload (loader_table, format, loader_module_name)
+   loader_table[format]
       = function (...)
-	   local environ = {}
-	   setmetatable (environ, inherit_global_metatable)
-
-	   -- Load the file.  We pass ENVIRON to loadfile to set the
-	   -- loaded file's environment in Lua 5.2; the extra
-	   -- arguments to loadfile are ignored in Lua 5.1 (setting
-	   -- the environment in Lua 5.1 is handled with setfenv
-	   -- below).
+	   -- Load the module.
 	   --
-	   local contents, err
-	      = loadfile (loader_dir.."/"..loader_file, nil, environ)
+	   local module = require (loader_module_name)
 
-	   -- If loading succeeded, evaluate the loaded file and look
-	   -- for the function we wanted.
+	   -- Get the function "load", which the module should define.
 	   --
-	   if contents then
-	      -- In Lua 5.1, set the loaded file's environment.
+	   local loader = module.load
+	   if loader then
+	      -- Add a wrapper around LOADER that manages the
+	      -- current load directory.
 	      --
-	      if setfenv then
-		 setfenv (contents, environ)
-	      end
+	      loader = wrap_loader_with_cur_load_file_manager (loader)
 
-	      -- Evaluate the loaded file.
+	      -- Remember LOADER so that next time it will be
+	      -- called directly.
 	      --
-	      contents ()
+	      loader_table[format] = loader
 
-	      -- Get the function LOADER_NAME, which LOADER_FILE is
-	      -- supposed to define.
+	      -- Call LOADER to actually load the file.
 	      --
-	      local loader = environ[loader_name]
-	      if loader then
-		 -- Add a wrapper around LOADER that manages the
-		 -- current load directory.
-		 --
-		 loader = wrap_loader_with_cur_load_file_manager (loader)
-
-		 -- Remember LOADER so that next time it will be
-		 -- called directly.
-		 --
-		 loader_table[ext] = loader
-
-		 -- Call LOADER to actually load the file.
-		 --
-		 return loader (...)
-	      else
-		 error ("loading "..loader_file.." didn't define "..loader_name)
-	      end
+	      return loader (...)
 	   else
-	      error (err, 0)
+	      error ("module "..loader_module_name
+		     .." doesn't contain a function called 'load'")
 	   end
 	end
 end
@@ -165,37 +136,19 @@ end
 -- Common loader support functions
 --
 
--- Add a loader to LOADER_TABLE for FORMAT.
+-- Add a loader to LOADER_TABLE for file format FORMAT, which loads it
+-- as if it had format ALIAS.
 --
--- There are three types of loaders, depending on the value of the
--- remaining arguments:
+local function add_loader_alias (loader_table, format, alias)
+   loader_table[format] = function (...) return loader_table[alias] (...) end
+end
+
+-- Add a loader to LOADER_TABLE for file format FORMAT, which just calls
+-- FUN to do the loading.
 --
---  (1) If LOADER is a function, it is simply called directly.
---
---  (2) If LOADER is a string, and LOADER_FILE is nil, then LOADER
---      should be another format name; the loader for that format is
---      recursively invoked to do the loading.
---
---  (3) If LOADER is a string, and LOADER_FILE is also a string, then
---      the Lua file LOADER_FILE is loaded into a new environment
---      inheriting from the global environment, and expected to define
---      a function in that environment called LOADER, which is called
---      to do the loading.
---
-local function add_loader (loader_table, format, loader, loader_file)
-   if type (loader) == 'string' then
-      if loader_file then
-	 -- autoload LOADER_FILE to define LOADER
-	 add_autoload_stub (loader_table, format, loader_file, loader)
-      else
-	 -- install a thunk which recursively tries format LOADER
-	 loader_table[format]
-	    = function (...) return loader_table[loader] (...) end
-      end
-   else
-      -- directly set the loader function
-      loader_table[format] = wrap_loader_with_cur_load_file_manager (loader)
-   end
+local function add_loader (loader_table, format, fun)
+   -- directly set the loader function
+   loader_table[format] = wrap_loader_with_cur_load_file_manager (fun)
 end
 
 
@@ -258,25 +211,29 @@ function load.scene (scene_file, scene, camera, params)
 end
 
 
--- Add a scene loader for FORMAT.
+-- Add an "autoloader" for scene file format FORMAT, which when
+-- invoked will require the Lua module LOADER_MODULE_NAME, and call a
+-- function called "load" in the module to do the loading.  At that
+-- time, it will also install the function into the scene-loader table
+-- so that it will be called directly for subsequent scene files of
+-- the same type.
 --
--- There are three types of loaders, depending on the value of the
--- remaining arguments:
+function load.add_scene_loader_autoload (format, loader_module_name)
+   add_loader_autoload (scene_loaders, format, loader_module_name)
+end
+
+-- Add a loader to LOADER_TABLE for file format FORMAT, which loads it
+-- as if it had format ALIAS.
 --
---  (1) If LOADER is a function, it is simply called directly.
+function load.add_scene_loader_alias (format, alias)
+   add_loader_alias (scene_loaders, format, alias)
+end
+
+-- Add a loader to LOADER_TABLE for file format FORMAT, which just
+-- calls FUN to do the loading.
 --
---  (2) If LOADER is a string, and LOADER_FILE is nil, then LOADER
---      should be another format name; the loader for that format is
---      recursively invoked to do the loading.
---
---  (3) If LOADER is a string, and LOADER_FILE is also a string, then
---      the Lua file LOADER_FILE is loaded into a new environment
---      inheriting from the global environment, and expected to define
---      a function in that environment called LOADER, which is called
---      to do the loading.
---
-function load.add_scene_loader (format, loader, loader_file)
-   add_loader (scene_loaders, format, loader, loader_file)
+function load.add_scene_loader (format, fun)
+   add_loader (scene_loaders, format, fun)
 end
 
 
@@ -292,8 +249,8 @@ local mesh_loaders = {}
 -- Load a mesh from SCENE_FILE into MESH.
 --
 -- Return true for a successful load, false if SCENE_FILE is not
--- recognized as loadable, or an error string if an error occured during
--- loading.
+-- recognized as loadable, or an error string if an error occured
+-- during loading.
 --
 -- Note that this only handles formats loaded using Lua, not those
 -- handled by the C++ core.  To load any supported format, use the
@@ -317,25 +274,29 @@ function load.mesh (mesh_file, mesh, params)
 end
 
 
--- Add a mesh loader for FORMAT.
+-- Add an "autoloader" for mesh file format FORMAT, which when invoked
+-- will require the Lua module LOADER_MODULE_NAME, and call a function
+-- called "load" in the module to do the loading.  At that time, it
+-- will also install the function into the mesh-loader table so that
+-- it will be called directly for subsequent mesh files of the same
+-- type.
 --
--- There are three types of loaders, depending on the value of the
--- remaining arguments:
+function load.add_mesh_loader_autoload (format, loader_module_name)
+   add_loader_autoload (mesh_loaders, format, loader_module_name)
+end
+
+-- Add a loader to LOADER_TABLE for file format FORMAT, which loads it
+-- as if it had format ALIAS.
 --
---  (1) If LOADER is a function, it is simply called directly.
+function load.add_mesh_loader_alias (format, alias)
+   add_loader_alias (mesh_loaders, format, alias)
+end
+
+-- Add a loader to LOADER_TABLE for file format FORMAT, which just
+-- calls FUN to do the loading.
 --
---  (2) If LOADER is a string, and LOADER_FILE is nil, then LOADER
---      should be another format name; the loader for that format is
---      recursively invoked to do the loading.
---
---  (3) If LOADER is a string, and LOADER_FILE is also a string, then
---      the Lua file LOADER_FILE is loaded into a new environment
---      inheriting from the global environment, and expected to define
---      a function in that environment called LOADER, which is called
---      to do the loading.
---
-function load.add_mesh_loader (format, loader, loader_file)
-   add_loader (mesh_loaders, format, loader, loader_file)
+function load.add_mesh_loader (format, fun)
+   add_loader (mesh_loaders, format, fun)
 end
 
 
@@ -344,15 +305,20 @@ end
 --
 
 local add_scene_loader = load.add_scene_loader
+local add_scene_loader_autoload = load.add_scene_loader_autoload
+local add_scene_loader_alias = load.add_scene_loader_alias
+
 local add_mesh_loader = load.add_mesh_loader
+local add_mesh_loader_autoload = load.add_mesh_loader_autoload
+local add_mesh_loader_alias = load.add_mesh_loader_alias
 
 -- Scene formats with Lua loaders.
 --
-add_scene_loader ("lua", "load_lua", "load-lua.lua")
-add_scene_loader ("luac", "lua")
-add_scene_loader ("luo", "lua")
-add_scene_loader ("nff", "load_nff", "load-nff.lua")
-add_scene_loader ("pbrt", "load_pbrt", "load-pbrt.lua")
+add_scene_loader_autoload ("lua", "snogray.loader.scene.lua")
+add_scene_loader_alias ("luac", "lua")
+add_scene_loader_alias ("luo", "lua")
+add_scene_loader_autoload ("nff", "snogray.loader.scene.nff")
+add_scene_loader_autoload ("pbrt", "snogray.loader.scene.pbrt")
 
 -- Scene formats with C loaders
 --
@@ -360,9 +326,9 @@ add_scene_loader ("3ds", raw.load_3ds_file)
 
 -- Mesh formats with Lua loaders.
 --
-add_mesh_loader ("obj", "load_obj", "load-obj.lua")
-add_mesh_loader ("ug", "load_ug", "load-ug.lua")
-add_mesh_loader ("stl", "load_stl", "load-stl.lua")
+add_mesh_loader_autoload ("obj", "snogray.loader.mesh.obj")
+add_mesh_loader_autoload ("ug", "snogray.loader.mesh.ug")
+add_mesh_loader_autoload ("stl", "snogray.loader.mesh.stl")
 
 -- Mesh formats with C loaders.
 --

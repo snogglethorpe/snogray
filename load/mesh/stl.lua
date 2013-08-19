@@ -1,6 +1,6 @@
 -- load-stl.lua -- Load a .stl (stereolithography) format mesh
 --
---  Copyright (C) 2007, 2008, 2011, 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2011-2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -9,6 +9,9 @@
 --
 -- Written by Miles Bader <miles@gnu.org>
 --
+
+local stl = {} -- module
+
 
 local lpeg = require 'lpeg'
 local lpeg_utils = require 'snogray.lpeg-utils'
@@ -23,7 +26,8 @@ local OPT_WS = lpeg_utils.OPT_WS
 -- whitespace followed by float
 local WS_FLOAT = HWS * lpeg_utils.FLOAT
 
-function load_stl (filename, mesh, mat_dict)
+
+function stl.load (filename, mesh, mat_dict)
    local mat = mat_dict:get_default ()
 
    local facet_verts = {}
@@ -76,3 +80,6 @@ function load_stl (filename, mesh, mat_dict)
 
    lpeg_utils.parse_file (filename, SOLID)
 end
+
+
+return stl

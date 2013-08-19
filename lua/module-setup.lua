@@ -10,30 +10,23 @@
 -- Written by Miles Bader <miles@gnu.org>
 --
 
--- Our one argument is the directory where we can find our installed
--- Lua files, or nil if the current directory should be used to find
--- uninstalled Lua files instead.
+-- Our two arguments are (1) a boolean which is true if we're
+-- operating in "installed mode" (running an installed snogray rather
+-- than a snogray in the build directory), and (2) the appropriate
+-- "snogray root" directory for the mode we're operating in.  The
+-- latter is the snogray Lua install directory in installed mode, and
+-- the root of the source directory in uninstalled mode; in either
+-- case, we look for our Lua files relative to that location.
 --
 local installed_mode, lua_root = ...
 
--- Various directories
---
-local lua_dir, lua_loader_dir
-
 if installed_mode then
    --
-   -- We're operating in "installed mode".  
+   -- We're operating in "installed mode".  Push the installation Lua
+   -- directory onto the front of the module search path, so the
+   -- normal Lua module search mechanism can find them.
    --
-
-   -- Various directories in their proper locations.
-   --
-   lua_dir = lua_root
-   lua_loader_dir = lua_dir.."/loader"
-
-   -- Push the installation Lua directory onto the front of the module
-   -- search path.
-   --
-   package.path = lua_dir.."/module/?.lua;"..package.path
+   package.path = lua_root.."/module/?.lua;"..package.path
 else
    --
    -- We're operating in "uninstalled mode".  Add a package searcher
@@ -71,25 +64,34 @@ else
    local function load_uninstalled_snogray_package (pkg, ...)
       local snogray_pkg = string.match (pkg, "^snogray[.](.*)$")
       if snogray_pkg then
+	 local filebase = string.gsub (snogray_pkg, "[.]", "/")
 	 return function ()
 		   local thunk, err
 
 		   -- See if this name has an explicitly recorded location
-		   local mapped = uninst_module_mapping[snogray_pkg]
+		   local mapped = uninst_module_mapping[filebase]
 		   if mapped then
 		      -- If so, just use it
-		      snogray_pkg = mapped
+		      filebase = mapped
 		   else
-		      -- Otherwise first try loading from a
-		      -- subdirectory of the same name as the module
-		      thunk, err
-			 = loadfile (lua_root.."/"..snogray_pkg
-				     .."/"..snogray_pkg..".lua")
+		      -- See if this is a loader module, which are
+		      -- simply loaded from the "load" source
+		      -- subdirectory.
+		      local loader = string.match (filebase, "^loader/(.*)$")
+		      if loader then
+			 filebase = "load/"..loader
+		      else
+			 -- Otherwise first try loading from a
+			 -- subdirectory of the same name as the module
+			 thunk, err
+			    = loadfile (lua_root.."/"..filebase
+					.."/"..filebase..".lua")
+		      end
 		   end
 
-		   -- Try loading from the current directory
+		   -- Try loading from the source directory
 		   if not thunk then
-		      thunk, err = loadfile (lua_root.."/"..snogray_pkg..".lua")
+		      thunk, err = loadfile (lua_root.."/"..filebase..".lua")
 		   end
 		   if not thunk then
 		      error (err, 0)
@@ -103,11 +105,6 @@ else
 
    local searchers = package.loaders or package.searchers
    table.insert (searchers, 1, load_uninstalled_snogray_package)
-
-   -- Everything in current directory.
-   --
-   lua_dir = lua_root
-   lua_loader_dir = lua_root.."/load"
 end
 
 -- Setup a "module" which stores various snogray environment parameters.
@@ -117,13 +114,9 @@ end
 --   lua_dir		The root of the tree where snogray Lua files are
 --			stored.
 --
---   lua_loader_dir	The directory where snogray Lua scene/mesh
---			loaders are stored.
---
 --   version            Snogray version string (added in C code)
 --
 local snogray_environ = {}
-snogray_environ.lua_dir = lua_dir
-snogray_environ.lua_loader_dir = lua_loader_dir
+snogray_environ.lua_dir = lua_root
 
 package.loaded['snogray.environ'] = snogray_environ

@@ -1,6 +1,6 @@
 -- load-lua.lua -- Loading of scenes written in Lua
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -9,6 +9,9 @@
 --
 -- Written by Miles Bader <miles@gnu.org>
 --
+
+local lua = {}  -- module
+
 
 -- imports
 --
@@ -131,7 +134,7 @@ local inherit_all_in_one_metatable = { __index = require 'snogray.all-in-one' }
 
 -- Load Lua scene description from SCENE_FILE into SCENE and CAMERA.
 --
-function load_lua (scene_file, scene, camera, params)
+function lua.load (scene_file, scene, camera, params)
    -- Make a new environment to evaluate the file contents in; it will
    -- inherit from the "all-in-one" scene interface for convenience.
    -- There are no global pointers to this table so it and its
@@ -182,3 +185,6 @@ function load_lua (scene_file, scene, camera, params)
    --
    contents ()
 end
+
+
+return lua

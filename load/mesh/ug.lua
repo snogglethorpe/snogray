@@ -1,6 +1,6 @@
 -- load-ug.lua -- Load a .ug ("Berkeley UniGrafix") format mesh
 --
---  Copyright (C) 2007, 2008, 2011, 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2011-2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -9,6 +9,9 @@
 --
 -- Written by Miles Bader <miles@gnu.org>
 --
+
+local ug = {} -- module
+
 
 local lpeg = require 'lpeg'
 local lpeg_utils = require 'snogray.lpeg-utils'
@@ -29,7 +32,8 @@ local WS_FLOAT = HWS * lpeg_utils.FLOAT
 -- whitespace followed by name
 local WS_NAME = HWS * C(R("AZ","az", "__") * R("AZ","az", "09", "__")^0)
 
-function load_ug (filename, mesh, mat_dict)
+
+function ug.load (filename, mesh, mat_dict)
    local def_mat = mat_dict:get_default ()
    local named_mats = {}
    local named_verts = {}
@@ -100,3 +104,6 @@ function load_ug (filename, mesh, mat_dict)
 
    lpeg_utils.parse_file (filename, LINE * lpeg_utils.NL)
 end
+
+
+return ug

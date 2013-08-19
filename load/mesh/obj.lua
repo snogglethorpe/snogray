@@ -1,6 +1,6 @@
 -- load-obj.lua -- Load a .obj format mesh
 --
---  Copyright (C) 2007, 2008, 2011, 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2011-2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -10,6 +10,9 @@
 -- Written by Miles Bader <miles@gnu.org>
 --
 
+local obj = {}  -- module
+
+
 local lp = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
 
@@ -18,7 +21,8 @@ local COMMENT = lp.S"#go" * lu.LINE
 local WS = lu.REQ_HORIZ_WS
 local OPT_WS = lu.OPT_HORIZ_WS
 
-function load_obj (filename, mesh, mat_map)
+
+function obj.load (filename, mesh, mat_map)
    local mat = mat_map:get_default ()
 
    -- .obj files use a right-handed coordinate system by convention.
@@ -84,3 +88,6 @@ function load_obj (filename, mesh, mat_map)
 
    lu.parse_file (filename, CMD * lu.NL)
 end
+
+
+return obj

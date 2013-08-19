@@ -29,6 +29,8 @@
 --   * Include files are searched for relative to the including file
 --
 
+local pbrt = {}  -- module
+
 
 local lpeg = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
@@ -1883,7 +1885,8 @@ local function load_pbrt_in_state (state, scene, camera)
    return true
 end
 
-function load_pbrt (scene_file, scene, camera, params)
+
+function pbrt.load (scene_file, scene, camera, params)
 
    -- Return a parameter table and an entry name in that table,
    -- starting from the root-table TABLE, for a parameter called NAME.
@@ -2021,3 +2024,6 @@ function load_pbrt (scene_file, scene, camera, params)
    }
    return load_pbrt_in_state (init_state, scene, camera)
 end
+
+
+return pbrt
