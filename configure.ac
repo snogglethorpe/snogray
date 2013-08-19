@@ -12,7 +12,7 @@
 
 AC_INIT([snogray], [0.5.3], [Miles Bader <miles@gnu.org>])
 
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects std-options])
 
 AC_CONFIG_HEADERS([config.h])
 
