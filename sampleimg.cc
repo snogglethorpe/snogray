@@ -13,6 +13,7 @@
 #include <getopt.h>
 #include <iostream>
 
+#include "cli/version.h"
 #include "image/image.h"
 #include "util/random.h"
 #include "geometry/hist-2d.h"
@@ -23,6 +24,65 @@
 
 using namespace snogray;
 
+
+// usage/help messages
+
+static void
+usage (const char *prog_name, std::ostream &os)
+{
+  os << "Usage: " << prog_name
+     << " [OPTION...] INPUT_IMAGE OUTPUT_IMAGE"
+     << std::endl;
+}
+
+static void
+try_help (const char *prog_name, std::ostream &os)
+{
+  os << "Try '" << prog_name << " --help' for more information."
+     << std::endl;
+}
+
+static void
+help (const char *prog_name, std::ostream &os)
+{
+  usage (prog_name, os);
+
+  // These macros just makes the source code for help output easier to line up
+  //
+#define s  << std::endl <<
+#define n  << std::endl
+
+  os <<
+  "Generate an output image using random samples with distribution based"
+s "on an input image."
+n
+s "  -m, --method=METH          Use sampling method METH (default 'radical')"
+s "  -n, --samples=NUM          Don't print image statistics (default 1000000)"
+s "  -v, --value=VAL            Intensity of each sample"
+n
+s "      --help                 Output this help message"
+s "      --version              Output program version"
+n
+s "Sampling methods are:"
+s "   radical     Radical inverse"
+s "   random      Completely random"
+s "   stratified  Random within a grid pattern"
+s "   grid        Rigid grid pattern"
+n
+s "If the -v/--value option is not given, a value will chosen"
+s "automatically to try and approximate the input image's intensity."
+s "If the -v/--value is given, but not the -s/--samples option,"
+s "the number of samples used will be chosen similarly." 
+n
+    ;
+
+#undef s
+#undef n
+}
+
+#define OPT_HELP	-10
+#define OPT_VERSION	-11
+
 static struct option long_options[] = {
   { "meth",		required_argument, 0, 'm' },
   { "method",		required_argument, 0, 'm' },
@@ -31,18 +91,11 @@ static struct option long_options[] = {
   { "num-samples",	required_argument, 0, 'n' },
   { "val",		required_argument, 0, 'v' },
   { "value",		required_argument, 0, 'v' },
+  { "help",		no_argument, 	   0, OPT_HELP },
+  { "version",		no_argument, 	   0, OPT_VERSION },
   { 0, 0, 0, 0 }
 };
 static char short_options[] = "m:n:v:";
-
-
-static void
-usage (const char *prog_name)
-{
-  std::cerr << "Usage: " << prog_name
-	    << " [OPTION...] INPUT_IMAGE OUTPUT_IMAGE" << std::endl;
-  exit (1);
-}
 
 
 int main (int argc, char *argv[])
@@ -54,7 +107,7 @@ int main (int argc, char *argv[])
   Color samp_color = 0;
 
   int opt;
-  while ((opt = getopt_long (argc, argv, short_options, long_options, 0)) > 0)
+  while ((opt = getopt_long (argc, argv, short_options, long_options, 0)) != -1)
     switch (opt)
       {
       case 'm':
@@ -67,8 +120,16 @@ int main (int argc, char *argv[])
       case 'v':
 	samp_color = atof (optarg);
 	break;
+      case OPT_HELP:
+	help (prog_name, std::cout);
+	exit (0);
+      case OPT_VERSION:
+	std::cout << prog_name << " (" << PACKAGE_NAME << ") "
+		  << snogray_version << std::endl;
+	exit (0);
       default:
-	usage (prog_name);
+	try_help (prog_name, std::cerr);
+	exit (1);
       }
 
   enum { RADICAL, RANDOM, STRATIFIED, GRID } method;
@@ -105,7 +166,11 @@ int main (int argc, char *argv[])
     }
 
   if (optind != argc - 2)
-    usage (prog_name);
+    {
+      usage (prog_name, std::cerr);
+      try_help (prog_name, std::cerr);
+      exit (1);
+    }
 
   Image inp_image (argv[optind]);
 
