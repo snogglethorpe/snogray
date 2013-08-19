@@ -41,3 +41,4 @@ config.guess
 config.sub
 
 .deps
+.dirstamp
