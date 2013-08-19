@@ -49,10 +49,11 @@ EXTRA_DIST = load.swg
 AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 
-libsnogload_a_SOURCES = load-msh.cc load-msh.h load-ply.cc	\
-	load-ply.h rply.c rply.h load-envmap.cc load-envmap.h
+libsnogload_a_SOURCES = mesh/load-msh.cc mesh/load-msh.h		\
+	mesh/load-ply.cc mesh/load-ply.h mesh/rply.c mesh/rply.h	\
+	load-envmap.cc load-envmap.h
 
 if have_lib3ds
-  libsnogload_a_SOURCES += load-3ds.cc load-3ds.h
+  libsnogload_a_SOURCES += scene/load-3ds.cc scene/load-3ds.h
 endif
 

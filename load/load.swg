@@ -12,9 +12,9 @@
 
 
 %{
-#include "load/load-ply.h"
-#include "load/load-msh.h"
-#include "load/load-3ds.h"
+#include "load/mesh/load-ply.h"
+#include "load/mesh/load-msh.h"
+#include "load/scene/load-3ds.h"
 %}
 
 
