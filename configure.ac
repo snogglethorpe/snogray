@@ -12,9 +12,10 @@
 
 AC_INIT([snogray], [0.5.3], [Miles Bader <miles@gnu.org>])
 
-AM_INIT_AUTOMAKE([foreign subdir-objects std-options])
-
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_AUX_DIR([build-aux])
+
+AM_INIT_AUTOMAKE([foreign subdir-objects std-options])
 
 
 # Set CFLAGS and CXXFLAGS to suppress AC_PROG_CC's attempt to set

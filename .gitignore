@@ -32,13 +32,6 @@ config.h.in
 
 # Ignore boilerplate and system-install stuff
 #
-depcomp
-install-sh
-missing
-compile
-mkinstalldirs
-config.guess
-config.sub
-
+build-aux
 .deps
 .dirstamp
