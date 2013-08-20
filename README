@@ -54,13 +54,12 @@ Snogray development goals:
       global illumination methods such as improved photon-mapping,
       instant-radiosity, and metropolis light-transport.
 
-
-   * Links:
+   Further information on topics marked with an asterisk (*) above:
 
       Lua:     http://www.lua.org
       PBRT:    http://pbrt.org
-      OpenEXR: http://www.openexr.org
       PLY:     http://en.wikipedia.org/wiki/PLY_%28file_format%29
+      OpenEXR: http://www.openexr.org
 
 
 Current status
