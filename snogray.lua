@@ -69,7 +69,7 @@ local params = { render = render_params, scene = scene_params,
 
 -- Command-line parser.
 --
-local parser = clp {
+local parser = clp.standard_parser {
    desc = "Ray-trace an image",
    usage = "SCENE_FILE [OUTPUT_IMAGE_FILE]",
    prog_name = cmdline[0],
@@ -109,8 +109,9 @@ local parser = clp {
    { "-p/--progress", function () progress = true end, hidden = true,
      doc = [[Output progress indicator despite --quiet]] },
    { "-P/--no-progress", function () progress = false end,
-     doc = [[Do not output progress indicator]] },
+     doc = [[Do not output progress indicator]] }
 }
+
 
 local args = parser (cmdline)
 

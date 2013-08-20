@@ -14,10 +14,10 @@
 --
 local cmdlineparser = {}
 
--- make the module callable, as a shortcut for "cmdlineparser.new"
+-- make the module callable, as a shortcut for "cmdlineparser.parser"
 --
 setmetatable (cmdlineparser,
-	      { __call = function (m, ...) return m.new (...) end })
+	      { __call = function (m, ...) return m.parser (...) end })
 
 -- method table for parsers
 --
@@ -94,9 +94,9 @@ local standard_type_parsers = {
 -- Module functions
 --
 
--- return a new parser
+-- Return a new parser with OPTIONS as the initial contents.
 --
-function cmdlineparser.new (options)
+function cmdlineparser.parser (options)
    local parser = table.shallow_copy (options)
    parser.option_matcher_cache = {}
    parser.arg_type_parsers
@@ -211,43 +211,54 @@ end
 local function options_help (parser)
    local help = nil
    local pending_blank = false
-   for k = 1, #parser do
-      local entry = parser[k]
 
-      -- All entries other than "normal" options are bounded by a
-      -- blank line on either side, with blank lines at the beginning
-      -- or end suppressed.  We just set the defaults here and turn
-      -- them off for normal options below.
-      --
-      local pre_blank = (k > 1)
-      local post_blank = true
+   local function scan_options (option_table)
+      for k = 1, #option_table do
+	 local entry = option_table[k]
 
-      -- Format the individual entry.
-      --
-      local entry_help
-      if is_parser (entry) then
-	 entry_help = options_help (entry)
-      elseif is_option (entry) then
-	 entry_help = one_option_help (entry)
-	 pre_blank = false
-	 post_blank = false
-      elseif type (entry) == 'string' then
-	 entry_help = " "..entry
-      end
+	 -- All entries other than "normal" options are bounded by a
+	 -- blank line on either side, with blank lines at the beginning
+	 -- or end suppressed.  We just set the defaults here and turn
+	 -- them off for normal options below.
+	 --
+	 local pre_blank = (k > 1)
+	 local post_blank = true
 
-      -- Add the formatted entry to our accumulating help text.
-      --
-      if entry_help then
-	 if pending_blank or pre_blank then
-	    entry_help = "\n"..entry_help
-	    pending_blank = false
+	 -- Format the individual entry.
+	 --
+	 local entry_help
+	 if is_parser (entry) then
+	    entry_help = options_help (entry)
+	 elseif is_option (entry) then
+	    entry_help = one_option_help (entry)
+	    pre_blank = false
+	    post_blank = false
+	 elseif type (entry) == 'string' then
+	    entry_help = " "..entry
 	 end
 
-	 help = sep_concat (help, "\n", entry_help)
+	 -- Add the formatted entry to our accumulating help text.
+	 --
+	 if entry_help then
+	    if pending_blank or pre_blank then
+	       entry_help = "\n"..entry_help
+	       pending_blank = false
+	    end
 
-	 pending_blank = pending_blank or post_blank
+	    help = sep_concat (help, "\n", entry_help)
+
+	    pending_blank = pending_blank or post_blank
+	 end
       end
    end
+
+   scan_options (parser)
+
+   if parser.final_options then
+      pending_blank = true
+      scan_options (parser.final_options)
+   end
+
    return help
 end
 
@@ -274,8 +285,7 @@ end
 -- Print a usage message to stderr and exit with an error status.
 --
 function cmdlineparser_meths:usage_error ()
-   io.stderr:write (self:usage_msg ().."\n")
-   os.exit (1)
+   self:parse_error (self:usage_msg ())
 end
 
 -- Return a version message for this parser.
@@ -303,55 +313,62 @@ function cmdlineparser_meths:help_msg ()
 		      "\n\n", doc)
 end
 
+-- Signal an error MSG, in PARSER trying to parse CMDLINE.
+--
+function cmdlineparser_meths:parse_error (msg)
+   error (msg, 0)
+end
+
 
 ----------------------------------------------------------------
 -- Help option parser
 --
 
--- Return an option parser which is like BASE_PARSER, but also
--- includes standard options (--help, --version, etc).
+-- Add entries for standard GNU-style options (--help, --version, etc)
+-- to PARSER, and modify its behavior to print more help and exit on an
+-- error.
 --
-function cmdlineparser.add_standard_options (base_parser)
+function cmdlineparser.add_standard_options (parser)
    -- Print STR and exit.
    local function pr_and_exit (str) print (str) os.exit (0) end
 
-   -- There's a little trickiness here: we assign the parser we're
-   -- creating to a local variable, which the help function closes
-   -- over that variable, meaning it can see the entire parser of
-   -- which it it is a part (so the newly added options are included
-   -- in the help output).
-   --
-   local outer_parser
-   outer_parser = cmdlineparser {
-      -- copy various info fields from BASE_PARSER
-      prog_name = base_parser.prog_name,
-      usage = base_parser.usage,
-      desc = base_parser.desc,
-      doc = base_parser.doc,
-      version = base_parser.version,
-      package = base_parser.package,
+   local function try_help ()
+      return "Try '"..parser.prog_name.." --help' for more information."
+   end
 
-      -- handle wrapped options
-      base_parser,
-
-      -- standard options
-      { "--help", function () pr_and_exit (outer_parser:help_msg ()) end },
-      { "--usage", function () pr_and_exit (outer_parser:usage_msg ()) end },
-      { "--version", function () pr_and_exit (outer_parser:version_msg ()) end }
+   -- standard options
+   parser.final_options = {
+      { "--help", function () pr_and_exit (parser:help_msg ()) end },
+      { "--usage", function () pr_and_exit (parser:usage_msg ()) end },
+      { "--version", function () pr_and_exit (parser:version_msg ()) end }
    }
-   return outer_parser
+
+   -- method overrides
+   function parser.parse_error (self, msg)
+      local prog_name = nice_prog_name (self.prog_name)
+      io.stderr:write (prog_name..": "..msg.."\n"..try_help ().."\n")
+      os.exit (1)
+   end
+   function parser.usage_error (self, msg)
+      local prog_name = nice_prog_name (self.prog_name)
+      io.stderr:write (self:usage_msg().."\n"..try_help().."\n")
+      os.exit (1)
+   end
+end
+
+-- Return a new parser, as with cmdlineparser.parser, and also standard
+-- GNU options as added by cmdlineparser.add_standard_options.
+--
+function cmdlineparser.standard_parser (options)
+   local parser = cmdlineparser.parser (options)
+   cmdlineparser.add_standard_options (parser)
+   return parser
 end
 
 
 ----------------------------------------------------------------
 -- Main parsing option-parsing method
 --
-
--- Signal an error MSG, in PARSER trying to parse CMDLINE.
---
-local function parse_error (parser, cmdline, msg)
-   error (msg, 0)
-end
 
 -- Make a "matcher" for the parser option entry OPTION.  A matcher is
 -- just somewhat more processed verion of the option entry.
@@ -409,8 +426,8 @@ local function try_match (parser, matcher, cmdline)
 	    -- of the option, try the next entry in CMDLINE
 	    if not opt_arg then
 	       if #cmdline < 2 then
-		  parse_error (parser, cmdline,
-			       "option requires an argument -- '"..opt.."'")
+		  parser:parse_error ("option requires an argument -- '"
+				      ..opt.."'")
 	       end
 	       opt_arg = cmdline[2]
 	       array_delete (cmdline, 2)
@@ -447,7 +464,7 @@ local function try_match (parser, matcher, cmdline)
 
 	 local ok, err = pcall (do_action)
 	 if not ok then
-	    parse_error (parser, cmdline, opt..": "..err)
+	    parser:parse_error (opt..": "..err)
 	 end
 
 	 return true
@@ -472,25 +489,37 @@ end
 -- matched, it is removed from CMDLINE.
 --
 local function parse_one_opt (parser, cmdline)
-   for k = 1, #parser do
-      local entry = parser[k]
+   local function scan_options (option_table)
+      for k = 1, #option_table do
+	 local entry = option_table[k]
 
-      local matched = false
-      if is_parser (entry) then
-	 -- See if the sub-parser ENTRY succeeds.
-	 matched = parse_one_opt (entry, cmdline)
-      elseif is_option (entry) then
-	 -- See if the option description ENTRY matches.
-	 matched = try_option (parser, entry, cmdline)
+	 local matched = false
+	 if is_parser (entry) then
+	    -- See if the sub-parser ENTRY succeeds.
+	    matched = parse_one_opt (entry, cmdline)
+	 elseif is_option (entry) then
+	    -- See if the option description ENTRY matches.
+	    matched = try_option (parser, entry, cmdline)
+	 end
+
+	 -- If ENTRY matched, then we can stop looking
+	 if matched then
+	    return true
+	 end
       end
 
-      -- If ENTRY matched, then we can stop looking
-      if matched then
-	 return matched
-      end
+      return false
    end
 
-   return false
+   if scan_options (parser) then
+      return true
+   end
+
+   if parser.final_options then
+      return scan_options (parser.final_options)
+   else
+      return false
+   end
 end
 
 -- Parse options in the table CMDLINE, and return a table of non-option
@@ -498,10 +527,6 @@ end
 --
 function cmdlineparser_meths:parse_options (cmdline)
    cmdline = table.shallow_copy (cmdline)
-
-   -- Wrap ourselves with a parser to handle standard command-line options.
-   --
-   self = cmdlineparser.add_standard_options (self)
 
    -- Accumulated non-options args (which we allow to be intermixed
    -- with options).
@@ -523,7 +548,7 @@ function cmdlineparser_meths:parse_options (cmdline)
 	 local ok = parse_one_opt (self, cmdline)
 	 if not ok then
 	    local opt = split_option_arg (cmdline[1])
-	    parse_error (self, cmdline, "unrecognized option '"..opt.."'")
+	    self:parse_error ("unrecognized option '"..opt.."'")
 	 end
       else
 	 non_option_args[#non_option_args + 1] = cmdline[1]
