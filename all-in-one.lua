@@ -29,8 +29,8 @@ local light = require 'snogray.light'
 local transform = require 'snogray.transform'
 
 
--- Users typically have the snogray module as their default global
--- environment, so it needs to also export standard globals too.
+-- Users of this module have it as their default global environment,
+-- so it needs to also export standard globals too.
 --
 setmetatable (all_in_one, { __index = _G })
 
