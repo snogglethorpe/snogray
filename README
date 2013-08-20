@@ -7,14 +7,17 @@ Snogray renderer
    (unlike some older ray-tracers) and reflection/refraction are
    calculated using Fresnel's formulas).
 
-   * For information on how to build snogray, see the file "README.building"
+   For more information, see the documentation located in the "doc/"
+   subdirectory of the source directory:
 
-   * For information on how to run snogray, see the file "README.usage"
+   * For information on how to build snogray, see the file "doc/building.txt"
 
-   * For discussion of some snogray usage issues, see the file "README.issues"
+   * For information on how to run snogray, see the file "doc/usage.txt"
 
-   * For information on other utility programs included with snogray,
-     see the file "README.utils"
+   * For discussion of some snogray usage issues, see the file "doc/issues.txt"
+
+   * For information on other tools included with snogray, see the file
+     "doc/tools.txt"
 
 
 Snogray development goals:

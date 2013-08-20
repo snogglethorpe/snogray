@@ -1532,7 +1532,7 @@ CPPFLAGS=$USER_CPPFLAGS
 LDFLAGS=$USER_LDFLAGS
 
 
-AC_CONFIG_FILES([Makefile cli/Makefile color/Makefile
+AC_CONFIG_FILES([Makefile cli/Makefile color/Makefile doc/Makefile
 			  geometry/Makefile glare/Makefile
 			  image/Makefile intersect/Makefile
 			  light/Makefile liblpeg/Makefile

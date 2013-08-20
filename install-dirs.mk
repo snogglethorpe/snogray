@@ -11,6 +11,11 @@
 #
 
 
+# Documentation
+#
+pkgdocdir = $(pkgdatadir)/doc
+
+
 # Lua files loaded directly.
 #
 pkgluadir = $(pkgdatadir)/lua

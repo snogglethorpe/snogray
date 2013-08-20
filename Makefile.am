@@ -29,14 +29,17 @@ endif
 
 # Library subdirectories
 #
-SUBDIRS = cli color geometry image intersect light liblpeg liblua	\
-	load lua material photon render render-mgr scene snograw	\
-	space surface texture util
+SUBDIRS = cli color doc geometry image intersect light liblpeg liblua	\
+	load lua material photon render render-mgr scene snograw space	\
+	surface texture util
 
 if build_snogbloom
   SUBDIRS += glare
 endif
 
+# Package README file.
+#
+dist_pkgdata_DATA = README
 
 # Lua files loaded directly.
 #
@@ -50,9 +53,7 @@ dist_pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
 
 # Various files to include in distribution not covered by automatic rules
 #
-EXTRA_DIST =								\
-	autogen.sh							\
-	README README.building README.issues README.usage README.utils
+EXTRA_DIST = autogen.sh
 
 
 # Try to clean up the extra subdirectories of $(datadir) we use when
