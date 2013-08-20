@@ -51,7 +51,7 @@ dist_pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
 # Various files to include in distribution not covered by automatic rules
 #
 EXTRA_DIST =								\
-	autogen.sh config.mk						\
+	autogen.sh							\
 	README README.building README.issues README.usage README.utils
 
 
