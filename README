@@ -77,12 +77,10 @@ Authors
    source):
 
      * Diego Nehab:
-          RPly: rply.c and rply.h
+          RPly: load/mesh/rply.c and load/mesh/rply.h
 
      * Roberto Ierusalimschy:
-	  LPeg: lpcap.c, lpcap.h, lpcode.c, lpcode.h, lpprint.c
-	        lpprint.h, lptree.c, lptree.h, lptypes.h, lpvm.c,
-	        lpvm.h, and lpeg.html
+	  LPeg: All C source and HTML files in the "liblpeg/" subdirectory.
 
      * Lua (if Lua is included in the distribution):  see http://www.lua.org
 
@@ -94,9 +92,9 @@ Licensing
 
    Some files from external sources have different licenses:
 
-    * rply.c and reply.h use the "MIT" license
+    * RPly source files use the "MIT" license
 
-    * lpeg.c, lpeg.h, lpeg.html use a "BSD-like" license
+    * LPeg source files use a "BSD-like" license
 
     * If the Lua sources are included with this distribution, they use a
       "BSD-like" license

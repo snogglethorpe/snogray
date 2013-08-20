@@ -2,8 +2,7 @@ Miles Bader:
     Everything not mentioned below
 
 Diego Nehab:
-    RPly: rply.c, rply.h
+    RPly: load/mesh/rply.c, load/mesh/rply.h
 
 Roberto Ierusalimschy:
-    LPeg: lpcap.c, lpcap.h, lpcode.c, lpcode.h, lpprint.c lpprint.h,
-	lptree.c, lptree.h, lptypes.h, lpvm.c, lpvm.h, lpeg.html
+    LPeg: All C source and HTML files in the "liblpeg/" subdirectory.
