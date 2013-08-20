@@ -11,7 +11,7 @@
 #
 
 include $(top_srcdir)/config.mk
-include $(top_srcdir)/lua-install-dirs.mk
+include $(top_srcdir)/install-dirs.mk
 include $(top_srcdir)/image/image-deps.mk
 include $(top_srcdir)/load/load-deps.mk
 include $(top_srcdir)/lua/lua-deps.mk

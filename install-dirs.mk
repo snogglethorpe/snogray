@@ -1,4 +1,4 @@
-# Makefile.am fragment defining extra Lua install dirs
+# Makefile.am fragment defining extra install dirs
 #
 #  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 #

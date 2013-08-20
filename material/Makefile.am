@@ -11,7 +11,7 @@
 #
 
 include $(top_srcdir)/config.mk
-include $(top_srcdir)/lua-install-dirs.mk
+include $(top_srcdir)/install-dirs.mk
 
 
 noinst_LIBRARIES = libsnogmat.a
