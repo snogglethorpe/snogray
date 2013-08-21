@@ -150,6 +150,7 @@ end
 
 local beg_time = os.time ()
 local scene_beg_ru = sys.rusage () -- begin marker for scene loading
+
 local scene = scene.new ()	-- note, shadows variable, but oh well
 local camera = camera.new ()	-- ditto
 
@@ -158,36 +159,114 @@ local camera = camera.new ()	-- ditto
 --
 output_params.filename = output_file
 
--- We make a copy of PARAMS and pass it to the loader.
---
-local loader_params = table.deep_copy (params)
 
+--------
+-- Set up the scene environment, which is just a Lua environment into
+-- which all scene files are loaded.
+--------
+
+-- The Lua environment passed to the scene loader(s).  It starts with
+-- references to the scene object, the camera, and a copy of our
+-- parameters.
 --
--- Call the loader to load the main scene, and any pre- or post-loaded
--- scene files (which are loaded into the same environment, and so
--- "additive."
+local load_environ = {
+   scene = scene,
+   camera = camera,
+   params = table.deep_copy (params)
+}
+-- inherit from the default global environment
+setmetatable (load_environ, {__index = _G})
+
+
+-- Snogray Lua scene files used to use a different interface where
+-- everything was just plunked down in a single namespace.  The
+-- following special function inserted into the load-environment,
+-- tries to set things up to emulate that for compatibility.
 --
+-- A old-style scene file can be made compatible simply by putting a
+-- call to "snogray_old_style_scene_file ()" at its beginning.
+--
+function load_environ.snogray_old_style_scene_file ()
+   -- Only execute this function once.
+   --
+   if not load_environ._old_style_scene_file then
+      local filename = require 'snogray.filename'
+
+      -- Remember that we've already installed the compatibility hooks.
+      --
+      load_environ._old_style_scene_file = true
+
+      -- Inherit from the "all-in-one" scene interface for backward
+      -- compatibility.
+      --
+      setmetatable (load_environ, { __index = require 'snogray.all-in-one' })
+
+      local function with_lua_ext (file)
+	 if not filename.extension (file) then
+	    file = file..".lua"
+	 end
+	 return file
+      end
+
+      -- Add specialized file-loading functions that know what
+      -- environment to use.
+      --
+      function load_environ.include (file)
+	 load.scene (with_lua_ext (file), load_environ)
+      end
+
+      load_environ._used_files = {}
+      function load_environ.use (file)
+	 file = with_lua_ext (file)
+	 if not load_environ._used_files[file] then
+	    load.scene (file, load_environ)
+	    load_environ._used_files[file] = true
+	 end
+      end
+   end
+end
+
+
+--------
+-- Do the actual loading, calling the loader to load the main scene,
+-- and any pre- or post-loaded scene files (which are loaded into the
+-- same environment, and so are "additive").
+--------
 
 -- pre-loaded scene files
 for i, preload in ipairs (preload_scene_files) do
-   load.scene (preload, scene, camera, loader_params)
+   load.scene (preload, load_environ)
 end
 
 -- main scene file
-load.scene (scene_file, scene, camera, loader_params)
+load.scene (scene_file, load_environ)
 
 -- post-loaded scene files
 for i, postload in ipairs (postload_scene_files) do
-   load.scene (postload, scene, camera, loader_params)
+   load.scene (postload, load_environ)
 end
 
--- Now copy back any _new_ parameters in LOADER_PARAMS to PARAMS.
+
+--------
+-- Do post-loading processing.  Most of the scene definition is
+-- already present in the scene object, but we look for parameter
+-- changes etc which we need to deal with explicitly.
+--------
+
+-- Update our local idea of the scene and camera objects in case the
+-- loader changed them (usually it won't, but it can).
+--
+scene = load_environ.scene
+camera = load_environ.camera
+
+-- Copy back any _new_ parameters added the loader's copy of the scene
+-- parametes to PARAMS.
 --
 -- Keeping existing params in PARAMS ensures that any parameters the
 -- user specified on the command-line override parameters set by the
 -- loader.
 --
-install_new_entries (loader_params, params)
+install_new_entries (load_environ.params, params)
 
 -- Do post-load scene setup (nothing can be added to scene after this).
 --
@@ -204,6 +283,11 @@ camera_cmdline.apply (camera_params, camera, scene)
 -- Get the output file back, in case loading the scene changed it.
 --
 output_file = output_params.filename
+
+-- We're done copying stuff out, so zero out the load environment to
+-- let the garbage collector have a shot at any cruft in there.
+--
+load_environ = nil
 
 -- The output file is optional on the command-line, but must be supplied
 -- by the scene if not there.

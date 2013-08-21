@@ -1886,7 +1886,7 @@ local function load_pbrt_in_state (state, scene, camera)
 end
 
 
-function pbrt.load (scene_file, scene, camera, params)
+function pbrt.load (scene_file, environ)
 
    -- Return a parameter table and an entry name in that table,
    -- starting from the root-table TABLE, for a parameter called NAME.
@@ -1932,10 +1932,6 @@ function pbrt.load (scene_file, scene, camera, params)
    end
 
    local init_state = {
-      scene = scene,
-      camera = camera,
-      params = params,
-
       -- Sets the parameter called NAME to the value VAL, but only if
       -- there's no existing entry (allowing any settings the user
       -- specified on the command-line to take precedence).
@@ -1962,7 +1958,7 @@ function pbrt.load (scene_file, scene, camera, params)
       set_param
 	 = function (self, name, val)
 	      if val ~= nil then
-		 local tab, name = get_param_table (self.params, name, true)
+		 local tab, name = get_param_table (environ.params, name, true)
 		 if tab[name] == nil then
 		    tab[name] = val
 		 end
@@ -1985,7 +1981,7 @@ function pbrt.load (scene_file, scene, camera, params)
       --
       get_param
 	 = function (self, name)
-	      local tab, name = get_param_table (self.params, name)
+	      local tab, name = get_param_table (environ.params, name)
 	      return tab and tab[name]
 	   end,
 
@@ -2020,9 +2016,9 @@ function pbrt.load (scene_file, scene, camera, params)
       filename = scene_file,
       base_dir = filename.directory (scene_file),
       file_search_path = { filename.directory (scene_file),
-			   params["search_path"] }
+			   environ.params["search_path"] }
    }
-   return load_pbrt_in_state (init_state, scene, camera)
+   return load_pbrt_in_state (init_state, environ.scene, environ.camera)
 end
 
 

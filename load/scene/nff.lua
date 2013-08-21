@@ -72,7 +72,10 @@ local WS_COLOR = (WS_FLOAT * WS_FLOAT * WS_FLOAT) / color
 local WS_NL_SYNC = WS_NL * lpeg_utils.ERR_POS
 
 
-function nff.load (filename, scene, camera)
+function nff.load (filename, environ)
+   local scene = environ.scene
+   local camera = environ.camera
+
    local cur_mat = nil
    local cur_mesh = nil
 

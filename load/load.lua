@@ -162,10 +162,10 @@ end
 local scene_loaders = {}
 
 
--- Load a scene from SCENE_FILE into SCENE and CAMERA.
+-- Load a scene from SCENE_FILE into the scene environment ENVIRON.
 --
-function load.scene (scene_file, scene, camera, params)
-   params = params or {}
+function load.scene (scene_file, environ)
+   local params = environ.params or {}
 
    local fmt = params.format or filename.extension (scene_file)
 
@@ -178,18 +178,22 @@ function load.scene (scene_file, scene, camera, params)
 	 -- For old versions of SWIG, we need to gc-protect objects
 	 -- handed to the scene.
 	 --
-	 if swig.need_obj_gc_protect and not swig.has_index_wrappers (scene) then
-	    local wrap = swig.index_wrappers (scene)
+	 if swig.need_obj_gc_protect then
+	    local scene = environ.scene
 
-	    function wrap:add (thing)
-	       swig.gc_ref (self, thing)
-	       return swig.nowrap_meth_call (self, "add", thing)
+	    if not swig.has_index_wrappers (scene) then
+	       local wrap = swig.index_wrappers (scene)
+
+	       function wrap:add (thing)
+		  swig.gc_ref (self, thing)
+		  return swig.nowrap_meth_call (self, "add", thing)
+	       end
 	    end
 	 end
 
 	 -- Call the loader.
 	 --
-	 local ok, err_msg = pcall (loader, scene_file, scene, camera, params)
+	 local ok, err_msg = pcall (loader, scene_file, environ)
 	 if not ok then
 	    -- Prefix ERR_MSG with "SCENE_FILE: ", unless it already
 	    -- seems to contain such a prefix (parsing code, for
@@ -322,7 +326,10 @@ add_scene_loader_autoload ("pbrt", "snogray.loader.scene.pbrt")
 
 -- Scene formats with C loaders
 --
-add_scene_loader ("3ds", raw.load_3ds_file)
+add_scene_loader ("3ds", function (scene_file, environ)
+			    raw.load_3ds_file (scene_file,
+					       environ.scene, environ.camera)
+			 end)
 
 -- Mesh formats with Lua loaders.
 --
