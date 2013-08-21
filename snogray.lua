@@ -59,7 +59,19 @@ local render_params = {}
 local scene_params = {}
 local camera_params = {}
 local output_params = {}
-local preload_scene_files, postload_scene_files = {}, {}
+
+-- Pre/post-loaded things.  Each element is a table with a field
+-- 'action' describing how to process it, and any other fields
+-- containing the data to process.
+--
+-- Currently supported pre/post-load actions are:
+--
+--   'load'   Load the scene file whose name is in the .filename field
+--
+--   'eval'   Evaluate the Lua code string in the .code field, in the
+--            Lua scene-loading environment
+--
+local preloads, postloads = {}, {}
 
 -- All parameters together.
 --
@@ -80,16 +92,26 @@ local parser = clp.standard_parser {
    --
    "Rendering options:",
    render_cmdline.option_parser (render_params),
+
    "Scene options:",
    scene_cmdline.option_parser (scene_params),
-   { "--preload=SCENE",
-     function (arg) table.insert (preload_scene_files, arg) end,
-     doc = [[Load scene-file SCENE before main scene]] },
-   { "--postload=SCENE",
-     function (arg) table.insert (postload_scene_files, arg) end,
-     doc = [[Load scene-file SCENE after main scene]] },
+
+   { "--preload=SCENE_FILE",
+     function (arg) table.insert (preloads, {action='load', filename=arg}) end,
+     doc = [[Load scene-file SCENE_FILE before main scene]] },
+   { "--postload=SCENE_FILE",
+     function (arg) table.insert (postloads, {action='load', filename=arg}) end,
+     doc = [[Load scene-file SCENE_FILE after main scene]] },
+   { "--pre-eval=LUA_CODE",
+     function (arg) table.insert (preloads, {action='eval', code=arg}) end,
+     doc = [[Evaluate Lua code LUA_CODE before main scene]] },
+   { "--post-eval=LUA_CODE",
+     function (arg) table.insert (postloads, {action='eval', code=arg})end,
+     doc = [[Evaluate Lua code LUA_CODE after main scene]] },
+
    "Camera options:",
    camera_cmdline.option_parser (camera_params),
+
    "Output image options:",
    img_out_cmdline.option_parser (output_params,
 				  default_width / default_height),
@@ -233,18 +255,27 @@ end
 -- same environment, and so are "additive").
 --------
 
--- pre-loaded scene files
-for i, preload in ipairs (preload_scene_files) do
-   load.scene (preload, load_environ)
+local function do_pre_post_loads (entries)
+   for i, entry in ipairs (entries) do
+      if entry.action == 'load' then
+	 -- Load a scene file.
+	 load.scene (entry.filename, load_environ)
+      else
+	 -- Evaluate some Lua code.  We've used the variable "load" for
+	 -- a module, so get the original Lua load function from _G.
+	 _G.load (entry.code, nil, nil, load_environ) ()
+      end
+   end
 end
+
+-- pre-loaded scene files/statements
+do_pre_post_loads (preloads)
 
 -- main scene file
 load.scene (scene_file, load_environ)
 
--- post-loaded scene files
-for i, postload in ipairs (postload_scene_files) do
-   load.scene (postload, load_environ)
-end
+-- post-loaded scene files/statements
+do_pre_post_loads (postloads)
 
 
 --------
