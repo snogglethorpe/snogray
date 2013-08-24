@@ -16,6 +16,9 @@ include $(top_srcdir)/install-dirs.mk
 
 noinst_LIBRARIES = libsnogluautil.a
 
+dist_pkgluamodulesnogray_DATA = file.lua filename.lua lpeg-utils.lua	\
+	  string-fill.lua string.lua swig.lua sys.lua table.lua
+
 EXTRA_DIST = lua-cvt-num-vector.swg lua-val-table.swg
 
 
