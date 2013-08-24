@@ -30,6 +30,9 @@ extern "C"
   (lua_createtable (L, 0, sizeof module_funs / sizeof module_funs[0] - 1), \
    luaL_register (L, 0, module_funs))
 
+#define luaL_setmetatable(L, tname) \
+  (luaL_getmetatable(L, tname), lua_setmetatable(L, -2))
+
 #endif // LUA_VERSION_NUM < 502
 
 
