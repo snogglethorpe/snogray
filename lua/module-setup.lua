@@ -31,10 +31,18 @@ else
    --
    -- We're operating in "uninstalled mode".  Add a package searcher
    -- that just tries to load anything prefixed with "snogray." from
-   -- (1) a subdirectory of the current directory with the same name
-   -- as the module (so for a module spec "snogray.PKG.PKG", it will
-   -- try to load "PKG/PKG.lua"), and if that fails, then (2) just the
-   -- current directory ("PKG.lua").
+   -- the snogray source tree, using the following rules:
+   --
+   --  1. Packages with explicitly recorded filename mappings are
+   --     loaded from the corresponding filename (relative to the
+   --     source-tree root).
+   --  2. Packages of the form "snogray.loader.PKG", are loaded from
+   --     "load/PKG.lua", relative to the source-tree root, with all
+   --     periods in PKG replaced by slashes (as loaders are often in
+   --     subdirectories).
+   --  3. Otherwise, for packages of the form "snogray.PKG", the
+   --     filenames "PKG/PKG.lua" and PKG.lua" are tried in turn,
+   --     again relative to the source-tree root.
    --
 
    -- A table mapping module names to their locations in the source
@@ -61,48 +69,84 @@ else
       ["transform"]	 = "geometry/transform",
    }
 
-   local function load_uninstalled_snogray_package (pkg, ...)
-      local snogray_pkg = string.match (pkg, "^snogray[.](.*)$")
-      if snogray_pkg then
-	 local filebase = string.gsub (snogray_pkg, "[.]", "/")
-	 return function ()
-		   local thunk, err
-
-		   -- See if this name has an explicitly recorded location
-		   local mapped = uninst_module_mapping[filebase]
-		   if mapped then
-		      -- If so, just use it
-		      filebase = mapped
-		   else
-		      -- See if this is a loader module, which are
-		      -- simply loaded from the "load" source
-		      -- subdirectory.
-		      local loader = string.match (filebase, "^loader/(.*)$")
-		      if loader then
-			 filebase = "load/"..loader
-		      else
-			 -- Otherwise first try loading from a
-			 -- subdirectory of the same name as the module
-			 thunk, err
-			    = loadfile (lua_root.."/"..filebase
-					.."/"..filebase..".lua")
-		      end
-		   end
-
-		   -- Try loading from the source directory
-		   if not thunk then
-		      thunk, err = loadfile (lua_root.."/"..filebase..".lua")
-		   end
-		   if not thunk then
-		      error (err, 0)
-		   end
-		   return thunk ()
-		end
-      else
-	 return nil
-      end
+   -- Given the base filename BASE in the Lua source-tree, return the
+   -- full filename to try loading a package from.
+   --
+   local function source_file_name (base)
+      return lua_root.."/"..base..".lua"
    end
 
+   -- Given the base filename BASE in the Lua source-tree, compute its
+   -- full filename, and try to load it.  If loading is successful,
+   -- return two values, the file loader, and the full name of the
+   -- file loaded (these are the two values that a Lua package
+   -- searcher should return).
+   --
+   local function tryload (base)
+      local filename = source_file_name (base)
+      return loadfile (filename), filename
+   end
+
+   local function load_uninstalled_snogray_package (pkg, ...)
+      --
+      -- This searcher only handles snogray packages.
+      --
+      local snogray_pkg = string.match (pkg, "^snogray[.](.*)$")
+      if snogray_pkg then
+	 --
+	 -- See if this name has an explicitly recorded location
+	 --
+	 local mapped = uninst_module_mapping[snogray_pkg]
+	 if mapped then
+	    --
+	    -- If so, just load it directly.
+	    --
+	    return tryload (mapped)
+	 else
+	    --
+	    -- See if this is a loader module, "snogray.loader.*";
+	    -- these are simply loaded from the "load" source
+	    -- subdirectory.
+	    --
+	    local loader_pkg = string.match (snogray_pkg, "^loader[.](.*)$")
+	    if loader_pkg then
+	       --
+	       -- Loader modules can be hierarchial, in which case
+	       -- they should be loaded from a corresponding
+	       -- subdirectory, so just replact dots with slashes.
+	       --
+	       return tryload ("load/"..string.gsub (loader_pkg, "[.]", "/"))
+	    else
+	       --
+	       -- Otherwise first try loading from a subdirectory of
+	       -- the same name as the module.
+	       --
+	       local fname = source_file_name (snogray_pkg.."/"..snogray_pkg)
+	       local fcontents = loadfile (fname)
+	       if fcontents then
+		  return fcontents, fname
+	       else
+		  --
+		  -- ... and finally, if nothing else worked, try in
+		  -- the root of the source tree.
+		  -- 
+		  return tryload (snogray_pkg)
+	       end
+	    end
+	 end
+      end
+
+      return nil
+   end
+
+   -- Put our seacher function at the front of the global list of
+   -- searchers.
+   --
+   -- [Note that this puts even before the standard Lua searcher that
+   -- handles prelods.  That's not an issue in practice, as we don't
+   -- have any preloaded modules that conflict with loaded Lua
+   -- modules, but it's something to be aware of.]
+   --
    local searchers = package.loaders or package.searchers
    table.insert (searchers, 1, load_uninstalled_snogray_package)
 end
