@@ -30,11 +30,12 @@ extern "C"
 #include "lauxlib.h"
 }
 
+#include "lua-compat.h"
+
 #include "lua-util.h"
 
 
 using namespace snogray;
-
 
 
 // lua_read_file
@@ -115,11 +116,6 @@ luaL_Reg module_funs[] = {
 int
 snogray::luaopen_snogray_util (lua_State *L)
 {
-#if LUA_VERSION_NUM >= 502
   luaL_newlib (L, module_funs);
-#else
-  lua_createtable (L, 0, sizeof module_funs / sizeof module_funs[0] - 1);
-  luaL_register (L, 0, module_funs);
-#endif
   return 1;
 }
