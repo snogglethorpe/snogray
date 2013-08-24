@@ -106,7 +106,7 @@ snogray::lua_read_file (lua_State *L)
 
 // Module creation
 
-luaL_Reg module_funs[] = {
+static luaL_Reg module_funs[] = {
   { "read_file", lua_read_file },
   { 0, 0 }
 };
