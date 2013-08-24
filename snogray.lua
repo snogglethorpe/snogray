@@ -255,7 +255,7 @@ end
 -- same environment, and so are "additive").
 --------
 
-local function do_pre_post_loads (entries)
+local function do_pre_post_loads (entries, which)
    for i, entry in ipairs (entries) do
       if entry.action == 'load' then
 	 -- Load a scene file.
@@ -263,19 +263,25 @@ local function do_pre_post_loads (entries)
       else
 	 -- Evaluate some Lua code.  We've used the variable "load" for
 	 -- a module, so get the original Lua load function from _G.
-	 _G.load (entry.code, nil, nil, load_environ) ()
+	 --
+	 local thunk, err = _G.load (entry.code, nil, nil, load_environ)
+	 if thunk then
+	    thunk ()
+	 else
+	    error ("error in --"..which.."-eval: "..err, 0)
+	 end
       end
    end
 end
 
 -- pre-loaded scene files/statements
-do_pre_post_loads (preloads)
+do_pre_post_loads (preloads, "pre")
 
 -- main scene file
 load.scene (scene_file, load_environ)
 
 -- post-loaded scene files/statements
-do_pre_post_loads (postloads)
+do_pre_post_loads (postloads, "post")
 
 
 --------
