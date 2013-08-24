@@ -75,7 +75,7 @@
 %apply (float INPUT[ANY]) {(const dist_t els[16])};
 
 
-%include "util/lua-vector.swg"
+%include "lua-util/lua-cvt-num-vector.swg"
 SWIG_TYPEMAP_NUM_VECTOR(float)
 SWIG_TYPEMAP_NUM_VECTOR(unsigned)
 

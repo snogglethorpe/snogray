@@ -16,7 +16,7 @@ include $(top_srcdir)/install-dirs.mk
 
 noinst_LIBRARIES = libsnogluautil.a
 
-EXTRA_DIST = lua-val-table.swg
+EXTRA_DIST = lua-cvt-num-vector.swg lua-val-table.swg
 
 
 AM_CPPFLAGS += $(liblua_CFLAGS)

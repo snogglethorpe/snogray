@@ -1,4 +1,4 @@
-# lua-vector.swg -- Lua table -> std::vector conversion
+# lua-cvt-num-vector.swg -- Lua table -> std::vector conversion
 #
 #  Copyright (C) 2011-2013  Miles Bader <miles@gnu.org>
 #
