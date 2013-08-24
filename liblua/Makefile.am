@@ -10,6 +10,8 @@
 # Written by Miles Bader <miles@gnu.org>
 #
 
+include $(top_srcdir)/config.mk
+
 
 # Clean up any liblua we've build
 #
