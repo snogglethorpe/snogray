@@ -24,7 +24,7 @@ extern "C"
 #endif
 }
 
-#include "lua-funs.h"
+#include "lua-util/lua-util.h"
 #include "util/snogpaths.h"
 #include "cli/version.h"
 
@@ -100,6 +100,7 @@ struct preload_module
 //
 static preload_module preloaded_modules[] = {
   { "snogray.snograw", luaopen_snograw_fixup },
+  { "snogray.util", luaopen_snogray_util },
   { "lpeg", luaopen_lpeg },
   { 0, 0 }
 };
@@ -216,15 +217,6 @@ snogray::new_snogray_lua_state (const std::string &uninstalled_dir)
       lua_setfield (L, -2, pm->name);
     }
   lua_pop (L, 1);		// pop package.preload table
-
-  // Add extra functions into snograw table.
-  //
-  lua_getglobal (L, "require");		 // function
-  lua_pushstring (L, "snogray.snograw"); // arg 0
-  lua_call (L, 1, 1);			 // call require
-  lua_pushcfunction (L, snogray::lua_read_file);
-  lua_setfield (L, -2, "read_file");
-  lua_pop (L, 1); 		// pop snograw table
 
   // Setup the module system to load more stuff.
   //

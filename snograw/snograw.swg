@@ -80,7 +80,7 @@ SWIG_TYPEMAP_NUM_VECTOR(float)
 SWIG_TYPEMAP_NUM_VECTOR(unsigned)
 
 
-%include "util/val-table.swg"
+%include "lua-util/lua-val-table.swg"
 
 
 %{

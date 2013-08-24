@@ -22,8 +22,8 @@ extern "C"
 #include "lauxlib.h"
 }
 
-#include "lua-funs.h"
 #include "lua-setup.h"
+#include "lua-util/lua-val-table.h"
 
 #include "invoke-lua-driver.h"
 

@@ -1,4 +1,4 @@
-# Automake Makefile template for Snogray Lua support library, libsnoglua.a
+# Automake Makefile template for Snogray Lua utility library, libsnogluautil.a
 #
 #  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 #
@@ -14,13 +14,13 @@ include $(top_srcdir)/config.mk
 include $(top_srcdir)/install-dirs.mk
 
 
-noinst_LIBRARIES = libsnoglua.a
+noinst_LIBRARIES = libsnogluautil.a
 
-dist_pkglua_DATA = module-setup.lua
+EXTRA_DIST = lua-val-table.swg
 
 
 AM_CPPFLAGS += $(liblua_CFLAGS)
 
 
-libsnoglua_a_SOURCES = invoke-lua-driver.cc invoke-lua-driver.h	\
-	lua-setup.cc lua-setup.h
+libsnogluautil_a_SOURCES = lua-val-table.cc lua-val-table.h lua-util.cc	\
+	lua-util.h

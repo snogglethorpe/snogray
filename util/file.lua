@@ -1,6 +1,6 @@
 -- file.lua -- Miscellaneous file-related functions
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@ local file = {}
 
 -- imports
 --
-local raw = require ('snogray.snograw')
+local util = require 'snogray.util'
 
 
 -- Return true if a file called FILENAME exists and is readable.
@@ -41,7 +41,7 @@ end
 -- thrash the system to death when reading huge files.
 --
 function file.read (filename)
-   local contents = raw.read_file (filename)
+   local contents = util.read_file (filename)
    if not contents then
       local stream, err = io.open (filename, "r")
       if not stream then

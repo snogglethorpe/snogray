@@ -13,5 +13,6 @@
 
 # Library dependencies of libsnoglua.a
 #
-libsnoglua_LIBS = $(top_builddir)/snograw/libsnograw.a	\
+libsnoglua_LIBS = $(top_builddir)/snograw/libsnograw.a		\
+	$(top_builddir)/lua-util/libsnogluautil.a		\
 	$(top_builddir)/liblpeg/liblpeg.a $(liblua_LIBS)

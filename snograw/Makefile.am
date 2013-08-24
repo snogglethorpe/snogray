@@ -39,13 +39,13 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 snograw_lua_wrap.cc: common.swg $(top_srcdir)/scene/camera.swg		\
 	$(top_srcdir)/color/color.swg $(top_srcdir)/image/image.swg	\
 	$(top_srcdir)/light/light.swg $(top_srcdir)/load/load.swg	\
+	$(top_srcdir)/lua-util/lua-val-table.swg			\
 	$(top_srcdir)/material/material.swg				\
 	$(top_srcdir)/render-mgr/render-mgr.swg				\
 	$(top_srcdir)/render/render.swg $(top_srcdir)/scene/scene.swg	\
 	$(top_srcdir)/space/space.swg					\
 	$(top_srcdir)/surface/surface.swg				\
 	$(top_srcdir)/texture/texture.swg $(top_srcdir)/util/util.swg	\
-	$(top_srcdir)/util/val-table.swg				\
 	$(top_srcdir)/util/lua-vector.swg
 
 

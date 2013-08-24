@@ -12,7 +12,7 @@
 
 // Lua table -> ValTable conversion
 //
-%{ #include "lua/lua-funs.h" %}
+%{ #include "lua-util/lua-val-table.h" %}
 %typemap(in, checkfn="lua_istable") const snogray::ValTable& (snogray::ValTable valtab)
 %{	lua_pushvalue (L, $input);
 	snogray::lua_store_into_val_table (L, valtab);
