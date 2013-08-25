@@ -165,6 +165,7 @@ LuaVec<T>::register_metatable (lua_State *L)
       register_metatable_entry (L, "__newindex", set1);
       register_metatable_entry (L, "__len", len);
       register_metatable_entry (L, "add", add);
+      register_metatable_entry (L, "clear", clear);
       register_metatable_entry (L, "resize", resize);
       register_metatable_entry (L, "reserve", reserve);
       register_metatable_entry (L, "__gc", fini);
@@ -331,6 +332,18 @@ LuaVec<T>::len (lua_State *L)
 {
   lua_pushunsigned (L, _checkvec (L, 1)->size ());
   return 1;
+}
+
+// clear (VEC)
+//
+// Set the size of VEC to zero elements.
+//
+template<typename T>
+int
+LuaVec<T>::clear (lua_State *L)
+{
+  _checkvec (L, 1)->clear ();
+  return 0;
 }
 
 // resize (VEC, SIZE)

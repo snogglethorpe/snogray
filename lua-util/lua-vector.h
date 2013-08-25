@@ -80,6 +80,7 @@ private:
   static int set1 (lua_State *L);
   static int add (lua_State *L);
   static int len (lua_State *L);
+  static int clear (lua_State *L);
   static int resize (lua_State *L);
   static int reserve (lua_State *L);
 
