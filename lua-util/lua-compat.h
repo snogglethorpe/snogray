@@ -17,6 +17,7 @@
 
 extern "C"
 {
+#include "lua.h"
 #include "lauxlib.h"
 }
 
@@ -47,6 +48,19 @@ luaL_testudata (lua_State *L, int pos, const char *tname)
     }
   return mem;
 }
+
+// Unsigned stuff; mostly just use lua_Number instead and truncate
+// appropriately (so e.g. luaL_checkunsigned will be somewhat less
+// strict than the real version in Lua 5.2).
+//
+typedef unsigned lua_Unsigned;
+#define lua_pushunsigned(L, val) \
+  lua_pushnumber (L, val)
+#define luaL_checkunsigned(L, pos) \
+  ((lua_Unsigned)luaL_checknumber (L, pos))
+#define luaL_optunsigned(L, pos, def) \
+  ((lua_Unsigned)luaL_optnumber (L, pos, def))
+
 
 #endif // LUA_VERSION_NUM < 502
 
