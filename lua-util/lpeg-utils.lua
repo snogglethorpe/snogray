@@ -1,6 +1,6 @@
 -- lpeg-utils.lua -- Useful functions for parsing with LPeg
 --
---  Copyright (C) 2007, 2008, 2010, 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2007, 2008, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ lpeg_utils.WS_INT = lpeg_utils.OPT_WS * lpeg_utils.INT
 
 -- Global state during parsing.
 --
-local parse_state
+local parse_state = nil
 
 
 -- Set the error position used if a parse error occurs.
@@ -62,7 +62,9 @@ end
 
 
 local function update_err_pos (text, pos)
-   parse_state.err_pos = pos
+   if parse_state then
+      parse_state.err_pos = pos
+   end
    return pos
 end
 
