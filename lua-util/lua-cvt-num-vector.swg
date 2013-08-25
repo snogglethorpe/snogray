@@ -14,6 +14,7 @@
 //
 %{
 #include <vector>
+#include "lua-util/lua-vector.h"
 
 // If the object at position INDEX on the Lua stack is a table
 // containing numbers, store its contents into VEC and return true.
@@ -49,10 +50,31 @@ SWIG_read_numeric_vector (lua_State *L, int index, std::vector<T> &vec)
 
   return true;
 }
+
+// Return a pointer to a std::vector<T> object containing the contents
+// of the table/vector at position POS on the Lua stack.  Tables will
+// be converted by using SWIG_read_numeric_vector to store them into
+// TEMP_STORAGE; C++ vectors wrapped using lua-vector.h will be
+// returned directly (leaving TEMP_STORAGE unchanged).  If the object
+// at POS is not a table or vector wrapper, or the table contains
+// non-numbers, zero is returned instead.
+//
+template<class T>
+std::vector<T> *
+SWIG_get_numeric_vector (lua_State *L, int pos, std::vector<T> &temp_storage)
+{
+  int type = lua_type (L, pos);
+  if (type == LUA_TUSERDATA)
+    return snogray::LuaVec<T>::vec (L, pos);
+  else if (type == LUA_TTABLE && SWIG_read_numeric_vector (L, pos, temp_storage))
+    return &temp_storage;
+  return 0;
+}
+
 %}
 
 %define SWIG_TYPEMAP_NUM_VECTOR(T)
 %typemap(in) const std::vector<T> &INPUT (std::vector<T> temp)
-%{	if (! SWIG_read_numeric_vector<T> (L,$input, temp)) SWIG_fail;
-	$1 = &temp; %}
+  %{	$1 = SWIG_get_numeric_vector<T> (L,$input, temp);
+        if (! $1) SWIG_fail; %}
 %enddef
