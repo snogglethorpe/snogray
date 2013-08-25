@@ -25,6 +25,7 @@ extern "C"
 }
 
 #include "lua-util/lua-util.h"
+#include "lua-util/lua-vector.h"
 #include "util/snogpaths.h"
 #include "cli/version.h"
 
@@ -101,6 +102,7 @@ struct preload_module
 static preload_module preloaded_modules[] = {
   { "snogray.snograw", luaopen_snograw_fixup },
   { "snogray.util", luaopen_snogray_util },
+  { "snogray.vector", luaopen_snogray_vector },
   { "lpeg", luaopen_lpeg },
   { 0, 0 }
 };

@@ -25,5 +25,6 @@ EXTRA_DIST = lua-cvt-num-vector.swg lua-val-table.swg
 AM_CPPFLAGS += $(liblua_CFLAGS)
 
 
-libsnogluautil_a_SOURCES = lua-compat.h lua-util.cc lua-util.h	\
-	lua-val-table.cc lua-val-table.h
+libsnogluautil_a_SOURCES = lua-compat.h lua-util.cc lua-util.h		\
+	lua-val-table.cc lua-val-table.h lua-vector.cc lua-vector.h	\
+	lua-vector.tcc
