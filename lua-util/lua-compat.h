@@ -28,7 +28,7 @@ extern "C"
 #if LUA_VERSION_NUM < 502
 
 #undef luaL_newlib
-#define luaL_newlib(L, modules_funs)					\
+#define luaL_newlib(L, modules_funs) \
   (lua_createtable (L, 0, sizeof module_funs / sizeof module_funs[0] - 1), \
    luaL_register (L, 0, module_funs))
 
