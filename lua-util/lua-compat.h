@@ -21,10 +21,11 @@ extern "C"
 }
 
 
+// Definitions of functions that are new in Lua 5.2 for older versions
+// of Lua (or luajit).
+//
 #if LUA_VERSION_NUM < 502
 
-// Version of Lua before 5.2 don't have luaL_newlib, so add our own version
-//
 #undef luaL_newlib
 #define luaL_newlib(L, modules_funs)					\
   (lua_createtable (L, 0, sizeof module_funs / sizeof module_funs[0] - 1), \
@@ -32,6 +33,20 @@ extern "C"
 
 #define luaL_setmetatable(L, tname) \
   (luaL_getmetatable(L, tname), lua_setmetatable(L, -2))
+
+inline void *
+luaL_testudata (lua_State *L, int pos, const char *tname)
+{
+  void *mem = lua_touserdata (L, pos);
+  if (mem && lua_getmetatable (L, pos))
+    {
+      luaL_getmetatable (L, tname);
+      if (! lua_rawequal (L, -1, -2))
+	mem = 0;
+      lua_pop (L, 2);
+    }
+  return mem;
+}
 
 #endif // LUA_VERSION_NUM < 502
 
