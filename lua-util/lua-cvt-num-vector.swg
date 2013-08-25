@@ -15,11 +15,11 @@
 %{
 #include <vector>
 
-// Reads the contents of the table at INDEX on the Lua stack into a
-// vector of numbers, and returns a heap-allocated vector of type
-// std::vector<T>*.  Lua numbers will be cast into the type T.  If the
-// object at INDEX is not a table, or the table contains non-numbers,
-// zero is returned instead.
+// If the object at position INDEX on the Lua stack is a table
+// containing numbers, store its contents into VEC and return true.
+// Lua numbers will be cast into the type T.  If the object at INDEX
+// is not a table, or the table contains non-numbers, false is
+// returned instead.
 //
 template<class T>
 bool
