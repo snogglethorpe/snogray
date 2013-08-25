@@ -166,6 +166,7 @@ LuaVec<T>::register_metatable (lua_State *L)
       register_metatable_entry (L, "__len", len);
       register_metatable_entry (L, "add", add);
       register_metatable_entry (L, "resize", resize);
+      register_metatable_entry (L, "reserve", reserve);
       register_metatable_entry (L, "__gc", fini);
       register_metatable_entry (L, "__tostring", tostring);
 
@@ -343,6 +344,22 @@ LuaVec<T>::resize (lua_State *L)
   std::vector<T> *vec = _checkvec (L, 1);
   lua_Unsigned size = luaL_checkunsigned (L, 2);
   vec->resize (size);
+  return 0;
+}
+
+// reserve (VEC, SIZE)
+//
+// Make sure VEC has enough memory allocated to hold SIZE elements.
+// This does not change the visible size of VEC or affect its
+// contents, but may make future size increase more efficient.
+//
+template<typename T>
+int
+LuaVec<T>::reserve (lua_State *L)
+{
+  std::vector<T> *vec = _checkvec (L, 1);
+  lua_Unsigned size = luaL_checkunsigned (L, 2);
+  vec->reserve (size);
   return 0;
 }
 

@@ -81,6 +81,7 @@ private:
   static int add (lua_State *L);
   static int len (lua_State *L);
   static int resize (lua_State *L);
+  static int reserve (lua_State *L);
 
   static int fini (lua_State *L);
 
