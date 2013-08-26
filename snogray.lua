@@ -187,14 +187,41 @@ output_params.filename = output_file
 -- which all scene files are loaded.
 --------
 
--- The Lua environment passed to the scene loader(s).  It starts with
--- references to the scene object, the camera, and a copy of our
--- parameters.
+local coord = require 'snogray.coord'
+
+-- The Lua environment passed to the scene loader(s).  All globals
+-- defined in loaded files will end up there, and we initialize it
+-- with various useful things for scene definition.
 --
 local load_environ = {
+   -- References to the scene object and the camera.  The actual scene
+   -- is defined in them.
+   --
    scene = scene,
    camera = camera,
-   params = table.deep_copy (params)
+
+   -- A copy of our parameters.  New entries will be copied back after
+   -- the scene is loaded, but changes to existing entries will be
+   -- ignored.
+   --
+   params = table.deep_copy (params),
+
+   -- Lua modules commonly used in scene definitions.  Scene files may
+   -- also use the Lua 'require' function to explicitly load Lua
+   -- modules.
+   --
+   coord = coord,
+   light = require 'snogray.light',
+   material = require 'snogray.material',
+   surface = require 'snogray.surface',
+   texture = require 'snogray.texture',
+   transform = require 'snogray.transform',
+
+   -- Shortcuts for commonly used functions (these are also available
+   -- as entries in appropriate modules, but these are so freqeuently
+   -- used, it's nice to have shorter names).
+   --
+   pos = coord.pos, vec = coord.vec
 }
 -- inherit from the default global environment
 setmetatable (load_environ, {__index = _G})
