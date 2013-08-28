@@ -1470,6 +1470,20 @@ else
 fi
 
 
+# Test for the "-fuse-ld=gold" option to explicitly select the GNU
+# gold linker (rather than the default GNU binutils "BFD" linker).
+# Gold is a better linker than the default binutils linkers, so we'd
+# like to use it if possible.
+#
+# Note that this check should come before the check for "--icf=all",
+# as the latter only works with gold.
+#
+SNOGRAY_CHECK_CXX_LINK_FLAG([CXX_GOLD_LDFLAGS], [-fuse-ld=gold])
+if test x"$CXX_GOLD_LDFLAGS" != x; then
+  CONFIG_LDFLAGS="$CONFIG_LDFLAGS $CXX_GOLD_LDFLAGS"
+  LDFLAGS="$LDFLAGS $CXX_GOLD_LDFLAGS"
+fi
+
 # Test for the GNU gold linker's "--icf=all" option, which folds
 # duplicate sections of code, using the gcc linker-flag prefix "-Wl,".
 #
