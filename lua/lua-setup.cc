@@ -89,17 +89,11 @@ luaopen_snograw_fixup (lua_State *L)
   return rv;
 }
 
-struct preload_module
-{
-  const char *name;
-  lua_CFunction loader;
-};
-
 // A list of modules which are statically linked into our executable and
 // should be preloaded (which allows Lua's require mechanism to find
 // them).
 //
-static preload_module preloaded_modules[] = {
+static luaL_Reg preloaded_modules[] = {
   { "snogray.snograw", luaopen_snograw_fixup },
   { "snogray.util", luaopen_snogray_util },
   { "snogray.vector", luaopen_snogray_vector },
@@ -213,10 +207,10 @@ snogray::new_snogray_lua_state (const std::string &uninstalled_dir)
   //
   lua_getglobal (L, "package");
   lua_getfield (L, -1, "preload");
-  for (preload_module *pm = preloaded_modules; pm->name; pm++)
+  for (luaL_Reg *reg = preloaded_modules; reg->name; reg++)
     {
-      lua_pushcfunction (L, pm->loader);
-      lua_setfield (L, -2, pm->name);
+      lua_pushcfunction (L, reg->func);
+      lua_setfield (L, -2, reg->name);
     }
   lua_pop (L, 1);		// pop package.preload table
 
