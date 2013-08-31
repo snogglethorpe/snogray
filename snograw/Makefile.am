@@ -37,8 +37,10 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # dependencies.
 #
 snograw_lua_wrap.cc: common.swg $(top_srcdir)/scene/camera.swg		\
-	$(top_srcdir)/color/color.swg $(top_srcdir)/image/image.swg	\
-	$(top_srcdir)/light/light.swg $(top_srcdir)/load/load.swg	\
+	$(top_srcdir)/color/color.swg					\
+	$(top_srcdir)/geometry/geometry.swg				\
+	$(top_srcdir)/image/image.swg $(top_srcdir)/light/light.swg	\
+	$(top_srcdir)/load/load.swg					\
 	$(top_srcdir)/lua-util/lua-cvt-num-vector.swg			\
 	$(top_srcdir)/lua-util/lua-val-table.swg			\
 	$(top_srcdir)/material/material.swg				\

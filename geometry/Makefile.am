@@ -18,6 +18,8 @@ noinst_LIBRARIES = libsnoggeom.a
 
 dist_pkgluamodulesnogray_DATA = coord.lua transform.lua
 
+EXTRA_DIST = geometry.swg
+
 
 libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
 	cone-sample.h cyl-xform.cc cyl-xform.h dir-hist.h		\
