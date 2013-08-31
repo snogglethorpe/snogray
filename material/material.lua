@@ -1,6 +1,6 @@
 -- material.lua -- Material support
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -51,6 +51,10 @@ end
 -- Do common material post-processing to the material MAT, using
 -- parameters from the table PARAMS, and return MAT.  If PARAMS is not a
 -- table, it is ignored.
+--
+-- Parameters handled:
+--
+--   bump_map / bump
 --
 local function postproc_material (mat, params)
    if type (params) == 'table' then
@@ -132,15 +136,16 @@ material.ior = ior
 -- Individual materials
 --
 
--- Return a lambertian material with diffuse color DIFF (default 0.5),
--- and generic material properties PARAMS.
+-- material.lambert -- Return a lambertian material
 --
--- A single table may also be passed, in which case it can contain the
--- following entries:
+-- args: (DIFF, [PARAMS])
+--   or: { diffuse = DIFF, ...PARAMS... }
 --
---   "diff" / "diffuse" / 1  --  diffuse reflection color
+-- DIFF (default 0.5) is the color of diffuse reflection; it may be a
+-- color, a grey-level, or a texture of either sort.  PARAMS is a
+-- table of generic material parameters.
 --
--- + any generic material properties
+-- The "diffuse" keyword argument may also be spelled "diff" or "color".
 --
 function material.lambert (diff, params)
    if not is_color_val (diff) then
@@ -158,20 +163,26 @@ function material.lambert (diff, params)
    return postproc_material (raw.lambert (diff), params)
 end
 
--- Return a Cook-Torrance material with diffuse color DIFF, specular
--- color SPEC (default white), microfact slope M (default 0.1; larger
--- means duller), index of refraction _IOR (default 1.5), and generic
--- material properties PARAMS.
+-- material.cook_torrance -- Return a Cook-Torrance material
 --
--- A single table may also be passed, in which case it can contain the
--- following entries:
+-- A Cook-Torrance material is a "physically-based" surface model.
+-- It can range from dull to glossy, both plastic-like and metallic
+-- materials (the latter by using an imaginary IOR).
 --
---   "diff" / "diffuse" / 1   --  diffuse reflection color
---   "spec" / "specular" / 2  --  specular reflection color
---   "m"                      --  microfact slope
---   "ior"                    --  index of reflection
+-- args: (DIFF, SPEC, M, IOR, PARAMS)
+--   or: { diffuse = DIFF, specular = SPEC, m = M, ior = IOR, ...PARAMS... }
+-- 
+-- DIFF is the color of diffuse reflection, SPEC (default white) is
+-- the color of specular reflection, M (default 0.1) is the "microfacet
+-- slope" (larger means duller / less shiny), IOR (default 1.5) is the
+-- index of refraction.  DIFF and SPEC may be colors, grey-levels, or
+-- textures of either sort.  M may be a number or a floating-point
+-- texture.  PARAMS is a table of generic material parameters.
 --
--- + any generic material properties
+-- All parameters except DIFF are optional.
+--
+-- The "diffuse" keyword argument may also be spelled "diff" or "d".
+-- The "specular" keyword argument may also be spelled "spec" or "s".
 --
 function material.cook_torrance (diff, spec, m, _ior, params)
    if not is_color_val (diff) then
@@ -201,22 +212,23 @@ end
 
 local default_mirror_ior = ior (0.25, 3)
 
--- Return a mirror material with reflectance REFLECT (default white,
--- meaning perfect reflectance), index of refraction _IOR (default
--- 1.5), underlying material UNDER (default black), and generic
--- material properties PARAMS.
+-- material.mirror -- Return a mirror material
 --
--- A single table may also be passed, in which case it can contain the
--- following entries:
+-- args: (REFLECT, IOR, UNDER, PARAMS)
+--   or: (IOR)
+--   or: { reflect = REFLECT, ior = IOR, underlying = UNDER, ...PARAMS... }
 --
---   "reflect" / "reflectance" / 1  --  reflectance
---   "ior" / 3                      --  index of reflection
---   "underlying" / "under"/ 4      --  underlhying material
+-- REFLECT (default white, meaning perfect reflectance) is the
+-- reflectance, IOR (default 1.5) is the index of refraction, UNDER
+-- (default black) is an underlying material.  REFLECT may be a color,
+-- a grey-levels, or a textures of either sort.  UNDER should be
+-- either nil (for "nothing") or a material.  PARAMS is a table of
+-- generic material parameters.
 --
--- + any generic material properties
+-- All parameters are optional.
 --
--- If the first parameter is an index of refraction, it is used as the
--- mirror's index of refraction, and other parameters are defaulted.
+-- The "reflect" keyword argument may also be spelled "reflectance".
+-- The "underlying" keyword argument may also be spelled "under".
 --
 function material.mirror (reflect, _ior, under, params)
    if not is_color_val (reflect) then
@@ -248,17 +260,17 @@ function material.mirror (reflect, _ior, under, params)
    return postproc_material (raw.mirror (_ior, reflect, under), params)
 end
 
--- Return a glass material with index of refraction _IOR (default
--- 1.5), absorption ABSORB (default black, meaning no absorption), and
--- generic material properties PARAMS.
+-- material.glass -- Return a glass (transparent, volumetric) material
 --
--- A single table may also be passed, in which case it can contain the
--- following entries:
+-- args: (IOR, ABSORB, PARAMS)
+--   or: { ior = IOR, absorb = ABSORB, ...PARAMS... }
 --
---   "ior" / 1                      --  index of reflection
---   "absorb" / "absorption" / 2    --  absorption
+-- IOR (default 1.5) is the index of refraction, ABSORB (default no
+-- absorption) the color/amount of light absorbed over a given
+-- distance within the glass.  PARAMS is a table of generic material
+-- parameters.
 --
--- + any generic material properties
+-- All parameters are optional.
 --
 function material.glass (_ior, absorb, params)
    if not is_ior_spec (_ior) then
@@ -279,17 +291,17 @@ function material.glass (_ior, absorb, params)
    return postproc_material (raw.glass (raw.Medium (_ior, absorb)), params)
 end
 
--- Return a thin-glass material with index of refraction _IOR (default
--- 1.5), color COL (default white, meaning transparent), and generic
--- material properties PARAMS.
+-- material.thin_glass -- Return a "thin-glass" (transparent,
+--   non-volumetric) material
 --
--- A single table may also be passed, in which case it can contain the
--- following entries:
+-- args: (IOR, COLOR, PARAMS)
+--   or: { ior = IOR, color = COLOR, ...PARAMS... }
 --
---   "ior" / 1              --  index of reflection
---   "color" / "col" / 2    --  color
+-- IOR (default 1.5) is the index of refraction, COLOR (default
+-- transparent) is the color cast given to light passing through.
+-- PARAMS is a table of generic material parameters.
 --
--- + any generic material properties
+-- All parameters are optional.
 --
 function material.thin_glass (_ior, col, params)
    if not is_ior_spec (_ior) then
@@ -310,17 +322,20 @@ function material.thin_glass (_ior, col, params)
    return postproc_material (raw.thin_glass (col, _ior), params)
 end
 
--- Return a "glow" (light-emitting) material with color COL,
--- underlying material UNDER (default nothing), and generic material
--- properties PARAMS.
+-- material.glow -- Return a light-emitting material
 --
--- A single table may also be passed, in which case it can contain the
--- following entries:
+-- args: (COLOR, UNDER, PARAMS)
+--   or: { color = COLOR, underlying = UNDER, ...PARAMS... }
 --
---   "color" / "col" / 1           --  color
---   "underlying" / "under" / 2    --  underlying material
+-- COLOR is the intensity of the emitted light; it may be a color, a
+-- grey-level, or a texture of either sort.  UNDER (default nothing)
+-- is a material that controls reflection, or nil, meaning no
+-- reflection.  PARAMS is a table of generic material parameters.
 --
--- + any generic material properties
+-- All parameters except COLOR are optional.
+--
+-- The "color" keyword argument may also be spelled "col".
+-- The "underlying" keyword argument may also be spelled "under".
 --
 function material.glow (col, under, params)
    if not is_color_val (col) then
@@ -340,16 +355,30 @@ function material.glow (col, under, params)
    end
 end   
 
+-- material.norm_glow -- Return a light-emitting material for debugging
+--
+-- This special material emits light whose color corresponds to the
+-- normal of the underlying surface.
+--
+-- args: (INTENS)
+--
+-- INTENS is the intensity of the emitted light.
+--
 function material.norm_glow (intens)
    return raw.norm_glow (intens or 1)
 end   
 
--- Return a stencil material, which makes an underlying material
--- transparent or translucent, with degree of opacity OPACITY, and
--- underlying material UNDER
+-- material.stencil -- Return "stencil" material
 --
--- [Note that unlike most material constructors, this has no "table
--- form".]
+-- A stencil material can make an underlying material transparent or
+-- translucent, depending on the intensity (which may be a texture).
+--
+-- args: (OPACITY, UNDER)
+--
+-- OPACITY is the degree to which the underlying material shows
+-- through, UNDER is the underlying material.  OPACITY may be a number
+-- or a floating-point number; a value of 1 means UNDER is fully
+-- represented, and 0 is the same as no material at all.
 --
 function material.stencil (opacity, under)
    opacity = color_tex_val (opacity)
@@ -358,7 +387,7 @@ end
 
 
 ----------------------------------------------------------------
--- material dicts
+-- material dicts (obsolete?)
 --
 
 function material.is_material_dict (val)
