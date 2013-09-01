@@ -29,6 +29,10 @@ local float_tex_val = texture.float_tex_val
 -- Material predicates
 --
 
+-- material.is_material -- Material predicate
+--
+-- args: (OBJ)
+--
 -- Return true if OBJ is a snogray material.
 --
 local function is_material (val)
@@ -88,15 +92,24 @@ end
 -- Indices of refraction
 --
 
--- Return true if OBJ is an "index of refraction".
+-- material.is_ior -- IOR (index-of-refraction) predicate
+--
+-- args: (OBJ)
+--
+-- Return true if OBJ is an "index of refraction" object.
 --
 local function is_ior (val)
    return swig.type (val) == "Ior"
 end
 material.is_ior = is_ior
 
--- Return true if OBJ is something the material.ior function would
--- recognize.
+-- material.is_ior_spec -- IOR "spec" predicate
+--
+-- args: (OBJ)
+--
+-- Return true if OBJ is something that can be turned into an IOR:
+-- either an IOR object (as the material.ior function would return),
+-- or a valid argument for the material.ior function.
 --
 local function is_ior_spec (obj)
    local ot = type (obj)
@@ -117,7 +130,13 @@ local function is_ior_spec (obj)
 end
 material.is_ior_spec = is_ior_spec
 
--- Index of Refraction:  { n = REAL_IOR, k = IMAG_IOR }
+-- material.ior -- Return an IOR ("index of refraction")
+--
+-- args: (N, K)
+--   or: { n = REAL_IOR, k = IMAG_IOR }
+--
+-- Return an index-of-refraction object, where N and K are its real
+-- and imaginary components.
 --
 local function ior (n, k)
    if (type (n) == "number" or  is_ior (n)) and not k then
