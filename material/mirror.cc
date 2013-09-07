@@ -37,10 +37,12 @@ class MirrorBsdf : public Bsdf
 {
 public:
 
-  MirrorBsdf (const Mirror &_mirror, const Intersect &_isec)
+  MirrorBsdf (const Mirror &_mirror,
+	      const Intersect &_isec, const TexCoords &tex_coords)
     : Bsdf (_isec),
       underlying_bsdf (_mirror.underlying_material
-		       ? _mirror.underlying_material->get_bsdf (_isec)
+		       ? _mirror.underlying_material->get_bsdf (_isec,
+								tex_coords)
 		       : 0),
       fres (isec.media.medium.ior, _mirror.ior),
       reflectance (_mirror.reflectance.eval (isec))
@@ -141,9 +143,9 @@ private:
 // Make a BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-Mirror::get_bsdf (const Intersect &isec) const
+Mirror::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
-  return new (isec) MirrorBsdf (*this, isec);
+  return new (isec) MirrorBsdf (*this, isec, tex_coords);
 }
 
 

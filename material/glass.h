@@ -28,7 +28,8 @@ public:
 
   // Return a new BSDF object for this material instantiated at ISEC.
   //
-  virtual Bsdf *get_bsdf (const Intersect &isec) const;
+  virtual Bsdf *get_bsdf (const Intersect &isec, const TexCoords &tex_coords)
+    const;
 
   // Return the medium of this material (used only for refraction).
   //

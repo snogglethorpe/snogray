@@ -58,7 +58,8 @@ public:
   Material (unsigned _flags = 0) : bump_map (0), flags (_flags)  { }
   virtual ~Material () { }
 
-  // Return a new Bsdf object for this material instantiated at ISEC.
+  // Return a new Bsdf object for this material instantiated at ISEC,
+  // with texture-coordinates TEX_COORDS.
   //
   // Bsdf objects are allocated extremely often, and they need to
   // follow certain rules:
@@ -75,7 +76,10 @@ public:
   // objects for memory management purposes, and no attempt is made to
   // do so.
   //
-  virtual Bsdf *get_bsdf (const Intersect &/*isec*/) const { return 0; }
+  virtual Bsdf *get_bsdf (const Intersect &/*isec*/,
+			  const TexCoords &/*tex_coords*/)
+    const
+  { return 0; }
 
   // Return the medium of this material (used only for refraction).
   //

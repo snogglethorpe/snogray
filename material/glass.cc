@@ -201,7 +201,7 @@ private:
 // Return a new BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-Glass::get_bsdf (const Intersect &isec) const
+Glass::get_bsdf (const Intersect &isec, const TexCoords &) const
 {
   return new (isec) GlassBsdf (_medium, isec);
 }

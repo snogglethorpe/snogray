@@ -134,10 +134,10 @@ private:
 // Return a new BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-Stencil::get_bsdf (const Intersect &isec) const
+Stencil::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
   Color opac = opacity.eval (isec);
-  Bsdf *underlying_bsdf = underlying_material->get_bsdf (isec);
+  Bsdf *underlying_bsdf = underlying_material->get_bsdf (isec, tex_coords);
   
   // This is a common situation, so it's worth optimizing for it.
   //

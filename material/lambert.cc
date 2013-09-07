@@ -90,7 +90,7 @@ private:
 // Make a BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-Lambert::get_bsdf (const Intersect &isec) const
+Lambert::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
   return new (isec) LambertBsdf (*this, isec);
 }

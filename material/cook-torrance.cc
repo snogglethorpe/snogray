@@ -371,7 +371,7 @@ private:
 // Return a new BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-CookTorrance::get_bsdf (const Intersect &isec) const
+CookTorrance::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
   return new (isec) CookTorranceBsdf (*this, isec);
 }

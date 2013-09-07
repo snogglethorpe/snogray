@@ -109,7 +109,7 @@ private:
 // Return a new BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-ThinGlass::get_bsdf (const Intersect &isec) const
+ThinGlass::get_bsdf (const Intersect &isec, const TexCoords &) const
 {
   return new (isec) ThinGlassBsdf (*this, isec);
 }

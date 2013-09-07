@@ -78,6 +78,7 @@ bump_map (Frame &normal_frame, const Ref<const Tex<float> > &tex,
 }
 
 
+// Shared initialization
 
 // Finish initialization.  This method is called by all constructors.
 //
@@ -128,7 +129,7 @@ Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
   // intersect object as argument to Material::get_bsdf, and we want it to
   // be in a consistent state.
   //
-  bsdf = material.get_bsdf (*this);
+  bsdf = material.get_bsdf (*this, tex_coords);
 }
 
 

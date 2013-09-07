@@ -1,6 +1,6 @@
 // phog.h -- Phong material
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -29,7 +29,8 @@ public:
 
   // Return a new BSDF object for this material instantiated at ISEC.
   //
-  virtual Bsdf *get_bsdf (const Intersect &isec) const;
+  virtual Bsdf *get_bsdf (const Intersect &isec, const TexCoords &tex_coords)
+    const;
 
   Color color, specular_color;
 

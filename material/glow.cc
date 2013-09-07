@@ -42,9 +42,11 @@ Glow::Le (const Intersect &isec, const TexCoords &tex_coords) const
 // Return a new BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-Glow::get_bsdf (const Intersect &isec) const
+Glow::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
-  return underlying_material ? underlying_material->get_bsdf (isec) : 0;
+  return (underlying_material
+	  ? underlying_material->get_bsdf (isec, tex_coords)
+	  : 0);
 }
 
 // Return the medium of this material (used only for refraction).

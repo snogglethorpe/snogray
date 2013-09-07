@@ -181,7 +181,7 @@ private:
 // Make a BSDF object for this material instantiated at ISEC.
 //
 Bsdf *
-Phong::get_bsdf (const Intersect &isec) const
+Phong::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
   return new (isec) PhongBsdf (*this, isec);
 }
