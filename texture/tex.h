@@ -49,6 +49,9 @@ public:
   template<typename T2>
   TexVal (const Ref<Tex<T2> > &_tex) : tex (_tex), default_val (0) { }
 
+  template<typename T2>
+  TexVal (const Ref<const Tex<T2> > &_tex) : tex (_tex), default_val (0) { }
+
   TexVal &operator= (const T &val)
   {
     tex = 0;
