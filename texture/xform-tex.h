@@ -1,6 +1,6 @@
 // xform-tex.h -- Texture coordinate transform
 //
-//  Copyright (C) 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2008, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,32 +13,25 @@
 #ifndef SNOGRAY_XFORM_TEX_H
 #define SNOGRAY_XFORM_TEX_H
 
+
+#include "geometry/xform.h"
+
 #include "tex.h"
 
 
 namespace snogray {
 
 
-// A texture which transforms the texture coordinates.
-// Both 2d and 3d coordinates are transformed.
+// Base class for XformTex classes
 //
 template<typename T>
-class XformTex : public Tex<T>
+class XformTexBase : public Tex<T>
 {
 public:
 
-  XformTex (const Xform &_xform, const TexVal<T> &_tex)
+  XformTexBase (const Xform &_xform, const TexVal<T> &_tex)
     : xform (_xform), tex (_tex)
   { }
-
-  // Evaluate this texture at TEX_COORDS.
-  //
-  virtual T eval (const TexCoords &tex_coords) const
-  {
-    Pos xpos = xform (tex_coords.pos);
-    UV xuv = xform (tex_coords.uv);
-    return tex.eval (TexCoords (xpos, xuv));
-  }
 
   // Transformation to use.  The same transform is used for both 2d and 3d
   // coordinates (the 2d coordinates are mapped to the x-y plane).
@@ -48,6 +41,71 @@ public:
   // Texture which will be used to texture the transformed coordinates.
   //
   TexVal<T> tex;
+};
+
+
+// A texture which transforms the texture coordinates.
+// Both UV and positional coordinates are transformed.
+//
+template<typename T>
+class XformTex : public XformTexBase<T>
+{
+public:
+
+  XformTex (const Xform &_xform, const TexVal<T> &_tex)
+    : XformTexBase<T> (_xform, _tex)
+  { }
+
+  // Evaluate this texture at TEX_COORDS.
+  //
+  virtual T eval (const TexCoords &tex_coords) const
+  {
+    Pos xpos = XformTexBase<T>::xform (tex_coords.pos);
+    UV xuv = XformTexBase<T>::xform (tex_coords.uv);
+    return XformTexBase<T>::tex.eval (TexCoords (xpos, xuv));
+  }
+};
+
+
+// A texture which transforms texture UV coordinates.
+//
+template<typename T>
+class XformTexUV : public XformTexBase<T>
+{
+public:
+
+  XformTexUV (const Xform &_xform, const TexVal<T> &_tex)
+    : XformTexBase<T> (_xform, _tex)
+  { }
+
+  // Evaluate this texture at TEX_COORDS.
+  //
+  virtual T eval (const TexCoords &tex_coords) const
+  {
+    UV xuv = XformTexBase<T>::xform (tex_coords.uv);
+    return XformTexBase<T>::tex.eval (TexCoords (tex_coords.pos, xuv));
+  }
+};
+
+
+// A texture which transforms texture positional coordinates.
+//
+template<typename T>
+class XformTexPos : public XformTexBase<T>
+{
+public:
+
+  XformTexPos (const Xform &_xform, const TexVal<T> &_tex)
+    : XformTexBase<T> (_xform, _tex)
+  { }
+
+  // Evaluate this texture at TEX_COORDS.
+  //
+  virtual T eval (const TexCoords &tex_coords) const
+  {
+    Pos xpos = XformTexBase<T>::xform (tex_coords.pos);
+    return XformTexBase<T>::tex.eval (TexCoords (xpos, tex_coords.uv));
+  }
 };
 
 
