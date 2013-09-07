@@ -14,7 +14,6 @@
 #define SNOGRAY_TEX_H
 
 #include "util/ref.h"
-#include "intersect/intersect.h"
 #include "tex-coords.h"
 
 
@@ -62,13 +61,6 @@ public:
   {
     tex = _tex;
     return *this;
-  }
-
-  // Evaluate this texture at ISEC..
-  //
-  T eval (const Intersect &isec) const
-  {
-    return eval (isec.tex_coords);
   }
 
   // Evaluate this texture at TEX_COORDS.
