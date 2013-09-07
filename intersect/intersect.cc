@@ -22,6 +22,7 @@
 using namespace snogray;
 
 
+// Bump mapping
 
 // Use the bump-map TEX to perturb NORMAL_FRAME.
 //
@@ -85,6 +86,8 @@ bump_map (Frame &normal_frame, const Ref<const Tex<float> > &tex,
 void
 Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
 {
+  TexCoords tex_coords (normal_frame.origin, tex_coords_uv);
+
   if (material.bump_map)
     bump_map (normal_frame, material.bump_map, tex_coords, dTds, dTdt);
 
@@ -133,6 +136,7 @@ Intersect::finish_init (const Ray &ray, const UV &dTds, const UV &dTdt)
 }
 
 
+// Constructors
 
 Intersect::Intersect (const Ray &ray, const Media &_media,
 		      RenderContext &_context,
@@ -142,8 +146,8 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
   : normal_frame (_normal_frame), geom_frame (_normal_frame),
     // v and back are initialized by Intersect::finish_init
     material (_material),
-    tex_coords (normal_frame.origin, _tex_coords_uv),
-    media (_media), context (_context)
+    media (_media), context (_context),
+    tex_coords_uv (_tex_coords_uv)
 {
   finish_init (ray, dTds, dTdt);
 }
@@ -156,8 +160,8 @@ Intersect::Intersect (const Ray &ray, const Media &_media,
   : normal_frame (_normal_frame), geom_frame (_geom_frame),
     // v, geom_n, and back are initialized by Intersect::finish_init
     material (_material),
-    tex_coords (normal_frame.origin, _tex_coords_uv),
-    media (_media), context (_context)
+    media (_media), context (_context),
+    tex_coords_uv (_tex_coords_uv)
 {
   finish_init (ray, dTds, dTdt);
 }
@@ -168,8 +172,8 @@ Intersect::Intersect (const Intersect &isec)
   : normal_frame (isec.normal_frame), geom_frame (isec.geom_frame),
     v (isec.v), geom_n (isec.geom_n), back (isec.back),
     material (isec.material), bsdf (isec.bsdf),
-    tex_coords (isec.tex_coords),
-    media (isec.media), context (isec.context)
+    media (isec.media), context (isec.context),
+    tex_coords_uv (isec.tex_coords_uv)
 {
 }
 
@@ -180,7 +184,7 @@ Intersect::Intersect (const Intersect &isec)
 //
 Color Intersect::Le () const
 {
-  return material.Le (*this, tex_coords);
+  return material.Le (*this, TexCoords (normal_frame.origin, tex_coords_uv));
 }
 
 

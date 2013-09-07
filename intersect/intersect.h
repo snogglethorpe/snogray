@@ -154,10 +154,6 @@ public:
   //
   const Bsdf *bsdf;
 
-  // Texture coordinates for this intersection.
-  //
-  TexCoords tex_coords;
-
   // Media surrounding this intersection; the innermost is that through
   // which RAY came.
   //
@@ -172,6 +168,12 @@ private:
   // Finish initialization.  This method is called by all constructors.
   //
   void finish_init (const Ray &ray, const UV &dTds, const UV &dTdt);
+
+  // Surface UV texture coordinates for this intersection.  This field
+  // is private because these are the "raw" texture-coordinates, which
+  // are not correct in all contexts.
+  //
+  UV tex_coords_uv;
 };
 
 
