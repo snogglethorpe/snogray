@@ -41,11 +41,12 @@ public:
   //
   static float glossy_m () { return 0.5; }
 
-  CookTorranceBsdf (const CookTorrance &ct, const Intersect &_isec)
+  CookTorranceBsdf (const CookTorrance &ct,
+		    const Intersect &_isec, const TexCoords &tex_coords)
     : Bsdf (_isec),
-      m (ct.m.eval (isec)), gloss_dist (m), diff_dist (),
-      diff_col (ct.color.eval (isec)),
-      gloss_col (ct.gloss_color.eval (isec)),
+      m (ct.m.eval (tex_coords)), gloss_dist (m), diff_dist (),
+      diff_col (ct.color.eval (tex_coords)),
+      gloss_col (ct.gloss_color.eval (tex_coords)),
       diff_intens (diff_col.intensity ()),
       gloss_intens (gloss_col.intensity ()),
       diff_weight ((diff_intens + gloss_intens) == 0
@@ -373,7 +374,7 @@ private:
 Bsdf *
 CookTorrance::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
-  return new (isec) CookTorranceBsdf (*this, isec);
+  return new (isec) CookTorranceBsdf (*this, isec, tex_coords);
 }
 
 
