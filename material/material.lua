@@ -387,6 +387,11 @@ function material.norm_glow (intens)
    return raw.norm_glow (intens or 1)
 end   
 
+
+----------------------------------------------------------------
+-- Function materials
+--
+
 -- material.stencil -- Return "stencil" material
 --
 -- A stencil material can make an underlying material transparent or
@@ -403,6 +408,37 @@ function material.stencil (opacity, under)
    opacity = color_tex_val (opacity)
    return raw.stencil (opacity, under)
 end
+
+-- material.xform -- Transform material texture coordinates (both UV
+--	and positional)
+--
+-- args: (XFORM, MAT)
+--
+-- This material has the same properties as MAT, except that all
+-- texture coordinates are transformed by transformation-matrix XFORM
+-- before MAT gets them.
+--
+material.xform = raw.xform_material
+
+-- material.xform_uv -- Transform material texture UV coordinates
+--
+-- args: (XFORM, MAT)
+--
+-- This material has the same properties as MAT, except that all
+-- texture UV coordinates are transformed by transformation-matrix
+-- XFORM before MAT gets them.
+--
+material.xform_uv = raw.xform_material_uv
+
+-- material.xform_pos -- Transform material texture position coordinates
+--
+-- args: (XFORM, MAT)
+--
+-- This material has the same properties as MAT, except that all
+-- texture position coordinates are transformed by
+-- transformation-matrix XFORM before MAT gets them.
+--
+material.xform_pos = raw.xform_material_pos
 
 
 ----------------------------------------------------------------

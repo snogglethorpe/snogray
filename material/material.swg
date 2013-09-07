@@ -22,6 +22,7 @@
 #include "material/stencil.h"
 #include "material/cook-torrance.h"
 #include "material/lambert.h"
+#include "material/xform-material.h"
 %}
 
 
@@ -137,6 +138,17 @@ namespace snogray {
     }
   }
 
+  // Try to make transforms appliable to textures too.. ugh... soooo
+  // many SWIG bugs....
+  //
+  %extend TXform<dist_t>
+  {
+    snogray::Ref<snogray::Material> operator () (const snogray::Ref<snogray::Material> &obj) const
+    {
+      return new snogray::XformMaterial (*$self, obj);
+    }
+  }
+
 
 } // namespace snogray
 
@@ -241,6 +253,22 @@ namespace snogray {
       return new NormGlow (intens);
     }
 
+    // XformMaterial, XformMaterialUV, XformMaterialPos
+    static Ref<Material>
+    xform_material (const Xform &xform, const Ref<Material> &material)
+    {
+      return new XformMaterial (xform, material);
+    }
+    static Ref<Material>
+    xform_material_uv (const Xform &xform, const Ref<Material> &material)
+    {
+      return new XformMaterialUV (xform, material);
+    }
+    static Ref<Material>
+    xform_material_pos (const Xform &xform, const Ref<Material> &material)
+    {
+      return new XformMaterialPos (xform, material);
+    }
 
   }
 %}

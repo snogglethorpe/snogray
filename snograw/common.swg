@@ -22,6 +22,7 @@
 #include "geometry/xform.h"
 #include "geometry/xform-io.h"
 #include "color/color.h" // ugh, swig crap
+#include "material/xform-material.h" // ugh, swig crap
 #include "texture/xform-tex.h" // ugh
 %}
 
