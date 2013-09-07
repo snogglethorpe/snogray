@@ -580,12 +580,24 @@ Mesh::Triangle::occludes (const Ray &ray, const Medium &medium,
   dist_t t, u, v;
   if (triangle_intersects (corner, edge1, edge2, ray, t, u, v))
     {
-      // avoid calculating texture coords if possible
+      // Avoid unnecessary calculation if possible.
       if (mesh.material->fully_occluding ())
 	return true;
 
       IsecInfo isec_info (Ray (ray, t), *this, u, v);
-      return mesh.material->occludes (isec_info, medium, total_transmittance);
+      if (mesh.material->occlusion_requires_tex_coords ())
+	{
+	  UV T0, dTdu, dTdv;
+	  get_texture_params (T0, dTdu, dTdv);
+	  UV T = T0 + dTdu * u + dTdv * v;
+
+	  TexCoords tex_coords (ray (t), T);
+
+	  return mesh.material->occludes (isec_info, tex_coords, medium,
+					  total_transmittance);
+	}
+      else
+	return mesh.material->occludes (isec_info, medium, total_transmittance);
     }
 
   return false;

@@ -128,12 +128,22 @@ Sphere::occludes (const Ray &ray, const Medium &medium,
   dist_t t;
   if (sphere_intersects (frame.origin, radius, ray, t))
     {
-      // avoid calculating texture coords if possible
+      // Avoid unnecessary calculation if possible.
       if (material->fully_occluding ())
 	return true;
 
       IsecInfo isec_info (Ray (ray, t), *this);
-      return material->occludes (isec_info, medium, total_transmittance);
+      if (material->occlusion_requires_tex_coords ())
+	{
+	  Pos pos = ray (t);
+	  UV tex_coords_uv = tex_coords (frame.to (pos));
+	  TexCoords tex_coords (pos, tex_coords_uv);
+
+	  return material->occludes (isec_info, tex_coords, medium,
+				     total_transmittance);
+	}
+      else
+	return material->occludes (isec_info, medium, total_transmittance);
     }
 
   return false;

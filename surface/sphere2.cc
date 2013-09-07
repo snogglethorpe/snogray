@@ -125,12 +125,19 @@ Sphere2::occludes (const Ray &ray, const Medium &medium,
   dist_t t;
   if (sphere_intersects (Pos(0,0,0), dist_t(1), oray, t))
     {
-      // avoid calculating texture coords if possible
+      // Avoid unnecessary calculation if possible.
       if (material->fully_occluding ())
 	return true;
 
-      IsecInfo isec_info (Ray (ray, t), *this, Vec (oray (t)));
-      return material->occludes (isec_info, medium, total_transmittance);
+      Vec onorm (oray (t));
+
+      IsecInfo isec_info (Ray (ray, t), *this, onorm);
+      if (material->occlusion_requires_tex_coords ())
+	return material->occludes (isec_info,
+				   TexCoords (ray (t), tex_coords (onorm)),
+				   medium, total_transmittance);
+      else
+	return material->occludes (isec_info, medium, total_transmittance);
     }
   return false;
 }

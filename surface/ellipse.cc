@@ -116,12 +116,16 @@ Ellipse::occludes (const Ray &ray, const Medium &medium,
   dist_t t, u, v;
   if (intersects (ray, t, u, v))
     {
-      // avoid calculating texture coords if possible
+      // Avoid unnecessary calculation if possible.
       if (material->fully_occluding ())
 	return true;
 
       IsecInfo isec_info (Ray (ray, t), *this, UV (u, v));
-      return material->occludes (isec_info, medium, total_transmittance);
+      if (material->occlusion_requires_tex_coords ())
+	return material->occludes (isec_info, TexCoords (ray (t), UV (u, v)),
+				   medium, total_transmittance);
+      else
+	return material->occludes (isec_info, medium, total_transmittance);
     }
   return false;
 }

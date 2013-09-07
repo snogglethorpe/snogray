@@ -157,8 +157,10 @@ Stencil::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 // direction) may return zero from this method.
 //
 Color
-Stencil::transmittance (const Surface::IsecInfo &isec_info, const Medium &)
+Stencil::transmittance (const Surface::IsecInfo &isec_info,
+			const TexCoords &tex_coords,
+			const Medium &)
   const
 {
-  return max (1 - opacity.eval (isec_info.tex_coords ()), 0);
+  return max (1 - opacity.eval (tex_coords), 0);
 }

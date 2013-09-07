@@ -41,7 +41,8 @@ public:
     const;
 
   // Return the transmittance of this material at the intersection
-  // described by ISEC_INFO in medium MEDIUM.
+  // described by ISEC_INFO, with texture-coordinates TEX_COORDS, in
+  // medium MEDIUM.
   //
   // Note that this method only applies to "simple"
   // transparency/translucency, where transmitted rays don't change
@@ -50,6 +51,7 @@ public:
   // the direction) may return zero from this method.
   //
   virtual Color transmittance (const Surface::IsecInfo &isec_info,
+			       const TexCoords &tex_coords,
 			       const Medium &medium)
     const;
 
