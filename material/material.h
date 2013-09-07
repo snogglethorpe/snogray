@@ -45,7 +45,14 @@ public:
 
     // This material may emit light.
     //
-    EMITS_LIGHT = 0x2
+    EMITS_LIGHT = 0x2,
+
+    // This material may use texture-coordinates in its
+    // occlusion/transparency calculations, so the appropriate version
+    // of Material::occludes or Material::transmittance with
+    // texture-coordinates as an argument should be called.
+    //
+    OCCLUSION_REQUIRES_TEX_COORDS = 0x4
   };
 
   Material (unsigned _flags = 0) : bump_map (0), flags (_flags)  { }
@@ -86,8 +93,21 @@ public:
   //
   bool fully_occluding () const { return ! (flags & PARTIALLY_OCCLUDING); }
 
+  // Return true if occlusion-testing for this material requires
+  // texture-coordinates, meaning that the variant of
+  // Material::occludes which takes a TexCoords argument should be
+  // called (and internally, that the version of
+  // Material::transmittance taking a TexCoords argument should be
+  // called).
+  //
+  bool occlusion_requires_tex_coords () const
+  {
+    return (flags & OCCLUSION_REQUIRES_TEX_COORDS);
+  }
+
   // Return the transmittance of this material at the intersection
-  // described by ISEC_INFO in medium MEDIUM.
+  // described by ISEC_INFO, with texture-coordinates TEX_COORDS, in
+  // medium MEDIUM.
   //
   // Note that this method only applies to "simple"
   // transparency/translucency, where transmitted rays don't change
@@ -95,7 +115,24 @@ public:
   // which exhibit more complex effects like refraction (which change
   // the direction) may return zero from this method.
   //
+  // There are two variants of this method: one which takes texture-
+  // coordinates as an argument, and one which does not.  If the
+  // material flag Material::OCCLUSION_REQUIRES_TEX_COORDS is set, the
+  // former will be called, otherwise the latter.  This is done
+  // because calculating texture-coordinate can be expensive, and we'd
+  // like to only do those calculations if necessary.  Subclasses
+  // overriding this method should set the flag appropriately and
+  // override whichever variants of Material::transmittance may be
+  // called as a result.
+  //
   virtual Color transmittance (const Surface::IsecInfo &/*isec_info*/,
+			       const Medium &/* medium */)
+    const
+  {
+    return 0;
+  }
+  virtual Color transmittance (const Surface::IsecInfo &/*isec_info*/,
+			       const TexCoords &/*tex_coords*/,
 			       const Medium &/* medium */)
     const
   {
@@ -103,14 +140,22 @@ public:
   }
 
   // Return true if this material completely occludes a ray at the
-  // intersection described by ISEC_INFO.  If it does not, then return
-  // false, and multiply TOTAL_TRANSMITTANCE by the transmittance of
-  // the material at ISEC_INFO in medium MEDIUM.
+  // intersection described by ISEC_INFO, with texture-coordinates
+  // TEX_COORDS.  If it does not, then return false, and multiply
+  // TOTAL_TRANSMITTANCE by the transmittance of the material at
+  // ISEC_INFO in medium MEDIUM.
   //
   // Note that this method does not try to handle non-trivial forms of
   // transparency/translucency (for instance, a "glass" material is
   // probably considered opaque because it changes light direction as
   // well as transmitting it).
+  //
+  // There are two variants of this method: one which takes
+  // texture-coordinates as an argument, and one which does not.  If
+  // the material flag Material::OCCLUSION_REQUIRES_TEX_COORDS is set,
+  // the former should be called, otherwise the latter.  This is done
+  // because calculating texture-coordinate can be expensive, and we'd
+  // like to only do those calculations if necessary.
   //
   bool occludes (const Surface::IsecInfo &isec_info, const Medium &medium,
 		 Color &total_transmittance)
@@ -121,6 +166,19 @@ public:
       return true;
 
     total_transmittance *= transmittance (isec_info, medium);
+    return total_transmittance < Eps;
+  }
+  bool occludes (const Surface::IsecInfo &isec_info,
+		 const TexCoords &tex_coords,
+		 const Medium &medium,
+		 Color &total_transmittance)
+    const
+  {
+    // avoid calling Material::transmittance if possible
+    if (fully_occluding ())
+      return true;
+
+    total_transmittance *= transmittance (isec_info, tex_coords, medium);
     return total_transmittance < Eps;
   }
 
