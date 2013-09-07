@@ -45,7 +45,7 @@ public:
 								tex_coords)
 		       : 0),
       fres (isec.media.medium.ior, _mirror.ior),
-      reflectance (_mirror.reflectance.eval (isec))
+      reflectance (_mirror.reflectance.eval (tex_coords))
   { }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
