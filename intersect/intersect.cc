@@ -179,7 +179,7 @@ Intersect::Intersect (const Intersect &isec)
 //
 Color Intersect::Le () const
 {
-  return material.Le (*this);
+  return material.Le (*this, tex_coords);
 }
 
 

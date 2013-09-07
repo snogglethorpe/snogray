@@ -83,7 +83,9 @@ public:
 
   // Return emitted radiance from this light, at the point described by ISEC.
   //
-  virtual Color Le (const Intersect &/*isec*/) const { return 0; }
+  virtual Color Le (const Intersect &/*isec*/, const TexCoords &/*tex_coords*/)
+    const
+  { return 0; }
 
   // Return true if this material emits light.
   //

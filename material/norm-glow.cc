@@ -20,7 +20,7 @@ using namespace snogray;
 // Return emitted radiance from this light, at the point described by ISEC.
 //
 Color
-NormGlow::Le (const Intersect &isec) const
+NormGlow::Le (const Intersect &isec, const TexCoords &) const
 {
   const Vec &n = isec.normal_frame.z;
   return Color (float (n.x) * 0.5f + 0.5f,

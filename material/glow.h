@@ -39,7 +39,7 @@ public:
 
   // Return emitted radiance from this light, at the point described by ISEC.
   //
-  virtual Color Le (const Intersect &isec) const;
+  virtual Color Le (const Intersect &isec, const TexCoords &tex_coords) const;
 
   // If this is a light-emitting material, call PRIMITIVE's
   // Primitive::add_light method with an appropriate intensity to add a
