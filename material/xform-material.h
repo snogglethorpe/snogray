@@ -16,7 +16,7 @@
 #include "texture/tex.h"
 #include "geometry/xform.h"
 
-#include "material.h"
+#include "material-wrapper.h"
 
 
 namespace snogray {
@@ -24,19 +24,11 @@ namespace snogray {
 
 // Common base class for XformMaterialUV and XformMaterialPos.
 //
-class XformMaterialBase : public Material
+class XformMaterialBase : public MaterialWrapper
 {
 public:
 
   XformMaterialBase (const Xform &_xform, const Ref<const Material> &_material);
-
-  // If this is a light-emitting material, call PRIMITIVE's
-  // Primitive::add_light method with an appropriate intensity to add a
-  // light to LIGHTS (for non-light-emitting materials, do nothing).
-  //
-  virtual void add_light (const Primitive &primitive,
-			  std::vector<Light *> &lights)
-    const;
 
 protected:
 
@@ -44,10 +36,6 @@ protected:
   // coordinates (the 2d coordinates are mapped to the x-y plane).
   //
   Xform xform;
-
-  // Material which is transformed.
-  //
-  Ref<const Material> material;
 };
 
 

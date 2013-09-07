@@ -23,20 +23,8 @@ using namespace snogray;
 
 XformMaterialBase::XformMaterialBase (const Xform &_xform,
 				      const Ref<const Material> &_material)
-  : Material (_material->flags), xform (_xform), material (_material)
+  : MaterialWrapper (_material), xform (_xform)
 {
-}
-
-// If this is a light-emitting material, call PRIMITIVE's
-// Primitive::add_light method with an appropriate intensity to add a
-// light to LIGHTS (for non-light-emitting materials, do nothing).
-//
-void
-XformMaterialBase::add_light (const Primitive &primitive,
-			      std::vector<Light *> &lights)
-  const
-{
-  material->add_light (primitive, lights);
 }
 
 
