@@ -29,8 +29,9 @@ class LambertBsdf : public Bsdf
 {
 public:
 
-  LambertBsdf (const Lambert &_lambert, const Intersect &_isec)
-    : Bsdf (_isec), color (_lambert.color.eval (_isec))
+  LambertBsdf (const Lambert &_lambert,
+	       const Intersect &_isec, const TexCoords &tex_coords)
+    : Bsdf (_isec), color (_lambert.color.eval (tex_coords))
   { }
 
   // Return a sample of this BSDF, based on the parameter PARAM.
@@ -92,7 +93,7 @@ private:
 Bsdf *
 Lambert::get_bsdf (const Intersect &isec, const TexCoords &tex_coords) const
 {
-  return new (isec) LambertBsdf (*this, isec);
+  return new (isec) LambertBsdf (*this, isec, tex_coords);
 }
 
 
