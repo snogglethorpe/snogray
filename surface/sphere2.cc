@@ -80,14 +80,6 @@ Sphere2::IsecInfo::make_intersect (const Media &media, RenderContext &context) c
 		    sphere.tex_coords (onorm), dTds, dTdt);
 }
 
-// Return the texture-coordinates of this intersection.
-//
-TexCoords
-Sphere2::IsecInfo::tex_coords () const
-{
-  return TexCoords (ray.end(), sphere.tex_coords (onorm));
-}
-
 // Return the normal of this intersection (in the world frame).
 //
 Vec

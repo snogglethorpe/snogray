@@ -69,14 +69,6 @@ Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
   return isec;
 }
 
-// Return the texture-coordinates of this intersection.
-//
-TexCoords
-Instance::IsecInfo::tex_coords () const
-{
-  throw std::runtime_error ("Instance::IsecInfo::tex_coords");
-}
-
 // Return the normal of this intersection (in the world frame).
 //
 Vec

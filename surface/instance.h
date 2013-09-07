@@ -76,7 +76,6 @@ private:
 				      RenderContext &context)
       const;
 
-    virtual TexCoords tex_coords () const;
     virtual Vec normal () const;
 
     const Instance &instance;

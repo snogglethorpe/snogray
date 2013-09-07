@@ -522,17 +522,6 @@ Mesh::Triangle::IsecInfo::make_intersect (const Media &media, RenderContext &con
 		    normal_frame, geom_frame, T, dTds,dTdt);
 }
 
-// Return the texture-coordinates of this intersection.
-//
-TexCoords
-Mesh::Triangle::IsecInfo::tex_coords () const
-{
-  UV T0, dTdu, dTdv;
-  triangle.get_texture_params (T0, dTdu, dTdv);
-  UV T = T0 + dTdu * u + dTdv * v;
-  return TexCoords (ray.end(), T);
-}
-
 // Return the normal of this intersection (in the world frame).
 //
 Vec

@@ -419,7 +419,6 @@ private:
     virtual Intersect make_intersect (const Media &media, RenderContext &context)
       const;
 
-    virtual TexCoords tex_coords () const;
     virtual Vec normal () const;
 
     // Return a normal frame FRAME at ORIGIN, with basis vectors

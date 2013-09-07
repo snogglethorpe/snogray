@@ -137,10 +137,6 @@ public:
   virtual Intersect make_intersect (const Media &media, RenderContext &context)
     const = 0;
 
-  // Return the texture-coordinates of this intersection.
-  //
-  virtual TexCoords tex_coords () const = 0;
-
   // Return the normal of this intersection (in the world frame).
   //
   virtual Vec normal () const = 0;

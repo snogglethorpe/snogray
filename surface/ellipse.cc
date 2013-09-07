@@ -73,14 +73,6 @@ Ellipse::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 		    norm_frame, uv, dTds, dTdt);
 }
 
-// Return the texture-coordinates of this intersection.
-//
-TexCoords
-Ellipse::IsecInfo::tex_coords () const
-{
-  return TexCoords (ray.end (), uv);
-}
-
 // Return the normal of this intersection (in the world frame).
 //
 Vec

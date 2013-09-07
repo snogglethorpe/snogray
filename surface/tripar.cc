@@ -69,14 +69,6 @@ Tripar::IsecInfo::make_intersect (const Media &media, RenderContext &context) co
 		    normal_frame, UV (u, v), dTds, dTdt);
 }
 
-// Return the texture-coordinates of this intersection.
-//
-TexCoords
-Tripar::IsecInfo::tex_coords () const
-{
-  return TexCoords (ray.end(), UV (u, v));
-}
-
 // Return the normal of this intersection (in the world frame).
 //
 Vec

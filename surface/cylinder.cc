@@ -142,14 +142,6 @@ Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 		    cylinder.tex_coords_uv (isec_point), dTds, dTdt);
 }
 
-// Return the texture-coordinates of this intersection.
-//
-TexCoords
-Cylinder::IsecInfo::tex_coords () const
-{
-  return TexCoords (ray.end(), cylinder.tex_coords_uv (isec_point));
-}
-
 // Return the normal of this intersection (in the world frame).
 //
 Vec
