@@ -172,5 +172,15 @@ Intersect::Intersect (const Intersect &isec)
 {
 }
 
+
+// Misc methods
+
+// Return directly-emitted radiance from this intersection.
+//
+Color Intersect::Le () const
+{
+  return material.Le (*this);
+}
+
 
 // arch-tag: 4e2a9676-9a81-4f69-8702-194e8b9158a9

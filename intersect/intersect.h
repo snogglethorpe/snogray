@@ -54,6 +54,10 @@ public:
   //
   Intersect (const Intersect &isec);
 
+  // Return directly-emitted radiance from this intersection.
+  //
+  Color Le () const;
+
   // Return the cosine of the angle between the surface normal and VEC.
   // VEC must be in this intersection's normal frame, and must be
   // normalized.

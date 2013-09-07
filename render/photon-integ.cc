@@ -370,8 +370,7 @@ PhotonInteg::Lo_fgather_samp (const Intersect &isec, const Media &media,
 	  // according to INDIR_EMISSION_SCALE.
 	  //
 	  if (depth != 0)
-	    radiance
-	      += samp_isec.material.Le (samp_isec) * indir_emission_scale;
+	    radiance += samp_isec.Le () * indir_emission_scale;
 	}
 
       else if (depth != 0)

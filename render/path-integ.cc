@@ -241,7 +241,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       // surface.
       //
       if (include_emitters)
-	radiance += isec.material.Le (isec) * path_transmittance;
+	radiance += isec.Le () * path_transmittance;
 
       // If there's no BSDF at all, this path is done.
       //
