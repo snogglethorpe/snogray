@@ -47,6 +47,7 @@ lpeg_utils.LINE_CONTENTS = C (lpeg_utils.LINE)
 -- whitespace followed by numbers (useful shortcuts)
 lpeg_utils.WS_FLOAT = lpeg_utils.OPT_WS * lpeg_utils.FLOAT
 lpeg_utils.WS_INT = lpeg_utils.OPT_WS * lpeg_utils.INT
+lpeg_utils.WS_UINT = lpeg_utils.OPT_WS * lpeg_utils.UINT
 
 
 -- Global state during parsing.
