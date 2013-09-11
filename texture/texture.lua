@@ -208,11 +208,6 @@ texture.perlin_abs
    = singleton_tex_fun ('perlin_abs',
 			function() return texture.abs (texture.perlin ()) end)
 
-texture.x = singleton_tex_fun ('x', function () return raw.coord_tex(0) end)
-texture.y = singleton_tex_fun ('y', function () return raw.coord_tex(1) end)
-texture.z = singleton_tex_fun ('z', function () return raw.coord_tex(2) end)
-texture.u = singleton_tex_fun ('u', function () return raw.coord_tex(3) end)
-texture.v = singleton_tex_fun ('v', function () return raw.coord_tex(4) end)
 
 texture.worley = raw.worley_tex
 
@@ -241,6 +236,28 @@ function texture.worley_id (kind, min, max)
 end
 
 
+
+----------------------------------------------------------------
+-- Coordinate textures
+--
+
+--
+-- Unlike most texture sources, these are simple "values", not
+-- functions.  There's no technical reason for these to be values
+-- while other parameterless texture sources (e.g. perlin noise) are
+-- still "functions," except that it somehow feels more natual when
+-- using them (presumably due to their presence as variables in
+-- standard math).
+--
+
+texture.x = raw.coord_tex (0)
+texture.y = raw.coord_tex (1)
+texture.z = raw.coord_tex (2)
+texture.u = raw.coord_tex (3)
+texture.v = raw.coord_tex (4)
+
+
+
 ----------------------------------------------------------------
 -- Texture transformations
 --
