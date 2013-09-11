@@ -22,9 +22,18 @@ local image = require 'snogray.image'
 
 
 --
--- Note that in addition to using explicit light objects, an arbitrary
--- surface can be made light-emitting by using the "material.glow"
--- material.
+-- The usual method of lighting in snogray is with area lights, which
+-- are not explicit "objects", but rather result from using special
+-- light-emitting materials (such as material.glow) applied to normal
+-- surfaces.
+--
+-- For instance, to add a sphere-light, one can do something like:
+--
+--     scene:add (surface.sphere (material.glow (INTENS), POS, RADIUS))
+--
+-- The explicit light objects documented here can be used when area
+-- lights are not appropriate, and can be added to a scene like
+-- surfaces, using scene:add (LIGHT).
 --
 
 
