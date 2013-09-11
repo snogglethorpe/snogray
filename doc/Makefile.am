@@ -15,4 +15,8 @@ include $(top_srcdir)/install-dirs.mk
 
 dist_pkgdoc_DATA = tools.txt usage.txt issues.txt
 
-EXTRA_DIST = building.txt
+EXTRA_DIST = building.txt process-txtin.awk
+
+%.txt: %.txt.in
+	$(AWK) -f $(srcdir)/process-txtin.awk top_srcdir='$(top_srcdir)' "$<" > "$@"
+
