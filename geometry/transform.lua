@@ -1,6 +1,6 @@
 -- transform.lua -- Transform support
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -75,6 +75,38 @@ transform.y_to_x = transform.x_to_y:inverse ()
 transform.flip_x = transform.scale (-1, 1, 1)
 transform.flip_y = transform.scale (1, -1, 1)
 transform.flip_z = transform.scale (1, 1, -1)
+
+
+--
+-- Not yet documented:
+--
+--  + transform.matrix
+--  + transform.identity
+--  + transform.is_transform
+--  + transform.scale
+--  + transform.translate
+--  + transform.rotate
+--  + transform.rotate_x
+--  + transform.rotate_y
+--  + transform.rotate_z
+--  + transform.basis
+--
+--  + all_in_one.translate
+--  + all_in_one.rotate
+--  + all_in_one.rotate_x
+--  + all_in_one.rotate_y
+--  + all_in_one.rotate_z
+--
+--  + transform.z_to_y
+--  + transform.y_to_z
+--  + transform.x_to_y
+--  + transform.y_to_x
+--
+--  + transform.flip_x
+--  + transform.flip_y
+--  + transform.flip_z
+--
+
 
 
 -- return the module
