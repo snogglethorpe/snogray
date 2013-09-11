@@ -53,6 +53,8 @@ AC_PROG_CXX
 
 AC_PROG_RANLIB
 
+AC_PROG_AWK
+
 AC_CHECK_PROG([SWIG], [swig], [swig])
 
 
