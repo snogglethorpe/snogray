@@ -115,6 +115,11 @@ texture.tex_vals = tex_vals
 
 
 ----------------------------------------------------------------
+-- Basic source textures
+--
+
+
+----------------------------------------------------------------
 -- Miscellaneous texture sources and operators
 --
 
@@ -188,6 +193,11 @@ texture.plane_map = raw.plane_map_tex
 texture.cylinder_map = raw.cylinder_map_tex
 texture.lat_long_map = raw.lat_long_map_tex
 
+
+
+----------------------------------------------------------------
+-- Texture singletons
+
 -- A cache of "singleton" texture sources, whose instances have no
 -- state, and really only one shared instance is needed.
 --
@@ -203,7 +213,44 @@ local function singleton_tex_fun (name, create)
 	  end
 end
 
+
+
+----------------------------------------------------------------
+-- 3D Noise textures
+--
+
+--
+-- These noise textures are deterministic based on their location in
+-- 3D space.  To change their appearance, the coordinates they are fed
+-- can be be transformed, or the value they produce can be
+-- manipulated.  It's particularly useful to scale their input
+-- coordinates (e.g. using transform.scale), to change their "feature
+-- size".
+--
+-- For instance, the following:
+--
+--   transform.scale (10) (texture.perlin ())
+--
+-- will yield Perlin noise which is 10 times "finer" than the default.
+--
+
+-- texture.perlin -- Return a perlin-noise texture
+--
+-- args: ()
+--
+-- Perlin noise is gently changing scalar noise, with a range of -1 to
+-- 1, that varies over 3d space in a natural way.  It is based on a
+-- rectangular grid pattern, which may become apparent (manipulating
+-- the input coordinates is a good way to address this).
+--
 texture.perlin = singleton_tex_fun ('perlin', raw.perlin_tex)
+
+-- texture.perlin_abs -- Return a perlin-noise absolute-value texture
+--
+-- args: ()
+--
+-- This is texture.perlin reflected about zero to give a range of 0 to 1.
+--
 texture.perlin_abs
    = singleton_tex_fun ('perlin_abs',
 			function() return texture.abs (texture.perlin ()) end)
@@ -235,6 +282,13 @@ function texture.worley_id (kind, min, max)
    return raw.worley_id_tex (kind, min, max)
 end
 
+
+--
+-- Not yet documented:
+--
+--  + texture.worley
+--  + texture.worley_id
+--
 
 
 ----------------------------------------------------------------
@@ -394,37 +448,44 @@ function texture.gt (...) return texture.cmp ('GT', ...) end
 function texture.ge (...) return texture.cmp ('GE', ...) end
 
 
+
 ----------------------------------------------------------------
--- Perlin fourier-series textures
+-- Fourier-series textures
 --
 
--- Return a fourier-series summation of SOURCE_TEX, according to PARAMS:
+-- texture.fourier_series -- Return a fourier-series summation of a texture
+--
+-- args: (SOURCE_TEX, PARAMS)
+--
+-- Return a fourier-series summation of SOURCE_TEX, according to the
+-- formula:
 --
 --   Sum[i = 1 to OCTAVES] of (SOURCE_TEX * F_i * Scale(2^(i-1)) * OMEGA^(i-1))
 --
--- where OCTAVES is the maximum term index to use, F_i are perm-term user
--- multiplicative factors (defaulting to 1), "... * Scale(2^(i-1))"
--- means to scale the input coordinates to SOURCE_TEX by 2^(i-1), and
--- "... * OMEGA^(i-1)" means to multiply the resulting value of the term
--- by OMEGA^(i-1).
+-- ... where OCTAVES is the maximum term index, i, to use, F_i are
+-- perm-term user multiplicative factors (defaulting to 1), "... *
+-- Scale(2^(i-1))" means to scale the input coordinates to SOURCE_TEX by
+-- 2^(i-1), and "... * OMEGA^(i-1)" means to multiply the resulting
+-- value of the term by OMEGA^(i-1).
 --
--- If PARAMS is a number, then all F_i are 1, OMEGA = 0.5, and OCTAVES =
--- PARAMS.
+-- OCTAVES, OMEGA, and F_i are determined from PARAMS, as follows:
 --
--- If PARAMS is a table, then F_i is the value at index i in PARAMS
--- (F_1 is PARAMS[], F_2 is PARAMS[2], etc), OMEGA = PARAMS.omega or
--- 0.5 if there is no "omega" in PARAMS, and OCTAVES = PARAMS.octaves,
--- or the number of array members in PRAMS if there is no "octaves"
--- entry in PARAMS.
+-- + If PARAMS is a number, then all F_i are 1, OMEGA = 0.5, and OCTAVES
+--   = PARAMS.
+--
+-- + If PARAMS is a table, then F_i is the value at index i in PARAMS
+--   (F_1 is PARAMS[], F_2 is PARAMS[2], etc), OMEGA = PARAMS.omega or
+--   0.5 if there is no "omega" in PARAMS, and OCTAVES = PARAMS.octaves,
+--   or the number of array members in PRAMS if there is no "octaves"
+--   entry in PARAMS.
 --
 -- Note that the F_i values do not need to be constants, they can also
 -- be textures.
 --
 -- The result is automatically scaled by the inverse of the constant
--- portions of the sum, Sum[...] (F_i * OMEGA^(i-1)), so that it
--- should have roughly the same magnitude as SOURCE_TEX.  Any
--- non-constant F_i values are ignored for the purposes of
--- auto-scaling.
+-- portions of the sum, Sum[...] (F_i * OMEGA^(i-1)), so that it should
+-- have roughly the same magnitude as SOURCE_TEX.  Any non-constant F_i
+-- values are ignored for the purposes of auto-scaling.
 --
 function texture.fourier_series (source_tex, params)
    local sum = nil
@@ -492,20 +553,97 @@ function texture.fourier_series (source_tex, params)
    return sum
 end
 
--- Call fourier_series using perlin noise as the input texture.
--- See description of fourier_series for an explanation of PARAMS.
+-- texture.perlin_series -- Return a fourier-series summation of perlin noise
+--
+-- args: (PARAMS)
+--
+-- Call texture.fourier_series using perlin noise as the input
+-- texture.  See description of texture.fourier_series for an
+-- explanation of PARAMS.
 --
 function texture.perlin_series (params)
    return texture.fourier_series (texture.perlin(), params)
 end
 
--- Call fourier_series using the absolute value of perlin noise as
--- the input texture.  See description of fourier_series for an
--- explanation of PARAMS.
+-- texture.perlin_abs_series -- Return a fourier-series summation of
+--	absolute-value perlin noise
+--
+-- args: (PARAMS)
+--
+-- Call texture.fourier_series using the absolute value of perlin
+-- noise as the input texture.  See description of
+-- texture.fourier_series for an explanation of PARAMS.
 --
 function texture.perlin_abs_series (params)
    return texture.fourier_series (texture.perlin_abs(), params)
 end
+
+
+--
+-- Not yet documented:
+--
+--  + texture.image
+--  + texture.mono_image
+--
+--  + texture.grey
+--  + texture.intens
+--
+--  + texture.check
+--  + texture.check3d
+--
+--  + texture.perturb_pos
+--  + texture.perturb_uv
+--
+--  + texture.linterp
+--  + texture.sinterp
+--
+--  + texture.rescale
+--
+--  + texture.plane_map
+--  + texture.cylinder_map
+--  + texture.lat_long_map
+--
+--  + texture.x
+--  + texture.y
+--  + texture.z
+--  + texture.u
+--  + texture.v
+--
+--  + texture.xform
+--  + texture.scale
+--  + texture.rotate
+--  + texture.rot
+--
+--  + texture.arith
+--  + texture.mul
+--  + texture.add
+--  + texture.sub
+--  + texture.div
+--  + texture.mod
+--  + texture.pow
+--  + texture.floor
+--  + texture.ceil
+--  + texture.trunc
+--  + texture.min
+--  + texture.max
+--  + texture.avg
+--  + texture.mirror
+--  + texture.abs
+--  + texture.neg
+--  + texture.sin
+--  + texture.cos
+--  + texture.tan
+--  + texture.atan2
+--
+--  + texture.cmp
+--
+--  + texture.eq
+--  + texture.ne
+--  + texture.lt
+--  + texture.le
+--  + texture.gt
+--  + texture.ge
+--
 
 
 -- return the module
