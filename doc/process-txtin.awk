@@ -135,10 +135,30 @@
 BEGIN {
   file = 0
   fill_width = 65
+  rule_width = fill_width
   subsec_hdr_pfx = "-- "
   subsec_pfx = ""
   fundoc_pfx = "   "
   special_prefix_regexp = "^(.* -- | *([-a-zA-Z_0-9]+ *:|[0-9]+[)\\].]|[([][0-9]+[)\\]]|[+*o]) ) *"
+}
+
+
+# ----------------------------------------------------------------
+# Misc string functions
+#
+
+# Return a string containing COUNT copies of CHUNK, separated by SEP
+# if it is given.
+#
+function rep(chunk, count, sep      ,res)
+{
+  res = ""
+  if (count > 0) {
+    res = chunk
+    while (count-- > 1)
+      res = res sep chunk
+  }
+  return res
 }
 
 
@@ -286,7 +306,7 @@ function fmted_add_fmted(fmted, new)
 # following a "special prefix" as defined by SPECIAL_PREFIX_REGEXP
 # and described in the file header comment.
 #
-function fmted_flush(fmted, width, lmargin    ,pending,first,pfx,pfx_len,wrap_point)
+function fmted_flush_para(fmted, width, lmargin    ,pending,first,pfx,pfx_len,wrap_point)
 {
   if (lmargin)
     width -= length (lmargin)
@@ -314,11 +334,10 @@ function fmted_flush(fmted, width, lmargin    ,pending,first,pfx,pfx_len,wrap_po
 	pfx_len = 0
     }
 
-    pfx = ""
-    for (i = 0; i < pfx_len; i++)
-      pfx = pfx " "
 
-    if (pfx_len >= width) {
+    if (pfx_len < width)
+      pfx = rep(" ", pfx_len)
+    else {
       pfx_len = 0
       pfx = ""
     }
@@ -352,13 +371,14 @@ function fmted_flush(fmted, width, lmargin    ,pending,first,pfx,pfx_len,wrap_po
   return fmted
 }
 
-# Make sure all text in FMTED is formated by calling fmted_flush with
-# WIDTH and LMARGIN, and then return the already-formatted portion
-# with some cleanups (particularly, line-final whitespace is removed).
+# Make sure all text in FMTED is formated by calling fmted_flush_para
+# with WIDTH and LMARGIN, and then return the already-formatted
+# portion with some cleanups (particularly, line-final whitespace is
+# removed).
 #
 function fmted_finish(fmted, width, lmargin)
 {
-  fmted = fmted_flush(fmted, width, lmargin)
+  fmted = fmted_flush_para(fmted, width, lmargin)
   if (fmted) {
     gsub (/ *\n/, "\n", fmted)
     sub (/\n$/, "", fmted)
@@ -376,7 +396,7 @@ function fmted_finish(fmted, width, lmargin)
 # blank-line separated paragraphs, except that if NEW matches
 # SPECIAL_PREFIX_REGEXP, it always starts a new paragraph.
 #
-function fmted_add_line(fmted, new, width, lmargin)
+function fmted_add(fmted, new, width, lmargin)
 {
   new = expand_tabs(new)
 
@@ -384,7 +404,7 @@ function fmted_add_line(fmted, new, width, lmargin)
     return new
 
   if (new ~ /^ *$/ || new ~ special_prefix_regexp)
-    fmted = fmted_flush(fmted, width, lmargin)
+    fmted = fmted_flush_para(fmted, width, lmargin)
   else if (fmted !~ /\n$/)
     sub (/^ */, " ", new)
 
@@ -399,7 +419,7 @@ function fmted_add_blank_line(fmted, width, lmargin)
   if (! fmted)
     return 0
 
-  return fmted_flush(fmted, width, lmargin) lmargin "\n"
+  return fmted_flush_para(fmted, width, lmargin) lmargin "\n"
 }
 
 
@@ -432,7 +452,7 @@ function emit_pending_subsec_header()
     subsec_num++
 
     emit_extra_vert_ws()
-    add_output_chunk("----------------------------------------------------------------")
+    add_output_chunk(rep("-", rule_width))
     add_output_chunk(pending_subsec_header)
     add_output_chunk("--")
 
@@ -583,7 +603,7 @@ function include_lua_module(file)
       if (f[1] == "--") {
 	if (nf == 1) {
 	  if (in_fundoc_hdr) {
-	    fundoc_hdr = fmted_flush(fundoc_hdr, fill_width, subsec_pfx)
+	    fundoc_hdr = fmted_flush_para(fundoc_hdr, fill_width, subsec_pfx)
 	    fundoc = fmted_new("")
 	    in_fundoc_hdr = 0
 	  } else
@@ -592,11 +612,11 @@ function include_lua_module(file)
 	  sub (/^-- ?/, "", line)
 
 	  if (in_fundoc_hdr) {
-	    fundoc_hdr = fmted_add_line(fundoc_hdr, line, fill_width, subsec_pfx fundoc_pfx)
+	    fundoc_hdr = fmted_add(fundoc_hdr, line, fill_width, subsec_pfx fundoc_pfx)
 	  } else {
 	    if (blanks)
 	      fundoc = fmted_add_blank_line(fundoc, fill_width, subsec_pfx fundoc_pfx)
-	    fundoc = fmted_add_line(fundoc, line, fill_width, subsec_pfx fundoc_pfx)
+	    fundoc = fmted_add(fundoc, line, fill_width, subsec_pfx fundoc_pfx)
 	    blanks = 0
 	  }
 	}
@@ -631,8 +651,8 @@ function include_lua_module(file)
 	in_subsec = 0
       } else {
 	sub (/^---* */, "", line)
-	subsec_desc = fmted_add_line(subsec_desc, line, fill_width)
-	subsec_comment = fmted_add_line(subsec_comment, line, fill_width, subsec_hdr_pfx)
+	subsec_desc = fmted_add(subsec_desc, line, fill_width)
+	subsec_comment = fmted_add(subsec_comment, line, fill_width, subsec_hdr_pfx)
       }
     } else if (in_block_comment) {
       if (nf == 0) {
@@ -647,7 +667,7 @@ function include_lua_module(file)
 	sub (/^-- ?/, "", line)
 	if (blanks)
 	  block_comment = fmted_add_blank_line(block_comment, fill_width)
-	block_comment = fmted_add_line(block_comment, line, fill_width)
+	block_comment = fmted_add(block_comment, line, fill_width)
 	blanks = 0
       }
     } else {
@@ -689,11 +709,11 @@ function print_sec_hdr(string)
   sec_num++
   subsec_num = 0
 
-  add_output_chunk("################################################################")
+  add_output_chunk(rep("#", rule_width))
   add_output_chunk("#")
   add_output_chunk("# " sec_num ". " string)
   add_output_chunk("#")
-  add_output_chunk("################################################################")
+  add_output_chunk(rep("#", rule_width))
 
   add_table_of_contents_entry(sec_num ".", string)
 }
@@ -706,25 +726,18 @@ function print_doc_title(title)
   sub (/^ */, "", title)
   sub (/ *$/, "", title)
   
-  width = fill_width - 6
+  width = rule_width - 4
   if (width < length (title))
     width = length (title)
 
-  line = ""
-  empty = ""
-  for (i = 0; i < width; i++) {
-    line = line "#"
-    empty = empty " "
-  }
-
-  title_pad = (width - length (title)) / 2
-  for (i = 0; i < title_pad; i++)
-    title = " " title " "
+  line = rep("#", width)
+  empty = rep(" ", width)
+  title_pad = rep(" ", (width - length (title)) / 2)
 
   add_output_chunk("##" line "##")
   add_output_chunk("##" line "##")
   add_output_chunk("##" empty "##")
-  add_output_chunk("##" title "##")
+  add_output_chunk("##" title_pad title title_pad  "##")
   add_output_chunk("##" empty "##")
   add_output_chunk("##" line "##")
   add_output_chunk("##" line "##")
