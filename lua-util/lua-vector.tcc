@@ -395,7 +395,7 @@ template<typename T>
 int
 LuaVec<T>::fini (lua_State *L)
 {
-  _checkvec (L, 1)->std::vector<T>::~vector<T> ();
+  _checkvec (L, 1)->~vector ();
   return 0;
 }
 
