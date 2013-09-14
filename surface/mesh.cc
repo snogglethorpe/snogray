@@ -22,6 +22,7 @@
 
 using namespace snogray;
 
+
 
 // Add a vertex to the mesh
 
@@ -53,6 +54,7 @@ Mesh::add_vertex (const Pos &pos, VertexGroup &vgroup)
       return vert_index;
     }
 }
+
 
 
 // Add a vertex with normal to the mesh
@@ -104,6 +106,7 @@ Mesh::add_vertex (const Pos &pos, const Vec &normal, VertexNormalGroup &vgroup)
     }
 }
 
+
 
 // Add just a normal
 
@@ -131,6 +134,7 @@ Mesh::add_normal (vert_index_t vert_index, const Vec &normal)
   return vert_index;
 }
 
+
 
 // Add a triangle to the mesh
 
@@ -157,6 +161,7 @@ Mesh::add_triangle (const Pos &v0, const Pos &v1, const Pos &v2)
 {
   add_triangle (add_vertex (v0), add_vertex (v1), add_vertex (v2));
 }
+
 
 
 // Bulk vertex/triangle addition
@@ -727,6 +732,7 @@ VertNormGroups::add_face (const Mesh::MVec &face_normal,
     }
 }
 
+
 
 
 // Compute a normal vector for each vertex that doesn't already have one,
@@ -856,6 +862,7 @@ Mesh::transform (const Xform &xform)
   recalc_bbox ();
 }
 
+
 
 // Mesh intersection methods
 //
@@ -924,7 +931,6 @@ Mesh::occludes (const Ray &ray, const Medium &medium,
 
   return false;
 }
-
 
 
 // arch-tag: 3090c323-f2dd-48ef-b8fc-20ce5d687c66
