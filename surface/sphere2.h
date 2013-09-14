@@ -14,7 +14,6 @@
 #define SNOGRAY_SPHERE2_H
 
 #include "geometry/spherical-coords.h"
-#include "surface-sampler.h"
 
 #include "local-primitive.h"
 
@@ -69,57 +68,8 @@ public:
 
 private:
 
-  // Sphere2 Sampler interface.
-  //
-  class Sampler : public Surface::Sampler
-  {
-  public:
-
-    Sampler (const Sphere2 &_sphere) : sphere (_sphere) { }
-
-    // Return a sample of this surface.
-    //
-    virtual AreaSample sample (const UV &param) const;
-
-    // Return a sample of this surface from VIEWPOINT, based on the
-    // parameter PARAM.
-    //
-    virtual AngularSample sample_from_viewpoint (const Pos &viewpoint,
-						 const UV &param)
-      const;
-
-    // If a ray from VIEWPOINT in direction DIR intersects this
-    // surface, return an AngularSample as if the
-    // Surface::Sampler::sample_from_viewpoint method had returned a
-    // sample at the intersection position.  Otherwise, return an
-    // AngularSample with a PDF of zero.
-    //
-    virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
-					       const Vec &dir)
-      const;
-
-  private:
-
-    const Sphere2 &sphere;
-  };
-
-  struct IsecInfo : public Surface::IsecInfo
-  {
-    IsecInfo (const Ray &ray, const Sphere2 &_sphere, const Vec &_onorm)
-      : Surface::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
-    { }
-
-    virtual Intersect make_intersect (const Media &media, RenderContext &context)
-      const;
-
-    virtual Vec normal () const;
-
-    const Sphere2 &sphere;
-
-    // Intersection normal in SPHERE's local coordinate system.
-    //
-    Vec onorm;
-  };
+  class Sampler;
+  class IsecInfo;
 
   // Return the texture coordinates for object-space position OPOS on
   // the sphere.

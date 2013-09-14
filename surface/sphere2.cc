@@ -14,6 +14,7 @@
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
 #include "light/surface-light.h"
+#include "surface-sampler.h"
 
 #include "sphere2.h"
 
@@ -21,24 +22,26 @@
 using namespace snogray;
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
-//
-const Surface::IsecInfo *
-Sphere2::intersect (Ray &ray, RenderContext &context) const
+
+// Sphere2::IsecInfo
+
+struct Sphere2::IsecInfo : public Surface::IsecInfo
 {
-  Ray oray = world_to_local (ray);
-  
-  dist_t t;
-  if (sphere_intersects (Pos(0,0,0), dist_t(1), oray, t))
-    {
-      ray.t1 = t;
-      return new (context) IsecInfo (ray, *this, Vec (oray (t)));
-    }
-  return 0;
-}
+  IsecInfo (const Ray &ray, const Sphere2 &_sphere, const Vec &_onorm)
+    : Surface::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
+  { }
+
+  virtual Intersect make_intersect (const Media &media, RenderContext &context)
+    const;
+
+  virtual Vec normal () const;
+
+  const Sphere2 &sphere;
+
+  // Intersection normal in SPHERE's local coordinate system.
+  //
+  Vec onorm;
+};
 
 // Create an Intersect object for this intersection.
 //
@@ -88,6 +91,29 @@ Sphere2::IsecInfo::normal () const
   return sphere.normal_to_world (onorm).unit ();
 }
 
+
+
+// intersection
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with CONTEXT); otherwise return zero.
+//
+const Surface::IsecInfo *
+Sphere2::intersect (Ray &ray, RenderContext &context) const
+{
+  Ray oray = world_to_local (ray);
+  
+  dist_t t;
+  if (sphere_intersects (Pos(0,0,0), dist_t(1), oray, t))
+    {
+      ray.t1 = t;
+      return new (context) IsecInfo (ray, *this, Vec (oray (t)));
+    }
+  return 0;
+}
+
 // Return true if this surface intersects RAY.
 //
 bool
@@ -134,18 +160,44 @@ Sphere2::occludes (const Ray &ray, const Medium &medium,
   return false;
 }
 
-// Return a sampler for this surface, or zero if the surface doesn't
-// support sampling.  The caller is responsible for destroying
-// returned samplers.
-//
-Surface::Sampler *
-Sphere2::make_sampler () const
-{
-  return new Sampler (*this);
-}
 
 
 // Sphere2::Sampler
+
+// Sphere2 Sampler interface.
+//
+class Sphere2::Sampler : public Surface::Sampler
+{
+public:
+
+  Sampler (const Sphere2 &_sphere) : sphere (_sphere) { }
+
+  // Return a sample of this surface.
+  //
+  virtual AreaSample sample (const UV &param) const;
+
+  // Return a sample of this surface from VIEWPOINT, based on the
+  // parameter PARAM.
+  //
+  virtual AngularSample sample_from_viewpoint (const Pos &viewpoint,
+					       const UV &param)
+    const;
+
+  // If a ray from VIEWPOINT in direction DIR intersects this
+  // surface, return an AngularSample as if the
+  // Surface::Sampler::sample_from_viewpoint method had returned a
+  // sample at the intersection position.  Otherwise, return an
+  // AngularSample with a PDF of zero.
+  //
+  virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
+					     const Vec &dir)
+    const;
+
+private:
+
+  const Sphere2 &sphere;
+};
+
 
 namespace { // keep local to file
 
@@ -239,6 +291,17 @@ Sphere2::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
     }
 
   return AngularSample ();
+}
+
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Sphere2::make_sampler () const
+{
+  return new Sampler (*this);
 }
 
 
