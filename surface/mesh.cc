@@ -350,31 +350,29 @@ Mesh::add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
     }
 }
 
+
 
-// Mesh triangles
+// Mesh::Triangle::IsecInfo
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
-//
-const Surface::IsecInfo *
-Mesh::Triangle::intersect (Ray &ray, RenderContext &context) const
+struct Mesh::Triangle::IsecInfo : public Surface::IsecInfo
 {
-  // We have to convert the types to match that of RAY first.
+  IsecInfo (const Ray &ray, const Triangle &_triangle, dist_t _u, dist_t _v)
+    : Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
+  { }
+
+  virtual Intersect make_intersect (const Media &media, RenderContext &context)
+    const;
+
+  virtual Vec normal () const;
+
+  // Return a normal frame FRAME at ORIGIN, with basis vectors
+  // calculated from the normal NORM.
   //
-  Pos corner = v(0);
-  Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
+  Frame make_frame (const Pos &orgin, const Vec &norm) const;
 
-  dist_t t, u, v;
-  if (triangle_intersects (corner, edge1, edge2, ray, t, u, v))
-    {
-      ray.t1 = t;
-      return new (context) IsecInfo (ray, *this, u, v);
-    }
-
-  return 0;
-}
+  const Triangle &triangle;
+  dist_t u, v;
+};
 
 // Return a normal frame FRAME at ORIGIN, with basis vectors calculated
 // from the normal NORM.
@@ -534,6 +532,33 @@ Mesh::Triangle::IsecInfo::normal () const
 {
   // XXX is geometric normal enough?
   return triangle.raw_normal ();
+}
+
+
+
+// Mesh::Triangle intersection
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with CONTEXT); otherwise return zero.
+//
+const Surface::IsecInfo *
+Mesh::Triangle::intersect (Ray &ray, RenderContext &context) const
+{
+  // We have to convert the types to match that of RAY first.
+  //
+  Pos corner = v(0);
+  Vec edge1 = v(1) - corner, edge2 = v(2) - corner;
+
+  dist_t t, u, v;
+  if (triangle_intersects (corner, edge1, edge2, ray, t, u, v))
+    {
+      ray.t1 = t;
+      return new (context) IsecInfo (ray, *this, u, v);
+    }
+
+  return 0;
 }
 
 // Return true if this surface intersects RAY.

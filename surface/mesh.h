@@ -367,6 +367,8 @@ public:
 
 private:
 
+  class IsecInfo;
+
   // Return 2D texture-coordinate information for this triangle.
   // The 2D texture-coordinate of vertex 0 (with barycentric
   // coordinate 0,0) is returned in T0.  The change in 2D
@@ -409,26 +411,6 @@ private:
     dTdu = T1 - T0;
     dTdv = T2 - T0;
   }
-
-  struct IsecInfo : public Surface::IsecInfo
-  {
-    IsecInfo (const Ray &ray, const Triangle &_triangle, dist_t _u, dist_t _v)
-      : Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
-    { }
-
-    virtual Intersect make_intersect (const Media &media, RenderContext &context)
-      const;
-
-    virtual Vec normal () const;
-
-    // Return a normal frame FRAME at ORIGIN, with basis vectors
-    // calculated from the normal NORM.
-    //
-    Frame make_frame (const Pos &orgin, const Vec &norm) const;
-
-    const Triangle &triangle;
-    dist_t u, v;
-  };
 
   const Mesh &mesh;
 
