@@ -12,6 +12,7 @@
 
 #include "geometry/quadratic-roots.h"
 #include "intersect/intersect.h"
+#include "surface-sampler.h"
 
 #include "cylinder.h"
 
@@ -36,6 +37,62 @@ Cylinder::xform (const Pos &base, const Vec &axis, float radius)
   xf.translate (Vec (base));
   return xf;
 }
+
+
+
+// Cylinder::IsecInfo
+
+struct Cylinder::IsecInfo : public Surface::IsecInfo
+{
+  IsecInfo (const Ray &ray, const Cylinder &_cylinder, const Pos &_isec_point)
+    : Surface::IsecInfo (ray), cylinder (_cylinder), isec_point (_isec_point)
+  { }
+
+  virtual Intersect make_intersect (const Media &media,
+				    RenderContext &context)
+    const;
+
+  virtual Vec normal () const;
+
+  const Cylinder &cylinder;
+
+  // Intersection point in the cylinder's local coordinate system.
+  //
+  Pos isec_point;
+};
+
+// Create an Intersect object for this intersection.
+//
+Intersect
+Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
+  const
+{
+  Pos point = ray.end ();
+
+  Vec onorm (isec_point.x, isec_point.y, 0);
+  Vec norm = cylinder.normal_to_world (onorm).unit ();
+  Vec t = cylinder.local_to_world (Vec (0, 0, 1)).unit ();
+  Vec s = cross (norm, t);
+
+  // Calculate partial derivatives of texture coordinates dTds and dTdt,
+  // where T is the texture coordinates (for bump mapping).
+  //
+  UV dTds (INV_PIf * 0.5f, 0), dTdt (0, 0.5f);
+
+  return Intersect (ray, media, context, *cylinder.material,
+		    Frame (point, s, t, norm),
+		    cylinder.tex_coords_uv (isec_point), dTds, dTdt);
+}
+
+// Return the normal of this intersection (in the world frame).
+//
+Vec
+Cylinder::IsecInfo::normal () const
+{
+  Vec onorm (isec_point.x, isec_point.y, 0);
+  return cylinder.normal_to_world (onorm).unit ();
+}
+
 
 
 // intersection
@@ -97,8 +154,6 @@ cylinder_intersects (Ray &ray, dist_t &t)
   return cylinder_intersects (ray.origin, ray.dir, ray.t0, t) && t < ray.t1;
 }
 
-
-
 // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
 // to reflect the point of intersection, and return a Surface::IsecInfo
 // object describing the intersection (which should be allocated using
@@ -117,38 +172,6 @@ Cylinder::intersect (Ray &ray, RenderContext &context) const
     }
 
   return 0;
-}
-
-// Create an Intersect object for this intersection.
-//
-Intersect
-Cylinder::IsecInfo::make_intersect (const Media &media, RenderContext &context)
-  const
-{
-  Pos point = ray.end ();
-
-  Vec onorm (isec_point.x, isec_point.y, 0);
-  Vec norm = cylinder.normal_to_world (onorm).unit ();
-  Vec t = cylinder.local_to_world (Vec (0, 0, 1)).unit ();
-  Vec s = cross (norm, t);
-
-  // Calculate partial derivatives of texture coordinates dTds and dTdt,
-  // where T is the texture coordinates (for bump mapping).
-  //
-  UV dTds (INV_PIf * 0.5f, 0), dTdt (0, 0.5f);
-
-  return Intersect (ray, media, context, *cylinder.material,
-		    Frame (point, s, t, norm),
-		    cylinder.tex_coords_uv (isec_point), dTds, dTdt);
-}
-
-// Return the normal of this intersection (in the world frame).
-//
-Vec
-Cylinder::IsecInfo::normal () const
-{
-  Vec onorm (isec_point.x, isec_point.y, 0);
-  return cylinder.normal_to_world (onorm).unit ();
 }
 
 // Return true if this surface intersects RAY.
@@ -197,18 +220,44 @@ Cylinder::occludes (const Ray &ray, const Medium &medium,
   return false;
 }
 
-// Return a sampler for this surface, or zero if the surface doesn't
-// support sampling.  The caller is responsible for destroying
-// returned samplers.
-//
-Surface::Sampler *
-Cylinder::make_sampler () const
-{
-  return new Sampler (*this);
-}
 
 
 // Cylinder::Sampler
+
+// Cylinder Sampler interface.
+//
+class Cylinder::Sampler : public Surface::Sampler
+{
+public:
+
+  Sampler (const Cylinder &_cylinder) : cylinder (_cylinder) { }
+
+  // Return a sample of this surface.
+  //
+  virtual AreaSample sample (const UV &param) const;
+
+  // Return a sample of this surface from VIEWPOINT, based on the
+  // parameter PARAM.
+  //
+  virtual AngularSample sample_from_viewpoint (const Pos &viewpoint,
+					       const UV &param)
+    const;
+
+  // If a ray from VIEWPOINT in direction DIR intersects this
+  // surface, return an AngularSample as if the
+  // Surface::Sampler::sample_from_viewpoint method had returned a
+  // sample at the intersection position.  Otherwise, return an
+  // AngularSample with a PDF of zero.
+  //
+  virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
+					     const Vec &dir)
+    const;
+
+private:
+
+  const Cylinder &cylinder;
+};
+
 
 namespace { // keep local to file
 
@@ -308,6 +357,17 @@ Cylinder::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
     }
 
   return AngularSample ();
+}
+
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Cylinder::make_sampler () const
+{
+  return new Sampler (*this);
 }
 
 
