@@ -14,7 +14,6 @@
 #define SNOGRAY_ELLIPSE_H
 
 #include "geometry/tripar-isec.h"
-#include "surface-sampler.h"
 
 #include "primitive.h"
 
@@ -83,56 +82,8 @@ public:
 
 private:
 
-  // Ellipse Sampler interface.
-  //
-  class Sampler : public Surface::Sampler
-  {
-  public:
-
-    Sampler (const Ellipse &_ellipse)
-      : ellipse (_ellipse),
-	pdf (4 * INV_PIf
-	     / float (cross (ellipse.edge2, ellipse.edge1).length ()))
-    { }
-
-    // Return a sample of this surface.
-    //
-    virtual AreaSample sample (const UV &param) const;
-
-    // If a ray from VIEWPOINT in direction DIR intersects this
-    // surface, return an AngularSample as if the
-    // Surface::Sampler::sample_from_viewpoint method had returned a
-    // sample at the intersection position.  Otherwise, return an
-    // AngularSample with a PDF of zero.
-    //
-    virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
-					       const Vec &dir)
-      const;
-
-  private:
-
-    const Ellipse &ellipse;
-
-    // Cache of PDF, which is just 1 / area.
-    //
-    float pdf;
-  };
-
-  struct IsecInfo : public Surface::IsecInfo
-  {
-    IsecInfo (const Ray &ray, const Ellipse &_ellipse, const UV &_uv)
-      : Surface::IsecInfo (ray), ellipse (_ellipse), uv (_uv)
-    { }
-
-    virtual Intersect make_intersect (const Media &media,
-				      RenderContext &context)
-      const;
-    virtual Vec normal () const;
-
-    const Ellipse &ellipse;
-
-    UV uv;
-  };
+  class Sampler;
+  class IsecInfo;
 
   // Return true if this surface intersects RAY; if true is returned, the
   // intersection parameters are return in T, U, and V.

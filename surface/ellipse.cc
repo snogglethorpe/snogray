@@ -12,6 +12,7 @@
 
 #include "intersect/intersect.h"
 #include "geometry/disk-sample.h"
+#include "surface-sampler.h"
 
 #include "ellipse.h"
 
@@ -19,25 +20,24 @@
 using namespace snogray;
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
-//
-const Surface::IsecInfo *
-Ellipse::intersect (Ray &ray, RenderContext &context) const
-{
-  dist_t t, u, v;
-  if (intersects (ray, t, u, v))
-    {
-      ray.t1 = t;
-      return new (context) IsecInfo (ray, *this, UV (u,v));
-    }
-  return 0;
-}
-
 
-// Ellipse::IsecInfo methods
+// Ellipse::IsecInfo
+
+struct Ellipse::IsecInfo : public Surface::IsecInfo
+{
+  IsecInfo (const Ray &ray, const Ellipse &_ellipse, const UV &_uv)
+    : Surface::IsecInfo (ray), ellipse (_ellipse), uv (_uv)
+  { }
+
+  virtual Intersect make_intersect (const Media &media,
+				    RenderContext &context)
+    const;
+  virtual Vec normal () const;
+
+  const Ellipse &ellipse;
+
+  UV uv;
+};
 
 // Create an Intersect object for this intersection.
 //
@@ -81,6 +81,27 @@ Ellipse::IsecInfo::normal () const
   return ellipse.normal;
 }
 
+
+
+// intersection
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with CONTEXT); otherwise return zero.
+//
+const Surface::IsecInfo *
+Ellipse::intersect (Ray &ray, RenderContext &context) const
+{
+  dist_t t, u, v;
+  if (intersects (ray, t, u, v))
+    {
+      ray.t1 = t;
+      return new (context) IsecInfo (ray, *this, UV (u,v));
+    }
+  return 0;
+}
+
 // Return true if this surface intersects RAY.
 //
 bool
@@ -122,6 +143,10 @@ Ellipse::occludes (const Ray &ray, const Medium &medium,
   return false;
 }
 
+
+
+// misc Ellipse methods
+
 // Return a bounding box for this surface.
 //
 BBox
@@ -136,18 +161,44 @@ Ellipse::bbox () const
   return bbox;
 }
 
-// Return a sampler for this surface, or zero if the surface doesn't
-// support sampling.  The caller is responsible for destroying
-// returned samplers.
-//
-Surface::Sampler *
-Ellipse::make_sampler () const
-{
-  return new Sampler (*this);
-}
 
 
 // Ellipse::Sampler
+
+// Ellipse Sampler interface.
+//
+class Ellipse::Sampler : public Surface::Sampler
+{
+public:
+
+  Sampler (const Ellipse &_ellipse)
+    : ellipse (_ellipse),
+      pdf (4 * INV_PIf
+	   / float (cross (ellipse.edge2, ellipse.edge1).length ()))
+  { }
+
+  // Return a sample of this surface.
+  //
+  virtual AreaSample sample (const UV &param) const;
+
+  // If a ray from VIEWPOINT in direction DIR intersects this
+  // surface, return an AngularSample as if the
+  // Surface::Sampler::sample_from_viewpoint method had returned a
+  // sample at the intersection position.  Otherwise, return an
+  // AngularSample with a PDF of zero.
+  //
+  virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
+					     const Vec &dir)
+    const;
+
+private:
+
+  const Ellipse &ellipse;
+
+  // Cache of PDF, which is just 1 / area.
+  //
+  float pdf;
+};
 
 // Return a sample of this surface.
 //
@@ -181,4 +232,15 @@ Ellipse::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
       return AngularSample (AreaSample (pos, ellipse.normal, pdf), viewpoint);
     }
   return AngularSample ();
+}
+
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Ellipse::make_sampler () const
+{
+  return new Sampler (*this);
 }
