@@ -67,6 +67,8 @@ public:
   //
   virtual Sampler *make_sampler () const;
 
+private:
+
   // Sphere2 Sampler interface.
   //
   class Sampler : public Surface::Sampler
@@ -100,8 +102,6 @@ public:
 
     const Sphere2 &sphere;
   };
-
-private:
 
   struct IsecInfo : public Surface::IsecInfo
   {

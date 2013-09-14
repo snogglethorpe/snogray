@@ -69,6 +69,8 @@ public:
   //
   virtual Sampler *make_sampler () const;
 
+private:
+
   // Tripar Sampler interface.
   //
   class Sampler : public Surface::Sampler
@@ -95,8 +97,6 @@ public:
 
     const Tripar &tripar;
   };
-
-private:
 
   struct IsecInfo : public Surface::IsecInfo
   {

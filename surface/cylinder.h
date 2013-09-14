@@ -73,6 +73,8 @@ public:
   //
   static Xform xform (const Pos &base, const Vec &axis, float radius);
 
+private:
+
   // Cylinder Sampler interface.
   //
   class Sampler : public Surface::Sampler
@@ -106,8 +108,6 @@ public:
 
     const Cylinder &cylinder;
   };
-
-private:
 
   struct IsecInfo : public Surface::IsecInfo
   {

@@ -81,6 +81,8 @@ public:
   //
   virtual Sampler *make_sampler () const;
 
+private:
+
   // Ellipse Sampler interface.
   //
   class Sampler : public Surface::Sampler
@@ -115,8 +117,6 @@ public:
     //
     float pdf;
   };
-
-private:
 
   struct IsecInfo : public Surface::IsecInfo
   {
