@@ -14,6 +14,7 @@
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
 #include "light/sphere-light.h"
+#include "surface-sampler.h"
 
 #include "sphere.h"
 
@@ -21,22 +22,19 @@
 using namespace snogray;
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
-//
-const Surface::IsecInfo *
-Sphere::intersect (Ray &ray, RenderContext &context) const
+
+// Sphere::IsecInfo
+
+struct Sphere::IsecInfo : public Surface::IsecInfo
 {
-  dist_t t;
-  if (sphere_intersects (frame.origin, radius, ray, t))
-    {
-      ray.t1 = t;
-      return new (context) IsecInfo (ray, *this);
-    }
-  return 0;
-}
+  IsecInfo (const Ray &ray, const Sphere &_sphere)
+    : Surface::IsecInfo (ray), sphere (_sphere)
+  { }
+  virtual Intersect make_intersect (const Media &media, RenderContext &context)
+    const;
+  virtual Vec normal () const;
+  const Sphere &sphere;
+};
 
 // Create an Intersect object for this intersection.
 //
@@ -92,6 +90,27 @@ Sphere::IsecInfo::normal () const
   return (ray.end() - sphere.frame.origin).unit ();
 }
 
+
+
+// intersection
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with CONTEXT); otherwise return zero.
+//
+const Surface::IsecInfo *
+Sphere::intersect (Ray &ray, RenderContext &context) const
+{
+  dist_t t;
+  if (sphere_intersects (frame.origin, radius, ray, t))
+    {
+      ray.t1 = t;
+      return new (context) IsecInfo (ray, *this);
+    }
+  return 0;
+}
+
 // Return true if this surface intersects RAY.
 //
 bool
@@ -140,6 +159,10 @@ Sphere::occludes (const Ray &ray, const Medium &medium,
   return false;
 }
 
+
+
+// misc Sphere methods
+
 // Return a bounding box for this surface.
 BBox
 Sphere::bbox () const
@@ -161,18 +184,36 @@ Sphere::add_light (const TexVal<Color> &intensity,
   lights.push_back (new SphereLight (frame.origin, radius, intensity));
 }
 
-// Return a sampler for this surface, or zero if the surface doesn't
-// support sampling.  The caller is responsible for destroying
-// returned samplers.
-//
-Surface::Sampler *
-Sphere::make_sampler () const
-{
-  return new Sampler (*this);
-}
 
 
 // Sphere::Sampler
+
+// Sphere Sampler interface.
+//
+class Sphere::Sampler : public Surface::Sampler
+{
+public:
+
+  Sampler (const Sphere &_sphere) : sphere (_sphere) { }
+
+  // Return a sample of this surface.
+  //
+  virtual AreaSample sample (const UV &param) const;
+
+  // If a ray from VIEWPOINT in direction DIR intersects this
+  // surface, return an AngularSample as if the
+  // Surface::Sampler::sample_from_viewpoint method had returned a
+  // sample at the intersection position.  Otherwise, return an
+  // AngularSample with a PDF of zero.
+  //
+  virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
+					     const Vec &dir)
+    const;
+
+private:
+
+  const Sphere &sphere;
+};
 
 // Return a sample of this surface.
 //
@@ -210,6 +251,17 @@ Sphere::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
       return AngularSample (AreaSample (pos, norm, area_pdf), viewpoint);
     }
   return AngularSample ();
+}
+
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Sphere::make_sampler () const
+{
+  return new Sampler (*this);
 }
 
 
