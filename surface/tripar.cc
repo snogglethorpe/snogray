@@ -11,6 +11,7 @@
 //
 
 #include "intersect/intersect.h"
+#include "surface-sampler.h"
 
 #include "tripar.h"
 
@@ -18,24 +19,21 @@
 using namespace snogray;
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
-//
-const Surface::IsecInfo *
-Tripar::intersect (Ray &ray, RenderContext &context) const
-{
-  dist_t t;
-  float u, v;
-  if (intersects (ray, t, u, v))
-    {
-      ray.t1 = t;
-      return new (context) IsecInfo (ray, *this, u, v);
-    }
+
+// Tripar::IsecInfo
 
-  return 0;
-}
+struct Tripar::IsecInfo : public Surface::IsecInfo
+{
+  IsecInfo (const Ray &ray, const Tripar &_tripar, float _u, float _v)
+    : Surface::IsecInfo (ray), tripar (_tripar), u (_u), v (_v)
+  { }
+  virtual Intersect make_intersect (const Media &media, RenderContext &context)
+    const;
+  virtual Vec normal () const;
+  const Tripar &tripar;
+  float u, v;
+};
+
 
 // Create an Intersect object for this intersection.
 //
@@ -75,6 +73,29 @@ Vec
 Tripar::IsecInfo::normal () const
 {
   return cross (tripar.e2, tripar.e1).unit ();
+}
+
+
+
+// intersection
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with CONTEXT); otherwise return zero.
+//
+const Surface::IsecInfo *
+Tripar::intersect (Ray &ray, RenderContext &context) const
+{
+  dist_t t;
+  float u, v;
+  if (intersects (ray, t, u, v))
+    {
+      ray.t1 = t;
+      return new (context) IsecInfo (ray, *this, u, v);
+    }
+
+  return 0;
 }
 
 // Return true if this surface intersects RAY.
@@ -120,6 +141,10 @@ Tripar::occludes (const Ray &ray, const Medium &medium,
   return false;
 }
 
+
+
+// misc Tripar methods
+
 // Return a bounding box for this surface.
 //
 BBox
@@ -133,18 +158,36 @@ Tripar::bbox () const
   return bbox;
 }
 
-// Return a sampler for this surface, or zero if the surface doesn't
-// support sampling.  The caller is responsible for destroying
-// returned samplers.
-//
-Surface::Sampler *
-Tripar::make_sampler () const
-{
-  return new Sampler (*this);
-}
 
 
 // Sphere::Sampler
+
+// Tripar Sampler interface.
+//
+class Tripar::Sampler : public Surface::Sampler
+{
+public:
+
+  Sampler (const Tripar &_tripar) : tripar (_tripar) { }
+
+  // Return a sample of this surface.
+  //
+  virtual AreaSample sample (const UV &param) const;
+
+  // If a ray from VIEWPOINT in direction DIR intersects this
+  // surface, return an AngularSample as if the
+  // Surface::Sampler::sample_from_viewpoint method had returned a
+  // sample at the intersection position.  Otherwise, return an
+  // AngularSample with a PDF of zero.
+  //
+  virtual AngularSample eval_from_viewpoint (const Pos &viewpoint,
+					     const Vec &dir)
+    const;
+
+private:
+
+  const Tripar &tripar;
+};
 
 // Return a sample of this surface.
 //
@@ -196,6 +239,17 @@ Tripar::Sampler::eval_from_viewpoint (const Pos &viewpoint, const Vec &dir)
   if (tripar.intersects (viewpoint, dir, t, param.u, param.v))
     return sample_from_viewpoint (viewpoint, param);
   return AngularSample ();
+}
+
+
+// Return a sampler for this surface, or zero if the surface doesn't
+// support sampling.  The caller is responsible for destroying
+// returned samplers.
+//
+Surface::Sampler *
+Tripar::make_sampler () const
+{
+  return new Sampler (*this);
 }
 
 
