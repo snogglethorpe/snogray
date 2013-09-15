@@ -62,26 +62,7 @@ public:
 
 private:
 
-  struct IsecInfo : public Surface::IsecInfo
-  {
-    IsecInfo (const Ray &ray,
-	      const Instance &_instance,
-	      const Surface::IsecInfo *_model_isec_info)
-      : Surface::IsecInfo (ray),
-	instance (_instance),
-	model_isec_info (_model_isec_info)
-    { }
-
-    virtual Intersect make_intersect (const Media &media,
-				      RenderContext &context)
-      const;
-
-    virtual Vec normal () const;
-
-    const Instance &instance;
-
-    const Surface::IsecInfo *model_isec_info;
-  };
+  class IsecInfo;
 
   // Model that we're transforming.
   //

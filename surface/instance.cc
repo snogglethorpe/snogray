@@ -21,29 +21,33 @@
 using namespace snogray;
 
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
-//
-Surface::IsecInfo *
-Instance::intersect (Ray &ray, RenderContext &context) const
+
+// Instance::IsecInfo
+
+class Instance::IsecInfo : public Surface::IsecInfo
 {
-  // Transform the ray for searching our model.
-  //
-  Ray xformed_ray = world_to_local (ray);
+public:
 
-  const Surface::IsecInfo *model_isec_info
-    = model->intersect (xformed_ray, context);
+  IsecInfo (const Ray &ray,
+	    const Instance &_instance,
+	    const Surface::IsecInfo *_model_isec_info)
+    : Surface::IsecInfo (ray),
+      instance (_instance),
+      model_isec_info (_model_isec_info)
+  { }
 
-  if (model_isec_info)
-    {
-      ray.t1 = xformed_ray.t1;
-      return new (context) IsecInfo (ray, *this, model_isec_info);
-    }
-  else
-    return 0;
-}
+  virtual Intersect make_intersect (const Media &media,
+				    RenderContext &context)
+    const;
+
+  virtual Vec normal () const;
+
+private:
+
+  const Instance &instance;
+
+  const Surface::IsecInfo *model_isec_info;
+};
 
 // Create an Intersect object for this intersection.
 //
@@ -75,6 +79,34 @@ Vec
 Instance::IsecInfo::normal () const
 {
   throw std::runtime_error ("Instance::IsecInfo::normal");
+}
+
+
+
+// intersection
+
+// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
+// reflect the point of intersection, and return a Surface::IsecInfo object
+// describing the intersection (which should be allocated using
+// placement-new with CONTEXT); otherwise return zero.
+//
+Surface::IsecInfo *
+Instance::intersect (Ray &ray, RenderContext &context) const
+{
+  // Transform the ray for searching our model.
+  //
+  Ray xformed_ray = world_to_local (ray);
+
+  const Surface::IsecInfo *model_isec_info
+    = model->intersect (xformed_ray, context);
+
+  if (model_isec_info)
+    {
+      ray.t1 = xformed_ray.t1;
+      return new (context) IsecInfo (ray, *this, model_isec_info);
+    }
+  else
+    return 0;
 }
 
 // Return true if this surface intersects RAY.
@@ -109,6 +141,10 @@ Instance::occludes (const Ray &ray, const Medium &medium,
   Ray xformed_ray = world_to_local (ray);
   return model->occludes (xformed_ray, medium, total_transmittance, context);
 }
+
+
+
+// misc Instance methods
 
 // Return a bounding box for this surface.
 //
