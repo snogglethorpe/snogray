@@ -1,6 +1,6 @@
 // bbox.h -- Axis-aligned bounding boxes
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -87,6 +87,20 @@ public:
   Vec extent () const
   {
     return Vec (max.x - min.x, max.y - min.y, max.z - min.z);
+  }
+
+  // Return the center of the smallest sphere enclosing this bounding box.
+  //
+  Pos center () const
+  {
+    return min + extent () / 2;
+  }
+
+  // Return the radius of the smallest sphere enclosing this bounding box.
+  //
+  dist_t radius () const
+  {
+    return extent ().length () / 2;
   }
 
   // The greatest component of its extent
