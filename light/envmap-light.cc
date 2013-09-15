@@ -11,7 +11,6 @@
 //
 
 #include "scene/scene.h"
-#include "light-map.h"
 #include "texture/spheremap.h"
 #include "geometry/sphere-sample.h"
 #include "geometry/tangent-disk-sample.h"

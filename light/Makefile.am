@@ -26,6 +26,6 @@ AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 
 libsnoglight_a_SOURCES = envmap-light.cc envmap-light.h far-light.cc	\
-	far-light.h image-sum.h light-map.h light.h point-light.cc	\
-	point-light.h sphere-light.cc sphere-light.h surface-light.cc	\
+	far-light.h image-sum.h light.h point-light.cc point-light.h	\
+	sphere-light.cc sphere-light.h surface-light.cc			\
 	surface-light.h
