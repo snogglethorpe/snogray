@@ -96,11 +96,18 @@ public:
     return min + extent () / 2;
   }
 
+  // Return the diameter of the smallest sphere enclosing this bounding box.
+  //
+  dist_t diameter () const
+  {
+    return extent ().length ();
+  }
+
   // Return the radius of the smallest sphere enclosing this bounding box.
   //
   dist_t radius () const
   {
-    return extent ().length () / 2;
+    return diameter () / 2;
   }
 
   // The greatest component of its extent
