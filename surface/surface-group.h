@@ -35,6 +35,10 @@ public:
   //
   void add (const Surface *surface);
 
+  // Add LIGHT to this group.
+  //
+  void add (const Light *light);
+
   // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
   // to reflect the point of intersection, and return a Surface::IsecInfo
   // object describing the intersection (which should be allocated using
@@ -88,6 +92,10 @@ private:
   // A list of the surfaces in this group.
   //
   std::vector<const Surface *> surfaces;
+
+  // A list of explicit lights in this group.
+  //
+  std::vector<const Light *> lights;
 
   // Cached bounding box for the entire group.
   //

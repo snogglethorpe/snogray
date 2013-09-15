@@ -54,6 +54,7 @@ namespace snogray {
   class Material;
   class BBox;
   class Frame;
+  class Light;
   template<typename T> class TPos;
   typedef TPos<coord_t> Pos;
   template<typename T> class TVec;
@@ -159,6 +160,7 @@ namespace snogray {
     SurfaceGroup ();
 
     void add (Surface *surface);
+    void add (Light *surface);
   };
 
   class Mesh : public Primitive

@@ -320,7 +320,8 @@ end
 -- Surface-groups support the following methods:
 --
 --   GROUP:add (SURFACE)	-- Add SURFACE to GROUP
---   GROUP:add (SURFACES)	-- Add surfaces in the table SURFACES to GROUP
+--   GROUP:add (LIGHT)		-- Add LIGHT to GROUP
+--   GROUP:add (TABLE)		-- Add surfaces and lights in TABLE to GROUP
 --
 function surface.group (surfs)
    local group = raw.SurfaceGroup ()
@@ -334,16 +335,16 @@ function surface.group (surfs)
       -- and the surfaces in it so GC can see it, and (2) support adding
       -- a table of surfaces all at once.
       --
-      function wrap:add (surf)
-	 if (type (surf) == "table") then
-	    for k,v in pairs (surf) do
+      function wrap:add (thing)
+	 if (type (thing) == "table") then
+	    for k,v in pairs (thing) do
 	       self:add (v)
 	    end
 	 else
 	    if swig.need_obj_gc_protect then
-	       swig.gc_ref (self, surf)
+	       swig.gc_ref (self, thing)
 	    end
-	    swig.nowrap_meth_call (self, "add", surf)
+	    swig.nowrap_meth_call (self, "add", thing)
 	 end
       end
    end

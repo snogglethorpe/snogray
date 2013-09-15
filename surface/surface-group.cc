@@ -23,6 +23,10 @@ SurfaceGroup::~SurfaceGroup ()
   for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
        si != surfaces.end(); ++si)
     delete *si;
+
+  for (std::vector<const Light *>::const_iterator li = lights.begin();
+       li != lights.end(); ++li)
+    delete *li;
 }
 
 
@@ -34,6 +38,14 @@ SurfaceGroup::add (const Surface *surface)
 {
   surfaces.push_back (surface);
   _bbox += surface->bbox ();
+}
+
+// Add LIGHT to this group.
+//
+void
+SurfaceGroup::add (const Light *light)
+{
+  lights.push_back (light);
 }
 
 
@@ -60,6 +72,10 @@ SurfaceGroup::add_light_samplers (const Scene &scene,
 {
   for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
        si != surfaces.end(); ++si)
+    (*si)->add_light_samplers (scene, samplers);
+
+  for (std::vector<const Light *>::const_iterator si = lights.begin();
+       si != lights.end(); ++si)
     (*si)->add_light_samplers (scene, samplers);
 }
 
