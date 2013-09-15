@@ -1,6 +1,6 @@
 // space-builder.h -- Builder for Space objects
 //
-//  Copyright (C) 2007, 2009, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2009, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,11 +15,13 @@
 
 #include <vector>
 
+#include "util/unique-ptr.h"
+#include "surface/surface.h"
+
 
 namespace snogray {
 
 class Space;
-class Surface;
 
 
 // A class used for building a Space object.
@@ -52,6 +54,17 @@ class SpaceBuilderFactory
 public:
 
   virtual ~SpaceBuilderFactory () { }
+
+  // Return a new space containing SURFACE.
+  //
+  const Space *make_space (const Surface &surface) const
+  {
+    UniquePtr<SpaceBuilder> space_builder (make_space_builder ());
+
+    surface.add_to_space (*space_builder);
+
+    return space_builder->make_space ();
+  }
 
   // Return a new SpaceBuilder object.
   //
