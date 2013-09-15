@@ -110,6 +110,10 @@ public:
   unsigned num_surfaces () const { return surfaces.num_surfaces (); }
   unsigned num_lights () const { return lights.size (); }
 
+  // Return an axis-aligned bounding box containing the entire scene.
+  //
+  BBox bbox () const { return surfaces.bbox (); }
+
   // All surfaces in the scene.
   //
   SurfaceGroup surfaces;
