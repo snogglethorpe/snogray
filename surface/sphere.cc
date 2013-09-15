@@ -25,14 +25,21 @@ using namespace snogray;
 
 // Sphere::IsecInfo
 
-struct Sphere::IsecInfo : public Surface::IsecInfo
+class Sphere::IsecInfo : public Surface::IsecInfo
 {
+public:
+
   IsecInfo (const Ray &ray, const Sphere &_sphere)
     : Surface::IsecInfo (ray), sphere (_sphere)
   { }
+
   virtual Intersect make_intersect (const Media &media, RenderContext &context)
     const;
+
   virtual Vec normal () const;
+
+private:
+
   const Sphere &sphere;
 };
 

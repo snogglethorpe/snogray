@@ -22,14 +22,19 @@ using namespace snogray;
 
 // Tripar::IsecInfo
 
-struct Tripar::IsecInfo : public Surface::IsecInfo
+class Tripar::IsecInfo : public Surface::IsecInfo
 {
+public:
+
   IsecInfo (const Ray &ray, const Tripar &_tripar, float _u, float _v)
     : Surface::IsecInfo (ray), tripar (_tripar), u (_u), v (_v)
   { }
   virtual Intersect make_intersect (const Media &media, RenderContext &context)
     const;
   virtual Vec normal () const;
+
+private:
+
   const Tripar &tripar;
   float u, v;
 };

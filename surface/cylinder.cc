@@ -42,8 +42,10 @@ Cylinder::xform (const Pos &base, const Vec &axis, float radius)
 
 // Cylinder::IsecInfo
 
-struct Cylinder::IsecInfo : public Surface::IsecInfo
+class Cylinder::IsecInfo : public Surface::IsecInfo
 {
+public:
+
   IsecInfo (const Ray &ray, const Cylinder &_cylinder, const Pos &_isec_point)
     : Surface::IsecInfo (ray), cylinder (_cylinder), isec_point (_isec_point)
   { }
@@ -53,6 +55,8 @@ struct Cylinder::IsecInfo : public Surface::IsecInfo
     const;
 
   virtual Vec normal () const;
+
+private:
 
   const Cylinder &cylinder;
 

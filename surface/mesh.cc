@@ -354,8 +354,10 @@ Mesh::add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
 
 // Mesh::Triangle::IsecInfo
 
-struct Mesh::Triangle::IsecInfo : public Surface::IsecInfo
+class Mesh::Triangle::IsecInfo : public Surface::IsecInfo
 {
+public:
+
   IsecInfo (const Ray &ray, const Triangle &_triangle, dist_t _u, dist_t _v)
     : Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
   { }
@@ -364,6 +366,8 @@ struct Mesh::Triangle::IsecInfo : public Surface::IsecInfo
     const;
 
   virtual Vec normal () const;
+
+private:
 
   // Return a normal frame FRAME at ORIGIN, with basis vectors
   // calculated from the normal NORM.

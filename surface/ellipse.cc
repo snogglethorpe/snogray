@@ -23,8 +23,10 @@ using namespace snogray;
 
 // Ellipse::IsecInfo
 
-struct Ellipse::IsecInfo : public Surface::IsecInfo
+class Ellipse::IsecInfo : public Surface::IsecInfo
 {
+public:
+
   IsecInfo (const Ray &ray, const Ellipse &_ellipse, const UV &_uv)
     : Surface::IsecInfo (ray), ellipse (_ellipse), uv (_uv)
   { }
@@ -33,6 +35,8 @@ struct Ellipse::IsecInfo : public Surface::IsecInfo
 				    RenderContext &context)
     const;
   virtual Vec normal () const;
+
+private:
 
   const Ellipse &ellipse;
 

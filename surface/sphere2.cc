@@ -25,8 +25,10 @@ using namespace snogray;
 
 // Sphere2::IsecInfo
 
-struct Sphere2::IsecInfo : public Surface::IsecInfo
+class Sphere2::IsecInfo : public Surface::IsecInfo
 {
+public:
+
   IsecInfo (const Ray &ray, const Sphere2 &_sphere, const Vec &_onorm)
     : Surface::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
   { }
@@ -35,6 +37,8 @@ struct Sphere2::IsecInfo : public Surface::IsecInfo
     const;
 
   virtual Vec normal () const;
+
+private:
 
   const Sphere2 &sphere;
 
