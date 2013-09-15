@@ -12,8 +12,11 @@
 
 #include "scene/scene.h"
 #include "texture/spheremap.h"
+#include "geometry/hist-2d.h"
+#include "geometry/hist-2d-dist.h"
 #include "geometry/sphere-sample.h"
 #include "geometry/tangent-disk-sample.h"
+#include "light-sampler.h"
 
 #include "envmap-light.h"
 
@@ -21,19 +24,94 @@
 using namespace snogray;
 
 
-EnvmapLight::EnvmapLight (const Ref<Envmap> &_envmap, const Frame &_frame)
-  : envmap (_envmap), frame (_frame),
-    intensity_dist (envmap_histogram (_envmap)),
-    scene_radius (0)
+
+// Envmap::Sampler
+
+class EnvmapLight::Sampler : public Light::Sampler
 {
+public:
+
+  Sampler (const EnvmapLight &_light, const BBox &scene_bbox)
+    : light (_light),
+      scene_center (scene_bbox.center ()),
+      scene_radius (scene_bbox.radius ()),
+      intensity_dist (envmap_histogram (light.envmap))
+  {
+  }
+
+  // Return a sample of this light from the viewpoint of ISEC (using a
+  // surface-normal coordinate system, where the surface normal is
+  // (0,0,1)), based on the parameter PARAM.
+  //
+  virtual Sample sample (const Intersect &isec, const UV &param) const;
+
+  // Return a "free sample" of this light.
+  //
+  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
+
+  // Evaluate this light in direction DIR from the viewpoint of ISEC (using
+  // a surface-normal coordinate system, where the surface normal is
+  // (0,0,1)).
+  //
+  virtual Value eval (const Intersect &isec, const Vec &dir) const;
+
+  // Return true if this is an "environmental" light, not associated
+  // with any surface.
+  //
+  virtual bool is_environ_light () const { return true; }
+
+  // Evaluate this environmental light in direction DIR (in world-coordinates).
+  //
+  virtual Color eval_environ (const Vec &dir) const
+  {
+    return light.envmap->map (light.frame.to (dir));
+  }
+
+private:
+
+  // Return a 2d histogram containing the intensity of ENVMAP, with the
+  // intensity adusted to reflect the area distortion caused by mapping
+  // it to a sphere.
+  //
+  Hist2d envmap_histogram (const Ref<Envmap> &envmap);
+
+  // Light we're sampling.
+  //
+  const EnvmapLight &light;
+
+  // Center and radius of a bounding sphere for the engire scene.
+  //
+  Pos scene_center;
+  dist_t scene_radius;
+
+  // Distribution for sampling the intensity of ENVMAP.
+  //
+  Hist2dDist intensity_dist;
+};
+
+
+// Add light-samplers for this light in SCENE to SAMPLERS.  Any
+// samplers added become owned by the owner of SAMPLERS, and will be
+// destroyed when it is.
+//
+void
+EnvmapLight::add_light_samplers (const Scene &scene,
+				 std::vector<const Light::Sampler *> &samplers)
+  const
+{
+  samplers.push_back (new Sampler (*this, scene.bbox ()));
 }
+
+
+
+// EnvmapLight::Sampler::envmap_histogram
 
 // Return a 2d histogram containing the intensity of ENVMAP, with the
 // intensity adusted to reflect the area distortion caused by mapping
 // it to a sphere.
 //
 Hist2d
-EnvmapLight::envmap_histogram (const Ref<Envmap> &envmap)
+EnvmapLight::Sampler::envmap_histogram (const Ref<Envmap> &envmap)
 {
   Ref<Image> lmap = envmap->light_map ();
   
@@ -61,15 +139,16 @@ EnvmapLight::envmap_histogram (const Ref<Envmap> &envmap)
   return hist;
 }
 
+
 
-// EnvmapLight::sample
+// EnvmapLight::Sampler::sample (viewpoint)
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
 // (0,0,1)), based on the parameter PARAM.
 //
-Light::Sample
-EnvmapLight::sample (const Intersect &isec, const UV &param) const
+Light::Sampler::Sample
+EnvmapLight::Sampler::sample (const Intersect &isec, const UV &param) const
 {
   // The pdf in the light's intensity distribution for this sample.
   //
@@ -86,7 +165,7 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
 
   // Convert LIGHT_DIR to the world frame.
   //
-  Vec world_dir = frame.from (light_dir);
+  Vec world_dir = light.frame.from (light_dir);
 
   // ... and then to the normal frame.
   //
@@ -102,15 +181,17 @@ EnvmapLight::sample (const Intersect &isec, const UV &param) const
   //
   pdf *= 0.25f * INV_PIf;
 
-  return Sample (envmap->map (light_dir), pdf, dir, 0);
+  return Sample (light.envmap->map (light_dir), pdf, dir, 0);
 }
+
+
 
-// 
+// EnvmapLight::Sampler::sample (free)
 
 // Return a "free sample" of this light.
 //
-Light::FreeSample
-EnvmapLight::sample (const UV &param, const UV &dir_param) const
+Light::Sampler::FreeSample
+EnvmapLight::Sampler::sample (const UV &param, const UV &dir_param) const
 {
   // The pdf in the light's intensity distribution for this sample.
   //
@@ -126,7 +207,7 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
 
   // Convert to world coordinates.
   //
-  Vec world_dir = frame.from (light_dir);
+  Vec world_dir = light.frame.from (light_dir);
 
   // The intensity distribution covers the entire sphere, so adjust
   // the pdf to reflect that.
@@ -146,18 +227,19 @@ EnvmapLight::sample (const UV &param, const UV &dir_param) const
   // points _towards_ the sample point, and the return value should
   // have a direction _from_ the sample point.
   //
-  return FreeSample (envmap->map (world_dir), pdf, pos, -world_dir);
+  return FreeSample (light.envmap->map (world_dir), pdf, pos, -world_dir);
 }
 
+
 
-// EnvmapLight::eval
+// EnvmapLight::Sampler::eval
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC (using
 // a surface-normal coordinate system, where the surface normal is
 // (0,0,1)).
 //
-Light::Value
-EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
+Light::Sampler::Value
+EnvmapLight::Sampler::eval (const Intersect &isec, const Vec &dir) const
 {
   // The sample direction in the world frame of reference.
   //
@@ -165,7 +247,7 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
 
   // ... and in the light's frame of reference.
   //
-  Vec light_dir = frame.to (world_dir);
+  Vec light_dir = light.frame.to (world_dir);
 
   // Find S's direction in our light map.
   //
@@ -173,7 +255,7 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
 
   // Look up the intensity and PDF at that point.
   //
-  Color intens = envmap->map (light_dir);
+  Color intens = light.envmap->map (light_dir);
   float pdf = intensity_dist.pdf (map_pos);
 
   // The intensity distribution covers the entire sphere, so adjust
@@ -182,22 +264,6 @@ EnvmapLight::eval (const Intersect &isec, const Vec &dir) const
   pdf *= 0.25f * INV_PIf;
 
   return Value (intens, pdf, 0);
-}
-
-
-
-// Do any scene-related setup for this light.  This is is called once
-// after the entire scene has been loaded.
-//
-void
-EnvmapLight::scene_setup (const Scene &scene)
-{
-  // Record the center and radius of a bounding sphere for the scene.
-
-  BBox scene_bbox = scene.surfaces.bbox ();
-
-  scene_center = scene_bbox.min + scene_bbox.extent () / 2;
-  scene_radius = scene_bbox.extent ().length () / 2;
 }
 
 

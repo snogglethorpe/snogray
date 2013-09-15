@@ -13,7 +13,7 @@
 #include "intersect/intersect.h"
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
-#include "light/sphere-light.h"
+#include "light/sphere-light-sampler.h"
 #include "surface-sampler.h"
 
 #include "sphere.h"
@@ -179,16 +179,16 @@ Sphere::bbox () const
 	       Pos (cent.x + radius, cent.y + radius, cent.z + radius));
 }
 
-// Add a single area light, using this surface's shape, to LIGHTS,
-// with with intensity INTENSITY.  An error will be signaled if this
-// surface does not support lighting.
+// Add light-samplers for this primitive's shape, with with intensity
+// INTENSITY, to SAMPLERS.  An error will be signaled if this
+// primitive does not support lighting.
 //
 void
-Sphere::add_light (const TexVal<Color> &intensity,
-		   std::vector<Light *> &lights)
+Sphere::add_light_samplers (const TexVal<Color> &intensity,
+			    std::vector<const Light::Sampler *> &samplers)
   const
 {
-  lights.push_back (new SphereLight (frame.origin, radius, intensity));
+  samplers.push_back (new SphereLightSampler (frame.origin, radius, intensity));
 }
 
 

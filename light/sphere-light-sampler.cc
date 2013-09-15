@@ -1,4 +1,4 @@
-// sphere-light.cc -- Spherical light
+// sphere-light-sampler.cc -- Spherical light sampler
 //
 //  Copyright (C) 2006-2008, 2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
@@ -18,14 +18,14 @@
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
 
-#include "sphere-light.h"
+#include "sphere-light-sampler.h"
 
 
 using namespace snogray;
 
 
-SphereLight::SphereLight (const Pos &_pos, float _radius,
-			  const TexVal<Color> &_intensity)
+SphereLightSampler::SphereLightSampler (const Pos &_pos, float _radius,
+					const TexVal<Color> &_intensity)
   : pos (_pos), radius (_radius), intensity (_intensity.default_val) 
 {
   if (_intensity.tex)
@@ -38,7 +38,7 @@ SphereLight::SphereLight (const Pos &_pos, float _radius,
 // is a vector from the viewer to the light's center.
 //
 float
-SphereLight::solid_angle (const Vec &light_center_vec) const
+SphereLightSampler::solid_angle (const Vec &light_center_vec) const
 {
   dist_t dist = light_center_vec.length ();
   if (dist < radius)
@@ -47,15 +47,16 @@ SphereLight::solid_angle (const Vec &light_center_vec) const
     return 2 * PIf * float (1 - cos (asin (radius / dist)));
 }
 
+
 
-// SphereLight::sample
+// SphereLightSampler::sample
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
 // (0,0,1)), based on the parameter PARAM.
 //
-Light::Sample
-SphereLight::sample (const Intersect &isec, const UV &param) const
+Light::Sampler::Sample
+SphereLightSampler::sample (const Intersect &isec, const UV &param) const
 {
   // Offset of the center of the light sphere from the intersection origin,
   // in the intersection's normal frame of reference.
@@ -112,13 +113,14 @@ SphereLight::sample (const Intersect &isec, const UV &param) const
   return Sample ();
 }
 
+
 
-// SphereLight::sample
+// SphereLightSampler::sample
 
 // Return a "free sample" of this light.
 //
-Light::FreeSample
-SphereLight::sample (const UV &param, const UV &dir_param) const
+Light::Sampler::FreeSample
+SphereLightSampler::sample (const UV &param, const UV &dir_param) const
 {
   // Sample position on sphere's surface.
   //
@@ -152,15 +154,16 @@ SphereLight::sample (const UV &param, const UV &dir_param) const
   return FreeSample (intensity, s_pdf, s_pos, s_dir);
 }
 
+
 
-// SphereLight::eval
+// SphereLightSampler::eval
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC (using
 // a surface-normal coordinate system, where the surface normal is
 // (0,0,1)).
 //
-Light::Value
-SphereLight::eval (const Intersect &isec, const Vec &dir) const
+Light::Sampler::Value
+SphereLightSampler::eval (const Intersect &isec, const Vec &dir) const
 {
   // Offset of the center of the light sphere from the intersection origin,
   // in the intersection's normal frame of reference.

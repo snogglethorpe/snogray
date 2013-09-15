@@ -21,110 +21,160 @@
 using namespace snogray;
 
 
+// FarLight::Sampler
+
+class FarLight::Sampler : public Light::Sampler
+{
+public:
+
+  Sampler (const FarLight &_light, const BBox &scene_bbox)
+    : light (_light),
+      scene_center (scene_bbox.center ()),
+      scene_radius (scene_bbox.radius ())
+  { }
+
+  // Return a sample of this light from the viewpoint of ISEC (using a
+  // surface-normal coordinate system, where the surface normal is
+  // (0,0,1)), based on the parameter PARAM.
+  //
+  virtual Sample sample (const Intersect &isec, const UV &param) const;
+
+  // Return a "free sample" of this light.
+  //
+  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
+
+  // Evaluate this light in direction DIR from the viewpoint of ISEC (using
+  // a surface-normal coordinate system, where the surface normal is
+  // (0,0,1)).
+  //
+  virtual Value eval (const Intersect &isec, const Vec &dir) const;
+
+  // Return true if this is an "environmental" light, not associated
+  // with any surface.
+  //
+  virtual bool is_environ_light () const { return true; }
+
+  // Return true if this is a point light.
+  //
+  virtual bool is_point_light () const { return light.cos_half_angle == 1; }
+
+  // Evaluate this environmental light in direction DIR (in world-coordinates).
+  //
+  virtual Color eval_environ (const Vec &dir) const;
+
+private:
+
+  const FarLight &light;
+
+  // Center and radius of a bounding sphere for the entire scene.
+  //
+  Pos scene_center;
+  dist_t scene_radius;
+};
+
+
+// Add light-samplers for this light in SCENE to SAMPLERS.  Any
+// samplers added become owned by the owner of SAMPLERS, and will be
+// destroyed when it is.
+//
+void
+FarLight::add_light_samplers (const Scene &scene,
+			      std::vector<const Light::Sampler *> &samplers)
+  const
+{
+  samplers.push_back (new Sampler (*this, scene.bbox ()));
+}
+
+
+
 // FarLight::sample
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
 // (0,0,1)), based on the parameter PARAM.
 //
-Light::Sample
-FarLight::sample (const Intersect &isec, const UV &param) const
+Light::Sampler::Sample
+FarLight::Sampler::sample (const Intersect &isec, const UV &param) const
 {
   // Sample a cone pointing at our light.
   //
   Vec s_dir
-    = isec.normal_frame.to (frame.from (cone_sample (cos_half_angle, param)));
-  float pdf = cos_half_angle == 1 ? 1 : cone_sample_pdf (cos_half_angle);
+    = isec.normal_frame.to (light.frame.from (cone_sample (light.cos_half_angle,
+							   param)));
+  float pdf
+    = light.cos_half_angle == 1 ? 1 : cone_sample_pdf (light.cos_half_angle);
 
   if (isec.cos_n (s_dir) > 0 && isec.cos_geom_n (s_dir) > 0)
-    return Sample (intensity, pdf, s_dir, 0);
+    return Sample (light.intensity, pdf, s_dir, 0);
 
   return Sample ();
 }
 
-
-
 // Return a "free sample" of this light.
 //
-Light::FreeSample
-FarLight::sample (const UV &param, const UV &dir_param) const
+Light::Sampler::FreeSample
+FarLight::Sampler::sample (const UV &param, const UV &dir_param) const
 {
   // Note that the sample position and direction are decoupled, as a
   // far-light is "really really far away" from the scene.  A given
   // sample point will appear in the same direction from any location
   // in the scene.
 
-  Vec s_dir = frame.from (cone_sample (cos_half_angle, dir_param));
+  Vec s_dir = light.frame.from (cone_sample (light.cos_half_angle, dir_param));
   Pos s_pos = tangent_disk_sample (scene_center, scene_radius, s_dir, param);
 
   // Adjust pdf to include disk sampling.
   //
-  float pdf = cos_half_angle == 1 ? 1 : cone_sample_pdf (cos_half_angle);
+  float pdf
+    = light.cos_half_angle == 1 ? 1 : cone_sample_pdf (light.cos_half_angle);
   float s_pdf = pdf / (float (scene_radius * scene_radius) * PIf);
 
-  return FreeSample (intensity, s_pdf, s_pos, -s_dir);
+  return FreeSample (light.intensity, s_pdf, s_pos, -s_dir);
 }
 
+
 
-// FarLight::eval
+// FarLight::Sampler::eval
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC
 // (using a surface-normal coordinate system, where the surface normal
 // is (0,0,1)).
 //
-Light::Value
-FarLight::eval (const Intersect &isec, const Vec &dir) const
+Light::Sampler::Value
+FarLight::Sampler::eval (const Intersect &isec, const Vec &dir) const
 {
-  if (cos_half_angle < 1)
+  if (light.cos_half_angle < 1)
     {
-      Vec light_normal_dir = isec.normal_frame.to (frame.z);
-      float pdf = cone_sample_pdf (cos_half_angle);
+      Vec light_normal_dir = isec.normal_frame.to (light.frame.z);
+      float pdf = cone_sample_pdf (light.cos_half_angle);
 
-      if (cos_angle (dir, light_normal_dir) >= cos_half_angle)
-	return Value (intensity, pdf, 0);
+      if (cos_angle (dir, light_normal_dir) >= light.cos_half_angle)
+	return Value (light.intensity, pdf, 0);
     }
 
   return Value ();
 }
 
-
-
 // Evaluate this environmental light in direction DIR (in world-coordinates).
 //
 Color
-FarLight::eval_environ (const Vec &dir) const
+FarLight::Sampler::eval_environ (const Vec &dir) const
 {
-  if (cos_half_angle < 1)
+  if (light.cos_half_angle < 1)
     {
       // Cosine of the angle between DIR and the direction of this light.
       //
-      float cos_light_dir = cos_angle (dir, frame.z);
+      float cos_light_dir = cos_angle (dir, light.frame.z);
 
       // If COS_LIGHT_DIR is greater than COS_HALF_ANGLE, then DIR must be
       // within ANGLE/2 of the light direction, so return the light's
       // color; otherwise just return 0.
       //
-      if (cos_light_dir > cos_half_angle)
-	return intensity;
+      if (cos_light_dir > light.cos_half_angle)
+	return light.intensity;
     }
 
   return 0;
-}
-
-
-
-// Do any scene-related setup for this light.  This is is called once
-// after the entire scene has been loaded.
-//
-void
-FarLight::scene_setup (const Scene &scene)
-{
-  // Record the center and radius of a bounding sphere for the scene.
-
-  BBox scene_bbox = scene.surfaces.bbox ();
-
-  scene_center = scene_bbox.min + scene_bbox.extent () / 2;
-  scene_radius = scene_bbox.extent ().length () / 2;
 }
 
 

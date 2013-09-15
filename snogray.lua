@@ -332,6 +332,10 @@ camera = load_environ.camera
 --
 install_new_entries (load_environ.params, params)
 
+-- Apply scene parameter tables.
+--
+scene_cmdline.apply (scene_params, scene)
+
 -- Do post-load scene setup (nothing can be added to scene after this).
 --
 -- We need to do this _before_ processing the camera command-line, as
@@ -339,9 +343,8 @@ install_new_entries (load_environ.params, params)
 --
 scene:setup (accel.factory())
 
--- Apply our parameter tables.
+-- Apply camera parameter tables.
 --
-scene_cmdline.apply (scene_params, scene)
 camera_cmdline.apply (camera_params, camera, scene)
 
 -- Get the output file back, in case loading the scene changed it.
@@ -455,7 +458,7 @@ if not quiet then
 				" top-level surface",
 				" top-level surfaces")
           ..", "
-	  ..commify_with_units (scene:num_lights (),
+	  ..commify_with_units (scene:num_light_samplers (),
 				" light", " lights"))
    print ("* camera: at "..tostring (camera.pos)
 	  ..", pointing at "

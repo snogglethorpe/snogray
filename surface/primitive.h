@@ -33,22 +33,22 @@ public:
   Primitive (const Ref<const Material> &mat) : material (mat) { }
   virtual ~Primitive () { }
 
-  // If this surface, or some part of it, uses any light-emitting
-  // materials, add appropriate Light objects to LIGHTS.  Any lights
-  // added become owned by the owner of LIGHTS, and will be destroyed
-  // when it is.
+  // Add light-samplers for this surface in SCENE to SAMPLERS.  Any
+  // samplers added become owned by the owner of SAMPLERS, and will be
+  // destroyed when it is.
   //
-  virtual void add_lights (std::vector<Light *> &lights) const
-  {
-    material->add_light (*this, lights);
-  }
+  virtual void add_light_samplers (
+		 const Scene &scene,
+		 std::vector<const Light::Sampler *> &samplers)
+    const;
 
-  // Add a single area light, using this surface's shape, to LIGHTS,
-  // with with intensity INTENSITY.  An error will be signaled if this
-  // surface does not support lighting.
+  // Add light-samplers for this primitive's shape, with with intensity
+  // INTENSITY, to SAMPLERS.  An error will be signaled if this
+  // primitive does not support lighting.
   //
-  virtual void add_light (const TexVal<Color> &intensity,
-			  std::vector<Light *> &lights)
+  virtual void add_light_samplers (
+		 const TexVal<Color> &intensity,
+		 std::vector<const Light::Sampler *> &samplers)
     const;
 
   Ref<const Material> material;

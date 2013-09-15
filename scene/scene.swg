@@ -46,6 +46,7 @@ namespace snogray {
 
     unsigned num_surfaces () const;
     unsigned num_lights () const;
+    unsigned num_light_samplers () const;
 
     void setup (const SpaceBuilderFactory &space_builder_factory);
 

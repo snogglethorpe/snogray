@@ -1,6 +1,6 @@
 // surface-group.h -- Group of surfaces
 //
-//  Copyright (C) 2007, 2008, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -70,12 +70,14 @@ public:
   //
   virtual void add_to_space (SpaceBuilder &space_builder) const;
 
-  // If this surface, or some part of it, uses any light-emitting
-  // materials, add appropriate Light objects to LIGHTS.  Any lights
-  // added become owned by the owner of LIGHTS, and will be destroyed
-  // when it is.
+  // Add light-samplers for this surface in SCENE to SAMPLERS.  Any
+  // samplers added become owned by the owner of SAMPLERS, and will be
+  // destroyed when it is.
   //
-  virtual void add_lights (std::vector<Light *> &lights) const;
+  virtual void add_light_samplers (
+		 const Scene &scene,
+		 std::vector<const Light::Sampler *> &samplers)
+    const;
 
   // Return the number of surfaces directly in this group.
   //

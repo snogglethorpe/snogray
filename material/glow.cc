@@ -59,12 +59,15 @@ Glow::medium () const
 
 // If this is a light-emitting material, call PRIMITIVE's
 // Primitive::add_light method with an appropriate intensity to add a
-// light to LIGHTS (for non-light-emitting materials, do nothing).
+// Light::Sampler to SAMPLERS (for non-light-emitting materials, do
+// nothing).
 //
 void
-Glow::add_light (const Primitive &primitive, std::vector<Light *> &lights) const
+Glow::add_light_samplers (const Primitive &primitive,
+			  std::vector<const Light::Sampler *> &samplers)
+  const
 {
-  primitive.add_light (color, lights);
+  primitive.add_light_samplers (color, samplers);
 }
 
 

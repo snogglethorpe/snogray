@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "light/light.h"
 #include "geometry/bbox.h"
 #include "intersect/ray.h"
 #include "intersect/intersect.h"
@@ -25,7 +26,6 @@ namespace snogray {
 class SpaceBuilder;
 class Media;
 class Medium;
-class Light;
 
 
 // A surface is the basic object scenes are constructed of.
@@ -86,12 +86,15 @@ public:
   //
   virtual void add_to_space (SpaceBuilder &space_builder) const;
 
-  // If this surface, or some part of it, uses any light-emitting
-  // materials, add appropriate Light objects to LIGHTS.  Any lights
-  // added become owned by the owner of LIGHTS, and will be destroyed
-  // when it is.
+  // Add light-samplers for this surface in SCENE to SAMPLERS.  Any
+  // samplers added become owned by the owner of SAMPLERS, and will be
+  // destroyed when it is.
   //
-  virtual void add_lights (std::vector<Light *> & /*lights*/) const { }
+  virtual void add_light_samplers (
+		 const Scene &/*scene*/,
+		 std::vector<const Light::Sampler *> &/*samplers*/)
+    const
+  { }
 
   // Return a sampler for this surface, or zero if the surface doesn't
   // support sampling.  The caller is responsible for destroying

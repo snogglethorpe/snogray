@@ -211,19 +211,18 @@ Todo list for snogray				-*- mode:org; coding:utf-8 -*-
 
 * TODO Add support for area-lights in instances
 
-  This can be done by:
+  Not so hard now that light-samplers are split from lights; the
+  former acts as a level of indirection that can be used to add
+  duplicate instances of lights.
 
-  1. Have Subspace maintain its own list of lights inside the subspace.
-
-  2. Add a introducing a light class (InstanceLight?), which acts as a
-     wrapper for each light inside the subspace, and can be added to the
-     global light list; it takes care of transforming coordinates etc
-     and then invokes the wrapped light's methods.
-
-  3. Instance::add_lights then just iterates over its subspace's light
-     list, and adds an appropriate wrapper light for each light therein.
-     [it also needs to handle initializing the subspace's light list if
-     it is the first instance to have a chance.]
+  All light-samplers are global, however, so light-samplers added in
+  the model would have to be transformed.  We'd need to add a XFORM
+  argument to the Surface::add_light_samplers interface, and this is
+  slightly annoying because currently light-samplers freely reference
+  state such as locations in the light they came from.... Probably the
+  best way is to bite the bullet and just duplicate all state
+  (possibly transformed) in light-samplers, rather than keeping
+  references to the original lights.
 
 * TODO Add alternative types of sample generation
 

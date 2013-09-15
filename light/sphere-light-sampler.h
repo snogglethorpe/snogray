@@ -1,6 +1,6 @@
-// surface-light.h -- General-purpose area light
+// sphere-light-sampler.h -- Spherical light sampler
 //
-//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,24 +10,25 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#ifndef SNOGRAY_SURFACE_LIGHT_H
-#define SNOGRAY_SURFACE_LIGHT_H
+#ifndef SNOGRAY_SPHERE_LIGHT_SAMPLER_H
+#define SNOGRAY_SPHERE_LIGHT_SAMPLER_H
 
-#include "util/unique-ptr.h"
 #include "color/color.h"
+#include "geometry/pos.h"
 #include "texture/tex.h"
-#include "light.h"
-#include "surface/surface.h"
+
+#include "light-sampler.h"
 
 
 namespace snogray {
 
 
-class SurfaceLight : public Light
+class SphereLightSampler : public Light::Sampler
 {
 public:
 
-  SurfaceLight (const Surface &surface, const TexVal<Color> &_intensity);
+  SphereLightSampler (const Pos &_pos, float _radius,
+		      const TexVal<Color> &_intensity);
 
   // Return a sample of this light from the viewpoint of ISEC (using a
   // surface-normal coordinate system, where the surface normal is
@@ -45,18 +46,26 @@ public:
   //
   virtual Value eval (const Intersect &isec, const Vec &dir) const;
 
-  // A sampler for the surface which is lit.
-  //
-  UniquePtr<const Surface::Sampler> sampler;
-
 private:
+
+  // Location and size of the light.
+  //
+  Pos pos;
+  dist_t radius;
 
   // Radiant emittance of this light (W / m^2).
   //
   Color intensity;
+
+  // Return the solid angle subtended by this light, where LIGHT_CENTER_VEC
+  // is a vector from the viewer to the light's center.
+  //
+  float solid_angle (const Vec &light_center_vec) const;
 };
 
 
 }
 
-#endif // SNOGRAY_SURFACE_LIGHT_H
+#endif // SNOGRAY_SPHERE_LIGHT_SAMPLER_H
+
+// arch-tag: e40bcb89-44fb-478a-b8b6-c5265c4537d2

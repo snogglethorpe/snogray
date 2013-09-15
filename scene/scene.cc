@@ -30,9 +30,14 @@ Scene::Scene ()
 //
 Scene::~Scene ()
 {
-  for (std::vector<Light *>::const_iterator li = lights.begin();
+  for (std::vector<const Light *>::const_iterator li = lights.begin();
        li != lights.end(); ++li)
     delete *li;
+
+  for (std::vector<const Light::Sampler *>::const_iterator si
+	 = light_samplers.begin();
+       si != light_samplers.end(); ++si)
+    delete *si;
 
   delete space;
 }
@@ -60,12 +65,9 @@ Scene::add (const Surface *surface)
 // Add a light.
 //
 void
-Scene::add (Light *light)
+Scene::add (const Light *light)
 {
   lights.push_back (light);
-
-  if (light->is_environ_light ())
-    environ_lights.push_back (light);
 }
 
 // Construct the search accelerator for this scene.
@@ -95,9 +97,10 @@ Scene::background (const Vec &dir) const
 {
   Color radiance = 0;
 
-  for (std::vector<Light *>::const_iterator li = environ_lights.begin();
-       li != environ_lights.end(); ++li)
-    radiance += (*li)->eval_environ (dir);
+  for (std::vector<const Light::Sampler *>::const_iterator si
+	 = environ_light_samplers.begin();
+       si != environ_light_samplers.end(); ++si)
+    radiance += (*si)->eval_environ (dir);
 
   return radiance;
 }
@@ -120,13 +123,22 @@ Scene::setup (const SpaceBuilderFactory &space_builder_factory)
 
   // Add area-lights.
   //
-  surfaces.add_lights (lights);
+  surfaces.add_light_samplers (*this, light_samplers);
 
-  // call each light's Light::scene_setup method.
+  // Create light-samplers for each light.
   //
-  for (std::vector<Light *>::iterator li = lights.begin ();
+  for (std::vector<const Light *>::iterator li = lights.begin ();
        li != lights.end (); ++li)
-    (*li)->scene_setup (*this);
+    (*li)->add_light_samplers (*this, light_samplers);
+
+  // Record an abbreviated list of just environment-light samplers,
+  // which we use when just returning the background.
+  //
+  for (std::vector<const Light::Sampler *>::const_iterator si
+	 = light_samplers.begin();
+       si != light_samplers.end(); ++si)
+    if ((*si)->is_environ_light ())
+      environ_light_samplers.push_back (*si);
 }
 
 

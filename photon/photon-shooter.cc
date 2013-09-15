@@ -37,9 +37,10 @@ PhotonShooter::shoot (const GlobalRenderState &global_render_state)
   RenderContext context (global_render_state);
   Media surrounding_media (context.default_medium);
 
-  const std::vector<Light *> &lights = context.scene.lights;
+  const std::vector<const Light::Sampler *> &light_samplers
+    = context.scene.light_samplers;
 
-  if (lights.size () == 0)
+  if (light_samplers.size () == 0)
     return;			// no lights, so no point
 
   TtyProgress prog (std::cout, "* " + name + ": shooting photons...");
@@ -51,10 +52,11 @@ PhotonShooter::shoot (const GlobalRenderState &global_render_state)
     {
       prog.update (cur_count ());
 
-      // Randomly choose a light.
+      // Randomly choose a light-sampler.
       //
-      unsigned light_num = radical_inverse (path_num, 11) * lights.size ();
-      const Light *light = lights[light_num];
+      unsigned sampler_num
+	= radical_inverse (path_num, 11) * light_samplers.size ();
+      const Light::Sampler *light_sampler = light_samplers[sampler_num];
 
       // Sample the light.
       //
@@ -62,7 +64,8 @@ PhotonShooter::shoot (const GlobalRenderState &global_render_state)
 		    radical_inverse (path_num, 3));
       UV dir_param (radical_inverse (path_num, 5),
 		    radical_inverse (path_num, 7));
-      Light::FreeSample samp = light->sample (pos_param, dir_param);
+      Light::Sampler::FreeSample samp
+	= light_sampler->sample (pos_param, dir_param);
       
       if (samp.val == 0 || samp.pdf == 0)
 	continue;
@@ -91,7 +94,7 @@ PhotonShooter::shoot (const GlobalRenderState &global_render_state)
       //
       Pos pos = samp.pos;
       Vec dir = samp.dir;
-      Color power = samp.val * float (lights.size ()) / samp.pdf;
+      Color power = samp.val * float (light_samplers.size ()) / samp.pdf;
 
       // We keep shooting the photon PH into the scene, and follow it as
       // it bounces off surfaces.  The loop is terminated if PH fails to

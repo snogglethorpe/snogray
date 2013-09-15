@@ -12,24 +12,75 @@
 
 #include "intersect/intersect.h"
 #include "geometry/cone-sample.h"
+#include "light-sampler.h"
 
 #include "point-light.h"
 
 
 using namespace snogray;
 
+
 
+// Point::Sampler
+
+class PointLight::Sampler : public Light::Sampler
+{
+public:
+
+  Sampler (const PointLight &_light) : light (_light) { }
+
+  // Return a sample of this light from the viewpoint of ISEC (using a
+  // surface-normal coordinate system, where the surface normal is
+  // (0,0,1)), based on the parameter PARAM.
+  //
+  virtual Sample sample (const Intersect &isec, const UV &param) const;
+
+  // Return a "free sample" of this light.
+  //
+  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
+
+  // Evaluate this light in direction DIR from the viewpoint of ISEC (using
+  // a surface-normal coordinate system, where the surface normal is
+  // (0,0,1)).
+  //
+  virtual Value eval (const Intersect &isec, const Vec &dir) const;
+
+  // Return true if this is a point light.
+  //
+  virtual bool is_point_light () const { return true; }
+
+private:
+
+  const PointLight &light;
+};
+
+
+// Add light-samplers for this light in SCENE to SAMPLERS.  Any
+// samplers added become owned by the owner of SAMPLERS, and will be
+// destroyed when it is.
+//
+void
+PointLight::add_light_samplers (const Scene &,
+				std::vector<const Light::Sampler *> &samplers)
+  const
+{
+  samplers.push_back (new Sampler (*this));
+}
+
+
+
+// sampling
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
 // (0,0,1)), based on the parameter PARAM.
 //
-Light::Sample
-PointLight::sample (const Intersect &isec, const UV &) const
+Light::Sampler::Sample
+PointLight::Sampler::sample (const Intersect &isec, const UV &) const
 {
   // Vector from ISEC to the light position, in ISEC's normal frame.
   //
-  Vec lvec = isec.normal_frame.to (frame.origin);
+  Vec lvec = isec.normal_frame.to (light.frame.origin);
 
   if (isec.cos_n (lvec) > 0 && isec.cos_geom_n (lvec) > 0)
     {
@@ -39,17 +90,17 @@ PointLight::sample (const Intersect &isec, const UV &) const
       // Cosine of the angle between the light-ray and the light axis.
       //
       float cos_dir
-	= cos_angle ((isec.normal_frame.origin - frame.origin) * inv_dist,
-		     frame.z);
+	= cos_angle ((isec.normal_frame.origin - light.frame.origin) * inv_dist,
+		     light.frame.z);
 
       // If this is a spherical point-light (angle == 2*PI,
       // cos_half_angle == -1), then all directions are visible;
       // otherwise, we need to see if ISEC lies within the light's
       // cone.
       //
-      if (cos_dir >= cos_half_angle)
+      if (cos_dir >= light.cos_half_angle)
 	{
-	  Color intens = intensity (cos_dir) * inv_dist * inv_dist;
+	  Color intens = light.intensity (cos_dir) * inv_dist * inv_dist;
 	  Vec dir = lvec * inv_dist;
 	  return Sample (intens, 1, dir, dist);
 	}
@@ -60,23 +111,23 @@ PointLight::sample (const Intersect &isec, const UV &) const
 
 // Return a "free sample" of this light.
 //
-Light::FreeSample
-PointLight::sample (const UV &, const UV &dir_param) const
+Light::Sampler::FreeSample
+PointLight::Sampler::sample (const UV &, const UV &dir_param) const
 {
-  Vec dir = cone_sample (cos_half_angle, dir_param);
-  float pdf = cone_sample_pdf (cos_half_angle);
-  Color intens = intensity (dir.z); // DIR.z == cos_dir in this frame
-  if (cos_half_angle != -1)
-    dir = frame.from (dir);
-  return FreeSample (intens, pdf, frame.origin, dir);
+  Vec dir = cone_sample (light.cos_half_angle, dir_param);
+  float pdf = cone_sample_pdf (light.cos_half_angle);
+  Color intens = light.intensity (dir.z); // DIR.z == cos_dir in this frame
+  if (light.cos_half_angle != -1)
+    dir = light.frame.from (dir);
+  return FreeSample (intens, pdf, light.frame.origin, dir);
 }
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC (using
 // a surface-normal coordinate system, where the surface normal is
 // (0,0,1)).
 //
-Light::Value
-PointLight::eval (const Intersect &, const Vec &) const
+Light::Sampler::Value
+PointLight::Sampler::eval (const Intersect &, const Vec &) const
 {
   return Value ();  // DIR will always fail to point exactly to th
 }

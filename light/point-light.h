@@ -46,27 +46,18 @@ public:
       cos_half_core_angle (cos ((angle - fringe_angle) / 2))
   { }
 
-  // Return a sample of this light from the viewpoint of ISEC (using a
-  // surface-normal coordinate system, where the surface normal is
-  // (0,0,1)), based on the parameter PARAM.
+  // Add light-samplers for this light in SCENE to SAMPLERS.  Any
+  // samplers added become owned by the owner of SAMPLERS, and will be
+  // destroyed when it is.
   //
-  virtual Sample sample (const Intersect &isec, const UV &param) const;
-
-  // Return a "free sample" of this light.
-  //
-  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
-
-  // Evaluate this light in direction DIR from the viewpoint of ISEC (using
-  // a surface-normal coordinate system, where the surface normal is
-  // (0,0,1)).
-  //
-  virtual Value eval (const Intersect &isec, const Vec &dir) const;
-
-  // Return true if this is a point light.
-  //
-  virtual bool is_point_light () const { return true; }
+  virtual void add_light_samplers (
+		 const Scene &scene,
+		 std::vector<const Light::Sampler *> &samplers)
+    const;
 
 private:
+
+  class Sampler;
 
   Color intensity (float cos_dir) const
   {

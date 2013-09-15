@@ -41,47 +41,23 @@ public:
       // To ensure that if ANGLE is zero, COS_HALF_ANGLE becomes
       // exactly 1 (because we explicitly compare with that), don't
       // trust the cos function to return exactly the right result.
-      cos_half_angle (angle == 0 ? 1 : cos (angle / 2)),
-      scene_radius (0)
+      cos_half_angle (angle == 0 ? 1 : cos (angle / 2))
   { }
 
-  // Return a sample of this light from the viewpoint of ISEC (using a
-  // surface-normal coordinate system, where the surface normal is
-  // (0,0,1)), based on the parameter PARAM.
+  // Add light-samplers for this light in SCENE to SAMPLERS.  Any
+  // samplers added become owned by the owner of SAMPLERS, and will be
+  // destroyed when it is.
   //
-  virtual Sample sample (const Intersect &isec, const UV &param) const;
-
-  // Return a "free sample" of this light.
-  //
-  virtual FreeSample sample (const UV &param, const UV &dir_param) const;
-
-  // Evaluate this light in direction DIR from the viewpoint of ISEC (using
-  // a surface-normal coordinate system, where the surface normal is
-  // (0,0,1)).
-  //
-  virtual Value eval (const Intersect &isec, const Vec &dir) const;
-
-  // Return true if this is an "environmental" light, not associated
-  // with any surface.
-  //
-  virtual bool is_environ_light () const { return true; }
-
-  // Return true if this is a point light.
-  //
-  virtual bool is_point_light () const { return cos_half_angle == 1; }
-
-  // Evaluate this environmental light in direction DIR (in world-coordinates).
-  //
-  virtual Color eval_environ (const Vec &dir) const;
-
-  // Do any scene-related setup for this light.  This is is called once
-  // after the entire scene has been loaded.
-  //
-  virtual void scene_setup (const Scene &scene);
-
-  Color intensity;
+  virtual void add_light_samplers (
+		 const Scene &scene,
+		 std::vector<const Light::Sampler *> &samplers)
+    const;
 
 private:
+
+  class Sampler;
+
+  Color intensity;
   
   // Frame of reference pointing at this light from the origin.
   //
@@ -90,11 +66,6 @@ private:
   // The cosine of half the angle subtended by this light's cone.
   //
   float cos_half_angle;
-
-  // Center and radius of a bounding sphere for the entire scene.
-  //
-  Pos scene_center;
-  dist_t scene_radius;
 };
 
 

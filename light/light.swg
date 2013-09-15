@@ -13,7 +13,6 @@
 
 %{
 #include "light/point-light.h"
-#include "light/sphere-light.h"
 #include "light/far-light.h"
 #include "light/envmap-light.h"
 %}
@@ -37,13 +36,6 @@ namespace snogray {
     PointLight (const Pos &pos, const Color &col);
     PointLight (const Pos &pos, const Color &col, float angle, const Vec &dir,
     	        float fringe_angle = 0);
-  };
-
-  class SphereLight : public Light
-  {
-  public:
-
-    SphereLight (const Pos &_pos, float _radius, const Color &_intensity);
   };
 
   class FarLight : public Light

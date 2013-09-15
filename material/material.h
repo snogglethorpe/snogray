@@ -189,14 +189,15 @@ public:
   }
 
   // If this is a light-emitting material, call PRIMITIVE's
-  // Primitive::add_light method with an appropriate intensity to add a
-  // light to LIGHTS (for non-light-emitting materials, do nothing).
+  // Primitive::add_light method with an appropriate intensity to add
+  // a Light::Sampler to SAMPLERS (for non-light-emitting materials,
+  // do nothing).
   //
-  virtual void add_light (const Primitive & /*primitive*/,
-			  std::vector<Light *> & /*lights*/)
+  virtual void add_light_samplers (
+		 const Primitive &/*primitive*/,
+		 std::vector<const Light::Sampler *> &/*samplers*/)
     const
-  {
-  }
+  { }
 
   Ref<const Tex<float> > bump_map;
 

@@ -17,6 +17,7 @@
 
 #include "surface/surface.h"
 #include "light/light.h"
+#include "light/light-sampler.h"
 #include "intersect/intersect.h"
 #include "intersect/ray.h"
 #include "space/space.h"
@@ -94,7 +95,7 @@ public:
 
   // Add a light.
   //
-  void add (Light *light);
+  void add (const Light *light);
 
   // Construct the search accelerator for this scene.
   // SPACE_BUILDER_FACTORY says how to do it.
@@ -109,6 +110,7 @@ public:
 
   unsigned num_surfaces () const { return surfaces.num_surfaces (); }
   unsigned num_lights () const { return lights.size (); }
+  unsigned num_light_samplers () const { return light_samplers.size (); }
 
   // Return an axis-aligned bounding box containing the entire scene.
   //
@@ -118,13 +120,18 @@ public:
   //
   SurfaceGroup surfaces;
 
-  // All lights in the scene.
+  // Explicitly-added lights in the scene.
   //
-  std::vector<Light *> lights;
+  std::vector<const Light *> lights;
 
-  // "Environmental" lights in the scene.  This is a subset of LIGHTS.
+  // Light-samplers for all lights in the scene.
   //
-  std::vector<Light *> environ_lights;
+  std::vector<const Light::Sampler *> light_samplers;
+
+  // Light-samplers for "environmental" lights in the scene.  This is
+  // a subset of LIGHT_SAMPLERS.
+  //
+  std::vector<const Light::Sampler *> environ_light_samplers;
 
   // A distance which is further than the furthest surface from any point.
   //

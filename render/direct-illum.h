@@ -78,11 +78,11 @@ public:
     const;
 
   // Use multiple-importance-sampling to estimate the radiance of
-  // LIGHT towards ISEC, using LIGHT_PARAM, BSDF_PARAM, and
-  // BSDF_LAYER_PARAM to sample both the light and the BSDF.
-  // FLAGS specifies what part of the BSDF will be used.
-  //
-  Color sample_light (const Intersect &isec, const Light *light,
+  // LIGHT_SAMPLER towards ISEC, LIGHT_PARAM, BSDF_PARAM, and
+  // BSDF_LAYER_PARAM to sample both the light and the BSDF.  FLAGS
+  // specifies what part of the BSDF will be used.
+  Color sample_light (const Intersect &isec,
+		      const Light::Sampler *light_sampler,
 		      const UV &light_param,
 		      const UV &bsdf_param, float bsdf_layer_param,
 		      unsigned flags = (Bsdf::ALL & ~Bsdf::SPECULAR))

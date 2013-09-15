@@ -69,12 +69,13 @@ public:
   //
   virtual BBox bbox () const;
 
-  // Add a single area light, using this surface's shape, to LIGHTS,
-  // with with intensity INTENSITY.  An error will be signaled if this
-  // surface does not support lighting.
+  // Add light-samplers for this surface in SCENE to SAMPLERS.  Any
+  // samplers added become owned by the owner of SAMPLERS, and will be
+  // destroyed when it is.
   //
-  virtual void add_light (const TexVal<Color> &intensity,
-			  std::vector<Light *> &lights)
+  virtual void add_light_samplers (
+		 const TexVal<Color> &intensity,
+		 std::vector<const Light::Sampler *> &samplers)
     const;
 
   // Return a sampler for this surface, or zero if the surface doesn't

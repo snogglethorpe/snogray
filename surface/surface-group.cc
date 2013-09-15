@@ -49,17 +49,18 @@ SurfaceGroup::add_to_space (SpaceBuilder &space_builder) const
 }
 
 
-// If this surface, or some part of it, uses any light-emitting
-// materials, add appropriate Light objects to LIGHTS.  Any lights
-// added become owned by the owner of LIGHTS, and will be destroyed
-// when it is.
+// Add light-samplers for this surface in SCENE to SAMPLERS.  Any
+// samplers added become owned by the owner of SAMPLERS, and will be
+// destroyed when it is.
 //
 void
-SurfaceGroup::add_lights (std::vector<Light *> &lights) const
+SurfaceGroup::add_light_samplers (const Scene &scene,
+				  std::vector<const Light::Sampler *> &samplers)
+  const
 {
   for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
        si != surfaces.end(); ++si)
-    (*si)->add_lights (lights);
+    (*si)->add_light_samplers (scene, samplers);
 }
 
 

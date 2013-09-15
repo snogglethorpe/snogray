@@ -1,4 +1,4 @@
-// surface-light.cc -- General-purpose area light
+// surface-light-sampler.cc -- General-purpose area light sampler
 //
 //  Copyright (C) 2010, 2013  Miles Bader <miles@gnu.org>
 //
@@ -17,14 +17,14 @@
 #include "scene/scene.h"
 #include "surface/surface-sampler.h"
 
-#include "surface-light.h"
+#include "surface-light-sampler.h"
 
 
 using namespace snogray;
 
 
-SurfaceLight::SurfaceLight (const Surface &surface,
-			    const TexVal<Color> &_intensity)
+SurfaceLightSampler::SurfaceLightSampler (const Surface &surface,
+					  const TexVal<Color> &_intensity)
   : sampler (surface.make_sampler ()), intensity (_intensity.default_val)
 {
   if (! sampler)
@@ -36,15 +36,16 @@ SurfaceLight::SurfaceLight (const Surface &surface,
       ("textured intensity not supported by SurfaceLight");
 }
 
+
 
-// SurfaceLight::sample
+// SurfaceLightSampler::sample
 
 // Return a sample of this light from the viewpoint of ISEC (using a
 // surface-normal coordinate system, where the surface normal is
 // (0,0,1)), based on the parameter PARAM.
 //
-Light::Sample
-SurfaceLight::sample (const Intersect &isec, const UV &param) const
+Light::Sampler::Sample
+SurfaceLightSampler::sample (const Intersect &isec, const UV &param) const
 {
   // Sample the surface, in world-space.
   //
@@ -67,13 +68,14 @@ SurfaceLight::sample (const Intersect &isec, const UV &param) const
   return Sample ();
 }
 
+
 
-// SurfaceLight::sample, free-sampling variant
+// SurfaceLightSampler::sample, free-sampling variant
 
 // Return a "free sample" of this light.
 //
-Light::FreeSample
-SurfaceLight::sample (const UV &param, const UV &dir_param) const
+Light::Sampler::FreeSample
+SurfaceLightSampler::sample (const UV &param, const UV &dir_param) const
 {
   // Sample the surface, in world-space.
   //
@@ -104,15 +106,16 @@ SurfaceLight::sample (const UV &param, const UV &dir_param) const
   return FreeSample (intensity, pdf, samp.pos, dir);
 }
 
+
 
-// SurfaceLight::eval
+// SurfaceLightSampler::eval
 
 // Evaluate this light in direction DIR from the viewpoint of ISEC
 // (using a surface-normal coordinate system, where the surface normal
 // is (0,0,1)).
 //
-Light::Value
-SurfaceLight::eval (const Intersect &isec, const Vec &dir) const
+Light::Sampler::Value
+SurfaceLightSampler::eval (const Intersect &isec, const Vec &dir) const
 {
   // Test whether RAY hits the surface, and if so, get a sample
   // parameter describing where it hits.

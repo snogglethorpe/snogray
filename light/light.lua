@@ -55,32 +55,6 @@ function light.point (pos, intens, ...)
    return raw.PointLight (pos, color.std (intens), ...)
 end
 
--- light.sphere -- Return a sphere light
---
--- args: (POS, RADIUS, INTENS)
---
--- POS is the position of the light, RADIUS its radius, and INTENS the
--- intensity (per unit area on the surface of the sphere) of the
--- emitted light.  Note that INTENS may not be a texture.
---
-function light.sphere (pos, radius, intens)
-   return raw.SphereLight (pos, radius, color.std (intens))
-end
-
--- light.triangle -- Return a triangle light
---
--- args: (CORNER, SIDE1, SIDE2, INTENS)
---
--- The light is a triangle shape defined by a corner at position
--- CORNER and two sides SIDE1 and SIDE2 which are vectors from CORNER.
--- INTENS is the intensity (per unit area on the surface of the
--- triangle) of the emitted light, and may be a color.  Note that
--- INTENS may not be a texture.
---
-function light.triangle (corner, side1, side2, intens)
-   return raw.TriparLight (corner, side1, side2, false, color.std (intens))
-end
-
 -- light.far -- Return a "far" (at infinity) disk light
 --
 -- args: (DIR, ANGLE, INTENS)

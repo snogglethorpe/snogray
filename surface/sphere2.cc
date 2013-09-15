@@ -13,7 +13,6 @@
 #include "intersect/intersect.h"
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
-#include "light/surface-light.h"
 #include "surface-sampler.h"
 
 #include "sphere2.h"
