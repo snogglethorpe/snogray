@@ -109,7 +109,6 @@ public:
   void setup (const SpaceBuilderFactory &space_builder_factory);
 
   unsigned num_surfaces () const { return surfaces.num_surfaces (); }
-  unsigned num_lights () const { return lights.size (); }
   unsigned num_light_samplers () const { return light_samplers.size (); }
 
   // Return an axis-aligned bounding box containing the entire scene.
@@ -119,10 +118,6 @@ public:
   // All surfaces in the scene.
   //
   SurfaceGroup surfaces;
-
-  // Explicitly-added lights in the scene.
-  //
-  std::vector<const Light *> lights;
 
   // Light-samplers for all lights in the scene.
   //

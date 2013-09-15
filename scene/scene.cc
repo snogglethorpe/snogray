@@ -30,10 +30,6 @@ Scene::Scene ()
 //
 Scene::~Scene ()
 {
-  for (std::vector<const Light *>::const_iterator li = lights.begin();
-       li != lights.end(); ++li)
-    delete *li;
-
   for (std::vector<const Light::Sampler *>::const_iterator si
 	 = light_samplers.begin();
        si != light_samplers.end(); ++si)
@@ -67,7 +63,7 @@ Scene::add (const Surface *surface)
 void
 Scene::add (const Light *light)
 {
-  lights.push_back (light);
+  surfaces.add (light);
 }
 
 // Construct the search accelerator for this scene.
@@ -121,15 +117,9 @@ Scene::setup (const SpaceBuilderFactory &space_builder_factory)
   //
   build_space (space_builder_factory);
 
-  // Add area-lights.
+  // Add light-samplers for all lights.
   //
   surfaces.add_light_samplers (*this, light_samplers);
-
-  // Create light-samplers for each light.
-  //
-  for (std::vector<const Light *>::iterator li = lights.begin ();
-       li != lights.end (); ++li)
-    (*li)->add_light_samplers (*this, light_samplers);
 
   // Record an abbreviated list of just environment-light samplers,
   // which we use when just returning the background.

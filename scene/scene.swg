@@ -45,7 +45,6 @@ namespace snogray {
     void add (Light *light);
 
     unsigned num_surfaces () const;
-    unsigned num_lights () const;
     unsigned num_light_samplers () const;
 
     void setup (const SpaceBuilderFactory &space_builder_factory);
@@ -60,7 +59,7 @@ namespace snogray {
     {
       snprintf (static_rep_buf, sizeof static_rep_buf,
 		"scene<nobjs=%d, nlights=%d>",
-		$self->num_surfaces(), $self->num_lights());
+		$self->num_surfaces(), $self->num_light_samplers());
       return static_rep_buf;
     }
   };
