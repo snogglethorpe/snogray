@@ -41,6 +41,10 @@ namespace snogray {
 
     Vec extent () const;
 
+    Pos center () const;
+    dist_t diameter () const;
+    dist_t radius () const;
+
     dist_t max_size () const;
     dist_t min_size () const;
     dist_t avg_size () const;
