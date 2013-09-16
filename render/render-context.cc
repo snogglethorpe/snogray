@@ -11,6 +11,7 @@
 //
 
 #include "util/mutex.h"
+#include "global-render-state.h"
 
 #include "render-context.h"
 

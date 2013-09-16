@@ -15,6 +15,7 @@
 #include "material/media.h"
 #include "material/material.h"
 #include "photon/photon-shooter.h"
+#include "global-render-state.h"
 
 #include "path-integ.h"
 

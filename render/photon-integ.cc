@@ -17,8 +17,9 @@
 #include "material/bsdf.h"
 #include "material/media.h"
 #include "material/material.h"
-#include "mis-sample-weight.h"
 #include "photon/photon-shooter.h"
+#include "global-render-state.h"
+#include "mis-sample-weight.h"
 
 #include "photon-integ.h"
 

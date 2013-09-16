@@ -16,13 +16,14 @@
 #include "util/snogmath.h"
 #include "util/snogassert.h"
 #include "util/progress.h"
+#include "util/float-excepts-guard.h"
+#include "render/global-render-state.h"
 #include "renderer.h"
 #include "render-packet.h"
 #if USE_THREADS
 #include "render-thread.h"
 #include "render-queue.h"
 #endif
-#include "util/float-excepts-guard.h"
 
 #include "render-mgr.h"
 

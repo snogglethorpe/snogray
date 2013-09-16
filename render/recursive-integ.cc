@@ -14,6 +14,7 @@
 #include "material/bsdf.h"
 #include "material/media.h"
 #include "material/material.h"
+#include "global-render-state.h"
 
 #include "recursive-integ.h"
 

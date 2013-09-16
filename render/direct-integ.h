@@ -1,6 +1,6 @@
 // direct-integ.h -- Direct-lighting-only surface integrator
 //
-//  Copyright (C) 2010, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,7 @@
 #ifndef SNOGRAY_DIRECT_INTEG_H
 #define SNOGRAY_DIRECT_INTEG_H
 
+#include "global-render-state.h"
 #include "direct-illum.h"
 
 #include "recursive-integ.h"
