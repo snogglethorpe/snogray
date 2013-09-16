@@ -21,8 +21,6 @@ local lpeg_utils = require 'snogray.lpeg-utils'
 local clp = require 'snogray.cmdlineparser'
 local render = require 'snogray.render'
 local coord = require 'snogray.coord'
-local accel = require 'snogray.accel'
-local scene = require 'snogray.scene'
 local transform = require 'snogray.transform'
 
 -- local abbreviations for lpeg primitives
@@ -42,15 +40,14 @@ local NUM = WS * lpeg_utils.FLOAT
 -- the first surface hit, or nil if no surface is hit.
 --
 local function probe_scene (x, y, scene_contents, camera)
-   local scene = scene.new (scene_contents, accel.factory ())
-   local global_render_state = render.global_state (scene, {})
+   local global_render_state = render.global_state (scene_contents, {})
    local render_context = render.context (global_render_state)
 
    local film_pos = coord.uv (x, y)
    local probe = camera:eye_ray (film_pos)
    probe.t1 = scene_contents:bbox ():diameter ()
 
-   if scene:intersect (probe, render_context) then
+   if global_render_state.scene:intersect (probe, render_context) then
       return probe.dir * probe:length ()
    end
 

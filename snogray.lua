@@ -33,8 +33,6 @@ local load = require 'snogray.load'
 local render = require 'snogray.render'
 local image = require 'snogray.image'
 local sys = require 'snogray.sys'
-local accel = require 'snogray.accel'
-local scene = require 'snogray.scene'
 local camera = require 'snogray.camera'
 local environ = require 'snogray.environ'
 local surface = require 'snogray.surface'
@@ -440,25 +438,17 @@ end
 
 
 ----------------------------------------------------------------
--- Create real scene object
---
-
--- note, shadows variable, but oh well
-local scene = scene.new (scene_contents, accel.factory())
-
-
-----------------------------------------------------------------
 -- Pre-render info output
 --
 
 if not quiet then
-   print ("* scene: "
-	  ..commify_with_units (scene:num_surfaces(),
-				" top-level surface",
-				" top-level surfaces")
-          ..", "
-	  ..commify_with_units (scene:num_light_samplers (),
-				" light", " lights"))
+   -- print ("* scene: "
+   -- 	  ..commify_with_units (scene:num_surfaces(),
+   -- 				" top-level surface",
+   -- 				" top-level surfaces")
+   --        ..", "
+   -- 	  ..commify_with_units (scene:num_light_samplers (),
+   -- 				" light", " lights"))
    print ("* camera: at "..tostring (camera.pos)
 	  ..", pointing at "
           ..tostring (camera.pos + camera.forward * camera.target_dist)
@@ -490,7 +480,8 @@ end
 --
 
 local setup_beg_ru = sys.rusage ()
-local grstate = render_cmdline.make_global_render_state (scene, render_params)
+local grstate = render_cmdline.make_global_render_state (scene_contents,
+							 render_params)
 local setup_end_ru = sys.rusage ()
 
 

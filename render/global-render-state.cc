@@ -25,9 +25,15 @@
 using namespace snogray;
 
 
-GlobalRenderState::GlobalRenderState (const Scene &_scene,
+GlobalRenderState::GlobalRenderState (const Surface &scene_contents,
 				      const ValTable &_params)
-  : scene (_scene),
+  : scene (scene_contents,
+	   // note: Using UniquePtr ensures the SpaceBuilderFactory
+	   // will be deleted after the expression is complete (like
+	   // all C++ temporaries, it will be destroyed at the end of
+	   // the outermost expression).
+	   *UniquePtr<const SpaceBuilderFactory> (
+		       make_space_builder_factory (_params))),
     bg_alpha (_params.get_float ("background_alpha", 1)),
     num_samples (_params.get_uint ("samples", 1)),
     params (_params),
@@ -53,6 +59,20 @@ GlobalRenderState::make_sample_gen (const ValTable &)
 {
   return new Grid;
 }
+
+SpaceBuilderFactory *
+GlobalRenderState::make_space_builder_factory (const ValTable &params)
+{
+  std::string accel = params.get_string ("accel", "octree");
+
+  if (accel == "octree")
+    return new Octree::BuilderFactory ();
+  else if (accel == "triv" || accel == "trivial")
+    return new TrivSpace::BuilderFactory ();
+  else
+    throw std::runtime_error ("Unknown search-accelerator \"" + accel + "\"");
+}
+
 
 SurfaceInteg::GlobalState *
 GlobalRenderState::make_surface_integ_global_state (const ValTable &params)

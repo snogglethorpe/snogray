@@ -29,8 +29,10 @@ namespace snogray {
   {
   public:
 
-    GlobalRenderState (const snogray::Scene &_scene,
+    GlobalRenderState (const snogray::Surface &_scene_contents,
 		      const snogray::ValTable &_params);
+
+    const snogray::Scene scene;
   };
 
 

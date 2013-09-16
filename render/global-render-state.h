@@ -13,16 +13,17 @@
 #ifndef SNOGRAY_GLOBAL_RENDER_STATE_H
 #define SNOGRAY_GLOBAL_RENDER_STATE_H
 
+#include "util/val-table.h"
+#include "util/unique-ptr.h"
+#include "scene/scene.h"
 #include "sample-gen.h"
 #include "surface-integ.h"
 #include "volume-integ.h"
-#include "util/val-table.h"
-#include "util/unique-ptr.h"
 
 
 namespace snogray {
 
-class Scene;
+class Surface;
 
 
 // Global state; this contains various read-only global information,
@@ -32,12 +33,11 @@ class GlobalRenderState
 {
 public:
 
-  GlobalRenderState (const Scene &_scene, const ValTable &_params);
+  GlobalRenderState (const Surface &scene_contents, const ValTable &_params);
 
-  // Scene being rendered.  This is also stored in the GLOBAL_STATE object,
-  // but we duplicate the info here, as it's so often used.
+  // Scene being rendered.
   //
-  const Scene &scene;
+  const Scene scene;
 
   // Alpha value to use for background.
   //
@@ -82,8 +82,11 @@ private:
   // Helper methods, which basically create and return an appropriate
   // object based on what's in PARAMS.
   //
+
   static SampleGen *make_sample_gen (const ValTable &params);
-  //
+  static SpaceBuilderFactory *make_space_builder_factory (
+				const ValTable &params);
+
   // The following helper methods are called after initialization is
   // complete, so aren't static (and can't be, as they refer to this).
   //
