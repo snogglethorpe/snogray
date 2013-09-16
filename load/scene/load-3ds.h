@@ -1,6 +1,6 @@
 // load-3ds.h -- Load 3ds scene file
 //
-//  Copyright (C) 2006-2007, 2010-2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2007, 2010-2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 namespace snogray {
 
 
-class Scene;
+class SurfaceGroup;
 class Camera;
 class Mesh;
 class MaterialDict;
@@ -30,7 +30,7 @@ class ValTable;
 // scene, including lights and the first camera position.
 //
 extern void load_3ds_file (const std::string &filename,
-			   Scene &scene, Camera &camera,
+			   SurfaceGroup &scene_contents, Camera &camera,
 			   const ValTable &params);
 
 // Load meshes (and any materials they use) from a 3ds scene file into MESH.

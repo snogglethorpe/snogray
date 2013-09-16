@@ -26,7 +26,8 @@
 #if !HAVE_LIB3DS
   // Error stubs for functions defined in "load-3ds.h"
 
-  void snogray::load_3ds_file (const std::string &, Scene &scene, Camera &,
+  void snogray::load_3ds_file (const std::string &,
+       			       SurfaceGroupe &scene_contents, Camera &,
 			       const ValTable &)
   {
     throw std::runtime_error ("load_3ds_file function not available");
@@ -49,7 +50,8 @@ namespace snogray {
   void load_msh_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);
 
-  void load_3ds_file (const char *filename, Scene &scene, Camera &camera,
+  void load_3ds_file (const char *filename,
+       		      SurfaceGroup &scene_contents, Camera &camera,
 		      const ValTable &params);
   void load_3ds_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);
