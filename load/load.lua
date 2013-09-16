@@ -179,10 +179,10 @@ function load.scene (scene_file, environ)
 	 -- handed to the scene.
 	 --
 	 if swig.need_obj_gc_protect then
-	    local scene = environ.scene
+	    local scene_contents = environ.scene
 
-	    if not swig.has_index_wrappers (scene) then
-	       local wrap = swig.index_wrappers (scene)
+	    if not swig.has_index_wrappers (scene_contents) then
+	       local wrap = swig.index_wrappers (scene_contents)
 
 	       function wrap:add (thing)
 		  swig.gc_ref (self, thing)
