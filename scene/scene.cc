@@ -22,66 +22,41 @@
 using namespace snogray;
 
 
-Scene::Scene ()
-  : horizon (DEFAULT_HORIZON), space (0), setup_done (false)
-{ }
 
-// The scene "owns" all its components, so frees them when it is destroyed
+// Do final setup for the scene.  This should be called after the scene
+// is completely built, and nothing should be added after it it is
+// called.
 //
-Scene::~Scene ()
+Scene::Scene (const Surface &_root_surface,
+	      const SpaceBuilderFactory &space_builder_factory)
+  : horizon (DEFAULT_HORIZON),
+    root_surface (_root_surface),
+    space (space_builder_factory.make_space (root_surface))
 {
+  // Add light-samplers for all lights.
+  //
+  root_surface.add_light_samplers (*this, light_samplers);
+
+  // Record an abbreviated list of just environment-light samplers,
+  // which we use when just returning the background.
+  //
   for (std::vector<const Light::Sampler *>::const_iterator si
 	 = light_samplers.begin();
        si != light_samplers.end(); ++si)
+    if ((*si)->is_environ_light ())
+      environ_light_samplers.push_back (*si);
+}
+
+Scene::~Scene ()
+{
+  // Delete light-samplers.
+  //
+  for (std::vector<const Light::Sampler *>::const_iterator si
+ 	 = light_samplers.begin();
+       si != light_samplers.end(); ++si)
     delete *si;
-
-  delete space;
 }
 
-
-// Object adding
-
-
-// Add a surface.
-//
-void
-Scene::add (const Surface *surface)
-{
-  ASSERT (! setup_done);
-
-  if (space)
-    {
-      delete space;
-      space = 0;
-    }
-
-  surfaces.add (surface);
-}
-
-// Add a light.
-//
-void
-Scene::add (const Light *light)
-{
-  surfaces.add (light);
-}
-
-// Construct the search accelerator for this scene.
-// SPACE_BUILDER_FACTORY says how to do it.
-//
-void
-Scene::build_space (const SpaceBuilderFactory &space_builder_factory)
-{
-  if (! space)
-    {
-      UniquePtr<SpaceBuilder> space_builder
-	(space_builder_factory.make_space_builder ());
-
-      surfaces.add_to_space (*space_builder);
-
-      space = space_builder->make_space ();
-    }
-}
 
 
 // Scene background rendering
@@ -99,36 +74,6 @@ Scene::background (const Vec &dir) const
     radiance += (*si)->eval_environ (dir);
 
   return radiance;
-}
-
-
-// Scene::setup
-
-// Do final setup for the scene.  This should be called after the scene
-// is completely built, and nothing should be added after it it is
-// called.
-//
-void
-Scene::setup (const SpaceBuilderFactory &space_builder_factory)
-{
-  setup_done = true;
-
-  // Make sure the space acceleration structures are built.
-  //
-  build_space (space_builder_factory);
-
-  // Add light-samplers for all lights.
-  //
-  surfaces.add_light_samplers (*this, light_samplers);
-
-  // Record an abbreviated list of just environment-light samplers,
-  // which we use when just returning the background.
-  //
-  for (std::vector<const Light::Sampler *>::const_iterator si
-	 = light_samplers.begin();
-       si != light_samplers.end(); ++si)
-    if ((*si)->is_environ_light ())
-      environ_light_samplers.push_back (*si);
 }
 
 

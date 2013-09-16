@@ -39,15 +39,11 @@ namespace snogray {
 
     static const unsigned DEFAULT_HORIZON;
 
-    Scene ();
-
-    void add (Surface *surface);
-    void add (Light *light);
+    Scene (const Surface &root_surface,
+	   const SpaceBuilderFactory &space_builder_factory);;
 
     unsigned num_surfaces () const;
     unsigned num_light_samplers () const;
-
-    void setup (const SpaceBuilderFactory &space_builder_factory);
 
     const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
     bool intersects (const Ray &ray, RenderContext &context) const;

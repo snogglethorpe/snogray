@@ -21,7 +21,6 @@
 #include "intersect/intersect.h"
 #include "intersect/ray.h"
 #include "space/space.h"
-#include "surface/surface-group.h"
 
 
 namespace snogray {
@@ -36,7 +35,8 @@ public:
 
   static const unsigned DEFAULT_HORIZON = 1000000;
 
-  Scene ();
+  Scene (const Surface &root_surface,
+	 const SpaceBuilderFactory &space_builder_factory);
   ~Scene ();
 
   // Returns the background color in the given direction.
@@ -84,40 +84,12 @@ public:
   }
 
 
-  //
-  // Add various items to a scene.  All of the following "give" the
-  // surface to the scene -- freeing the scene will free them too.
-  //
-
-  // Add a surface.
-  //
-  void add (const Surface *surface);
-
-  // Add a light.
-  //
-  void add (const Light *light);
-
-  // Construct the search accelerator for this scene.
-  // SPACE_BUILDER_FACTORY says how to do it.
-  //
-  void build_space (const SpaceBuilderFactory &space_builder_factory);
-
-  // Do final setup for the scene.  This should be called after the scene
-  // is completely built, and nothing should be added after it it is
-  // called.
-  //
-  void setup (const SpaceBuilderFactory &space_builder_factory);
-
-  unsigned num_surfaces () const { return surfaces.num_surfaces (); }
+  unsigned num_surfaces () const { return /*root_surface.num_surfaces ()*/0; }
   unsigned num_light_samplers () const { return light_samplers.size (); }
 
   // Return an axis-aligned bounding box containing the entire scene.
   //
-  BBox bbox () const { return surfaces.bbox (); }
-
-  // All surfaces in the scene.
-  //
-  SurfaceGroup surfaces;
+  BBox bbox () const { return root_surface.bbox (); }
 
   // Light-samplers for all lights in the scene.
   //
@@ -132,14 +104,16 @@ public:
   //
   dist_t horizon;
 
+
+private:
+
+  // All surfaces in the scene.
+  //
+  const Surface &root_surface;
+
   // Acceleration structure for doing ray-surface intersection testing.
   //
-  const Space *space;
-
-  // True if Scene::setup has been called.  Nothing more can be added to
-  // the scene after this is set.
-  //
-  bool setup_done;
+  UniquePtr<const Space> space;
 };
 
 

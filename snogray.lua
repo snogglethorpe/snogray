@@ -37,6 +37,7 @@ local accel = require 'snogray.accel'
 local scene = require 'snogray.scene'
 local camera = require 'snogray.camera'
 local environ = require 'snogray.environ'
+local surface = require 'snogray.surface'
 
 local img_out_cmdline = require 'snogray.image-sampled-output-cmdline'
 local render_cmdline = require 'snogray.render-cmdline'
@@ -173,8 +174,8 @@ end
 local beg_time = os.time ()
 local scene_beg_ru = sys.rusage () -- begin marker for scene loading
 
-local scene = scene.new ()	-- note, shadows variable, but oh well
-local camera = camera.new ()	-- ditto
+local scene_contents = surface.group ()
+local camera = camera.new ()  	-- note, shadows variable, but oh well
 
 -- Stick the output filenamein OUTPUT_PARAMS, so the scene loader can
 -- see it (and optionally, change it).
@@ -197,7 +198,7 @@ local load_environ = {
    -- References to the scene object and the camera.  The actual scene
    -- is defined in them.
    --
-   scene = scene,
+   scene = scene_contents,
    camera = camera,
 
    -- A copy of our parameters.  New entries will be copied back after
@@ -320,7 +321,7 @@ do_pre_post_loads (postloads, "post")
 -- Update our local idea of the scene and camera objects in case the
 -- loader changed them (usually it won't, but it can).
 --
-scene = load_environ.scene
+scene_contents = load_environ.scene
 camera = load_environ.camera
 
 -- Copy back any _new_ parameters added the loader's copy of the scene
@@ -332,20 +333,10 @@ camera = load_environ.camera
 --
 install_new_entries (load_environ.params, params)
 
--- Apply scene parameter tables.
+-- Apply parameter tables.
 --
-scene_cmdline.apply (scene_params, scene)
-
--- Do post-load scene setup (nothing can be added to scene after this).
---
--- We need to do this _before_ processing the camera command-line, as
--- it actually uses the rendering machinery for autofocusing.
---
-scene:setup (accel.factory())
-
--- Apply camera parameter tables.
---
-camera_cmdline.apply (camera_params, camera, scene)
+scene_cmdline.apply (scene_params, scene_contents)
+camera_cmdline.apply (camera_params, camera, scene_contents)
 
 -- Get the output file back, in case loading the scene changed it.
 --
@@ -446,6 +437,14 @@ if recover_backup then
    limit_y = limit_y + num_rows_recovered
    limit_height = limit_height - num_rows_recovered
 end
+
+
+----------------------------------------------------------------
+-- Create real scene object
+--
+
+-- note, shadows variable, but oh well
+local scene = scene.new (scene_contents, accel.factory())
 
 
 ----------------------------------------------------------------

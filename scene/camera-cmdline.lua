@@ -1,6 +1,6 @@
 -- camera-cmdline.lua -- Command-line options for camera control
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -21,8 +21,9 @@ local lpeg_utils = require 'snogray.lpeg-utils'
 local clp = require 'snogray.cmdlineparser'
 local render = require 'snogray.render'
 local coord = require 'snogray.coord'
-local transform = require 'snogray.transform'
+local accel = require 'snogray.accel'
 local scene = require 'snogray.scene'
+local transform = require 'snogray.transform'
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -36,19 +37,20 @@ local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 local WS = lpeg_utils.OPT_WS
 local NUM = WS * lpeg_utils.FLOAT
 
--- Shoot a ray into SCENE in a direction corresponding to the location
--- X, Y in CAMERA's image space, and return the distance to the first
--- surface hit, or nil if no surface is hit.
+-- Shoot a ray into SCENE_CONTENTS in a direction corresponding to the
+-- location X, Y in CAMERA's image space, and return the distance to
+-- the first surface hit, or nil if no surface is hit.
 --
-local function probe_scene (x, y, scn, camera)
-   local global_render_state = render.global_state (scn, {})
+local function probe_scene (x, y, scene_contents, camera)
+   local scene = scene.new (scene_contents, accel.factory ())
+   local global_render_state = render.global_state (scene, {})
    local render_context = render.context (global_render_state)
 
    local film_pos = coord.uv (x, y)
    local probe = camera:eye_ray (film_pos)
-   probe.t1 = scene.default_horizon
+   probe.t1 = scene_contents:bbox ():diameter ()
 
-   if scn:intersect (probe, render_context) then
+   if scene:intersect (probe, render_context) then
       return probe.dir * probe:length ()
    end
 
@@ -56,9 +58,9 @@ local function probe_scene (x, y, scn, camera)
 end
 
 -- Interpret the camera-control string CMDS, applying it to CAMERA
--- (and optionally using SCN in the case auto-focus is requested).
+-- (and optionally using SCENE_CONTENTS in the case auto-focus is requested).
 --
-local function interpret_camera_cmds (cmds, camera, scn)
+local function interpret_camera_cmds (cmds, camera, scene_contents)
    -- Return -VAL if CAMERA reverses handedness, otherwise return VAL.
    --
    local function negate_if_reverse_handed (val)
@@ -156,7 +158,7 @@ local function interpret_camera_cmds (cmds, camera, scn)
    local function set_horiz () camera:set_orientation (camera.ORIENT_HORIZ) end
    local function set_vert () camera:set_orientation (camera.ORIENT_VERT) end
    local function auto_focus (x, y)
-      camera:set_focus (probe_scene (x, y, scn, camera))
+      camera:set_focus (probe_scene (x, y, scene_contents, camera))
    end
    local function unrecog_cmd (letter)
       error ("unrecognized cammera command '"..letter.."'", 0)
@@ -244,10 +246,10 @@ function camera_cmdline.option_parser (camera_params)
    }
 end
 
-function camera_cmdline.apply (camera_params, camera, scene)
+function camera_cmdline.apply (camera_params, camera, scene_contents)
    local cmds = camera_params.commands
    if cmds then
-      interpret_camera_cmds (cmds, camera, scene)
+      interpret_camera_cmds (cmds, camera, scene_contents)
    end
 end
 
