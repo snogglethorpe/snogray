@@ -13,20 +13,22 @@
 #ifndef SNOGRAY_RENDER_CONTEXT_H
 #define SNOGRAY_RENDER_CONTEXT_H
 
-#include "global-render-state.h"
-#include "render-stats.h"
-#include "render-params.h"
+#include "util/unique-ptr.h"
 #include "util/random.h"
 #include "util/mempool.h"
 #include "util/pool.h"
+#include "intersect/isec-cache.h"
 #include "material/medium.h"
 #include "sample-set.h"
 #include "surface-integ.h"
-#include "intersect/isec-cache.h"
-#include "util/unique-ptr.h"
+#include "volume-integ.h"
+#include "render-stats.h"
+#include "render-params.h"
 
 
 namespace snogray {
+
+class GlobalRenderState;
 
 
 // Context in which tracing occurs.  This structure holds per-thread global
