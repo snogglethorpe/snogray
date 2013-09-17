@@ -27,7 +27,7 @@
   // Error stubs for functions defined in "load-3ds.h"
 
   void snogray::load_3ds_file (const std::string &,
-       			       SurfaceGroupe &scene_contents, Camera &,
+       			       SurfaceGroup &scene, Camera &,
 			       const ValTable &)
   {
     throw std::runtime_error ("load_3ds_file function not available");
@@ -51,7 +51,7 @@ namespace snogray {
 		      const ValTable &params);
 
   void load_3ds_file (const char *filename,
-       		      SurfaceGroup &scene_contents, Camera &camera,
+       		      SurfaceGroup &scene, Camera &camera,
 		      const ValTable &params);
   void load_3ds_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);

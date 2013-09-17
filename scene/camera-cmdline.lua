@@ -35,17 +35,17 @@ local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
 local WS = lpeg_utils.OPT_WS
 local NUM = WS * lpeg_utils.FLOAT
 
--- Shoot a ray into SCENE_CONTENTS in a direction corresponding to the
--- location X, Y in CAMERA's image space, and return the distance to
--- the first surface hit, or nil if no surface is hit.
+-- Shoot a ray into SCENE in a direction corresponding to the location
+-- X, Y in CAMERA's image space, and return the distance to the first
+-- surface hit, or nil if no surface is hit.
 --
-local function probe_scene (x, y, scene_contents, camera)
-   local global_render_state = render.global_state (scene_contents, {})
+local function probe_scene (x, y, scene, camera)
+   local global_render_state = render.global_state (scene, {})
    local render_context = render.context (global_render_state)
 
    local film_pos = coord.uv (x, y)
    local probe = camera:eye_ray (film_pos)
-   probe.t1 = scene_contents:bbox ():diameter ()
+   probe.t1 = scene:bbox ():diameter ()
 
    if global_render_state.scene:intersect (probe, render_context) then
       return probe.dir * probe:length ()
@@ -55,9 +55,9 @@ local function probe_scene (x, y, scene_contents, camera)
 end
 
 -- Interpret the camera-control string CMDS, applying it to CAMERA
--- (and optionally using SCENE_CONTENTS in the case auto-focus is requested).
+-- (and optionally using SCENE in the case auto-focus is requested).
 --
-local function interpret_camera_cmds (cmds, camera, scene_contents)
+local function interpret_camera_cmds (cmds, camera, scene)
    -- Return -VAL if CAMERA reverses handedness, otherwise return VAL.
    --
    local function negate_if_reverse_handed (val)
@@ -155,7 +155,7 @@ local function interpret_camera_cmds (cmds, camera, scene_contents)
    local function set_horiz () camera:set_orientation (camera.ORIENT_HORIZ) end
    local function set_vert () camera:set_orientation (camera.ORIENT_VERT) end
    local function auto_focus (x, y)
-      camera:set_focus (probe_scene (x, y, scene_contents, camera))
+      camera:set_focus (probe_scene (x, y, scene, camera))
    end
    local function unrecog_cmd (letter)
       error ("unrecognized cammera command '"..letter.."'", 0)
@@ -243,10 +243,10 @@ function camera_cmdline.option_parser (camera_params)
    }
 end
 
-function camera_cmdline.apply (camera_params, camera, scene_contents)
+function camera_cmdline.apply (camera_params, camera, scene)
    local cmds = camera_params.commands
    if cmds then
-      interpret_camera_cmds (cmds, camera, scene_contents)
+      interpret_camera_cmds (cmds, camera, scene)
    end
 end
 

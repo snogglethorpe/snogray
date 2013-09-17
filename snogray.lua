@@ -172,7 +172,7 @@ end
 local beg_time = os.time ()
 local scene_beg_ru = sys.rusage () -- begin marker for scene loading
 
-local scene_contents = surface.group ()
+local scene = surface.group ()
 local camera = camera.new ()  	-- note, shadows variable, but oh well
 
 -- Stick the output filenamein OUTPUT_PARAMS, so the scene loader can
@@ -196,7 +196,7 @@ local load_environ = {
    -- References to the scene object and the camera.  The actual scene
    -- is defined in them.
    --
-   scene = scene_contents,
+   scene = scene,
    camera = camera,
 
    -- A copy of our parameters.  New entries will be copied back after
@@ -319,7 +319,7 @@ do_pre_post_loads (postloads, "post")
 -- Update our local idea of the scene and camera objects in case the
 -- loader changed them (usually it won't, but it can).
 --
-scene_contents = load_environ.scene
+scene = load_environ.scene
 camera = load_environ.camera
 
 -- Copy back any _new_ parameters added the loader's copy of the scene
@@ -333,8 +333,8 @@ install_new_entries (load_environ.params, params)
 
 -- Apply parameter tables.
 --
-scene_cmdline.apply (scene_params, scene_contents)
-camera_cmdline.apply (camera_params, camera, scene_contents)
+scene_cmdline.apply (scene_params, scene)
+camera_cmdline.apply (camera_params, camera, scene)
 
 -- Get the output file back, in case loading the scene changed it.
 --
@@ -480,8 +480,7 @@ end
 --
 
 local setup_beg_ru = sys.rusage ()
-local grstate = render_cmdline.make_global_render_state (scene_contents,
-							 render_params)
+local grstate = render_cmdline.make_global_render_state (scene, render_params)
 local setup_end_ru = sys.rusage ()
 
 
