@@ -58,14 +58,14 @@ namespace { // keep local to file
 
 struct TdsLoader
 {
-  TdsLoader (SurfaceGroup *_scene_contents,
+  TdsLoader (SurfaceGroup *_scene,
 	     const MaterialDict &_user_materials = MaterialDict ())
-    : scene_contents (_scene_contents), single_mesh (0), file (0),
+    : scene (_scene), single_mesh (0), file (0),
       user_materials (_user_materials)
   { }
   TdsLoader (Mesh *_dest_mesh,
 	     const MaterialDict &_user_materials = MaterialDict ())
-    : scene_contents (0), single_mesh (_dest_mesh), file (0),
+    : scene (0), single_mesh (_dest_mesh), file (0),
       user_materials (_user_materials)
   { }
   ~TdsLoader () { if (file) lib3ds_file_free (file); }
@@ -132,7 +132,7 @@ struct TdsLoader
 
   // If non-null, scene to add stuff to.
   //
-  SurfaceGroup *scene_contents;
+  SurfaceGroup *scene;
 
   // If non-null, all meshes will be added to this mesh.
   //
@@ -602,8 +602,8 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	  //
 	  mesh->compute_vertex_normals ();
 
-	  if (scene_contents && !single_mesh)
-	    scene_contents->add (mesh);
+	  if (scene && !single_mesh)
+	    scene->add (mesh);
 	}
     }
 }
@@ -619,7 +619,7 @@ TdsLoader::convert (const Xform &xform)
   for (Lib3dsNode *node = file->nodes; node; node = node->next)
     convert (node, xform);
 
-  if (scene_contents)
+  if (scene)
     {
       dist_t radius = 50;
       dist_t sc_rad = radius / 10000;
@@ -635,7 +635,7 @@ TdsLoader::convert (const Xform &xform)
 	  const Pos loc = xform (pos (l->position));
 	  const Color intens = color (l->color) * l->multiplier * area_scale;
 
-	  scene_contents->add (new Sphere (new Glow (intens), loc, radius));
+	  scene->add (new Sphere (new Glow (intens), loc, radius));
 	}
     }
 }
@@ -665,10 +665,10 @@ TdsLoader::load (const std::string &filename)
 //
 void
 snogray::load_3ds_file (const std::string &filename,
-			SurfaceGroup &scene_contents, Camera &camera,
+			SurfaceGroup &scene, Camera &camera,
 			const ValTable &)
 {
-  TdsLoader l (&scene_contents);
+  TdsLoader l (&scene);
 
   l.load (filename);
 

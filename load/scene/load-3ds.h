@@ -30,7 +30,7 @@ class ValTable;
 // scene, including lights and the first camera position.
 //
 extern void load_3ds_file (const std::string &filename,
-			   SurfaceGroup &scene_contents, Camera &camera,
+			   SurfaceGroup &scene, Camera &camera,
 			   const ValTable &params);
 
 // Load meshes (and any materials they use) from a 3ds scene file into MESH.
