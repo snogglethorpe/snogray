@@ -1,6 +1,6 @@
 // dir-hist.h -- Directional histogram
 //
-//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,8 +14,9 @@
 #define SNOGRAY_DIR_HIST_H
 
 #include "uv.h"
+#include "sphere-sample.h"
+
 #include "hist-2d.h"
-#include "spherical-coords.h"
 
 
 namespace snogray {
@@ -28,6 +29,7 @@ class DirHist : public Hist2d
 {
 public:
 
+  DirHist (unsigned size) : Hist2d (size * 2, size) { }
   DirHist (unsigned w, unsigned h) : Hist2d (w, h) { }
 
   using Hist2d::add;
@@ -39,48 +41,28 @@ public:
     add (dir_to_pos (dir), val);
   }
 
-
   //
   // Methods to translate between direction vectors and histogram
   // coordinates.
   //
-  // Given a radius-1 sphere around the origin corresponding to the
+  // Given a radius 1 sphere around the origin corresponding to the
   // set of directions, we want every bin in our underlying 2d
   // histogram to map to the same amount of surface area on the
   // sphere.
   //
-  // To do this, we use the same approach used by "sample_cone" (in
-  // cone-sample.h, which see):  U is mapped linearly to the angle
-  // around the z-axis (i.e., it's the "longitude"), and V is mapped
-  // to the z-coordinate of the point where the direction vector
-  // hits the sphere.
-  //
-  // Thus as direction vectors approach the z-axis, they get closer
-  // together around in the U direction, but farther apart in the V
-  // direction, by exactly the same amount.
+  // This is done using sphere_sample and sphere_sample_inverse, which
+  // do equal-area mapping between UV coordinates and directions.
   //
 
   // Return the position in the underlying 2d histogram
   // corresponding to direction DIR.  DIR must be a unit vector.
   //
-  static UV dir_to_pos (const Vec &dir)
-  {
-    return UV (clamp01 (float (atan2 (dir.y, dir.x)) * (INV_PIf / 2) + 0.5f),
-	       clamp01 (float (1 - dir.z) / 2));
-  }
+  static UV dir_to_pos (const Vec &dir) { return sphere_sample_inverse (dir); }
 
   // Return the direction corresponding to the position POS in the
   // underlying 2d histogram.
   //
-  static Vec pos_to_dir (const UV &pos)
-  {
-    float z = 1 - pos.v * 2;
-    float r = sqrt (max (1 - z * z, 0.f));
-    float phi = (pos.u - 0.5f) * 2 * PIf;
-    float x = r * cos (phi);
-    float y = r * sin (phi);
-    return Vec (x, y, z);
-  }
+  static Vec pos_to_dir (const UV &pos) { return sphere_sample (pos); }
 };
 
 
