@@ -37,13 +37,13 @@ cone_sample (float cos_half_angle, const UV &param)
   // Then project the chosen slice onto a unit sphere.  Z is the
   // z-coordinate of the slice, and R is its radius.
   //
-  dist_t z = cos_half_angle + param.u * (1 - cos_half_angle);
+  dist_t z = cos_half_angle + param.v * (1 - cos_half_angle);
   dist_t r = sqrt (abs (1 - z * z));
 
   // Now choose a point around the edge of the radius R disk; X and Y
   // will be the x/y-coordinates of that point.
   //
-  float phi = param.v * 2 * PIf;
+  float phi = param.u * 2 * PIf;
   dist_t x = r * dist_t (cos (phi));
   dist_t y = r * dist_t (sin (phi));
 
@@ -59,8 +59,8 @@ static inline UV
 cone_sample_inverse (float cos_half_angle, const Vec &dir)
 {
   float phi = atan2 (dir.y, -dir.x);
-  float v = 0.5f - (phi * INV_PIf * 0.5f);
-  float u = (float (dir.z) - cos_half_angle) / (1 - cos_half_angle);
+  float u = 0.5f - (phi * INV_PIf * 0.5f);
+  float v = (float (dir.z) - cos_half_angle) / (1 - cos_half_angle);
   return UV (clamp01 (u), clamp01 (v));
 }
 
