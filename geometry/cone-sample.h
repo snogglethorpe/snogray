@@ -58,10 +58,8 @@ cone_sample (float cos_half_angle, const UV &param)
 static inline UV
 cone_sample_inverse (float cos_half_angle, const Vec &dir)
 {
-  float phi = atan2 (dir.y, dir.x);
-  float v = phi * INV_PIf * 0.5f;
-  if (v < 0)
-    v += 1;
+  float phi = atan2 (dir.y, -dir.x);
+  float v = 0.5f - (phi * INV_PIf * 0.5f);
   float u = (float (dir.z) - cos_half_angle) / (1 - cos_half_angle);
   return UV (clamp01 (u), clamp01 (v));
 }
