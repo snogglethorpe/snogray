@@ -1,6 +1,6 @@
 -- render-cmdline.lua -- Command-line handling for renderer params
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ function render_cmdline.option_parser (params)
       { "-A/--background-alpha=ALPHA", { params, "background_alpha", 'float' },
         doc = [[Use ALPHA as the opacity of the background]] },
       { "-R/--render-options=OPTIONS",
-	function (options) clp.parse_params (options) end,
+	function (options) clp.parse_params (options, params) end,
         doc = [[Set output-image options; OPTS has the format
 	        OPT1=VAL1[,...]; current options include:\+
 		\|"min-trace"  -- minimum trace ray length]] }
