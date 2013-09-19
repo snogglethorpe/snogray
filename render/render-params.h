@@ -30,7 +30,7 @@ public:
   // this by bumping up the minimum trace distance to something fairly large.
   //
 #if USE_DOUBLE_COORDS
-  static dist_t default_min_trace () { return 1e-10; }
+  static dist_t default_min_trace () { return 1e-5; }
 #else
   static dist_t default_min_trace () { return 1e-3; }
 #endif
