@@ -14,6 +14,7 @@
 #define SNOGRAY_MISC_MAP_TEX_H
 
 #include "util/snogmath.h"
+#include "geometry/spherical-coords.h"
 
 #include "tex.h"
 
@@ -72,10 +73,7 @@ public:
   virtual T eval (const TexCoords &coords) const
   {
     const Pos &pos = coords.pos;
-    float x = pos.x, y = pos.y, z = pos.z;
-    UV uv (atan2 (x, y) * INV_PI * 0.5f + 0.5f,
-	   atan2 (z, sqrt (x*x + y*y)) * INV_PI + 0.5f);
-    return tex->eval (TexCoords (pos, uv));
+    return tex->eval (TexCoords (pos, z_axis_latlong (Vec (pos))));
   }
 
   const Ref<Tex<T> > tex;
