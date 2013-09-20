@@ -12,12 +12,9 @@
 #
 
 include $(top_srcdir)/config.mk
-include $(top_srcdir)/install-dirs.mk
 
 
 noinst_LIBRARIES = libsnogrendermgr.a
-
-dist_pkgluamodulesnogray_DATA = render-cmdline.lua render.lua
 
 EXTRA_DIST = render-mgr.swg
 
