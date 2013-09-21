@@ -208,6 +208,7 @@ all_in_one.tripar = surface.tripar
 all_in_one.triangle = surface.triangle
 all_in_one.parallelogram = surface.parallelogram
 all_in_one.rectangle = surface.rectangle
+all_in_one.rect = surface.rectangle
 
 all_in_one.parallelepiped = surface.parallelepiped
 all_in_one.cube = surface.cube
