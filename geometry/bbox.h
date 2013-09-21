@@ -110,6 +110,18 @@ public:
     return diameter () / 2;
   }
 
+  // Return true if this bounding-box intersects BBOX.
+  //
+  bool intersects (const BBox &bbox)
+  {
+    return (max.x >= bbox.min.x
+	    && max.y >= bbox.min.y
+	    && max.z >= bbox.min.z
+	    && min.x <= bbox.max.x
+	    && min.y <= bbox.max.y
+	    && min.z <= bbox.max.z);
+  }
+
   // The greatest component of its extent
   //
   dist_t max_size () const
