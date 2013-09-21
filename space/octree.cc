@@ -14,14 +14,60 @@
 #include "util/grab.h"
 
 #include "octree.h"
+#include "octree-node.h"
+
 
 using namespace snogray;
 
 
-Octree::~Octree ()
+
+// Octree constructor
+
+// Make a new octree with the given contents.  This should only be
+// invoked directly by Octree::Builder::make_space.
+//
+Octree::Octree (const Pos &_origin, dist_t _size,
+		const std::vector<Node> &_nodes,
+		const std::vector<const Surface *> &_surface_ptrs,
+		unsigned long _num_real_surfaces)
+  : nodes (_nodes), surface_ptrs (_surface_ptrs),
+    origin (_origin), size (_size),
+    num_real_surfaces (_num_real_surfaces)
+{ }
+
+
+
+// Octree::SearchState
+
+struct Octree::SearchState : Space::SearchState
 {
-  delete root;
-}
+  SearchState (IntersectCallback &_callback, IsecCache &_negative_isec_cache)
+    : Space::SearchState (_callback),
+      negative_isec_cache (_negative_isec_cache),
+      neg_cache_hits (0), neg_cache_collisions (0)
+  { }
+
+  // Update the global statistical counters in ISEC_STATS with the
+  // results from this search.
+  //
+  void update_isec_stats (RenderStats::IsecStats &isec_stats)
+  {
+    isec_stats.neg_cache_collisions += neg_cache_collisions;
+    isec_stats.neg_cache_hits	      += neg_cache_hits;
+
+    Space::SearchState::update_isec_stats (isec_stats);
+  }
+
+  // Cache of negative surface intersection test results, so we can
+  // avoid testing the same object twice.
+  //
+  IsecCache &negative_isec_cache;
+
+  // Keep track of some statics for the negative intersection cache.
+  //
+  unsigned neg_cache_hits, neg_cache_collisions;
+};
+
 
 
 // Ray intersection testing (Octree::for_each_possible_intersector)
@@ -38,7 +84,7 @@ Octree::for_each_possible_intersector (const Ray &ray,
 				       RenderStats::IsecStats &isec_stats)
   const
 {
-  if (root)
+  if (! nodes.empty ())
     {
       coord_t x_min = origin.x;
       coord_t x_max = origin.x + size;
@@ -99,15 +145,16 @@ Octree::for_each_possible_intersector (const Ray &ray,
 
 	  SearchState ss (callback, *isec_cache_grab);
 
-	  root->for_each_possible_intersector (ray, ss,
-					       x_min_isec, x_max_isec,
-					       y_min_isec, y_max_isec,
-					       z_min_isec, z_max_isec);
+	  for_each_possible_intersector (ray, 0, ss,
+					 x_min_isec, x_max_isec,
+					 y_min_isec, y_max_isec,
+					 z_min_isec, z_max_isec);
 
 	  ss.update_isec_stats (isec_stats);
 	}
     }
 }
+
 
 
 // Ray intersection testing (Octree::Node::for_each_possible_intersector)
@@ -122,17 +169,19 @@ Octree::for_each_possible_intersector (const Ray &ray,
 // calculation at all.
 //
 void
-Octree::Node::for_each_possible_intersector (const Ray &ray,
-					     SearchState &ss,
-					     const Pos &x_min_isec,
-					     const Pos &x_max_isec,
-					     const Pos &y_min_isec,
-					     const Pos &y_max_isec,
-					     const Pos &z_min_isec,
-					     const Pos &z_max_isec)
+Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
+				       SearchState &ss,
+				       const Pos &x_min_isec,
+				       const Pos &x_max_isec,
+				       const Pos &y_min_isec,
+				       const Pos &y_max_isec,
+				       const Pos &z_min_isec,
+				       const Pos &z_max_isec)
   const
 {
   ss.node_intersect_calls++;
+
+  const Node &node = nodes[node_index];
 
   // The boundaries of our volume
   //
@@ -183,34 +232,35 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 
       // Invoke the callback on each of this node's surfaces
       //
-      for (std::list<const Surface *>::const_iterator si = surfaces.begin();
-	   si != surfaces.end(); si++)
-	{
-	  const Surface *surf = *si;
+      if (node.surface_ptrs_head_index)
+	for (unsigned surf_ptr_index = node.surface_ptrs_head_index;
+	     surface_ptrs[surf_ptr_index]; surf_ptr_index++)
+	  {
+	    const Surface *surf = surface_ptrs[surf_ptr_index];
 
-	  if (! ss.negative_isec_cache.contains (surf))
-	    {
-	      ss.surf_isec_tests++;
+	    if (! ss.negative_isec_cache.contains (surf))
+	      {
+		ss.surf_isec_tests++;
 
-	      if (callback (surf))
-		ss.surf_isec_hits++;
-	      else
-		{
-		  bool collision = ss.negative_isec_cache.add (surf);
-		  if (collision)
-		    ss.neg_cache_collisions++;
-		}
-	    }
-	  else
-	    ss.neg_cache_hits++;
+		if (callback (surf))
+		  ss.surf_isec_hits++;
+		else
+		  {
+		    bool collision = ss.negative_isec_cache.add (surf);
+		    if (collision)
+		      ss.neg_cache_collisions++;
+		  }
+	      }
+	    else
+	      ss.neg_cache_hits++;
 
-	  if (callback.stop)
-	    return;
-	}
+	    if (callback.stop)
+	      return;
+	  }
 
       // Recursively deal with any non-null sub-nodes
       //
-      if (has_subnodes)
+      if (! node.is_leaf_node ())
 	{
 	  // Calculate the mid-point intersections.  This the only real
 	  // calculation we do in this method (hopefully dividing by two
@@ -229,43 +279,49 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 	  // invalidates the factored-out bounds tests (it can get
 	  // shorter, but never longer).
 
+	  unsigned child_node_index; // used as a temporary below
 	  if (rbeg.x <= x_mid || rend.x <= x_mid)
 	    {
 	      if (rbeg.y <= y_mid || rend.y <= y_mid)
 		{
-		  if (x_lo_y_lo_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    x_lo_y_lo_z_lo
-		      ->for_each_possible_intersector (ray, ss,
-						       x_min_isec, x_mid_isec,
-						       y_min_isec, y_mid_isec,
-						       z_min_isec, z_mid_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_LO|Node::Y_LO|Node::Z_LO];
+		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_min_isec, x_mid_isec,
+						   y_min_isec, y_mid_isec,
+						   z_min_isec, z_mid_isec);
+		  if (unlikely (callback.stop)) return;
 
-		  if (x_lo_y_lo_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
-		      && !callback.stop)
-		    x_lo_y_lo_z_hi
-		      ->for_each_possible_intersector (ray, ss,
-						       x_min_isec, x_mid_isec,
-						       y_min_isec, y_mid_isec,
-						       z_mid_isec, z_max_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_LO|Node::Y_LO|Node::Z_HI];
+		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_min_isec, x_mid_isec,
+						   y_min_isec, y_mid_isec,
+						   z_mid_isec, z_max_isec);
+		  if (unlikely (callback.stop)) return;
 		}
 
 	      if (rbeg.y >= y_mid || rend.y >= y_mid)
 		{
-		  if (x_lo_y_hi_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid)
-		      && !callback.stop)
-		    x_lo_y_hi_z_lo
-		      ->for_each_possible_intersector (ray, ss,
-						       x_min_isec, x_mid_isec,
-						       y_mid_isec, y_max_isec,
-						       z_min_isec, z_mid_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_LO|Node::Y_HI|Node::Z_LO];
+		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_min_isec, x_mid_isec,
+						   y_mid_isec, y_max_isec,
+						   z_min_isec, z_mid_isec);
+		  if (unlikely (callback.stop)) return;
 
-		  if (x_lo_y_hi_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
-		      && !callback.stop)
-		    x_lo_y_hi_z_hi
-		      ->for_each_possible_intersector (ray, ss,
-						       x_min_isec, x_mid_isec,
-						       y_mid_isec, y_max_isec,
-						       z_mid_isec, z_max_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_LO|Node::Y_HI|Node::Z_HI];
+		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_min_isec, x_mid_isec,
+						   y_mid_isec, y_max_isec,
+						   z_mid_isec, z_max_isec);
+		  if (unlikely (callback.stop)) return;
 		}
 	    }
 
@@ -273,373 +329,49 @@ Octree::Node::for_each_possible_intersector (const Ray &ray,
 	    {
 	      if (rbeg.y <= y_mid || rend.y <= y_mid)
 		{
-		  if (x_hi_y_lo_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid)
-		      && !callback.stop)
-		    x_hi_y_lo_z_lo
-		      ->for_each_possible_intersector (ray, ss,
-						       x_mid_isec, x_max_isec,
-						       y_min_isec, y_mid_isec,
-						       z_min_isec, z_mid_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_HI|Node::Y_LO|Node::Z_LO];
+		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_mid_isec, x_max_isec,
+						   y_min_isec, y_mid_isec,
+						   z_min_isec, z_mid_isec);
+		  if (unlikely (callback.stop)) return;
 
-		  if (x_hi_y_lo_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
-		      && !callback.stop)
-		    x_hi_y_lo_z_hi
-		      ->for_each_possible_intersector (ray, ss,
-						       x_mid_isec, x_max_isec,
-						       y_min_isec, y_mid_isec,
-						       z_mid_isec, z_max_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_HI|Node::Y_LO|Node::Z_HI];
+		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_mid_isec, x_max_isec,
+						   y_min_isec, y_mid_isec,
+						   z_mid_isec, z_max_isec);
+		  if (unlikely (callback.stop)) return;
 		}
 
 	      if (rbeg.y >= y_mid || rend.y >= y_mid)
 		{
-		  if (x_hi_y_hi_z_lo && (rbeg.z <= z_mid || rend.z <= z_mid)
-		      && !callback.stop)
-		    x_hi_y_hi_z_lo
-		      ->for_each_possible_intersector (ray, ss,
-						       x_mid_isec, x_max_isec,
-						       y_mid_isec, y_max_isec,
-						       z_min_isec, z_mid_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_HI|Node::Y_HI|Node::Z_LO];
+		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_mid_isec, x_max_isec,
+						   y_mid_isec, y_max_isec,
+						   z_min_isec, z_mid_isec);
+		  if (unlikely (callback.stop)) return;
 
-		  if (x_hi_y_hi_z_hi && (rbeg.z >= z_mid || rend.z >= z_mid)
-		      && !callback.stop)
-		    x_hi_y_hi_z_hi
-		      ->for_each_possible_intersector (ray, ss,
-						       x_mid_isec, x_max_isec,
-						       y_mid_isec, y_max_isec,
-						       z_mid_isec, z_max_isec);
+		  child_node_index
+		    = node.child_node_indices[Node::X_HI|Node::Y_HI|Node::Z_HI];
+		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
+		    for_each_possible_intersector (ray, child_node_index, ss,
+						   x_mid_isec, x_max_isec,
+						   y_mid_isec, y_max_isec,
+						   z_mid_isec, z_max_isec);
 		}
 	    }
 	}
     }
 }
 
-
-// Octree construction
-
-// Add SURFACE to the octree.  SURFACE_BBOX should be SURFACE's
-// bounding-box.
-//
-void
-Octree::add (const Surface *surface, const BBox &surface_bbox)
-{
-  num_real_surfaces++;
-
-  if (root)
-    // We've already got some nodes.
-    {
-      // See if SURFACE fits...
-      //
-      if (origin.x <= surface_bbox.min.x
-	  && origin.y <= surface_bbox.min.y
-	  && origin.z <= surface_bbox.min.z
-	  && (origin.x + size) >= surface_bbox.max.x
-	  && (origin.y + size) >= surface_bbox.max.y
-	  && (origin.z + size) >= surface_bbox.max.z)
-	//
-	// SURFACE fits within out root node, add it there, or in some sub-node
-	//
-	root->add (surface, surface_bbox, origin.x, origin.y, origin.z, size);
-      else
-	//
-	// SURFACE doesn't fit within our root node, we have to make a new root
-	//
-	grow_to_include (surface, surface_bbox);
-    }
-  else
-    // SURFACE will be the first node
-    {
-      root = new Node;
-      origin = surface_bbox.min;
-      size = surface_bbox.max_size ();
-
-#if 0
-      cout << "made initial octree root at " << origin
-	   << ", size = " << size << endl;
-#endif
-
-      // As we know that SURFACE will fit exactly in ROOT, we don't bother
-      // calling ROOT's add method, we just add SURFACE directly to ROOT's
-      // surface list.
-      //
-      root->surfaces.push_front (surface);
-    }
-}
-
-// The current root of this octree is too small to encompass SURFACE;
-// add surrounding levels of nodes until one can hold SURFACE, and make that
-// the new root node.
-//
-void
-Octree::grow_to_include (const Surface *surface, const BBox &surface_bbox)
-{
-  // New root node
-  //
-  Node *new_root = new Node;
-
-  // Decide which directions to grow our volume
-  //
-  dist_t x_lo_grow = origin.x - surface_bbox.min.x;
-  dist_t x_hi_grow = surface_bbox.max.x - (origin.x + size);
-  dist_t y_lo_grow = origin.y - surface_bbox.min.y;
-  dist_t y_hi_grow = surface_bbox.max.y - (origin.y + size);
-  dist_t z_lo_grow = origin.z - surface_bbox.min.z;
-  dist_t z_hi_grow = surface_bbox.max.z - (origin.z + size);
-
-  // Install old root as appropriate sub-node of NEW_ROOT.
-  //
-  if (x_hi_grow > x_lo_grow)
-    {					// grow in x-positive direction
-      if (y_hi_grow > y_lo_grow)
-	{				// grow in y-positive direction
-	  if (z_hi_grow > z_lo_grow)	// grow in z-positive direction
-	    new_root->x_lo_y_lo_z_lo = root;
-	  else				// grow in z-negative direction
-	    new_root->x_lo_y_lo_z_hi = root;
-	}
-      else
-	{				// grow in y-negative direction
-	  if (z_hi_grow > z_lo_grow)	// grow in z-positive direction
-	    new_root->x_lo_y_hi_z_lo = root;
-	  else				// grow in z-negative direction
-	    new_root->x_lo_y_hi_z_hi = root;
-	}
-    }  
-  else
-    {					// grow in x-negative direction
-      if (y_hi_grow > y_lo_grow)
-	{				// grow in y-positive direction
-	  if (z_hi_grow > z_lo_grow)	// grow in z-positive direction
-	    new_root->x_hi_y_lo_z_lo = root;
-	  else				// grow in z-negative direction
-	    new_root->x_hi_y_lo_z_hi = root;
-	}
-      else
-	{				// grow in y-negative direction
-	  if (z_hi_grow > z_lo_grow)    // grow in z-positive direction
-	    new_root->x_hi_y_hi_z_lo = root;
-	  else				// grow in z-negative direction
-	    new_root->x_hi_y_hi_z_hi = root;
-	}
-    }  
-
-  // Adjust our position accordingly:  for each axis on which the old
-  // root is installed in the "hi" slot, our old origin position now
-  // becomes our new midpoint; for axes on which the old root is
-  // installed in the "lo" slot, our origin remains the same.
-  //
-  if (x_hi_grow <= x_lo_grow)
-    origin.x -= size;
-  if (y_hi_grow <= y_lo_grow)
-    origin.y -= size;
-  if (z_hi_grow <= z_lo_grow)
-    origin.z -= size;
-
-  // Our size doubles with each new level.
-  //
-  size *= 2;
-
-#if 0
-  cout << "grew octree root to size: " << size << endl;
-  cout << "   new origin is: " << origin << endl;
-#endif
-
-  new_root->has_subnodes = true;
-
-  // Replace the old root!
-  //
-  root = new_root;
-
-  // Now that we have a new root, try adding SURFACE again (if it still
-  // doesn't fit, we'll be called again to add another level).
-  //
-  add (surface, surface_bbox);
-}
-
-// Add SURFACE, with bounding box SURFACE_BBOX, to this node or some subnode;
-// SURFACE is assumed to fit.  X, Y, Z, and SIZE indicate the volume this
-// node encompasses.
-//
-// This function is "eager": it splits empty nodes to find the smallest
-// possible node for each new surface.  Not only does this simplify the
-// algorithm, but it should also be more efficient for intersection
-// testing -- testing whether a ray intersects a octree node for is a
-// lot more efficient testing even simple surfaces, so the increased
-// possibility of rejecting a ray without calling an surface's
-// intersection routine is worth a fair number of levels of sparsely
-// populated octree levels.
-// 
-void
-Octree::Node::add (const Surface *surface, const BBox &surface_bbox,
-		   coord_t x, coord_t y, coord_t z, dist_t size)
-{
-  dist_t sub_size = size / 2;
-  coord_t mid_x = x + sub_size, mid_y = y + sub_size, mid_z = z + sub_size;
-
-  // See if SURFACE fits in some sub-node's volume, and if so, try to add
-  // it there.
-
-  // Start out assuming we'll add it at this level and set `add_here' to
-  // false if we end up adding it to a subnode.
-  //
-  bool add_here = true;
-
-  // If force_into_subnodes is true, we "force" an surface into multiple
-  // subnodes even if it doesn't fit cleanly into any of them.  We do
-  // this for oversized surfaces that straddle the volume midpoint,
-  // taking a gamble that the risk of multiple calls to their
-  // intersection method (because such forced surfaces will be present in
-  // multiple subnodes) is outweighed by a much closer fit with the
-  // descendent node they eventually end up in, allowing the octree to
-  // reject more rays before reaching them.
-  //
-  bool force_into_subnodes = surface_bbox.avg_size() < size / 4;
-
-  if (surface_bbox.max.x < mid_x
-      || (surface_bbox.max.x == mid_x
-	  && surface_bbox.min.x != surface_bbox.max.x)
-      || (force_into_subnodes && surface_bbox.min.x < mid_x))
-    {
-      if (surface_bbox.max.y < mid_y
-	  || (surface_bbox.max.y == mid_y
-	      && surface_bbox.min.y != surface_bbox.max.y)
-	  || (force_into_subnodes && surface_bbox.min.y < mid_y))
-	{
-	  if (surface_bbox.max.z < mid_z
-	      || (surface_bbox.max.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
-	    {
-	      add_or_create (x_lo_y_lo_z_lo, surface, surface_bbox,
-			     x, y, z, sub_size);
-	      add_here = false;
-	    }
-	  if (surface_bbox.min.z > mid_z
-	      || (surface_bbox.min.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.max.z > mid_z))
-	    {
-	      add_or_create (x_lo_y_lo_z_hi, surface, surface_bbox,
-			     x, y, mid_z, sub_size);
-	      add_here = false;
-	    }
-	}
-      if (surface_bbox.min.y > mid_y
-	  || (surface_bbox.min.y == mid_y
-	      && surface_bbox.min.y != surface_bbox.max.y)
-	  || (force_into_subnodes && surface_bbox.max.y > mid_y))
-	{
-	  if (surface_bbox.max.z < mid_z
-	      || (surface_bbox.max.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
-	    {
-	      add_or_create (x_lo_y_hi_z_lo, surface, surface_bbox,
-			     x, mid_y, z, sub_size);
-	      add_here = false;
-	    }
-	  if (surface_bbox.min.z > mid_z
-	      || (surface_bbox.min.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.max.z > mid_z))
-	    {
-	      add_or_create (x_lo_y_hi_z_hi, surface, surface_bbox,
-			     x, mid_y, mid_z, sub_size);
-	      add_here = false;
-	    }
-	}
-    }
-  if (surface_bbox.min.x > mid_x
-      || (surface_bbox.min.x == mid_x
-	  && surface_bbox.min.x != surface_bbox.max.x)
-      || (force_into_subnodes && surface_bbox.max.x > mid_x))
-    {
-      if (surface_bbox.max.y < mid_y
-	  || (surface_bbox.max.y == mid_y
-	      && surface_bbox.min.y != surface_bbox.max.y)
-	  || (force_into_subnodes && surface_bbox.min.y < mid_y))
-	{
-	  if (surface_bbox.max.z < mid_z
-	      || (surface_bbox.max.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
-	    {
-	      add_or_create (x_hi_y_lo_z_lo, surface, surface_bbox,
-			     mid_x, y, z, sub_size);
-	      add_here = false;
-	    }
-	  if (surface_bbox.min.z > mid_z
-	      || (surface_bbox.min.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.max.z > mid_z))
-	    {
-	      add_or_create (x_hi_y_lo_z_hi, surface, surface_bbox,
-			     mid_x, y, mid_z, sub_size);
-	      add_here = false;
-	    }
-	}
-      if (surface_bbox.min.y > mid_y
-	  || (surface_bbox.min.y == mid_y
-	      && surface_bbox.min.y != surface_bbox.max.y)
-	  || (force_into_subnodes && surface_bbox.max.y > mid_y))
-	{
-	  if (surface_bbox.max.z < mid_z
-	      || (surface_bbox.max.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.min.z < mid_z))
-	    {
-	      add_or_create (x_hi_y_hi_z_lo, surface, surface_bbox,
-			     mid_x, mid_y, z, sub_size);
-	      add_here = false;
-	    }
-	  if (surface_bbox.min.z > mid_z
-	      || (surface_bbox.min.z == mid_z
-		  && surface_bbox.min.z != surface_bbox.max.z)
-	      || (force_into_subnodes && surface_bbox.max.z > mid_z))
-	    {
-	      add_or_create (x_hi_y_hi_z_hi, surface, surface_bbox,
-			     mid_x, mid_y, mid_z, sub_size);
-	      add_here = false;
-	    }
-	}
-    }
-
-  // If SURFACE didn't fit in any sub-node, add to this one
-  //
-  if (add_here)
-    {
-#if 0
-      cout << "adding surface with bbox " << surface_bbox.min
-	   << " - " << surface_bbox.max << endl
-	   << "   to node @(" << x << ", " << y << ", " << z << ")" << endl
-	   << "      size = " << size << endl
-	   << "      prev num surfaces = " << surfaces.size() << endl;
-#endif
-
-      surfaces.push_back (surface);
-    }
-}
-
-
-
-Octree::Node::~Node ()
-{
-  if (x_lo_y_lo_z_lo)
-    delete x_lo_y_lo_z_lo;
-  if (x_lo_y_lo_z_hi)
-    delete x_lo_y_lo_z_hi;
-  if (x_lo_y_hi_z_lo)
-    delete x_lo_y_hi_z_lo;
-  if (x_lo_y_hi_z_hi)
-    delete x_lo_y_hi_z_hi;
-  if (x_hi_y_lo_z_lo)
-    delete x_hi_y_lo_z_lo;
-  if (x_hi_y_lo_z_hi)
-    delete x_hi_y_lo_z_hi;
-  if (x_hi_y_hi_z_lo)
-    delete x_hi_y_hi_z_lo;
-  if (x_hi_y_hi_z_hi)
-    delete x_hi_y_hi_z_hi;
-}
 
 
 // Statistics gathering
@@ -650,16 +382,16 @@ Octree::Stats
 Octree::stats () const
 {
   Stats stats;
-  if (root)
-    root->upd_stats (stats);
+  if (! nodes.empty ())
+    upd_stats (nodes[0], stats);
   stats.num_dup_surfaces = stats.num_surfaces - num_real_surfaces;
   return stats;
 }
 
-// Update STATS to reflect this node.
+// Update STATS to reflect NODE.
 //
 void
-Octree::Node::upd_stats (Stats &stats) const
+Octree::upd_stats (const Node &node, Stats &stats) const
 {
   unsigned num_subnodes = 0;
 
@@ -675,22 +407,10 @@ Octree::Node::upd_stats (Stats &stats) const
 
   // Get sibling values
 
-  if (x_lo_y_lo_z_lo)
-    num_subnodes++, x_lo_y_lo_z_lo->upd_stats (stats);
-  if (x_lo_y_lo_z_hi)
-    num_subnodes++, x_lo_y_lo_z_hi->upd_stats (stats);
-  if (x_lo_y_hi_z_lo)
-    num_subnodes++, x_lo_y_hi_z_lo->upd_stats (stats);
-  if (x_lo_y_hi_z_hi)
-    num_subnodes++, x_lo_y_hi_z_hi->upd_stats (stats);
-  if (x_hi_y_lo_z_lo)
-    num_subnodes++, x_hi_y_lo_z_lo->upd_stats (stats);
-  if (x_hi_y_lo_z_hi)
-    num_subnodes++, x_hi_y_lo_z_hi->upd_stats (stats);
-  if (x_hi_y_hi_z_lo)
-    num_subnodes++, x_hi_y_hi_z_lo->upd_stats (stats);
-  if (x_hi_y_hi_z_hi)
-    num_subnodes++, x_hi_y_hi_z_hi->upd_stats (stats);
+  if (! node.is_leaf_node ())
+    for (unsigned i = 0; i < 8; i++)
+      if (node.child_node_indices[i])
+	num_subnodes++, upd_stats (nodes[node.child_node_indices[i]], stats);
 
   // Now update STATS
 
@@ -702,7 +422,8 @@ Octree::Node::upd_stats (Stats &stats) const
 
   // Num surfaces
   //
-  stats.num_surfaces += surfaces.size ();
+  for (unsigned spi = node.surface_ptrs_head_index; surface_ptrs[spi]; spi++)
+    stats.num_surfaces++;
 
   // Update `max_depth' field.
   //
@@ -710,7 +431,7 @@ Octree::Node::upd_stats (Stats &stats) const
     stats.max_depth++;
   else
     stats.max_depth = sibling_max_depth;
-  
+
   // Update `avg_depth' field.
   //
   if (num_subnodes != 0)

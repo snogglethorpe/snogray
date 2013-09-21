@@ -27,5 +27,5 @@ EXTRA_DIST = space.swg
 # Snogray acceleration-structure library, libsnogspace.a
 #
 
-libsnogspace_a_SOURCES = octree.cc octree.h space.cc space.h		\
-	space-builder.h triv-space.h
+libsnogspace_a_SOURCES = octree.cc octree.h octree-builder.cc		\
+	octree-node.h space.cc space.h space-builder.h triv-space.h
