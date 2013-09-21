@@ -19,18 +19,18 @@
 std::ostream&
 snogray::operator<< (std::ostream &os, const BBox &bbox)
 {
-  os << "bbox<";
+  os << "bbox{min: {";
   output_nicely (os, bbox.min.x);
   os << ", ";
   output_nicely (os, bbox.min.y);
   os << ", ";
   output_nicely (os, bbox.min.z);
-  os << " - ";
+  os << "}, max: {";
   output_nicely (os, bbox.max.x);
   os << ", ";
   output_nicely (os, bbox.max.y);
   os << ", ";
   output_nicely (os, bbox.max.z);
-  os << ">";
+  os << "}}";
   return os;
 }
