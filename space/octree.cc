@@ -23,16 +23,11 @@ using namespace snogray;
 
 // Octree constructor
 
-// Make a new octree with the given contents.  This should only be
-// invoked directly by Octree::Builder::make_space.
+// Make a new, empty, octree with the given extent.  This should only
+// be invoked directly by Octree::Builder::make_space.
 //
-Octree::Octree (const Pos &_origin, dist_t _size,
-		const std::vector<Node> &_nodes,
-		const std::vector<const Surface *> &_surface_ptrs,
-		unsigned long _num_real_surfaces)
-  : nodes (_nodes), surface_ptrs (_surface_ptrs),
-    origin (_origin), size (_size),
-    num_real_surfaces (_num_real_surfaces)
+Octree::Octree (const Pos &_origin, dist_t _size)
+  : origin (_origin), size (_size), num_real_surfaces (0)
 { }
 
 

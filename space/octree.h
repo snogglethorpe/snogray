@@ -83,13 +83,10 @@ private:
   struct Node;
 
 
-  // Make a new octree with the given contents.  This should only be
-  // invoked directly by Octree::Builder::make_space.
+  // Make a new, empty, octree with the given extent.  This should only
+  // be invoked directly by Octree::Builder::make_space.
   //
-  Octree (const Pos &_origin, dist_t size,
-	  const std::vector<Node> &_nodes,
-	  const std::vector<const Surface *> &_surface_ptrs,
-	  unsigned long _num_real_surfaces);
+  Octree (const Pos &_origin, dist_t _size);
 
 
   // Version of `for_each_possible_intersector' used for recursive

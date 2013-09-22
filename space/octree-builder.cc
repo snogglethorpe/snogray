@@ -10,6 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include <deque>
+
+#include "util/snogassert.h"
+
 #include "octree.h"
 #include "octree-node.h"
 
@@ -102,20 +106,35 @@ private:
     head_index = new_head;
   }
 
-  // Add the surface pointers in the surface-pointer list whose head
-  // starts is indicated by index HEAD_INDEX to the end of
-  // SURFACE_PTRs, returning the index in SURFACE_PTRS of the first
+  // Add the surface pointers in the linked-list whose head is at
+  // HEAD_INDEX in Octree::Builder::surface_ptr_list_nodes, to the end
+  // of SURFACE_PTRs, returning the index in SURFACE_PTRS of the first
   // entry (the the last entry will be at the end of SURFACE_PTRS).
+  // An additional final zero entry is also added to terminate the
+  // list.
   //
   unsigned unroll_surface_ptr_list (unsigned head_index,
 				    std::vector<const Surface *> &surface_ptrs)
+    const
   {
     unsigned rval = surface_ptrs.size ();
     for (unsigned index = head_index;
 	 index; index = surface_ptr_list_nodes[index].next_node_index)
       surface_ptrs.push_back (surface_ptr_list_nodes[index].surface);
+    surface_ptrs.push_back (0); // list terminator
     return rval;
   }
+
+  // Copy all of our nodes into TO_NODES, and their associated surface
+  // pointers into zero-terminated spans in TO_SURFACE_PTRS, using an
+  // "optimized order", where nodes nearer the top of the node-tree
+  // are closer to the front of TO_NODES (and the corresponding
+  // surface lists are closer to beginning of TO_SURFACE_PTRS).
+  //
+  void copy_optimized_nodes (
+	 std::vector<Node> &to_nodes,
+	 std::vector<const Surface *> &to_surface_ptrs)
+    const;
 
   // One corner of the octree.
   //
@@ -502,6 +521,130 @@ Octree::Builder::add_to_child (const Surface *surface, const BBox &surface_bbox,
 
 
 
+// Octree::Builder::copy_optimized_nodes
+
+// Copy all of our nodes into TO_NODES, and their associated surface
+// pointers into zero-terminated spans in TO_SURFACE_PTRS, using an
+// "optimized order", where nodes nearer the top of the node-tree are
+// closer to the front of TO_NODES (and the corresponding surface
+// lists are closer to beginning of TO_SURFACE_PTRS).
+//
+void
+Octree::Builder::copy_optimized_nodes (
+		   std::vector<Node> &to_nodes,
+		   std::vector<const Surface *> &to_surface_ptrs)
+  const
+{
+  //
+  // Do initial setup of TO_NODES and TO_SURFACE_PTRS.
+  //
+
+  // Count the number of nodes that have surfaces, to use below in the
+  // calculation of NUM_SURFACE_PTR_ENTRIES.
+  //
+  unsigned num_nodes_with_surfaces = 0;
+  for (std::vector<Node>::const_iterator node = nodes.begin();
+       node != nodes.end(); ++node)
+    if (node->surface_ptrs_head_index)
+      num_nodes_with_surfaces++;
+
+  // The total number of surface pointers entries that we will use.
+  //
+  // Besides the number of actual surface pointers (which is the same
+  // as the size of Octree::Builder::surface_ptr_list_nodes), we add
+  // an extra zero-entry for each node with surfaces, to mark the end
+  // of each node's surface-pointer list; this extra entry is not
+  // explicitly stored in our linked-list form, but will be used in
+  // the final packed form, so we need to account for it.
+  //
+  // [Both forms have a reserved zero entry, so we don't need to add that.]
+  //
+  unsigned num_surface_ptr_entries 
+    = surface_ptr_list_nodes.size () + num_nodes_with_surfaces;
+
+  // Pre-size OCTREE's vectors, for efficiency, and to avoid
+  // over-allocation.
+  //
+  to_nodes.reserve (nodes.size ());
+  to_surface_ptrs.reserve (num_surface_ptr_entries);
+
+  // Add the reserved zero-entry to octree.surface_ptrs
+  //
+  to_surface_ptrs.push_back (0);
+
+
+  //
+  // Now copy nodes in FIFO order.
+  //
+
+  // FIFO queue of nodes to copy.
+  //
+  std::deque<unsigned> node_index_queue;
+
+  // Index of the next free slot in the eventual nodes vector.
+  //
+  unsigned next_free_node_index = 1;
+
+  // Prime queue with root node.
+  //
+  node_index_queue.push_back (0);
+
+  // Now copy nodes, continually getting the next node to copy from
+  // the front of NODE_INDEX_QUEUE, and pushing its non-zero
+  // child-node indices onto the back.  The result will be that all
+  // nodes are copied in a breadth-first order.
+  //
+  while (! node_index_queue.empty ())
+    {
+      // Pop the next node to copy from the front of the queue.
+      //
+      unsigned from_index = node_index_queue.front ();
+      node_index_queue.pop_front ();
+      const Node &from_node = nodes[from_index];
+
+      // The new node in TO_NODES we're copying to, which starts out empty.
+      //
+      unsigned to_index = to_nodes.size ();
+      to_nodes.push_back (Node ());
+      Node &to_node = to_nodes[to_index];
+
+      // Copy FROM_NODE's surface pointers into TO_NODE, using contiguous
+      // entries in TO_SURFACE_PTRS to hold them (rather than the linked
+      // list used by FROM_NODE's surface-pointers).
+      //
+      if (from_node.surface_ptrs_head_index)
+	to_node.surface_ptrs_head_index
+	  = unroll_surface_ptr_list (from_node.surface_ptrs_head_index,
+				     to_surface_ptrs);
+
+      // Push the indices of sub-nodes of FROM_NODE onto the end of
+      // NODE_INDEX_QUEUE, and mark TO_NODE as a leaf if there are no
+      // sub-nodes
+      //
+      unsigned num_child_nodes = 0;
+      for (unsigned i = 0; i < 8; i++)
+	if (from_node.child_node_indices[i])
+	  {
+	    num_child_nodes++;
+
+	    node_index_queue.push_back (from_node.child_node_indices[i]);
+
+	    // Because we're copying in FIFO order, we know that each
+	    // child node will be stored following nodes in
+	    // NODE_INDEX_QUEUE.
+	    //
+	    to_node.child_node_indices[i] = next_free_node_index++;
+	  }
+      if (num_child_nodes == 0)
+	to_node.mark_as_leaf_node ();
+    }
+
+  ASSERT (to_nodes.size () == nodes.size ());
+  ASSERT (to_surface_ptrs.size () == num_surface_ptr_entries);
+}
+
+
+
 // Octree::Builder::make_space
 
 // Make the final space.  Note that this can only be done once.
@@ -509,39 +652,23 @@ Octree::Builder::add_to_child (const Surface *surface, const BBox &surface_bbox,
 const Space *
 Octree::Builder::make_space ()
 {
-  // Pointers to surfaces referred to in this octree.
-  // Surface-pointers occur in runs inside this vector with a NULL
-  // pointer following the last entry in a list.
-  //
-  std::vector<const Surface *> surface_ptrs;
-  surface_ptrs.push_back (0);	// reserved entry
-
-  // Visit each node, adding its surface-pointers in packed form to
-  // SURFACE_PTRS, and marking them as leaf-nodes if appropriate.
-  //
-  for (std::vector<Node>::iterator node = nodes.begin();
-       node != nodes.end(); ++node)
-    {
-      node->surface_ptrs_head_index
-	= unroll_surface_ptr_list (node->surface_ptrs_head_index, surface_ptrs);
-      surface_ptrs.push_back (0); // list terminator
-
-      bool leaf = true;
-      for (unsigned i = 0; i < 8 && leaf; i++)
-	if (node->child_node_indices[i])
-	  leaf = false;
-      if (leaf)
-	node->mark_as_leaf_node ();
-    }
-
-  // Actually make the new octree.  Note that the vectors NODES and
-  // SURFACE_PTRS are _copied_ into it, and as a result, compacted.
+  // Make a new octree, initially empty.
   //
   // Note that we don't invalidate our state, as it's actually still
   // valid (and could theoretically be used to make more octrees).  We
   // should be deleted soon anyway.
   //
-  return new Octree (origin, size, nodes, surface_ptrs, num_real_surfaces);
+  Octree *octree = new Octree (origin, size);
+
+  // Copy the actual tree contents, in optimized order.
+  //
+  copy_optimized_nodes (octree->nodes, octree->surface_ptrs);
+
+  // Now just fill in the remaining fields.
+  //
+  octree->num_real_surfaces = num_real_surfaces;
+
+  return octree;
 }
 
 
