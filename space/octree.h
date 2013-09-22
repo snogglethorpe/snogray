@@ -73,8 +73,6 @@ public:
 
 private:
 
-  struct SearchState;
-
   // A octree node is one level of the tree, containing a cubic volume
   // (the size is not explicitly stored in the node).  It is divided
   // into 8 equally-sized sub-nodes by splitting the node equally along
@@ -82,28 +80,16 @@ private:
   //
   struct Node;
 
+  // Class holding state during Octree searches.
+  //
+  struct SearchState;
+
 
   // Make a new, empty, octree with the given extent.  This should only
   // be invoked directly by Octree::Builder::make_space.
   //
   Octree (const Pos &_origin, dist_t _size);
 
-
-  // Version of `for_each_possible_intersector' used for recursive
-  // voxel tree searching.  The additional parameters are pre-computed
-  // intersection points of the ray being intersected in the various
-  // planes bounding this node's volume (we don't actually need the
-  // ray itself).
-  //
-  void for_each_possible_intersector (const Ray &ray, unsigned node_index,
-				      SearchState &ss,
-				      const Pos &x_min_isec,
-				      const Pos &x_max_isec,
-				      const Pos &y_min_isec,
-				      const Pos &y_max_isec,
-				      const Pos &z_min_isec,
-				      const Pos &z_max_isec)
-    const;
 
   // Update STATS to reflect the node at index NODE_INDEX.
   //

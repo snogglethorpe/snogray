@@ -36,11 +36,28 @@ Octree::Octree (const Pos &_origin, dist_t _size)
 
 struct Octree::SearchState : Space::SearchState
 {
-  SearchState (IntersectCallback &_callback, IsecCache &_negative_isec_cache)
+  SearchState (const Octree &_octree, const Ray &_ray,
+	       IntersectCallback &_callback, IsecCache &_negative_isec_cache)
     : Space::SearchState (_callback),
+      ray (_ray),
+      nodes (_octree.nodes), surface_ptrs (_octree.surface_ptrs),
       negative_isec_cache (_negative_isec_cache),
       neg_cache_hits (0), neg_cache_collisions (0)
   { }
+
+
+  // Call our callback for each surface that intersects our ray in the
+  // octree underneath node NODE_INDEX.  The remaining parameters are
+  // pre-computed intersection points of the ray in the various planes
+  // bounding that node's volume.
+  //
+  void for_each_possible_intersector (unsigned node_index,
+				      const Pos &x_min_isec,
+				      const Pos &x_max_isec,
+				      const Pos &y_min_isec,
+				      const Pos &y_max_isec,
+				      const Pos &z_min_isec,
+				      const Pos &z_max_isec);
 
   // Update the global statistical counters in ISEC_STATS with the
   // results from this search.
@@ -52,6 +69,18 @@ struct Octree::SearchState : Space::SearchState
 
     Space::SearchState::update_isec_stats (isec_stats);
   }
+
+  // Ray being searched along.  Note that this must be a reference,
+  // not a copy, as the ray it points to may actually change (and
+  // ignoring those changes would mean we lose the opportunity to
+  // prune the search).
+  //
+  const Ray &ray;
+
+  // Node and surface-pointer vectors from Octree.
+  //
+  const std::vector<Node> &nodes;
+  const std::vector<const Surface *> &surface_ptrs;
 
   // Cache of negative surface intersection test results, so we can
   // avoid testing the same object twice.
@@ -138,12 +167,12 @@ Octree::for_each_possible_intersector (const Ray &ray,
 	  //
 	  Grab<IsecCache> isec_cache_grab (context.isec_cache_pool);
 
-	  SearchState ss (callback, *isec_cache_grab);
+	  SearchState ss (*this, ray, callback, *isec_cache_grab);
 
-	  for_each_possible_intersector (ray, 0, ss,
-					 x_min_isec, x_max_isec,
-					 y_min_isec, y_max_isec,
-					 z_min_isec, z_max_isec);
+	  ss.for_each_possible_intersector (0,
+					    x_min_isec, x_max_isec,
+					    y_min_isec, y_max_isec,
+					    z_min_isec, z_max_isec);
 
 	  ss.update_isec_stats (isec_stats);
 	}
@@ -152,29 +181,27 @@ Octree::for_each_possible_intersector (const Ray &ray,
 
 
 
-// Ray intersection testing (Octree::Node::for_each_possible_intersector)
+// Ray intersection testing (Octree::SearchState::for_each_possible_intersector)
 
-// Version of `for_each_possible_intersector' used for recursive
-// voxel tree searching.  The additional parameters are pre-computed
-// intersection points of the ray being intersected in the various
-// planes bounding this node's volume (we don't actually need the
-// ray itself).
+// Call our callback for each surface that intersects our ray in the
+// octree underneath node NODE_INDEX.  The remaining parameters are
+// pre-computed intersection points of the ray in the various planes
+// bounding that node's volume.
 //
 // This method is critical for speed, and so we try to avoid doing any
 // calculation at all.
 //
 void
-Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
-				       SearchState &ss,
-				       const Pos &x_min_isec,
-				       const Pos &x_max_isec,
-				       const Pos &y_min_isec,
-				       const Pos &y_max_isec,
-				       const Pos &z_min_isec,
-				       const Pos &z_max_isec)
-  const
+Octree::SearchState::for_each_possible_intersector (
+		       unsigned node_index,
+		       const Pos &x_min_isec,
+		       const Pos &x_max_isec,
+		       const Pos &y_min_isec,
+		       const Pos &y_max_isec,
+		       const Pos &z_min_isec,
+		       const Pos &z_max_isec)
 {
-  ss.node_intersect_calls++;
+  node_intersect_calls++;
 
   const Node &node = nodes[node_index];
 
@@ -223,8 +250,6 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
     {
       // RAY intersects some face, so it must intersect our volume
 
-      IntersectCallback &callback = ss.callback;
-
       // Invoke the callback on each of this node's surfaces
       //
       if (node.surface_ptrs_head_index)
@@ -233,21 +258,21 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 	  {
 	    const Surface *surf = surface_ptrs[surf_ptr_index];
 
-	    if (! ss.negative_isec_cache.contains (surf))
+	    if (! negative_isec_cache.contains (surf))
 	      {
-		ss.surf_isec_tests++;
+		surf_isec_tests++;
 
 		if (callback (surf))
-		  ss.surf_isec_hits++;
+		  surf_isec_hits++;
 		else
 		  {
-		    bool collision = ss.negative_isec_cache.add (surf);
+		    bool collision = negative_isec_cache.add (surf);
 		    if (collision)
-		      ss.neg_cache_collisions++;
+		      neg_cache_collisions++;
 		  }
 	      }
 	    else
-	      ss.neg_cache_hits++;
+	      neg_cache_hits++;
 
 	    if (callback.stop)
 	      return;
@@ -282,7 +307,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_LO|Node::Y_LO|Node::Z_LO];
 		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_min_isec, x_mid_isec,
 						   y_min_isec, y_mid_isec,
 						   z_min_isec, z_mid_isec);
@@ -291,7 +316,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_LO|Node::Y_LO|Node::Z_HI];
 		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_min_isec, x_mid_isec,
 						   y_min_isec, y_mid_isec,
 						   z_mid_isec, z_max_isec);
@@ -303,7 +328,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_LO|Node::Y_HI|Node::Z_LO];
 		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_min_isec, x_mid_isec,
 						   y_mid_isec, y_max_isec,
 						   z_min_isec, z_mid_isec);
@@ -312,7 +337,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_LO|Node::Y_HI|Node::Z_HI];
 		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_min_isec, x_mid_isec,
 						   y_mid_isec, y_max_isec,
 						   z_mid_isec, z_max_isec);
@@ -327,7 +352,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_HI|Node::Y_LO|Node::Z_LO];
 		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_mid_isec, x_max_isec,
 						   y_min_isec, y_mid_isec,
 						   z_min_isec, z_mid_isec);
@@ -336,7 +361,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_HI|Node::Y_LO|Node::Z_HI];
 		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_mid_isec, x_max_isec,
 						   y_min_isec, y_mid_isec,
 						   z_mid_isec, z_max_isec);
@@ -348,7 +373,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_HI|Node::Y_HI|Node::Z_LO];
 		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_mid_isec, x_max_isec,
 						   y_mid_isec, y_max_isec,
 						   z_min_isec, z_mid_isec);
@@ -357,7 +382,7 @@ Octree::for_each_possible_intersector (const Ray &ray, unsigned node_index,
 		  child_node_index
 		    = node.child_node_indices[Node::X_HI|Node::Y_HI|Node::Z_HI];
 		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (ray, child_node_index, ss,
+		    for_each_possible_intersector (child_node_index,
 						   x_mid_isec, x_max_isec,
 						   y_mid_isec, y_max_isec,
 						   z_mid_isec, z_max_isec);
