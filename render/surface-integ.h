@@ -44,9 +44,9 @@ public:
     virtual SurfaceInteg *make_integrator (RenderContext &context) = 0;
   };
 
-  // Return the light arriving at RAY's origin from the direction it
-  // points in (the length of RAY is ignored).  MEDIA is the media
-  // environment through which the ray travels.
+  // Return the light arriving at RAY's origin, from points up until
+  // its end.  MEDIA is the media environment through which the ray
+  // travels.
   //
   // This method also calls the volume-integrator's Li method, and
   // includes any light it returns for RAY as well.

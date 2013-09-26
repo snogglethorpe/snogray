@@ -63,7 +63,8 @@ RecursiveInteg::Lo (const Intersect &isec, const Media &media,
 	{
 	  Ray refl_ray (isec.normal_frame.origin,
 			isec.normal_frame.from (refl_samp.dir),
-			1.f);
+			context.params.min_trace,
+			context.scene.horizon);
 
 	  radiance +=
 	    Li (refl_ray, media, sample, depth + 1)
@@ -81,7 +82,8 @@ RecursiveInteg::Lo (const Intersect &isec, const Media &media,
 
 	  Ray ray (isec.normal_frame.origin,
 		   isec.normal_frame.from (xmit_samp.dir),
-		   1.f);
+		   context.params.min_trace,
+		   context.scene.horizon);
 
 	  radiance +=
 	    Li (ray, xmit_media, sample, depth + 1)
@@ -96,9 +98,8 @@ RecursiveInteg::Lo (const Intersect &isec, const Media &media,
 
 // RecursiveInteg::Li
 
-// Return the light arriving at RAY's origin from the recursiveion it
-// points in (the length of RAY is ignored).  MEDIA is the media
-// environment through which the ray travels.
+// Return the light arriving at RAY's origin, from points up until its
+// end.  MEDIA is the media environment through which the ray travels.
 //
 // This method also calls the volume-integrator's Li method, and
 // includes any light it returns for RAY as well.
@@ -145,7 +146,7 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
 
   const Scene &scene = context.scene;
 
-  Ray isec_ray (ray, context.params.min_trace, scene.horizon);
+  Ray isec_ray = ray;
 
   const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
 
@@ -171,9 +172,8 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
   return radiance;
 }
 
-// Return the light arriving at RAY's origin from the recursiveion it
-// points in (the length of RAY is ignored).  MEDIA is the media
-// environment through which the ray travels.
+// Return the light arriving at RAY's origin, from points up until its
+// end.  MEDIA is the media environment through which the ray travels.
 //
 // This method also calls the volume-integrator's Li method, and
 // includes any light it returns for RAY as well.
@@ -186,7 +186,7 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
 {
   const Scene &scene = context.scene;
 
-  Ray isec_ray (ray, context.params.min_trace, scene.horizon);
+  Ray isec_ray = ray;
 
   const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
 

@@ -1,6 +1,6 @@
 // recursive-integ.h -- Superclass for simple recursive surface integrators
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -28,9 +28,9 @@ class RecursiveInteg : public SurfaceInteg
 {
 public:
 
-  // Return the light arriving at RAY's origin from the recursiveion it
-  // points in (the length of RAY is ignored).  MEDIA is the media
-  // environment through which the ray travels.
+  // Return the light arriving at RAY's origin, from points up until
+  // its end.  MEDIA is the media environment through which the ray
+  // travels.
   //
   // This method also calls the volume-integrator's Li method, and
   // includes any light it returns for RAY as well.
@@ -56,9 +56,9 @@ protected:
 
 private:
 
-  // Return the light arriving at RAY's origin from the recursiveion it
-  // points in (the length of RAY is ignored).  MEDIA is the media
-  // environment through which the ray travels.
+  // Return the light arriving at RAY's origin, from points up until
+  // its end.  MEDIA is the media environment through which the ray
+  // travels.
   //
   // This method also calls the volume-integrator's Li method, and
   // includes any light it returns for RAY as well.

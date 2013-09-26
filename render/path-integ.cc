@@ -122,9 +122,8 @@ PathInteg::GlobalState::make_integrator (RenderContext &context)
 
 // PathInteg::Li
 
-// Return the light arriving at RAY's origin from the direction it
-// points in (the length of RAY is ignored).  MEDIA is the media
-// environment through which the ray travels.
+// Return the light arriving at RAY's origin, from points up until its
+// end.  MEDIA is the media environment through which the ray travels.
 //
 // This method also calls the volume-integrator's Li method, and
 // includes any light it returns for RAY as well.
@@ -144,7 +143,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
   //
   const Media *innermost_media = &orig_media;
 
-  Ray isec_ray (ray, scene.horizon);
+  Ray isec_ray = ray;
 
   // Length of the current path.
   //
