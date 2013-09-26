@@ -37,8 +37,6 @@ namespace snogray {
   {
   public:
 
-    static const unsigned DEFAULT_HORIZON;
-
     Scene (const Surface &root_surface,
 	   const SpaceBuilderFactory &space_builder_factory);;
 

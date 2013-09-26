@@ -29,7 +29,7 @@ using namespace snogray;
 //
 Scene::Scene (const Surface &_root_surface,
 	      const SpaceBuilderFactory &space_builder_factory)
-  : horizon (DEFAULT_HORIZON),
+  : horizon (_root_surface.bbox ().diameter ()),
     root_surface (_root_surface),
     space (space_builder_factory.make_space (root_surface))
 {

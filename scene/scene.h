@@ -33,8 +33,6 @@ class Scene
 {
 public:
 
-  static const unsigned DEFAULT_HORIZON = 1000000;
-
   Scene (const Surface &root_surface,
 	 const SpaceBuilderFactory &space_builder_factory);
   ~Scene ();
