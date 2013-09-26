@@ -98,12 +98,13 @@ Camera::transform (const Xform &xform)
 
 // Camera::eye_ray
 
-// Return an eye-ray from this camera for location FILM_LOC on the
-// film plane, with the random perturbation FOCUS_PARAM for
-// depth-of-field simulation.  All parameters have a range of 0-1.
+// Return an eye-ray, of length LEN, from this camera for location
+// FILM_LOC on the film plane, with the random perturbation
+// FOCUS_PARAM for depth-of-field simulation.  All parameters have a
+// range of 0-1.
 //
 Ray
-Camera::eye_ray (const UV &film_loc, const UV &focus_param) const
+Camera::eye_ray (const UV &film_loc, const UV &focus_param, dist_t len) const
 {
   // The source of the camera ray, which is the camera position
   // (actually the optical center of the lens), possibly perturbed for
@@ -153,7 +154,7 @@ Camera::eye_ray (const UV &film_loc, const UV &focus_param) const
       targ += right * targ_perturb_x + up * targ_perturb_y;
     }
 
-  return Ray (src, targ);
+  return Ray (src, targ, len);
 }
 
 

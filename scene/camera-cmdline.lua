@@ -44,8 +44,8 @@ local function probe_scene (x, y, scene, camera)
    local render_context = render.context (global_render_state)
 
    local film_pos = coord.uv (x, y)
-   local probe = camera:eye_ray (film_pos)
-   probe.t1 = scene:bbox ():diameter ()
+   local max_trace = (scene:bbox () + camera.pos):diameter ()
+   local probe = camera:eye_ray (film_pos, max_trace)
 
    if global_render_state.scene:intersect (probe, render_context) then
       return probe.dir * probe:length ()

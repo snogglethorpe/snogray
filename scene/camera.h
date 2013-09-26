@@ -303,19 +303,21 @@ public:
   }
 
 
-  // Return an eye-ray from this camera for location FILM_LOC on the
-  // film plane, with no depth-of-field.  FILM_LOC has a range of 0-1.
+  // Return an eye-ray, of length LEN, from this camera for location
+  // FILM_LOC on the film plane, with no depth-of-field.  FILM_LOC has
+  // a range of 0-1.
   //
-  Ray eye_ray (const UV &film_loc) const
+  Ray eye_ray (const UV &film_loc, dist_t len) const
   {
-    return Ray (pos, eye_vec (film_loc));
+    return Ray (pos, eye_vec (film_loc), len);
   }
 
-  // Return an eye-ray from this camera for location FILM_LOC on the
-  // film plane, with the random perturbation FOCUS_PARAM for
-  // depth-of-field simulation.  All parameters have a range of 0-1.
+  // Return an eye-ray, of length LEN, from this camera for location
+  // FILM_LOC on the film plane, with the random perturbation
+  // FOCUS_PARAM for depth-of-field simulation.  All parameters have a
+  // range of 0-1.
   //
-  Ray eye_ray (const UV &film_loc, const UV &focus_param) const;
+  Ray eye_ray (const UV &film_loc, const UV &focus_param, dist_t len) const;
 
   Format format;
 

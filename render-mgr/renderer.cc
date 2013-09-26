@@ -10,6 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "scene/scene.h"
 #include "scene/camera.h"
 #include "material/media.h"
 #include "render/sample-set.h"
@@ -44,6 +45,11 @@ Renderer::render_packet (RenderPacket &packet)
 
   packet.results.clear ();
 
+  // Maximum length of a camera-ray.  We make it long enough to reach
+  // any point in the scene's bounding-box from the camera's position.
+  //
+  dist_t max_trace = (context.scene.bbox () + camera.pos).diameter ();
+
   for (std::vector<UV>::const_iterator pi = packet.pixels.begin ();
        pi != packet.pixels.end (); ++pi)
     {
@@ -71,7 +77,7 @@ Renderer::render_packet (RenderPacket &packet)
 	  // Translate the image position U, V into a ray coming from the
 	  // camera.
 	  //
-	  Ray camera_ray = camera.eye_ray (film_loc, focus_samp);
+	  Ray camera_ray = camera.eye_ray (film_loc, focus_samp, max_trace);
 
 	  // .. calculate what light arrives via that ray.
 	  //
