@@ -21,15 +21,16 @@ EXTRA_DIST = util.swg
 CLEANFILES = snogpaths-data.h
 
 
-libsnogutil_a_SOURCES = compiler.h cond-var.h excepts.h file-funs.cc	\
-	file-funs.h float-excepts-guard.h freelist.cc freelist.h	\
-	funptr-cast.h gaussian-filter.h globals.cc globals.h grab.h	\
-	interp.h llist.h least-squares-fit.h matrix.h matrix.tcc	\
-	matrix-funs.h matrix-funs.tcc matrix-io.h mempool.cc		\
-	mempool.h mutex.h nice-io.cc nice-io.h num-cores.cc		\
-	num-cores.h pool.h progress.h radical-inverse.h random.h	\
-	random-boost.h random-std.h random-rand.h random-tr1.h ref.h	\
-	rusage.h snogassert.cc snogassert.h snogmath.h snogpaths.cc	\
+libsnogutil_a_SOURCES = compiler.h cond-var.h deletion-list.h		\
+	excepts.h file-funs.cc file-funs.h float-excepts-guard.h	\
+	freelist.cc freelist.h funptr-cast.h gaussian-filter.h		\
+	globals.cc globals.h grab.h interp.h llist.h			\
+	least-squares-fit.h matrix.h matrix.tcc matrix-funs.h		\
+	matrix-funs.tcc matrix-io.h mempool.cc mempool.h mutex.h	\
+	nice-io.cc nice-io.h num-cores.cc num-cores.h pool.h		\
+	progress.h radical-inverse.h random.h random-boost.h		\
+	random-std.h random-rand.h random-tr1.h ref.h rusage.h		\
+	snogassert.cc snogassert.h snogmath.h snogpaths.cc		\
 	snogpaths.h string-funs.cc string-funs.h thread.h threading.h	\
 	threading-boost.h threading-std.h timeval.cc timeval.h		\
 	val-table.cc unique-ptr.h val-table.h
