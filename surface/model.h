@@ -78,10 +78,6 @@ public:
     return space->occludes (ray, medium, total_transmittance, context);
   }
 
-  // Return a bounding box for the associated surface.
-  //
-  BBox bbox () const { return _surface->bbox (); }
-
   // Return a pointer to the model's actual surface.  The returned
   // pointer is only valid while the model still exists.
   //

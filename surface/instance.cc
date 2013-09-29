@@ -151,5 +151,5 @@ Instance::occludes (const Ray &ray, const Medium &medium,
 BBox
 Instance::bbox () const
 {
-  return local_to_world (model->bbox ());
+  return local_to_world (model->surface ()->bbox ());
 }

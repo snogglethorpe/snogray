@@ -138,12 +138,7 @@ namespace snogray {
   };
 
   %ignore Model;
-  class Model
-  {
-  public:
-
-    virtual BBox bbox () const;
-  };
+  class Model { };
   %template(ModelRef) Ref<Model>;
 
   class Instance : public LocalSurface
