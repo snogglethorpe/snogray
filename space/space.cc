@@ -55,9 +55,11 @@ struct ClosestIntersectCallback : Space::IntersectCallback
 } // namespace
 
 
-// Return the closest surface in this scene which intersects the
-// bounded-ray RAY, or zero if there is none.  RAY's length is shortened
-// to reflect the point of intersection.
+// If some surface in this space intersects RAY, change RAY's maximum
+// bound (Ray::t1) to reflect the point of intersection, and return a
+// Surface::IsecInfo object describing the intersection (which should
+// be allocated using placement-new with CONTEXT); otherwise return
+// zero.
 //
 const Surface::IsecInfo *
 Space::intersect (Ray &ray, RenderContext &context) const
@@ -109,7 +111,7 @@ struct IntersectsCallback : Space::IntersectCallback
 } // namespace
 
 
-// Return true if any object intersects RAY.
+// Return true if any surface in this space intersects RAY.
 //
 bool
 Space::intersects (const Ray &ray, RenderContext &context) const
