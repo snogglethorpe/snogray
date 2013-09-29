@@ -221,9 +221,9 @@ public:
   // Surface::Stats below for details).  CACHE is used internally for
   // coordination amongst nested surfaces.
   //
-  // This method is internal to the Surface class hierachy, but cannot
-  // be protected: due to pecularities in the way that is defined in
-  // C++.
+  // This method is intended for internal use in the Surface class
+  // hierachy, but cannot be protected: due to pecularities in the way
+  // that is defined in C++.
   //
   virtual void accum_stats (Stats &stats, StatsCache &cache) const;
 
@@ -346,9 +346,9 @@ public:
   // Surface::Stats below for details).  CACHE is used internally for
   // coordination amongst nested surfaces.
   //
-  // This method is internal to the Surface class hierachy, but cannot
-  // be protected: due to pecularities in the way that is defined in
-  // C++.
+  // This method is intended for internal use in the Surface class
+  // hierachy, but cannot be protected: due to pecularities in the way
+  // that is defined in C++.
   //
   virtual void accum_stats (Stats &stats, StatsCache &cache) const;
 

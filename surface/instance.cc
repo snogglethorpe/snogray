@@ -155,12 +155,12 @@ Instance::bbox () const
 }
 
 // Add statistics about this surface to STATS (see the definition of
-// Surface::Stats below for details).  STATE is used internally for
+// Surface::Stats below for details).  CACHE is used internally for
 // coordination amongst nested surfaces.
 //
-// This method is internal to the Surface class hierachy, but cannot
-// be protected: due to pecularities in the way that is defined in
-// C++.
+// This method is intended for internal use in the Surface class
+// hierachy, but cannot be protected: due to pecularities in the way
+// that is defined in C++.
 //
 void
 Instance::accum_stats (Stats &stats, StatsCache &cache) const
