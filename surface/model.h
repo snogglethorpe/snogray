@@ -80,7 +80,12 @@ public:
 
   // Return a bounding box for the associated surface.
   //
-  BBox bbox () const { return surface->bbox (); }
+  BBox bbox () const { return _surface->bbox (); }
+
+  // Return a pointer to the model's actual surface.  The returned
+  // pointer is only valid while the model still exists.
+  //
+  Surface *surface () const { return _surface.get (); }
 
 private:
 
@@ -94,7 +99,7 @@ private:
 
   // The top-level surface in this model.
   //
-  UniquePtr<Surface> surface;
+  UniquePtr<Surface> _surface;
 
   // Space holding everything from SURFACE, or zero if it hasn't been
   // built yet.

@@ -24,7 +24,7 @@ using namespace snogray;
 
 Model::Model (Surface *surf,
 		    const SpaceBuilderFactory &space_builder_factory)
-  : surface (surf),
+  : _surface (surf),
     space_builder (space_builder_factory.make_space_builder ())
 { }
 
@@ -40,7 +40,7 @@ Model::make_space () const
     {
       ASSERT (space_builder);
 
-      surface->add_to_space (*space_builder);
+      _surface->add_to_space (*space_builder);
 
       space.reset (space_builder->make_space ());
 
