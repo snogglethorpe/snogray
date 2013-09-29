@@ -628,6 +628,21 @@ Mesh::Triangle::occludes (const Ray &ray, const Medium &medium,
 
 
 
+// misc Mesh::Triangle methods
+
+// Return a bounding box for this surface.
+//
+BBox
+Mesh::Triangle::bbox () const
+{
+  BBox bbox (v (0));
+  bbox += v (1);
+  bbox += v (2);
+  return bbox;
+}
+
+
+
 
 namespace { // keep local to file
 
@@ -801,17 +816,6 @@ Mesh::compute_vertex_normals (float max_angle)
 
 
 // misc Mesh methods
-
-// Return a bounding box for this surface.
-//
-BBox
-Mesh::Triangle::bbox () const
-{
-  BBox bbox (v (0));
-  bbox += v (1);
-  bbox += v (2);
-  return bbox;
-}
 
 // Add this (or some other) surfaces to the space being built by
 // SPACE_BUILDER.
