@@ -12,6 +12,7 @@
 
 
 %{
+#include "surface/surface.h"
 #include "surface/mesh.h"
 #include "surface/tripar.h"
 #include "surface/ellipse.h"
@@ -64,6 +65,25 @@ namespace snogray {
   class SpaceBuilderFactory;
 
 
+  // This is really Surface::Stats, but SWIG can't handle nested types
+  struct SurfaceStats
+  {
+    SurfaceStats ();
+    SurfaceStats &operator+= (const SurfaceStats &stats);
+    unsigned long num_render_surfaces;
+    unsigned long num_real_surfaces;
+    unsigned long num_lights;
+  };
+  %{
+    namespace snogray {
+      struct SurfaceStats : Surface::Stats
+      {
+        SurfaceStats () {}
+        SurfaceStats (const Surface::Stats &s) : Surface::Stats (s) {}
+      };
+    }
+  %}
+
   class Surface
   {
   private:
@@ -73,6 +93,7 @@ namespace snogray {
   public:
 
     virtual BBox bbox () const;
+    SurfaceStats stats () const;
   };
 
   // This is really Surface::IsecInfo, but SWIG can't handle nested types

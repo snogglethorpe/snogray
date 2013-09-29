@@ -31,6 +31,21 @@ Surface::add_to_space (SpaceBuilder &space_builder) const
 }
 
 
+// Return statistics about this surface (see the definition of
+// Surface::Stats below for details).
+//
+Surface::Stats
+Surface::stats () const
+{
+  Stats stats;
+  StatsCache cache;
+
+  accum_stats (stats, cache);
+
+  return stats;
+}
+
+
 
 // Surface::Stats
 

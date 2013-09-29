@@ -104,6 +104,11 @@ public:
   //
   virtual Sampler *make_sampler () const { return 0; }
 
+  // Return statistics about this surface (see the definition of
+  // Surface::Stats below for details).
+  //
+  Stats stats () const;
+
   // A cache of already-calculated statistics, for use by
   // Surface::accum_stats (this is only used by instances).
   //
