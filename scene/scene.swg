@@ -38,12 +38,10 @@ namespace snogray {
     Scene (const Surface &root_surface,
 	   const SpaceBuilderFactory &space_builder_factory);;
 
-    unsigned num_surfaces () const;
     unsigned num_light_samplers () const;
 
     const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
     bool intersects (const Ray &ray, RenderContext &context) const;
-
   };
   %extend Scene
   {

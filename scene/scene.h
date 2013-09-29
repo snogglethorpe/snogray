@@ -82,7 +82,6 @@ public:
   }
 
 
-  unsigned num_surfaces () const { return /*root_surface.num_surfaces ()*/0; }
   unsigned num_light_samplers () const { return light_samplers.size (); }
 
   // Return an axis-aligned bounding box containing the entire scene.
