@@ -83,10 +83,6 @@ public:
 		 std::vector<const Light::Sampler *> &samplers)
     const;
 
-  // Return the number of surfaces directly in this group.
-  //
-  unsigned num_surfaces () const { return surfaces.size (); }
-
 private:
 
   // A list of the surfaces in this group.
