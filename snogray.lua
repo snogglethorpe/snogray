@@ -467,10 +467,9 @@ if not quiet then
           .." alpha-channel") 
 
    print ("* using "
-	  ..commify_with_units(num_threads, " thread", " threads")
+	  ..commify_with_units(num_threads, " thread", true)
           .." and "
-	  ..commify_with_units(render_params.samples or 1,
-			       " sample", " samples")
+	  ..commify_with_units(render_params.samples or 1, " sample", true)
           .."/pixel")
 end
 
