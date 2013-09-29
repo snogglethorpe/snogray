@@ -148,7 +148,8 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
 
   Ray isec_ray = ray;
 
-  const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
+  const Surface::Renderable::IsecInfo *isec_info
+    = scene.intersect (isec_ray, context);
 
   Color radiance;
   if (isec_info)
@@ -188,7 +189,8 @@ RecursiveInteg::Li (const Ray &ray, const Media &media,
 
   Ray isec_ray = ray;
 
-  const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
+  const Surface::Renderable::IsecInfo *isec_info
+    = scene.intersect (isec_ray, context);
 
   Color radiance;
   float alpha;

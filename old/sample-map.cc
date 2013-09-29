@@ -1,6 +1,6 @@
 // sample-map.cc -- Visual representation of sample distribution
 //
-//  Copyright (C) 2005-2010, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2010, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ SampleMap::sample (const Ray &eye_ray, Scene &scene,
 
   RenderContext render_context (scene, render_params);
 
-  const Surface::IsecInfo *isec_info
+  const Surface::Renderable::IsecInfo *isec_info
     = scene.intersect (intersected_ray, context);
 
   if (isec_info)

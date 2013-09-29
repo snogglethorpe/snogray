@@ -10,25 +10,15 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "geometry/bbox.h"
 #include "util/grab.h"
+#include "geometry/bbox.h"
+#include "intersect/isec-cache.h"
 
 #include "octree.h"
 #include "octree-node.h"
 
 
 using namespace snogray;
-
-
-
-// Octree constructor
-
-// Make a new, empty, octree with the given extent.  This should only
-// be invoked directly by Octree::Builder::make_space.
-//
-Octree::Octree (const Pos &_origin, dist_t _size)
-  : origin (_origin), size (_size), num_real_surfaces (0)
-{ }
 
 
 
@@ -80,7 +70,7 @@ struct Octree::SearchState : Space::SearchState
   // Node and surface-pointer vectors from Octree.
   //
   const std::vector<Node> &nodes;
-  const std::vector<const Surface *> &surface_ptrs;
+  const std::vector<const Surface::Renderable *> &surface_ptrs;
 
   // Cache of negative surface intersection test results, so we can
   // avoid testing the same object twice.
@@ -256,7 +246,7 @@ Octree::SearchState::for_each_possible_intersector (
 	for (unsigned surf_ptr_index = node.surface_ptrs_head_index;
 	     surface_ptrs[surf_ptr_index]; surf_ptr_index++)
 	  {
-	    const Surface *surf = surface_ptrs[surf_ptr_index];
+	    const Surface::Renderable *surf = surface_ptrs[surf_ptr_index];
 
 	    if (! negative_isec_cache.contains (surf))
 	      {

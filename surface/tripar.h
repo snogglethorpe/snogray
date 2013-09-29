@@ -32,10 +32,11 @@ public:
       parallelogram (_parallelogram)
   { }
 
-  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return a Surface::IsecInfo
-  // object describing the intersection (which should be allocated using
-  // placement-new with CONTEXT); otherwise return zero.
+  // If this surface intersects RAY, change RAY's maximum bound
+  // (Ray::t1) to reflect the point of intersection, and return a
+  // Surface::Renderable::IsecInfo object describing the intersection
+  // (which should be allocated using placement-new with CONTEXT);
+  // otherwise return zero.
   //
   virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
 

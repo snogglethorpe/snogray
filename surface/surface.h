@@ -18,15 +18,11 @@
 
 #include "light/light.h"
 #include "geometry/bbox.h"
-#include "intersect/ray.h"
-#include "intersect/intersect.h"
 
 
 namespace snogray {
 
 class SpaceBuilder;
-class Media;
-class Medium;
 
 
 // A surface is the basic object scenes are constructed of.
@@ -39,7 +35,7 @@ class Surface
 {
 public:
 
-  class IsecInfo;	  // Used to return info about an intersection
+  class Renderable;	  // Interface for surface rendering
   class Sampler;	  // Surface-sampling interface
   class Stats;		  // Surface statistics
 
@@ -48,45 +44,14 @@ public:
   virtual ~Surface () { }
 
 
-  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return a Surface::IsecInfo
-  // object describing the intersection (which should be allocated using
-  // placement-new with CONTEXT); otherwise return zero.
-  //
-  virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const =0;
-
-  // Return true if this surface intersects RAY.
-  //
-  virtual bool intersects (const Ray &ray, RenderContext &context) const = 0;
-
-  // Return true if this surface completely occludes RAY.  If it does
-  // not completely occlude RAY, then return false, and multiply
-  // TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
-  // MEDIUM.
-  //
-  // Note that this method does not try to handle non-trivial forms of
-  // transparency/translucency (for instance, a "glass" material is
-  // probably considered opaque because it changes light direction as
-  // well as transmitting it).
-  //
-  // [This interface is slight awkward for reasons of speed --
-  // returning and checking for a boolean value for common cases is
-  // significantly faster than, for instance, a simple "transmittance"
-  // method, which requires handling Color values for all cases.]
-  //
-  virtual bool occludes (const Ray &ray, const Medium &medium,
-			 Color &total_transmittance,
-			 RenderContext &context)
-    const = 0;
-
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const = 0;
 
-  // Add this (or some other) surfaces to the space being built by
-  // SPACE_BUILDER.
+  // Add Surface::Renderable objects associated with this surface to
+  // the space being built by SPACE_BUILDER.
   //
-  virtual void add_to_space (SpaceBuilder &space_builder) const;
+  virtual void add_to_space (SpaceBuilder &space_builder) const = 0;
 
   // Add light-samplers for this surface in SCENE to SAMPLERS.  Any
   // samplers added become owned by the owner of SAMPLERS, and will be
@@ -123,50 +88,6 @@ public:
   // that is defined in C++.
   //
   virtual void accum_stats (Stats &stats, StatsCache &cache) const = 0;
-};
-
-
-
-// ----------------------------------------------------------------
-// Surface::IsecInfo
-
-
-// A lightweight object used to return infomation from the
-// Surface::intersect method.  If that intersection ends up being used
-// for rendering, its IsecInfo::make_intersect method will be called
-// to create a (more heavyweight) Intersect object for doing
-// rendering.
-//
-// These objects should be allocated using placement new with the
-// RenderContext object passed to Surface::intersect.  Their
-// destructor is never called (and so should all be trivial and
-// non-virtual).
-//
-class Surface::IsecInfo
-{
-public:
-
-  IsecInfo (const Ray &_ray) : ray (_ray) { }
-
-  // Note: Surface::IsecInfo does not have a virtual destructor (and
-  // subclasses should not add one)!
-  //
-  // Indeed, IsecInfo destructors should never be called at all --
-  // allocation of IsecInfo objects is done using a special arena, and
-  // they are never explicitly destroyed.  Therefore, all subclasses
-  // of Surface::IsecInfo should have trivial destructors, and should
-  // never contain any information which needs to be destroyed.
-
-  // Create an Intersect object for this intersection.
-  //
-  virtual Intersect make_intersect (const Media &media, RenderContext &context)
-    const = 0;
-
-  // Return the normal of this intersection (in the world frame).
-  //
-  virtual Vec normal () const = 0;
-
-  Ray ray;
 };
 
 

@@ -14,9 +14,20 @@
 #include "light/light.h"
 
 #include "space.h"
+#include "space-builder.h"
 
 
 using namespace snogray;
+
+
+// Initialize Space, using info from BUILDER.  Note that this can
+// only be done once, as it may modify BUILDER.
+//
+Space::Space (SpaceBuilder &builder)
+{
+  deletion_list.swap (builder.deletion_list);
+}
+
 
 
 // "Closest" intersection testing (tests all surfaces for intersection
@@ -30,9 +41,10 @@ struct ClosestIntersectCallback : Space::IntersectCallback
     : ray (_ray), closest (0), context (_context)
   { }
 
-  virtual bool operator() (const Surface *surf)
+  virtual bool operator() (const Surface::Renderable *surf)
   {
-    const Surface::IsecInfo *isec_info = surf->intersect (ray, context);
+    const Surface::Renderable::IsecInfo *isec_info
+      = surf->intersect (ray, context);
     if (isec_info)
       {
 	closest = isec_info;
@@ -47,7 +59,7 @@ struct ClosestIntersectCallback : Space::IntersectCallback
 
   // Information about the closest intersection we've found
   //
-  const Surface::IsecInfo *closest;
+  const Surface::Renderable::IsecInfo *closest;
 
   RenderContext &context;
 };
@@ -55,13 +67,13 @@ struct ClosestIntersectCallback : Space::IntersectCallback
 } // namespace
 
 
-// If some surface in this space intersects RAY, change RAY's maximum
-// bound (Ray::t1) to reflect the point of intersection, and return a
-// Surface::IsecInfo object describing the intersection (which should
-// be allocated using placement-new with CONTEXT); otherwise return
-// zero.
+// If some surface in this space intersects RAY, change RAY's
+// maximum bound (Ray::t1) to reflect the point of intersection, and
+// return a Surface::Renderable::IsecInfo object describing the
+// intersection (which should be allocated using placement-new with
+// CONTEXT); otherwise return zero.
 //
-const Surface::IsecInfo *
+const Surface::Renderable::IsecInfo *
 Space::intersect (Ray &ray, RenderContext &context) const
 {
   // A callback which is called for each surface in this space
@@ -87,7 +99,7 @@ struct IntersectsCallback : Space::IntersectCallback
     : ray (_ray), intersects (false), context (_context)
   { }
 
-  virtual bool operator() (const Surface *surf)
+  virtual bool operator() (const Surface::Renderable *surf)
   {
     intersects = surf->intersects (ray, context);
 
@@ -139,7 +151,7 @@ struct OccludesCallback : Space::IntersectCallback
       medium (_medium), context (_context), occludes (false)
   { }
 
-  virtual bool operator() (const Surface *surf)
+  virtual bool operator() (const Surface::Renderable *surf)
   {
     occludes = surf->occludes (ray, medium, total_transmittance, context);
     if (occludes)

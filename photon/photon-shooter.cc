@@ -107,7 +107,7 @@ PhotonShooter::shoot (const GlobalRenderState &global_render_state)
 
 	  // See if RAY hits something.
 	  //
-	  const Surface::IsecInfo *isec_info
+	  const Surface::Renderable::IsecInfo *isec_info
 	    = context.scene.intersect (ray, context);
 
 	  // Photon escaped, give up.

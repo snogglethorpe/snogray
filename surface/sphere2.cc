@@ -24,12 +24,12 @@ using namespace snogray;
 
 // Sphere2::IsecInfo
 
-class Sphere2::IsecInfo : public Surface::IsecInfo
+class Sphere2::IsecInfo : public Surface::Renderable::IsecInfo
 {
 public:
 
   IsecInfo (const Ray &ray, const Sphere2 &_sphere, const Vec &_onorm)
-    : Surface::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
+    : Surface::Renderable::IsecInfo (ray), sphere (_sphere), onorm (_onorm)
   { }
 
   virtual Intersect make_intersect (const Media &media, RenderContext &context)
@@ -98,12 +98,13 @@ Sphere2::IsecInfo::normal () const
 
 // intersection
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
+// If this surface intersects RAY, change RAY's maximum bound
+// (Ray::t1) to reflect the point of intersection, and return a
+// Surface::Renderable::IsecInfo object describing the intersection
+// (which should be allocated using placement-new with CONTEXT);
+// otherwise return zero.
 //
-const Surface::IsecInfo *
+const Surface::Renderable::IsecInfo *
 Sphere2::intersect (Ray &ray, RenderContext &context) const
 {
   Ray oray = world_to_local (ray);

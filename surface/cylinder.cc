@@ -42,12 +42,13 @@ Cylinder::xform (const Pos &base, const Vec &axis, float radius)
 
 // Cylinder::IsecInfo
 
-class Cylinder::IsecInfo : public Surface::IsecInfo
+class Cylinder::IsecInfo : public Surface::Renderable::IsecInfo
 {
 public:
 
   IsecInfo (const Ray &ray, const Cylinder &_cylinder, const Pos &_isec_point)
-    : Surface::IsecInfo (ray), cylinder (_cylinder), isec_point (_isec_point)
+    : Surface::Renderable::IsecInfo (ray),
+      cylinder (_cylinder), isec_point (_isec_point)
   { }
 
   virtual Intersect make_intersect (const Media &media,
@@ -158,12 +159,13 @@ cylinder_intersects (Ray &ray, dist_t &t)
   return cylinder_intersects (ray.origin, ray.dir, ray.t0, t) && t < ray.t1;
 }
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-// to reflect the point of intersection, and return a Surface::IsecInfo
-// object describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
+// If this surface intersects RAY, change RAY's maximum bound
+// (Ray::t1) to reflect the point of intersection, and return a
+// Surface::Renderable::IsecInfo object describing the intersection
+// (which should be allocated using placement-new with CONTEXT);
+// otherwise return zero.
 //
-const Surface::IsecInfo *
+const Surface::Renderable::IsecInfo *
 Cylinder::intersect (Ray &ray, RenderContext &context) const
 {
   Ray oray = world_to_local (ray);

@@ -13,25 +13,33 @@
 #ifndef SNOGRAY_PRIMITIVE_H
 #define SNOGRAY_PRIMITIVE_H
 
-#include "surface.h"
 #include "material/material.h"
+
+#include "surface.h"
+#include "surface-renderable.h"
 
 
 namespace snogray {
 
 
-// Primitive is a subclass of Surface that sort of represents
+// Primitive is a subclass of Surface that sort of represents simple,
 // "concrete", non-composite, surfaces.  In particular, a Primitive
-// object has a material associated with it.
+// object (1) has a material associated with it, and (2) is directly
+// usable as a Surface::Renderable.
 //
 // This is an abstract class.
 //
-class Primitive : public Surface
+class Primitive : public Surface, public Surface::Renderable
 {
 public:
 
   Primitive (const Ref<const Material> &mat) : material (mat) { }
   virtual ~Primitive () { }
+
+  // Add Surface::Renderable objects associated with this surface to
+  // the space being built by SPACE_BUILDER.
+  //
+  virtual void add_to_space (SpaceBuilder &space_builder) const;
 
   // Add light-samplers for this surface in SCENE to SAMPLERS.  Any
   // samplers added become owned by the owner of SAMPLERS, and will be
@@ -60,6 +68,8 @@ public:
   // that is defined in C++.
   //
   virtual void accum_stats (Stats &stats, StatsCache &cache) const;
+
+protected:
 
   Ref<const Material> material;
 };

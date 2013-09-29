@@ -13,6 +13,7 @@
 #include "intersect/intersect.h"
 #include "space/space.h"
 #include "util/excepts.h"
+#include "surface-renderable.h"
 #include "model.h"
 
 #include "instance.h"
@@ -22,16 +23,64 @@ using namespace snogray;
 
 
 
-// Instance::IsecInfo
+// Instance::Renderable
 
-class Instance::IsecInfo : public Surface::IsecInfo
+class Instance::Renderable : public Surface::Renderable
+{
+public:
+
+  Renderable (const Instance &_instance) : instance (_instance) { }
+
+  // If this surface intersects RAY, change RAY's maximum bound
+  // (Ray::t1) to reflect the point of intersection, and return a
+  // Surface::Renderable::IsecInfo object describing the intersection
+  // (which should be allocated using placement-new with CONTEXT);
+  // otherwise return zero.
+  //
+  virtual IsecInfo *intersect (Ray &ray, RenderContext &context) const;
+
+  // Return true if this surface intersects RAY.
+  //
+  virtual bool intersects (const Ray &ray, RenderContext &context) const;
+
+  // Return true if this surface completely occludes RAY.  If it does
+  // not completely occlude RAY, then return false, and multiply
+  // TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
+  // MEDIUM.
+  //
+  // Note that this method does not try to handle non-trivial forms of
+  // transparency/translucency (for instance, a "glass" material is
+  // probably considered opaque because it changes light direction as
+  // well as transmitting it).
+  //
+  virtual bool occludes (const Ray &ray, const Medium &medium,
+			 Color &total_transmittance,
+			 RenderContext &context)
+    const;
+
+  // Return a bounding box for this surface.
+  //
+  virtual BBox bbox () const { return instance.bbox (); }
+
+private:
+
+  class IsecInfo;
+
+  const Instance &instance;
+};
+
+
+
+// Instance::Renderable::IsecInfo
+
+class Instance::Renderable::IsecInfo : public Surface::Renderable::IsecInfo
 {
 public:
 
   IsecInfo (const Ray &ray,
 	    const Instance &_instance,
-	    const Surface::IsecInfo *_model_isec_info)
-    : Surface::IsecInfo (ray),
+	    const Surface::Renderable::IsecInfo *_model_isec_info)
+    : Surface::Renderable::IsecInfo (ray),
       instance (_instance),
       model_isec_info (_model_isec_info)
   { }
@@ -46,13 +95,14 @@ private:
 
   const Instance &instance;
 
-  const Surface::IsecInfo *model_isec_info;
+  const Surface::Renderable::IsecInfo *model_isec_info;
 };
 
 // Create an Intersect object for this intersection.
 //
 Intersect
-Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
+Instance::Renderable::IsecInfo::make_intersect (const Media &media,
+						RenderContext &context)
   const
 {
   // First make an intersection in our model.
@@ -76,34 +126,35 @@ Instance::IsecInfo::make_intersect (const Media &media, RenderContext &context)
 // Return the normal of this intersection (in the world frame).
 //
 Vec
-Instance::IsecInfo::normal () const
+Instance::Renderable::IsecInfo::normal () const
 {
-  throw std::runtime_error ("Instance::IsecInfo::normal");
+  throw std::runtime_error ("Instance::Renderable::IsecInfo::normal");
 }
 
 
 
 // intersection
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
+// If this surface intersects RAY, change RAY's maximum bound
+// (Ray::t1) to reflect the point of intersection, and return a
+// Surface::Renderable::IsecInfo object describing the intersection
+// (which should be allocated using placement-new with CONTEXT);
+// otherwise return zero.
 //
-Surface::IsecInfo *
-Instance::intersect (Ray &ray, RenderContext &context) const
+Surface::Renderable::IsecInfo *
+Instance::Renderable::intersect (Ray &ray, RenderContext &context) const
 {
   // Transform the ray for searching our model.
   //
-  Ray xformed_ray = world_to_local (ray);
+  Ray xformed_ray = instance.world_to_local (ray);
 
-  const Surface::IsecInfo *model_isec_info
-    = model->intersect (xformed_ray, context);
+  const Surface::Renderable::IsecInfo *model_isec_info
+    = instance.model->intersect (xformed_ray, context);
 
   if (model_isec_info)
     {
       ray.t1 = xformed_ray.t1;
-      return new (context) IsecInfo (ray, *this, model_isec_info);
+      return new (context) IsecInfo (ray, instance, model_isec_info);
     }
   else
     return 0;
@@ -112,12 +163,12 @@ Instance::intersect (Ray &ray, RenderContext &context) const
 // Return true if this surface intersects RAY.
 //
 bool
-Instance::intersects (const Ray &ray, RenderContext &context) const
+Instance::Renderable::intersects (const Ray &ray, RenderContext &context) const
 {
   // Transform the ray for searching our model.
   //
-  Ray xformed_ray = world_to_local (ray);
-  return model->intersects (xformed_ray, context);
+  Ray xformed_ray = instance.world_to_local (ray);
+  return instance.model->intersects (xformed_ray, context);
 }
 
 // Return true if this surface completely occludes RAY.  If it does
@@ -131,15 +182,15 @@ Instance::intersects (const Ray &ray, RenderContext &context) const
 // well as transmitting it).
 //
 bool
-Instance::occludes (const Ray &ray, const Medium &medium,
+Instance::Renderable::occludes (const Ray &ray, const Medium &medium,
 		    Color &total_transmittance,
 		    RenderContext &context)
   const
 {
   // Transform the ray for searching our model.
   //
-  Ray xformed_ray = world_to_local (ray);
-  return model->occludes (xformed_ray, medium, total_transmittance, context);
+  Ray xformed_ray = instance.world_to_local (ray);
+  return instance.model->occludes (xformed_ray, medium, total_transmittance, context);
 }
 
 
@@ -152,6 +203,17 @@ BBox
 Instance::bbox () const
 {
   return local_to_world (model->surface ()->bbox ());
+}
+
+// Add this (or some other) surfaces to the space being built by
+// SPACE_BUILDER.
+//
+void
+Instance::add_to_space (SpaceBuilder &space_builder) const
+{
+  Renderable *renderable = new Renderable (*this);
+  space_builder.add (renderable);
+  space_builder.delete_after_rendering (renderable);
 }
 
 // Add statistics about this surface to STATS (see the definition of
@@ -191,4 +253,3 @@ Instance::accum_stats (Stats &stats, StatsCache &cache) const
       stats.num_render_surfaces += model_stats.num_render_surfaces;
     }
 }
-

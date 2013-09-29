@@ -88,8 +88,8 @@ public:
     // "translucency" -- basically this is a special type of
     // SPECULAR+TRANSMISSIVE sample corresponding to a non-zero
     // transmittance return value from Material::transmittance /
-    // Surface::occludes / Scene::occludes (typically resulting from
-    // use of alpha/opacity in a material).
+    // Surface::Renderable::occludes / Scene::occludes (typically
+    // resulting from use of alpha/opacity in a material).
     //
     // Rendering methods that use Scene::occludes to do shadow-testing
     // in calculating direct illumination may have to handle samples

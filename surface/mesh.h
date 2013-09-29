@@ -19,14 +19,15 @@
 
 #include "geometry/pos.h"
 #include "geometry/xform.h"
+#include "material/material.h"
 
-#include "primitive.h"
+#include "surface.h"
 
 
 namespace snogray {
 
 
-class Mesh : public Primitive
+class Mesh : public Surface
 {
 public:
 
@@ -42,11 +43,10 @@ public:
   typedef std::map<Pos, vert_index_t> VertexGroup;
   typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
 
-  // Basic constructor.  Actual contents must be defined later.  If no
-  // material is defined, all triangles added must have an explicit material.
+  // Basic constructor.  Actual contents must be defined later.
   //
   Mesh (const Ref<const Material> &mat)
-    : Primitive (mat), axis (Vec (0, 0, 1)), left_handed (true)
+    : material (mat), axis (Vec (0, 0, 1)), left_handed (true)
   { }
 
 
@@ -136,8 +136,8 @@ public:
   void add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
 		      vert_index_t base_vert);
 
-  // Add this (or some other) surfaces to the space being built by
-  // SPACE_BUILDER.
+  // Add Surface::Renderable objects associated with this surface to
+  // the space being built by SPACE_BUILDER.
   //
   virtual void add_to_space (SpaceBuilder &space_builder) const;
 
@@ -187,32 +187,6 @@ public:
     vertex_uvs.reserve (num_vertices ());
   }
 
-  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return a Surface::IsecInfo
-  // object describing the intersection (which should be allocated using
-  // placement-new with CONTEXT); otherwise return zero.
-  //
-  virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
-
-  // Return true if this surface intersects RAY.
-  //
-  virtual bool intersects (const Ray &ray, RenderContext &context) const;
-
-  // Return true if this surface completely occludes RAY.  If it does
-  // not completely occlude RAY, then return false, and multiply
-  // TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
-  // MEDIUM.
-  //
-  // Note that this method does not try to handle non-trivial forms of
-  // transparency/translucency (for instance, a "glass" material is
-  // probably considered opaque because it changes light direction as
-  // well as transmitting it).
-  //
-  virtual bool occludes (const Ray &ray, const Medium &medium,
-			 Color &total_transmittance,
-			 RenderContext &context)
-    const;
-
   // Return a bounding box for the entire mesh
   //
   virtual BBox bbox () const { return _bbox; }
@@ -241,6 +215,8 @@ private:
   // Recalculate this mesh's bounding box.
   //
   void recalc_bbox ();
+
+  Ref<const Material> material;
 
   // A list of vertices used in this part.
   //
@@ -287,7 +263,7 @@ public:
 
 // A single triangle in a Mesh.
 //
-class Mesh::Triangle : public Surface
+class Mesh::Triangle : public Surface::Renderable
 {
 public:
 
@@ -311,10 +287,11 @@ public:
     vi[2] = triang.vi[2];
   }
 
-  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return a Surface::IsecInfo
-  // object describing the intersection (which should be allocated using
-  // placement-new with CONTEXT); otherwise return zero.
+  // If this surface intersects RAY, change RAY's maximum bound
+  // (Ray::t1) to reflect the point of intersection, and return a
+  // Surface::Renderable::IsecInfo object describing the intersection
+  // (which should be allocated using placement-new with CONTEXT);
+  // otherwise return zero.
   //
   virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
 
@@ -341,16 +318,6 @@ public:
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;
-
-  // Add statistics about this surface to STATS (see the definition of
-  // Surface::Stats below for details).  CACHE is used internally for
-  // coordination amongst nested surfaces.
-  //
-  // This method is intended for internal use in the Surface class
-  // hierachy, but cannot be protected: due to pecularities in the way
-  // that is defined in C++.
-  //
-  virtual void accum_stats (Stats &stats, StatsCache &cache) const;
 
   // Vertex NUM of this triangle
   //

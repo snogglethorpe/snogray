@@ -18,7 +18,7 @@
 #include "color/color.h"
 #include "util/ref.h"
 #include "texture/tex.h"
-#include "surface/surface.h"
+#include "surface/surface-renderable.h"
 
 
 namespace snogray {
@@ -131,15 +131,17 @@ public:
   // override whichever variants of Material::transmittance may be
   // called as a result.
   //
-  virtual Color transmittance (const Surface::IsecInfo &/*isec_info*/,
-			       const Medium &/* medium */)
+  virtual Color transmittance (
+		  const Surface::Renderable::IsecInfo &/*isec_info*/,
+		  const Medium &/* medium */)
     const
   {
     return 0;
   }
-  virtual Color transmittance (const Surface::IsecInfo &/*isec_info*/,
-			       const TexCoords &/*tex_coords*/,
-			       const Medium &/* medium */)
+  virtual Color transmittance (
+		  const Surface::Renderable::IsecInfo &/*isec_info*/,
+		  const TexCoords &/*tex_coords*/,
+		  const Medium &/* medium */)
     const
   {
     return 0;
@@ -163,7 +165,8 @@ public:
   // because calculating texture-coordinate can be expensive, and we'd
   // like to only do those calculations if necessary.
   //
-  bool occludes (const Surface::IsecInfo &isec_info, const Medium &medium,
+  bool occludes (const Surface::Renderable::IsecInfo &isec_info,
+		 const Medium &medium,
 		 Color &total_transmittance)
     const
   {
@@ -174,7 +177,7 @@ public:
     total_transmittance *= transmittance (isec_info, medium);
     return total_transmittance < Eps;
   }
-  bool occludes (const Surface::IsecInfo &isec_info,
+  bool occludes (const Surface::Renderable::IsecInfo &isec_info,
 		 const TexCoords &tex_coords,
 		 const Medium &medium,
 		 Color &total_transmittance)

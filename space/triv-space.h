@@ -1,6 +1,6 @@
 // triv-space.h -- Trivial space search accelerator
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,9 +40,6 @@ public:
   class BuilderFactory;
 
 
-  TrivSpace () { }
-
-
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
   // directly on the resulting surfaces).  CONTEXT is used to access
@@ -54,15 +51,20 @@ public:
 					      RenderStats::IsecStats &)
     const
   {
-    for (std::vector<const Surface *>::const_iterator i = surfaces.begin();
+    for (std::vector<const Surface::Renderable *>::const_iterator i
+	   = surfaces.begin();
 	 i != surfaces.end(); ++i)
       callback (*i);
   }
 
-
 private:  
 
-  std::vector<const Surface *> surfaces;
+  // Make a new space from BUILDER.  This should only be invoked
+  // directly by TrivSpace::Builder::make_space.
+  //
+  TrivSpace (Builder &builder);
+
+  std::vector<const Surface::Renderable *> surfaces;
 };
 
 
@@ -75,26 +77,29 @@ class TrivSpace::Builder : public SpaceBuilder
 {
 public:
 
-  Builder () : space (new TrivSpace) { }
+  Builder () { }
 
   // Add SURFACE to the space being built.
   //
-  virtual void add (const Surface *surface)
+  virtual void add (const Surface::Renderable *surface)
   {
-    space->surfaces.push_back (surface);
+    surfaces.push_back (surface);
   }
 
   // Make the final space.  Note that this can only be done once.
   //
   virtual const Space *make_space ()
   {
-    return space;
+    return new TrivSpace (*this);
   }
 
 private:
 
-  TrivSpace *space;
+  friend class TrivSpace;
+
+  std::vector<const Surface::Renderable *> surfaces;
 };
+
 
 // Subclass of SpaceBuilderFactory for making TrivSpace builders.
 //
@@ -109,6 +114,13 @@ public:
     return new TrivSpace::Builder ();
   }
 };
+
+
+TrivSpace::TrivSpace (Builder &builder)
+  : Space (builder)
+{
+  surfaces.swap (builder.surfaces);
+}
 
 
 }

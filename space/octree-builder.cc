@@ -32,13 +32,13 @@ public:
 
   Builder ()
     // surface_ptr_list_nodes is initialized with dummy entry
-    : surface_ptr_list_nodes (1, SurfacePtrListNode (0,0)),
-      num_real_surfaces (0)
+    : num_real_surfaces (0),
+      surface_ptr_list_nodes (1, SurfacePtrListNode (0,0))
   { }
 
   // Add SURFACE to the space being built.
   //
-  virtual void add (const Surface *surface)
+  virtual void add (const Surface::Renderable *surface)
   {
     num_real_surfaces++;
     add (surface, surface->bbox ());
@@ -48,9 +48,32 @@ public:
   //
   virtual const Space *make_space ();
 
+  // Copy all of our nodes into TO_NODES, and their associated surface
+  // pointers into zero-terminated spans in TO_SURFACE_PTRS, using an
+  // "optimized order", where nodes nearer the top of the node-tree
+  // are closer to the front of TO_NODES (and the corresponding
+  // surface lists are closer to beginning of TO_SURFACE_PTRS).
+  //
+  void copy_optimized_nodes (
+	 std::vector<Node> &to_nodes,
+	 std::vector<const Surface::Renderable *> &to_surface_ptrs)
+    const;
+
+  // One corner of the octree.
+  //
+  Pos origin;
+
+  // The size of the octree (in all dimensions).
+  //
+  dist_t size;
+
+  // The number of "real" surfaces added to the octree.
+  //
+  unsigned long num_real_surfaces;
+
 private:
 
-  // An entry in a linked list of Surface pointers.  These are
+  // An entry in a linked list of Surface::Renderable pointers.  These are
   // referred to by integer indices (to make it possible to store them
   // in a growing vector).  Note that index 0 always means "end of
   // list."
@@ -60,23 +83,24 @@ private:
   //
   struct SurfacePtrListNode
   {
-    SurfacePtrListNode (const Surface *_surface, unsigned _next_node_index)
+    SurfacePtrListNode (const Surface::Renderable *_surface,
+			unsigned _next_node_index)
       : surface (_surface), next_node_index (_next_node_index)
     { }
-    const Surface *surface;
+    const Surface::Renderable *surface;
     unsigned next_node_index;
   };
 
   // Add SURFACE to the octree.  SURFACE_BBOX should be SURFACE's
   // bounding-box.
   //
-  void add (const Surface *surface, const BBox &surface_bbox);
+  void add (const Surface::Renderable *surface, const BBox &surface_bbox);
 
   // Add SURFACE, with bounding box SURFACE_BBOX, to the node at
   // NODE_INDEX or some subnode; SURFACE is assumed to fit.  X, Y, Z,
   // and SIZE indicate the volume this node encompasses.
   //
-  void add (const Surface *surface, const BBox &surface_bbox,
+  void add (const Surface::Renderable *surface, const BBox &surface_bbox,
 	    unsigned node_index,
 	    coord_t x, coord_t y, coord_t z, dist_t size);
 
@@ -85,7 +109,8 @@ private:
   // SURFACE is assumed to fit.  X, Y, Z, and SIZE indicate the volume
   // this node encompasses.
   //
-  void add_to_child (const Surface *surface, const BBox &surface_bbox,
+  void add_to_child (const Surface::Renderable *surface,
+		     const BBox &surface_bbox,
 		     unsigned node_index, unsigned child_num,
 		     coord_t x, coord_t y, coord_t z, dist_t size);
 
@@ -93,13 +118,15 @@ private:
   // SURFACE; add surrounding levels of nodes until one can hold
   // SURFACE, and make that the new root node.
   //
-  void grow_to_include (const Surface *surface, const BBox &surface_bbox);
+  void grow_to_include (const Surface::Renderable *surface,
+			const BBox &surface_bbox);
 
   // Push SURFACE onto the a list of surface-pointers whose head is
   // indicated by the index in HEAD_INDEX.  HEAD_INDEX is updated to
   // include the new pointer.
   //
-  void push_surface_ptr (const Surface *surface, unsigned &head_index)
+  void push_surface_ptr (const Surface::Renderable *surface,
+			 unsigned &head_index)
   {
     unsigned new_head = surface_ptr_list_nodes.size ();
     surface_ptr_list_nodes.push_back (SurfacePtrListNode (surface, head_index));
@@ -113,8 +140,9 @@ private:
   // An additional final zero entry is also added to terminate the
   // list.
   //
-  unsigned unroll_surface_ptr_list (unsigned head_index,
-				    std::vector<const Surface *> &surface_ptrs)
+  unsigned unroll_surface_ptr_list (
+	     unsigned head_index,
+	     std::vector<const Surface::Renderable *> &surface_ptrs)
     const
   {
     unsigned rval = surface_ptrs.size ();
@@ -125,25 +153,6 @@ private:
     return rval;
   }
 
-  // Copy all of our nodes into TO_NODES, and their associated surface
-  // pointers into zero-terminated spans in TO_SURFACE_PTRS, using an
-  // "optimized order", where nodes nearer the top of the node-tree
-  // are closer to the front of TO_NODES (and the corresponding
-  // surface lists are closer to beginning of TO_SURFACE_PTRS).
-  //
-  void copy_optimized_nodes (
-	 std::vector<Node> &to_nodes,
-	 std::vector<const Surface *> &to_surface_ptrs)
-    const;
-
-  // One corner of the octree.
-  //
-  Pos origin;
-
-  // The size of the octree (in all dimensions).
-  //
-  dist_t size;
-
   // Nodes in the octree.
   //
   std::vector<Node> nodes;
@@ -152,10 +161,6 @@ private:
   // always means "end of list," the first entry is a dummy value.
   //
   std::vector<SurfacePtrListNode> surface_ptr_list_nodes;
-
-  // The number of "real" surfaces added to the octree.
-  //
-  unsigned long num_real_surfaces;
 };
 
 
@@ -166,7 +171,7 @@ private:
 // bounding-box.
 //
 void
-Octree::Builder::add (const Surface *surface, const BBox &surface_bbox)
+Octree::Builder::add (const Surface::Renderable *surface, const BBox &surface_bbox)
 {
   if (! nodes.empty ())
     // We've already got some nodes.
@@ -219,7 +224,7 @@ Octree::Builder::add (const Surface *surface, const BBox &surface_bbox)
 // make that the new root node.
 //
 void
-Octree::Builder::grow_to_include (const Surface *surface,
+Octree::Builder::grow_to_include (const Surface::Renderable *surface,
 				  const BBox &surface_bbox)
 {
   // Make a new root node.  The root node must always be the first
@@ -329,7 +334,7 @@ Octree::Builder::grow_to_include (const Surface *surface,
 // sparsely populated octree levels.
 //
 void
-Octree::Builder::add (const Surface *surface, const BBox &surface_bbox,
+Octree::Builder::add (const Surface::Renderable *surface, const BBox &surface_bbox,
 		      unsigned node_index,
 		      coord_t x, coord_t y, coord_t z, dist_t size)
 {
@@ -498,7 +503,7 @@ Octree::Builder::add (const Surface *surface, const BBox &surface_bbox,
 // this node encompasses.
 //
 void
-Octree::Builder::add_to_child (const Surface *surface, const BBox &surface_bbox,
+Octree::Builder::add_to_child (const Surface::Renderable *surface, const BBox &surface_bbox,
 			       unsigned node_index, unsigned child_num,
 			       coord_t x, coord_t y, coord_t z, dist_t size)
 {
@@ -532,7 +537,7 @@ Octree::Builder::add_to_child (const Surface *surface, const BBox &surface_bbox,
 void
 Octree::Builder::copy_optimized_nodes (
 		   std::vector<Node> &to_nodes,
-		   std::vector<const Surface *> &to_surface_ptrs)
+		   std::vector<const Surface::Renderable *> &to_surface_ptrs)
   const
 {
   //
@@ -653,23 +658,22 @@ Octree::Builder::copy_optimized_nodes (
 const Space *
 Octree::Builder::make_space ()
 {
-  // Make a new octree, initially empty.
-  //
-  // Note that we don't invalidate our state, as it's actually still
-  // valid (and could theoretically be used to make more octrees).  We
-  // should be deleted soon anyway.
-  //
-  Octree *octree = new Octree (origin, size);
+  return new Octree (*this);
+}
 
-  // Copy the actual tree contents, in optimized order.
-  //
-  copy_optimized_nodes (octree->nodes, octree->surface_ptrs);
 
-  // Now just fill in the remaining fields.
-  //
-  octree->num_real_surfaces = num_real_surfaces;
+
+// Octree constructor
 
-  return octree;
+// Make a new, empty, octree, using info from BUILDER.  This should
+// only be invoked directly by Octree::Builder::make_space.
+//
+Octree::Octree (Octree::Builder &builder)
+  : Space (builder),
+    origin (builder.origin), size (builder.size),
+    num_real_surfaces (builder.num_real_surfaces)
+{
+  builder.copy_optimized_nodes (nodes, surface_ptrs);
 }
 
 

@@ -48,7 +48,7 @@ public:
   // which exhibit more complex effects like refraction (which change
   // the direction) may return zero from this method.
   //
-  virtual Color transmittance (const Surface::IsecInfo &isec_info,
+  virtual Color transmittance (const Surface::Renderable::IsecInfo &isec_info,
 			       const Medium &medium)
     const;
 

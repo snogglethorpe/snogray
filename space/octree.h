@@ -85,10 +85,10 @@ private:
   struct SearchState;
 
 
-  // Make a new, empty, octree with the given extent.  This should only
-  // be invoked directly by Octree::Builder::make_space.
+  // Make a new octree from BUILDER.  This should only be invoked
+  // directly by Octree::Builder::make_space.
   //
-  Octree (const Pos &_origin, dist_t _size);
+  Octree (Builder &builder);
 
 
   // Update STATS to reflect the node at index NODE_INDEX.
@@ -104,7 +104,7 @@ private:
   // Surface-pointers occur in runs inside this vector with a NULL
   // pointer following the last entry in a list.
   //
-  std::vector<const Surface *> surface_ptrs;
+  std::vector<const Surface::Renderable *> surface_ptrs;
 
   // One corner of the octree.
   //

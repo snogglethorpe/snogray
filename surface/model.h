@@ -38,12 +38,15 @@ public:
 
   Model (Surface *surf, const SpaceBuilderFactory &space_builder_factory);
 
-  // If the associated surface intersects RAY, change RAY's maximum bound
-  // (Ray::t1) to reflect the point of intersection, and return a
-  // Surface::IsecInfo object describing the intersection (which should be
-  // allocated using placement-new with CONTEXT); otherwise return zero.
+  // If the associated surface intersects RAY, change RAY's maximum
+  // bound (Ray::t1) to reflect the point of intersection, and return
+  // a Surface::Renderable::IsecInfo object describing the
+  // intersection (which should be allocated using placement-new with
+  // CONTEXT); otherwise return zero.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const
+  const Surface::Renderable::IsecInfo *intersect (
+					 Ray &ray, RenderContext &context)
+    const
   {
     ensure_space ();
     return space->intersect (ray, context);

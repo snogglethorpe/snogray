@@ -13,8 +13,9 @@
 #ifndef SNOGRAY_SPACE_H
 #define SNOGRAY_SPACE_H
 
+#include "util/deletion-list.h"
 #include "intersect/ray.h"
-#include "surface/surface.h"
+#include "surface/surface-renderable.h"
 #include "render/render-context.h"
 
 
@@ -31,11 +32,13 @@ public:
 
   // If some surface in this space intersects RAY, change RAY's
   // maximum bound (Ray::t1) to reflect the point of intersection, and
-  // return a Surface::IsecInfo object describing the intersection
-  // (which should be allocated using placement-new with CONTEXT);
-  // otherwise return zero.
+  // return a Surface::Renderable::IsecInfo object describing the
+  // intersection (which should be allocated using placement-new with
+  // CONTEXT); otherwise return zero.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const;
+  const Surface::Renderable::IsecInfo *intersect (
+					 Ray &ray, RenderContext &context)
+    const;
 
   // Return true if any surface in this space intersects RAY.
   //
@@ -72,6 +75,17 @@ public:
 protected:
 
   struct SearchState;		// Convenience class for subclasses
+
+  // Initialize Space, using info from BUILDER.  Note that this can
+  // only be done once, as it may modify BUILDER.
+  //
+  Space (SpaceBuilder &builder);
+
+  // A list of things to be deleted after rendering.  This is intended
+  // for use by allocated instances of Surface::Renderable, but can be
+  // used for other things too.
+  //
+  DeletionList deletion_list;
 };
 
 
@@ -90,7 +104,7 @@ struct Space::IntersectCallback
   // Returning true does not necessarily stop the search; to do that,
   // call the IntersectCallback::stop_intersection method.
   //
-  virtual bool operator() (const Surface *surf) = 0;
+  virtual bool operator() (const Surface::Renderable *surf) = 0;
 
   void stop_iteration () { stop = true; }
 

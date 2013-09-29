@@ -26,39 +26,20 @@ class Instance : public LocalSurface
 {
 public:
 
+  class Renderable;		// Renderable part of an instance
+
   Instance (const Ref<Model> &_model, const Xform &local_to_world_xform)
     : LocalSurface (local_to_world_xform), model (_model)
   { }
 
-  // If this surface intersects RAY, change RAY's maximum bound (Ray::t1)
-  // to reflect the point of intersection, and return a Surface::IsecInfo
-  // object describing the intersection (which should be allocated using
-  // placement-new with CONTEXT); otherwise return zero.
-  //
-  virtual IsecInfo *intersect (Ray &ray, RenderContext &context) const;
-
-  // Return true if this surface intersects RAY.
-  //
-  virtual bool intersects (const Ray &ray, RenderContext &context) const;
-
-  // Return true if this surface completely occludes RAY.  If it does
-  // not completely occlude RAY, then return false, and multiply
-  // TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
-  // MEDIUM.
-  //
-  // Note that this method does not try to handle non-trivial forms of
-  // transparency/translucency (for instance, a "glass" material is
-  // probably considered opaque because it changes light direction as
-  // well as transmitting it).
-  //
-  virtual bool occludes (const Ray &ray, const Medium &medium,
-			 Color &total_transmittance,
-			 RenderContext &context)
-    const;
-
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;
+
+  // Add Surface::Renderable objects associated with this surface to
+  // the space being built by SPACE_BUILDER.
+  //
+  virtual void add_to_space (SpaceBuilder &space_builder) const;
 
   // Add statistics about this surface to STATS (see the definition of
   // Surface::Stats below for details).  CACHE is used internally for
@@ -71,8 +52,6 @@ public:
   virtual void accum_stats (Stats &stats, StatsCache &cache) const;
 
 private:
-
-  class IsecInfo;
 
   // Model that we're transforming.
   //

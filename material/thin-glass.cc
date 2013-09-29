@@ -125,7 +125,7 @@ ThinGlass::get_bsdf (const Intersect &isec, const TexCoords &) const
 // direction) may return zero from this method.
 //
 Color
-ThinGlass::transmittance (const Surface::IsecInfo &isec_info,
+ThinGlass::transmittance (const Surface::Renderable::IsecInfo &isec_info,
 			  const Medium &medium)
   const
 {

@@ -17,6 +17,7 @@
 #include "util/string-funs.h"
 
 #include "geometry/tripar-isec.h"
+#include "space/space-builder.h"
 
 #include "mesh.h"
 
@@ -354,12 +355,12 @@ Mesh::add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
 
 // Mesh::Triangle::IsecInfo
 
-class Mesh::Triangle::IsecInfo : public Surface::IsecInfo
+class Mesh::Triangle::IsecInfo : public Surface::Renderable::IsecInfo
 {
 public:
 
   IsecInfo (const Ray &ray, const Triangle &_triangle, dist_t _u, dist_t _v)
-    : Surface::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
+    : Surface::Renderable::IsecInfo (ray), triangle (_triangle), u (_u), v (_v)
   { }
 
   virtual Intersect make_intersect (const Media &media, RenderContext &context)
@@ -542,12 +543,13 @@ Mesh::Triangle::IsecInfo::normal () const
 
 // Mesh::Triangle intersection
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
+// If this surface intersects RAY, change RAY's maximum bound
+// (Ray::t1) to reflect the point of intersection, and return a
+// Surface::Renderable::IsecInfo object describing the intersection
+// (which should be allocated using placement-new with CONTEXT);
+// otherwise return zero.
 //
-const Surface::IsecInfo *
+const Surface::Renderable::IsecInfo *
 Mesh::Triangle::intersect (Ray &ray, RenderContext &context) const
 {
   // We have to convert the types to match that of RAY first.
@@ -639,21 +641,6 @@ Mesh::Triangle::bbox () const
   bbox += v (1);
   bbox += v (2);
   return bbox;
-}
-
-// Add statistics about this surface to STATS (see the definition of
-// Surface::Stats below for details).  CACHE is used internally for
-// coordination amongst nested surfaces.
-//
-// This method is intended for internal use in the Surface class
-// hierachy, but cannot be protected: due to pecularities in the way
-// that is defined in C++.
-//
-void
-Mesh::Triangle::accum_stats (Stats &stats, StatsCache &) const
-{
-  stats.num_render_surfaces++;
-  stats.num_real_surfaces++;
 }
 
 
@@ -857,7 +844,7 @@ Mesh::add_to_space (SpaceBuilder &space_builder) const
       // triangles.
       //
       if (tri.raw_normal_unscaled().length_squared() > 0)
-	tri.add_to_space (space_builder);
+	space_builder.add (&tri);
     }
 }
 
@@ -926,76 +913,6 @@ Mesh::transform (const Xform &xform)
   // information, and so needs to be more conservative).
   //
   recalc_bbox ();
-}
-
-
-
-// Mesh intersection methods
-//
-// These are not normally called during rendering -- instead,
-// individual triangles in a mesh are added to acceleration
-// structures, and their intersection methods are called instead --
-// but are provided for completeness, and to make the Mesh class
-// concrete (Surface is an abstract class).
-
-
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
-//
-const Surface::IsecInfo *
-Mesh::intersect (Ray &ray, RenderContext &context) const
-{
-  const Surface::IsecInfo *closest = 0;
-
-  unsigned num_triangles = triangles.size();
-  for (unsigned t = 0; t < num_triangles; t++)
-    {
-      const Surface::IsecInfo *isec_info = triangles[t].intersect (ray, context);
-      if (isec_info)
-	closest = isec_info;
-    }
-
-  return closest;
-}
-
-// Return true if this surface intersects RAY.
-//
-bool
-Mesh::intersects (const Ray &ray, RenderContext &context) const
-{
-  unsigned num_triangles = triangles.size();
-  for (unsigned t = 0; t < num_triangles; t++)
-    if (triangles[t].intersects (ray, context))
-      return true;
-
-  return false;
-}
-
-// Return true if this surface completely occludes RAY.  If it does
-// not completely occlude RAY, then return false, and multiply
-// TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
-// MEDIUM.
-//
-// Note that this method does not try to handle non-trivial forms of
-// transparency/translucency (for instance, a "glass" material is
-// probably considered opaque because it changes light direction as
-// well as transmitting it).
-//
-bool
-Mesh::occludes (const Ray &ray, const Medium &medium,
-			Color &total_transmittance,
-			RenderContext &context)
-  const
-{
-  unsigned num_triangles = triangles.size();
-
-  for (unsigned t = 0; t < num_triangles; t++)
-    if (triangles[t].occludes (ray, medium, total_transmittance, context))
-      return true;
-
-  return false;
 }
 
 

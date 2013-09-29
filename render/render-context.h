@@ -17,7 +17,6 @@
 #include "util/random.h"
 #include "util/mempool.h"
 #include "util/pool.h"
-#include "intersect/isec-cache.h"
 #include "material/medium.h"
 #include "sample-set.h"
 #include "surface-integ.h"
@@ -29,6 +28,7 @@
 namespace snogray {
 
 class GlobalRenderState;
+class IsecCache;
 
 
 // Context in which tracing occurs.  This structure holds per-thread global

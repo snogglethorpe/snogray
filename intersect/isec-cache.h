@@ -1,6 +1,6 @@
 // isec_cache.h -- Simple mailboxing cache for intersection testing
 //
-//  Copyright (C) 2007, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,6 +14,9 @@
 #define SNOGRAY_ISEC_CACHE_H
 
 #include "config.h"
+
+#include "surface/surface.h"
+
 
 // We use intptr_t below.  If the system defines, it we must include
 // the proper include file, otherwise, it should be defined in
@@ -29,9 +32,6 @@
 
 
 namespace snogray {
-
-
-class Surface;
 
 
 class IsecCache
@@ -51,7 +51,7 @@ public:
 
   // Return true if there's an up-to-date entry for SURF in the cache.
   //
-  bool contains (const Surface *surf) const
+  bool contains (const Surface::Renderable *surf) const
   {
     const Mbox &mbox = lookup (surf);
     return mbox.gen == gen && mbox.surf == surf;
@@ -60,7 +60,7 @@ public:
   // Add an up-to-date entry for SURF.  Return true if a collision occurred
   // (the new entry removed an old one).
   //
-  bool add (const Surface *surf)
+  bool add (const Surface::Renderable *surf)
   {
     Mbox &mbox = lookup (surf);
     bool collision = (mbox.gen == gen);
@@ -84,10 +84,10 @@ private:
   struct Mbox
   {
     gen_t gen;
-    const Surface *surf;
+    const Surface::Renderable *surf;
   };
 
-  hash_t hash (const Surface *surf) const
+  hash_t hash (const Surface::Renderable *surf) const
   {
     // Just use the pointer as a hash value, throwing away some of the
     // lower bits as they're usually zero.
@@ -99,11 +99,11 @@ private:
     return (hash_t)((intptr_t)surf >> 3);
   }
 
-  Mbox &lookup (const Surface *surf)
+  Mbox &lookup (const Surface::Renderable *surf)
   {
     return mboxes[hash (surf) % TABLE_SIZE];
   }
-  const Mbox &lookup (const Surface *surf) const
+  const Mbox &lookup (const Surface::Renderable *surf) const
   {
     return mboxes[hash (surf) % TABLE_SIZE];
   }

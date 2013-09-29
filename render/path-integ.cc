@@ -178,7 +178,8 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
   //
   for (;;)
     {
-      const Surface::IsecInfo *isec_info = scene.intersect (isec_ray, context);
+      const Surface::Renderable::IsecInfo *isec_info
+	= scene.intersect (isec_ray, context);
 
       // Top of current media stack.
       //

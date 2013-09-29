@@ -22,12 +22,12 @@ using namespace snogray;
 
 // Tripar::IsecInfo
 
-class Tripar::IsecInfo : public Surface::IsecInfo
+class Tripar::IsecInfo : public Surface::Renderable::IsecInfo
 {
 public:
 
   IsecInfo (const Ray &ray, const Tripar &_tripar, float _u, float _v)
-    : Surface::IsecInfo (ray), tripar (_tripar), u (_u), v (_v)
+    : Surface::Renderable::IsecInfo (ray), tripar (_tripar), u (_u), v (_v)
   { }
   virtual Intersect make_intersect (const Media &media, RenderContext &context)
     const;
@@ -84,12 +84,13 @@ Tripar::IsecInfo::normal () const
 
 // intersection
 
-// If this surface intersects RAY, change RAY's maximum bound (Ray::t1) to
-// reflect the point of intersection, and return a Surface::IsecInfo object
-// describing the intersection (which should be allocated using
-// placement-new with CONTEXT); otherwise return zero.
+// If this surface intersects RAY, change RAY's maximum bound
+// (Ray::t1) to reflect the point of intersection, and return a
+// Surface::Renderable::IsecInfo object describing the intersection
+// (which should be allocated using placement-new with CONTEXT);
+// otherwise return zero.
 //
-const Surface::IsecInfo *
+const Surface::Renderable::IsecInfo *
 Tripar::intersect (Ray &ray, RenderContext &context) const
 {
   dist_t t;

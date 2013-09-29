@@ -96,9 +96,15 @@ namespace snogray {
     SurfaceStats stats () const;
   };
 
-  // This is really Surface::IsecInfo, but SWIG can't handle nested types
+  // This is really Surface::Renderable::IsecInfo, but SWIG can't
+  // handle nested types
+
   class IsecInfo;
-  %{ namespace snogray { class IsecInfo : public Surface::IsecInfo {}; } %}
+  %{
+    namespace snogray {
+      class IsecInfo : public Surface::Renderable::IsecInfo {};
+    }
+  %}
 
   class Primitive : public Surface
   {

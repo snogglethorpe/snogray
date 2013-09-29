@@ -61,7 +61,7 @@ XformMaterial::get_bsdf (const Intersect &isec, const TexCoords &tex_coords)
 // the direction) may return zero from this method.
 //
 Color
-XformMaterial::transmittance (const Surface::IsecInfo &isec_info,
+XformMaterial::transmittance (const Surface::Renderable::IsecInfo &isec_info,
 			      const TexCoords &tex_coords,
 			      const Medium &medium)
   const
@@ -104,7 +104,7 @@ XformMaterialUV::get_bsdf (const Intersect &isec, const TexCoords &tex_coords)
 // the direction) may return zero from this method.
 //
 Color
-XformMaterialUV::transmittance (const Surface::IsecInfo &isec_info,
+XformMaterialUV::transmittance (const Surface::Renderable::IsecInfo &isec_info,
 				const TexCoords &tex_coords,
 				const Medium &medium)
   const
@@ -147,7 +147,7 @@ XformMaterialPos::get_bsdf (const Intersect &isec, const TexCoords &tex_coords)
 // the direction) may return zero from this method.
 //
 Color
-XformMaterialPos::transmittance (const Surface::IsecInfo &isec_info,
+XformMaterialPos::transmittance (const Surface::Renderable::IsecInfo &isec_info,
 				 const TexCoords &tex_coords,
 				 const Medium &medium)
   const

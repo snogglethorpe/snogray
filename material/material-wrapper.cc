@@ -77,14 +77,14 @@ MaterialWrapper::Le (const Intersect &isec, const TexCoords &tex_coords)
 // the direction) may return zero from this method.
 //
 Color
-MaterialWrapper::transmittance (const Surface::IsecInfo &isec_info,
+MaterialWrapper::transmittance (const Surface::Renderable::IsecInfo &isec_info,
 				const Medium &medium)
   const
 {
   return material->transmittance (isec_info, medium);
 }
 Color
-MaterialWrapper::transmittance (const Surface::IsecInfo &isec_info,
+MaterialWrapper::transmittance (const Surface::Renderable::IsecInfo &isec_info,
 				const TexCoords &tex_coords,
 				const Medium &medium)
   const

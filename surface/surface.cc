@@ -21,16 +21,6 @@
 using namespace snogray;
 
 
-// Add this (or some other) surfaces to the space being built by
-// SPACE_BUILDER.
-//
-void
-Surface::add_to_space (SpaceBuilder &space_builder) const
-{
-  space_builder.add (this);
-}
-
-
 // Return statistics about this surface (see the definition of
 // Surface::Stats below for details).
 //

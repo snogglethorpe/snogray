@@ -10,12 +10,23 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "space/space-builder.h"
 #include "light/surface-light-sampler.h"
 
 #include "primitive.h"
 
 
 using namespace snogray;
+
+
+// Add Surface::Renderable objects associated with this surface to the
+// space being built by SPACE_BUILDER.
+//
+void
+Primitive::add_to_space (SpaceBuilder &space_builder) const
+{
+  space_builder.add (this);
+}
 
 
 // Add light-samplers for this surface in SCENE to SAMPLERS.  Any

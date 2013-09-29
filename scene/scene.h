@@ -46,7 +46,10 @@ public:
   // bounded-ray RAY, or zero if there is none.  RAY's length is shortened
   // to reflect the point of intersection.
   //
-  const Surface::IsecInfo *intersect (Ray &ray, RenderContext &context) const
+  const Surface::Renderable::IsecInfo *intersect (
+					 Ray &ray,
+					 RenderContext &context)
+    const
   {
     context.stats.scene_intersect_calls++;
     return space->intersect (ray, context);

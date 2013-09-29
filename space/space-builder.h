@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "util/unique-ptr.h"
+#include "util/deletion-list.h"
 #include "surface/surface.h"
 
 
@@ -32,9 +33,24 @@ public:
 
   virtual ~SpaceBuilder() { }
 
-  // Add SURFACE to the space being built.
+  // Add RENDERABLE to the space being built.
   //
-  virtual void add (const Surface *surface) = 0;
+  // RENDERABLE will be stored into the final Space object, and should
+  // be valid as long as it is, but will _not_ be deallocated when the
+  // Space object is; to do that, separately call
+  // SpaceBuilder::delete_after_rendering on RENDERABLE.
+  //
+  virtual void add (const Surface::Renderable *renderable) = 0;
+
+  // Arrange for PTR to be deleted properly after rendering is
+  // complete.  This is intended for use by allocated instances of
+  // Surface::Renderable, but can be used for other things too.
+  //
+  template<typename T>
+  void delete_after_rendering (T *ptr)
+  {
+    deletion_list.add (ptr);
+  }
 
   // Return a space containing the objects added through this builder.
   //
@@ -44,6 +60,16 @@ public:
   // operation on it is to destroy it.
   //
   virtual const Space *make_space () = 0;
+
+private:
+
+  friend class Space;
+
+  // A list of things to be deleted after rendering.  This is intended
+  // for use by allocated instances of Surface::Renderable, but can be
+  // used for other things too.
+  //
+  DeletionList deletion_list;
 };
 
 
