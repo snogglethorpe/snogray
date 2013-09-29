@@ -153,3 +153,42 @@ Instance::bbox () const
 {
   return local_to_world (model->surface ()->bbox ());
 }
+
+// Add statistics about this surface to STATS (see the definition of
+// Surface::Stats below for details).  STATE is used internally for
+// coordination amongst nested surfaces.
+//
+// This method is internal to the Surface class hierachy, but cannot
+// be protected: due to pecularities in the way that is defined in
+// C++.
+//
+void
+Instance::accum_stats (Stats &stats, StatsCache &cache) const
+{
+  // We only compute stats for a single model once, and keep a pointer
+  // to it in CACHE for subsequent references.
+
+  const Surface *surface = model->surface ();
+  StatsCache::iterator cached_stats = cache.find (surface);
+
+  if (cached_stats == cache.end ())
+    {
+      // First use of this model, compute its stats and add them to STATS.
+
+      Stats model_stats;
+      surface->accum_stats (model_stats, cache);
+
+      cache.insert (std::make_pair (surface, model_stats));
+
+      stats += model_stats;
+    }
+  else
+    {
+      // Re-use of this model, use already-computed stats and only add
+      // some of its fields to STATS.
+
+      const Stats &model_stats = cached_stats->second;
+      stats.num_render_surfaces += model_stats.num_render_surfaces;
+    }
+}
+

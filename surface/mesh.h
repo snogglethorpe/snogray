@@ -217,6 +217,16 @@ public:
   //
   virtual BBox bbox () const { return _bbox; }
 
+  // Add statistics about this surface to STATS (see the definition of
+  // Surface::Stats below for details).  CACHE is used internally for
+  // coordination amongst nested surfaces.
+  //
+  // This method is internal to the Surface class hierachy, but cannot
+  // be protected: due to pecularities in the way that is defined in
+  // C++.
+  //
+  virtual void accum_stats (Stats &stats, StatsCache &cache) const;
+
   // Transform all vertices in the mesh by XFORM.
   //
   void transform (const Xform &xform);
@@ -331,6 +341,16 @@ public:
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const;
+
+  // Add statistics about this surface to STATS (see the definition of
+  // Surface::Stats below for details).  CACHE is used internally for
+  // coordination amongst nested surfaces.
+  //
+  // This method is internal to the Surface class hierachy, but cannot
+  // be protected: due to pecularities in the way that is defined in
+  // C++.
+  //
+  virtual void accum_stats (Stats &stats, StatsCache &cache) const;
 
   // Vertex NUM of this triangle
   //

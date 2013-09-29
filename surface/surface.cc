@@ -31,4 +31,17 @@ Surface::add_to_space (SpaceBuilder &space_builder) const
 }
 
 
+
+// Surface::Stats
+
+Surface::Stats &
+Surface::Stats::operator+= (const Stats &stats)
+{
+  num_render_surfaces += stats.num_render_surfaces;
+  num_real_surfaces += stats.num_real_surfaces;
+  num_lights += stats.num_lights;
+  return *this;
+}
+
+
 // arch-tag: a62e1854-d7ca-4cb3-a8dc-9be328c53430

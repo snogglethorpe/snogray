@@ -80,6 +80,25 @@ SurfaceGroup::add_light_samplers (const Scene &scene,
 }
 
 
+// Add statistics about this surface to STATS (see the definition of
+// Surface::Stats below for details).  STATE is used internally for
+// coordination amongst nested surfaces.
+//
+// This method is internal to the Surface class hierachy, but cannot
+// be protected: due to pecularities in the way that is defined in
+// C++.
+//
+void
+SurfaceGroup::accum_stats (Stats &stats, StatsCache &cache) const
+{
+  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+       si != surfaces.end(); ++si)
+    (*si)->accum_stats (stats, cache);
+
+  stats.num_lights += lights.size ();
+}
+
+
 
 // SurfaceGroup intersection methods
 //

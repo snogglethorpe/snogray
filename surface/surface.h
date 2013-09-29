@@ -14,6 +14,7 @@
 #define SNOGRAY_SURFACE_H
 
 #include <vector>
+#include <map>
 
 #include "light/light.h"
 #include "geometry/bbox.h"
@@ -40,6 +41,7 @@ public:
 
   class IsecInfo;	  // Used to return info about an intersection
   class Sampler;	  // Surface-sampling interface
+  class Stats;		  // Surface statistics
 
 
   Surface () { }
@@ -101,6 +103,21 @@ public:
   // returned samplers.
   //
   virtual Sampler *make_sampler () const { return 0; }
+
+  // A cache of already-calculated statistics, for use by
+  // Surface::accum_stats (this is only used by instances).
+  //
+  typedef std::map<const Surface *, const Stats> StatsCache;
+
+  // Add statistics about this surface to STATS (see the definition of
+  // Surface::Stats below for details).  CACHE is used internally for
+  // coordination amongst nested surfaces.
+  //
+  // This method is internal to the Surface class hierachy, but cannot
+  // be protected: due to pecularities in the way that is defined in
+  // C++.
+  //
+  virtual void accum_stats (Stats &stats, StatsCache &cache) const = 0;
 };
 
 
@@ -145,6 +162,38 @@ public:
   virtual Vec normal () const = 0;
 
   Ray ray;
+};
+
+
+
+// ----------------------------------------------------------------
+// Surface::Stats
+
+
+// Surface::Stats
+struct Surface::Stats
+{
+  Stats () : num_render_surfaces (0), num_real_surfaces (0), num_lights (0) { }
+
+  Stats &operator+= (const Stats &stats);
+
+  // Number of surfaces taking place in rendering, including virtual
+  // instances.  This is roughly the rendering complexity of the
+  // scene.
+  //
+  unsigned long num_render_surfaces;
+
+  // Number of surfaces that actually take up space in memory, not
+  // including container-only surfaces.  This is roughly the memory
+  // complexity of the scene.
+  //
+  unsigned long num_real_surfaces;
+
+  // Number of lights participating in rendering.  [We don't currently
+  // support support instanced lights, but maybe lights will need a
+  // similar split to the above?]
+  //
+  unsigned long num_lights;
 };
 
 
