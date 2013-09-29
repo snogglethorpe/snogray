@@ -1,6 +1,6 @@
 -- string.lua -- Miscellaneous string functions
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -39,8 +39,15 @@ end
 -- and either the phrase UNIT_NAME or UNITS_NAME appended, depending
 -- on whether NUM has the value 1 or not.
 --
+-- If UNITS_NAME is omitted, UNIT_NAME is used for both, and if
+-- UNITS_NAME is true, then UNIT_NAME with an "s" appended is used for
+-- values other than 1.
+--
 function string.commify_with_units (num, unit_name, units_name)
    units_name = units_name or unit_name
+   if units_name == true then
+      units_name = unit_name.."s"
+   end
    if num == 1 then
       return "1"..unit_name
    else
