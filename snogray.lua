@@ -442,13 +442,19 @@ end
 --
 
 if not quiet then
-   -- print ("* scene: "
-   -- 	  ..commify_with_units (scene:num_surfaces(),
-   -- 				" top-level surface",
-   -- 				" top-level surfaces")
-   --        ..", "
-   -- 	  ..commify_with_units (scene:num_light_samplers (),
-   -- 				" light", " lights"))
+   local surf_stats = scene:stats ()
+   local scene_out = "* scene: "
+   scene_out = scene_out..commify_with_units (surf_stats.num_render_surfaces,
+					      " surface", true)
+   if surf_stats.num_render_surfaces ~= surf_stats.num_real_surfaces then
+      scene_out
+	 = scene_out.." ("..commify (surf_stats.num_real_surfaces).." real)"
+   end
+   scene_out
+      = (scene_out..", "
+	 ..commify_with_units (surf_stats.num_lights, " light", true))
+   print (scene_out)
+
    print ("* camera: at "..tostring (camera.pos)
 	  ..", pointing at "
           ..tostring (camera.pos + camera.forward * camera.target_dist)
