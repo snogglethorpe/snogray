@@ -125,12 +125,12 @@ namespace snogray {
 
 
 #if HAVE_SWIG_DISOWN
-  // The only time we pass Surface or Light pointers is when handing
-  // over control of such objects to C++, in which case we want to
-  // avoid any GC by Lua.
+  // For Surface and Light pointer parameters with the special names
+  // "surface_disown" and "light_disown", tell swig to give up control of
+  // the pointed-to object, as it will now be owned by the callee.
   //
-  %apply SWIGTYPE* DISOWN {Surface *}
-  %apply SWIGTYPE* DISOWN {Light *}
+  %apply SWIGTYPE* DISOWN {Surface *surface_disown}
+  %apply SWIGTYPE* DISOWN {Light *light_disown}
 #endif
 
 

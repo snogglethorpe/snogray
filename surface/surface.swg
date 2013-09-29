@@ -175,8 +175,8 @@ namespace snogray {
 
     SurfaceGroup ();
 
-    void add (Surface *surface);
-    void add (Light *surface);
+    void add (Surface *surface_disown);
+    void add (Light *light_disown);
   };
 
   class Mesh : public Primitive
@@ -326,9 +326,10 @@ namespace snogray {
 
     // Model
     static Ref<Model>
-    model (Surface *surf, const SpaceBuilderFactory &space_builder_factory)
+    model (Surface *surface_disown,
+    	   const SpaceBuilderFactory &space_builder_factory)
     {
-      return new Model (surf, space_builder_factory);
+      return new Model (surface_disown, space_builder_factory);
     }
 
 
