@@ -25,8 +25,6 @@ namespace snogray {
 
 
   // fwd decls
-  class Surface;
-  class Light;
   class SpaceBuilderFactory;
 
   // fwd decls
@@ -49,13 +47,7 @@ namespace snogray {
   };
   %extend Scene
   {
-    const char* __str__()
-    {
-      snprintf (static_rep_buf, sizeof static_rep_buf,
-		"scene<nobjs=%d, nlights=%d>",
-		$self->num_surfaces(), $self->num_light_samplers());
-      return static_rep_buf;
-    }
+    const char* __str__() { return "<scene>"; }
   };
 
 
