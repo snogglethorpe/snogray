@@ -30,8 +30,8 @@ endif
 # Library subdirectories
 #
 SUBDIRS = camera cli color doc geometry image light liblpeg liblua	\
-	load lua lua-util material photon render render-mgr scene	\
-	snograw space surface texture util
+	load lua lua-util material photon render render-mgr snograw	\
+	space surface texture util
 
 if build_snogbloom
   SUBDIRS += glare
