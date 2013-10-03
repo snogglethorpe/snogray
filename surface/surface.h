@@ -37,7 +37,7 @@ public:
 
   class Renderable;	  // Interface for surface rendering
   class Sampler;	  // Surface-sampling interface
-  class Stats;		  // Surface statistics
+  struct Stats;		  // Surface statistics
 
 
   Surface () { }
