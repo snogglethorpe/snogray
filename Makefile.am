@@ -48,7 +48,8 @@ dist_pkglua_DATA = snogray.lua
 # Lua modules (loaded via the Lua 'require' function) whose module
 # names have a "snogray." prefix.
 #
-dist_pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua
+dist_pkgluamodulesnogray_DATA = all-in-one.lua limit-cmdline.lua	\
+	scene-cmdline.lua
 
 
 # Various files to include in distribution not covered by automatic rules

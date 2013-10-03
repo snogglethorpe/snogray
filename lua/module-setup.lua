@@ -58,7 +58,6 @@ else
       ["image-sampled-output-cmdline"] = "image/image-sampled-output-cmdline",
       ["lpeg-utils"]	 = "lua-util/lpeg-utils",
       ["render-cmdline"] = "render/render-cmdline",
-      ["scene-cmdline"]  = "scene/scene-cmdline",
       ["string"]	 = "lua-util/string",
       ["string-fill"]	 = "lua-util/string-fill",
       ["swig"]		 = "lua-util/swig",
