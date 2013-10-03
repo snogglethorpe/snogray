@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
+#include "render/intersect.h"
 #include "media.h"
 #include "lambert.h"
 #include "bsdf.h"

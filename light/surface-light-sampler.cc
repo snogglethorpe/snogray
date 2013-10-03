@@ -12,10 +12,10 @@
 
 #include <stdexcept>
 
-#include "intersect/intersect.h"
 #include "material/cos-dist.h"
-#include "scene/scene.h"
 #include "surface/surface-sampler.h"
+#include "scene/scene.h"
+#include "render/intersect.h"
 
 #include "surface-light-sampler.h"
 

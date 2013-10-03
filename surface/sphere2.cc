@@ -10,9 +10,9 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
+#include "render/intersect.h"
 #include "surface-sampler.h"
 
 #include "sphere2.h"

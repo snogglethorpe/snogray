@@ -15,11 +15,11 @@
 
 #include <vector>
 
+#include "geometry/ray.h"
 #include "surface/surface.h"
 #include "light/light.h"
 #include "light/light-sampler.h"
-#include "intersect/intersect.h"
-#include "geometry/ray.h"
+#include "render/intersect.h"
 #include "space/space.h"
 
 

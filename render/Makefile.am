@@ -26,8 +26,8 @@ AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
 	direct-integ.h filter-volume-integ.h global-render-state.cc	\
-	global-render-state.h grid.cc grid.h integ.h			\
-	mis-sample-weight.h path-integ.cc path-integ.h			\
+	global-render-state.h grid.cc grid.h integ.h intersect.cc	\
+	intersect.h mis-sample-weight.h path-integ.cc path-integ.h	\
 	photon-integ.cc photon-integ.h recursive-integ.cc		\
 	recursive-integ.h render-context.cc render-context.h		\
 	render-params.h render-stats.cc render-stats.h sample-gen.h	\

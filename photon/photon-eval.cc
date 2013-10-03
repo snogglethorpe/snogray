@@ -11,9 +11,9 @@
 //
 
 #include "util/snogmath.h"
-#include "intersect/intersect.h"
-#include "material/bsdf.h"
 #include "util/gaussian-filter.h"
+#include "material/bsdf.h"
+#include "render/intersect.h"
 
 #include "photon-eval.h"
 

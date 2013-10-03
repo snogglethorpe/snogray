@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
+#include "render/intersect.h"
 #include "light/light.h"
 
 #include "material.h"

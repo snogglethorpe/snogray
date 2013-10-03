@@ -11,10 +11,10 @@
 //
 
 #include "geometry/bbox.h"
-#include "scene/scene.h"
-#include "intersect/intersect.h"
 #include "geometry/cone-sample.h"
 #include "geometry/tangent-disk-sample.h"
+#include "scene/scene.h"
+#include "render/intersect.h"
 
 #include "far-light.h"
 

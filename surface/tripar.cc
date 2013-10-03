@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
+#include "render/intersect.h"
 #include "surface-sampler.h"
 
 #include "tripar.h"

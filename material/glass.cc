@@ -11,8 +11,8 @@
 //
 
 #include "util/snogmath.h"
+#include "render/intersect.h"
 #include "fresnel.h"
-#include "intersect/intersect.h"
 #include "media.h"
 #include "bsdf.h"
 

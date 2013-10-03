@@ -12,8 +12,8 @@
 
 #include "util/snogmath.h"
 #include "geometry/vec.h"
+#include "render/intersect.h"
 #include "media.h"
-#include "intersect/intersect.h"
 #include "ward-dist.h"
 #include "cos-dist.h"
 #include "bsdf.h"

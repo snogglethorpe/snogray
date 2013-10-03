@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "render/intersect.h"
 #include "material.h"
-#include "intersect/intersect.h"
 
 #include "media.h"
 

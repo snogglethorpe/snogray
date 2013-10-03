@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
 #include "geometry/disk-sample.h"
+#include "render/intersect.h"
 #include "surface-sampler.h"
 
 #include "ellipse.h"

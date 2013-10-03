@@ -10,8 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
 #include "geometry/cone-sample.h"
+#include "render/intersect.h"
 #include "light-sampler.h"
 
 #include "point-light.h"

@@ -14,7 +14,7 @@
 #define SNOGRAY_FRESNEL_H
 
 #include "util/snogmath.h"
-#include "intersect/intersect.h"
+#include "render/intersect.h"
 
 namespace snogray {
 

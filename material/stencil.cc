@@ -10,11 +10,11 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
+#include "util/compiler.h"
+#include "render/intersect.h"
 #include "media.h"
 #include "fresnel.h"
 #include "bsdf.h"
-#include "util/compiler.h"
 
 #include "stencil.h"
 

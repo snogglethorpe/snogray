@@ -13,10 +13,10 @@
 #include <stdexcept>
 
 #include "util/snogmath.h"
-#include "material/cos-dist.h"
-#include "intersect/intersect.h"
 #include "geometry/sphere-isec.h"
 #include "geometry/sphere-sample.h"
+#include "material/cos-dist.h"
+#include "render/intersect.h"
 
 #include "sphere-light-sampler.h"
 

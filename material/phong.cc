@@ -11,7 +11,7 @@
 //
 
 #include "util/snogmath.h"
-#include "intersect/intersect.h"
+#include "render/intersect.h"
 #include "phong-dist.h"
 #include "cos-dist.h"
 #include "bsdf.h"

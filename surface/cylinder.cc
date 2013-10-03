@@ -11,7 +11,7 @@
 //
 
 #include "geometry/quadratic-roots.h"
-#include "intersect/intersect.h"
+#include "render/intersect.h"
 #include "surface-sampler.h"
 
 #include "cylinder.h"

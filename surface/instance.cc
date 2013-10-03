@@ -10,9 +10,9 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "intersect/intersect.h"
-#include "space/space.h"
 #include "util/excepts.h"
+#include "space/space.h"
+#include "render/intersect.h"
 #include "surface-renderable.h"
 #include "model.h"
 
