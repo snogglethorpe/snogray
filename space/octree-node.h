@@ -30,7 +30,7 @@ struct Octree::Node
   // the X, Y, and Z constants may be or-ed together to form an index
   // in child_node_indices.
   //
-  enum {
+  enum DirBits {
     X_LO = 0, X_HI = 4,
     Y_LO = 0, Y_HI = 2,
     Z_LO = 0, Z_HI = 1

@@ -30,6 +30,9 @@ struct Octree::SearchState : Space::SearchState
 	       IntersectCallback &_callback, IsecCache &_negative_isec_cache)
     : Space::SearchState (_callback),
       ray (_ray),
+      ray_origin_octant ((ray.dir.x >= 0 ? Node::X_LO : Node::X_HI)
+			 | (ray.dir.y >= 0 ? Node::Y_LO : Node::Y_HI)
+			 | (ray.dir.z >= 0 ? Node::Z_LO : Node::Z_HI)),
       nodes (_octree.nodes), surface_ptrs (_octree.surface_ptrs),
       negative_isec_cache (_negative_isec_cache),
       neg_cache_hits (0), neg_cache_collisions (0)
@@ -38,16 +41,13 @@ struct Octree::SearchState : Space::SearchState
 
   // Call our callback for each surface that intersects our ray in the
   // octree underneath node NODE_INDEX.  The remaining parameters are
-  // pre-computed intersection points of the ray in the various planes
-  // bounding that node's volume.
+  // pre-computed intersection points in the ray's parametric space, of
+  // the ray in the various planes bounding that node's volume.
   //
   void for_each_possible_intersector (unsigned node_index,
-				      const Pos &x_min_isec,
-				      const Pos &x_max_isec,
-				      const Pos &y_min_isec,
-				      const Pos &y_max_isec,
-				      const Pos &z_min_isec,
-				      const Pos &z_max_isec);
+				      dist_t x_min_t, dist_t x_max_t,
+				      dist_t y_min_t, dist_t y_max_t,
+				      dist_t z_min_t, dist_t z_max_t);
 
   // Update the global statistical counters in ISEC_STATS with the
   // results from this search.
@@ -66,6 +66,13 @@ struct Octree::SearchState : Space::SearchState
   // prune the search).
   //
   const Ray &ray;
+
+  // A bitmask of bits from Octree::Node::DirBits giving the quadrant
+  // which RAY start in: for each <axis> in x, y, z, if RAY's
+  // direction is negative in that axis, then use <axis>_HI, otherwise
+  // use <axis>_LO.
+  //
+  unsigned ray_origin_octant;
 
   // Node and surface-pointer vectors from Octree.
   //
@@ -100,72 +107,57 @@ Octree::for_each_possible_intersector (const Ray &ray,
 {
   if (! nodes.empty ())
     {
-      coord_t x_min = origin.x;
-      coord_t x_max = origin.x + size;
-      coord_t y_min = origin.y;
-      coord_t y_max = origin.y + size;
-      coord_t z_min = origin.z;
-      coord_t z_max = origin.z + size;
+      //
+      // Compute the intersections of RAY with each of ROOT's bounding
+      // planes in RAY's parametric space.  Because ROOT's volume is
+      // aligned with the coordinate axes, this is very simple.
+      //
+      // Note that we ignore the extent of RAY during these
+      // calculations, and treat RAY as an infinite line.
+      //
 
-      // First make sure RAY is conceivably within the top-most node
-      const Pos &rbeg = ray.begin(), &rend = ray.end();
-      if ((rbeg.x <= x_max || rend.x <= x_max)
-	  && (rbeg.x >= x_min || rend.x >= x_min)
-	  && (rbeg.y <= y_max || rend.y <= y_max)
-	  && (rbeg.y >= y_min || rend.y >= y_min)
-	  && (rbeg.z <= z_max || rend.z <= z_max)
-	  && (rbeg.z >= z_min || rend.z >= z_min))
-	{
-	  // Compute the intersections of RAY with each of ROOT's
-	  // bounding planes.  Because ROOT's volume is aligned with the
-	  // coordinate axes, this is very simple, if a bit tedious.
-	  // Note that we basically ignore the extent of RAY during
-	  // these calculations, and treat RAY as an infinite line.
+      dist_t inv_x = ray.dir.x == 0 ? 0 : 1 / ray.dir.x;
+      dist_t x_min_t = (origin.x - ray.origin.x) * inv_x;
+      dist_t x_max_t = (origin.x - ray.origin.x + size) * inv_x;
+      if (x_min_t > x_max_t)
+	std::swap (x_min_t, x_max_t);
 
-	  dist_t inv_x = ray.dir.x == 0 ? 0 : 1 / ray.dir.x;
-	  dist_t inv_y = ray.dir.y == 0 ? 0 : 1 / ray.dir.y;
-	  dist_t inv_z = ray.dir.z == 0 ? 0 : 1 / ray.dir.z;
+      dist_t inv_y = ray.dir.y == 0 ? 0 : 1 / ray.dir.y;
+      dist_t y_min_t = (origin.y - ray.origin.y) * inv_y;
+      dist_t y_max_t = (origin.y - ray.origin.y + size) * inv_y;
+      if (y_min_t > y_max_t)
+	std::swap (y_min_t, y_max_t);
 
-	  dist_t x_min_scale = (x_min - ray.origin.x) * inv_x;
-	  const Pos x_min_isec (x_min,
-				ray.origin.y + ray.dir.y * x_min_scale,
-				ray.origin.z + ray.dir.z * x_min_scale);
-	  dist_t x_max_scale = (x_max - ray.origin.x) * inv_x;
-	  const Pos x_max_isec (x_max,
-				ray.origin.y + ray.dir.y * x_max_scale,
-				ray.origin.z + ray.dir.z * x_max_scale);
+      dist_t inv_z = ray.dir.z == 0 ? 0 : 1 / ray.dir.z;
+      dist_t z_min_t = (origin.z - ray.origin.z) * inv_z;
+      dist_t z_max_t = (origin.z - ray.origin.z + size) * inv_z;
+      if (z_min_t > z_max_t)
+	std::swap (z_min_t, z_max_t);
 
-	  dist_t y_min_scale = (y_min - ray.origin.y) * inv_y;
-	  const Pos y_min_isec (ray.origin.x + ray.dir.x * y_min_scale,
-				y_min,
-				ray.origin.z + ray.dir.z * y_min_scale);
-	  dist_t y_max_scale = (y_max - ray.origin.y) * inv_y;
-	  const Pos y_max_isec (ray.origin.x + ray.dir.x * y_max_scale,
-				y_max,
-				ray.origin.z + ray.dir.z * y_max_scale);
+      //
+      // Note that we don't check to see if RAY intersects ROOT, as
+      // this is done immediately when we start the actual search.  By
+      // doing a bounds-check here and aborting early if RAY doesn't
+      // intersect the space at all (this generally seems to be true
+      // for about 1% of rays), we could save some time doing setup,
+      // but it turns out that it makes essentially no difference in
+      // runtime, so we don't bother.
+      //
 
-	  dist_t z_min_scale = (z_min - ray.origin.z) * inv_z;
-	  const Pos z_min_isec (ray.origin.x + ray.dir.x * z_min_scale,
-				ray.origin.y + ray.dir.y * z_min_scale,
-				z_min);
-	  dist_t z_max_scale = (z_max - ray.origin.z) * inv_z;
-	  const Pos z_max_isec (ray.origin.x + ray.dir.x * z_max_scale,
-				ray.origin.y + ray.dir.y * z_max_scale,
-				z_max);
+      // Get an IsecCache object.
+      //
+      Grab<IsecCache> isec_cache_grab (context.isec_cache_pool);
 
-	  // Get an IsecCache object.
-	  //
-	  Grab<IsecCache> isec_cache_grab (context.isec_cache_pool);
+      SearchState ss (*this, ray, callback, *isec_cache_grab);
 
-	  SearchState ss (*this, ray, callback, *isec_cache_grab);
+      // Search starting form the top-level node.
+      //
+      ss.for_each_possible_intersector (0,
+					x_min_t, x_max_t,
+					y_min_t, y_max_t,
+					z_min_t, z_max_t);
 
-	  ss.for_each_possible_intersector (0,
-					    x_min_isec, x_max_isec,
-					    y_min_isec, y_max_isec,
-					    z_min_isec, z_max_isec);
-
-	  ss.update_isec_stats (isec_stats);
-	}
+      ss.update_isec_stats (isec_stats);
     }
 }
 
@@ -175,208 +167,133 @@ Octree::for_each_possible_intersector (const Ray &ray,
 
 // Call our callback for each surface that intersects our ray in the
 // octree underneath node NODE_INDEX.  The remaining parameters are
-// pre-computed intersection points of the ray in the various planes
-// bounding that node's volume.
+// pre-computed intersection points in the ray's parametric space, of
+// the ray in the various planes bounding that node's volume.
 //
-// This method is critical for speed, and so we try to avoid doing any
-// calculation at all.
+// This method is critical for speed.
 //
 void
 Octree::SearchState::for_each_possible_intersector (
 		       unsigned node_index,
-		       const Pos &x_min_isec,
-		       const Pos &x_max_isec,
-		       const Pos &y_min_isec,
-		       const Pos &y_max_isec,
-		       const Pos &z_min_isec,
-		       const Pos &z_max_isec)
+		       dist_t x_min_t, dist_t x_max_t,
+		       dist_t y_min_t, dist_t y_max_t,
+		       dist_t z_min_t, dist_t z_max_t)
 {
   node_intersect_calls++;
 
+  // Return immediately if the ray doesn't intersect this node.
+  //
+  dist_t min_t = max (ray.t0, max (x_min_t, max (y_min_t, z_min_t)));
+  dist_t max_t = min (ray.t1, min (x_max_t, min (y_max_t, z_max_t)));
+  if (min_t >= max_t)
+    return;
+
   const Node &node = nodes[node_index];
 
-  // The boundaries of our volume
+  // Invoke the callback on each of this node's surfaces
   //
-  const coord_t x_min = x_min_isec.x, x_max = x_max_isec.x;
-  const coord_t y_min = y_min_isec.y, y_max = y_max_isec.y;
-  const coord_t z_min = z_min_isec.z, z_max = z_max_isec.z;
+  if (node.surface_ptrs_head_index)
+    for (unsigned surf_ptr_index = node.surface_ptrs_head_index;
+	 surface_ptrs[surf_ptr_index]; surf_ptr_index++)
+      {
+	const Surface::Renderable *surf = surface_ptrs[surf_ptr_index];
 
-  // Check to see if RAY intersects any of our faces.  Because we
-  // already have the boundary-plane intersection points of RAY in the
-  // ..._ISEC parameters, this requires only comparisons.  In the case
-  // where RAY either starts or ends inside the volume, the
-  // boundary-plane intersections are extensions of RAY, so we don't
-  // need special cases for that occurance.
-  //
-  if (// RAY intersects x-min face
-      //
-      (x_min_isec.y >= y_min && x_min_isec.y <= y_max
-       && x_min_isec.z >= z_min && x_min_isec.z <= z_max)
-      //
-      // RAY intersects x-max face
-      //
-      || (x_max_isec.y >= y_min && x_max_isec.y <= y_max
-	  && x_max_isec.z >= z_min && x_max_isec.z <= z_max)
-      //
-      // RAY intersects y-min face
-      //
-      || (y_min_isec.x >= x_min && y_min_isec.x <= x_max
-	  && y_min_isec.z >= z_min && y_min_isec.z <= z_max)
-      //
-      // RAY intersects y-max face
-      //
-      || (y_max_isec.x >= x_min && y_max_isec.x <= x_max
-	  && y_max_isec.z >= z_min && y_max_isec.z <= z_max)
-      //
-      // RAY intersects z-min face
-      //
-      || (z_min_isec.x >= x_min && z_min_isec.x <= x_max
-	  && z_min_isec.y >= y_min && z_min_isec.y <= y_max)
-      //
-      // RAY intersects z-max face
-      //
-      || (z_max_isec.x >= x_min && z_max_isec.x <= x_max
-	  && z_max_isec.y >= y_min && z_max_isec.y <= y_max))
-    {
-      // RAY intersects some face, so it must intersect our volume
-
-      // Invoke the callback on each of this node's surfaces
-      //
-      if (node.surface_ptrs_head_index)
-	for (unsigned surf_ptr_index = node.surface_ptrs_head_index;
-	     surface_ptrs[surf_ptr_index]; surf_ptr_index++)
+	if (! negative_isec_cache.contains (surf))
 	  {
-	    const Surface::Renderable *surf = surface_ptrs[surf_ptr_index];
+	    surf_isec_tests++;
 
-	    if (! negative_isec_cache.contains (surf))
-	      {
-		surf_isec_tests++;
-
-		if (callback (surf))
-		  surf_isec_hits++;
-		else
-		  {
-		    bool collision = negative_isec_cache.add (surf);
-		    if (collision)
-		      neg_cache_collisions++;
-		  }
-	      }
+	    if (callback (surf))
+	      surf_isec_hits++;
 	    else
-	      neg_cache_hits++;
-
-	    if (callback.stop)
-	      return;
+	      {
+		bool collision = negative_isec_cache.add (surf);
+		if (collision)
+		  neg_cache_collisions++;
+	      }
 	  }
+	else
+	  neg_cache_hits++;
 
-      // Recursively deal with any non-null sub-nodes
+	if (callback.stop)
+	  return;
+      }
+
+  // Recursively deal with any non-null sub-nodes
+  //
+  if (! node.is_leaf_node ())
+    {
+      // Calculate half-size of each plane in parametric space.
       //
-      if (! node.is_leaf_node ())
+      dist_t x_half_t = (x_max_t - x_min_t) / 2;
+      dist_t y_half_t = (y_max_t - y_min_t) / 2;
+      dist_t z_half_t = (z_max_t - z_min_t) / 2;
+
+      // ... and the mid-points between min- and max- parametric values.
+      //
+      dist_t x_mid_t = x_min_t + x_half_t;
+      dist_t y_mid_t = y_min_t + y_half_t;
+      dist_t z_mid_t = z_min_t + z_half_t;
+
+      for (unsigned i = 0; i < 8; i++)
 	{
-	  // Calculate the mid-point intersections.  This the only real
-	  // calculation we do in this method (hopefully dividing by two
-	  // is efficient).
+	  // CHILD is the child index in "parametric order":  that
+	  // is where each bit in CHILD, being "HI" (1) or "LO"
+	  // (0) doesn't correspond to high or low in that
+	  // dimension in actual physical coordinates, but rather
+	  // from the viewpoint or the ray's direction.  We can
+	  // then use RAY_ORIGIN_OCTANT to translate to "real"
+	  // physical order.
 	  //
-	  const Pos x_mid_isec = midpoint (x_min_isec, x_max_isec);
-	  const Pos y_mid_isec = midpoint (y_min_isec, y_max_isec);
-	  const Pos z_mid_isec = midpoint (z_min_isec, z_max_isec);
-	  const coord_t x_mid = x_mid_isec.x;
-	  const coord_t y_mid = y_mid_isec.y;
-	  const coord_t z_mid = z_mid_isec.z;
-	  const Pos &rbeg = ray.begin(), &rend = ray.end();
+	  // CHILD is mostly the same as I, but we slightly
+	  // perturb the bits so that the number of zero-bits
+	  // never decreases.  This ensures that we search more
+	  // likely child nodes first.
+	  //
+	  unsigned child = (i == 3) ? 4 : (i == 4) ? 3 : i;
 
-	  // Note that although RAY can actually change during the
-	  // recursive calls below, it never will do so in a way that
-	  // invalidates the factored-out bounds tests (it can get
-	  // shorter, but never longer).
+	  // REAL_CHILD is the actual index in
+	  // Node::child_node_indices, corresponding to physical
+	  // space.
+	  //
+	  unsigned real_child = child ^ ray_origin_octant;
 
-	  unsigned child_node_index; // used as a temporary below
-	  if (rbeg.x <= x_mid || rend.x <= x_mid)
+	  // The index in Octree::nodes of the child.
+	  //
+	  unsigned child_node_index = node.child_node_indices[real_child];
+
+	  // Test whether there actually is a child node, and if
+	  // so whether the ray falls within it; if so, recurse
+	  // into that child node.
+	  //
+	  dist_t t0 = ray.t0, t1 = ray.t1;
+	  if (child_node_index
+	      && ((child & Node::X_HI) ? (t1 > x_mid_t) : (t0 < x_mid_t))
+	      && ((child & Node::Y_HI) ? (t1 > y_mid_t) : (t0 < y_mid_t))
+	      && ((child & Node::Z_HI) ? (t1 > z_mid_t) : (t0 < z_mid_t)))
 	    {
-	      if (rbeg.y <= y_mid || rend.y <= y_mid)
-		{
-		  child_node_index
-		    = node.child_node_indices[Node::X_LO|Node::Y_LO|Node::Z_LO];
-		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_min_isec, x_mid_isec,
-						   y_min_isec, y_mid_isec,
-						   z_min_isec, z_mid_isec);
-		  if (unlikely (callback.stop)) return;
+	      // The lower bounds of the child node in parametric space.
+	      //
+	      dist_t child_x_min_t
+		= x_min_t + ((child & Node::X_HI) ? x_half_t : 0);
+	      dist_t child_y_min_t
+		= y_min_t + ((child & Node::Y_HI) ? y_half_t : 0);
+	      dist_t child_z_min_t
+		= z_min_t + ((child & Node::Z_HI) ? z_half_t : 0);
 
-		  child_node_index
-		    = node.child_node_indices[Node::X_LO|Node::Y_LO|Node::Z_HI];
-		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_min_isec, x_mid_isec,
-						   y_min_isec, y_mid_isec,
-						   z_mid_isec, z_max_isec);
-		  if (unlikely (callback.stop)) return;
-		}
+	      // Recurse into the child node.
+	      //
+	      for_each_possible_intersector (child_node_index,
+					     child_x_min_t,
+					     child_x_min_t + x_half_t,
+					     child_y_min_t,
+					     child_y_min_t + y_half_t,
+					     child_z_min_t,
+					     child_z_min_t + z_half_t);
 
-	      if (rbeg.y >= y_mid || rend.y >= y_mid)
-		{
-		  child_node_index
-		    = node.child_node_indices[Node::X_LO|Node::Y_HI|Node::Z_LO];
-		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_min_isec, x_mid_isec,
-						   y_mid_isec, y_max_isec,
-						   z_min_isec, z_mid_isec);
-		  if (unlikely (callback.stop)) return;
-
-		  child_node_index
-		    = node.child_node_indices[Node::X_LO|Node::Y_HI|Node::Z_HI];
-		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_min_isec, x_mid_isec,
-						   y_mid_isec, y_max_isec,
-						   z_mid_isec, z_max_isec);
-		  if (unlikely (callback.stop)) return;
-		}
-	    }
-
-	  if (rbeg.x >= x_mid || rend.x >= x_mid)
-	    {
-	      if (rbeg.y <= y_mid || rend.y <= y_mid)
-		{
-		  child_node_index
-		    = node.child_node_indices[Node::X_HI|Node::Y_LO|Node::Z_LO];
-		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_mid_isec, x_max_isec,
-						   y_min_isec, y_mid_isec,
-						   z_min_isec, z_mid_isec);
-		  if (unlikely (callback.stop)) return;
-
-		  child_node_index
-		    = node.child_node_indices[Node::X_HI|Node::Y_LO|Node::Z_HI];
-		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_mid_isec, x_max_isec,
-						   y_min_isec, y_mid_isec,
-						   z_mid_isec, z_max_isec);
-		  if (unlikely (callback.stop)) return;
-		}
-
-	      if (rbeg.y >= y_mid || rend.y >= y_mid)
-		{
-		  child_node_index
-		    = node.child_node_indices[Node::X_HI|Node::Y_HI|Node::Z_LO];
-		  if (child_node_index && (rbeg.z <= z_mid || rend.z <= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_mid_isec, x_max_isec,
-						   y_mid_isec, y_max_isec,
-						   z_min_isec, z_mid_isec);
-		  if (unlikely (callback.stop)) return;
-
-		  child_node_index
-		    = node.child_node_indices[Node::X_HI|Node::Y_HI|Node::Z_HI];
-		  if (child_node_index && (rbeg.z >= z_mid || rend.z >= z_mid))
-		    for_each_possible_intersector (child_node_index,
-						   x_mid_isec, x_max_isec,
-						   y_mid_isec, y_max_isec,
-						   z_mid_isec, z_max_isec);
-		}
+	      // If iteration was explicitly stopped, return immediately.
+	      //
+	      if (unlikely (callback.stop))
+		return;
 	    }
 	}
     }
