@@ -78,6 +78,30 @@ local params = { render = render_params, scene = scene_params,
 		 camera = camera_params, output = output_params }
 
 
+-- Print information about how snogray was built, and exit.
+--
+local function print_build_info_and_exit ()
+   local max_key_len = 0
+   local keys = {}
+   for k,v in pairs (environ.build_info) do
+      keys[#keys+1] = k
+      if #k > max_key_len then
+	 max_key_len = #k
+      end
+   end
+
+   table.sort (keys)
+
+   for i = 1, #keys do
+      local k = keys[i]
+      local v = environ.build_info[k]
+      print (string.right_pad (k, max_key_len + 2)..v)
+   end
+
+   os.exit (0)
+end
+
+
 -- Command-line parser.
 --
 local parser = clp.standard_parser {
@@ -130,7 +154,9 @@ local parser = clp.standard_parser {
    { "-p/--progress", function () progress = true end, hidden = true,
      doc = [[Output progress indicator despite --quiet]] },
    { "-P/--no-progress", function () progress = false end,
-     doc = [[Do not output progress indicator]] }
+     doc = [[Do not output progress indicator]] },
+   { "--build-info", print_build_info_and_exit,
+     doc = [[Print information about how snogray was built]] }
 }
 
 

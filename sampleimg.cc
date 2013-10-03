@@ -13,7 +13,7 @@
 #include <getopt.h>
 #include <iostream>
 
-#include "cli/version.h"
+#include "cli/build-info.h"
 #include "image/image.h"
 #include "util/random.h"
 #include "geometry/hist-2d.h"
@@ -125,7 +125,8 @@ int main (int argc, char *argv[])
 	exit (0);
       case OPT_VERSION:
 	std::cout << prog_name << " (" << PACKAGE_NAME << ") "
-		  << snogray_version << std::endl;
+		  << build_info.get_string ("version", "???")
+		  << std::endl;
 	exit (0);
       default:
 	try_help (prog_name, std::cerr);

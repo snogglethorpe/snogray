@@ -26,8 +26,9 @@ extern "C"
 
 #include "lua-util/lua-util.h"
 #include "lua-util/lua-vector.h"
+#include "lua-util/lua-val-table.h"
 #include "util/snogpaths.h"
-#include "cli/version.h"
+#include "cli/build-info.h"
 
 #include "lua-setup.h"
 
@@ -223,8 +224,11 @@ snogray::new_snogray_lua_state (const std::string &uninstalled_dir)
   lua_getglobal (L, "require");		 // function
   lua_pushstring (L, "snogray.environ"); // arg 0
   lua_call (L, 1, 1);			 // call require
-  lua_pushstring (L, snogray_version);
-  lua_setfield (L, -2, "version");
+  lua_newtable (L);
+  lua_load_from_val_table (L, build_info); // make "build-info" table
+  lua_getfield (L, -1, "version");	 // grab version from build-info table
+  lua_setfield (L, -3, "version");	 // ... and store into environ table
+  lua_setfield (L, -2, "build_info");	 // store rest of build-info too
   lua_pop (L, 1);			 // pop environ table
 
   return L;

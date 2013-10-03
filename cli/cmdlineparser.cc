@@ -16,6 +16,7 @@
 
 #include "util/val-table.h"
 #include "util/string-funs.h"
+#include "build-info.h"
 
 #include "cmdlineparser.h"
 
@@ -312,7 +313,7 @@ CmdLineParser::version_string () const
   std::string name = prog_name ();
   if (name != PACKAGE_NAME)
     name = name + " (" + PACKAGE_NAME + ")";
-  name = name + " " + snogray_version;
+  name = name + " " + build_info.get_string ("version", "???");
   return name;
 }
 

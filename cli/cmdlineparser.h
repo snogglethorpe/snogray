@@ -1,6 +1,6 @@
 // cmdlineparser.h -- Command-line parser
 //
-//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #include <getopt.h>
 
 #include "config.h"
-#include "version.h"
 
 // The following macros can be used in defining option parsers.
 //

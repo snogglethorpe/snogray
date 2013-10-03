@@ -159,6 +159,8 @@ end
 --
 --   version            Snogray version string (added in C code)
 --
+--   build_info         Information about how Snogray was build (compiler etc)
+--
 local snogray_environ = {}
 snogray_environ.lua_dir = lua_root
 

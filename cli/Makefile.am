@@ -16,31 +16,35 @@ include $(top_srcdir)/install-dirs.mk
 
 
 noinst_LIBRARIES = libsnogcli.a
-noinst_SCRIPTS = update-version.sh
+noinst_SCRIPTS = update-build-info.sh
 
 dist_pkgluamodulesnogray_DATA = cmdlineparser.lua
 
-EXTRA_DIST = update-version.sh
+EXTRA_DIST = update-build-info.sh
 
-CLEANFILES = version.cc
+CLEANFILES = build-info.cc
 
 
 libsnogcli_a_SOURCES = cmdlineparser.cc cmdlineparser.h		\
-	tty-progress.cc tty-progress.h version.cc version.h
+	tty-progress.cc tty-progress.h build-info.cc build-info.h
 
 
 ################################################################
 #
-# Version frobbing
+# Build-Info frobbing
 #
 
-update_version:
-	@$(SHELL) $(srcdir)/update-version.sh "$(PACKAGE_VERSION)" "version.cc"
-.PHONY: update_version
+UPD_VERS_ENV_VARS = CC="$(CC)" CC_OPTS="$(AM_CFLAGS)" CXX="$(CXX)"	\
+	CXX_OPTS="$(AM_CXXFLAGS)"					\
+	CONFIG_STATUS="$(top_builddir)/config.status"
+update_build_info:
+	@$(UPD_VERS_ENV_VARS) $(SHELL) $(srcdir)/update-build-info.sh \
+		"$(PACKAGE_VERSION)" "build-info.cc"
+.PHONY: update_build_info
 
-version.cc: update_version
+build-info.cc: update_build_info
 
-# This forces update_version to be run before checking whether the
+# This forces update_build_info to be run before checking whether the
 # library is up-to-date
 #
-version.h: update_version
+build-info.h: update_build_info
