@@ -11,7 +11,7 @@
 //
 
 #include "util/mutex.h"
-#include "intersect/isec-cache.h"
+#include "space/isec-cache.h"
 #include "global-render-state.h"
 
 #include "render-context.h"

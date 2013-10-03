@@ -12,7 +12,7 @@
 
 #include "util/grab.h"
 #include "geometry/bbox.h"
-#include "intersect/isec-cache.h"
+#include "isec-cache.h"
 
 #include "octree.h"
 #include "octree-node.h"
