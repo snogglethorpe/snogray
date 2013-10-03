@@ -98,8 +98,8 @@ struct Octree::SearchState : Space::SearchState
 
 // Call CALLBACK for each surface in the voxel tree that _might_
 // intersect RAY (any further intersection testing needs to be done
-// directly on the resulting surfaces).  MEDIA is used to access various
-// cache data structures.  ISEC_STATS will be updated.
+// directly on the resulting surfaces).  CONTEXT is used to access
+// various cache data structures.  ISEC_STATS will be updated.
 //
 void
 Octree::for_each_possible_intersector (const Ray &ray,
