@@ -12,7 +12,7 @@
 
 
 %{
-#include "scene/camera.h"
+#include "camera/camera.h"
 %}
 
 

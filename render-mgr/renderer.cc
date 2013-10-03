@@ -11,7 +11,7 @@
 //
 
 #include "scene/scene.h"
-#include "scene/camera.h"
+#include "camera/camera.h"
 #include "material/media.h"
 #include "render/sample-set.h"
 #include "render-packet.h"

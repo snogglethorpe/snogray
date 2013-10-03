@@ -36,7 +36,7 @@ libsnograw_a_SOURCES = snograw_lua_wrap.cc
 # We include some other SWIG files from snograw.swg, so reflect those
 # dependencies.
 #
-snograw_lua_wrap.cc: common.swg $(top_srcdir)/scene/camera.swg		\
+snograw_lua_wrap.cc: common.swg $(top_srcdir)/camera/camera.swg		\
 	$(top_srcdir)/color/color.swg					\
 	$(top_srcdir)/geometry/geometry.swg				\
 	$(top_srcdir)/image/image.swg $(top_srcdir)/light/light.swg	\

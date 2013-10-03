@@ -1549,9 +1549,9 @@ CPPFLAGS=$USER_CPPFLAGS
 LDFLAGS=$USER_LDFLAGS
 
 
-AC_CONFIG_FILES([Makefile cli/Makefile color/Makefile doc/Makefile
-			  geometry/Makefile glare/Makefile
-			  image/Makefile light/Makefile
+AC_CONFIG_FILES([Makefile camera/Makefile cli/Makefile color/Makefile
+			  doc/Makefile geometry/Makefile
+			  glare/Makefile image/Makefile light/Makefile
 			  liblpeg/Makefile liblua/Makefile
 			  load/Makefile lua/Makefile lua-util/Makefile
 			  material/Makefile photon/Makefile

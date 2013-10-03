@@ -50,8 +50,7 @@ else
    --
    local uninst_module_mapping = {
       ["accel"]		 = "space/accel",
-      ["camera"]	 = "scene/camera",
-      ["camera-cmdline"] = "scene/camera-cmdline",
+      ["camera-cmdline"] = "camera/camera-cmdline",
       ["cmdlineparser"]	 = "cli/cmdlineparser",
       ["coord"]		 = "geometry/coord",
       ["file"]		 = "lua-util/file",

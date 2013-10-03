@@ -33,7 +33,7 @@
 #include "surface/surface-group.h"
 #include "surface/sphere.h"
 #include "surface/mesh.h"
-#include "scene/camera.h"
+#include "camera/camera.h"
 #include "material/phong.h"
 #include "material/lambert.h"
 #include "material/cook-torrance.h"

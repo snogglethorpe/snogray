@@ -1,5 +1,5 @@
-# Automake Makefile template for Snogray scene-representation library,
-# 	libsnogscene.a
+# Automake Makefile template for Snogray camera library,
+# 	libsnogcamera.a
 #
 #  Copyright (C) 2005-2013  Miles Bader <miles@gnu.org>
 #
@@ -13,17 +13,13 @@
 
 include $(top_srcdir)/config.mk
 include $(top_srcdir)/install-dirs.mk
-include $(top_srcdir)/image/image-deps.mk
 
 
-noinst_LIBRARIES = libsnogscene.a
+noinst_LIBRARIES = libsnogcamera.a
 
-dist_pkgluamodulesnogray_DATA = scene.lua scene-cmdline.lua
+dist_pkgluamodulesnogray_DATA = camera.lua camera-cmdline.lua
 
-EXTRA_DIST = scene.swg
-
-
-AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
+EXTRA_DIST = camera.swg
 
 
-libsnogscene_a_SOURCES = scene.cc scene.h
+libsnogcamera_a_SOURCES = camera.cc camera.h
