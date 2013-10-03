@@ -54,6 +54,7 @@ EOF
     eval isset='${'"$varname"':+set}'
     if test x"$isset" = xset; then
       eval val='$'"$varname"
+      val=`echo "$val" | sed 's@\(["\\]\)@\\\\\1@g'`
       echo "  t.set (\"$entryname\", \"$val\");"
     fi
   }
