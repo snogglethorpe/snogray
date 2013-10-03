@@ -29,9 +29,9 @@ endif
 
 # Library subdirectories
 #
-SUBDIRS = cli color doc geometry image intersect light liblpeg liblua	\
-	load lua lua-util material photon render render-mgr scene	\
-	snograw space surface texture util
+SUBDIRS = cli color doc geometry image light liblpeg liblua load lua	\
+	lua-util material photon render render-mgr scene snograw	\
+	space surface texture util
 
 if build_snogbloom
   SUBDIRS += glare
@@ -77,8 +77,7 @@ RENDER_LIBS = render-mgr/libsnogrendermgr.a render/libsnogrender.a	\
 	photon/libsnogphoton.a space/libsnogspace.a			\
 	scene/libsnogscene.a material/libsnogmat.a			\
 	surface/libsnogsurf.a texture/libsnogtex.a			\
-	light/libsnoglight.a intersect/libsnogisec.a			\
-	geometry/libsnoggeom.a
+	light/libsnoglight.a geometry/libsnoggeom.a
 LUA_LIBS = lua/libsnoglua.a $(libsnoglua_LIBS)
 LOAD_LIBS = load/libsnogload.a $(libsnogload_LIBS)
 IMAGE_LIBS = image/libsnogimage.a $(libsnogimage_LIBS)	\

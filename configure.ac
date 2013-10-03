@@ -1551,15 +1551,14 @@ LDFLAGS=$USER_LDFLAGS
 
 AC_CONFIG_FILES([Makefile cli/Makefile color/Makefile doc/Makefile
 			  geometry/Makefile glare/Makefile
-			  image/Makefile intersect/Makefile
-			  light/Makefile liblpeg/Makefile
-			  liblua/Makefile load/Makefile lua/Makefile
-			  lua-util/Makefile material/Makefile
-			  photon/Makefile render/Makefile
-			  render-mgr/Makefile scene/Makefile
-			  snograw/Makefile space/Makefile
-			  surface/Makefile texture/Makefile
-			  util/Makefile])
+			  image/Makefile light/Makefile
+			  liblpeg/Makefile liblua/Makefile
+			  load/Makefile lua/Makefile lua-util/Makefile
+			  material/Makefile photon/Makefile
+			  render/Makefile render-mgr/Makefile
+			  scene/Makefile snograw/Makefile
+			  space/Makefile surface/Makefile
+			  texture/Makefile util/Makefile])
 
 AC_OUTPUT
 
