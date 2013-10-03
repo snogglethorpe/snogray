@@ -146,7 +146,7 @@ namespace snogray {
 %include "material/material.swg"
 %include "light/light.swg"
 %include "geometry/geometry.swg"
-%include "scene/scene.swg"
+%include "render/scene.swg"
 %include "texture/texture.swg"
 %include "camera/camera.swg"
 %include "render-mgr/render-mgr.swg"

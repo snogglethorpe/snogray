@@ -10,10 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "scene/scene.h"
 #include "material/bsdf.h"
-#include "light/light.h"
 #include "material/media.h"
+#include "light/light.h"
+#include "scene.h"
 #include "mis-sample-weight.h"
 
 #include "direct-illum.h"

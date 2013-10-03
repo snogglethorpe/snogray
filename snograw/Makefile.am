@@ -45,7 +45,7 @@ snograw_lua_wrap.cc: common.swg $(top_srcdir)/camera/camera.swg		\
 	$(top_srcdir)/lua-util/lua-val-table.swg			\
 	$(top_srcdir)/material/material.swg				\
 	$(top_srcdir)/render-mgr/render-mgr.swg				\
-	$(top_srcdir)/render/render.swg $(top_srcdir)/scene/scene.swg	\
+	$(top_srcdir)/render/render.swg $(top_srcdir)/render/scene.swg	\
 	$(top_srcdir)/space/space.swg					\
 	$(top_srcdir)/surface/surface.swg				\
 	$(top_srcdir)/texture/texture.swg $(top_srcdir)/util/util.swg

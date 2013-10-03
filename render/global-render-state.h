@@ -15,7 +15,7 @@
 
 #include "util/val-table.h"
 #include "util/unique-ptr.h"
-#include "scene/scene.h"
+#include "scene.h"
 #include "sample-gen.h"
 #include "surface-integ.h"
 #include "volume-integ.h"

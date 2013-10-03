@@ -10,7 +10,7 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "scene/scene.h"
+#include "render/scene.h"
 #include "texture/spheremap.h"
 #include "geometry/hist-2d.h"
 #include "geometry/hist-2d-dist.h"

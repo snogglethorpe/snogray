@@ -1,4 +1,4 @@
-// scene.h -- Scene description datatype
+// scene.h -- Scene interface during rendering
 //
 //  Copyright (C) 2005-2011, 2013  Miles Bader <miles@gnu.org>
 //
@@ -19,8 +19,8 @@
 #include "surface/surface.h"
 #include "light/light.h"
 #include "light/light-sampler.h"
-#include "render/intersect.h"
 #include "space/space.h"
+#include "intersect.h"
 
 
 namespace snogray {
@@ -29,6 +29,8 @@ namespace snogray {
 class SpaceBuilderFactory;
 
 
+// A Scene is the interface to the scene used during rendering.
+//
 class Scene
 {
 public:

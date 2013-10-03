@@ -13,8 +13,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "scene/scene.h"
 #include "util/string-funs.h"
+#include "scene.h"
 
 #include "render-stats.h"
 

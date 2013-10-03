@@ -14,7 +14,7 @@
 
 #include "material/cos-dist.h"
 #include "surface/surface-sampler.h"
-#include "scene/scene.h"
+#include "render/scene.h"
 #include "render/intersect.h"
 
 #include "surface-light-sampler.h"

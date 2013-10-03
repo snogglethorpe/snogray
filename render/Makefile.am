@@ -16,9 +16,9 @@ include $(top_srcdir)/install-dirs.mk
 
 noinst_LIBRARIES = libsnogrender.a
 
-dist_pkgluamodulesnogray_DATA = render-cmdline.lua render.lua
+dist_pkgluamodulesnogray_DATA = render-cmdline.lua render.lua scene.lua
 
-EXTRA_DIST = render.swg
+EXTRA_DIST = render.swg scene.swg
 
 
 AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
@@ -31,5 +31,5 @@ libsnogrender_a_SOURCES = direct-illum.cc direct-illum.h		\
 	photon-integ.cc photon-integ.h recursive-integ.cc		\
 	recursive-integ.h render-context.cc render-context.h		\
 	render-params.h render-stats.cc render-stats.h sample-gen.h	\
-	sample-set.cc sample-set.h surface-integ.h volume-integ.h	\
-	zero-surface-integ.h
+	sample-set.cc sample-set.h scene.cc scene.h surface-integ.h	\
+	volume-integ.h zero-surface-integ.h

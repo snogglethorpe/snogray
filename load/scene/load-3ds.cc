@@ -27,7 +27,6 @@
 #include <lib3ds/matrix.h>
 
 #include "util/excepts.h"
-#include "scene/scene.h"
 #include "material/mirror.h"
 #include "material/thin-glass.h"
 #include "surface/surface-group.h"

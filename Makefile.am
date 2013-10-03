@@ -76,10 +76,9 @@ AM_CPPFLAGS += $(liblua_CFLAGS) $(libsnogimage_CPPFLAGS)
 #
 RENDER_LIBS = camera/libsnogcamera.a render-mgr/libsnogrendermgr.a	\
 	render/libsnogrender.a photon/libsnogphoton.a			\
-	space/libsnogspace.a scene/libsnogscene.a			\
-	material/libsnogmat.a surface/libsnogsurf.a			\
-	texture/libsnogtex.a light/libsnoglight.a			\
-	geometry/libsnoggeom.a
+	space/libsnogspace.a material/libsnogmat.a			\
+	surface/libsnogsurf.a texture/libsnogtex.a			\
+	light/libsnoglight.a geometry/libsnoggeom.a
 LUA_LIBS = lua/libsnoglua.a $(libsnoglua_LIBS)
 LOAD_LIBS = load/libsnogload.a $(libsnogload_LIBS)
 IMAGE_LIBS = image/libsnogimage.a $(libsnogimage_LIBS)	\

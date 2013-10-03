@@ -11,10 +11,10 @@
 //
 
 #include "material/bsdf.h"
-#include "scene/scene.h"
 #include "material/media.h"
 #include "material/material.h"
 #include "photon/photon-shooter.h"
+#include "scene.h"
 #include "global-render-state.h"
 
 #include "path-integ.h"

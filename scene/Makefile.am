@@ -12,18 +12,13 @@
 #
 
 include $(top_srcdir)/config.mk
-include $(top_srcdir)/install-dirs.mk
 include $(top_srcdir)/image/image-deps.mk
 
 
 noinst_LIBRARIES = libsnogscene.a
 
-dist_pkgluamodulesnogray_DATA = scene.lua
-
-EXTRA_DIST = scene.swg
-
 
 AM_CPPFLAGS += $(libsnogimage_CPPFLAGS)
 
 
-libsnogscene_a_SOURCES = scene.cc scene.h
+libsnogscene_a_SOURCES = 

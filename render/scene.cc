@@ -1,4 +1,4 @@
-// scene.cc -- Scene description datatype
+// scene.cc -- Scene interface during rendering
 //
 //  Copyright (C) 2005-2010, 2013  Miles Bader <miles@gnu.org>
 //
@@ -14,7 +14,7 @@
 #include "util/unique-ptr.h"
 #include "space/space.h"
 #include "space/space-builder.h"
-#include "render/render-context.h"
+#include "render-context.h"
 
 #include "scene.h"
 
@@ -23,10 +23,6 @@ using namespace snogray;
 
 
 
-// Do final setup for the scene.  This should be called after the scene
-// is completely built, and nothing should be added after it it is
-// called.
-//
 Scene::Scene (const Surface &_root_surface,
 	      const SpaceBuilderFactory &space_builder_factory)
   : horizon (_root_surface.bbox ().diameter ()),

@@ -12,11 +12,11 @@
 
 #include <iostream>
 
+#include "util/radical-inverse.h"
 #include "light/light.h"
 #include "material/media.h"
-#include "scene/scene.h"
 #include "material/bsdf.h"
-#include "util/radical-inverse.h"
+#include "render/scene.h"
 #include "render/render-context.h"
 #include "render/global-render-state.h"
 

@@ -10,10 +10,10 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include "scene/scene.h"
 #include "material/bsdf.h"
 #include "material/media.h"
 #include "material/material.h"
+#include "scene.h"
 #include "global-render-state.h"
 
 #include "recursive-integ.h"

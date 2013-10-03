@@ -12,7 +12,7 @@
 
 
 %{
-#include "scene/scene.h"
+#include "render/scene.h"
 %}
 
 

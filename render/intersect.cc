@@ -14,8 +14,8 @@
 #include "material/material.h"
 #include "material/bsdf.h"
 #include "material/media.h"
-#include "scene/scene.h"
-#include "render/render-context.h"
+#include "scene.h"
+#include "render-context.h"
 
 #include "intersect.h"
 

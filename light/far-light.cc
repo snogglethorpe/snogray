@@ -13,7 +13,7 @@
 #include "geometry/bbox.h"
 #include "geometry/cone-sample.h"
 #include "geometry/tangent-disk-sample.h"
-#include "scene/scene.h"
+#include "render/scene.h"
 #include "render/intersect.h"
 
 #include "far-light.h"
