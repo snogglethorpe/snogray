@@ -16,5 +16,4 @@ include $(top_srcdir)/config.mk
 noinst_LIBRARIES = libsnogisec.a
 
 
-libsnogisec_a_SOURCES = intersect.cc intersect.h isec-cache.h ray.h	\
-	ray-io.cc ray-io.h
+libsnogisec_a_SOURCES = intersect.cc intersect.h isec-cache.h

@@ -19,7 +19,7 @@
 #include "light/light.h"
 #include "light/light-sampler.h"
 #include "intersect/intersect.h"
-#include "intersect/ray.h"
+#include "geometry/ray.h"
 #include "space/space.h"
 
 

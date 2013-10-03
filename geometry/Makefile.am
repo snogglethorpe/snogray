@@ -26,7 +26,7 @@ libsnoggeom_a_SOURCES = bbox.cc bbox.h bbox-io.cc bbox-io.h coords.h	\
 	dir-hist-dist.h disk-sample.h frame.h hist-2d.h			\
 	hist-2d-dist.cc hist-2d-dist.h local-xform.cc local-xform.h	\
 	matrix4.cc matrix4.h matrix4.tcc pos.h pos-io.cc pos-io.h	\
-	quadratic-roots.h sphere-isec.h sphere-sample.h			\
-	spherical-coords.h tangent-disk-sample.h tripar-isec.h		\
-	tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc vec-io.h		\
-	xform.h xform-base.h xform-io.cc xform-io.h
+	quadratic-roots.h ray.h ray-io.cc ray-io.h sphere-isec.h	\
+	sphere-sample.h spherical-coords.h tangent-disk-sample.h	\
+	tripar-isec.h tuple3.h uv.h uv-io.cc uv-io.h vec.h vec-io.cc	\
+	vec-io.h xform.h xform-base.h xform-io.cc xform-io.h

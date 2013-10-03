@@ -15,7 +15,7 @@
 
 #include "pos.h"
 #include "vec.h"
-#include "intersect/ray.h"
+#include "ray.h"
 
 
 //

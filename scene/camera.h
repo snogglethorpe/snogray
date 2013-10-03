@@ -15,7 +15,7 @@
 
 #include "util/snogmath.h"
 #include "geometry/coords.h"
-#include "intersect/ray.h"
+#include "geometry/ray.h"
 #include "geometry/xform.h"
 #include "geometry/disk-sample.h"
 

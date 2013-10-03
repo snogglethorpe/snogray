@@ -14,7 +14,7 @@
 #define SNOGRAY_SPACE_H
 
 #include "util/deletion-list.h"
-#include "intersect/ray.h"
+#include "geometry/ray.h"
 #include "surface/surface-renderable.h"
 #include "render/render-context.h"
 

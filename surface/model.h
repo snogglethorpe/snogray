@@ -14,12 +14,12 @@
 #define SNOGRAY_MODEL_H
 
 #include "util/ref.h"
+#include "util/unique-ptr.h"
+#include "util/mutex.h"
+#include "geometry/ray.h"
 #include "space/space.h"
 #include "space/space-builder.h"
 #include "surface.h"
-#include "util/unique-ptr.h"
-#include "intersect/ray.h"
-#include "util/mutex.h"
 
 
 namespace snogray {

@@ -12,8 +12,8 @@
 
 
 %{
-#include "intersect/ray.h"
-#include "intersect/ray-io.h"
+#include "geometry/ray.h"
+#include "geometry/ray-io.h"
 #include "geometry/pos.h"
 #include "geometry/pos-io.h"
 #include "geometry/vec.h"

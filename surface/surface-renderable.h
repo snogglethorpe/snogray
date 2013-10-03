@@ -15,7 +15,7 @@
 
 #include "surface.h"
 
-#include "intersect/ray.h"
+#include "geometry/ray.h"
 #include "intersect/intersect.h"
 
 

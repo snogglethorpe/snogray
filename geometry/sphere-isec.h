@@ -16,7 +16,7 @@
 #include "pos.h"
 #include "vec.h"
 #include "quadratic-roots.h"
-#include "intersect/ray.h"
+#include "ray.h"
 
 
 namespace snogray {

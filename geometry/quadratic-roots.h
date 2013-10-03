@@ -14,7 +14,7 @@
 #define SNOGRAY_QUADRATIC_ROOTS_H
 
 #include "util/snogmath.h"
-#include "intersect/ray.h"
+#include "geometry/ray.h"
 
 
 namespace snogray {
