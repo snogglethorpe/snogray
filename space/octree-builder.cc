@@ -587,7 +587,8 @@ Octree::Builder::copy_optimized_nodes (
 
   // Prime queue with root node.
   //
-  node_index_queue.push_back (0);
+  if (! nodes.empty ())
+    node_index_queue.push_back (0);
 
   // Now copy nodes, continually getting the next node to copy from
   // the front of NODE_INDEX_QUEUE, and pushing its non-zero
