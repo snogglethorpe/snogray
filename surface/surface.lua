@@ -341,9 +341,6 @@ function surface.group (surfs)
 	       self:add (v)
 	    end
 	 else
-	    if swig.need_obj_gc_protect then
-	       swig.gc_ref (self, thing)
-	    end
 	    swig.nowrap_meth_call (self, "add", thing)
 	 end
       end
@@ -386,15 +383,7 @@ function surface.model (surf, accel_type)
       end
    end
 
-   local mod = raw.model (surf, accel.factory (accel_type))
-
-   if swig.need_obj_gc_protect then
-      -- Record the GC link between MOD and SURF.
-      --
-      swig.gc_ref (mod, surf)
-   end
-
-   return mod
+   return raw.model (surf, accel.factory (accel_type))
 end
 
 -- surface.instance -- Return a surface instantiating a surface model
@@ -407,21 +396,7 @@ end
 -- good way to create duplicates of a complex surface without
 -- excessive memory use.
 --
-local surf_instance
-if swig.need_obj_gc_protect then
-   -- If we need to protect against scene-object gcing, wrap the
-   -- instance constructor to record the GC link between an instance
-   -- and its model.
-   --
-   function surf_instance (model, xform)
-      local inst = raw.Instance (model, xform)
-      swig.gc_ref (inst, model)
-      return inst
-   end
-else
-   surf_instance = raw.Instance	-- just use raw constructor
-end
-surface.instance = surf_instance
+surface.instance = raw.Instance
 
 
 

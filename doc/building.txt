@@ -58,10 +58,13 @@ DEPENDENCIES
    * SWIG -- The snogray Lua-C++ interface is automatically generated
      using the "SWIG" interface generator.
 
-     A pre-generated interface should be included with the
-     distribution, so SWIG doesn't actually need to be installed for
-     normal compilation.  However, for those doing development, SWIG
-     is required if the Lua-C++ interface is changed.
+     A pre-generated Lua interface should be included with official
+     distributions, so SWIG doesn't actually need to be installed for
+     normal compilation in those cases.
+
+     However, for building development snapshots (which may not
+     include a pre-generated interface), or for doing development on
+     the Lua interface, SWIG version 1.3.35 or later is required.
 
    * Include-file / library paths -- On some systems, include files
      and libraries may located in non-standard locations, and the

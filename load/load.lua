@@ -18,7 +18,6 @@ local load = {}
 -- imports
 --
 local filename = require 'snogray.filename'
-local swig = require 'snogray.swig'
 local raw = require 'snogray.snograw'
 
 
@@ -174,23 +173,6 @@ function load.scene (scene_file, environ)
       local loader = scene_loaders[fmt]
 
       if loader then
-
-	 -- For old versions of SWIG, we need to gc-protect objects
-	 -- handed to the scene.
-	 --
-	 if swig.need_obj_gc_protect then
-	    local scene = environ.scene
-
-	    if not swig.has_index_wrappers (scene) then
-	       local wrap = swig.index_wrappers (scene)
-
-	       function wrap:add (thing)
-		  swig.gc_ref (self, thing)
-		  return swig.nowrap_meth_call (self, "add", thing)
-	       end
-	    end
-	 end
-
 	 -- Call the loader.
 	 --
 	 local ok, err_msg = pcall (loader, scene_file, environ)

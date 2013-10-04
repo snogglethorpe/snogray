@@ -1160,8 +1160,8 @@ EOF
 
   AC_MSG_RESULT([$have_swig_disown])
 
-  if test "$have_swig_disown" = yes; then
-    AC_DEFINE([HAVE_SWIG_DISOWN], [1], [Define if swig supports "disown" feature for Lua])
+  if test "$have_swig_disown" = no; then
+    AC_MSG_ERROR([SWIG version 1.3.35 or later (supporting the "disown" feature) is required; aborting...])
   fi
 fi
 

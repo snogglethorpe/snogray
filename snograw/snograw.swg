@@ -124,14 +124,12 @@ namespace snogray {
   };
 
 
-#if HAVE_SWIG_DISOWN
   // For Surface and Light pointer parameters with the special names
   // "surface_disown" and "light_disown", tell swig to give up control of
   // the pointed-to object, as it will now be owned by the callee.
   //
   %apply SWIGTYPE* DISOWN {Surface *surface_disown}
   %apply SWIGTYPE* DISOWN {Light *light_disown}
-#endif
 
 
   typedef float intens_t;
