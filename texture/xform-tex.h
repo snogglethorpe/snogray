@@ -41,6 +41,22 @@ public:
   // Texture which will be used to texture the transformed coordinates.
   //
   TexVal<T> tex;
+
+protected:
+
+  // If TEX refers to _another_ XformTexBase subclass of type T, then
+  // merge its transform into XFORM, and point TEX at its input.
+  //
+  template<class XT>
+  void merge_input_transform ()
+  {
+    const XT *input_xform_tex = dynamic_cast<const XT *> (&*tex.tex);
+    if (input_xform_tex)
+      {
+	xform *= input_xform_tex->xform;
+	tex = input_xform_tex->tex;
+      }
+  }
 };
 
 
@@ -54,7 +70,9 @@ public:
 
   XformTex (const Xform &_xform, const TexVal<T> &_tex)
     : XformTexBase<T> (_xform, _tex)
-  { }
+  {
+    this->template merge_input_transform<XformTex<T> > ();
+  }
 
   // Evaluate this texture at TEX_COORDS.
   //
@@ -76,7 +94,9 @@ public:
 
   XformTexUV (const Xform &_xform, const TexVal<T> &_tex)
     : XformTexBase<T> (_xform, _tex)
-  { }
+  {
+    this->template merge_input_transform<XformTexUV<T> > ();
+  }
 
   // Evaluate this texture at TEX_COORDS.
   //
@@ -97,7 +117,9 @@ public:
 
   XformTexPos (const Xform &_xform, const TexVal<T> &_tex)
     : XformTexBase<T> (_xform, _tex)
-  { }
+  {
+    this->template merge_input_transform<XformTexPos<T> > ();
+  }
 
   // Evaluate this texture at TEX_COORDS.
   //
