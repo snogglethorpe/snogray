@@ -13,6 +13,8 @@
 #ifndef SNOGRAY_QUADRATIC_ROOTS_H
 #define SNOGRAY_QUADRATIC_ROOTS_H
 
+#include <utility>
+
 #include "util/snogmath.h"
 
 
@@ -52,14 +54,12 @@ quadratic_roots (T a, T b, T c, T roots[2])
     return 1;			// only one root
   else
     {
+      using std::swap;
+
       roots[1] = c / t;
 
       if (roots[0] > roots[1])
-	{
-	  T tmp = roots[0];
-	  roots[0] = roots[1];
-	  roots[1] = tmp;
-	}
+	swap (roots[0], roots[1]);
 
       return 2;
     }
