@@ -155,7 +155,13 @@ local function interpret_camera_cmds (cmds, camera, scene)
    local function set_horiz () camera:set_orientation (camera.ORIENT_HORIZ) end
    local function set_vert () camera:set_orientation (camera.ORIENT_VERT) end
    local function auto_focus (x, y)
-      camera:set_focus (probe_scene (x, y, scene, camera))
+      local dist = probe_scene (x, y, scene, camera)
+      if dist then
+	 camera:set_focus (dist)
+      else
+	 error ("autofocus failure: no object at location ("..
+		tostring(x)..", "..tostring(y)..")", 0)
+      end
    end
    local function unrecog_cmd (letter)
       error ("unrecognized cammera command '"..letter.."'", 0)
