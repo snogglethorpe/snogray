@@ -37,7 +37,7 @@ public:
   virtual void add_light_samplers (
 		 const Scene &scene,
 		 std::vector<const Light::Sampler *> &samplers)
-    const override;
+    const;
 
 private:
 
