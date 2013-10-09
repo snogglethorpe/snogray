@@ -17,18 +17,33 @@ local img_output_cmdline = {}
 local cmdlineparser = require 'snogray.cmdlineparser'
 local image = require 'snogray.image'
 
-function img_output_cmdline.option_parser (params, default_aspect_ratio)
+-- Make sure PARAM has "width" and "height" entries.  If PARAMS does
+-- not contains "width" and "height" entries, they are set to the
+-- WIDTH and HEIGHT parameters.  Then if PARAM contains a "size"
+-- entry, it is used to adjust the "height" and "width" by setting the
+-- _largest_ of the two to the "size" entry, and adjusting the other
+-- to preserve the original aspect-ratio.
+--
+function img_output_cmdline.finalize_dimensions (params, width, height)
+   params.width = params.width or width
+   params.height = params.height or height
+   if params.size then
+      local ar = params.width / params.height
+      if params.width > params.height then
+	 params.width = params.size
+	 params.height = math.floor (params.size / ar + 0.5)
+      else
+	 params.height = params.size
+	 params.width = math.floor (params.size * ar + 0.5)
+      end
+   end
+end
+
+function img_output_cmdline.option_parser (params)
    local function set_size (arg)
       local size = string.match (arg, "^%d+$")
-      if size and default_aspect_ratio then
-	 size = tonumber (size)
-	 if default_aspect_ratio > 1 then
-	    params.width = size
-	    params.height = size / default_aspect_ratio
-	 else
-	    params.height = size
-	    params.width = size * default_aspect_ratio
-	 end
+      if size then
+	 params.size = tonumber (size)
       else
 	 local w, h = string.match (arg, "^(%d+)%s*[,x]%s*(%d+)$")
 	 w = tonumber (w)
@@ -38,6 +53,7 @@ function img_output_cmdline.option_parser (params, default_aspect_ratio)
 	 end
 	 params.width = w
 	 params.height = h
+	 params.size = nil
       end
    end
 

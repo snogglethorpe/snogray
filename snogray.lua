@@ -136,8 +136,7 @@ local parser = clp.standard_parser {
    camera_cmdline.option_parser (camera_params),
 
    "Output image options:",
-   img_out_cmdline.option_parser (output_params,
-				  default_width / default_height),
+   img_out_cmdline.option_parser (output_params),
    limit_cmdline.option_parser (params),
 
    -- Misc options; we put these last as they're rarely used.
@@ -388,16 +387,25 @@ local scene_end_ru = sys.rusage () -- end marker for scene setup
 
 
 ----------------------------------------------------------------
--- Final camera setup
+-- Post-loading setup
 --
+
+-- Do final setup of image dimensions (it can't be done until we've
+-- loaded the scene, as the scene can change things).
+--
+img_out_cmdline.finalize_dimensions (output_params,
+				     default_width, default_height)
 
 -- The nominal image size.
 --
-local width = output_params.width or default_width
-local height = output_params.height or default_height
+local width, height = output_params.width, output_params.height
 
+-- Give camera correct aspect-ratio based on the output image dimensions.
+--
 camera:set_aspect_ratio (width / height)
 
+-- Evaluate camera command-line commands.
+--
 camera_cmdline.apply (camera_params, camera, scene)
 
 
