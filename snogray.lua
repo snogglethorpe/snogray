@@ -206,6 +206,13 @@ local camera = camera.new ()  	-- note, shadows variable, but oh well
 --
 output_params.filename = output_file
 
+-- We set up the camera's nominal state before loading the scene so
+-- that the scene can see it.  Mostly the defaults are OK, but the
+-- output-image dimensions can affect the aspect-ratio.
+--
+camera:set_aspect_ratio ((output_params.width or default_width)
+		         / (output_params.height or default_height))
+
 
 --------
 -- Set up the scene environment, which is just a Lua environment into
@@ -360,7 +367,6 @@ install_new_entries (load_environ.params, params)
 -- Apply parameter tables.
 --
 scene_cmdline.apply (scene_params, scene)
-camera_cmdline.apply (camera_params, camera, scene)
 
 -- Get the output file back, in case loading the scene changed it.
 --
@@ -379,6 +385,20 @@ if not output_file then
 end
 
 local scene_end_ru = sys.rusage () -- end marker for scene setup
+
+
+----------------------------------------------------------------
+-- Final camera setup
+--
+
+-- The nominal image size.
+--
+local width = output_params.width or default_width
+local height = output_params.height or default_height
+
+camera:set_aspect_ratio (width / height)
+
+camera_cmdline.apply (camera_params, camera, scene)
 
 
 ----------------------------------------------------------------
@@ -410,13 +430,6 @@ if file.exists (output_file) then
    end
 end
 
-
--- The nominal image size.
---
-local width = output_params.width or default_width
-local height = output_params.height or default_height
-
-camera:set_aspect_ratio (width / height)
 
 -- The "limit", which is the portion the nominal image which we will
 -- actually render.
