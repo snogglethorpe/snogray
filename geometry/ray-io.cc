@@ -35,7 +35,7 @@ snogray::operator<< (std::ostream &os, const Ray &ray)
   os << ", ";
   output_nicely (os, d.z);
   os << "}, t0 = ";
-  output_nicely (os, ray.t1);
+  output_nicely (os, ray.t0);
   os << ", t1 = ";
   output_nicely (os, ray.t1);
   os << "}";
