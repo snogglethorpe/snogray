@@ -13,6 +13,8 @@
 #ifndef SNOGRAY_LIGHT_H
 #define SNOGRAY_LIGHT_H
 
+#include <vector>
+
 #include "color/color.h"
 #include "geometry/pos.h"
 #include "geometry/vec.h"
