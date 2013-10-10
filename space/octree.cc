@@ -116,19 +116,19 @@ Octree::for_each_possible_intersector (const Ray &ray,
       // calculations, and treat RAY as an infinite line.
       //
 
-      dist_t inv_x = ray.dir.x == 0 ? 0 : 1 / ray.dir.x;
+      dist_t inv_x = ray.dir.x == 0 ? dist_t (1e9) : 1 / ray.dir.x;
       dist_t x_min_t = (origin.x - ray.origin.x) * inv_x;
       dist_t x_max_t = (origin.x - ray.origin.x + size) * inv_x;
       if (x_min_t > x_max_t)
 	std::swap (x_min_t, x_max_t);
 
-      dist_t inv_y = ray.dir.y == 0 ? 0 : 1 / ray.dir.y;
+      dist_t inv_y = ray.dir.y == 0 ? dist_t (1e9) : 1 / ray.dir.y;
       dist_t y_min_t = (origin.y - ray.origin.y) * inv_y;
       dist_t y_max_t = (origin.y - ray.origin.y + size) * inv_y;
       if (y_min_t > y_max_t)
 	std::swap (y_min_t, y_max_t);
 
-      dist_t inv_z = ray.dir.z == 0 ? 0 : 1 / ray.dir.z;
+      dist_t inv_z = ray.dir.z == 0 ? dist_t (1e9) : 1 / ray.dir.z;
       dist_t z_min_t = (origin.z - ray.origin.z) * inv_z;
       dist_t z_max_t = (origin.z - ray.origin.z + size) * inv_z;
       if (z_min_t > z_max_t)
