@@ -49,7 +49,7 @@ material.is_material = is_material
 -- that looks like it can be converted to a color or color texture.
 --
 local function is_color_val (val)
-   return color.is_color_spec (val) or texture.is_color_tex (val)
+   return color.is_color_spec (val) or texture.is_tex (val)
 end
 
 -- Do common material post-processing to the material MAT, using
