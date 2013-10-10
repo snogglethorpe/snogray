@@ -66,7 +66,11 @@ public:
   TPos<T> begin () const { return origin+dir*t0; }
   TPos<T> end () const { return  origin+dir*t1; }
 
-  T length () const { return t1 - t0; }
+  // Return the length of the ray in the same units used by ray.dir.
+  // Note that this isn't the same as (ray.t1 - ray.t0) if ray.dir is
+  // not a unit-vector.
+  //
+  T length () const { return dir.length() * (t1 - t0); }
 
   // Return this ray transformed by XFORM.
   //

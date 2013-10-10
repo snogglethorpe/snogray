@@ -161,7 +161,7 @@ namespace snogray {
     TPos<T> begin () const;
     TPos<T> end () const;
 
-    T length () const { return t1 - t0; }
+    T length () const;
 
     TPos<T> origin;
     TVec<T> dir;
