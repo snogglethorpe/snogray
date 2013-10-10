@@ -1,6 +1,6 @@
 -- limit-cmdline.lua -- Command-line option for rendering "limit"
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ function limit_cmdline.bounds (params, width, height)
 	 if part == 0 then
 	    return zero_val
 	 elseif part < 1 then
-	    return dim * part
+	    return math.floor (dim * part + 0.5)
 	 else
 	    return part
 	 end
@@ -85,6 +85,22 @@ function limit_cmdline.bounds (params, width, height)
       else
 	 w = apply_part (limit.x2, width, width) - x
 	 h = apply_part (limit.y2, height, height) - y
+      end
+
+      -- User-supplied y-coordinates are "bottom up", but our main
+      -- rendering loop uses "top down", so adjust what the user
+      -- specified to match.
+      --
+      y = math.max (height - y - h, 0)
+
+      -- Clip at the boundaries of the larger "virtual" image being
+      -- limited.
+      --
+      if x + w > width then
+	 w = math.max (width - x, 0)
+      end
+      if y + h > height then
+	 h = math.max (height - y, 0)
       end
 
       return x, y, w, h
