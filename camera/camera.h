@@ -245,6 +245,16 @@ public:
   void set_vert_fov (float fov) { set_fov (Format::VERT, fov); }
   void set_diag_fov (float fov) { set_fov (Format::DIAG, fov); }
 
+  // Get the field-of-view.
+  //
+  float fov (Format::Axis axis) const
+  {
+    return format.fov (axis, focal_length ());
+  }
+  float horiz_fov () const { return fov (Format::HORIZ); }
+  float vert_fov () const { return fov (Format::VERT); }
+  float diag_fov () const { return fov (Format::DIAG); }
+
   float aspect_ratio () const
   {
     return float (format.width / format.height);

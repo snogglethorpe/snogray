@@ -74,6 +74,10 @@ namespace snogray {
     void set_vert_fov (float fov);
     void set_diag_fov (float fov);
 
+    float horiz_fov () const;
+    float vert_fov () const;
+    float diag_fov () const;
+
     float aspect_ratio () const;
     void set_aspect_ratio (float aspect_ratio);
 
