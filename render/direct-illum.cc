@@ -132,7 +132,6 @@ DirectIllum::sample_light (const Intersect &isec,
 {
   RenderContext &context = isec.context;
   const Scene &scene = context.scene;
-  dist_t min_dist = context.params.min_trace;
 
   // Final result, which will be the sum of one light sample and one
   // BSDF sample.
@@ -158,18 +157,7 @@ DirectIllum::sample_light (const Intersect &isec,
 	  // Now we know there's a potential contribution, so check to
 	  // see if this sample is occluded or not.
 
-	  //
-	  // XXX Should encapsulate the standard grot surrounding
-	  // shadow-testing (horizon distance, into some convenience
-	  // class... XXX
-	  // (e.g., PBRT's "VisibilityTester" class?)
-	  //
-	  dist_t max_dist = lsamp.dist ? lsamp.dist - min_dist : scene.horizon;
- 
-	  Ray ray (isec.normal_frame.origin,
-		   isec.normal_frame.from (lsamp.dir),
-		   min_dist, max_dist);
-
+	  Ray ray = isec.recursive_ray (lsamp.dir, lsamp.dist);
 	  Color transmittance = 1;
 	  if (! scene.occludes (ray, isec.media.medium, transmittance, context))
 	    {
@@ -228,19 +216,7 @@ DirectIllum::sample_light (const Intersect &isec,
 	      // Now we know there's a potential contribution, so check to
 	      // see if this sample is occluded or not.
 
-	      //
-	      // XXX Should encapsulate the standard grot surrounding
-	      // shadow-testing (horizon distance, into some convenience
-	      // class... XXX
-	      // (e.g., PBRT's "VisibilityTester" class?)
-	      //
-	      dist_t max_dist
-		= lval.dist ? lval.dist - min_dist : scene.horizon;
-
-	      Ray ray (isec.normal_frame.origin,
-		       isec.normal_frame.from (bsamp.dir),
-		       min_dist, max_dist);
-
+	      Ray ray = isec.recursive_ray (bsamp.dir, lval.dist);
 	      Color transmittance = 1;
 	      if (! scene.occludes (ray, isec.media.medium, transmittance,
 				    context))

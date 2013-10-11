@@ -135,7 +135,6 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	       const SampleSet::Sample &sample)
 {
   const Scene &scene = context.scene;
-  dist_t min_dist = context.params.min_trace;
 
   // The innermost media layer in a stack of media layers active at the
   // current vertex.  A new layer is pushed when entering a refractive
@@ -365,9 +364,7 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
       // Update ISEC_RAY to point from ISEC's position in the direction
       // of the BSDF sample.  
       //
-      isec_ray = Ray (isec.normal_frame.origin,
-		      isec.normal_frame.from (bsdf_samp.dir),
-		      min_dist, scene.horizon);
+      isec_ray = isec.recursive_ray (bsdf_samp.dir);
 
       // Remember whether we followed a specular sample, because such
       // samples are normally not accounted for in the direct-lighting

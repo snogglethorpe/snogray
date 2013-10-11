@@ -61,11 +61,7 @@ RecursiveInteg::Lo (const Intersect &isec, const Media &media,
 	= isec.bsdf->sample (UV(0,0), Bsdf::SPECULAR|Bsdf::REFLECTIVE);
       if (refl_samp.val > 0)
 	{
-	  Ray refl_ray (isec.normal_frame.origin,
-			isec.normal_frame.from (refl_samp.dir),
-			context.params.min_trace,
-			context.scene.horizon);
-
+	  Ray refl_ray = isec.recursive_ray (refl_samp.dir);
 	  radiance +=
 	    Li (refl_ray, media, sample, depth + 1)
 	    * refl_samp.val
@@ -78,15 +74,10 @@ RecursiveInteg::Lo (const Intersect &isec, const Media &media,
 	= isec.bsdf->sample (UV(0,0), Bsdf::SPECULAR|Bsdf::TRANSMISSIVE);
       if (xmit_samp.val > 0)
 	{
+	  Ray xmit_ray = isec.recursive_ray (xmit_samp.dir);
 	  Media xmit_media (isec, true);
-
-	  Ray ray (isec.normal_frame.origin,
-		   isec.normal_frame.from (xmit_samp.dir),
-		   context.params.min_trace,
-		   context.scene.horizon);
-
 	  radiance +=
-	    Li (ray, xmit_media, sample, depth + 1)
+	    Li (xmit_ray, xmit_media, sample, depth + 1)
 	    * xmit_samp.val
 	    * abs (isec.cos_n (xmit_samp.dir));
 	}
