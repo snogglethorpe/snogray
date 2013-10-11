@@ -10,6 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "geometry/disk-sample.h"
+
 #include "camera.h"
 
 using namespace snogray;

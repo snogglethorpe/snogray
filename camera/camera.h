@@ -15,9 +15,11 @@
 
 #include "util/snogmath.h"
 #include "geometry/coords.h"
+#include "geometry/pos.h"
+#include "geometry/vec.h"
+#include "geometry/uv.h"
 #include "geometry/ray.h"
 #include "geometry/xform.h"
-#include "geometry/disk-sample.h"
 
 
 namespace snogray {
