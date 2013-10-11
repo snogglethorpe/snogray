@@ -14,12 +14,8 @@
 #define SNOGRAY_CMDLINEPARSER_H
 
 #include <string>
-#include <stdexcept>
-#include <cstdlib>
-
 #include <getopt.h>
 
-#include "config.h"
 
 // The following macros can be used in defining option parsers.
 //

@@ -10,6 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
+#include "config.h"
+
 #include <iostream>
 #include <string>
 #include <cstring>
