@@ -13,16 +13,17 @@
 #ifndef SNOGRAY_SURFACE_RENDERABLE_H
 #define SNOGRAY_SURFACE_RENDERABLE_H
 
-#include "surface.h"
-
 #include "geometry/ray.h"
 #include "render/intersect.h"
+
+#include "surface.h"
 
 
 namespace snogray {
 
 class Media;
 class Medium;
+class RenderContext;
 
 
 // A Renderable is the interface to a Surface which is used for
