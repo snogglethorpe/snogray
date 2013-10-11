@@ -182,9 +182,39 @@ Intersect::Intersect (const Intersect &isec)
 
 // Return directly-emitted radiance from this intersection.
 //
-Color Intersect::Le () const
+Color
+Intersect::Le () const
 {
   return material.Le (*this, TexCoords (normal_frame.origin, tex_coords_uv));
+}
+
+// Return a ray from this intersection in direction DIR in the
+// intersection's normal frame, and a maximum (parametric) distance
+// large enough to encompass the entire scene.
+//
+Ray
+Intersect::recursive_ray (const Vec &dir) const
+{
+  dist_t min_dist = context.params.min_trace;
+  dist_t max_dist = context.scene.horizon;
+  return Ray (normal_frame.origin, normal_frame.from (dir),
+	      min_dist, max_dist);
+}
+
+// Return a ray from this intersection in direction DIR in the
+// intersection's normal frame, and with a maximum parametric
+// distance of MAX_DIST.  As a special case, if MAX_DIST is zero,
+// then a distance large enough to encompass the entire scene is
+// used instead.
+//
+Ray
+Intersect::recursive_ray (const Vec &dir, dist_t max_dist) const
+{
+  dist_t min_dist = context.params.min_trace;
+  if (max_dist == 0)
+    max_dist = context.scene.horizon;
+  return Ray (normal_frame.origin, normal_frame.from (dir),
+	      min_dist, max_dist - min_dist);
 }
 
 

@@ -100,6 +100,20 @@ public:
     return min (cos_angle (v, vec), 1.f); // use min to clamp precision errors
   }
 
+  // Return a ray from this intersection in direction DIR in the
+  // intersection's normal frame, and a maximum (parametric) distance
+  // large enough to encompass the entire scene.
+  //
+  Ray recursive_ray (const Vec &dir) const;
+
+  // Return a ray from this intersection in direction DIR in the
+  // intersection's normal frame, and with a maximum parametric
+  // distance of MAX_DIST.  As a special case, if MAX_DIST is zero,
+  // then a distance large enough to encompass the entire scene is
+  // used instead.
+  //
+  Ray recursive_ray (const Vec &dir, dist_t max_dist) const;
+
   // Return a mempool for intersection-related allocations.
   //
   Mempool &mempool () const { return context.mempool; }
