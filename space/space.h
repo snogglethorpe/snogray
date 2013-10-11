@@ -26,8 +26,6 @@ class Space
 {
 public:
 
-  struct IntersectCallback;	// Callback for search methods
-
   virtual ~Space () { }
 
   // If some surface in this space intersects RAY, change RAY's
@@ -56,10 +54,22 @@ public:
   // well as transmitting it), nor does it deal with anything except
   // surfaces.
   //
-  virtual bool occludes (const Ray &ray, const Medium &medium,
-			 Color &total_transmittance,
-			 RenderContext &context)
+  bool occludes (const Ray &ray, const Medium &medium,
+		 Color &total_transmittance,
+		 RenderContext &context)
     const;
+
+
+protected:
+
+  struct IntersectCallback;	// Callback for search methods
+  struct SearchState;		// Convenience class for subclasses
+
+
+  // Initialize Space, using info from BUILDER.  Note that this can
+  // only be done once, as it may modify BUILDER.
+  //
+  Space (SpaceBuilder &builder);
 
   // Call CALLBACK for each surface in the voxel tree that _might_
   // intersect RAY (any further intersection testing needs to be done
@@ -72,14 +82,15 @@ public:
 					      RenderStats::IsecStats &isec_stats)
     const = 0;
 
-protected:
 
-  struct SearchState;		// Convenience class for subclasses
+private:
 
-  // Initialize Space, using info from BUILDER.  Note that this can
-  // only be done once, as it may modify BUILDER.
+  // Callbacks used for specific searches.
   //
-  Space (SpaceBuilder &builder);
+  struct ClosestIntersectCallback;
+  struct IntersectsCallback;
+  struct OccludesCallback;
+
 
   // A list of things to be deleted after rendering.  This is intended
   // for use by allocated instances of Surface::Renderable, but can be

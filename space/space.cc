@@ -33,9 +33,7 @@ Space::Space (SpaceBuilder &builder)
 // "Closest" intersection testing (tests all surfaces for intersection
 // with a ray, information about the closest intersection)
 
-namespace { // keep local to file
-
-struct ClosestIntersectCallback : Space::IntersectCallback
+struct Space::ClosestIntersectCallback : Space::IntersectCallback
 {
   ClosestIntersectCallback (Ray &_ray, RenderContext &_context)
     : ray (_ray), closest (0), context (_context)
@@ -64,8 +62,6 @@ struct ClosestIntersectCallback : Space::IntersectCallback
   RenderContext &context;
 };
 
-} // namespace
-
 
 // If some surface in this space intersects RAY, change RAY's
 // maximum bound (Ray::t1) to reflect the point of intersection, and
@@ -91,9 +87,7 @@ Space::intersect (Ray &ray, RenderContext &context) const
 
 // Simple (boolean) intersection testing
 
-namespace { // keep local to file
-
-struct IntersectsCallback : Space::IntersectCallback
+struct Space::IntersectsCallback : Space::IntersectCallback
 {
   IntersectsCallback (const Ray &_ray, RenderContext &_context)
     : ray (_ray), intersects (false), context (_context)
@@ -120,8 +114,6 @@ struct IntersectsCallback : Space::IntersectCallback
   RenderContext &context;
 };
 
-} // namespace
-
 
 // Return true if any surface in this space intersects RAY.
 //
@@ -140,9 +132,7 @@ Space::intersects (const Ray &ray, RenderContext &context) const
 
 // Occludes calculation, including partial occlusion.
 
-namespace { // keep local to file
-
-struct OccludesCallback : Space::IntersectCallback
+struct Space::OccludesCallback : Space::IntersectCallback
 {
   OccludesCallback (const Ray &_ray, const Medium &_medium,
 		    Color &_total_transmittance,
@@ -175,8 +165,6 @@ struct OccludesCallback : Space::IntersectCallback
   //
   bool occludes;
 };
-
-} // namespace
 
 
 // Return true if some surface in this space completely occludes RAY.
