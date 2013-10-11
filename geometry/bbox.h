@@ -13,6 +13,7 @@
 #ifndef SNOGRAY_BBOX_H
 #define SNOGRAY_BBOX_H
 
+#include "util/snogmath.h"
 #include "pos.h"
 #include "vec.h"
 #include "xform-base.h"

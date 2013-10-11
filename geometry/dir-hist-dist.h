@@ -13,6 +13,8 @@
 #ifndef SNOGRAY_DIR_HIST_DIST_H
 #define SNOGRAY_DIR_HIST_DIST_H
 
+#include "util/snogmath.h"
+
 #include "dir-hist.h"
 #include "hist-2d-dist.h"
 

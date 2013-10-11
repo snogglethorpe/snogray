@@ -16,6 +16,7 @@
 
 #include "ray-io.h"
 
+
 std::ostream&
 snogray::operator<< (std::ostream &os, const Ray &ray)
 {
@@ -42,5 +43,6 @@ snogray::operator<< (std::ostream &os, const Ray &ray)
 
   return os;
 }
+
 
 // arch-tag: b1d9b9a4-ee16-451b-b341-20265628a715

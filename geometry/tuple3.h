@@ -1,6 +1,6 @@
 // tuple3.h -- Base class for positions and vectors
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,7 +13,9 @@
 #ifndef SNOGRAY_TUPLE3_H
 #define SNOGRAY_TUPLE3_H
 
+
 namespace snogray {
+
 
 template<typename T>
 class Tuple3
@@ -69,8 +71,10 @@ public:
   T x, y, z;
 };
 
+
 }
 
 #endif /* SNOGRAY_TUPLE3_H */
+
 
 // arch-tag: c796c67c-4af6-4fec-8f17-47bf6128c047

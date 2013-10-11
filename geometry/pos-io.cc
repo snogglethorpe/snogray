@@ -16,6 +16,7 @@
 
 #include "pos-io.h"
 
+
 std::ostream&
 snogray::operator<< (std::ostream &os, const Pos &pos)
 {

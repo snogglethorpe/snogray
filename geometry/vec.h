@@ -13,9 +13,11 @@
 #ifndef SNOGRAY_VEC_H
 #define SNOGRAY_VEC_H
 
-#include "tuple3.h"
-#include "xform-base.h"
 #include "util/compiler.h"
+#include "util/snogmath.h"
+#include "xform-base.h"
+
+#include "tuple3.h"
 
 
 namespace snogray {

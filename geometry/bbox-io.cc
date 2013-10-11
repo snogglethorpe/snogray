@@ -14,7 +14,9 @@
 
 #include "util/nice-io.h"
 
+#include "bbox.h"
 #include "bbox-io.h"
+
 
 std::ostream&
 snogray::operator<< (std::ostream &os, const BBox &bbox)

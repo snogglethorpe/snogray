@@ -1,6 +1,6 @@
 // tangent-disk-sample.h -- Sample a disk tangent to a sphere
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,6 +14,7 @@
 #define SNOGRAY_TANGENT_DISK_SAMPLE_H
 
 #include "uv.h"
+#include "pos.h"
 #include "vec.h"
 #include "frame.h"
 #include "disk-sample.h"

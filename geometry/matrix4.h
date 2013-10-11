@@ -13,8 +13,6 @@
 #ifndef SNOGRAY_MATRIX4_H
 #define SNOGRAY_MATRIX4_H
 
-#include "util/snogmath.h"
-
 
 namespace snogray {
 
