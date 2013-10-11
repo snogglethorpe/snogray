@@ -13,8 +13,10 @@
 #include <ostream>
 
 #include "util/nice-io.h"
+#include "color.h"
 
 #include "color-io.h"
+
 
 std::ostream&
 snogray::operator<< (std::ostream &os, const Color &col)

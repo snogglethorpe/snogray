@@ -1,6 +1,6 @@
 // color.h -- Color datatype
 //
-//  Copyright (C) 2005, 2006, 2007, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -10,9 +10,8 @@
 // Written by Miles Bader <miles@gnu.org>
 //
 
-#include <iomanip>
-
 #include "color.h"
+
 
 using namespace snogray;
 
@@ -51,5 +50,6 @@ Color::set_rgb (component_t r, component_t g, component_t b)
   _components[1] = g;
   _components[2] = b;
 }
+
 
 // arch-tag: 11e71f8e-3323-473e-95ce-e3e07e6197d8

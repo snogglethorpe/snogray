@@ -13,8 +13,10 @@
 #include <ostream>
 
 #include "util/nice-io.h"
+#include "tint.h"
 
 #include "tint-io.h"
+
 
 std::ostream&
 snogray::operator<< (std::ostream &os, const Tint &tint)
