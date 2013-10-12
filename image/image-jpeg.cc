@@ -17,10 +17,14 @@
 
 #include "image-jpeg.h"
 
+
 using namespace snogray;
 
+
 
-// Common code for libjpeg access
+// ----------------------------------------------------------------
+// JpegErrState: internal class for libjpeg error-handling
+
 
 JpegErrState::JpegErrState (const std::string &_filename)
   : err (false), err_filename (_filename)
@@ -89,8 +93,11 @@ JpegErrState::libjpeg_msg_handler (j_common_ptr cinfo)
   std::cerr << state->err_filename << ": " << buffer << std::endl;
 }
 
+
 
-// Output
+// ----------------------------------------------------------------
+// JpegImageSink: JPEG image output
+
 
 JpegImageSink::JpegImageSink (const std::string &filename,
 			      unsigned width, unsigned height,
@@ -148,6 +155,7 @@ JpegImageSink::JpegImageSink (const std::string &filename,
     jpeg_err.throw_err ();
 }
 
+
 JpegImageSink::~JpegImageSink ()
 {
   if (! jpeg_err.err)
@@ -157,6 +165,7 @@ JpegImageSink::~JpegImageSink ()
 
   fclose (stream);
 }
+
 
 void
 JpegImageSink::write_row (const ByteVec &byte_vec)
@@ -180,8 +189,11 @@ JpegImageSink::flush ()
   fflush (stream);
 }
 
+
 
-// Input
+// ----------------------------------------------------------------
+// JpegImageSource: JPEG image input
+
 
 JpegImageSource::JpegImageSource (const std::string &filename,
 				  const ValTable &params)
@@ -225,6 +237,7 @@ JpegImageSource::JpegImageSource (const std::string &filename,
   set_specs (jpeg_info.output_width, jpeg_info.output_height, pxfmt, 1);
 }
 
+
 JpegImageSource::~JpegImageSource ()
 {
   if (! jpeg_err.err)
@@ -234,6 +247,7 @@ JpegImageSource::~JpegImageSource ()
 
   fclose (stream);
 }
+
 
 void
 JpegImageSource::read_row (ByteVec &byte_vec)

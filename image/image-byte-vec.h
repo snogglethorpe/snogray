@@ -23,6 +23,11 @@
 namespace snogray {
 
 
+
+// ----------------------------------------------------------------
+// ByteVecImageIo
+
+
 // Common data and types for byte-vec image I/O.
 //
 class ByteVecImageIo
@@ -134,9 +139,14 @@ public:
   float target_gamma;
 };
 
-
-// Output
 
+
+// ----------------------------------------------------------------
+// ByteVecImageSink
+
+
+// Byte-oriented image output.
+//
 class ByteVecImageSink : public ImageSink, public ByteVecImageIo
 {
 public:
@@ -244,9 +254,14 @@ private:
   Random dither_noise;
 };
 
-
-// Input
 
+
+// ----------------------------------------------------------------
+// ByteVecImageSource
+
+
+// Byte-oriented image input.
+//
 class ByteVecImageSource : public ImageSource, public ByteVecImageIo
 {
 public:

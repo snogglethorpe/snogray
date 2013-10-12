@@ -20,6 +20,12 @@
 namespace snogray {
 
 
+// High-level image input.
+//
+// ImageInput is oriented around whole-image file input, has meta-info
+// about the image itself, and automatically chooses the right backend
+// from the format/filename.
+//
 class ImageInput
 {
 public:
@@ -63,7 +69,7 @@ public:
 
 }
 
-#endif /* SNOGRAY_IMAGE_INPUT_H */
+#endif // SNOGRAY_IMAGE_INPUT_H
 
 
 // arch-tag: 2c10d011-42a4-4ec4-b813-8e8f150c22ac

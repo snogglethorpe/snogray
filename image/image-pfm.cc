@@ -36,8 +36,12 @@
 
 #include "image-pfm.h"
 
+
 using namespace snogray;
 
+
+// Return true if words on this machine are stored in little-endian order.
+//
 static bool
 little_endian ()
 {
@@ -46,8 +50,11 @@ little_endian ()
   return u.c[0] == 0x78;
 }
 
+
 
-// Output
+// ----------------------------------------------------------------
+// PfmImageSink: PFM image output
+
 
 PfmImageSink::PfmImageSink (const std::string &filename,
 			    unsigned width, unsigned height,
@@ -64,10 +71,12 @@ PfmImageSink::PfmImageSink (const std::string &filename,
   outf << (little_endian() ? "-1" : "1") << "\n";
 }
 
+
 PfmImageSink::~PfmImageSink ()
 {
   outf.write (reinterpret_cast<char *>(&raster[0]), width * height * 12);
 }
+
 
 void
 PfmImageSink::write_row (const ImageRow &row)
@@ -86,8 +95,11 @@ PfmImageSink::write_row (const ImageRow &row)
   next_y++;
 }
 
+
 
-// Input
+// ----------------------------------------------------------------
+// PfmImageSource: PFM image input
+
 
 PfmImageSource::PfmImageSource (const std::string &filename,
 				const ValTable &params)
@@ -98,7 +110,7 @@ PfmImageSource::PfmImageSource (const std::string &filename,
 
   inf.read (magic, 3);
   if (magic[0] != 'P' || magic[1] != 'F' || magic[2] != '\n')
-    throw bad_format ("not a PMF file");
+    throw bad_format ("not a PFM file");
 
   float scale;
 
@@ -116,6 +128,7 @@ PfmImageSource::PfmImageSource (const std::string &filename,
 
   inf.read (reinterpret_cast<char *>(&raster[0]), width * height * 12);
 }
+
 
 void
 PfmImageSource::read_row (ImageRow &row)

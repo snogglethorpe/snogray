@@ -25,6 +25,8 @@
 namespace snogray {
 
 
+// Image output from a point-sampled source.
+//
 class ImageSampledOutput
 {
 public:

@@ -17,11 +17,16 @@
 #include <vector>
 
 #include "util/snogmath.h"
-#include "color/tint.h"
 #include "util/val-table.h"
+#include "color/tint.h"
 
 
 namespace snogray {
+
+
+
+// ----------------------------------------------------------------
+// ImageRow
 
 
 // A row in an image.
@@ -67,8 +72,11 @@ public:
   unsigned width;
 };
 
+
 
+// ----------------------------------------------------------------
 // ImageIo
+
 
 // Common superclass for ImageSink and ImageSource.  Mainly provides space
 // to hold various fields.
@@ -154,6 +162,12 @@ public:
   unsigned width, height;
 };
 
+
+
+// ----------------------------------------------------------------
+// ImageIo::RowIndices
+
+
 // An object describing the row indices of the first and last (in
 // read/write order) rows in an image file, where 0 is the index of
 // the top row of the image, and HEIGHT-1 is the index of the bottom
@@ -217,9 +231,14 @@ ImageIo::row_indices () const
     return RowIndices (height - 1, 0);
 }
 
-
-// Image output
 
+
+// ----------------------------------------------------------------
+// ImageSink
+
+
+// Low-level image output.
+//
 class ImageSink : public ImageIo
 {
 public:
@@ -257,9 +276,14 @@ protected:
   { }
 };
 
-
-// Image input
 
+
+// ----------------------------------------------------------------
+// ImageSource
+
+
+// Low-level image input.
+//
 class ImageSource : public ImageIo
 {
 public:

@@ -21,6 +21,9 @@
 
 namespace snogray {
 
+
+// A color in RGBE shared-exponent form.
+//
 struct RgbeColor
 {
   typedef unsigned char byte;
@@ -63,9 +66,9 @@ struct RgbeColor
   byte r, g, b, exp;
 };
 
-
-// Output
 
+// Radiance RGBE / .hdr format image output.
+//
 class RgbeImageSink : public ImageSink
 {  
 public:
@@ -88,9 +91,9 @@ private:
   std::vector<RgbeColor> row_buf;
 };
 
-
-// Input
 
+// Radiance RGBE / .hdr format image input.
+//
 class RgbeImageSource : public ImageSource
 {  
 public:
@@ -111,9 +114,10 @@ private:
   std::vector<RgbeColor> row_buf;
 };
 
+
 }
 
-#endif /* SNOGRAY_IMAGE_RGBE_H */
+#endif // SNOGRAY_IMAGE_RGBE_H
 
 
 // arch-tag: 40458d24-baf7-45ab-a68a-141a761eb39d

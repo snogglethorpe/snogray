@@ -1,6 +1,6 @@
 // image-ppm.h -- PPM format image handling
 //
-//  Copyright (C) 2005-2007, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2011-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -40,9 +40,8 @@ extern "C" {
 namespace snogray {
 
 
-
-// Output
-
+// PPM image output.
+//
 class PpmImageSink : public ByteVecImageSink
 {
 public:
@@ -86,9 +85,8 @@ private:
 };
 
 
-
-// Input
-
+// PPM image input.
+//
 class PpmImageSource : public ByteVecImageSource
 {  
 public:

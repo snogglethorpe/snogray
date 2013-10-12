@@ -1,6 +1,6 @@
 // image-png.h -- PNG format image handling
 //
-//  Copyright (C) 2005-2007, 2011, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2011, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,8 +19,17 @@
 
 #include "image-byte-vec.h"
 
+
 namespace snogray {
 
+
+
+// ----------------------------------------------------------------
+// PngErrState
+
+
+// Internal class for libpng error-handling.
+//
 class PngErrState
 {
 public:
@@ -41,6 +50,14 @@ public:
   const std::string &err_filename;
 };
 
+
+
+// ----------------------------------------------------------------
+// PngImageSink
+
+
+// PNG image output.
+//
 class PngImageSink : public ByteVecImageSink, PngErrState
 {  
 public:
@@ -67,6 +84,14 @@ private:
   FILE *stream;
 };
 
+
+
+// ----------------------------------------------------------------
+// PngImageSource
+
+
+// PNG image input.
+//
 class PngImageSource : public ByteVecImageSource, PngErrState
 {  
 public:
@@ -85,8 +110,10 @@ private:
   FILE *stream;
 };
 
+
 }
 
 #endif /* SNOGRAY_IMAGE_PNG_H */
+
 
 // arch-tag: fb6efedc-7ae1-433c-a703-59cafdfb9882

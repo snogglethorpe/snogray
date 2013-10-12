@@ -19,7 +19,9 @@ using namespace snogray;
 
 
 
-// Output
+// ----------------------------------------------------------------
+// PpmImageSink: PPM image input
+
 
 PpmImageSink::PpmImageSink (const std::string &filename,
 			    unsigned width, unsigned height,
@@ -57,6 +59,7 @@ PpmImageSink::~PpmImageSink ()
   ppm_freerow (output_row);
 }
 
+
 // Note that we override the ImageSink::read_row(ImageRow&), instead
 // of ByteVecImageSink::read_row(const ByteVec&) as is normal for
 // subclasses of ByteVecImageSink.  This because PPM has its own
@@ -82,8 +85,11 @@ PpmImageSink::write_row (const ImageRow &row)
   ppm_writeppmrow (stream, output_row, width, max_pixval, false/*force_plain*/);
 }
 
+
 
-// Input
+// ----------------------------------------------------------------
+// PpmImageSource: PPM image output
+
 
 PpmImageSource::PpmImageSource (const std::string &filename,
 				const ValTable &params)
@@ -125,6 +131,7 @@ PpmImageSource::~PpmImageSource ()
 {
   ppm_freerow (input_row);
 }
+
 
 // Note that we override the ImageSource::read_row(ImageRow&),
 // instead of ByteVecImageSource::read_row(ByteVec&) as is normal

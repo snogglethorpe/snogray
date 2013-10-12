@@ -1,6 +1,6 @@
 // image-tga.h -- TGA ("Targa") format image handling
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,6 +20,11 @@
 
 
 namespace snogray {
+
+
+
+// ----------------------------------------------------------------
+// TgaDefs
 
 
 // Common definitions for TGA input and output.
@@ -62,9 +67,14 @@ struct TgaDefs
   static const unsigned HDR_DESCRIPTOR_OFFS	  = 8+9; // 1 byte
 };
 
-
-// Output
 
+
+// ----------------------------------------------------------------
+// TgaImageSink
+
+
+// TGA image output.
+//
 class TgaImageSink : public ByteVecImageSink, TgaDefs
 {  
 public:
@@ -148,9 +158,14 @@ private:
   unsigned pixel_bytes;
 };
 
-
-// Input
 
+
+// ----------------------------------------------------------------
+// TgaImageSource
+
+
+// TGA image input.
+//
 class TgaImageSource : public ByteVecImageSource, TgaDefs
 {  
 public:

@@ -14,10 +14,14 @@
 
 #include "image-png.h"
 
+
 using namespace snogray;
 
+
 
-// Common code for libpng access
+// ----------------------------------------------------------------
+// PngErrState: Internal class for libpng error-handling
+
 
 void
 PngErrState::throw_libpng_err ()
@@ -41,8 +45,11 @@ PngErrState::libpng_err_handler (png_structp libpng_struct, const char *msg)
   longjmp (png_jmpbuf (libpng_struct), 1);
 }
 
+
 
-// Output
+// ----------------------------------------------------------------
+// PngImageSink: PNG image output
+
 
 PngImageSink::PngImageSink (const std::string &_filename,
 			    unsigned width, unsigned height,
@@ -110,6 +117,7 @@ PngImageSink::PngImageSink (const std::string &_filename,
   png_write_info (libpng_struct, libpng_info);
 }
 
+
 PngImageSink::~PngImageSink ()
 {
   if (!libpng_err && setjmp (png_jmpbuf (libpng_struct)) == 0)
@@ -122,6 +130,7 @@ PngImageSink::~PngImageSink ()
   if (libpng_err)
     throw_libpng_err ();
 }
+
 
 void
 PngImageSink::write_row (const ByteVec &byte_vec)
@@ -148,8 +157,11 @@ PngImageSink::flush ()
   fflush (stream);
 }
 
+
 
-// Input
+// ----------------------------------------------------------------
+// PngImageSource: PNG image input
+
 
 PngImageSource::PngImageSource (const std::string &_filename,
 				const ValTable &params)
@@ -249,6 +261,7 @@ PngImageSource::PngImageSource (const std::string &_filename,
   set_specs (_width, _height, pxfmt, _bytes_per_component);
 }
 
+
 PngImageSource::~PngImageSource ()
 {
   if (!libpng_err && setjmp (png_jmpbuf (libpng_struct)) == 0)
@@ -261,6 +274,7 @@ PngImageSource::~PngImageSource ()
   if (libpng_err)
     throw_libpng_err ();
 }
+
 
 void
 PngImageSource::read_row (ByteVec &byte_vec)

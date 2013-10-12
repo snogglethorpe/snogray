@@ -58,6 +58,7 @@ ImageScaledOutput::write_row (const ImageRow &row)
   cur_src_y++;
 }
 
+
 
 // Helper functions for the constructor
 

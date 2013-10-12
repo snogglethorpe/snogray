@@ -1,6 +1,6 @@
 // image-tga.cc -- TGA ("Targa") format image handling
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,7 +19,9 @@ using namespace snogray;
 
 
 
-// Output
+// ----------------------------------------------------------------
+// TgaImageSink: TGA image output
+
 
 TgaImageSink::TgaImageSink (const std::string &filename,
 			    unsigned width, unsigned height,
@@ -68,7 +70,9 @@ TgaImageSink::TgaImageSink (const std::string &filename,
   outf.write (reinterpret_cast<char *> (header), HEADER_LENGTH);
 }
 
+
 TgaImageSink::~TgaImageSink () {}
+
 
 void
 TgaImageSink::write_row (const ByteVec &byte_vec)
@@ -219,8 +223,11 @@ TgaImageSink::write_rle_span (const ByteVec &byte_vec,
     }
 }
 
+
 
-// Input
+// ----------------------------------------------------------------
+// TgaImageSource: TGA image input
+
 
 TgaImageSource::TgaImageSource (const std::string &_filename,
 				const ValTable &params)
@@ -303,6 +310,7 @@ TgaImageSource::TgaImageSource (const std::string &_filename,
   //
   row_buf.assign (width * bytes_per_pixel, 0); // bytes per row
 }
+
 
 void
 TgaImageSource::read_row (ByteVec &byte_vec)

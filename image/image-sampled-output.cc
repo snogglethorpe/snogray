@@ -21,6 +21,7 @@
 
 using namespace snogray;
 
+
 
 
 // Create an ImageSampledOutput object for writing to FILENAME, with a size of
@@ -40,6 +41,25 @@ ImageSampledOutput::ImageSampledOutput (const std::string &filename,
 {
 }
 
+ImageSampledOutput::~ImageSampledOutput ()
+{
+  // Write as-yet unwritten rows
+  //
+  set_raw_min_y (height);
+  flush ();
+}
+
+
+
+// ImageSampledOutput::set_raw_min_y
+
+// Flush any buffered rows until the current minimum (buffered) row
+// is ImageSampledOutput::min_y.  Unlike set_min_sample_y, this
+// directly operates on the buffer, in the coordinate-system of the
+// output image, and does not add any adjustment for the filter
+// support or for any offset between the sample and output-image
+// coordinate-systems.
+//
 void
 ImageSampledOutput::set_raw_min_y (int new_min_y)
 {
@@ -105,13 +125,6 @@ ImageSampledOutput::set_raw_min_y (int new_min_y)
   ASSERT (min_y == new_min_y);
 }
 
-ImageSampledOutput::~ImageSampledOutput ()
-{
-  // Write as-yet unwritten rows
-  //
-  set_raw_min_y (height);
-  flush ();
-}
 
 
 // Low-level row handling
@@ -133,6 +146,7 @@ ImageSampledOutput::_row (int y)
 
   return *rows[y - min_y];
 }
+
 
 
 // ImageSampledOutput::add_sample

@@ -46,8 +46,11 @@ TupleMatrixData<DT>::TupleMatrixData (unsigned _tuple_len,
   load (src, params);
 }
 
+
 
+// ----------------------------------------------------------------
 // Color / tuple translation
+
 
 // Return a color from the tuple at location X, Y; if the tuple length
 // is not the same as a Color, only Color::TUPLE_LEN members are returned,
@@ -95,8 +98,11 @@ TupleMatrixData<DT>::set_pixel (unsigned x, unsigned y, const Color &col)
     t[i] = 0;
 }
 
+
 
+// ----------------------------------------------------------------
 // Input loading
+
 
 template<typename DT>
 void
@@ -192,7 +198,11 @@ TupleMatrixData<DT>::save (ImageScaledOutput &out, const ValTable &) const
     }
 }
 
+
 
+// ----------------------------------------------------------------
+// TupleMatrixData sub-image constructor
+
 
 // Constructor for extracting a sub-image of BASE
 //

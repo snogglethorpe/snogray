@@ -1,6 +1,6 @@
 // image-pfm.h -- PFM ("Portable Float Map") format image handling
 //
-//  Copyright (C) 2005, 2006, 2007, 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -20,6 +20,9 @@
 
 namespace snogray {
 
+
+// PFM image output.
+//
 class PfmImageSink : public ImageSink
 {  
 public:
@@ -43,6 +46,9 @@ private:
   unsigned next_y;
 };
 
+
+// PFM image input.
+//
 class PfmImageSource : public ImageSource
 {  
 public:
@@ -79,9 +85,10 @@ private:
   unsigned next_y;
 };
 
+
 }
 
-#endif /* SNOGRAY_IMAGE_PFM_H */
+#endif // SNOGRAY_IMAGE_PFM_H
 
 
 // arch-tag: d5e5373d-68c5-4086-bc9b-add7f13e3e26

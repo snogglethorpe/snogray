@@ -18,8 +18,8 @@
 #include <vector>
 
 #include "util/ref.h"
-#include "color/color.h"
 #include "util/val-table.h"
+#include "color/color.h"
 #include "tuple-adaptor.h"
 
 // Use OpenEXR "half" datatype as default matrix storage element if possible.
@@ -28,11 +28,13 @@
 # include <half.h>
 #endif
 
+
 namespace snogray {
 
 
 class ImageInput;
 class ImageScaledOutput;
+
 
 // Use OpenEXR "half" datatype for default matrix storage element if possible.
 //
@@ -42,7 +44,11 @@ typedef half default_tuple_element_type;
 typedef float default_tuple_element_type;
 #endif
 
+
 
+// ----------------------------------------------------------------
+// TupleMatrixData
+
 
 // This is the low-level storage class for tuple matrices, holding a matrix
 // of "data" values of type DT, grouped into fixed-length tuples.
@@ -127,6 +133,7 @@ public:
   //
   const unsigned width, height;
 
+
 private:
 
   // Return a color from the tuple at location X, Y; if the tuple length is
@@ -144,7 +151,11 @@ private:
   std::vector<DT> data;
 };
 
+
 
+// ----------------------------------------------------------------
+// TupleMatrix
+
 
 // This is the high-level tuple-matrix class, a matrix of values of type T.
 //
@@ -204,6 +215,6 @@ public:
 #include "tuple-matrix.tcc"
 
 
-#endif /* SNOGRAY_TUPLE_MATRIX_H */
+#endif // SNOGRAY_TUPLE_MATRIX_H
 
 // arch-tag: 810abe16-816a-4fe0-a417-ab25c4f306ac

@@ -1,6 +1,6 @@
 // image-exr.cc -- EXR format image handling
 //
-//  Copyright (C) 2005-2008, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -15,8 +15,11 @@
 
 using namespace snogray;
 
+
 
-// output
+// ----------------------------------------------------------------
+// ExrImageSink: EXR image output
+
 
 ExrImageSink::ExrImageSink (const std::string &filename,
 			    unsigned width, unsigned height,
@@ -31,6 +34,7 @@ ExrImageSink::ExrImageSink (const std::string &filename,
   if (params.contains ("gamma"))
     open_err ("OpenEXR format does not use gamma correction");
 }
+
 
 void
 ExrImageSink::write_row (const ImageRow &row)
@@ -53,8 +57,11 @@ ExrImageSink::write_row (const ImageRow &row)
   cur_y++;
 }
 
+
 
-// input
+// ----------------------------------------------------------------
+// ExrImageSource: EXR image input
+
 
 ExrImageSource::ExrImageSource (const std::string &filename,
 				const ValTable &params)

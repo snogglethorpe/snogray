@@ -1,6 +1,6 @@
 // image-jpeg.h -- JPEG format image handling
 //
-//  Copyright (C) 2005-2007, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -41,6 +41,14 @@
 
 namespace snogray {
 
+
+
+// ----------------------------------------------------------------
+// JpegErrState
+
+
+// Internal class for libjpeg error-handling.
+//
 class JpegErrState : public jpeg_error_mgr
 {
 public:
@@ -94,6 +102,14 @@ private:
   static void libjpeg_msg_handler (j_common_ptr cinfo);
 };
 
+
+
+// ----------------------------------------------------------------
+// JpegImageSink
+
+
+// JPEG image output.
+//
 class JpegImageSink : public ByteVecImageSink
 {  
 public:
@@ -123,6 +139,14 @@ private:
   JpegErrState jpeg_err;
 };
 
+
+
+// ----------------------------------------------------------------
+// JpegImageSource
+
+
+// JPEG image input.
+//
 class JpegImageSource : public ByteVecImageSource
 {  
 public:
@@ -142,9 +166,10 @@ private:
   JpegErrState jpeg_err;
 };
 
+
 }
 
-#endif /* SNOGRAY_IMAGE_JPEG_H */
+#endif // SNOGRAY_IMAGE_JPEG_H
 
 
 // arch-tag: 354fa041-9c04-419b-a6e5-5c76fb3734cb

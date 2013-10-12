@@ -18,10 +18,14 @@
 
 #include "image-byte-vec.h"
 
+
 using namespace snogray;
 
+
 
+// ----------------------------------------------------------------
 // ByteVecImageIo constructor
+
 
 ByteVecImageIo::ByteVecImageIo (const ValTable &params)
   //
@@ -109,8 +113,11 @@ ByteVecImageIo::ByteVecImageIo (const ValTable &params)
   set_pixel_format (pxfmt, comp_bytes, comp_bits);
 }
 
+
 
+// ----------------------------------------------------------------
 // ByteVecImageIo::set_pixel_format
+
 
 // Set the pixel format.  BYTES_PER_COMPONENT is optional and
 // defaults to 1; BITS_PER_COMPONENT should be less than or equal to
@@ -155,8 +162,11 @@ ByteVecImageIo::set_pixel_format (PixelFormat pxfmt,
     pixel_format_name += stringify (bits_per_component);
 }
 
+
 
-// Output
+// ----------------------------------------------------------------
+// ByteVecImageSink: Byte-oriented image output
+
 
 ByteVecImageSink::ByteVecImageSink (const std::string &filename,
 				    unsigned width, unsigned height,
@@ -169,6 +179,7 @@ ByteVecImageSink::ByteVecImageSink (const std::string &filename,
     dither (params.get_bool ("dither", true))
 {
 }
+
 
 void
 ByteVecImageSink::write_row (const ImageRow &row)
@@ -258,8 +269,11 @@ ByteVecImageSink::color_component_to_int (component_t com)
   return unsigned (com);
 }
 
+
 
-// Input
+// ----------------------------------------------------------------
+// ByteVecImageSource: Byte-oriented image input
+
 
 ByteVecImageSource::ByteVecImageSource (const std::string &filename,
 					const ValTable &params)
@@ -267,6 +281,7 @@ ByteVecImageSource::ByteVecImageSource (const std::string &filename,
     component_scale (1 / component_t ((1 << bits_per_component) - 1)),
     input_row (0)
 { }
+
 
 void
 ByteVecImageSource::set_specs (unsigned _width, unsigned _height,

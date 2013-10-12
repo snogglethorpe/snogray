@@ -1,6 +1,6 @@
 // image-scaled-output.h -- Output of scaled images
 //
-//  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -48,6 +48,7 @@ public:
   using ImageSampledOutput::height;
   using ImageSampledOutput::intensity_scale;
   using ImageSampledOutput::intensity_power;
+
 
 private:
 

@@ -1,7 +1,7 @@
 // image-input-cmdline.h -- Support for command-line parsing of
 //	input image parameters
 //
-//  Copyright (C) 2005-2007, 2009-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2007, 2009-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,6 +13,8 @@
 
 #ifndef SNOGRAY_IMAGE_CMDLINE_H
 #define SNOGRAY_IMAGE_CMDLINE_H
+
+#include "cli/cmdlineparser.h"
 
 
 #define IMAGE_INPUT_OPTIONS_HELP "\

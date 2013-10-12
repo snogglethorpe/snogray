@@ -1,6 +1,6 @@
 // image-rgbe.cc -- Radiance RGBE / .hdr (aka .pic) format image handling
 //
-//  Copyright (C) 2006-2009, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2009, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -53,8 +53,11 @@
 
 using namespace snogray;
 
+
 
-// Output
+// ----------------------------------------------------------------
+// RgbeImageSink: Radiance RGBE / .hdr format image output.
+
 
 RgbeImageSink::RgbeImageSink (const std::string &filename,
 			      unsigned width, unsigned height,
@@ -69,6 +72,7 @@ RgbeImageSink::RgbeImageSink (const std::string &filename,
   outf << "\n";
   outf << "-Y " << height << " +X " << width << "\n";
 }
+
 
 void
 RgbeImageSink::write_rle_component (byte RgbeColor::*component)
@@ -157,8 +161,11 @@ RgbeImageSink::write_row (const ImageRow &row)
   write_rle_component (&RgbeColor::exp);
 }
 
+
 
-// Input
+// ----------------------------------------------------------------
+// RgbeImageSource: Radiance RGBE / .hdr format image input.
+
 
 RgbeImageSource::RgbeImageSource (const std::string &filename,
 				  const ValTable &params)
@@ -205,6 +212,7 @@ RgbeImageSource::RgbeImageSource (const std::string &filename,
 
   row_buf.resize (width);
 }
+
 
 void
 RgbeImageSource::read_rle_component (byte RgbeColor::*component)
