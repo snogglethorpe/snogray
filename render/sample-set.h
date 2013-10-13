@@ -1,6 +1,6 @@
 // sample-set.h -- Set of samples
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,6 +19,11 @@
 
 
 namespace snogray {
+
+
+
+// ----------------------------------------------------------------
+// SampleSet
 
 
 // A set of samples.  There are zero or more channels, each holding the
@@ -114,6 +119,7 @@ public:
   //
   unsigned num_samples;
 
+
 private:
 
   // Returns an iterator pointing into sample space for samples of type
@@ -142,6 +148,7 @@ private:
   std::vector<Channel<float> > float_channels;
   std::vector<Channel<UV> > uv_channels;
 
+
 public:
 
   // Sample generator used to generate the actual sample values.
@@ -153,8 +160,11 @@ public:
   Random &random;
 };
 
+
 
+// ----------------------------------------------------------------
 // SampleSet::Channel
+
 
 // A single sample channel.  Sample channels are typed, so they can only
 // contain a single type of sample (the available types of samples are
@@ -182,6 +192,7 @@ public:
   //
   unsigned size;
 
+
 private:
 
   friend class SampleSet;
@@ -208,8 +219,11 @@ private:
   unsigned num_total_samples;
 };
 
+
 
+// ----------------------------------------------------------------
 // SampleSet::Sample
+
 
 // A reference to a single top-level sample in a sample-set.
 //
@@ -264,8 +278,11 @@ public:
   unsigned sample_num;
 };
 
+
 
+// ----------------------------------------------------------------
 // SampleSet inline method definitions
+
 
 // Return sample for top-level sample SAMPLE_NUM, and sub-sample
 // SUB_SAMPLE_NUM, from the sample channel CHANNEL.  SUB_SAMPLE_NUM
@@ -349,8 +366,11 @@ SampleSet::add_channel_vec (unsigned size, unsigned num_sub_samples)
   return vec;
 }
 
+
 
+// ----------------------------------------------------------------
 // Template specializations
+
 
 //
 // Declarations for specialized SampleSet::add_sample_space methods.
