@@ -154,6 +154,12 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
   //
   Color path_transmittance = 1;
 
+  // The factor by which the true path transmittance differs from
+  // PATH_TRANSMITTANCE due to the latter being boosted by
+  // russian-roulette.
+  //
+  float rr_true_path_transmittance_ratio = 1;
+
   // True if we followed a specular sample from the previous path
   // vertex.
   //
@@ -338,25 +344,37 @@ PathInteg::Li (const Ray &ray, const Media &orig_media,
 	  // We make it proportional to the current path transmittance
 	  // so that paths with high-transmittance, which have a
 	  // bigger effect on the final result, will be explored
-	  // farther.
+	  // farther.  As we want the probability to be proportional
+	  // to _true_ path-transmittance, we undo any changes in
+	  // PATH_TRANSMITTANCE from previous RR, by multiplying by
+	  // RR_TRUE_PATH_TRANSMITTANCE_RATIO.
 	  //
-	  float rr_continue_prob = min (1.f, path_transmittance.intensity ());
+	  float rr_continue_prob = min ((path_transmittance.intensity ()
+					 * rr_true_path_transmittance_ratio),
+					1.f);
 	  float russian_roulette = context.random ();
 	  
 	  if (russian_roulette > rr_continue_prob)
 	    //
 	    // Terminated!
 	    break;
-	  else
-	    // Don't terminate.  Adjust PATH_TRANSMITTANCE to reflect
-	    // the fact that we tried.
-	    //
-	    // By dividing by the probability of continuation, which is
-	    // less than 1, we boost the intensity of paths that survive
-	    // russian-roulette, which will exactly compensate for the
-	    // zero value of paths that are terminated by it.
-	    //
-	    path_transmittance /= rr_continue_prob;
+
+	  // We didn't terminate.  Adjust PATH_TRANSMITTANCE to
+	  // reflect the fact that we tried.
+	  //
+	  // By dividing by the probability of continuation, which is
+	  // less than 1, we boost the intensity of paths that survive
+	  // russian-roulette, which will exactly compensate for the
+	  // zero value of paths that are terminated by it.
+	  //
+	  // We record in RR_TRUE_PATH_TRANSMITTANCE_RATIO the amount
+	  // by which true cumulative path transmittance differs form
+	  // the adjusted PATH_TRANSMITTANCE, so that we can compute
+	  // RR_COMPUTE_PROB properly in the future without
+	  // incorporating this adjustment.
+	  //
+	  path_transmittance /= rr_continue_prob;
+	  rr_true_path_transmittance_ratio *= rr_continue_prob;
 	}
       if (path_len == global.max_path_len)
 	break;
