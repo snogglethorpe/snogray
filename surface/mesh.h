@@ -13,7 +13,6 @@
 #ifndef SNOGRAY_MESH_H
 #define SNOGRAY_MESH_H
 
-#include <string>
 #include <vector>
 #include <map>
 
@@ -49,6 +48,7 @@ public:
   //
   typedef std::map<Pos, vert_index_t> VertexGroup;
   typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
+
 
   // Basic constructor.  Actual contents must be defined later.
   //
@@ -280,7 +280,7 @@ public:
 
 }
 
-#endif /* SNOGRAY_MESH_H */
+#endif // SNOGRAY_MESH_H
 
 
 // arch-tag: e9987003-cf70-4bd5-b30c-90620e2317ad
