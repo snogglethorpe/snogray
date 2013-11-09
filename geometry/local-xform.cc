@@ -1,6 +1,6 @@
 // local-xform.cc -- Local/world transformation helper class
 //
-//  Copyright (C) 2007, 2008, 2010  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2007, 2008, 2010, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -30,4 +30,13 @@ BBox
 LocalXform::unit_bbox () const
 {
   return local_to_world (BBox (Pos (-1, -1, -1), Pos (1, 1, 1)));
+}
+
+// Append XFORM to this transform.
+//
+void
+LocalXform::transform (const Xform &xform)
+{
+  local_to_world.transform (xform);
+  world_to_local = local_to_world.inverse ();
 }

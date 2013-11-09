@@ -133,4 +133,17 @@ PointLight::Sampler::eval (const Intersect &, const Vec &) const
 }
 
 
+
+// PointLight::transform
+
+
+// Transform the geometry of this light by XFORM.
+//
+void
+PointLight::transform (const Xform &xform)
+{
+  frame.transform (xform);
+}
+
+
 // arch-tag: 1ef7bd92-c1c5-4053-b4fb-f8a6bee1a1de

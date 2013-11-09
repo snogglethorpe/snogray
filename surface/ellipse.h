@@ -75,6 +75,10 @@ public:
   //
   virtual BBox bbox () const;
 
+  // Transform the geometry of this surface by XFORM.
+  //
+  virtual void transform (const Xform &xform);
+
   // Return a sampler for this surface, or zero if the surface doesn't
   // support sampling.  The caller is responsible for destroying
   // returned samplers.

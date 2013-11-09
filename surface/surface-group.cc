@@ -20,11 +20,11 @@ using namespace snogray;
 
 SurfaceGroup::~SurfaceGroup ()
 {
-  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+  for (std::vector<Surface *>::const_iterator si = surfaces.begin();
        si != surfaces.end(); ++si)
     delete *si;
 
-  for (std::vector<const Light *>::const_iterator li = lights.begin();
+  for (std::vector<Light *>::const_iterator li = lights.begin();
        li != lights.end(); ++li)
     delete *li;
 }
@@ -34,7 +34,7 @@ SurfaceGroup::~SurfaceGroup ()
 // Add SURFACE to this group.
 //
 void
-SurfaceGroup::add (const Surface *surface)
+SurfaceGroup::add (Surface *surface)
 {
   surfaces.push_back (surface);
   _bbox += surface->bbox ();
@@ -43,9 +43,24 @@ SurfaceGroup::add (const Surface *surface)
 // Add LIGHT to this group.
 //
 void
-SurfaceGroup::add (const Light *light)
+SurfaceGroup::add (Light *light)
 {
   lights.push_back (light);
+}
+
+
+// Transform the geometry of this surface by XFORM.
+//
+void
+SurfaceGroup::transform (const Xform &xform)
+{
+  for (std::vector<Surface *>::const_iterator si = surfaces.begin();
+       si != surfaces.end(); ++si)
+    (*si)->transform (xform);
+
+  for (std::vector<Light *>::const_iterator si = lights.begin();
+       si != lights.end(); ++si)
+    (*si)->transform (xform);
 }
 
 
@@ -55,7 +70,7 @@ SurfaceGroup::add (const Light *light)
 void
 SurfaceGroup::add_to_space (SpaceBuilder &space_builder) const
 {
-  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+  for (std::vector<Surface *>::const_iterator si = surfaces.begin();
        si != surfaces.end(); ++si)
     (*si)->add_to_space (space_builder);
 }
@@ -70,11 +85,11 @@ SurfaceGroup::add_light_samplers (const Scene &scene,
 				  std::vector<const Light::Sampler *> &samplers)
   const
 {
-  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+  for (std::vector<Surface *>::const_iterator si = surfaces.begin();
        si != surfaces.end(); ++si)
     (*si)->add_light_samplers (scene, samplers);
 
-  for (std::vector<const Light *>::const_iterator si = lights.begin();
+  for (std::vector<Light *>::const_iterator si = lights.begin();
        si != lights.end(); ++si)
     (*si)->add_light_samplers (scene, samplers);
 }
@@ -91,7 +106,7 @@ SurfaceGroup::add_light_samplers (const Scene &scene,
 void
 SurfaceGroup::accum_stats (Stats &stats, StatsCache &cache) const
 {
-  for (std::vector<const Surface *>::const_iterator si = surfaces.begin();
+  for (std::vector<Surface *>::const_iterator si = surfaces.begin();
        si != surfaces.end(); ++si)
     (*si)->accum_stats (stats, cache);
 

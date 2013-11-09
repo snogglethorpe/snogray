@@ -33,15 +33,19 @@ public:
 
   // Add SURFACE to this group.
   //
-  void add (const Surface *surface);
+  void add (Surface *surface);
 
   // Add LIGHT to this group.
   //
-  void add (const Light *light);
+  void add (Light *light);
 
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const { return _bbox; }
+
+  // Transform the geometry of this surface by XFORM.
+  //
+  virtual void transform (const Xform &xform);
 
   // Add Surface::Renderable objects associated with this surface to
   // the space being built by SPACE_BUILDER.
@@ -67,15 +71,16 @@ public:
   //
   virtual void accum_stats (Stats &stats, StatsCache &cache) const;
 
+
 private:
 
   // A list of the surfaces in this group.
   //
-  std::vector<const Surface *> surfaces;
+  std::vector<Surface *> surfaces;
 
   // A list of explicit lights in this group.
   //
-  std::vector<const Light *> lights;
+  std::vector<Light *> lights;
 
   // Cached bounding box for the entire group.
   //

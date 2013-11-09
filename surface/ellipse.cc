@@ -166,6 +166,16 @@ Ellipse::bbox () const
   return bbox;
 }
 
+// Transform the geometry of this surface by XFORM.
+//
+void
+Ellipse::transform (const Xform &xform)
+{
+  corner.transform (xform);
+  edge1.transform (xform);
+  edge2.transform (xform);
+}
+
 
 
 // Ellipse::Sampler

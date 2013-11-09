@@ -53,6 +53,11 @@ public:
 		 std::vector<const Light::Sampler *> &samplers)
     const;
 
+  // Transform the geometry of this light by XFORM.
+  //
+  virtual void transform (const Xform &xform);
+
+
 private:
 
   class Sampler;

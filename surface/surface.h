@@ -18,6 +18,7 @@
 
 #include "light/light.h"
 #include "geometry/bbox.h"
+#include "geometry/xform.h"
 
 
 namespace snogray {
@@ -47,6 +48,10 @@ public:
   // Return a bounding box for this surface.
   //
   virtual BBox bbox () const = 0;
+
+  // Transform the geometry of this surface by XFORM.
+  //
+  virtual void transform (const Xform &xform) = 0;
 
   // Add Surface::Renderable objects associated with this surface to
   // the space being built by SPACE_BUILDER.

@@ -191,6 +191,10 @@ public:
   //
   virtual BBox bbox () const { return _bbox; }
 
+  // Transform the geometry of this surface by XFORM.
+  //
+  virtual void transform (const Xform &xform);
+
   // Add statistics about this surface to STATS (see the definition of
   // Surface::Stats below for details).  CACHE is used internally for
   // coordination amongst nested surfaces.
@@ -200,10 +204,6 @@ public:
   // that is defined in C++.
   //
   virtual void accum_stats (Stats &stats, StatsCache &cache) const;
-
-  // Transform all vertices in the mesh by XFORM.
-  //
-  void transform (const Xform &xform);
 
 
 private:

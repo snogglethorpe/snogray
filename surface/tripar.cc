@@ -164,6 +164,16 @@ Tripar::bbox () const
   return bbox;
 }
 
+// Transform the geometry of this surface by XFORM.
+//
+void
+Tripar::transform (const Xform &xform)
+{
+  v0.transform (xform);
+  e1.transform (xform);
+  e2.transform (xform);
+}
+
 
 
 // Sphere::Sampler

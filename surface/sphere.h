@@ -70,6 +70,10 @@ public:
   //
   virtual BBox bbox () const;
 
+  // Transform the geometry of this surface by XFORM.
+  //
+  virtual void transform (const Xform &xform);
+
   // Add light-samplers for this surface in SCENE to SAMPLERS.  Any
   // samplers added become owned by the owner of SAMPLERS, and will be
   // destroyed when it is.

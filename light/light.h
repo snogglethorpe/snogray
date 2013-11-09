@@ -19,6 +19,7 @@
 #include "geometry/pos.h"
 #include "geometry/vec.h"
 #include "geometry/uv.h"
+#include "geometry/xform.h"
 
 
 namespace snogray {
@@ -43,6 +44,10 @@ public:
   virtual void add_light_samplers (const Scene &scene,
 				   std::vector<const Sampler *> &samplers)
     const = 0;
+
+  // Transform the geometry of this light by XFORM.
+  //
+  virtual void transform (const Xform &xform) = 0;
 };
 
 

@@ -92,7 +92,8 @@ namespace snogray {
 
   public:
 
-    virtual BBox bbox () const;
+    BBox bbox () const;
+    void transform (Xform &xform);
     SurfaceStats stats () const;
   };
 

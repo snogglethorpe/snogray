@@ -178,4 +178,17 @@ FarLight::Sampler::eval_environ (const Vec &dir) const
 }
 
 
+
+// FarLight::transform
+
+
+// Transform the geometry of this light by XFORM.
+//
+void
+FarLight::transform (const Xform &xform)
+{
+  frame.transform (xform);
+}
+
+
 // arch-tag: 879b496d-2a8d-4a7e-8d0a-f92d67d4f165

@@ -180,6 +180,14 @@ Sphere::bbox () const
 	       Pos (cent.x + radius, cent.y + radius, cent.z + radius));
 }
 
+// Transform the geometry of this surface by XFORM.
+//
+void
+Sphere::transform (const Xform &xform)
+{
+  frame.transform (xform);
+}
+
 // Add light-samplers for this primitive's shape, with with intensity
 // INTENSITY, to SAMPLERS.  An error will be signaled if this
 // primitive does not support lighting.

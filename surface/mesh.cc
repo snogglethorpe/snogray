@@ -881,7 +881,8 @@ Mesh::recalc_bbox ()
     _bbox = BBox ();		// empty (degenerate) bbox
 }
 
-// Transform all vertices in the mesh by XFORM.
+
+// Transform the geometry of this surface by XFORM.
 //
 void
 Mesh::transform (const Xform &xform)

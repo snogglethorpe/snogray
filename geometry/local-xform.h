@@ -1,6 +1,6 @@
 // local-xform.h -- Local/world transformation helper class
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -50,6 +50,10 @@ public:
   // appropriate bounding box for many uses).
   //
   BBox unit_bbox () const;
+
+  // Append XFORM to this transform.
+  //
+  void transform (const Xform &xform);
 
   // Transforms converting between world and local coordinates.
   //

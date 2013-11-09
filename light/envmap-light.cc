@@ -25,7 +25,7 @@ using namespace snogray;
 
 
 
-// Envmap::Sampler
+// EnvmapLight::Sampler
 
 class EnvmapLight::Sampler : public Light::Sampler
 {
@@ -264,6 +264,19 @@ EnvmapLight::Sampler::eval (const Intersect &isec, const Vec &dir) const
   pdf *= 0.25f * INV_PIf;
 
   return Value (intens, pdf, 0);
+}
+
+
+
+// EnvmapLight::transform
+
+
+// Transform the geometry of this light by XFORM.
+//
+void
+EnvmapLight::transform (const Xform &xform)
+{
+  frame.transform (xform);
 }
 
 

@@ -43,6 +43,10 @@ public:
   // an appropriate bounding box for many subclasses of LocalSurface.
   //
   virtual BBox bbox () const { return unit_bbox (); }
+
+  // Transform the geometry of this surface by XFORM.
+  //
+  virtual void transform (const Xform &xform) { LocalXform::transform (xform); }
 };
 
 
