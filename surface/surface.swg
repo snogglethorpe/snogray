@@ -25,21 +25,6 @@
 #include "surface/tessel-sphere.h"
 #include "surface/tessel-sinc.h"
 #include "surface/tessel-torus.h"
-
-// Static helper functions
-//
-namespace snogray {
-  static Mesh::VertexGroup *
-  mesh_vertex_group ()
-  {
-    return new Mesh::VertexGroup;
-  }
-  static Mesh::VertexNormalGroup *
-  mesh_vertex_normal_group ()
-  {
-    return new Mesh::VertexNormalGroup;
-  }
-}
 %}
 
 
@@ -186,6 +171,43 @@ namespace snogray {
     void add (Light *light_disown);
   };
 
+
+  // A wrapper for Mesh::VertexGroup (SWIG can't handle nested
+  // classes).
+  //
+  class MeshVertexGroup
+  {
+  public:
+    MeshVertexGroup ();
+  };
+  %{
+    namespace snogray {
+      class MeshVertexGroup : public Mesh::VertexGroup
+      {
+      public:
+	MeshVertexGroup () { }
+      };
+    }
+  %}
+
+  // A wrapper for Mesh::VertexNormalGroup (SWIG can't handle nested
+  // classes).
+  //
+  class MeshVertexNormalGroup
+  {
+  public:
+    MeshVertexNormalGroup ();
+  };
+  %{
+    namespace snogray {
+      class MeshVertexNormalGroup : public Mesh::VertexNormalGroup
+      {
+      public:
+	MeshVertexNormalGroup () { }
+      };
+    }
+  %}
+
   class Mesh : public Primitive
   {
   public:
@@ -194,20 +216,17 @@ namespace snogray {
 
     typedef unsigned vert_index_t;
 
-    typedef std::map<Pos, vert_index_t> VertexGroup;
-    typedef std::map<std::pair<Pos, Vec>, vert_index_t> VertexNormalGroup;
-
     void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i);
     void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2);
     void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       VertexGroup &vgroup);
+		       MeshVertexGroup &vgroup);
 
     vert_index_t add_vertex (const Pos &pos);
-    vert_index_t add_vertex (const Pos &pos, VertexGroup &vgroup);
+    vert_index_t add_vertex (const Pos &pos, MeshVertexGroup &vgroup);
 
     vert_index_t add_vertex (const Pos &pos, const Vec &normal);
     vert_index_t add_vertex (const Pos &pos, const Vec &normal,
-			     VertexNormalGroup &vgroup);
+			     MeshVertexNormalGroup &vgroup);
 
     vert_index_t add_normal (vert_index_t vert_index, const Vec &normal);
 
@@ -253,7 +272,7 @@ namespace snogray {
       return $self->add_vertex (snogray::Pos (x, y, z));
     }
     vert_index_t add_vertex (coord_t x, coord_t y, coord_t z,
-			     VertexGroup &vg)
+			     MeshVertexGroup &vg)
     {
       return $self->add_vertex (snogray::Pos (x, y, z), vg);
     }
@@ -265,7 +284,7 @@ namespace snogray {
     }
     vert_index_t add_vertex (coord_t x, coord_t y, coord_t z,
 			     dist_t nx, dist_t ny, dist_t nz,
-			     VertexNormalGroup &vng)
+			     MeshVertexNormalGroup &vng)
     {
       return $self->add_vertex (snogray::Pos (x, y, z),
 				snogray::Vec (nx, ny, nz),
@@ -278,6 +297,7 @@ namespace snogray {
       return $self->add_normal (vert_index, snogray::Vec (nx, ny, nz));
     }
   }
+
 
   // Simple interface to SphereTesselFun
   //

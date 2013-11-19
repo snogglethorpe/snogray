@@ -279,8 +279,8 @@ end
 
 surface.mesh = raw.Mesh
 
-surface.mesh_vertex_group = raw.mesh_vertex_group
-surface.mesh_vertex_normal_group = raw.mesh_vertex_normal_group
+surface.mesh_vertex_group = raw.MeshVertexGroup
+surface.mesh_vertex_normal_group = raw.MeshVertexNormalGroup
 
 -- Resize a mesh to fit in a 1x1x1 box, centered at the origin (but with
 -- the bottom at y=0).  Returns MESH.
