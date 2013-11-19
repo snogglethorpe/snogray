@@ -170,7 +170,10 @@ int main (int argc, char *const *argv)
 	    for (unsigned x = 0; x < src.width; x++)
 	      for (unsigned cc = 0; cc < Color::NUM_COMPONENTS; cc++)
 		if (row[x].color[cc] > hl_thresh)
-		  row[x].color[cc] *= hl_scale;
+		  {
+		    row[x].color *= hl_scale;
+		    break;
+		  }
 
 	  dst.write_row (row);
 	}
