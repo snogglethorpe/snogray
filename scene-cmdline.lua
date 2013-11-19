@@ -1,6 +1,6 @@
 -- scene-cmdline.lua -- Command-line options for scene manipulation
 --
---  Copyright (C) 2012  Miles Bader <miles@gnu.org>
+--  Copyright (C) 2012, 2013  Miles Bader <miles@gnu.org>
 --
 -- This source code is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -116,7 +116,7 @@ function scene_cmdline.apply (scene_params, scene)
 	    bg_orient = string.lower (bg_orient)
 
 	    local new_axis, new_handedness, rotation_delta
-	       = smatch (bg_orient, "([xyz]?)([rl]?)([0-9.]*)")
+	       = smatch (bg_orient, "([xyz]?)([rl]?)(-?[0-9.]*)")
 
 	    if rotation_delta ~= '' then
 	       rotation_delta = tonumber (rotation_delta)
