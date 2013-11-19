@@ -52,6 +52,10 @@ s "  -m, --highlight-scale=SCALE"
 s "                             Scale image highlights by a factor of SCALE"
 s "                               (default 5)"
 n
+s "  -u, --upper-portion-only[=FRACTION]"
+s "                             Only scale the upper FRACTION portion of the"
+s "                                image (default .5)"
+n
 s IMAGE_INPUT_OPTIONS_HELP
 n
 s IMAGE_SCALED_OUTPUT_OPTIONS_HELP
@@ -79,13 +83,14 @@ int main (int argc, char *const *argv)
   static struct option long_options[] = {
     { "highlight-threshold", required_argument, 0, 't' },
     { "highlight-scale", required_argument, 0, 'm' },
+    { "upper-portion-only", optional_argument, 0, 'u' },
     IMAGE_INPUT_LONG_OPTIONS,
     IMAGE_SCALED_OUTPUT_LONG_OPTIONS,
     CMDLINEPARSER_GENERAL_LONG_OPTIONS,
     { 0, 0, 0, 0 }
   };
   char short_options[] =
-    "t:m:"
+    "t:m:u::"
     IMAGE_INPUT_SHORT_OPTIONS
     IMAGE_SCALED_OUTPUT_SHORT_OPTIONS
     CMDLINEPARSER_GENERAL_SHORT_OPTIONS;
@@ -96,6 +101,7 @@ int main (int argc, char *const *argv)
   //
   ValTable src_params, dst_params;
   float hl_thresh = 0.95, hl_scale = 5;
+  float upper_portion_only = 1;
 
   // Parse command-line options
   //
@@ -108,6 +114,9 @@ int main (int argc, char *const *argv)
 	break;
       case 'm':
 	hl_scale = clp.float_opt_arg ();
+	break;
+      case 'u':
+	upper_portion_only = clp.float_opt_arg (0.5f);
 	break;
 
 	IMAGE_INPUT_OPTION_CASES (clp, src_params);
@@ -157,10 +166,11 @@ int main (int argc, char *const *argv)
 	{
 	  src.read_row (row);
 	  
-	  for (unsigned x = 0; x < src.width; x++)
-	    for (unsigned cc = 0; cc < Color::NUM_COMPONENTS; cc++)
-	      if (row[x].color[cc] > hl_thresh)
-		row[x].color[cc] *= hl_scale;
+	  if (upper_portion_only == 1 || y <  src.height * upper_portion_only)
+	    for (unsigned x = 0; x < src.width; x++)
+	      for (unsigned cc = 0; cc < Color::NUM_COMPONENTS; cc++)
+		if (row[x].color[cc] > hl_thresh)
+		  row[x].color[cc] *= hl_scale;
 
 	  dst.write_row (row);
 	}

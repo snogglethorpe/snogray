@@ -107,6 +107,21 @@ snoghilite
 
          Scale image highlights by a factor of SCALE (default 5)
 
+      -u[FRACTION]
+      --upper-portion-only[=FRACTION]
+
+         Only scale the upper FRACTION portion of the image (default .5).
+
+	 Some images which have both light sources and bright
+	 reflections which are both saturated.  In most cases the
+	 reflections should be much less bright than the light
+	 sources, but it's impossible to tell this from the image as
+	 both are saturated.  This option gives a simple way of
+	 handling the common case where the light sources are in the
+	 top portion of the image (lights, the sky), and the
+	 reflections are in the bottom portion (the floor, bodies of
+	 water).
+
       [See "COMMON COMMAND-LINE IMAGE OPTIONS" below for more options.]
 
 
