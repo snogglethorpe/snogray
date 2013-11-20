@@ -53,7 +53,7 @@ function stl.load (filename, mesh, part)
       local prev = fv[3]
       for i = 4, #fv do
 	 local vn = fv[i]
-	 mesh:add_triangle (fv[1], prev, vn, mat)
+	 triangle_vertex_indices:add (fv[1], prev, vn)
 	 prev = vn
       end
 
