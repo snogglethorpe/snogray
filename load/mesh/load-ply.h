@@ -27,9 +27,10 @@ class Material;
 class ValTable;
 
 
-// Load mesh from a .ply format mesh file into MESH.
+// Load mesh from a .ply format mesh file into MESH part PART.
 //
-extern void load_ply_file (const std::string &filename, Mesh &mesh,
+extern void load_ply_file (const std::string &filename,
+			   Mesh &mesh, Mesh::part_index_t part,
 			   const ValTable &params);
 
 

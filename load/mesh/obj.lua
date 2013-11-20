@@ -15,6 +15,8 @@ local obj = {}  -- module
 
 local lp = require 'lpeg'
 local lu = require 'snogray.lpeg-utils'
+local vector = require 'snogray.vector'
+
 
 -- obj-file comment or ignored command
 local COMMENT = lp.S"#go" * lu.LINE
@@ -22,21 +24,21 @@ local WS = lu.REQ_HORIZ_WS
 local OPT_WS = lu.OPT_HORIZ_WS
 
 
-function obj.load (filename, mesh, mat_map)
-   local mat = mat_map:get_default ()
-
+function obj.load (filename, mesh, part)
    -- .obj files use a right-handed coordinate system by convention.
    --
    mesh.left_handed = false
 
+   local vertices = vector.float ()
+   local normals = vector.float ()
+   local triangle_vertex_indices = vector.unsigned ()
+
    local function add_vert (x, y, z)
-      mesh:add_vertex (x, y, z)
+      vertices:add (x, y, z)
    end
 
-   local norm_index = 0
    local function add_norm (x, y, z)
-      mesh:add_normal (norm_index, x, y, z)
-      norm_index = norm_index + 1
+      normals:add (x, y, z)
    end
 
    -- We only support files where the normal indices are identical to
@@ -55,14 +57,14 @@ function obj.load (filename, mesh, mat_map)
       v2 = v2 - 1
       v3 = v3 - 1
 
-      mesh:add_triangle (v1, v2, v3, mat)
+      triangle_vertex_indices:add (v1, v2, v3)
 
       -- Add extra triangles for additional vertices
       --
       local prev = v3
       for i = 1, select ('#', ...) do
 	 local vn = select (i, ...) - 1
-	 mesh:add_triangle (v1, prev, vn, mat)
+	 triangle_vertex_indices:add (v1, prev, vn)
 	 prev = vn
       end
    end
@@ -87,6 +89,12 @@ function obj.load (filename, mesh, mat_map)
       = V_CMD + VN_CMD + F_CMD + MTLLIB_CMD + USEMTL_CMD + COMMENT + OPT_WS
 
    lu.parse_file (filename, CMD * lu.NL)
+
+   local base_vert = mesh:add_vertices (vertices)
+   if #normals > 0 then
+      mesh:add_normals (normals, base_vert)
+   end
+   mesh:add_triangles (part, triangle_vertex_indices, base_vert)
 end
 
 

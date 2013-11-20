@@ -975,15 +975,17 @@ function shapes.trianglemesh (state, params, mat)
    -- Make an empty mesh, initialized to "left-handed" to reflect
    -- PBRT's conventions.
    --
-   local M = surface.mesh (mat)
+   local M = surface.mesh ()
    M.left_handed = false;
+
+   local part = M:add_part (mat)
 
    -- Use bulk-add methods to add the vertices/normals/triangle/etc.
    -- This is a fair bit faster than doing it one-by-one, for large
    -- meshes.
    --
    local base_vert = M:add_vertices (points)
-   M:add_triangles (indices, base_vert)
+   M:add_triangles (part, indices, base_vert)
    if normals then
       M:add_normals (normals, base_vert)
    end

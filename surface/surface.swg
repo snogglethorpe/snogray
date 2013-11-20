@@ -212,14 +212,10 @@ namespace snogray {
   {
   public:
 
-    Mesh (const Ref<Material> &mat);
+    Mesh ();
 
+    typedef unsigned part_index_t;
     typedef unsigned vert_index_t;
-
-    void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i);
-    void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2);
-    void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		       MeshVertexGroup &vgroup);
 
     vert_index_t add_vertex (const Pos &pos);
     vert_index_t add_vertex (const Pos &pos, MeshVertexGroup &vgroup);
@@ -234,11 +230,20 @@ namespace snogray {
     void add_normals (const std::vector<float> &INPUT,
 		      vert_index_t base_vert);
     void add_uvs (const std::vector<float> &INPUT, vert_index_t base_vert);
-    void add_triangles (const std::vector<unsigned> &INPUT,
-			vert_index_t base_vert);
 
-    void reserve (unsigned num_verts, unsigned num_tris,
-		  bool with_normals = false);
+    unsigned add_part (const Ref<Material> &mat);
+    unsigned num_parts () const;
+
+    // XXX Due to a SWIG bug (overloads don't work with input
+    // typemaps), we can't use this method in overloaded form (SWIG
+    // implements optional arguments by using overloads), so we just
+    // make the (optional in C++) final argument mandatory.
+    //
+    void add_triangles (part_index_t part,
+    	 	        const std::vector<unsigned> &INPUT,
+    			vert_index_t base_vert /* = 0 */);
+
+    void reserve_vertices (unsigned num_verts);
     void reserve_normals ();
 
     void compute_vertex_normals (float max_angle = 45 * PIf / 180);

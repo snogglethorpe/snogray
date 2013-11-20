@@ -44,14 +44,16 @@
 namespace snogray {
 
 
-  void load_ply_file (const char *filename, Mesh &mesh,
+  void load_ply_file (const char *filename,
+		      Mesh &mesh, unsigned part,
 		      const ValTable &params);
 
-  void load_msh_file (const char *filename, Mesh &mesh,
+  void load_msh_file (const char *filename,
+		      Mesh &mesh, unsigned part,
 		      const ValTable &params);
 
   void load_3ds_file (const char *filename,
-       		      SurfaceGroup &scene, Camera &camera,
+		      SurfaceGroup &scene, Camera &camera,
 		      const ValTable &params);
   void load_3ds_file (const char *filename, Mesh &mesh,
 		      const ValTable &params);

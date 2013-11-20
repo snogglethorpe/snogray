@@ -16,6 +16,8 @@ local stl = {} -- module
 local lpeg = require 'lpeg'
 local lpeg_utils = require 'snogray.lpeg-utils'
 local surface = require 'snogray.surface'
+local vector = require 'snogray.vector'
+
 
 -- local abbreviations for lpeg primitives
 local P, R, S, C = lpeg.P, lpeg.R, lpeg.S, lpeg.C
@@ -27,11 +29,11 @@ local OPT_WS = lpeg_utils.OPT_WS
 local WS_FLOAT = HWS * lpeg_utils.FLOAT
 
 
-function stl.load (filename, mesh, mat_dict)
-   local mat = mat_dict:get_default ()
-
+function stl.load (filename, mesh, part)
    local facet_verts = {}
    local vg = surface.mesh_vertex_group ()
+
+   local triangle_vertex_indices = vector.unsigned ()
 
    local function add_vert (x, y, z)
       facet_verts[#facet_verts + 1] = mesh:add_vertex (x, y, z, vg)
@@ -44,7 +46,7 @@ function stl.load (filename, mesh, mat_dict)
 	 lpeg_utils.parse_err ("not enough vertices in facet")
       end
 
-      mesh:add_triangle (fv[1], fv[2], fv[3], mat)
+      triangle_vertex_indices:add (fv[1], fv[2], fv[3])
 
       -- Add extra triangles for additional vertices
       --
@@ -55,7 +57,11 @@ function stl.load (filename, mesh, mat_dict)
 	 prev = vn
       end
 
-      facet_verts = {}
+      -- clear FACET_VERTS
+      --
+      for i = 1, #fv do
+	 fv[i] = nil
+      end
    end
 
    local SYNC = OPT_WS * lpeg_utils.ERR_POS
@@ -79,6 +85,8 @@ function stl.load (filename, mesh, mat_dict)
          * P"end" * HWS * P"solid" * OPT_WS)
 
    lpeg_utils.parse_file (filename, SOLID)
+
+   mesh:add_triangles (part, triangle_vertex_indices, 0)
 end
 
 

@@ -1,6 +1,6 @@
 // tessel.cc -- Surface tessellation
 //
-//  Copyright (C) 2005, 2007, 2008, 2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005, 2007, 2008, 2012, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -61,14 +61,16 @@ Tessel::~Tessel ()
 
 // Tessel::Function methods
 
-// Tesselate this function and add the results to MESH, using
-// _MAX_ERR_CALC to calculate the maximum allowable error.
+// Tesselate this function and add the results to MESH part PART,
+// using _MAX_ERR_CALC to calculate the maximum allowable error.
 //
 void
-Tessel::Function::tessellate (Mesh *mesh, const MaxErrCalc &_max_err_calc) const
+Tessel::Function::tessellate (Mesh *mesh, Mesh::part_index_t part,
+			      const MaxErrCalc &_max_err_calc)
+  const
 {
   Tessel tes (*this, _max_err_calc);
-  tes.add_to_mesh (mesh);
+  tes.add_to_mesh (mesh, part);
 }
 
 
@@ -99,10 +101,10 @@ zero_vec (std::vector<T> &vec)
 }
 
 
-// Add the results of this tessellation to MESH.
+// Add the results of this tessellation to MESH part PART.
 //
 void
-Tessel::add_to_mesh (Mesh *mesh)
+Tessel::add_to_mesh (Mesh *mesh, Mesh::part_index_t part)
 {
   //
   // Add vertices
@@ -135,7 +137,7 @@ Tessel::add_to_mesh (Mesh *mesh)
       tri_vert_indices.push_back (ci->e3->beg->index);
     }
 
-  mesh->add_triangles (tri_vert_indices, base_vert);
+  mesh->add_triangles (part, tri_vert_indices, base_vert);
 
   zero_vec (tri_vert_indices);	// reclaim memory used by TRI_VERT_INDICES
 

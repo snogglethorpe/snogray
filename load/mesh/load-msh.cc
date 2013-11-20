@@ -25,10 +25,11 @@
 using namespace snogray;
 
 
-// Load mesh from a .msh format mesh file into MESH.
+// Load mesh from a .msh format mesh file into MESH part PART.
 //
 void
-snogray::load_msh_file (const std::string &filename, Mesh &mesh,
+snogray::load_msh_file (const std::string &filename,
+			Mesh &mesh, Mesh::part_index_t part,
 			const ValTable &)
 {
   std::ifstream stream (filename.c_str());
@@ -56,7 +57,7 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
       //
       stream >> num_triangles;
 
-      mesh.reserve (num_vertices, num_triangles);
+      mesh.reserve_vertices (num_vertices);
 
       stream >> kw;
       if (strcmp (kw, "vertices") != 0)
@@ -77,16 +78,16 @@ snogray::load_msh_file (const std::string &filename, Mesh &mesh,
       if (strcmp (kw, "triangles") != 0)
 	throw bad_format ();
 
+      std::vector<Mesh::vert_index_t> vert_indices;
+      vert_indices.reserve (num_triangles * 3);
       for (unsigned i = 0; i < num_triangles; i++)
+	for (unsigned v = 0; v < 3; v++)
 	{
-	  unsigned v0i, v1i, v2i;
-
-	  stream >> v0i;
-	  stream >> v1i;
-	  stream >> v2i;
-
-	  mesh.add_triangle (base_vert + v0i, base_vert + v1i, base_vert + v2i);
+	  unsigned vert_index;
+	  stream >> vert_index;
+	  vert_indices.push_back (vert_index);
 	}
+      mesh.add_triangles (part, vert_indices, base_vert);
 
       stream >> kw;
 

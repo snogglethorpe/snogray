@@ -101,6 +101,15 @@ struct TdsLoader
   void convert (Lib3dsNode *node, const Xform &xform = Xform::identity,
 		const Name *enclosing_names = 0);
 
+  // Add triangles to MESH with the material named MAT_NAME, and the
+  // vertex indices from TRI_VERT_INDS.  If there's an existing mesh
+  // part with the same material, the triangles are added to that
+  // part, otherwise a new part is added.
+  //
+  void add_triangles (Mesh *mesh,
+		      const std::vector<Mesh::vert_index_t> &tri_vert_inds,
+		      const char *mat_name, const Name *hier_names);
+
   void set_camera (Camera &camera, Lib3dsCamera *c, const Xform &xform);
 
   // Return a snogray material for a material reference to a material
@@ -354,10 +363,6 @@ TdsLoader::lookup_material (const char *name, const Name *hier_names)
   //
   if (!found_user_mapping && !mat)
     mat = user_materials.get_default ();
-#if 0
-  if (!found_user_mapping && !mat && single_mesh)
-    mat = &*single_mesh->material;
-#endif
 
   return mat;
 }
@@ -473,9 +478,11 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 
 	  Xform vert_xform = xform (Xform (X));
 
-	  // Get the actual mesh.
+	  // Get the actual mesh, creating one if necessary.
 	  //
 	  Mesh *mesh = single_mesh;
+	  if (! mesh)
+	    mesh = new Mesh ();
 
 	  // Keep track of smoothing flags applied to each vertex; we
 	  // must split vertices in case two faces with different
@@ -485,11 +492,20 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	  //
 	  std::vector<VertInfo> vert_info (m->points);
 
-	  // Simple cache to avoid the most repetitive material lookups.
+	  // We accumulate runs of triangles (in the form of their
+	  // vertices) with the same material name, and add them all
+	  // at once when we see some other name (or we finish).
 	  //
-	  Ref<const Material> cached_mat;
-	  char cached_mat_name[64]; // 64 is from the 3DS file standard
-	  cached_mat_name[0] = '\0';
+	  // CUR_MAT_NAME is the material name for the run we're
+	  // currently accumulating, and CUR_TRIANGLE_VERTEX_INDICES
+	  // are the triangle vertices.
+	  //
+	  char cur_mat_name[64]; // 64 is from the 3DS file standard
+	  cur_mat_name[0] = '\0';
+
+	  // Triangle vector indices for the current run of triangles.
+	  //
+	  std::vector<Mesh::vert_index_t> cur_triangle_vertex_indices;
 
 	  // Add all faces to the mesh.
 	  //
@@ -502,23 +518,16 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	      // define all their materials, so this should only occur
 	      // if the user has overridden some of the materials.
 	      //
-	      if (strcmp (f->material, cached_mat_name) != 0)
+	      if (strcmp (f->material, cur_mat_name) != 0)
 		{
-		  strcpy (cached_mat_name, f->material);
-		  cached_mat = lookup_material (f->material, &hier_names);
+		  if (! cur_triangle_vertex_indices.empty ())
+		    {
+		      add_triangles (mesh, cur_triangle_vertex_indices,
+				     cur_mat_name, &hier_names);
+		      cur_triangle_vertex_indices.clear ();
+		    }
+		  strcpy (cur_mat_name, f->material);
 		}
-	      if (! cached_mat)
-		continue;	// No material, don't use this face
-
-	      // Create the mesh if necessary.  This is the only time we
-	      // can actually set the material.
-	      //
-	      if (! mesh)
-		mesh = new Mesh (cached_mat);
-#if 0
-	      else if (&*cached_mat != &*mesh->material)
-		throw file_error ("Mesh cannot contain more than one material");
-#endif
 
 	      // Indices into vert_info for the vertices in this face.
 	      //
@@ -590,14 +599,18 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 		  vind[i] = vi;
 		}
 
-	      // Add the triangle!
+	      // Add the triangle vertices.
 	      //
-	      Mesh::vert_index_t v0 = vert_info[vind[0]].index;
-	      Mesh::vert_index_t v1 = vert_info[vind[1]].index;
-	      Mesh::vert_index_t v2 = vert_info[vind[2]].index;
-
-	      mesh->add_triangle (v0, v1, v2);
+	      for (unsigned i = 0; i < 3; i++)
+		cur_triangle_vertex_indices
+		  .push_back (vert_info[vind[0]].index);
 	    }
+
+	  // If there are any triangles we haven't added yet, add them now.
+	  //
+	  if (! cur_triangle_vertex_indices.empty ())
+	    add_triangles (mesh, cur_triangle_vertex_indices,
+			   cur_mat_name, &hier_names);
 
 	  // Compute vertex normals.  This turns on smoothing for the
 	  // whole mesh, but we made sure that only faces which should
@@ -610,6 +623,45 @@ TdsLoader::convert (Lib3dsNode *node, const Xform &xform,
 	}
     }
 }
+
+// Add triangles to MESH with the material named MAT_NAME, and the
+// vertex indices from TRI_VERT_INDS.  If there's an existing mesh
+// part with the same material, the triangles are added to that
+// part, otherwise a new part is added.
+//
+void
+TdsLoader::add_triangles (Mesh *mesh, 
+			  const std::vector<Mesh::vert_index_t> &tri_vert_inds,
+			  const char *mat_name, const Name *hier_names)
+{
+  // Get the actual material to use.
+  //
+  Ref<const Material> mat = lookup_material (mat_name, hier_names);
+
+  // If there's no material with the given name, just skip it.
+  //
+  if (! mat)
+    return;
+
+  unsigned num_parts = mesh->num_parts ();
+
+  // See if there's an existing mesh part with that material.
+  //
+  Mesh::part_index_t part;
+  for (part = 0; part < num_parts; part++)
+    if (mesh->material (part) == &*mat)
+      break;
+
+  // If we didn't find an existing part with that material, add a new part.
+  //
+  if (part == num_parts)
+    part = mesh->add_part (mat);
+
+  // Finally, actually add the triangles to the chosen part.
+  //
+  mesh->add_triangles (part, tri_vert_inds);
+}
+
 
 
 

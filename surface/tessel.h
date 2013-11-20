@@ -17,11 +17,12 @@
 #include <utility>		// for std::pair
 #include <vector>
 
+#include "util/llist.h"
+#include "util/freelist.h"
 #include "geometry/pos.h"
 #include "geometry/vec.h"
 #include "geometry/uv.h"
-#include "util/llist.h"
-#include "util/freelist.h"
+#include "mesh.h"
 
 
 namespace snogray {
@@ -70,9 +71,9 @@ public:
   };
 
 
-  // Add the results of this tessellation to MESH.
+  // Add the results of this tessellation to MESH part PART.
   //
-  void add_to_mesh (Mesh *mesh);
+  void add_to_mesh (Mesh *mesh, Mesh::part_index_t part);
 
 
   // A vertex is a point that's actually on the curve, and can be used
@@ -338,17 +339,19 @@ public:
 
   virtual ~Function () { }	// make gcc shut up
 
-  // Tesselate this function and add the results to MESH, using
-  // _MAX_ERR_CALC to calculate the maximum allowable error.
+  // Tesselate this function and add the results to MESH part PART,
+  // using _MAX_ERR_CALC to calculate the maximum allowable error.
   //
-  void tessellate (Mesh *mesh, const MaxErrCalc &_max_err_calc) const;
+  void tessellate (Mesh *mesh, Mesh::part_index_t part,
+		   const MaxErrCalc &_max_err_calc)
+    const;
 
-  // Tesselate this function and add the results to MESH, with a maximum
-  // allowable error of MAX_ERR.
+  // Tesselate this function and add the results to MESH part PART,
+  // with a maximum allowable error of MAX_ERR.
   //
-  void tessellate (Mesh *mesh, err_t max_err) const
+  void tessellate (Mesh *mesh, Mesh::part_index_t part, err_t max_err) const
   {
-    tessellate (mesh, ConstMaxErr (max_err));
+    tessellate (mesh, part, ConstMaxErr (max_err));
   }
 
   // Add normal vectors for the vertices in the list from VERTICES_BEG

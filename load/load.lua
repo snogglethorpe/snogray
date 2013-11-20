@@ -21,6 +21,7 @@ local filename = require 'snogray.filename'
 local raw = require 'snogray.snograw'
 
 
+
 ----------------------------------------------------------------
 -- Current load-file/directory management
 --
@@ -88,6 +89,7 @@ local function wrap_loader_with_cur_load_file_manager (loader)
 end
 
 
+
 ----------------------------------------------------------------
 -- Autoloading
 --
@@ -131,6 +133,7 @@ local function add_loader_autoload (loader_table, format, loader_module_name)
 end
 
 
+
 ----------------------------------------------------------------
 -- Common loader support functions
 --
@@ -151,6 +154,7 @@ local function add_loader (loader_table, format, fun)
 end
 
 
+
 ----------------------------------------------------------------
 -- Scene loading
 --
@@ -223,8 +227,88 @@ function load.add_scene_loader (format, fun)
 end
 
 
+
 ----------------------------------------------------------------
--- Mesh loading
+-- Mesh geometry loading
+--
+
+-- Table of mesh geometry loaders for various file extensions.
+--
+local mesh_geometry_loaders = {}
+
+
+-- Load mesh geometry from SCENE_FILE into MESH.  If PART_OR_MATERIAL
+-- is a number, then the geometry will be added to that mesh part,
+-- otherwise it should be a material, for which a new part will be
+-- added.
+--
+-- Return true for a successful load, false if SCENE_FILE is not
+-- recognized as loadable, or an error string if an error occured
+-- during loading.
+--
+function load.mesh_geometry (mesh_file, mesh, part_or_material, params)
+   params = params or {}
+
+   local fmt = params.format or filename.extension (mesh_file)
+   if fmt then
+
+      -- PART is the mesh part to load the geometry into.  If
+      -- MATERIAL_OR_PART is not a number, then we assume it's a
+      -- material and add a new part with that material.
+      --
+      local part
+      if type (part_or_material) == 'number' then
+	 -- mesh part
+	 part = part_or_material
+      else
+	 -- material, for which we add a new part
+	 part = mesh:add_part (part_or_material)
+      end
+
+      -- Call the loader.
+      --
+      fmt = string.lower (fmt)
+      local loader = mesh_geometry_loaders[fmt]
+      if loader then
+	 loader (mesh_file, mesh, part, params)
+      else
+	 error ("unknown mesh format \""..fmt.."\"", 0)
+      end
+   else
+      error ("cannot determine mesh format for \""..mesh_file.."\"", 0)
+   end
+end
+
+
+-- Add an "autoloader" for mesh file format FORMAT, which when invoked
+-- will require the Lua module LOADER_MODULE_NAME, and call a function
+-- called "load" in the module to do the loading.  At that time, it
+-- will also install the function into the mesh-loader table so that
+-- it will be called directly for subsequent mesh files of the same
+-- type.
+--
+function load.add_mesh_geometry_loader_autoload (format, loader_module_name)
+   add_loader_autoload (mesh_geometry_loaders, format, loader_module_name)
+end
+
+-- Add a loader to LOADER_TABLE for file format FORMAT, which loads it
+-- as if it had format ALIAS.
+--
+function load.add_mesh_geometry_loader_alias (format, alias)
+   add_loader_alias (mesh_geometry_loaders, format, alias)
+end
+
+-- Add a loader to LOADER_TABLE for file format FORMAT, which just
+-- calls FUN to do the loading.
+--
+function load.add_mesh_geometry_loader (format, fun)
+   add_loader (mesh_geometry_loaders, format, fun)
+end
+
+
+
+----------------------------------------------------------------
+-- Whole-mesh loading
 --
 
 -- Table of mesh loaders for various file extensions.
@@ -232,21 +316,20 @@ end
 local mesh_loaders = {}
 
 
--- Load a mesh from SCENE_FILE into MESH.
+-- Load mesh from SCENE_FILE into MESH.
 --
 -- Return true for a successful load, false if SCENE_FILE is not
 -- recognized as loadable, or an error string if an error occured
 -- during loading.
---
--- Note that this only handles formats loaded using Lua, not those
--- handled by the C++ core.  To load any supported format, use the
--- mesh "load" method.
 --
 function load.mesh (mesh_file, mesh, params)
    params = params or {}
 
    local fmt = params.format or filename.extension (mesh_file)
    if fmt then
+
+      -- Call the loader.
+      --
       fmt = string.lower (fmt)
       local loader = mesh_loaders[fmt]
       if loader then
@@ -286,6 +369,7 @@ function load.add_mesh_loader (format, fun)
 end
 
 
+
 ----------------------------------------------------------------
 -- Various loaders
 --
@@ -293,6 +377,10 @@ end
 local add_scene_loader = load.add_scene_loader
 local add_scene_loader_autoload = load.add_scene_loader_autoload
 local add_scene_loader_alias = load.add_scene_loader_alias
+
+local add_mesh_geometry_loader = load.add_mesh_geometry_loader
+local add_mesh_geometry_loader_autoload = load.add_mesh_geometry_loader_autoload
+local add_mesh_geometry_loader_alias = load.add_mesh_geometry_loader_alias
 
 local add_mesh_loader = load.add_mesh_loader
 local add_mesh_loader_autoload = load.add_mesh_loader_autoload
@@ -310,19 +398,24 @@ add_scene_loader_autoload ("pbrt", "snogray.loader.scene.pbrt")
 --
 add_scene_loader ("3ds", function (scene_file, environ)
 			    raw.load_3ds_file (scene_file,
-					       environ.scene, environ.camera)
+					       environ.scene, environ.camera,
+					       {})
 			 end)
 
 -- Mesh formats with Lua loaders.
 --
-add_mesh_loader_autoload ("obj", "snogray.loader.mesh.obj")
-add_mesh_loader_autoload ("ug", "snogray.loader.mesh.ug")
-add_mesh_loader_autoload ("stl", "snogray.loader.mesh.stl")
-
--- Mesh formats with C loaders.
+-- "obj" should actually be a full mesh loader, not a geometry loader,
+-- as .obj files can have embedded materials, but our current loader
+-- only handles geometry.
 --
-add_mesh_loader ("ply", raw.load_ply_file)
-add_mesh_loader ("msh", raw.load_msh_file)
+add_mesh_geometry_loader_autoload ("obj", "snogray.loader.mesh.obj")
+add_mesh_geometry_loader_autoload ("stl", "snogray.loader.mesh.stl")
+add_mesh_loader_autoload ("ug", "snogray.loader.mesh.ug")
+
+-- Mesh geometry formats with C loaders.
+--
+add_mesh_geometry_loader ("ply", raw.load_ply_file)
+add_mesh_geometry_loader ("msh", raw.load_msh_file)
 add_mesh_loader ("3ds", raw.load_3ds_file)
 
 

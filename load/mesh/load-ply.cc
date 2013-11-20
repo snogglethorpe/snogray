@@ -45,6 +45,8 @@ struct RplyState
 
   Mesh::vert_index_t last_vert_index;
 
+  std::vector<Mesh::vert_index_t> triangle_vertices;
+
   // Set if an error occurs in the rply library.
   //
   std::string err_str;
@@ -141,9 +143,11 @@ face_cb (p_ply_argument arg)
     s->vals[n] = ply_get_argument_value (arg);
 
   if (n == 2)
-    s->mesh.add_triangle (Mesh::vert_index_t (s->vals[0]) + s->base_vert_index,
-			  Mesh::vert_index_t (s->vals[1]) + s->base_vert_index,
-			  Mesh::vert_index_t (s->vals[2]) + s->base_vert_index);
+    {
+      s->triangle_vertices.push_back (s->vals[0]);
+      s->triangle_vertices.push_back (s->vals[1]);
+      s->triangle_vertices.push_back (s->vals[2]);
+    }
 
   return 1;
 }
@@ -151,10 +155,11 @@ face_cb (p_ply_argument arg)
 
 // Main loading function
 
-// Load mesh from a .ply format mesh file into MESH.
+// Load mesh from a .ply format mesh file into MESH part PART.
 //
 void
-snogray::load_ply_file (const std::string &filename, Mesh &mesh,
+snogray::load_ply_file (const std::string &filename,
+			Mesh &mesh, Mesh::part_index_t part,
 			const ValTable &)
 {
   // State used by all our call back functions.
@@ -184,13 +189,19 @@ snogray::load_ply_file (const std::string &filename, Mesh &mesh,
 	    = ply_set_read_cb (ply, "face", "vertex_indices",
 			       face_cb, cookie, 0);
 
-	  mesh.reserve (nverts, ntris);
+	  mesh.reserve_vertices (nverts);
+
+	  state.triangle_vertices.reserve (ntris * 3);
 
 	  // Ply files use a right-handed coordinate system by convention.
 	  //
 	  mesh.left_handed = false;
 
 	  ply_read (ply);
+
+	  mesh.add_triangles (part,
+			      state.triangle_vertices,
+			      state.base_vert_index);
 	}
 
       ply_close (ply);

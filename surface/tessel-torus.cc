@@ -124,9 +124,10 @@ Mesh *
 snogray::tessel_torus (const Ref<const Material> &mat,
 		       const Xform &xform, dist_t r2_frac, dist_t max_err)
 {
-  Mesh *mesh = new Mesh (mat);
+  Mesh *mesh = new Mesh ();
+  Mesh::part_index_t part = mesh->add_part (mat);
   TorusTesselFun fun (r2_frac, xform);
-  fun.tessellate (mesh, max_err);
+  fun.tessellate (mesh, part, max_err);
   return mesh;
 }
 

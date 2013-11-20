@@ -31,12 +31,19 @@ class Mesh : public Surface
 {
 public:
 
+  class Part;			// A set of triangles + a material
+
   typedef SPos MPos;		// position type used in mesh
   typedef SVec MVec;		// vector type used in mesh
 
   // Index of a vertex in the mesh.
   //
   typedef unsigned vert_index_t;
+
+  // Index of a mesh "part"; a mesh is divided into parts, each with
+  // its own material and set of faces.
+  //
+  typedef unsigned part_index_t;
 
   // A vertex group can be used to group vertices together.
   //
@@ -45,17 +52,10 @@ public:
 
   // Basic constructor.  Actual contents must be defined later.
   //
-  Mesh (const Ref<const Material> &mat)
-    : material (mat), axis (Vec (0, 0, 1)), left_handed (true)
-  { }
+  Mesh () : axis (Vec (0, 0, 1)), left_handed (true) { }
 
+  ~Mesh ();
 
-  // Add a triangle to the mesh.
-  //
-  void add_triangle (vert_index_t v0i, vert_index_t v1i, vert_index_t v2i);
-  void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2);
-  void add_triangle (const Pos &v0, const Pos &v1, const Pos &v2,
-		     VertexGroup &vgroup);
 
   // Add a vertex to the mesh (with no normal).
   //
@@ -127,19 +127,11 @@ public:
   //
   void add_uvs (const std::vector<float> &new_uvs, vert_index_t base_vert);
 
-  // Add new triangles to the mesh using vertices from TRI_VERT_INDICES.
-  // TRI_VERT_INDICES should contain three entries for each new triangle;
-  // the indices in TRI_VERT_INDICES are relative to BASE_VERT (which
-  // should be a value returned from an earlier call to
-  // Mesh::add_vertices).
-  //
-  void add_triangles (const std::vector<vert_index_t> &tri_vert_indices,
-		      vert_index_t base_vert);
-
   // Add Surface::Renderable objects associated with this surface to
   // the space being built by SPACE_BUILDER.
   //
   virtual void add_to_space (SpaceBuilder &space_builder) const;
+
 
   // Compute a normal vector for each vertex that doesn't already have one,
   // by averaging the normals of the triangles that use the vertex.
@@ -151,24 +143,25 @@ public:
   //
   void compute_vertex_normals (float max_angle = 45 * PIf / 180);
 
+
   Pos vertex (vert_index_t index) const { return Pos (vertices[index]); }
   Vec vertex_normal (vert_index_t index) const
   { return Vec (vertex_normals[index]); }
 
+
   unsigned num_vertices () const { return vertices.size (); }
-  unsigned num_triangles () const { return triangles.size (); }
+
+  // Return the number of triangles in all mesh parts.
+  //
+  unsigned num_triangles () const;
+
 
   // Resize the internal data structures in advance for NUM_VERTS more
-  // vertices and normals (if WITH_NORMALS is true), and NUM_TRIS more
-  // triangles.
+  // vertices.
   //
-  void reserve (unsigned num_verts, unsigned num_tris,
-		bool with_normals = false)
+  void reserve_vertices (unsigned num_verts)
   {
     vertices.reserve (num_vertices() + num_verts);
-    triangles.reserve (num_triangles() + num_tris);
-    if (with_normals)
-      vertex_normals.reserve (num_vertices() + num_verts);
   }
 
   // Resize the internal data structures so that room is reserved for as
@@ -186,6 +179,38 @@ public:
   {
     vertex_uvs.reserve (num_vertices ());
   }
+
+
+  // Add a new part to the mesh.  Each part has its own material and
+  // set of faces (all parts share the same vertices, normals, and
+  // uvs).
+  //
+  part_index_t add_part (const Ref<const Material> &mat);
+
+  // Add new triangles to mesh part PART, using vertices from
+  // TRI_VERT_INDICES.  TRI_VERT_INDICES should contain three entries
+  // for each new triangle; the indices in TRI_VERT_INDICES are
+  // relative to BASE_VERT (which should be a value returned from an
+  // earlier call to Mesh::add_vertices).  If there is no part PART,
+  // an error is signaled.
+  //
+  void add_triangles (part_index_t part,
+		      const std::vector<vert_index_t> &tri_vert_indices,
+		      vert_index_t base_vert = 0)
+    const;
+
+  // Return the number of mesh parts.
+  //
+  unsigned num_parts () const { return parts.size (); }
+
+  // Return a pointer to the material for mesh part PART.
+  //
+  // Note that this doesn't add a reference to the material, and is
+  // only valid while the mesh still exists (as the mesh holds
+  // references to all of its materials).
+  //
+  const Material *material (part_index_t part) const;
+
 
   // Return a bounding box for the entire mesh
   //
@@ -208,23 +233,13 @@ public:
 
 private:
 
-  // A single triangle in the mesh.
-  //
-  class Triangle;
-
   // Recalculate this mesh's bounding box.
   //
   void recalc_bbox ();
 
-  Ref<const Material> material;
-
   // A list of vertices used in this part.
   //
   std::vector<MPos> vertices;
-
-  // A vector of Mesh::Triangle surfaces that use this part.
-  //
-  std::vector<Triangle> triangles;
 
   // Vectors of various per-vertext properties.  In general, these vectors
   // may be empty (meaning the given property is not known), otherwise they
@@ -233,9 +248,14 @@ private:
   std::vector<MVec> vertex_normals;
   std::vector<UV> vertex_uvs;
 
+  // Parts of this mesh, one per material.
+  //
+  std::vector<Part *> parts;
+
   // Cached bounding box for the entire mesh.
   //
   BBox _bbox;
+
 
 public:
 
@@ -255,155 +275,6 @@ public:
   // and need to have their normals reversed.
   //
   bool left_handed;
-};
-
-
-
-// Mesh::Triangle
-
-// A single triangle in a Mesh.
-//
-class Mesh::Triangle : public Surface::Renderable
-{
-public:
-
-  friend class Mesh;
-
-  Triangle (const Mesh &_mesh) : mesh (_mesh) { }
-
-  Triangle (const Mesh &_mesh,
-	    vert_index_t v0i, vert_index_t v1i, vert_index_t v2i)
-    : mesh (_mesh)
-  {
-    vi[0] = v0i;
-    vi[1] = v1i;
-    vi[2] = v2i;
-  }
-
-  void operator= (const Triangle &triang)
-  {
-    vi[0] = triang.vi[0];
-    vi[1] = triang.vi[1];
-    vi[2] = triang.vi[2];
-  }
-
-  // If this surface intersects RAY, change RAY's maximum bound
-  // (Ray::t1) to reflect the point of intersection, and return a
-  // Surface::Renderable::IsecInfo object describing the intersection
-  // (which should be allocated using placement-new with CONTEXT);
-  // otherwise return zero.
-  //
-  virtual const IsecInfo *intersect (Ray &ray, RenderContext &context) const;
-
-  // Return true if this surface intersects RAY.
-  //
-  virtual bool intersects (const Ray &ray, RenderContext &context)
-    const;
-
-  // Return true if this surface completely occludes RAY.  If it does
-  // not completely occlude RAY, then return false, and multiply
-  // TOTAL_TRANSMITTANCE by the transmittance of the surface in medium
-  // MEDIUM.
-  //
-  // Note that this method does not try to handle non-trivial forms of
-  // transparency/translucency (for instance, a "glass" material is
-  // probably considered opaque because it changes light direction as
-  // well as transmitting it).
-  //
-  virtual bool occludes (const Ray &ray, const Medium &medium,
-			 Color &total_transmittance,
-			 RenderContext &context)
-    const;
-
-  // Return a bounding box for this surface.
-  //
-  virtual BBox bbox () const;
-
-  // Vertex NUM of this triangle
-  //
-  Pos v (unsigned num) const { return Pos (mesh.vertices[vi[num]]); }
-
-  // Normal of vertex NUM (assuming this mesh contains vertex normals!)
-  //
-  Vec vnorm (unsigned num) const
-  {
-    return Vec (mesh.vertex_normals[vi[num]]);
-  }
-
-  // UV value of vertex NUM (assuming this mesh contains vertex UV values!)
-  //
-  UV vuv (unsigned num) const
-  {
-    return mesh.vertex_uvs[vi[num]];
-  }
-
-  // These both return the "raw" normal of this triangle, not doing
-  // any normal interpolation.  Note that they return ordinary
-  // double-precision vectors, not the single-precision vectors used
-  // in the mesh (because most uses want the former).
-  //
-  const Vec raw_normal_unscaled () const
-  {
-    Vec e1 = v(1) - v(0), e2 = v(2) - v(0);
-    return mesh.left_handed ? cross (e2, e1) : cross (e1, e2);
-  }
-  const Vec raw_normal () const
-  {
-    return raw_normal_unscaled().unit ();
-  }
-
-private:
-
-  class IsecInfo;
-
-  // Return 2D texture-coordinate information for this triangle.
-  // The 2D texture-coordinate of vertex 0 (with barycentric
-  // coordinate 0,0) is returned in T0.  The change in 2D
-  // texture-coordinates between vertex 0 and vertex 1 (corresponding
-  // to barycentric coordinate "u") is returned in DTDU, and the
-  // change between vertex 0 and vertex 2 (corresponding to
-  // barycentric coordinate "v") is returned in DTDV.
-  //
-  void get_texture_params (UV &T0, UV &dTdu, UV &dTdv) const
-  {
-    // Texture-coordinates for the three vertices of the triangle.
-    //
-    // If this mesh doesn't have per-vertex UV values, a per-triangle
-    // mapping is used.
-    //
-    UV T1, T2;
-    if (mesh.vertex_uvs.empty ())
-      {
-	// The assignment of UV values to triangle vertices in the
-	// absence of UV-mapping information is fairly arbitrary.
-	//
-	// We just use a mapping compaible with PBRT, where the middle
-	// vertex of a triangle has UV coordinates 0,0, and the first
-	// and last vertices have coordinates 1,0 and 0,1
-	// respectively.
-
-	T0 = UV (1, 0);
-	T1 = UV (0, 0);
-	T2 = UV (0, 1);
-      }
-    else
-      {
-	T0 = vuv (0);
-	T1 = vuv (1);
-	T2 = vuv (2);
-      }
-
-    // Change in UV values for edge1 and edge2 of the triangle.
-    //
-    dTdu = T1 - T0;
-    dTdv = T2 - T0;
-  }
-
-  const Mesh &mesh;
-
-  // Indices into mesh vertices array
-  //
-  vert_index_t vi[3];
 };
 
 
