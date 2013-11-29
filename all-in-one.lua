@@ -58,6 +58,8 @@ all_in_one.cross = coord.cross
 --
 
 all_in_one.color = color.std
+all_in_one.grey = color.grey
+all_in_one.gray = color.gray
 
 
 ----------------------------------------------------------------
