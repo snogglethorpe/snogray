@@ -12,6 +12,7 @@
 
 #include "camera/camera.h"
 #include "material/media.h"
+#include "render/global-render-state.h"
 #include "render/scene.h"
 #include "render/sample-set.h"
 #include "render-packet.h"
