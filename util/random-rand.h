@@ -1,6 +1,6 @@
 // random-rand.h -- Random number classes using rand()
 //
-//  Copyright (C) 2010, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010, 2011, 2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -25,9 +25,12 @@ struct RNG
 {
   RNG () {}
   RNG (unsigned seed) { std::srand (seed); }
+  
   unsigned operator() () { return std::rand (); }
   unsigned min() { return 0; }
   unsigned max() { return RAND_MAX; }
+
+  void seed (unsigned seed = 1) { std::srand (seed); }
 };
 
 // A wrapper class that turns an unsigned-generating RNG into a RNG that

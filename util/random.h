@@ -1,6 +1,6 @@
 // random.h -- Random number classes
 //
-//  Copyright (C) 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2010-2013  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -50,6 +50,11 @@ public:
   // Return a random integer in the range [0, N).
   //
   unsigned operator() (unsigned n) { return rng () % n; }
+
+  // Re-seed this random number generator with integer seed SEED.
+  //
+  void seed (unsigned seed) { rng.seed (seed); }
+  void seed () { rng.seed (); }
 
   // Base random number generator.
   //
