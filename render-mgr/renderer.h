@@ -63,6 +63,17 @@ private:
   //
   SampleSet::Channel<UV> camera_samples;
   SampleSet::Channel<UV> focus_samples;
+
+  // If true, we re-seed the random number generator for every pixel,
+  // based on the pixel's coordinates.
+  //
+  // This yields (probably) somewhat worse results, and adds some
+  // slowdown (seeding the random-number-generator may not be fast),
+  // but can make debugging much easier as it makes rendering results
+  // for the same pixel consistent across runs, even when using
+  // multiple threads and doing partial renders.
+  //
+  bool per_pixel_random_seeds;
 };
 
 

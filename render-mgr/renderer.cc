@@ -27,7 +27,9 @@ Renderer::Renderer (const GlobalRenderState &_global_state,
   : camera (_camera), width (_width), height (_height),
     context (_global_state),
     camera_samples (context.samples.add_channel<UV> ()),
-    focus_samples (context.samples.add_channel<UV> ())
+    focus_samples (context.samples.add_channel<UV> ()),
+    per_pixel_random_seeds (
+      _global_state.params.get_bool ("per_pixel_random_seeds", false))
 {
 }
 
@@ -54,6 +56,12 @@ Renderer::render_packet (RenderPacket &packet)
        pi != packet.pixels.end (); ++pi)
     {
       UV pixel = *pi;
+
+      if (per_pixel_random_seeds)
+	{
+	  unsigned seed = unsigned (pixel.u) * 57123 + unsigned (pixel.v);
+	  context.random.seed (seed);
+	}
 
       samples.generate ();
 
