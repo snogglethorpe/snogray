@@ -1,6 +1,6 @@
 # Autoconf configuration for snogray
 #
-#  Copyright (C) 2006-2013  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2006-2014  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -51,7 +51,8 @@ USER_LDFLAGS=$LDFLAGS
 AC_PROG_CC
 AC_PROG_CXX
 
-AC_PROG_RANLIB
+AC_CHECK_TOOL([AR], [gcc-ar], [ar])
+AC_CHECK_TOOLS([RANLIB], [gcc-ranlib ranlib], [:])
 
 AC_PROG_AWK
 
