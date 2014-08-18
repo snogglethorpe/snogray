@@ -1,3 +1,143 @@
+v0.6
+
+    + The Lua interface has been modularized, replacing the previous
+      single global Lua namespace with various "snogray.xxx" modules.
+
+      The documentation for this has yet to be written, so look at
+      example scene files for usage hints.
+
+      The modules include "snogray.coord", "snogray.color",
+      "snogray.texture", "snogray.material", "snogray.surface",
+      "snogray.light", "snogray.transform", "snogray.image",
+      "snogray.scene", "snogray.camera", "snogray.environ",
+      "snogray.sys", "snogray.render", etc (many of these are not
+      particularly useful for scene definitions though).
+
+      By default, scene-files start with a set of pre-initialized module
+      variables, for "coord", "light", "material", "surface", "texture",
+      and "transform" (i.e., for each module "xxx", a Lua code snippet
+      like "xxx = require 'snogray.xxx'" is executed), and definitions
+      for the functions "pos" and "vec".
+
+      The old-style scene-definition interface can be enabled by putting
+      "snogray_old_style_scene_file ()" at the beginning of a Lua
+      scene-definition file.
+
+    + The "snogdiff" utility program now prints an image-comparison
+      summary to stdout if the input images were different, and if no
+      output is given on the command-line, no output image is produced.
+      This makes snogdiff useful just to compare images for equality.
+
+      The new snogdiff options -d/--delta and -m/--mse options allow the
+      threshold where images are considered identical to be specified
+      (by default, any difference at all is considered "non-identical").
+      The new -q/--quiet option controls whether any summary is printed.
+
+    + The new snoghilite option -u/--upper-portion-only only scales the
+      upper portion of the image (useful for some environment maps).
+
+    + The new snogray options --preload, --postload, --pre-eval, and
+      --post-eval can be used to load additional files or evaluate Lua
+      code before/after the main scene file.
+
+    + The new snogray --build-info option will print some information
+      about how snogray was built.
+
+    + The --preclamp=THRESH option has been added to the snogray
+      utility programs snogcvt, snogdiff, etc -- but notably, not
+      snogray itself.
+
+    + Filenames in scene-files are now interpreted relative to the
+      directory of the referencing file.
+
+    + The new snogray rendering-option (specified with the
+      -R/--render-options command-line option) "per_pixel_random_seeds"
+      re-seeds the random number generator for each pixel, using the
+      pixel location.  This makes it easier to get consistent results
+      across runs (at some possible cost in quality), which is useful
+      for debugging.
+
+    + Snogray "uninstalled mode" (running snogray out of the build tree
+      rather than from an installed location) has been improved.
+
+      Uninstalled mode now works when the current directory isn't the
+      snogray source directory, by looking at the directory of argv[0].
+
+      Also, it now uses uninstalled mode if argv[0] refers to a snogray
+      source-tree, even if there's also an installed version of snogray
+      present (it used to always use an installed snogray if found).
+
+    + Most documentation files are now in the subdirectory "doc/".
+
+    + The source-tree layout has been considerably cleaned up, with all
+      source files moved into subdirectories for various different
+      features (previous versions had a completely flat source-tree
+      layout!).
+
+    + The "driver" level of the program is now  written in Lua,
+      calling into C++ code to do most of the work.
+
+    + The image-filter parameter (e.g. used in the -F option) for the
+      half-width of the filter has been renamed to "radius", from "width."
+
+    + The "snogimg" utility program now has --help and --version options.
+
+    + "Coordinate" textures in Lua ("texture.x" etc) are now simple
+      values rather than functions.
+
+    + New Lua "snogray.vector" module is an interface to raw C++
+      float/int/unsigned vectors that can be passed to some primitives
+      instead of Lua tables.
+    
+      It is slightly faster than a Lua table, but more importantly, uses
+      much less memory and is cheaper to pass to C++ functions that
+      already take a std::vector argument.
+
+    + Lights may now be stored in surface-groups.
+
+    + Meshes now support multiple materials (the various internal mesh
+      creation interfaces have changed to support this, but have not
+      been finalized).
+
+    + Increase default minimum trace-length when using double coordinates.
+      The previous default value resulted in  artifacts during rendering.
+
+    + The new Surface::Renderable class now contains the
+      surface-rendering interface (previously this interface was just
+      part of the Surface class, which remains for use in scene
+      definition).
+
+    + The new Light::Sampler class now contains the light-rendering
+      interface (previously this interface was just part of the Light
+      class, which remains for use in scene definition).
+
+    + Octree improvements:  
+      + Searching is now done using "ray parametric form", instead of in
+        terms of absolute positions; this is both more efficient and
+        simpler.
+      + Search order now reflects the origin of the search ray, which in
+        some cases results in faster pruning of the search space.
+      + Reduce memory usage of Octree significantly by using offsets
+        instead of pointers when possible.  This helps when rendering
+        extremely large scenes, and also speeds up rendering generally
+        (probably due to better cache usage).
+      + The memory layout used for octrees has been changed to better
+        reflect rendering usage, resulting in runtime speedups.
+      + The Octree code has also been cleaned up and re-arranged a fair
+        bit, with all build-time methods moved into Octree::Builder
+        class.
+
+    + SWIG "disown" support (in SWIG 1.3.35 and later) is now required.
+
+    + LPeg updated to version 0.11.
+
+    + RPly updated to version 1.1.3.
+
+    + Compatibility with Lua versions up to 5.3.
+
+    + Many bug fixes and code cleanups.
+
+
 v0.5.3
 
     + Portability fixes.
