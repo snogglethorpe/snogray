@@ -1,6 +1,6 @@
 // ref.h -- Reference-counting framework
 //
-//  Copyright (C) 2005, 2006, 2007, 2008, 2011  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2011, 2014  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -47,10 +47,10 @@ public:
 
   Ref () : obj (0) { }
   Ref (T *_obj) : obj (_obj) { if (obj) obj->ref (); }
-  Ref (const Ref &ref) : obj (&*ref) { if (obj) obj->ref (); }
+  Ref (const Ref &ref) : obj (ref.obj) { if (obj) obj->ref (); }
 
   template<class T2>
-  Ref (const Ref<T2> &ref) : obj (&*ref) { if (obj) obj->ref (); }
+  Ref (const Ref<T2> &ref) : obj (ref.ptr ()) { if (obj) obj->ref (); }
 
   ~Ref () { if (obj) obj->deref (); }
 
@@ -64,6 +64,10 @@ public:
   // as a convenience to Lua, where doing that is not possible.
   //
   bool null () const { return !obj; }
+
+  // Return a pointer to the referenced object; it may be null.
+  //
+  T *ptr () const { return obj; }
 
   //operator T* () const { return obj; }
 
