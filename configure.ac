@@ -102,8 +102,8 @@ fi
 # whether it actually works later in this file.
 #
 AC_ARG_ENABLE([lto],
-    AS_HELP_STRING([--enable-lto],
-		   [Enable link-time optimization]),
+    AS_HELP_STRING([--disable-lto],
+		   [Disable link-time optimization]),
     [lto="$enableval"],
     [lto="yes"])
 
