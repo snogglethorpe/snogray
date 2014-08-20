@@ -442,7 +442,7 @@ AC_ARG_ENABLE([extern-template],
     AS_HELP_STRING([--enable-extern-template],
 		   [Enable use of C++ "extern template" extension]),
     [enable_extern_template="$enableval"],
-    [enable_extern_template=no])
+    [enable_extern_template=yes])
 
 have_extern_template="no"
 extern_template_extension_kw=""
