@@ -470,14 +470,11 @@ if test "$enable_extern_template" = yes; then
     fi
   done
 fi
-
-if test $have_extern_template = yes; then
-  AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
-	    [Define if C++ compiler supports "extern template" extension])
-  AC_DEFINE_UNQUOTED([EXTERN_TEMPLATE_EXTENSION],
-		     [$extern_template_extension_kw],
-		     [Prefix used before "extern template" (so that the compiler accepts it even in strict C++98 mode)])
-fi
+#
+# We've set have_extern_template, but we don't actually do any defines
+# based on that yet, as another test below may disable it.  The actual
+# defines are done near the end of this file.
+#
 
 
 # See if it's valid to cast a function pointer to void* using
@@ -1232,22 +1229,92 @@ if test "$GXX" = yes; then
     # linking, because, e.g. with clang, the compiler succeeds, but the
     # linker can't handle what it outputs.
     #
+    cxx_lto_broken=yes
     if test x"$CXX_LTO_FLAGS" != x; then
       _OLD_CXXFLAGS="$CXXFLAGS"
       CXXFLAGS="$CXX_LTO_FLAGS $CXXFLAGS"
       AC_MSG_CHECKING([whether compiler "$CXX_LTO_FLAGS" option is broken])
       AC_LINK_IFELSE(
 	[AC_LANG_SOURCE([int main () { return 0; }])],
-	[cxx_lto_broken=no],
-        [cxx_lto_broken=yes])
+	[cxx_lto_broken=no])
       AC_MSG_RESULT([$cxx_lto_broken])
       CXXFLAGS="$_OLD_CXXFLAGS"
+    fi
 
-      if test $cxx_lto_broken = no; then
-	CXX_OPT_FLAGS="$CXX_OPT_FLAGS $CXX_LTO_FLAGS"
-      fi
+    if test $cxx_lto_broken = no; then
+      CXX_OPT_FLAGS="$CXX_OPT_FLAGS $CXX_LTO_FLAGS"
+    else
+      # some other tests look at this later
+      lto=no
     fi
   fi
+
+
+  # Certain versions of gcc (at least, 4.9, and some trunk versions
+  # following that) have problems when "extern template" and -flto are
+  # used together together with some files _not_ using -flto.  Test
+  # for that condition and disable "extern template" if we detect it.
+  #
+  # This test requires compiling two source files with different
+  # options and linking them together, so we can't use the usual
+  # autoconf compilation-test macros; we just write our source code
+  # into some files and then run the compiler ourselves.
+  #
+  # As this test is only run when we know we're using gcc (or a
+  # workalike), we assume gcc options etc, and don't bother trying to
+  # be particularly portable.
+  #
+  broken_extern_template=no
+  if test $have_extern_template = yes && test "$lto" = yes; then
+    AC_MSG_CHECKING([whether "extern template" is broken])
+
+    # common header file
+    cat > conftest.h <<EOF
+template<typename T>
+struct B
+{
+  B (int c) : x (3), y(0), z(0) { while (c-- > 0) { y *= 1.5; } }
+  T x, y, z;
+};
+extern template class B<float>;
+EOF
+
+    # First source file, compiled using "-O1 -flto"
+    cat > conftest1.cc <<EOF
+#include "conftest.h"
+extern B<float> foo ();
+int main ()
+{
+  foo ();
+}
+template class B<float>;
+EOF
+
+    # Second source file, compiled using "-Os"
+    cat > conftest2.cc <<EOF
+#include "conftest.h"
+B<float> foo ()
+{
+  return B<float> (5);
+}
+EOF
+
+    if $CXX -c -O1 -flto conftest1.cc >&5 2>&1 &&
+       $CXX -c -Os conftest2.cc >&5 2>&1 &&
+       $CXX -o conftest-out conftest1.o conftest2.o >&5 2>&1
+    then
+      # success!
+      :
+    else
+      broken_extern_template=yes
+    fi
+
+    AC_MSG_RESULT([$broken_extern_template])
+  fi
+  if test $broken_extern_template = yes; then
+    have_extern_template=no
+  fi
+
 
   # g++ flags for architecture-independent floating-point optimization.
   #
@@ -1470,6 +1537,19 @@ else
   #
   AC_SUBST([CXX_OPT_FLAGS], [-O])
 
+fi
+
+
+# We define have_extern_template-related stuff here, now that we know
+# we're going to use it (after it's initially turne don, it can be
+# disabled later in the gcc-specific block).
+#
+if test $have_extern_template = yes; then
+  AC_DEFINE([HAVE_EXTERN_TEMPLATE], [1],
+	    [Define if C++ compiler supports "extern template" extension])
+  AC_DEFINE_UNQUOTED([EXTERN_TEMPLATE_EXTENSION],
+		     [$extern_template_extension_kw],
+		     [Prefix used before "extern template" (so that the compiler accepts it even in strict C++98 mode)])
 fi
 
 
