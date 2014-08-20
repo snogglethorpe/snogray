@@ -135,6 +135,12 @@ v0.6
 
     + Compatibility with Lua versions up to 5.3.
 
+    + Use of the C++ "extern template" feature is disabled by default,
+      because of bugs in gcc 4.9.  It may be enabled when running
+      configure, using the configure "--enable-extern-template" option.
+      [Note that the benefit of using "extern template" is fairly small
+      with modern compilers.]
+
     + Many bug fixes and code cleanups.
 
 
