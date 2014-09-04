@@ -431,6 +431,17 @@ SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS],
 CXXFLAGS="$CXXFLAGS $CXX_CHECK_FLAGS"
 
 
+# See if this compiler accepts a "-pthread" option, which gcc/clang
+# require to compile multi-threaded programs.  Other compiler
+# threading options could be tested for here too.
+#
+SNOGRAY_CHECK_CXX_FLAG([CXX_THREAD_FLAGS], [-pthread])
+#
+# Enable threading for following configure tests.
+#
+CXXFLAGS="$CXXFLAGS $CXX_THREAD_FLAGS"
+
+
 ##
 ## --------------------------------
 ## Language feature tests
@@ -1045,6 +1056,14 @@ if test "$thread_api_name" != none; then
 fi
 AM_CONDITIONAL([use_threads], [test "$thread_api_name" != none])
 
+# If we couldn't find a threading model to use, don't bother enabling
+# multi-threading in the compiler, which may allow slightly better
+# optimization.
+#
+if test "$thread_api_name" = none; then
+  CXX_THREAD_FLAGS=""
+fi
+
 
 ##
 ## Random-number generators
@@ -1591,18 +1610,6 @@ SNOGRAY_CHECK_CXX_LINK_FLAG([CXX_ICF_LDFLAGS], [-Wl,--icf=all])
 if test x"$CXX_ICF_LDFLAGS" != x; then
   CONFIG_LDFLAGS="$CONFIG_LDFLAGS $CXX_ICF_LDFLAGS"
   CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS -ffunction-sections"
-fi
-
-# gcc requires the -pthread flag when using multi-threading (without
-# -pthread, threading primitives will still _kinda_ work, with weird
-# and hard-to-debug problems, like mutexes silently doing nothing...),
-# so add that if necessary.
-#
-# If other compilers have some a similar requirement for other
-# options, they could be added here.
-#
-if test "$thread_api_name" != none; then
-  CXX_EXTRA_REQ_FLAGS="$CXX_EXTRA_REQ_FLAGS -pthread"
 fi
 
 
