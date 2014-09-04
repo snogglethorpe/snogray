@@ -222,6 +222,11 @@ AM_CONDITIONAL([build_lua_in_src_dir], [test $build_lua_in_src_dir = yes])
 ##
 
 
+# See if we need to explicitly link with the unix math library (-lm).
+#
+AC_SEARCH_LIBS([pow], [m])
+
+
 # Test whether the compiler accepts various flags
 
 # Individually checks whether the C++ compiler accepts the whitespace
