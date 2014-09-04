@@ -1,6 +1,6 @@
 // snogmath.h -- Math operations
 //
-//  Copyright (C) 2005-2008, 2010-2012  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2005-2008, 2010-2012, 2014  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,6 +16,7 @@
 #include "config.h"
 
 #include <cmath>
+#include <cstdlib>		// for std::div
 #include <algorithm>  		// for min and max
 
 #include "compiler.h"
