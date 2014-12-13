@@ -453,12 +453,18 @@ CXXFLAGS="$CXXFLAGS $CXX_THREAD_FLAGS"
 # syntax for suppressing template instantiation of specific types.
 # This is availble in C++11, and also as a g++ extension to C++98.
 #
+# By default we leave this disabled, as recent versions of gcc
+# (starting from 4.9) have had multiple, and annoying to test for
+# using configure, problems when mixing -flto and extern template.
+# The gain from using extern template isn't all that huge, so for the
+# moment it's simpler just not to use it.
+#
 
 AC_ARG_ENABLE([extern-template],
     AS_HELP_STRING([--enable-extern-template],
 		   [Enable use of C++ "extern template" extension]),
     [enable_extern_template="$enableval"],
-    [enable_extern_template=yes])
+    [enable_extern_template=no])
 
 have_extern_template="no"
 extern_template_extension_kw=""
