@@ -1,6 +1,6 @@
 // load-3ds.cc -- Load 3ds scene file
 //
-//  Copyright (C) 2006-2008, 2010-2013  Miles Bader <miles@gnu.org>
+//  Copyright (C) 2006-2008, 2010-2013, 2017  Miles Bader <miles@gnu.org>
 //
 // This source code is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -745,7 +745,8 @@ snogray::load_3ds_file (const std::string &filename,
 	c = c->next;
 #endif
 
-      l.set_camera (camera, c, xform);
+      if (c)
+	l.set_camera (camera, c, xform);
     }
 
   l.convert (xform);
