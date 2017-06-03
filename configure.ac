@@ -1,6 +1,6 @@
 # Autoconf configuration for snogray
 #
-#  Copyright (C) 2006-2014  Miles Bader <miles@gnu.org>
+#  Copyright (C) 2006-2014, 2017  Miles Bader <miles@gnu.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -422,7 +422,7 @@ CXXFLAGS="$CXXFLAGS $CXX_STD_FLAGS"
 # we also inhibit warnings about "long long", as we use that too much.
 #
 SNOGRAY_CHECK_CXX_FLAGS([CXX_CHECK_FLAGS],
-  [-Wall -Wextra -Winit-self -Wdouble-promotion -pedantic-errors -Wno-long-long])
+  [-Wall -Wextra -Winit-self -Wdouble-promotion -pedantic-errors -Wno-long-long -Wlogical-op -Wduplicated-cond -Wnull-dereference -Wmisleading-indentation])
 #
 # Again, update CXXFLAGS so following configure tests use our
 # warning/error settings -- some tests may fail with them which don't
