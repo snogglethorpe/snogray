@@ -88,7 +88,7 @@ struct LuaVecType<float>
   static void get (lua_State *L, const std::vector<float> &vec,
 		   lua_Unsigned idx)
   {
-    lua_pushnumber (L, vec[idx]);
+    lua_pushnumber (L, static_cast<lua_Number> (vec[idx]));
   }
   static void set (lua_State *L, int pos,
 		   std::vector<float> &vec, lua_Unsigned idx)

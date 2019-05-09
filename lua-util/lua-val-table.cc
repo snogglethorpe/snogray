@@ -59,7 +59,7 @@ snogray::lua_load_from_val_table (lua_State *L, const ValTable &val_table)
 	  lua_pushnumber (L, val.as_uint ());
 	  break;
 	case Val::FLOAT:
-	  lua_pushnumber (L, val.as_float ());
+	  lua_pushnumber (L, static_cast<lua_Number> (val.as_float ()));
 	  break;
 	case Val::BOOL:
 	  lua_pushboolean (L, val.as_bool ());
