@@ -62,17 +62,23 @@ struct LuaVecType<unsigned>
   static void get (lua_State *L, const std::vector<unsigned> &vec,
 		   lua_Unsigned idx)
   {
-    lua_pushunsigned (L, vec[idx]);
+    lua_pushinteger (L, static_cast<lua_Integer> (vec[idx]));
   }
   static void set (lua_State *L, int pos,
 		   std::vector<unsigned> &vec, lua_Unsigned idx)
   {
-    vec[idx] = luaL_checkunsigned (L, pos);
+    lua_Integer val = luaL_checkinteger (L, pos);
+    if (val < 0)
+       luaL_argerror (L, pos, "value out of range");
+    vec[idx] = val;
   }
   static void add (lua_State *L, int pos,
 		   std::vector<unsigned> &vec)
   {
-    vec.push_back (luaL_checkunsigned (L, pos));
+    lua_Integer val = luaL_checkinteger (L, pos);
+    if (val < 0)
+       luaL_argerror (L, pos, "value out of range");
+    vec.push_back (val);
   }
   static const char *name ()
   {
@@ -118,7 +124,9 @@ template<typename T>
 int
 LuaVec<T>::make (lua_State *L)
 {
-  lua_Unsigned init_len = luaL_optunsigned (L, 1, 0);
+  lua_Integer init_len = luaL_optinteger (L, 1, 0);
+  if (init_len < 0)
+    luaL_argerror (L, 1, "invalid vector size");
   void *mem = lua_newuserdata (L, sizeof (std::vector<T>));
   new (mem) std::vector<T> (init_len);
   luaL_setmetatable (L, VT::name ());
@@ -230,12 +238,12 @@ int
 LuaVec<T>::get (lua_State *L)
 {
   const std::vector<T> *vec = _checkvec (L, 1);
-  lua_Unsigned idx = luaL_checkunsigned (L, 2) - 1;
-  lua_Unsigned count = luaL_optunsigned (L, 3, 1);
+  lua_Integer idx = luaL_checkinteger (L, 2) - 1;
+  lua_Integer count = luaL_optinteger (L, 3, 1);
   size_t size = vec->size ();
-  if (idx + count > size)
+  if (idx < 0 || idx + count > size)
     luaL_argerror (L, 3, "index out of range");
-  for (lua_Unsigned i = 0; i < count; i++)
+  for (lua_Integer i = 0; i < count; i++)
     VT::get (L, *vec, idx + i);
   return count;
 }  
@@ -261,9 +269,9 @@ LuaVec<T>::get1 (lua_State *L)
     }
   else
     {
-      lua_Unsigned idx = luaL_checkunsigned (L, 2) - 1;
+      lua_Integer idx = luaL_checkinteger (L, 2) - 1;
       size_t size = vec->size ();
-      if (idx >= size)
+      if (idx < 0 || idx >= size)
 	luaL_argerror (L, 2, "index out of range");
       VT::get (L, *vec, idx);
     }
@@ -279,10 +287,10 @@ int
 LuaVec<T>::set (lua_State *L)
 {
   std::vector<T> *vec = _checkvec (L, 1);
-  lua_Unsigned idx = luaL_checkunsigned (L, 2) - 1;
+  lua_Integer idx = luaL_checkinteger (L, 2) - 1;
   int count = lua_gettop (L) - 2;
   size_t size = vec->size ();
-  if (idx > size)
+  if (idx < 0 || idx > size)
     luaL_argerror (L, 2, "index out of range");
   for (int i = 0; i < count; i++)
     if (idx + i != size)
@@ -304,9 +312,9 @@ int
 LuaVec<T>::set1 (lua_State *L)
 {
   std::vector<T> *vec = _checkvec (L, 1);
-  lua_Unsigned idx = luaL_checkunsigned (L, 2) - 1;
+  lua_Integer idx = luaL_checkinteger (L, 2) - 1;
   size_t size = vec->size ();
-  if (idx > size)
+  if (idx < 0 || idx > size)
     luaL_argerror (L, 2, "index out of range");
   if (idx == size)
     VT::add (L, 3, *vec);
@@ -339,7 +347,7 @@ template<typename T>
 int
 LuaVec<T>::len (lua_State *L)
 {
-  lua_pushunsigned (L, _checkvec (L, 1)->size ());
+  lua_pushinteger (L, static_cast<lua_Integer> (_checkvec (L, 1)->size ()));
   return 1;
 }
 
@@ -364,7 +372,9 @@ int
 LuaVec<T>::resize (lua_State *L)
 {
   std::vector<T> *vec = _checkvec (L, 1);
-  lua_Unsigned size = luaL_checkunsigned (L, 2);
+  lua_Integer size = luaL_checkinteger (L, 2);
+  if (size < 0)
+    luaL_argerror (L, 2, "invalid size");
   vec->resize (size);
   return 0;
 }
@@ -380,7 +390,9 @@ int
 LuaVec<T>::reserve (lua_State *L)
 {
   std::vector<T> *vec = _checkvec (L, 1);
-  lua_Unsigned size = luaL_checkunsigned (L, 2);
+  lua_Integer size = luaL_checkinteger (L, 2);
+  if (size < 0)
+    luaL_argerror (L, 2, "invalid size");
   vec->reserve (size);
   return 0;
 }
