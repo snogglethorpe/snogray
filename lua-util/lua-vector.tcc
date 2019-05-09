@@ -280,11 +280,11 @@ LuaVec<T>::set (lua_State *L)
 {
   std::vector<T> *vec = _checkvec (L, 1);
   lua_Unsigned idx = luaL_checkunsigned (L, 2) - 1;
-  lua_Unsigned count = lua_gettop (L) - 2;
+  int count = lua_gettop (L) - 2;
   size_t size = vec->size ();
   if (idx > size)
     luaL_argerror (L, 2, "index out of range");
-  for (lua_Unsigned i = 0; i < count; i++)
+  for (int i = 0; i < count; i++)
     if (idx + i != size)
       VT::set (L, 3 + i, *vec, idx + i); // normal set
     else
@@ -325,8 +325,8 @@ int
 LuaVec<T>::add (lua_State *L)
 {
   std::vector<T> *vec = _checkvec (L, 1);
-  lua_Unsigned count = lua_gettop (L) - 1;
-  for (lua_Unsigned i = 0; i < count; i++)
+  int count = lua_gettop (L) - 1;
+  for (int i = 0; i < count; i++)
     VT::add (L, 2 + i, *vec);
   return 0;
 }
